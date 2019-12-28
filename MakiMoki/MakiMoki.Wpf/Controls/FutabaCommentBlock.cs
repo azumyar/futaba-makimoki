@@ -123,8 +123,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 							link.MouseEnter += new MouseEventHandler(link_MouseEnter);
 							link.MouseLeave += new MouseEventHandler(link_MouseLeave);
 							link.Inlines.Add(m.Value);
-							tb.Inlines.Add(link);
 							tb.Inlines.Add(new Run(outputVal.ToString()));
+							tb.Inlines.Add(link);
 							outputVal.Clear();
 							inputVal.Remove(0, m.Length);
 							goto next;
@@ -153,14 +153,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					var t2 = Regex.Replace(text, @"<[^>]*>", "",
 						RegexOptions.IgnoreCase | RegexOptions.Multiline);
 					var t3 = System.Net.WebUtility.HtmlDecode(t2);
-					input = new StringBuilder(t3);
-					while (input.Length != 0) {
-						EvalLink(input, output);
+					var input2 = new StringBuilder(t3);
+					while (input2.Length != 0) {
+						EvalLink(input2, output);
 					}
 					if (output.Length != 0) {
 						tb.Inlines.Add(new Run(output.ToString()));
 						output.Clear();
 					}
+					input.Remove(0, fontPos);
 					EvalFont(input, output);
 					goto start;
 				}
