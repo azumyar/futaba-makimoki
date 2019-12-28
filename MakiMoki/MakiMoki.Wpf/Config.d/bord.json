@@ -1,0 +1,51 @@
+﻿[
+  {
+    "name": "二次元裏(img)",
+    "url": "https://img.2chan.net/b/",
+    "max-file-size": 2048000,
+    "sort-index": 101,
+    "extra": {
+      "name": false,
+      "enable-res-image": false,
+      "enable-mail-id":  true
+    }
+  },
+  {
+    "name": "二次元裏(dec)",
+    "url": "https://dec.2chan.net/b/",
+    "max-file-size": 2048000,
+    "sort-index": 102,
+    "extra": {}
+  },
+
+  {
+    "name": "二次元裏(jun)",
+    "url": "https://jun.2chan.net/jun/",
+    "max-file-size": 2048000,
+    "sort-index": 103,
+    "extra": {
+      "enable-mail-id": true,
+      "enable-mail-ip": true
+    }
+  },
+
+  {
+    "name": "二次元裏(may)",
+    "url": "https://may.2chan.net/b/",
+    "max-file-size": 2048000,
+    "sort-index": 104,
+    "extra": {
+      "enable-mail-ip":  true
+    }
+  },
+  {
+    "name": "二次元裏(dat)",
+    "url": "https://dat.2chan.net/b/",
+    "max-file-size": 2048000,
+    "sort-index": 105,
+    "extra": {
+      "name": false,
+      "res-image": false
+    }
+  },
+]

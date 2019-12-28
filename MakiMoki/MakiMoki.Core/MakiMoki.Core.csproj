@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <RootNamespace>Yarukizero.Net.MakiMoki</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Config\bord.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Config\bord.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AngleSharp" Version="0.13.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="ReactiveProperty" Version="6.1.4" />
+    <PackageReference Include="RestSharp" Version="106.6.10" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Exceptions\Exceptions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Exceptions.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Exceptions\Exceptions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Exceptions.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+</Project>

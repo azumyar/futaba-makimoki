@@ -1,0 +1,345 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Yarukizero.Net.MakiMoki.Data {
+	public class FutabaResonse : JsonObject {
+		public class ResConverter : JsonConverter {
+			public override bool CanConvert(Type objectType) {
+				return typeof(NumberedResItem) == objectType;
+			}
+
+			public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
+				var dic = new Dictionary<string, ResItem>();
+				var keys = new List<string>();
+				while (reader.Read()) {
+					switch (reader.TokenType) {
+					case JsonToken.EndObject:
+					case JsonToken.EndArray:
+						goto end;
+					case JsonToken.PropertyName:
+						var prop = reader.Value?.ToString();
+						reader.Read();
+
+						keys.Add(prop);
+						dic.Add(prop, serializer.Deserialize<ResItem>(reader));
+						break;
+					}
+				}
+			end:
+				return keys.Select(x => new NumberedResItem(x, dic[x])).OrderBy(x => x.Res.Rsc).ToArray();
+			}
+
+			public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
+				if (value is NumberedResItem[] nri) {
+					var dic = new Dictionary<string, ResItem>();
+					foreach(var i in nri) {
+						dic.Add(i.No, i.Res);
+					}
+					serializer.Serialize(writer, dic);
+				} else {
+					serializer.Serialize(writer, value);
+				}
+			}
+		}
+		public class SoudaneConverter : JsonConverter {
+			public override bool CanConvert(Type objectType) {
+				return typeof(Dictionary<string, string>) == objectType;
+			}
+
+			public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
+				var dic = new Dictionary<string, string>();
+				while (reader.Read()) {
+					switch(reader.TokenType) {
+					case JsonToken.EndObject:
+					case JsonToken.EndArray:
+						goto end;
+					case JsonToken.PropertyName:
+						var prop = reader.Value?.ToString();
+						reader.Read();
+
+						dic.Add(prop, reader.Value.ToString());
+						break;
+					}
+				}
+			end:
+				return dic;
+			}
+
+			public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
+				serializer.Serialize(writer, value);
+			}
+		}
+
+		[JsonProperty("die")]
+		public string Die { get; private set; }
+		[JsonProperty("dielong")]
+		public string DieLong { get; private set; }
+		[JsonProperty("dispname")]
+		public int Dispname { get; private set; }
+		[JsonProperty("dispsod")]
+		public int Dispsod { get; private set; }
+		[JsonProperty("maxres")]
+		public string MaxRes { get; private set; }
+		[JsonProperty("nowtime")]
+		public long NowTime { get; private set; }
+		[JsonProperty("old")]
+		public long Old { get; private set; }
+		[JsonProperty("res")]
+		[JsonConverter(typeof(ResConverter))]
+		public NumberedResItem[] Res { get; private set; }
+
+		// そうだね
+		// 2019/12/13現在
+		// そうだねが存在しない場合 => []
+		// そうだねが存在する場合 => { resNO: count, ... }
+		// という形式で帰ってくるため大変めどい
+		[JsonProperty("sd")]
+		[JsonConverter(typeof(SoudaneConverter))]
+		public Dictionary<string, string> Sd { get; private set; }
+
+		[JsonIgnore]
+		public bool IsDisplayName => (Dispname != 0);
+
+		[JsonIgnore]
+		public bool IsOld => (Old != 0);
+
+		// DieLongは RFC 1123 形式で格納されている cf: Sun, 15 Dec 2019 18:02:07 GMT
+		[JsonIgnore]
+		public DateTime? DieDateTime => DateTime.TryParse(DieLong,
+			System.Globalization.CultureInfo.InvariantCulture,
+			System.Globalization.DateTimeStyles.None, out var  d) ? (DateTime?)d : null;
+
+		// スレが落ちると Thu, 01 Jan 1970 01:07:29 GMT といった1970年まで落ちるので1日くらいマージンとっても問題ない
+		[JsonIgnore]
+		public bool IsDie => ((DieDateTime?.AddDays(1) ?? DateTime.MaxValue) < DateTime.Now);
+	}
+
+	public class NumberedResItem : JsonObject { 
+		[JsonProperty("no")]
+		public string No { get; private set; }
+
+		[JsonProperty("res")]
+		public ResItem Res { get; private set; }
+
+		internal NumberedResItem(string no, ResItem res) {
+			this.No = no;
+			this.Res = res;
+		}
+	}
+
+	public class ResItem : JsonObject {
+		[JsonProperty("com")]
+		public string Com { get; private set; }
+		[JsonProperty("del")]
+		public string Del { get; private set; }
+		[JsonProperty("email")]
+		public string Email { get; private set; }
+		[JsonProperty("ext")]
+		public string Ext { get; private set; }
+		[JsonProperty("fsize")]
+		public int Fsize { get; private set; }
+		[JsonProperty("h")]
+		public int H { get; private set; }
+		[JsonProperty("host")]
+		public string Host { get; private set; }
+		[JsonProperty("id")]
+		public string Id { get; private set; }
+		[JsonProperty("name")]
+		public string Name { get; private set; }
+		[JsonProperty("now")]
+		public string Now { get; private set; }
+		[JsonProperty("rsc")]
+		public int Rsc { get; private set; }
+		[JsonProperty("src")]
+		public string Src { get; private set; }
+		[JsonProperty("sub")]
+		public string Sub { get; private set; }
+		[JsonProperty("thumb")]
+		public string Thumb { get; private set; }
+		[JsonProperty("tim")]
+		public string Tim { get; private set; }
+		[JsonProperty("w")]
+		public int W { get; private set; }
+
+		[JsonIgnore]
+		public bool IsDel => (Del == "del") || (Del == "del2"); // del2は隔離JSONに隔離メッセージ乗ってこないから分けたほうがいいかもしれない
+	}
+
+	public static class DelReason {
+		public static (string name, DelReasonItem[] value)[] Items => new [] {
+			("文字・画像", new DelReasonItem[] {
+				new DelReasonItem("中傷・侮辱・名誉毀損", "101"),
+				new DelReasonItem("脅迫・自殺", "102"),
+				new DelReasonItem("個人情報・プライバシー", "103"),
+				new DelReasonItem("つきまとい・ストーカー", "104"),
+				new DelReasonItem("連投・負荷増大・無意味な羅列", "105"),
+				new DelReasonItem("広告・spam", "106"),
+				new DelReasonItem("売春・援交", "107"),
+				new DelReasonItem("侵害・妨害", "108"),
+				new DelReasonItem("荒らし・嫌がらせ・混乱の元", "110"),
+				new DelReasonItem("政治・宗教・民族", "111"),
+			} ),
+			("２次画像", new DelReasonItem[] {
+				new DelReasonItem("グロ画像(２次)", "201"),
+				new DelReasonItem("猥褻画像・無修正画像(２次)", "202"),
+			} ),
+			( "３次画像", new DelReasonItem[] {
+				new DelReasonItem("グロ画像(３次)", "301"),
+				new DelReasonItem("エロ画像(３次)", "302"),
+				new DelReasonItem("個児童ポルノ画像(３次)", "303"),
+				new DelReasonItem("猥褻画像・無修正画像(３次)", "304"),
+			} ),
+		};
+	}
+
+	public class DelReasonItem {
+		public string Name { get; }
+		public string ApiValue { get; }
+
+		internal DelReasonItem(string name, string apiValue) {
+			this.Name = name;
+			this.ApiValue = ApiValue;
+		}
+	}
+
+	public static class CatalogSort {
+		public static CatalogSortItem Catalog => new CatalogSortItem("カタログ", "0");
+		public static CatalogSortItem New => new CatalogSortItem("新順", "1");
+		public static CatalogSortItem Old => new CatalogSortItem("古順", "2");
+		public static CatalogSortItem Many => new CatalogSortItem("多順", "3");
+		public static CatalogSortItem Momentum => new CatalogSortItem("勢順", "6");
+		public static CatalogSortItem Few => new CatalogSortItem("少順", "4");
+		public static CatalogSortItem Soudane => new CatalogSortItem("そ順", "8");
+
+		public static CatalogSortItem[] Items => new [] {
+				Catalog,
+				New,
+				Old,
+				Many,
+				Momentum,
+				Few,
+				Soudane,
+		};
+	}
+
+
+	public class CatalogSortItem {
+		public string Name { get; }
+		public string ApiValue { get; }
+
+		internal CatalogSortItem(string name, string apiValue) {
+			this.Name = name;
+			this.ApiValue = ApiValue;
+		}
+	}
+
+	public class FutabaContext {
+		// TODO: 名前後で変える
+		public class Item {
+			public UrlContext Url { get; }
+			public NumberedResItem ResItem { get; }
+			public int CounterCurrent { get; private set; } = 0;
+			public int CounterPrev { get; private set; } = 0;
+
+			public int Soudane { get; private set; } = 0;
+
+			public Item(UrlContext url, NumberedResItem item) {
+				this.Url = url;
+				this.ResItem = item;
+			}
+
+			public static Item FromCatalog(UrlContext url, NumberedResItem item, int counterCurrent, int counterPrev) {
+				return new Item(url, item) { 
+					CounterCurrent = counterCurrent,
+					CounterPrev = counterPrev,
+				};
+			}
+
+			public static Item FromThreadRes(UrlContext url, NumberedResItem item, int soudane) {
+				return new Item(url, item) {
+					Soudane = soudane,
+				};
+			}
+		}
+
+		public string Name { get; set; }
+
+		public BordConfig Bord { get; private set; }
+		public UrlContext Url { get; private set; }
+		public FutabaResonse Raw { get; private set; }
+
+		public Item[] ResItems { get; private set; }
+
+		public long Token { get; private set; }
+
+		private FutabaContext() {
+			this.Token = DateTime.Now.Ticks;
+		}
+
+		public static FutabaContext FromCatalogEmpty(BordConfig bord) {
+			return new FutabaContext() {
+				Name = bord.Name,
+				Bord = bord,
+				Url = new UrlContext(bord.Url),
+				ResItems = new Item[] {},
+				Raw = null,
+			};
+		}
+
+		public static FutabaContext FromCatalogResponse(BordConfig bord, FutabaResonse response, Data.NumberedResItem[] sortRes, Dictionary<string, int> counter, Data.FutabaContext oldValue) {
+			var url = new UrlContext(bord.Url);
+			return new FutabaContext() {
+				Name = bord.Name,
+				Bord = bord,
+				Url = url,
+				// ResItems = response.Res.Reverse().Select(x => {
+				ResItems = sortRes.Select(x => {
+					var cc = counter.ContainsKey(x.No) ? counter[x.No] : 0;
+					var cp = oldValue?.ResItems.Where(y => y.ResItem.No == x.No).FirstOrDefault()?.CounterCurrent ?? 0;
+					return Item.FromCatalog(url, x, cc, cp);
+				}).ToArray(),
+				Raw = response,
+			};
+		}
+
+		public static FutabaContext FromThreadEmpty(BordConfig bord, string threadNo) {
+			return new FutabaContext() {
+				Name = string.Format("No.{0}", threadNo),
+				Bord = bord,
+				Url = new UrlContext(bord.Url, threadNo),
+				ResItems = new Item[] { },
+				Raw = null,
+			};
+		}
+
+		public static FutabaContext FromThreadResResponse(BordConfig bord, string threadNo, FutabaResonse response) {
+			var parent = Util.Futaba.Catalog.Value.Where(x => x.Bord.Url == bord.Url).FirstOrDefault()
+				?.ResItems.Where(x => x.ResItem.No == threadNo).FirstOrDefault();
+			if(parent == null) {
+				return null;
+			}
+
+			var url = new UrlContext(bord.Url, threadNo);
+			var p = Item.FromThreadRes(url, parent.ResItem, parent.Soudane);
+			return new FutabaContext() {
+				Name = Util.TextUtil.SafeSubstring(
+					Util.TextUtil.RemoveCrLf(
+						Util.TextUtil.RowComment2Text(p.ResItem.Res.Com)
+					), 8),
+				Bord = bord,
+				Url = url,
+				ResItems = new Item[] { p }.Concat(response.Res?.Select(x => {
+					var sd = 0;
+					if (response.Sd.TryGetValue(x.No, out var s) && int.TryParse(s, out var v)) {
+						sd = v;
+					}
+					return Item.FromThreadRes(url, x, sd);
+				}) ?? new Item[0]).ToArray(),
+				Raw = response,
+			};
+		}
+	}
+}

@@ -1,0 +1,361 @@
+﻿<Window x:Class="Yarukizero.Net.MakiMoki.Wpf.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.NET46"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+        xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows"
+        xmlns:model="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Model"
+        xmlns:control="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+        xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
+        xmlns:data="clr-namespace:Yarukizero.Net.MakiMoki.Data;assembly=MakiMoki.Core"
+        mc:Ignorable="d"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        d:DesignHeight="450" d:DesignWidth="800"
+        Title="ふたば@MakiMoki(仮)">
+    <Window.Resources>
+        <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
+        <Color x:Key="_Color">#4FC3F7</Color>
+        <SolidColorBrush x:Key="PrimaryColorBrush" Color="{StaticResource _Color}" />
+        <SolidColorBrush x:Key="BackgroundBrush" Color="#F5F5F5" />
+        <SolidColorBrush x:Key="DockBorderBrush" Color="Gray" />
+
+        <Path x:Key="arrowLeft" Stroke="Black" Fill="Black" Stretch="None"
+	VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Path.Data>
+                <Geometry>M0,3 L6,6 6,0Z</Geometry>
+            </Path.Data>
+        </Path>
+        <Path x:Key="arrowRight" Stroke="Black" Fill="Black" Stretch="None"
+	VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Path.Data>
+                <Geometry>M0,0 L6,3 L0,6Z</Geometry>
+            </Path.Data>
+        </Path>
+
+        <Style x:Key="{x:Type TabControl}" TargetType="TabControl">
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabControl">
+                        <Grid ClipToBounds="True" SnapsToDevicePixels="True" KeyboardNavigation.TabNavigation="Local">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" MinHeight="24" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <DockPanel Grid.Row="0" Height="{TemplateBinding TabPanel.Height}" Background="{StaticResource PrimaryColorBrush}"> <!-- LightBlue 300-->
+                                <RepeatButton Name="rightButton" Width="24" Height="24" VerticalAlignment="Center"
+                                      Content="{StaticResource arrowRight}" DockPanel.Dock="Right"
+                                      CommandTarget="{Binding ElementName=scrollViewer}"
+                                      Command="ScrollBar.LineRightCommand"
+                                      Margin="0 0 4 0"/>
+                                <RepeatButton Name="leftButton" Width="24" Height="24" VerticalAlignment="Center"
+                                      Content="{StaticResource arrowLeft}" DockPanel.Dock="Right"
+                                      CommandTarget="{Binding ElementName=scrollViewer}"
+                                      Command="ScrollBar.LineLeftCommand" />
+                                <ScrollViewer Name="scrollViewer" CanContentScroll="True"
+                                      IsDeferredScrollingEnabled="False" SnapsToDevicePixels="True"
+                                      HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+                                    <StackPanel Orientation="Horizontal" IsItemsHost="True" />
+                                </ScrollViewer>
+                            </DockPanel>
+
+                            <Border Name="ContentPanel" Grid.Row="1"
+                              BorderThickness="{TemplateBinding Border.BorderThickness}"
+                              BorderBrush="{TemplateBinding Border.BorderBrush}"
+                              Background="{TemplateBinding Panel.Background}"
+                              KeyboardNavigation.TabIndex="2"
+                              KeyboardNavigation.TabNavigation="Local"
+                              KeyboardNavigation.DirectionalNavigation="Contained">
+                                <ContentPresenter ContentSource="SelectedContent"
+                                    Content="{TemplateBinding TabControl.SelectedContent}"
+                                    ContentTemplate="{TemplateBinding TabControl.SelectedContentTemplate}"
+                                    ContentStringFormat="{TemplateBinding TabControl.SelectedContentStringFormat}"
+                                    Margin="{TemplateBinding Control.Padding}"
+                                    SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TabItem">
+            <Setter Property="BorderThickness" Value="0 0 1 0"/>
+            <Setter Property="BorderBrush" Value="#03A9F4"/>
+            <!-- LightBlue 500 -->
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0 2 0 0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabItem}">
+                        <Border CornerRadius="6,6,0,0" Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header" 
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="False">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="Opacity" Value="0.8" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter Property="Background" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="160" MinWidth="100"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*" MinWidth="100"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <GridSplitter Grid.Row="0" Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="{StaticResource PrimaryColorBrush}" />
+
+        <Grid Grid.Row="0" Grid.Column="0">
+            <TreeView
+                x:Name="TreeViewContainer"
+                ItemsSource="{Binding TreeItems.Value, Mode=OneWay}"
+                Tag="{Binding}">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="IsSelected" Value="{Binding IsSelected.Value, Mode=TwoWay}"/>
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded.Value, Mode=TwoWay}"/>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate DataType= "model:TreeItem" ItemsSource="{Binding ChildItems.Value}">
+                        <Button 
+                            x:Name="Button"
+                            Background="White"
+                            BorderThickness="0"
+                            BorderBrush="Transparent"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Button.Content>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Viewbox
+                                        Grid.Column="0"
+                                        Width="24" Height="24" 
+                                        StretchDirection="DownOnly"
+                                        Visibility="{Binding ThumbVisibility.Value, Mode=OneWay}">
+                                        <Image Source="{Binding ThumbSource.Value, Mode=OneWay}">
+                                            <Image.CacheMode>
+                                                <BitmapCache RenderAtScale="1" />
+                                            </Image.CacheMode>
+                                        </Image>
+                                    </Viewbox>
+                                    <TextBlock  Grid.Column="1" Text="{Binding Name, Mode=OneWay}"  VerticalAlignment="Center" Margin="4 0 4 0" />
+                                </Grid>
+                            </Button.Content>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="PreviewMouseUp">
+                                    <ri:EventToReactiveCommand Command="{Binding Tag.TreeViewClickCommand, ElementName=TreeViewContainer}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+        </Grid>
+
+        <Grid Grid.Row="0" Grid.Column="2">
+            <Grid.ColumnDefinitions>
+            </Grid.ColumnDefinitions>
+            <ListBox
+                ItemsSource="{Binding Bords.Value, Mode=OneWay}"
+                Background="{StaticResource BackgroundBrush}"
+                BorderThickness="0"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                ScrollViewer.CanContentScroll="True"
+                VirtualizingPanel.ScrollUnit="Pixel"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.VirtualizationMode="Recycling"
+                >
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <!--
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="ForestGreen"/>
+                            <Setter Property="Foreground" Value="Gold"/>
+                        </Trigger>
+                    </Style.Triggers>
+                    -->
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <vwp:VirtualizingWrapPanel IsItemsHost="True"  HorizontalAlignment="Center"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Button
+                                x:Name="button"
+                                Background="White"
+                                Margin="4" 
+                                BorderThickness="0"
+                                BorderBrush="Transparent"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch">
+                                <Grid x:Name="CatalogItem" Width="72" Height="86">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="72" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="72"/>
+                                        <RowDefinition Height="14"/>
+                                    </Grid.RowDefinitions>
+                                    <!-- レス-->
+                                    <Viewbox
+                                        Grid.Column="0"
+                                        Grid.Row="1"
+                                        StretchDirection="DownOnly"
+                                        Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}"
+                                        VerticalAlignment="Bottom"
+                                        >
+                                        <Grid Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock
+                                                Grid.Column="2"
+                                                Text="{Binding Name, Mode=OneWay}"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Bottom"/>
+                                        </Grid>
+                                    </Viewbox>
+                                </Grid>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.BordListClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+
+            <!--
+            <ItemsControl ItemsSource="{Binding Bords.Value}" Background="AliceBlue" HorizontalAlignment="Center">
+                <ItemsControl.Template>
+                    <ControlTemplate TargetType="{x:Type ItemsControl}">
+                        <WrapPanel IsItemsHost="True" />
+                    </ControlTemplate>
+                </ItemsControl.Template>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type data:BordConfig}">
+                        <Grid Background="Aqua" Width="120" Height="120" Margin="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Name}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            -->
+            <TabControl
+                x:Name="TabContainer"
+                Visibility="{Binding TabVisibility.Value, Mode=OneWay}"
+                ItemsSource="{Binding TabItems.Value}"
+                SelectedItem="{Binding Path=TabControlSelectedItem.Value,UpdateSourceTrigger=PropertyChanged,Mode=Twoway}"
+                Tag="{Binding}"
+                Padding="0">
+                <TabControl.ItemTemplate>
+                    <DataTemplate>
+                        <!--
+                        <DataTemplate.Triggers Binding="{Binding IsSelected.Value}" Value="True">
+                            <Setter Source="{}"  Property="Source"  Value="True"/>
+                        </DataTemplate.Triggers>
+                        -->
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox
+                                Width="24" Height="24" 
+                                StretchDirection="DownOnly"
+                                Visibility="{Binding ThumbVisibility.Value, Mode=OneWay}">
+
+                                <Image Source="{Binding ThumbSource.Value, Mode=OneWay}">
+                                    <Image.CacheMode>
+                                        <BitmapCache RenderAtScale="1" />
+                                    </Image.CacheMode>
+                                </Image>
+                            </Viewbox>
+                            <TextBlock Text="{Binding Name.Value, Mode=OneWay}" VerticalAlignment="Center" Margin="4 0 4 0" />
+                            <Button Width="24" Height="24">
+                                <TextBlock>
+                                    ✖
+                                </TextBlock>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <ri:EventToReactiveCommand Command="{Binding Tag.TabCloseButtonCommand, ElementName=TabContainer}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="PreviewMouseUp">
+                                    <ri:EventToReactiveCommand Command="{Binding Tag.TabClickCommand, ElementName=TabContainer}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </StackPanel>
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+
+                <TabControl.ContentTemplate>
+                    <DataTemplate>
+                        <Grid x:Name="container">
+                            <control:FutabaViewer Contents="{Binding DataContext, ElementName=container, Mode=OneWay}" />
+                        </Grid>
+                    </DataTemplate>
+                </TabControl.ContentTemplate>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectedItemChanged">
+                        <!--@
+                        <ri:EventToReactiveCommand Command="{Binding TreeViewSelectedCommand}">
+                            <converter:TreeViewSelectedConverter />
+                        </ri:EventToReactiveCommand>
+                        -->
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </TabControl>
+        </Grid>
+    </Grid>
+</Window>
