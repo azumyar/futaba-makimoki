@@ -13,9 +13,11 @@
 
   <ItemGroup>
     <None Remove="Config\bord.json" />
+    <None Remove="Config\mime.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Config\mime.json" />
     <EmbeddedResource Include="Config\bord.json" />
   </ItemGroup>
 

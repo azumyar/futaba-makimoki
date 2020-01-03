@@ -66,6 +66,8 @@
     <Compile Include="Converters\FutabaViewerConverter.cs" />
     <Compile Include="Converters\ThreadResConverter.cs" />
     <Compile Include="Model\Interface.cs" />
+    <Compile Include="PlatformData\Config.cs" />
+    <Compile Include="WinApi\Win32.cs" />
     <Compile Include="WpfUtil\ImageUtil.cs" />
     <Compile Include="WpfUtil\TextUtil.cs" />
     <Page Include="Controls\FutabaViewer.xaml">

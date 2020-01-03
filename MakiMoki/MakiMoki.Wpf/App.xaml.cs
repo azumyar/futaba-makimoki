@@ -17,11 +17,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 	/// App.xaml の相互作用ロジック
 	/// </summary>
 	public partial class App : PrismApplication {
+		public string AppSettingRootDirectory { get; private set; }
+		public string AppWorkDirectory { get; private set; }
+		public string AppCacheDirectory { get; private set; }
+
 		protected override Window CreateShell() {
-			var appRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MakiMoki");
-			var userRoot = Path.Combine(appRoot, "User");
-			var work = Directory.CreateDirectory(Path.Combine(appRoot, "Work")).FullName;
-			var cache = Directory.CreateDirectory(Path.Combine(appRoot, "Work", "Cache")).FullName;
+			AppSettingRootDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MakiMoki");
+			var userRoot = Path.Combine(AppSettingRootDirectory, "User");
+			AppWorkDirectory = Directory.CreateDirectory(Path.Combine(AppSettingRootDirectory, "Work")).FullName;
+			AppCacheDirectory = Directory.CreateDirectory(Path.Combine(AppSettingRootDirectory, "Work", "Cache")).FullName;
 			//var userConfig = Directory.CreateDirectory(Path.Combine(userRoot, "Config.d")).FullName;
 
 			try {
@@ -30,8 +34,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 						Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
 						"Config.d"),
 					UserDirectory = null,
-					CacheDirectory = cache,
-					WorkDirectory = work,
+					CacheDirectory = AppCacheDirectory,
+					WorkDirectory = AppWorkDirectory,
 				});
 			}
 			catch (Exceptions.InitializeFailedException ex) {
@@ -40,7 +44,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			}
 			Util.TaskUtil.Initialize();
 			Util.Futaba.Initialize();
-			RemoveOldCache(cache);
+			RemoveOldCache(AppCacheDirectory);
 
 			return Container.Resolve<Windows.MainWindow>();
 		}
