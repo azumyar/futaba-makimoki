@@ -488,6 +488,10 @@
                                 Padding="1"
                                 Text="{Binding PostData.Value.Comment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 local:PlaceHolderBehavior.PlaceHolderText="コメント" />
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <TextBlock Margin="2 2 0 2" Text="{Binding  PostData.Value.CommentBytes.Value, StringFormat='たぶん\{0\}byte', Mode=OneWay}" />
+                                <TextBlock Margin="2 2 0 2" Text="{Binding  PostData.Value.CommentLines.Value, StringFormat='\{0\}行', Mode=OneWay}" />
+                            </StackPanel>
                             <Grid Visibility="Collapsed">
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                                     <TextBlock
@@ -535,7 +539,7 @@
                                 Text="{Binding PostData.Value.Mail.Value, Mode=TwoWay}"
                                 local:PlaceHolderBehavior.PlaceHolderText="メールアドレス" />
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Margin="4 0 4 0" Visibility="{Binding PostIdOptionVisibility.Value, Mode=OneWay}">
+                                <Button Margin="4 0 0 0" Visibility="{Binding PostIdOptionVisibility.Value, Mode=OneWay}">
                                     <Button.Content>
                                         ID表示
                                     </Button.Content>
@@ -545,7 +549,7 @@
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </Button>
-                                <Button Margin="4 0 4 0" Visibility="{Binding PostIpOptionVisibility.Value, Mode=OneWay}">
+                                <Button Margin="4 0 0 0" Visibility="{Binding PostIpOptionVisibility.Value, Mode=OneWay}">
                                     <Button.Content>
                                         IP表示
                                     </Button.Content>
@@ -555,7 +559,7 @@
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </Button>
-                                <Button Margin="4 0 4 0">
+                                <Button Margin="4 0 0 0">
                                     <Button.Content>
                                         sage
                                     </Button.Content>
