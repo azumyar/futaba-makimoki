@@ -18,10 +18,20 @@ using Reactive.Bindings.Extensions;
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	public class BindableFutaba : INotifyPropertyChanged, IDisposable {
 		public class PostHolder : INotifyPropertyChanged, IDisposable {
+
+			private static readonly string FallbackUnicodeString = "�";
+			private static readonly Encoding FutabaEncoding = Encoding.GetEncoding(
+				"Shift_JIS",
+				new EncoderReplacementFallback(FallbackUnicodeString),
+				DecoderFallback.ReplacementFallback);
+
 			public event PropertyChangedEventHandler PropertyChanged;
 			private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
 			public ReactiveProperty<string> Comment { get; } = new ReactiveProperty<string>("");
+			public ReadOnlyReactiveProperty<int> CommentBytes { get; }
+			public ReadOnlyReactiveProperty<int> CommentLines { get; }
+
 			public ReactiveProperty<string> Name { get; } = new ReactiveProperty<string>("");
 			public ReactiveProperty<string> Mail { get; } = new ReactiveProperty<string>("");
 			public ReactiveProperty<string> Subject { get; } = new ReactiveProperty<string>("");
@@ -69,6 +79,31 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					}
 					return null;
 				}).ToReactiveProperty();
+
+				this.CommentBytes = this.Comment.Select(x => {
+					// System.Net.WebUtility.HtmlEncode(x) ♡などをスルーするので自前で解析もする
+					// StringBuilder に入れる必要はないけど結果を見たいので入れる
+					var sb = new StringBuilder(System.Net.WebUtility.HtmlEncode(x));
+					for (var i = 0; i < sb.Length; i++) {
+						var c = sb[i];
+
+						var b = FutabaEncoding.GetBytes(c.ToString());
+						var s = FutabaEncoding.GetString(b);
+						if (s == FallbackUnicodeString) {
+							var ss = string.Format("&#{0};", (int)c);
+							sb.Remove(i, 1);
+							sb.Insert(i, ss);
+							i += ss.Length;
+						}
+					}
+					System.Diagnostics.Debug.WriteLine(sb);
+					//System.Diagnostics.Debug.WriteLine(FutabaEncoding.GetString(FutabaEncoding.GetBytes(sb.ToString())));
+
+					return FutabaEncoding.GetByteCount(sb.ToString());
+				}).ToReadOnlyReactiveProperty();
+				this.CommentLines = this.Comment
+					.Select(x => x.Replace(@"\r", "").Where(y => y == '\n').Count() + 1)
+					.ToReadOnlyReactiveProperty();
 				this.Comment.Subscribe(x => {
 					if (x.Length != 0) {
 						this.CommentImageValidFlag.Value = true;

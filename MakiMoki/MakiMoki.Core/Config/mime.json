@@ -1,0 +1,28 @@
+﻿{
+  "enable-type": [
+    {
+      "ext": ".jpg",
+      "mime": "image/jpeg"
+    },
+    {
+      "ext": ".jpeg",
+      "mime": "image/jpeg"
+    },
+    {
+      "ext": ".png",
+      "mime": "image/png"
+    },
+    {
+      "ext": ".gif",
+      "mime": "image/gif"
+    },
+    {
+      "ext": ".mp4",
+      "mime": "video/mp4"
+    },
+    {
+      "ext": ".webm",
+      "mime": "video/webm"
+    }
+  ]
+}
