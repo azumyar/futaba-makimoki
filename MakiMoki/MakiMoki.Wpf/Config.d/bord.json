@@ -45,7 +45,7 @@
     "sort-index": 105,
     "extra": {
       "name": false,
-      "res-image": false
+      "enable-res-image": false
     }
   },
 ]
