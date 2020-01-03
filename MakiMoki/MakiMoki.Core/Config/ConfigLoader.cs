@@ -9,6 +9,7 @@ using System.Linq;
 namespace Yarukizero.Net.MakiMoki.Config {
 	public static class ConfigLoader {
 		private static readonly string BordConfigFile = "bord.json";
+		private static readonly string MimeConfigFile = "mime.json";
 		private static readonly string PtuaConfigFile = "ptua.json";
 		private static readonly string CookieConfigFile = "cookie.json";
 		private static readonly string PasswordConfigFile = "passwd.json";
@@ -58,6 +59,9 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			addDic(bordDic, JsonConvert.DeserializeObject<Data.BordConfig[]>(
 				loadFile(CoreAssembly.GetManifestResourceStream(
 					typeof(ConfigLoader).Namespace + "." + BordConfigFile))));
+			Mime = JsonConvert.DeserializeObject<Data.MimeConfig>(
+				loadFile(CoreAssembly.GetManifestResourceStream(
+					typeof(ConfigLoader).Namespace + "." + MimeConfigFile)));
 			try {
 				if (setting.SystemDirectory != null) {
 					var bord = Path.Combine(setting.SystemDirectory, BordConfigFile);
@@ -141,6 +145,8 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		public static Setting InitializedSetting { get; private set; }
 
 		public static Data.BordConfig[] Bord { get; private set; }
+
+		public static Data.MimeConfig Mime { get; private set; }
 
 		public static Data.Ptua Ptua { get; private set; }
 

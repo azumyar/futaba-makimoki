@@ -1,5 +1,6 @@
 ﻿{
-  "enable-type": [
+  "version": -1,
+  "support-types": [
     {
       "ext": ".jpg",
       "mime": "image/jpeg"

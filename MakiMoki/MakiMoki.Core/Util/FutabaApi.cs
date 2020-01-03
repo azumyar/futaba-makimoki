@@ -15,15 +15,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		private static readonly string FutabaDelEndPoint = "/del.php";
 		private static readonly string FutabaCachemt = "/bin/cachemt7.php";
 		private static readonly Encoding FutabaEncoding = Encoding.GetEncoding("Shift_JIS");
-		// TODO: 設定ファイルに移動する
-		private static readonly Dictionary<string, string> MimeType = new Dictionary<string, string>() {
-			{ ".jpg", "image/jpeg" },
-			{ ".jpeg", "image/jpeg" },
-			{ ".png", "image/png" },
-			{ ".gif", "image/gif" },
-			{ ".mp4", "video/mp4" },
-			{ ".webm", "video/webm" },
-		};
 
 		public static async Task<(Data.FutabaResonse Response, Data.Cookie[] Cookies, string Raw)> GetCatalog(string baseUrl, Data.Cookie[] cookies, Data.CatalogSortItem sort = null) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
@@ -253,7 +244,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			if (string.IsNullOrWhiteSpace(threadNo)) {
 				r.AddParameter("textonly", string.IsNullOrWhiteSpace(filePath) ? "on" : "", ParameterType.GetOrPost);
 				if (!string.IsNullOrWhiteSpace(filePath)) {
-					if (MimeType.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
+					if (Config.ConfigLoader.Mime.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
 						r.AddFile("upfile", filePath, m);
 					} else { 
 						// TODO: なんかエラーだす
@@ -264,7 +255,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				if (bord.Extra?.ResImageValue ?? true) {
 					r.AddParameter("textonly", string.IsNullOrWhiteSpace(filePath) ? "on" : "", ParameterType.GetOrPost);
 					if (!string.IsNullOrWhiteSpace(filePath)) {
-						if (MimeType.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
+						if (Config.ConfigLoader.Mime.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
 							r.AddFile("upfile", filePath, m);
 						} else {
 							// TODO: なんかエラーだす

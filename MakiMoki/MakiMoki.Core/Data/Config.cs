@@ -60,4 +60,32 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonIgnore]
 		public bool MailIdValue => MailId ?? false;
 	}
+
+	public class MimeConfig : ConfigObject {
+		private Dictionary<string, string> mimeDic = null;
+
+		[JsonProperty("support-types", Required = Required.DisallowNull)]
+		public MimeData[] Types { get; private set; }
+
+		[JsonIgnore]
+		public Dictionary<string, string> MimeTypes {
+			get { 
+				if(this.mimeDic == null) {
+					this.mimeDic = new Dictionary<string, string>();
+					foreach(var t in this.Types) {
+						this.mimeDic.Add(t.Ext, t.MimeType);
+					}
+				}
+				return this.mimeDic;
+			}
+		}
+	}
+
+	public class MimeData : JsonObject {
+		[JsonProperty("ext", Required = Required.DisallowNull)]
+		public string Ext { get; private set; }
+
+		[JsonProperty("mime", Required = Required.DisallowNull)]
+		public string MimeType { get; private set; }
+	}
 }
