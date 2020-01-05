@@ -239,7 +239,7 @@
                                 <ContentPresenter 
                                     Grid.Column="0"
                                     ContentSource="Header" 
-                                    HorizontalAlignment="Left" 
+                                    HorizontalAlignment="Stretch" 
                                     VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                     ClipToBounds="True"/>
                                 <Button
