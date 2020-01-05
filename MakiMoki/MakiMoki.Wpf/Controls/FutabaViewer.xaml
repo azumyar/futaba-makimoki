@@ -431,6 +431,8 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
+            
+            <!-- 書き込みサブウィンドウ -->
             <Border
                 x:Name="PostView"
                 Grid.Row="1"

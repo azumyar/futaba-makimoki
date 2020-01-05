@@ -70,6 +70,7 @@
     <Compile Include="WinApi\Win32.cs" />
     <Compile Include="WpfUtil\ImageUtil.cs" />
     <Compile Include="WpfUtil\TextUtil.cs" />
+    <Compile Include="WpfUtil\WpfHelper.cs" />
     <Page Include="Controls\FutabaViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

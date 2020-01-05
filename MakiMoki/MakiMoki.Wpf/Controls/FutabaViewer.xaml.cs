@@ -52,57 +52,89 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		public FutabaViewer() {
 			InitializeComponent();
 			this.CatalogListBox.Loaded += (s, e) => {
-				if ((this.scrollViewerCatalog = GetListBoxScrollViewer(this.CatalogListBox)) != null) {
+				if ((this.scrollViewerCatalog = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.CatalogListBox)) != null) {
 					this.scrollViewerCatalog.ScrollChanged += (ss, arg) => {
-						if ((this.Contents != null) && string.IsNullOrWhiteSpace(this.Contents.Futaba.Value.Url.ThreadNo)) {
+						if ((this.Contents != null) && this.Contents.Futaba.Value.Url.IsCatalogUrl) {
 							this.Contents.ScrollVerticalOffset.Value = this.scrollViewerCatalog.VerticalOffset;
 							this.Contents.ScrollHorizontalOffset.Value = this.scrollViewerCatalog.HorizontalOffset;
 						}
 					};
 				}
 			};
-			this.ThreadResListBox.IsVisibleChanged += (s, e) => {
-				if(this.scrollViewerThreadRes != null) {
-					return;
-				}
 
-				if ((this.scrollViewerThreadRes = GetListBoxScrollViewer(this.ThreadResListBox)) != null) {
-					this.scrollViewerThreadRes.ScrollChanged += (ss, arg) => {
-						if ((this.Contents != null) && !string.IsNullOrWhiteSpace(this.Contents.Futaba.Value.Url.ThreadNo)) {
+			this.ThreadResListBox.Loaded += async (s, e) => {
+				if ((this.scrollViewerThreadRes = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.ThreadResListBox)) != null) {
+					this.scrollViewerThreadRes.ScrollChanged += async (ss, arg) => {
+						if ((this.Contents != null) && this.Contents.Futaba.Value.Url.IsThreadUrl) {
 							this.Contents.ScrollVerticalOffset.Value = this.scrollViewerThreadRes.VerticalOffset;
 							this.Contents.ScrollHorizontalOffset.Value = this.scrollViewerThreadRes.HorizontalOffset;
+							var p = WpfUtil.WpfHelper.FindFirstChild<VirtualizingStackPanel>(this.ThreadResListBox);
+							if (p != null) {
+								await Task.Delay(1); // スクロール直後はまだコンテンツが切り替わっていないので一度UIスレッドを進める
+								var cp = FindLastDisplayedChild<ListBoxItem>(
+									p, p,
+									new Point(0, 1)); // (0, 0)だとギリギリ見えない場合でも見えると判定されるので1px下に
+								if (cp != null) {
+									this.Contents.LastVisibleItem.Value = cp.DataContext;
+								}
+							}
 						}
 					};
 				}
 			};
 		}
 
-		private ScrollViewer GetListBoxScrollViewer(DependencyObject o) {
-			int c = VisualTreeHelper.GetChildrenCount(o);
-			for(var i=0; i<c; i++) {
-				var co = VisualTreeHelper.GetChild(o, i);
-				if(co is ScrollViewer s) {
-					return s;
-				}
-				var r = GetListBoxScrollViewer(co);
-				if(r != null) {
-					return r;
+		public static T FindLastDisplayedChild<T>(
+			FrameworkElement el,
+			FrameworkElement parent = null,
+			Point? targetPt = null) where T : FrameworkElement {
+
+			var pt = parent ?? el;
+			var zeroPt = targetPt ?? new Point(0, 0);
+			int c = VisualTreeHelper.GetChildrenCount(el);
+			for (var i = c - 1; 0 <= i; i--) {
+				var co = VisualTreeHelper.GetChild(el, i);
+				if (co is FrameworkElement fe) {
+					var p = fe.TranslatePoint(zeroPt, pt);
+					if ((0 <= p.X) && (p.X <= pt.ActualWidth)
+						&& (0 <= p.Y) && (p.Y <= pt.ActualHeight)) {
+
+						if (co is T t) {
+							return t;
+						}
+						/* 子供はいらない
+						var r = FindLastDisplayedChild<T>(fe, pt, zeroPt);
+						if (r != null) {
+							return r;
+						}
+						*/
+					}
 				}
 			}
-			return null;
+			return default(T);
 		}
 
-		private static void OnContentsChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
+		private static async void OnContentsChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
 			if(obj is UIElement el) {
 				el.RaiseEvent(new RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>(
 					e.OldValue as Model.IFutabaViewerContents,
 					e.NewValue as Model.IFutabaViewerContents,
 					ContentsChangedEvent));
-				if((obj is FutabaViewer fv) && (e.NewValue is Model.IFutabaViewerContents c)) {
-					var sv = string.IsNullOrWhiteSpace(c.Futaba.Value.Url.ThreadNo)
-						? fv.scrollViewerCatalog : fv.scrollViewerThreadRes;
-					sv?.ScrollToHorizontalOffset(c.ScrollHorizontalOffset.Value);
-					sv?.ScrollToVerticalOffset(c.ScrollVerticalOffset.Value);
+				if ((obj is FutabaViewer fv) && (e.NewValue is Model.IFutabaViewerContents c)) {
+					if (c.Futaba.Value.Url.IsCatalogUrl) {
+						fv.scrollViewerCatalog?.ScrollToHorizontalOffset(c.ScrollHorizontalOffset.Value);
+						fv.scrollViewerCatalog?.ScrollToVerticalOffset(c.ScrollVerticalOffset.Value);
+					} else if (c.Futaba.Value.Url.IsThreadUrl) {
+						if (c.LastVisibleItem.Value != null) {
+							// コンテンツ切り替えがまだListBoxに伝搬していないので一度UIスレッドを進める
+							await Task.Delay(1);
+							fv.ThreadResListBox.ScrollIntoView(c.LastVisibleItem.Value);
+						} else {
+							// nullの場合初期位置に
+							fv.scrollViewerThreadRes?.ScrollToHorizontalOffset(0);
+							fv.scrollViewerThreadRes?.ScrollToVerticalOffset(0);
+						}
+					}
 				}
 			}
 		}
@@ -138,6 +170,5 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				vm.MenuItemDeleteClickCommand.Execute(e);
 			}
 		}
-
 	}
 }

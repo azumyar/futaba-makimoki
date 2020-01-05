@@ -15,7 +15,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			}
 
 			if (value is Data.FutabaContext f) {
-				return string.IsNullOrWhiteSpace(f.Url.ThreadNo) ? Visibility.Visible : Visibility.Collapsed;
+				return string.IsNullOrWhiteSpace(f.Url.ThreadNo) ? Visibility.Visible : Visibility.Hidden;
 			}
 			throw new ArgumentException("型不正。", "value");
 		}
@@ -32,7 +32,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			}
 
 			if (value is Data.FutabaContext f) {
-				return !string.IsNullOrWhiteSpace(f.Url.ThreadNo) ? Visibility.Visible : Visibility.Collapsed;
+				return !string.IsNullOrWhiteSpace(f.Url.ThreadNo) ? Visibility.Visible : Visibility.Hidden;
 			}
 			throw new ArgumentException("型不正。", "value");
 		}
