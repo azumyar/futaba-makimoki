@@ -104,7 +104,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					return FutabaEncoding.GetByteCount(sb.ToString());
 				}).ToReadOnlyReactiveProperty();
 				this.CommentLines = this.Comment
-					.Select(x => x.Replace(@"\r", "").Where(y => y == '\n').Count() + 1)
+					.Select(x => (x.Length == 0) ? 0 : (x.Replace(@"\r", "").Where(y => y == '\n').Count() + 1))
 					.ToReadOnlyReactiveProperty();
 				this.Comment.Subscribe(x => {
 					if (x.Length != 0) {
