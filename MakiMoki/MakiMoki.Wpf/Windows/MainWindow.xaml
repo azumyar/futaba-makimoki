@@ -6,6 +6,7 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.NET46"
         xmlns:prism="http://prismlibrary.com/"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
         xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows"
         xmlns:model="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Model"
@@ -20,6 +21,8 @@
         <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
         <converter:TabItemWidthConverter x:Key="TabItemWidthConverter"/>
 
+        <system:Double x:Key="WindowCaptionHeight">36</system:Double>
+        
         <Color x:Key="_Color">#4FC3F7</Color>
         <SolidColorBrush x:Key="PrimaryColorBrush" Color="{StaticResource _Color}" />
         <SolidColorBrush x:Key="BackgroundBrush" Color="#F5F5F5" />
@@ -50,15 +53,21 @@
                                 <RowDefinition />
                             </Grid.RowDefinitions>
 
-                            <Grid Grid.Row="0" Height="{TemplateBinding TabPanel.Height}" Background="{StaticResource PrimaryColorBrush}"> <!-- LightBlue 300-->
+                            <Grid 
+                                Grid.Row="0"
+                                Height="{StaticResource WindowCaptionHeight}"
+                                MinHeight="{x:Static SystemParameters.CaptionHeight}"
+                                Background="{StaticResource PrimaryColorBrush}"> <!-- LightBlue 300-->
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="4" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="4" />
                                     <ColumnDefinition Width="24" />
                                     <ColumnDefinition Width="24" />
                                     <ColumnDefinition Width="4" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <ScrollViewer Name="scrollViewer" Grid.Column="0" CanContentScroll="True"
+                                <ScrollViewer Name="scrollViewer" Grid.Column="1" CanContentScroll="True"
                                       IsDeferredScrollingEnabled="False" SnapsToDevicePixels="True"
                                       HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
                                     <StackPanel Orientation="Horizontal" IsItemsHost="True" />
@@ -73,16 +82,41 @@
                                         </i:DataTrigger>
                                     </i:Interaction.Triggers>
                                 </ScrollViewer>
-                                <RepeatButton Name="leftButton" Grid.Column="2" Width="24" Height="24" VerticalAlignment="Center"
+                                <RepeatButton Name="leftButton" Grid.Column="3" Width="24" Height="24" VerticalAlignment="Center"
                                       Content="{StaticResource arrowLeft}" DockPanel.Dock="Right"
                                       CommandTarget="{Binding ElementName=scrollViewer}"
                                       Command="ScrollBar.LineLeftCommand"
                                       Visibility="Hidden"/>
-                                <RepeatButton Name="rightButton" Grid.Column="3" Width="24" Height="24" VerticalAlignment="Center"
+                                <RepeatButton Name="rightButton" Grid.Column="4" Width="24" Height="24" VerticalAlignment="Center"
                                       Content="{StaticResource arrowRight}" DockPanel.Dock="Right"
                                       CommandTarget="{Binding ElementName=scrollViewer}"
                                       Command="ScrollBar.LineRightCommand"
                                       Visibility="Hidden"/>
+                                <StackPanel Grid.Column="6" Orientation="Horizontal">
+                                    <Button Content="0" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
+                                    <Button Content="1" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MaximizeWindowCommand}">
+                                        <i:Interaction.Triggers>
+                                            <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
+                                                <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
+                                            </i:DataTrigger>
+                                            <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
+                                                <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
+                                            </i:DataTrigger>
+                                        </i:Interaction.Triggers>
+
+                                    </Button>
+                                    <Button Content="2" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.RestoreWindowCommand}">
+                                        <i:Interaction.Triggers>
+                                            <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
+                                                <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
+                                            </i:DataTrigger>
+                                            <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
+                                                <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
+                                            </i:DataTrigger>
+                                        </i:Interaction.Triggers>
+                                    </Button>
+                                    <Button Content="r" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.CloseWindowCommand}" />
+                                </StackPanel>
                             </Grid>
 
                             <Border Name="ContentPanel" Grid.Row="1"
@@ -173,6 +207,7 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0 2 0 0" />
+            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type TabItem}">
@@ -185,6 +220,8 @@
                             Padding="{TemplateBinding Padding}"
                             MinWidth="36"
                             MaxWidth="164"
+                            Height="28"
+                            VerticalAlignment="Bottom"
                             >
                             <Border.Width>
                                 <MultiBinding Converter="{StaticResource TabItemWidthConverter}">
@@ -247,36 +284,150 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="CaptionButtonStyleKey" TargetType="{x:Type Button}">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="FontFamily" Value="Marlett"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Margin" Value="2" />
+            <Setter Property="Padding" Value="1" />
+            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+            <Setter Property="MinWidth" Value="{StaticResource WindowCaptionHeight}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" Background="Transparent" SnapsToDevicePixels="True">
+                            <Border.Effect>
+                                <DropShadowEffect Opacity="0"/>
+                            </Border.Effect>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal">
+                                        <Storyboard>
+                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="border">
+                                                <EasingDoubleKeyFrame KeyTime="0" Value="0.6"/>
+                                            </DoubleAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="MouseOver">
+                                        <Storyboard>
+                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="border">
+                                                <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
+                                            </DoubleAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <Storyboard>
+                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="border">
+                                                <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.ShadowDepth)" Storyboard.TargetName="border">
+                                                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Color)" Storyboard.TargetName="border">
+                                                <EasingColorKeyFrame KeyTime="0" Value="Gray"/>
+                                            </ColorAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Opacity)" Storyboard.TargetName="border">
+                                                <EasingDoubleKeyFrame KeyTime="0" Value="0.6"/>
+                                            </DoubleAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled"/>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" Margin="{TemplateBinding Padding}"
+                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        </Style>
     </Window.Resources>
-    <Grid UseLayoutRounding="True">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static SystemCommands.MinimizeWindowCommand}" CanExecute="SystemCommandsCanExecute" Executed="CommandBindingMinimizeWindowCommand" />
+        <CommandBinding Command="{x:Static SystemCommands.RestoreWindowCommand}" CanExecute="SystemCommandsCanExecute" Executed="CommandBindingRestoreWindowCommand" />
+        <CommandBinding Command="{x:Static SystemCommands.MaximizeWindowCommand}" CanExecute="SystemCommandsCanExecute" Executed="CommandBindingMaximizeWindowCommand" />
+        <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="SystemCommandsCanExecute" Executed="CommandBindingCloseWindowCommand" />
+    </Window.CommandBindings>
 
+    <WindowChrome.WindowChrome>
+        <WindowChrome
+            CaptionHeight="{StaticResource WindowCaptionHeight}"
+            ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
 
-        <Grid Grid.Row="0" Grid.Column="2">
-            <Grid.ColumnDefinitions>
-            </Grid.ColumnDefinitions>
-            <ListBox
-                ItemsSource="{Binding Bords.Value, Mode=OneWay}"
-                Background="{StaticResource BackgroundBrush}"
-                BorderThickness="0"
-                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                ScrollViewer.CanContentScroll="True"
-                VirtualizingPanel.ScrollUnit="Pixel"
-                VirtualizingPanel.IsVirtualizing="True"
-                VirtualizingPanel.VirtualizationMode="Recycling"
-                >
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListBoxItem">
-                                    <ContentPresenter />
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <!--
+    </WindowChrome.WindowChrome>
+    <Border
+        BorderBrush="#9E9E9E"
+        BorderThickness="2 0 2 2"
+        Background="{StaticResource BackgroundBrush}"
+        >
+        <i:Interaction.Triggers>
+            <i:DataTrigger Binding="{Binding Visibility, ElementName=TabContainer}" Value="Visible" Comparison="NotEqual">
+                <i:ChangePropertyAction PropertyName="BorderBrush" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Border}}" Value="#9E9E9E" />
+            </i:DataTrigger>
+            <i:DataTrigger Binding="{Binding Visibility, ElementName=TabContainer}" Value="Visible" Comparison="Equal">
+                <i:ChangePropertyAction PropertyName="BorderBrush" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Border}}" Value="#03A9F4" />
+            </i:DataTrigger>
+        </i:Interaction.Triggers>
+        <Grid UseLayoutRounding="True">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="36" />
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="0" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
+                <Button Content="1" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MaximizeWindowCommand}">
+                    <i:Interaction.Triggers>
+                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
+                            <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
+                        </i:DataTrigger>
+                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
+                            <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
+                        </i:DataTrigger>
+                    </i:Interaction.Triggers>
+
+                </Button>
+                <Button Content="2" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.RestoreWindowCommand}">
+                    <i:Interaction.Triggers>
+                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
+                            <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
+                        </i:DataTrigger>
+                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
+                            <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
+                        </i:DataTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button Content="r" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.CloseWindowCommand}" />
+            </StackPanel>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                </Grid.ColumnDefinitions>
+                <ListBox
+                    Background="Transparent"
+                    ItemsSource="{Binding Bords.Value, Mode=OneWay}"
+                    BorderThickness="0"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    ScrollViewer.CanContentScroll="True"
+                    VirtualizingPanel.ScrollUnit="Pixel"
+                    VirtualizingPanel.IsVirtualizing="True"
+                    VirtualizingPanel.VirtualizationMode="Recycling">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <ContentPresenter />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <!--
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" Value="ForestGreen"/>
@@ -284,65 +435,65 @@
                         </Trigger>
                     </Style.Triggers>
                     -->
-                    </Style>
-                </ListBox.ItemContainerStyle>
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <vwp:VirtualizingWrapPanel IsItemsHost="True"  HorizontalAlignment="Center"/>
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Button
-                                Background="White"
-                                Margin="4" 
-                                BorderThickness="0"
-                                BorderBrush="Transparent"
-                                HorizontalContentAlignment="Stretch"
-                                VerticalContentAlignment="Stretch">
-                                <Grid x:Name="CatalogItem" Width="72" Height="86">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="72" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="72"/>
-                                        <RowDefinition Height="14"/>
-                                    </Grid.RowDefinitions>
-                                    <!-- レス-->
-                                    <Viewbox
-                                        Grid.Column="0"
-                                        Grid.Row="1"
-                                        StretchDirection="DownOnly"
-                                        Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}"
-                                        VerticalAlignment="Bottom"
-                                        >
-                                        <Grid Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <vwp:VirtualizingWrapPanel IsItemsHost="True"  HorizontalAlignment="Center"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Button
+                                    Background="White"
+                                    Margin="4" 
+                                    BorderThickness="0"
+                                    BorderBrush="Transparent"
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Stretch">
+                                    <Grid x:Name="CatalogItem" Width="72" Height="86">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="72" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="72"/>
+                                            <RowDefinition Height="14"/>
+                                        </Grid.RowDefinitions>
+                                        <!-- レス-->
+                                        <Viewbox
+                                            Grid.Column="0"
+                                            Grid.Row="1"
+                                            StretchDirection="DownOnly"
+                                            Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}"
+                                            VerticalAlignment="Bottom"
+                                            >
+                                            <Grid Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock
                                                 Grid.Column="2"
                                                 Text="{Binding Name, Mode=OneWay}"
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Bottom"/>
-                                        </Grid>
-                                    </Viewbox>
-                                </Grid>
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="PreviewMouseUp">
-                                        <ri:EventToReactiveCommand Command="{Binding DataContext.BordListClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </Button>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                                            </Grid>
+                                        </Viewbox>
+                                    </Grid>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="PreviewMouseUp">
+                                            <ri:EventToReactiveCommand Command="{Binding DataContext.BordListClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
 
 
-            <!--
+                <!--
             <ItemsControl ItemsSource="{Binding Bords.Value}" Background="AliceBlue" HorizontalAlignment="Center">
                 <ItemsControl.Template>
                     <ControlTemplate TargetType="{x:Type ItemsControl}">
@@ -366,8 +517,10 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
             -->
+            </Grid>
             <TabControl
                 x:Name="TabContainer"
+                Grid.Row="0" Grid.RowSpan="2"
                 Visibility="{Binding TabVisibility.Value, Mode=OneWay}"
                 ItemsSource="{Binding TabItems.Value}"
                 SelectedItem="{Binding Path=TabControlSelectedItem.Value,UpdateSourceTrigger=PropertyChanged,Mode=Twoway}"
@@ -419,5 +572,5 @@
                 </i:Interaction.Triggers>
             </TabControl>
         </Grid>
-    </Grid>
+    </Border>
 </Window>

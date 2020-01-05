@@ -27,6 +27,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
             InitializeComponent();
         }
 
+        private void SystemCommandsCanExecute(object sender, CanExecuteRoutedEventArgs e) {
+            e.CanExecute = true;
+        }
+        private void CommandBindingMinimizeWindowCommand(object sender, ExecutedRoutedEventArgs e) {
+            SystemCommands.MinimizeWindow(this);
+        }
+        private void CommandBindingRestoreWindowCommand(object sender, ExecutedRoutedEventArgs e) {
+            SystemCommands.RestoreWindow(this);
+        }
+        private void CommandBindingMaximizeWindowCommand(object sender, ExecutedRoutedEventArgs e) {
+            SystemCommands.MaximizeWindow(this);
+        }
+        private void CommandBindingCloseWindowCommand(object sender, ExecutedRoutedEventArgs e) {
+            SystemCommands.CloseWindow(this);
+        }
+
         protected override void OnSourceInitialized(EventArgs e) {
             base.OnSourceInitialized(e);
 

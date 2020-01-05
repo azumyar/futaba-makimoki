@@ -35,7 +35,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<RoutedEventArgs> LinkClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
+		public ReactiveCommand<MouseButtonEventArgs> CatalogItemMouseDownCommand { get; }
+			= new ReactiveCommand<MouseButtonEventArgs>();
 		public ReactiveCommand<MouseButtonEventArgs> CatalogItemClickCommand { get; }
+			= new ReactiveCommand<MouseButtonEventArgs>();
+
+		public ReactiveCommand<MouseButtonEventArgs> ThreadImageMouseDownCommand { get; }
 			= new ReactiveCommand<MouseButtonEventArgs>();
 		public ReactiveCommand<MouseButtonEventArgs> ThreadImageClickCommand { get; }
 			= new ReactiveCommand<MouseButtonEventArgs>();
@@ -50,10 +55,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<RoutedEventArgs> MenuItemDelClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemDeleteClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
+		private bool isCatalogItemClicking = false;
+		private bool isThreadImageClicking = false;
+
 		public FutabaViewerViewModel() {
 			ContentsChangedCommand.Subscribe(() => OnContentsChanged());
 			CatalogUpdateClickCommand.Subscribe(x => OnCatalogUpdateClick(x));
+			CatalogItemMouseDownCommand.Subscribe(x => OnCatalogItemMouseDown(x));
 			CatalogItemClickCommand.Subscribe(x => OnCatalogClick(x));
+			ThreadImageMouseDownCommand.Subscribe(x => OnThreadImageMouseDown(x));
 			ThreadImageClickCommand.Subscribe(x => OnThreadImageClick(x));
 			ThreadUpdateCommand.Subscribe(x => OnThreadUpdateClick((x.Source as FrameworkElement)?.DataContext as Data.FutabaContext));
 			PostClickCommand.Subscribe(x => OnPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
@@ -109,25 +119,47 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			System.Diagnostics.Debug.WriteLine(e);
 		}
 
-		private void OnCatalogUpdateClick(Data.FutabaContext x) {
-			Util.Futaba.UpdateCatalog(x.Bord).Subscribe();
+		private void OnCatalogUpdateClick(Data.FutabaContext e) {
+			Util.Futaba.UpdateCatalog(e.Bord)
+				.SubscribeOnDispatcher()
+				.Subscribe(x => { 
+					// TODO: カタログのスクロールリセットする
+				});
 		}
 
 		private void OnContentsChanged() {
 			PostViewVisibility.Value = Visibility.Collapsed;
 		}
 
+		private void OnCatalogItemMouseDown(MouseButtonEventArgs e) {
+			if((e.Source is FrameworkElement o) && (o.DataContext is Model.BindableFutabaResItem it)) {
+				switch(e.ChangedButton) {
+				case MouseButton.Left:
+				case MouseButton.Middle:
+					// 2つマウスを押された場合は false
+					this.isCatalogItemClicking = !this.isCatalogItemClicking;
+					break;
+				}
+			}
+		}
+
 		private void OnCatalogClick(MouseButtonEventArgs e) {
-			if ((e.Source is FrameworkElement o) && (o.DataContext is Model.BindableFutabaResItem it)) {
-				if ((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
-					switch (e.ChangedButton) {
+			if((e.Source is FrameworkElement o) && (o.DataContext is Model.BindableFutabaResItem it)) {
+				if((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
+					switch(e.ChangedButton) {
 					case MouseButton.Left:
-						Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value);
+						if(this.isCatalogItemClicking) {
+							Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value);
+							this.isCatalogItemClicking = false;
+						}
 						e.Handled = true;
 						break;
 					case MouseButton.Middle:
-						// TODO: そのうちこっちは裏で開くように返れたらいいな
-						Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value);
+						if(this.isCatalogItemClicking) {
+							// TODO: そのうちこっちは裏で開くように返れたらいいな
+							Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value);
+							this.isCatalogItemClicking = false;
+						}
 						e.Handled = true;
 						break;
 					}
@@ -135,15 +167,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
+		private void OnThreadImageMouseDown(MouseButtonEventArgs e) {
+			if((e.Source is FrameworkElement o) && (o.DataContext is Model.BindableFutabaResItem it)) {
+				switch(e.ChangedButton) {
+				case MouseButton.Left:
+				case MouseButton.Middle:
+					// 2つマウスを押された場合は false
+					this.isThreadImageClicking = !this.isThreadImageClicking;
+					break;
+				}
+			}
+		}
 		private void OnThreadImageClick(MouseButtonEventArgs e) {
-			if ((e.Source is FrameworkElement o) && (o.DataContext is Model.BindableFutabaResItem it)) {
-				if ((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
-					switch (e.ChangedButton) {
+			if((e.Source is FrameworkElement o) && (o.DataContext is Model.BindableFutabaResItem it)) {
+				if((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
+					switch(e.ChangedButton) {
 					case MouseButton.Left:
 					case MouseButton.Middle:
-						// TODO: 内部画像ビューワを作ってそっちに移動
-						var url = new Uri(it.Bord.Value.Url);
-						this.StartBrowser(string.Format("{0}://{1}{2}", url.Scheme, url.Authority, it.Raw.Value.ResItem.Res.Src));
+						if(this.isThreadImageClicking) {
+							// TODO: 内部画像ビューワを作ってそっちに移動
+							var url = new Uri(it.Bord.Value.Url);
+							this.StartBrowser(string.Format("{0}://{1}{2}", url.Scheme, url.Authority, it.Raw.Value.ResItem.Res.Src));
+							this.isThreadImageClicking = false;
+						}
 						e.Handled = true;
 						break;
 					}
