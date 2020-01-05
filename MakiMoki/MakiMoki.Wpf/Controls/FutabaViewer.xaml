@@ -236,7 +236,10 @@
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         >
-                                        <Image Source="{Binding ThumbSource.Value}">
+                                        <Image
+                                            Source="{Binding ThumbSource.Value}"
+                                            RenderOptions.EdgeMode="Aliased"
+                                            RenderOptions.BitmapScalingMode="Fant">
                                             <Image.CacheMode>
                                                 <BitmapCache RenderAtScale="1" />
                                             </Image.CacheMode>
@@ -384,7 +387,10 @@
                                         HorizontalAlignment="Left"
                                         StretchDirection="DownOnly">
                                         <Button BorderThickness="0" BorderBrush="Transparent" Margin="0 0 4 0">
-                                            <Image Source="{Binding ThumbSource.Value}">
+                                            <Image 
+                                                Source="{Binding ThumbSource.Value}"
+                                                RenderOptions.EdgeMode="Aliased"
+                                                RenderOptions.BitmapScalingMode="Fant">
                                                 <Image.CacheMode>
                                                     <BitmapCache RenderAtScale="1" />
                                                 </Image.CacheMode>
@@ -500,7 +506,10 @@
                                         Margin="0 4 0 4"
                                         Text="{Binding PostData.Value.ImageName.Value, Mode=OneWay}" />
                                     <Viewbox Width="128" Height="128"  StretchDirection="DownOnly">
-                                        <Image Source="{Binding PostData.Value.ImagePreview.Value, Mode=OneWay}">
+                                        <Image 
+                                            Source="{Binding PostData.Value.ImagePreview.Value, Mode=OneWay}"
+                                            RenderOptions.EdgeMode="Aliased"
+                                            RenderOptions.BitmapScalingMode="Fant">
                                             <Image.CacheMode>
                                                 <BitmapCache RenderAtScale="1" />
                                             </Image.CacheMode>
