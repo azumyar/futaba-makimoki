@@ -92,12 +92,73 @@
                               KeyboardNavigation.TabIndex="2"
                               KeyboardNavigation.TabNavigation="Local"
                               KeyboardNavigation.DirectionalNavigation="Contained">
-                                <ContentPresenter ContentSource="SelectedContent"
-                                    Content="{TemplateBinding TabControl.SelectedContent}"
-                                    ContentTemplate="{TemplateBinding TabControl.SelectedContentTemplate}"
-                                    ContentStringFormat="{TemplateBinding TabControl.SelectedContentStringFormat}"
-                                    Margin="{TemplateBinding Control.Padding}"
-                                    SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160" MinWidth="100"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*" MinWidth="100"/>
+                                    </Grid.ColumnDefinitions>
+                                    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="{StaticResource PrimaryColorBrush}" />
+
+                                    <Grid Grid.Column="0">
+                                        <TreeView
+                                            BorderBrush="Transparent"
+                                            BorderThickness="0"
+                                            ItemsSource="{Binding TreeItems.Value, Mode=OneWay}">
+                                            <TreeView.ItemContainerStyle>
+                                                <Style TargetType="{x:Type TreeViewItem}">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                    <Setter Property="IsSelected" Value="{Binding IsSelected.Value, Mode=TwoWay}"/>
+                                                    <Setter Property="IsExpanded" Value="{Binding IsExpanded.Value, Mode=TwoWay}"/>
+                                                </Style>
+                                            </TreeView.ItemContainerStyle>
+                                            <TreeView.ItemTemplate>
+                                                <HierarchicalDataTemplate DataType= "model:TreeItem" ItemsSource="{Binding ChildItems.Value}">
+                                                    <Button 
+                                                        Background="White"
+                                                        BorderThickness="0"
+                                                        BorderBrush="Transparent"
+                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                                        <Button.Content>
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                    <ColumnDefinition Width="*" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <Viewbox
+                                                                    Grid.Column="0"
+                                                                    Width="24" Height="24" 
+                                                                    StretchDirection="DownOnly"
+                                                                    Visibility="{Binding ThumbVisibility.Value, Mode=OneWay}">
+                                                                    <Image Source="{Binding ThumbSource.Value, Mode=OneWay}">
+                                                                        <Image.CacheMode>
+                                                                            <BitmapCache RenderAtScale="1" />
+                                                                        </Image.CacheMode>
+                                                                    </Image>
+                                                                </Viewbox>
+                                                                <TextBlock  Grid.Column="1" Text="{Binding Name, Mode=OneWay}"  VerticalAlignment="Center" Margin="4 0 4 0" />
+                                                            </Grid>
+                                                        </Button.Content>
+                                                        <i:Interaction.Triggers>
+                                                            <i:EventTrigger EventName="PreviewMouseUp">
+                                                                <ri:EventToReactiveCommand Command="{Binding DataContext.TreeViewClickCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" />
+                                                            </i:EventTrigger>
+                                                        </i:Interaction.Triggers>
+                                                    </Button>
+                                                </HierarchicalDataTemplate>
+                                            </TreeView.ItemTemplate>
+                                        </TreeView>
+                                    </Grid>
+
+                                    <ContentPresenter 
+                                        Grid.Column="2"
+                                        ContentSource="SelectedContent"
+                                        Content="{TemplateBinding TabControl.SelectedContent}"
+                                        ContentTemplate="{TemplateBinding TabControl.SelectedContentTemplate}"
+                                        ContentStringFormat="{TemplateBinding TabControl.SelectedContentStringFormat}"
+                                        Margin="{TemplateBinding Control.Padding}"
+                                        SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
+                                </Grid>
                             </Border>
                         </Grid>
                     </ControlTemplate>
@@ -162,13 +223,13 @@
                                             <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
                                         </i:DataTrigger>
                                         <i:EventTrigger EventName="PreviewMouseUp">
-                                            <ri:EventToReactiveCommand Command="{Binding Tag.TabCloseButtonCommand, ElementName=TabContainer}" />
+                                            <ri:EventToReactiveCommand Command="{Binding DataContext.TabCloseButtonCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" />
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </Button>
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="PreviewMouseUp">
-                                        <ri:EventToReactiveCommand Command="{Binding Tag.TabClickCommand, ElementName=TabContainer}" />
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.TabClickCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </Grid>
@@ -188,67 +249,10 @@
         </Style>
     </Window.Resources>
     <Grid UseLayoutRounding="True">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="160" MinWidth="100"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*" MinWidth="100"/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <GridSplitter Grid.Row="0" Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="{StaticResource PrimaryColorBrush}" />
-
-        <Grid Grid.Row="0" Grid.Column="0">
-            <TreeView
-                x:Name="TreeViewContainer"
-                ItemsSource="{Binding TreeItems.Value, Mode=OneWay}"
-                Tag="{Binding}">
-                <TreeView.ItemContainerStyle>
-                    <Style TargetType="{x:Type TreeViewItem}">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                        <Setter Property="IsSelected" Value="{Binding IsSelected.Value, Mode=TwoWay}"/>
-                        <Setter Property="IsExpanded" Value="{Binding IsExpanded.Value, Mode=TwoWay}"/>
-                    </Style>
-                </TreeView.ItemContainerStyle>
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate DataType= "model:TreeItem" ItemsSource="{Binding ChildItems.Value}">
-                        <Button 
-                            x:Name="Button"
-                            Background="White"
-                            BorderThickness="0"
-                            BorderBrush="Transparent"
-                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                            <Button.Content>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Viewbox
-                                        Grid.Column="0"
-                                        Width="24" Height="24" 
-                                        StretchDirection="DownOnly"
-                                        Visibility="{Binding ThumbVisibility.Value, Mode=OneWay}">
-                                        <Image Source="{Binding ThumbSource.Value, Mode=OneWay}">
-                                            <Image.CacheMode>
-                                                <BitmapCache RenderAtScale="1" />
-                                            </Image.CacheMode>
-                                        </Image>
-                                    </Viewbox>
-                                    <TextBlock  Grid.Column="1" Text="{Binding Name, Mode=OneWay}"  VerticalAlignment="Center" Margin="4 0 4 0" />
-                                </Grid>
-                            </Button.Content>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="PreviewMouseUp">
-                                    <ri:EventToReactiveCommand Command="{Binding Tag.TreeViewClickCommand, ElementName=TreeViewContainer}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
-            </TreeView>
-        </Grid>
 
         <Grid Grid.Row="0" Grid.Column="2">
             <Grid.ColumnDefinitions>
@@ -291,7 +295,6 @@
                     <DataTemplate>
                         <Grid>
                             <Button
-                                x:Name="button"
                                 Background="White"
                                 Margin="4" 
                                 BorderThickness="0"
@@ -368,7 +371,6 @@
                 Visibility="{Binding TabVisibility.Value, Mode=OneWay}"
                 ItemsSource="{Binding TabItems.Value}"
                 SelectedItem="{Binding Path=TabControlSelectedItem.Value,UpdateSourceTrigger=PropertyChanged,Mode=Twoway}"
-                Tag="{Binding}"
                 Padding="0">
                 <TabControl.ItemTemplate>
                     <DataTemplate>
