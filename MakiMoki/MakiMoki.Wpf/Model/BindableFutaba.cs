@@ -25,7 +25,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				new EncoderReplacementFallback(FallbackUnicodeString),
 				DecoderFallback.ReplacementFallback);
 
+#pragma warning disable CS0067
 			public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore CS0067
 			private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
 			public ReactiveProperty<string> Comment { get; } = new ReactiveProperty<string>("");
@@ -128,7 +130,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				Disposable.Dispose();
 			}
 		}
+#pragma warning disable CS0067
 		public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore CS0067
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 		public ReactiveProperty<BindableFutabaResItem[]> ResItems { get; }
 
@@ -208,16 +212,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					case MouseButton.Left:
 						try {
 							Application.Current.MainWindow.IsEnabled = false;
-							var ext = new string[] {
-								".jpg",
-								".jpeg",
-								".png",
-								".gif",
-								".webp",
-								".mp4",
-								".webm",
-							};
-
+							var ext = Config.ConfigLoader.Mime.Types.Select(x => x.Ext);
 							var ofd = new Microsoft.Win32.OpenFileDialog() {
 								Filter = "ふたば画像ファイル|"
 									+ string.Join(";", ext.Select(x => "*" + x).ToArray())
@@ -270,7 +265,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	}
 
 	public class BindableFutabaResItem : INotifyPropertyChanged, IDisposable {
+#pragma warning disable CS0067
 		public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore CS0067
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
 		public string Id { get; }
