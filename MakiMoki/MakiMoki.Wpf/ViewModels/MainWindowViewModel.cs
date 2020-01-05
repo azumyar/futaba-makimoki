@@ -29,7 +29,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<Data.UrlContext> TreeViewSelectedCommand { get; }
 			= new ReactiveCommand<Data.UrlContext>();
-		
+
 		public ReactiveCommand<MouseButtonEventArgs> TabClickCommand { get; }
 			= new ReactiveCommand<MouseButtonEventArgs>();
 		public ReactiveCommand<MouseButtonEventArgs> TabCloseButtonCommand { get; }
@@ -69,10 +69,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnBordListClick(MouseButtonEventArgs e) {
-			if ((e.Source is FrameworkElement o) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
-				if (o.DataContext is Data.BordConfig bc) {
-					if (e.ClickCount == 1) {
-						switch (e.ChangedButton) {
+			if((e.Source is FrameworkElement o) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
+				if(o.DataContext is Data.BordConfig bc) {
+					if(e.ClickCount == 1) {
+						switch(e.ChangedButton) {
 						case MouseButton.Left:
 						case MouseButton.Middle:
 							Util.Futaba.UpdateCatalog(bc).Subscribe();
@@ -85,26 +85,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnTabClick(MouseButtonEventArgs e) {
-			if ((e.Source is FrameworkElement o) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
-				if (o.DataContext is Model.TabItem ti) {
-					if ((e.ClickCount == 1) && (e.ChangedButton == MouseButton.Middle)) {
+			if((e.Source is FrameworkElement o) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
+				if(o.DataContext is Model.TabItem ti) {
+					if((e.ClickCount == 1) && (e.ChangedButton == MouseButton.Middle)) {
 						Util.Futaba.Remove(ti.Url);
 						e.Handled = true;
 					}
 				}
 			}
 		}
-		
+
 		private void OnTreeViewClick(MouseButtonEventArgs e) {
-			if (e.ClickCount == 1) {
-				if (e.Source is FrameworkElement o) {
-					if (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null) {
-						if (o.DataContext is Model.TreeItem ti) {
+			if(e.ClickCount == 1) {
+				if(e.Source is FrameworkElement o) {
+					if(VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null) {
+						if(o.DataContext is Model.TreeItem ti) {
 							var it = this.TabItems.Value.Where(x => x.Url == ti.Url).FirstOrDefault();
-							switch (e.ChangedButton) {
+							switch(e.ChangedButton) {
 							case MouseButton.Left:
-								if (it == null) {
-									if (ti.Url.IsCatalogUrl) {
+								if(it == null) {
+									if(ti.Url.IsCatalogUrl) {
 										Util.Futaba.UpdateCatalog(
 											Bords.Value.Where(x => x.Url == ti.Url.BaseUrl).FirstOrDefault())
 											.Subscribe();
@@ -117,7 +117,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 								e.Handled = true;
 								break;
 							case MouseButton.Middle:
-								if (it == null) {
+								if(it == null) {
 								} else {
 									Util.Futaba.Remove(it.Url);
 								}
@@ -131,10 +131,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnTabClose(MouseButtonEventArgs e) {
-			if (e.ClickCount == 1) {
-				switch (e.ChangedButton) {
+			if(e.ClickCount == 1) {
+				switch(e.ChangedButton) {
 				case MouseButton.Left:
-					if ((e.Source is FrameworkElement o) && (o.DataContext is Model.TabItem ti)) {
+					if((e.Source is FrameworkElement o) && (o.DataContext is Model.TabItem ti)) {
 						Util.Futaba.Remove(ti.Url);
 					}
 					e.Handled = true;
@@ -189,7 +189,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private async void OnUpdateCatalog(Data.FutabaContext[] catalog) {
 			var it = Update(catalog, false);
-			if (it != null) {
+			if(it != null) {
 				// この時点でTabコントロールの再処理が行われていないので一度UIスレッドから離れる
 				// きもい
 				await Task.Delay(1);
@@ -200,7 +200,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private async void OnUpdateThreadRes(Data.FutabaContext[] threads) {
 			var it = Update(threads, true);
 			UpdateTree(threads);
-			if (it != null) {
+			if(it != null) {
 				// この時点でTabコントロールの再処理が行われていないので一度UIスレッドから離れる
 				// きもい
 				await Task.Delay(1);
@@ -217,35 +217,35 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			var cc = c.Except(t);
 			var tt = t.Except(c);
 			Model.TabItem r = null;
-			if (cc.Count() != 0) {
-				foreach (var it in cc) {
+			if(cc.Count() != 0) {
+				foreach(var it in cc) {
 					l.Add(new Model.TabItem(catalog.Where(x => x.Url == it).First()));
 				}
 				r = l.Last();
 			}
-			if (tt.Count() != 0) {
+			if(tt.Count() != 0) {
 				var rm = new List<Model.TabItem>();
 				var idx = -1;
-				foreach (var it in tt) {
-					if (it.IsThreadUrl == isThreadUpdated) {
-						if (act?.Url == it) {
+				foreach(var it in tt) {
+					if(it.IsThreadUrl == isThreadUpdated) {
+						if(act?.Url == it) {
 							idx = t.IndexOf(it);
 						}
 						l.Remove(l.Where(x => x.Url == it).First());
 					}
 				}
-				if ((0 <= idx) && (l.Count != 0)) {
+				if((0 <= idx) && (l.Count != 0)) {
 					r = (l.Count <= idx) ? l.Last() : l[idx];
 				}
 			}
-			for (var i = 0; i < l.Count; i++) {
+			for(var i = 0; i < l.Count; i++) {
 				var it = l[i];
-				if (cc.Contains(it.Url)) {
+				if(cc.Contains(it.Url)) {
 					continue;
 				}
 				var futaba = catalog.Where(x => x.Url == it.Url).FirstOrDefault();
-				if (futaba != null) {
-					if (futaba.Token != it.Futaba.Value.Raw.Token) {
+				if(futaba != null) {
+					if(futaba.Token != it.Futaba.Value.Raw.Token) {
 						it.Futaba.Value = new BindableFutaba(futaba, it.Futaba.Value);
 					}
 				}
@@ -258,27 +258,27 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			var d1 = new Dictionary<string, List<Data.UrlContext>>();
 			var d2 = new Dictionary<string, List<Data.UrlContext>>();
 			var tm = new Dictionary<string, TreeItem>();
-			foreach (var b in Bords.Value) {
+			foreach(var b in Bords.Value) {
 				d1.Add(b.Url, new List<Data.UrlContext>());
 				d2.Add(b.Url, new List<Data.UrlContext>());
 				tm.Add(b.Url, this.TreeItems.Value.Where(x => x.Url.BaseUrl == b.Url).First());
 			}
 
-			foreach (var t in this.TreeItems.Value) {
-				foreach (var ci in t.ChildItems.Value) {
+			foreach(var t in this.TreeItems.Value) {
+				foreach(var ci in t.ChildItems.Value) {
 					d1[ci.Url.BaseUrl].Add(ci.Url);
 				}
 			}
-			foreach (var t in threads.Where(x => x.Url.IsThreadUrl)) {
+			foreach(var t in threads.Where(x => x.Url.IsThreadUrl)) {
 				d2[t.Url.BaseUrl].Add(t.Url);
 			}
 
-			foreach (var b in Bords.Value) {
+			foreach(var b in Bords.Value) {
 				var cc = d2[b.Url].Except(d1[b.Url]);
 				var tt = d1[b.Url].Except(d2[b.Url]);
 				var ti = tm[b.Url];
 
-				if (cc.Count() != 0) {
+				if(cc.Count() != 0) {
 					var l = new List<Data.FutabaContext>();
 					foreach(var c in cc) {
 						l.Add(threads.Where(x => x.Url == c).First());
@@ -289,21 +289,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 				if(tt.Count() != 0) {
 					var l = tm[b.Url].ChildItems.Value.ToList();
-					foreach (var t in tt) {
+					foreach(var t in tt) {
 						l.Remove(l.Where(x => x.Url == t).First());
 					}
 					ti.ChildItems.Value = l.ToArray();
 				}
 
 				var updated = false;
-				for (var i = 0; i < ti.ChildItems.Value.Length; i++) {
+				for(var i = 0; i < ti.ChildItems.Value.Length; i++) {
 					var it = ti.ChildItems.Value[i];
-					if (cc.Contains(it.Url)) {
+					if(cc.Contains(it.Url)) {
 						continue;
 					}
 					var futaba = threads.Where(x => x.Url == it.Url).FirstOrDefault();
-					if (futaba != null) {
-						if (futaba.Token != it.Futaba.Value.Raw.Token) {
+					if(futaba != null) {
+						if(futaba.Token != it.Futaba.Value.Raw.Token) {
 							it.Futaba.Value = new BindableFutaba(futaba, it.Futaba.Value);
 							updated = true;
 						}

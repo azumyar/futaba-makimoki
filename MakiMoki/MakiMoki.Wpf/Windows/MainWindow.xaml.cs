@@ -17,69 +17,69 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
-    /// <summary>
-    /// MainWindow.xaml の相互作用ロジック
-    /// </summary>
-    public partial class MainWindow : Window {
-        private static readonly string PlacementJsonFile = "windows.placement.json";
+	/// <summary>
+	/// MainWindow.xaml の相互作用ロジック
+	/// </summary>
+	public partial class MainWindow : Window {
+		private static readonly string PlacementJsonFile = "windows.placement.json";
 
-        public MainWindow() {
-            InitializeComponent();
-        }
+		public MainWindow() {
+			InitializeComponent();
+		}
 
-        private void SystemCommandsCanExecute(object sender, CanExecuteRoutedEventArgs e) {
-            e.CanExecute = true;
-        }
-        private void CommandBindingMinimizeWindowCommand(object sender, ExecutedRoutedEventArgs e) {
-            SystemCommands.MinimizeWindow(this);
-        }
-        private void CommandBindingRestoreWindowCommand(object sender, ExecutedRoutedEventArgs e) {
-            SystemCommands.RestoreWindow(this);
-        }
-        private void CommandBindingMaximizeWindowCommand(object sender, ExecutedRoutedEventArgs e) {
-            SystemCommands.MaximizeWindow(this);
-        }
-        private void CommandBindingCloseWindowCommand(object sender, ExecutedRoutedEventArgs e) {
-            SystemCommands.CloseWindow(this);
-        }
+		private void SystemCommandsCanExecute(object sender, CanExecuteRoutedEventArgs e) {
+			e.CanExecute = true;
+		}
+		private void CommandBindingMinimizeWindowCommand(object sender, ExecutedRoutedEventArgs e) {
+			SystemCommands.MinimizeWindow(this);
+		}
+		private void CommandBindingRestoreWindowCommand(object sender, ExecutedRoutedEventArgs e) {
+			SystemCommands.RestoreWindow(this);
+		}
+		private void CommandBindingMaximizeWindowCommand(object sender, ExecutedRoutedEventArgs e) {
+			SystemCommands.MaximizeWindow(this);
+		}
+		private void CommandBindingCloseWindowCommand(object sender, ExecutedRoutedEventArgs e) {
+			SystemCommands.CloseWindow(this);
+		}
 
-        protected override void OnSourceInitialized(EventArgs e) {
-            base.OnSourceInitialized(e);
+		protected override void OnSourceInitialized(EventArgs e) {
+			base.OnSourceInitialized(e);
 
-            if (Application.Current is App app) {
-                try {
-                    var path = System.IO.Path.Combine(app.AppWorkDirectory, PlacementJsonFile);
-                    if(File.Exists(path)) {
-                        var hwnd = new WindowInteropHelper(this).Handle;
-                        var placement = Util.FileUtil.LoadJson<WinApi.WINDOWPLACEMENT>(path);
-                        placement.flags = 0;
-                        placement.showCmd = (placement.showCmd == WinApi.Win32.SW_SHOWMINIMIZED)
-                            ? WinApi.Win32.SW_SHOWNORMAL : placement.showCmd;
-                        WinApi.Win32.SetWindowPlacement(hwnd, ref placement);
-                    }
-                }
-                catch (IOException) {  /* 何もしない */ }
-                catch(Newtonsoft.Json.JsonSerializationException) { /* 何もしない */ }
-            }
-        }
+			if(Application.Current is App app) {
+				try {
+					var path = System.IO.Path.Combine(app.AppWorkDirectory, PlacementJsonFile);
+					if(File.Exists(path)) {
+						var hwnd = new WindowInteropHelper(this).Handle;
+						var placement = Util.FileUtil.LoadJson<WinApi.WINDOWPLACEMENT>(path);
+						placement.flags = 0;
+						placement.showCmd = (placement.showCmd == WinApi.Win32.SW_SHOWMINIMIZED)
+							? WinApi.Win32.SW_SHOWNORMAL : placement.showCmd;
+						WinApi.Win32.SetWindowPlacement(hwnd, ref placement);
+					}
+				}
+				catch(IOException) {  /* 何もしない */ }
+				catch(Newtonsoft.Json.JsonSerializationException) { /* 何もしない */ }
+			}
+		}
 
-        protected override void OnClosing(CancelEventArgs e) {
-            base.OnClosing(e);
+		protected override void OnClosing(CancelEventArgs e) {
+			base.OnClosing(e);
 
-            if (!e.Cancel) {
-                if (Application.Current is App app) {
-                    try {
-                        var hwnd = new WindowInteropHelper(this).Handle;
-                        var placement = new WinApi.WINDOWPLACEMENT();
-                        placement.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(WinApi.WINDOWPLACEMENT));
-                        WinApi.Win32.GetWindowPlacement(hwnd, ref placement);
+			if(!e.Cancel) {
+				if(Application.Current is App app) {
+					try {
+						var hwnd = new WindowInteropHelper(this).Handle;
+						var placement = new WinApi.WINDOWPLACEMENT();
+						placement.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(WinApi.WINDOWPLACEMENT));
+						WinApi.Win32.GetWindowPlacement(hwnd, ref placement);
 
-                        var path = System.IO.Path.Combine(app.AppWorkDirectory, PlacementJsonFile);
-                        Util.FileUtil.SaveJson(path, placement);
-                    }
-                    catch (IOException) {  /* 何もしない */ }
-                }
-            }
-        }
-    }
+						var path = System.IO.Path.Combine(app.AppWorkDirectory, PlacementJsonFile);
+						Util.FileUtil.SaveJson(path, placement);
+					}
+					catch(IOException) {  /* 何もしない */ }
+				}
+			}
+		}
+	}
 }

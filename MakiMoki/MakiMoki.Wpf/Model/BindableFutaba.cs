@@ -51,14 +51,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 			public PostHolder() {
 				this.ImageName = this.ImagePath.Select(x => {
-					if (string.IsNullOrWhiteSpace(x)) {
+					if(string.IsNullOrWhiteSpace(x)) {
 						return "";
 					} else {
 						return Path.GetFileName(x);
 					}
 				}).ToReactiveProperty("");
 				this.ImagePreview = this.ImagePath.Select<string, ImageSource>(x => {
-					if (File.Exists(x)) {
+					if(File.Exists(x)) {
 						// TODO: この辺拡張子設定ファイルに移動
 						var ext = Path.GetExtension(x).ToLower();
 						var imageExt = new string[] {
@@ -72,7 +72,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 							".mp4",
 							".webm",
 						};
-						if (imageExt.Contains(ext)) {
+						if(imageExt.Contains(ext)) {
 							return WpfUtil.ImageUtil.LoadImage(x);
 						} else if(movieExt.Contains(ext)) {
 							// 動画は今は何もしない
@@ -86,12 +86,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					// System.Net.WebUtility.HtmlEncode(x) ♡などをスルーするので自前で解析もする
 					// StringBuilder に入れる必要はないけど結果を見たいので入れる
 					var sb = new StringBuilder(System.Net.WebUtility.HtmlEncode(x));
-					for (var i = 0; i < sb.Length; i++) {
+					for(var i = 0; i < sb.Length; i++) {
 						var c = sb[i];
 
 						var b = FutabaEncoding.GetBytes(c.ToString());
 						var s = FutabaEncoding.GetString(b);
-						if (s == FallbackUnicodeString) {
+						if(s == FallbackUnicodeString) {
 							var ss = string.Format("&#{0};", (int)c);
 							sb.Remove(i, 1);
 							sb.Insert(i, ss);
@@ -107,14 +107,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					.Select(x => (x.Length == 0) ? 0 : (x.Replace(@"\r", "").Where(y => y == '\n').Count() + 1))
 					.ToReadOnlyReactiveProperty();
 				this.Comment.Subscribe(x => {
-					if (x.Length != 0) {
+					if(x.Length != 0) {
 						this.CommentImageValidFlag.Value = true;
 					} else {
 						this.CommentImageValidFlag.Value = this.ImagePath.Value.Length != 0;
 					}
 				});
 				this.ImagePath.Subscribe(x => {
-					if (x.Length != 0) {
+					if(x.Length != 0) {
 						this.CommentImageValidFlag.Value = true;
 					} else {
 						this.CommentImageValidFlag.Value = this.Comment.Value.Length != 0;
@@ -152,7 +152,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveCommand MailSageClickCommand { get; } = new ReactiveCommand();
 		public ReactiveCommand MailIdClickCommand { get; } = new ReactiveCommand();
 		public ReactiveCommand MailIpClickCommand { get; } = new ReactiveCommand();
-		
+
 
 		public string Name { get; }
 
@@ -160,7 +160,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public Data.FutabaContext Raw { get; }
 
-		public BindableFutaba(Data.FutabaContext futaba, BindableFutaba old=null) {
+		public BindableFutaba(Data.FutabaContext futaba, BindableFutaba old = null) {
 			int c = 0;
 			this.Raw = futaba;
 			this.Name = futaba.Name;
@@ -171,7 +171,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					.ToArray());
 			var bord = Config.ConfigLoader.Bord.Where(x => x.Url == futaba.Url.BaseUrl).FirstOrDefault();
 			this.PostTitle = new ReactiveProperty<string>(futaba.Url.IsCatalogUrl ? "スレ立て" : "レス");
-			if (bord == null) {
+			if(bord == null) {
 				this.PostNameVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
 				this.PostImageVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
 				this.PostIpOptionVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
@@ -179,7 +179,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			} else {
 				this.PostNameVisibility = new ReactiveProperty<Visibility>(
 					(bord.Extra.NameValue) ? Visibility.Visible : Visibility.Collapsed);
-				if (futaba.Url.IsCatalogUrl) {
+				if(futaba.Url.IsCatalogUrl) {
 					this.PostImageVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
 					this.PostIpOptionVisibility = new ReactiveProperty<Visibility>(
 						bord.Extra.MailIpValue ? Visibility.Visible : Visibility.Collapsed);
@@ -206,9 +206,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		private async void OnOpenImage(MouseButtonEventArgs e) {
-			if (e.Source is FrameworkElement o) {
-				if ((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
-					switch (e.ChangedButton) {
+			if(e.Source is FrameworkElement o) {
+				if((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
+					switch(e.ChangedButton) {
 					case MouseButton.Left:
 						try {
 							Application.Current.MainWindow.IsEnabled = false;
@@ -219,7 +219,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 									+ "|すべてのファイル|*.*"
 							};
 							e.Handled = true;
-							if (ofd.ShowDialog() ?? false) {
+							if(ofd.ShowDialog() ?? false) {
 								this.PostData.Value.ImagePath.Value = ofd.FileName;
 								// ダイアログをダブルクリックで選択するとウィンドウに当たり判定がいくので
 								// 一度待つ
@@ -236,9 +236,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		private void OnDeleteImage(MouseButtonEventArgs e) {
-			if (e.Source is FrameworkElement o) {
-				if ((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
-					switch (e.ChangedButton) {
+			if(e.Source is FrameworkElement o) {
+				if((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
+					switch(e.ChangedButton) {
 					case MouseButton.Left:
 						this.PostData.Value.ImagePath.Value = "";
 						e.Handled = true;
@@ -303,7 +303,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ResImageVisibility = this.ThumbSource
 				.Select(x => (x != null) ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
-			if (item.ResItem.Res.Fsize != 0) {
+			if(item.ResItem.Res.Fsize != 0) {
 				// TODO: ここに処理を書かない移動させる
 				Util.TaskUtil.PushImage(() => {
 					var t = Util.Futaba.GetThumbImage(item.Url, item.ResItem.Res);
@@ -316,7 +316,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 					System.Windows.Application.Current?.Dispatcher.Invoke(() => {
 						// 通信中に終了するとnullになることがある				
-						if (ThumbSource != null) {
+						if(ThumbSource != null) {
 							ThumbSource.Value = WpfUtil.ImageUtil.LoadImage(localPath);
 						}
 					});

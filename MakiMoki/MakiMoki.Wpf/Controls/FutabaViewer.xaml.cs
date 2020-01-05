@@ -29,8 +29,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		public static RoutedEvent ContentsChangedEvent
 			= EventManager.RegisterRoutedEvent(
 				nameof(ContentsChanged),
-				RoutingStrategy.Tunnel, 
-				typeof(RoutedPropertyChangedEventHandler<Model.IFutabaViewerContents>), 
+				RoutingStrategy.Tunnel,
+				typeof(RoutedPropertyChangedEventHandler<Model.IFutabaViewerContents>),
 				typeof(FutabaViewer));
 
 
@@ -52,9 +52,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		public FutabaViewer() {
 			InitializeComponent();
 			this.CatalogListBox.Loaded += (s, e) => {
-				if ((this.scrollViewerCatalog = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.CatalogListBox)) != null) {
+				if((this.scrollViewerCatalog = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.CatalogListBox)) != null) {
 					this.scrollViewerCatalog.ScrollChanged += (ss, arg) => {
-						if ((this.Contents != null) && this.Contents.Futaba.Value.Url.IsCatalogUrl) {
+						if((this.Contents != null) && this.Contents.Futaba.Value.Url.IsCatalogUrl) {
 							this.Contents.ScrollVerticalOffset.Value = this.scrollViewerCatalog.VerticalOffset;
 							this.Contents.ScrollHorizontalOffset.Value = this.scrollViewerCatalog.HorizontalOffset;
 						}
@@ -63,18 +63,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			};
 
 			this.ThreadResListBox.Loaded += async (s, e) => {
-				if ((this.scrollViewerThreadRes = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.ThreadResListBox)) != null) {
+				if((this.scrollViewerThreadRes = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.ThreadResListBox)) != null) {
 					this.scrollViewerThreadRes.ScrollChanged += async (ss, arg) => {
-						if ((this.Contents != null) && this.Contents.Futaba.Value.Url.IsThreadUrl) {
+						if((this.Contents != null) && this.Contents.Futaba.Value.Url.IsThreadUrl) {
 							this.Contents.ScrollVerticalOffset.Value = this.scrollViewerThreadRes.VerticalOffset;
 							this.Contents.ScrollHorizontalOffset.Value = this.scrollViewerThreadRes.HorizontalOffset;
 							var p = WpfUtil.WpfHelper.FindFirstChild<VirtualizingStackPanel>(this.ThreadResListBox);
-							if (p != null) {
+							if(p != null) {
 								await Task.Delay(1); // スクロール直後はまだコンテンツが切り替わっていないので一度UIスレッドを進める
 								var cp = FindLastDisplayedChild<ListBoxItem>(
 									p, p,
 									new Point(0, 1)); // (0, 0)だとギリギリ見えない場合でも見えると判定されるので1px下に
-								if (cp != null) {
+								if(cp != null) {
 									this.Contents.LastVisibleItem.Value = cp.DataContext;
 								}
 							}
@@ -92,14 +92,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			var pt = parent ?? el;
 			var zeroPt = targetPt ?? new Point(0, 0);
 			int c = VisualTreeHelper.GetChildrenCount(el);
-			for (var i = c - 1; 0 <= i; i--) {
+			for(var i = c - 1; 0 <= i; i--) {
 				var co = VisualTreeHelper.GetChild(el, i);
-				if (co is FrameworkElement fe) {
+				if(co is FrameworkElement fe) {
 					var p = fe.TranslatePoint(zeroPt, pt);
-					if ((0 <= p.X) && (p.X <= pt.ActualWidth)
+					if((0 <= p.X) && (p.X <= pt.ActualWidth)
 						&& (0 <= p.Y) && (p.Y <= pt.ActualHeight)) {
 
-						if (co is T t) {
+						if(co is T t) {
 							return t;
 						}
 						/* 子供はいらない
@@ -120,12 +120,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					e.OldValue as Model.IFutabaViewerContents,
 					e.NewValue as Model.IFutabaViewerContents,
 					ContentsChangedEvent));
-				if ((obj is FutabaViewer fv) && (e.NewValue is Model.IFutabaViewerContents c)) {
-					if (c.Futaba.Value.Url.IsCatalogUrl) {
+				if((obj is FutabaViewer fv) && (e.NewValue is Model.IFutabaViewerContents c)) {
+					if(c.Futaba.Value.Url.IsCatalogUrl) {
 						fv.scrollViewerCatalog?.ScrollToHorizontalOffset(c.ScrollHorizontalOffset.Value);
 						fv.scrollViewerCatalog?.ScrollToVerticalOffset(c.ScrollVerticalOffset.Value);
-					} else if (c.Futaba.Value.Url.IsThreadUrl) {
-						if (c.LastVisibleItem.Value != null) {
+					} else if(c.Futaba.Value.Url.IsThreadUrl) {
+						if(c.LastVisibleItem.Value != null) {
 							// コンテンツ切り替えがまだListBoxに伝搬していないので一度UIスレッドを進める
 							await Task.Delay(1);
 							fv.ThreadResListBox.ScrollIntoView(c.LastVisibleItem.Value);
@@ -140,7 +140,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 
 		public void OnMenuItemCopyClickCommand(object swender, RoutedEventArgs e) {
-			if (this.DataContext is ViewModels.FutabaViewerViewModel vm) {
+			if(this.DataContext is ViewModels.FutabaViewerViewModel vm) {
 				vm.MenuItemCopyClickCommand.Execute(e);
 			}
 		}
@@ -152,21 +152,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 
 		public void OnMenuItemSoudaneClickCommand(object swender, RoutedEventArgs e) {
-			if (this.DataContext is ViewModels.FutabaViewerViewModel vm) {
+			if(this.DataContext is ViewModels.FutabaViewerViewModel vm) {
 				vm.MenuItemSoudaneClickCommand.Execute(e);
 			}
 		}
 
 
 		public void OnMenuItemDelClickCommand(object swender, RoutedEventArgs e) {
-			if (this.DataContext is ViewModels.FutabaViewerViewModel vm) {
+			if(this.DataContext is ViewModels.FutabaViewerViewModel vm) {
 				vm.MenuItemDelClickCommand.Execute(e);
 			}
 		}
 
 
 		public void OnMenuItemDeleteClickCommand(object swender, RoutedEventArgs e) {
-			if (this.DataContext is ViewModels.FutabaViewerViewModel vm) {
+			if(this.DataContext is ViewModels.FutabaViewerViewModel vm) {
 				vm.MenuItemDeleteClickCommand.Execute(e);
 			}
 		}

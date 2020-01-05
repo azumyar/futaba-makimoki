@@ -9,7 +9,7 @@ using System.Windows.Data;
 namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class CatalogTextConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			if (value is Data.ResItem r) {
+			if(value is Data.ResItem r) {
 				var s1 = Util.TextUtil.RowComment2Text(r.Com);
 				var s2 = Util.TextUtil.RemoveCrLf(s1);
 

@@ -39,14 +39,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 
 		public static void SetInline(TextBlock element, string value) {
-			if (element != null)
+			if(element != null)
 				element.SetValue(ArticleContentProperty, value);
 		}
 
 		private static void OnInlinePropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
 			var tb = obj as TextBlock;
 			var msg = e.NewValue as string;
-			if (tb == null || msg == null) {
+			if(tb == null || msg == null) {
 				return;
 			}
 
@@ -71,31 +71,31 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			var regexFontStart = new Regex("^<font\\s+color=[\"']#([0-9a-fA-F]+)[\"'][^>]*>", regexOpt);
 			var regexFontEnd = new Regex("</font>", regexOpt);
 			var last = lines.LastOrDefault();
-			foreach (var s in lines) {
+			foreach(var s in lines) {
 				var input = new StringBuilder(s);
 				var output = new StringBuilder();
 
 				void EvalFont(StringBuilder inputVal, StringBuilder outputVal) {
 					var fm = regexFontStart.Match(inputVal.ToString());
-					if (fm.Success) {
+					if(fm.Success) {
 						var rgb = fm.Groups[1].Value;
 						var color = default(Color?);
 						var ns = System.Globalization.NumberStyles.HexNumber;
 						var fp = System.Globalization.CultureInfo.InvariantCulture;
-						if (rgb.Length == 3) {
-							if (int.TryParse(rgb[0].ToString(), ns, fp, out var r)
+						if(rgb.Length == 3) {
+							if(int.TryParse(rgb[0].ToString(), ns, fp, out var r)
 								&& int.TryParse(rgb[1].ToString(), ns, fp, out var g)
 								&& int.TryParse(rgb[2].ToString(), ns, fp, out var b)) {
 								color = Color.FromRgb((byte)r, (byte)g, (byte)b);
 							}
 						} else {
-							if (uint.TryParse(rgb, ns, fp, out var i)) {
+							if(uint.TryParse(rgb, ns, fp, out var i)) {
 								color = Color.FromRgb((byte)(i >> 16 & 0xff), (byte)(i >> 8 & 0xff), (byte)(i & 0xff));
 							}
 						}
 						inputVal.Remove(0, fm.Length);
 						var fm2 = regexFontEnd.Match(inputVal.ToString());
-						if (!fm.Success) {
+						if(!fm.Success) {
 							// 前提条件として想定していない形式
 						} else {
 							var text = inputVal.ToString().Substring(0, fm2.Index);
@@ -111,9 +111,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				}
 
 				void EvalLink(StringBuilder inputVal, StringBuilder outputVal) {
-					foreach (var r in regex) {
+					foreach(var r in regex) {
 						var m = r.Match(inputVal.ToString());
-						if (m.Success) {
+						if(m.Success) {
 							var link = new Hyperlink() {
 								TextDecorations = null,
 								Foreground = new SolidColorBrush(Colors.Blue),
@@ -136,16 +136,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				}
 			start:
 				var fontPos = input.ToString().ToLower().IndexOf("<font");
-				if (fontPos < 0) {
+				if(fontPos < 0) {
 					var text = input.ToString();
 					var t2 = Regex.Replace(text, @"<[^>]*>", "",
 						RegexOptions.IgnoreCase | RegexOptions.Multiline);
 					var t3 = System.Net.WebUtility.HtmlDecode(t2);
 					input = new StringBuilder(t3);
-					while (input.Length != 0) {
+					while(input.Length != 0) {
 						EvalLink(input, output);
 					}
-				} else if (fontPos == 0) {
+				} else if(fontPos == 0) {
 					EvalFont(input, output);
 					goto start;
 				} else {
@@ -154,10 +154,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						RegexOptions.IgnoreCase | RegexOptions.Multiline);
 					var t3 = System.Net.WebUtility.HtmlDecode(t2);
 					var input2 = new StringBuilder(t3);
-					while (input2.Length != 0) {
+					while(input2.Length != 0) {
 						EvalLink(input2, output);
 					}
-					if (output.Length != 0) {
+					if(output.Length != 0) {
 						tb.Inlines.Add(new Run(output.ToString()));
 						output.Clear();
 					}
@@ -166,11 +166,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					goto start;
 				}
 
-				if (output.Length != 0) {
+				if(output.Length != 0) {
 					tb.Inlines.Add(new Run(output.ToString()));
 					output.Clear();
 				}
-				if (!object.ReferenceEquals(lines, last)) {
+				if(!object.ReferenceEquals(lines, last)) {
 					tb.Inlines.Add(new LineBreak());
 				}
 			}
@@ -178,13 +178,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 
 		private static string ToUrl(string s) {
 			// TODO: 設定に定義
-			if (s.StartsWith("su")) {
+			if(s.StartsWith("su")) {
 				return "http://www.nijibox5.com/futabafiles/tubu/src/" + s;
-			} else if (s.StartsWith("ss")) {
+			} else if(s.StartsWith("ss")) {
 				return "http://www.nijibox5.com/futabafiles/kobin/src/" + s;
-			} else if (s.StartsWith("fu")) {
+			} else if(s.StartsWith("fu")) {
 				return "https://dec.2chan.net/up2/src/" + s;
-			} else if (s.StartsWith("f")) {
+			} else if(s.StartsWith("f")) {
 				return "https://dec.2chan.net/up/src/" + s;
 			}
 			return s;
@@ -196,7 +196,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					FrameworkContentElement cl = hl;
 					UIElement el = null;
 					while(el == null && cl != null && cl.Parent != null) {
-						if (cl.Parent is UIElement u) {
+						if(cl.Parent is UIElement u) {
 							el = u;
 							break;
 						}
@@ -212,7 +212,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 
 		private static void link_MouseEnter(object sender, MouseEventArgs e) {
 			var link = sender as Hyperlink;
-			if (link == null)
+			if(link == null)
 				return;
 
 			// リンクにカーソルを当てたときは文字色を赤くする
@@ -222,7 +222,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		private static void link_MouseLeave(object sender, MouseEventArgs e) {
 			var link = sender as Hyperlink;
 			var parent = link.Parent as TextBlock;
-			if (link == null || parent == null)
+			if(link == null || parent == null)
 				return;
 
 			// リンクからカーソルが離れたときは文字色をデフォルトカラーに戻す

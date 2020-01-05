@@ -28,7 +28,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 
 		private static void SetImage(string file, BitmapImage image) {
 			var r = new WeakReference<BitmapImage>(image);
-			if (bitmapDic.ContainsKey(file)) {
+			if(bitmapDic.ContainsKey(file)) {
 				bitmapDic[file] = r;
 			} else {
 				bitmapDic.Add(file, r);
@@ -43,14 +43,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			System.Drawing.Image bitmap = null;
 			try {
 				try {
-					if (Path.GetExtension(path).ToLower() == "webp") {
+					if(Path.GetExtension(path).ToLower() == "webp") {
 						var decoder = new Imazen.WebP.SimpleDecoder();
-						using (var fs = new FileStream(path, FileMode.Open)) {
+						using(var fs = new FileStream(path, FileMode.Open)) {
 							var l = new List<byte>();
-							while (fs.CanRead) {
+							while(fs.CanRead) {
 								var bb = new byte[1024];
 								var c = fs.Read(bb, 0, bb.Length);
-								for (var i = 0; i < c; i++) {
+								for(var i = 0; i < c; i++) {
 									l.Add(bb[i]);
 								}
 							}
@@ -60,15 +60,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						bitmap = System.Drawing.Bitmap.FromFile(path);
 					}
 				}
-				catch (IOException e) {
+				catch(IOException e) {
 					throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e);
 				}
-				catch (ArgumentException e) {
+				catch(ArgumentException e) {
 					throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e);
 				}
 
 				var bitmapImage = new BitmapImage();
-				using (var stream = new MemoryStream()) {
+				using(var stream = new MemoryStream()) {
 					bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
 					stream.Position = 0;
 
@@ -94,8 +94,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			return ToThumbProperty(futaba
 				.Select(x => {
 					var it = x?.ResItems.FirstOrDefault();
-					if ((it != null) && it.Url.IsThreadUrl) {
-						if (it.ResItem.Res.Fsize != 0) {
+					if((it != null) && it.Url.IsThreadUrl) {
+						if(it.ResItem.Res.Fsize != 0) {
 							return it;
 						}
 					}
@@ -107,8 +107,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			return ToThumbProperty(futaba
 				.Select(x => {
 					var it = x?.Raw.ResItems.FirstOrDefault();
-					if ((it != null) && it.Url.IsThreadUrl) {
-						if (it.ResItem.Res.Fsize != 0) {
+					if((it != null) && it.Url.IsThreadUrl) {
+						if(it.ResItem.Res.Fsize != 0) {
 							return it;
 						}
 					}
@@ -120,7 +120,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		public static ReactiveProperty<ImageSource> ToThumbProperty(ReactiveProperty<Data.FutabaContext.Item> futaba) {
 			return futaba
 				.SelectMany(async x => {
-					if (x == null || (x.ResItem.Res.Fsize == 0)) {
+					if(x == null || (x.ResItem.Res.Fsize == 0)) {
 						return null;
 					} else {
 						/*
@@ -152,6 +152,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				.Select(x => (x != null) ? (ImageSource)WpfUtil.ImageUtil.LoadImage(x) : null)
 				.ToReactiveProperty();
 			*/
-					}
-				}
+		}
+	}
 }

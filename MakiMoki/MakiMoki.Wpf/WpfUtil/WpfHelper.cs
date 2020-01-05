@@ -10,13 +10,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 	static class WpfHelper {
 		public static T FindFirstChild<T>(DependencyObject o) {
 			int c = VisualTreeHelper.GetChildrenCount(o);
-			for (var i = 0; i < c; i++) {
+			for(var i = 0; i < c; i++) {
 				var co = VisualTreeHelper.GetChild(o, i);
-				if (co is T t) {
+				if(co is T t) {
 					return t;
 				}
 				var r = FindFirstChild<T>(co);
-				if (r != null) {
+				if(r != null) {
 					return r;
 				}
 			}
@@ -25,13 +25,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 
 		public static T FindLastChild<T>(DependencyObject o) {
 			int c = VisualTreeHelper.GetChildrenCount(o);
-			for (var i = c - 1; 0 <= i; i--) {
+			for(var i = c - 1; 0 <= i; i--) {
 				var co = VisualTreeHelper.GetChild(o, i);
-				if (co is T t) {
+				if(co is T t) {
 					return t;
 				}
 				var r = FindLastChild<T>(co);
-				if (r != null) {
+				if(r != null) {
 					return r;
 				}
 			}

@@ -85,17 +85,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if(e.Source is Hyperlink link) {
 				// TODO: ロダのリンクこの辺定数定義設定に移動させる
 				var u = link.NavigateUri.AbsoluteUri;
-				if (u.StartsWith("http://www.nijibox5.com/futabafiles/tubu/src/")
+				if(u.StartsWith("http://www.nijibox5.com/futabafiles/tubu/src/")
 					|| u.StartsWith("http://www.nijibox5.com/futabafiles/kobin/src/")
 					|| u.StartsWith("https://dec.2chan.net/up2/src/")
 					|| u.StartsWith("https://dec.2chan.net/up/src/")) {
 					var ext = Regex.Match(u, @"\.[a-zA-Z0-9]+$");
-					if (ext.Success) {
+					if(ext.Success) {
 						// TODO: 内部画像ビューワを作ってそっちに移動
-						if (new string[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" }.Contains(ext.Value.ToLower())) {
+						if(new string[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" }.Contains(ext.Value.ToLower())) {
 							this.StartBrowser(u);
 							goto end;
-						} else if (new string[] { ".mp4", ".webm" }.Contains(ext.Value.ToLower())) {
+						} else if(new string[] { ".mp4", ".webm" }.Contains(ext.Value.ToLower())) {
 							this.StartBrowser(u);
 							goto end;
 						}
@@ -104,9 +104,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				// ふたばのリンク
 				foreach(var b in Config.ConfigLoader.Bord) {
 					var uu = new Uri(b.Url);
-					if (uu.Authority == link.NavigateUri.Authority) {
+					if(uu.Authority == link.NavigateUri.Authority) {
 						var m = Regex.Match(link.NavigateUri.LocalPath, @"^/[^/]+/res/([0-9]+)\.htm$");
-						if (link.NavigateUri.LocalPath.StartsWith(uu.LocalPath) && m.Success) {
+						if(link.NavigateUri.LocalPath.StartsWith(uu.LocalPath) && m.Success) {
 							Util.Futaba.Open(new Data.UrlContext(b.Url, m.Groups[1].Value));
 							goto end;
 						}
@@ -122,7 +122,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnCatalogUpdateClick(Data.FutabaContext e) {
 			Util.Futaba.UpdateCatalog(e.Bord)
 				.SubscribeOnDispatcher()
-				.Subscribe(x => { 
+				.Subscribe(x => {
 					// TODO: カタログのスクロールリセットする
 				});
 		}
@@ -198,19 +198,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnThreadUpdateClick(Data.FutabaContext x) {
-			if (x != null) {
+			if(x != null) {
 				Util.Futaba.UpdateThreadRes(x.Bord, x.Url.ThreadNo);//.Subscribe();
 			}
 		}
 
 		private void OnPostClick(Model.BindableFutaba x) {
-			if (x != null) {
+			if(x != null) {
 				this.PostViewVisibility.Value = (this.PostViewVisibility.Value == Visibility.Collapsed) ? Visibility.Visible : Visibility.Collapsed;
 			}
 		}
 
 		private void OnPostViewPostClick(Model.BindableFutaba x) {
-			if (x != null) {
+			if(x != null) {
 				if(x.Url.IsCatalogUrl) {
 					Util.Futaba.PostThread(x.Raw.Bord,
 						x.PostData.Value.Name.Value,
@@ -221,7 +221,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						x.PostData.Value.Password.Value)
 					.SubscribeOnDispatcher()
 					.Subscribe(y => {
-						if (y.Successed) {
+						if(y.Successed) {
 							PostViewVisibility.Value = Visibility.Collapsed;
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
 							//Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo);
@@ -254,24 +254,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnMenuItemCopyClickCommand(RoutedEventArgs e) {
-			if ((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
+			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
 				var sb = new StringBuilder()
 					.Append("No.")
 					.Append(ri.Raw.Value.ResItem.No);
-				if (ri.Bord.Value.Extra?.NameValue ?? true) {
+				if(ri.Bord.Value.Extra?.NameValue ?? true) {
 					sb.Append(" ")
 						.Append(ri.Raw.Value.ResItem.Res.Sub)
 						.Append(" ")
 						.Append(ri.Raw.Value.ResItem.Res.Name);
 				}
-				if (!string.IsNullOrWhiteSpace(ri.Raw.Value.ResItem.Res.Email)) {
+				if(!string.IsNullOrWhiteSpace(ri.Raw.Value.ResItem.Res.Email)) {
 					sb.Append(" [").Append(ri.Raw.Value.ResItem.Res.Email).Append("]");
 				}
 				sb.Append(" ").Append(ri.Raw.Value.ResItem.Res.Now);
-				if (!string.IsNullOrWhiteSpace(ri.Raw.Value.ResItem.Res.Host)) {
+				if(!string.IsNullOrWhiteSpace(ri.Raw.Value.ResItem.Res.Host)) {
 					sb.Append(" ").Append(ri.Raw.Value.ResItem.Res.Host);
 				}
-				if (!string.IsNullOrWhiteSpace(ri.Raw.Value.ResItem.Res.Id)) {
+				if(!string.IsNullOrWhiteSpace(ri.Raw.Value.ResItem.Res.Id)) {
 					sb.Append(" ").Append(ri.Raw.Value.ResItem.Res.Id);
 				}
 				if(0 < ri.Raw.Value.Soudane) {
@@ -284,7 +284,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnMenuItemReplyClickCommand(RoutedEventArgs e) {
-			if ((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
+			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
 				var sb = new StringBuilder();
 				var c = WpfUtil.TextUtil.RawComment2Text(ri.Raw.Value.ResItem.Res.Com).Replace("\r", "").Split('\n');
 				foreach(var s in c) {
@@ -296,17 +296,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnMenuItemSoudaneClickCommand(RoutedEventArgs e) {
-			if ((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
+			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
 				Util.Futaba.PostSoudane(ri.Bord.Value, ri.Raw.Value.ResItem.No)
 					.SubscribeOnDispatcher()
 					.Subscribe(x => {
 						var m = x.Message;
 						if(x.Successed) {
 							if(int.TryParse(x.Message, out var i)) {
-								if (ri.Raw.Value.Soudane != i) {
+								if(ri.Raw.Value.Soudane != i) {
 									Util.Futaba.UpdateThreadRes(ri.Bord.Value, ri.Raw.Value.Url.ThreadNo);//.Subscribe();
 									goto exit;
-								} 
+								}
 							}
 							m = "不明なエラー";
 						}
@@ -323,13 +323,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnMenuItemDeleteClickCommand(RoutedEventArgs e) {
 			System.Diagnostics.Debug.WriteLine(e);
-			if ((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
+			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
 				// TODO: 確認ダイアログを出す
 				Util.Futaba.PostDeleteThreadRes(ri.Bord.Value, ri.Raw.Value.ResItem.No, false, Config.ConfigLoader.Password.Futaba)
 					.SubscribeOnDispatcher()
 					.Subscribe(x => {
 						var m = x.Message;
-						if (x.Successed) {
+						if(x.Successed) {
 						}
 						// TODO: いい感じにする
 						MessageBox.Show(m);
@@ -342,7 +342,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			try {
 				Process.Start(new ProcessStartInfo(u));
 			}
-			catch (System.ComponentModel.Win32Exception) {
+			catch(System.ComponentModel.Win32Exception) {
 				// 関連付け実行に失敗
 			}
 		}

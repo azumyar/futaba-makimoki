@@ -11,7 +11,7 @@ using System.Windows.Media;
 using Reactive.Bindings;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
-	class TreeItem: INotifyPropertyChanged, IDisposable {
+	class TreeItem : INotifyPropertyChanged, IDisposable {
 		public event PropertyChangedEventHandler PropertyChanged;
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
@@ -26,7 +26,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			= new ReactiveProperty<bool>(false);
 		public ReactiveProperty<bool> IsExpanded { get; }
 			= new ReactiveProperty<bool>();
-	
+
 		public ReactiveProperty<TreeItem[]> ChildItems { get; }
 			= new ReactiveProperty<TreeItem[]>(new TreeItem[0]);
 

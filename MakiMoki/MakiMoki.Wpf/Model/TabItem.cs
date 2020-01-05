@@ -19,7 +19,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public string Id { get; }
 
 		public Data.UrlContext Url { get; }
-		public ReactiveProperty<string> Name { get;  }
+		public ReactiveProperty<string> Name { get; }
 		public ReactiveProperty<ImageSource> ThumbSource { get; }
 		public ReactiveProperty<Visibility> ThumbVisibility { get; }
 		public ReactiveProperty<BindableFutaba> Futaba { get; }

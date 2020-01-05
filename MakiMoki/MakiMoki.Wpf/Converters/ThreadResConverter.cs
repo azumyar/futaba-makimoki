@@ -14,7 +14,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return Visibility.Collapsed;
 			}
 
-			if (value is Data.FutabaContext f) {
+			if(value is Data.FutabaContext f) {
 				return string.IsNullOrWhiteSpace(f.Url.ThreadNo) ? Visibility.Visible : Visibility.Hidden;
 			}
 			throw new ArgumentException("型不正。", "value");
@@ -27,11 +27,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 	class FutabaThreadResVisibleConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			if (value == null) {
+			if(value == null) {
 				return Visibility.Collapsed;
 			}
 
-			if (value is Data.FutabaContext f) {
+			if(value is Data.FutabaContext f) {
 				return !string.IsNullOrWhiteSpace(f.Url.ThreadNo) ? Visibility.Visible : Visibility.Hidden;
 			}
 			throw new ArgumentException("型不正。", "value");
@@ -44,13 +44,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 	class FutabaResItemVisibleConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			if (value == null) {
+			if(value == null) {
 				return Visibility.Collapsed;
 			}
 
-			if (value is string v1) {
+			if(value is string v1) {
 				return !string.IsNullOrEmpty(v1) ? Visibility.Visible : Visibility.Collapsed;
-			} else if (value is int v2) {
+			} else if(value is int v2) {
 				return (0 < v2) ? Visibility.Visible : Visibility.Collapsed;
 			}
 			throw new ArgumentException("型不正。", "value");
@@ -63,11 +63,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 	class FutabaResItemNowConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			if (value == null) {
+			if(value == null) {
 				return Visibility.Collapsed;
 			}
 
-			if (value is string v1) {
+			if(value is string v1) {
 				return Regex.Replace(v1, @"<[^>*]>", "", RegexOptions.Multiline);
 			}
 			throw new ArgumentException("型不正。", "value");

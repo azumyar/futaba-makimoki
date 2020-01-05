@@ -20,17 +20,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 
 		private static void OnPlaceHolderChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
 			var textBox = sender as TextBox;
-			if (textBox == null) {
+			if(textBox == null) {
 				return;
 			}
 
 			var placeHolder = e.NewValue as string;
 			var handler = CreateEventHandler(placeHolder);
-			if (string.IsNullOrEmpty(placeHolder)) {
+			if(string.IsNullOrEmpty(placeHolder)) {
 				textBox.TextChanged -= handler;
 			} else {
 				textBox.TextChanged += handler;
-				if (string.IsNullOrEmpty(textBox.Text)) {
+				if(string.IsNullOrEmpty(textBox.Text)) {
 					textBox.Background = CreateVisualBrush(placeHolder);
 				}
 			}
@@ -39,12 +39,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		private static TextChangedEventHandler CreateEventHandler(string placeHolder) {
 			// TextChanged イベントをハンドルし、TextBox が未入力のときだけ
 			// プレースホルダーを表示するようにする。
-			return (sender, e) =>
-			{
+			return (sender, e) => {
 				// 背景に TextBlock を描画する VisualBrush を使って
 				// プレースホルダーを実現
 				var textBox = (TextBox)sender;
-				if (string.IsNullOrEmpty(textBox.Text)) {
+				if(string.IsNullOrEmpty(textBox.Text)) {
 					textBox.Background = CreateVisualBrush(placeHolder);
 				} else {
 					textBox.Background = new SolidColorBrush(Colors.Transparent);
