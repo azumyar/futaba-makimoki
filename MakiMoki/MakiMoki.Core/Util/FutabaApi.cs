@@ -24,14 +24,14 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					var r = new RestRequest(FutabaEndPoint, Method.GET);
 					r.AddParameter("mode", "cat");
 					r.AddParameter("mode", "json");
-					if (sort != null) {
+					if(sort != null) {
 						r.AddParameter("sort", sort.ApiValue);
 					}
-					foreach (var cookie in cookies) {
+					foreach(var cookie in cookies) {
 						r.AddCookie(cookie.Name, cookie.Value);
 					}
 					var res = c.Execute(r);
-					if (res.StatusCode == System.Net.HttpStatusCode.OK) {
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 						var s = res.Content;
 						Console.WriteLine(s);
 						var rc = res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray();
@@ -53,7 +53,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					var c = new RestClient(baseUrl);
 					var r = new RestRequest(FutabaEndPoint, Method.GET);
 					r.AddParameter("mode", "cat");
-					if (sort != null) {
+					if(sort != null) {
 						r.AddParameter("sort", sort.ApiValue);
 					}
 					foreach(var cookie in cookies) {
@@ -65,7 +65,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					var h = (maxThread / w) + ((maxThread % w == 0) ? 0 : 1);
 					r.AddCookie("cxyl", string.Format("{0}x{1}x0x0x0", w, h));
 					var res = c.Execute(r);
-					if (res.StatusCode == System.Net.HttpStatusCode.OK) {
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 						var s = res.Content;
 						var rc = res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray();
 						return (rc, s);
@@ -86,13 +86,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					var r = new RestRequest(FutabaEndPoint, Method.GET);
 					r.AddParameter("mode", "json");
 					r.AddParameter("res", threadNo);
-					foreach (var cookie in cookies) {
+					foreach(var cookie in cookies) {
 						r.AddCookie(cookie.Name, cookie.Value);
 					}
 					var res = c.Execute(r);
-					if (res.StatusCode == System.Net.HttpStatusCode.OK) {
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 						var rc = res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray();
-						if (res.Content.StartsWith("<html>")) {
+						if(res.Content.StartsWith("<html>")) {
 							var s = Encoding.GetEncoding("shift_jis").GetString(res.RawBytes);
 							System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 							System.Diagnostics.Debug.WriteLine(s);
@@ -123,13 +123,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					var c = new RestClient(u);
 					var r = new RestRequest(resItem.Thumb, Method.GET);
 					var res = c.Execute(r);
-					if (res.StatusCode == System.Net.HttpStatusCode.OK) {
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 						return res.RawBytes;
 					} else {
 						return null;
 					}
 				}
-				catch (JsonSerializationException ex) {
+				catch(JsonSerializationException ex) {
 					throw;
 				}
 			});
@@ -139,7 +139,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static async Task<(bool Successed, Data.Cookie[] Cookies, string Raw)> PostThread(Data.BordConfig bord,
 			Data.Cookie[] cookies, string ptua,
 			string name, string email, string subject,
-			string comment, string filePath, string passwd){
+			string comment, string filePath, string passwd) {
 			System.Diagnostics.Debug.Assert(bord != null);
 			System.Diagnostics.Debug.Assert(cookies != null);
 			System.Diagnostics.Debug.Assert(ptua != null);
@@ -161,11 +161,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				SetPostParameter(r, bord, "",
 					ptua,
 					name, email, subject, comment, filePath, passwd);
-				foreach (var cookie in cookies) {
+				foreach(var cookie in cookies) {
 					r.AddCookie(cookie.Name, cookie.Value);
 				}
 				var res = c.Execute(r);
-				if (res.StatusCode == System.Net.HttpStatusCode.OK) {
+				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 					// TODO: これだと立ったスレッド番号がわからないのでAJAXモード外す
 					var s = FutabaEncoding.GetString(res.RawBytes);
 					return (s == "ok", res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray(), s);
@@ -205,11 +205,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				SetPostParameter(r, bord, threadNo,
 					ptua,
 					name, email, subject, comment, filePath, passwd);
-				foreach (var cookie in cookies) {
+				foreach(var cookie in cookies) {
 					r.AddCookie(cookie.Name, cookie.Value);
 				}
 				var res = c.Execute(r);
-				if (res.StatusCode == System.Net.HttpStatusCode.OK) {
+				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 					var s = FutabaEncoding.GetString(res.RawBytes);
 					return (s == "ok", res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray(), s);
 				} else {
@@ -237,25 +237,25 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			r.AddParameter("scsz", "1024x768x24", ParameterType.GetOrPost);
 			r.AddParameter("chrenc", "文字", ParameterType.GetOrPost);
 			r.AddParameter("responsemode", "ajax", ParameterType.GetOrPost);
-			if (bord.Extra?.NameValue ?? true) {
+			if(bord.Extra?.NameValue ?? true) {
 				r.AddParameter("name", name, ParameterType.GetOrPost);
 				r.AddParameter("sub", subject, ParameterType.GetOrPost);
 			}
-			if (string.IsNullOrWhiteSpace(threadNo)) {
+			if(string.IsNullOrWhiteSpace(threadNo)) {
 				r.AddParameter("textonly", string.IsNullOrWhiteSpace(filePath) ? "on" : "", ParameterType.GetOrPost);
-				if (!string.IsNullOrWhiteSpace(filePath)) {
-					if (Config.ConfigLoader.Mime.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
+				if(!string.IsNullOrWhiteSpace(filePath)) {
+					if(Config.ConfigLoader.Mime.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
 						r.AddFile("upfile", filePath, m);
-					} else { 
+					} else {
 						// TODO: なんかエラーだす
 					}
 				}
 			} else {
 				r.AddParameter("resto", threadNo, ParameterType.GetOrPost);
-				if (bord.Extra?.ResImageValue ?? true) {
+				if(bord.Extra?.ResImageValue ?? true) {
 					r.AddParameter("textonly", string.IsNullOrWhiteSpace(filePath) ? "on" : "", ParameterType.GetOrPost);
-					if (!string.IsNullOrWhiteSpace(filePath)) {
-						if (Config.ConfigLoader.Mime.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
+					if(!string.IsNullOrWhiteSpace(filePath)) {
+						if(Config.ConfigLoader.Mime.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
 							r.AddFile("upfile", filePath, m);
 						} else {
 							// TODO: なんかエラーだす
@@ -278,15 +278,15 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				r.AddParameter(threadResNo, "delete", ParameterType.GetOrPost);
 				r.AddParameter("pwd", passwd, ParameterType.GetOrPost);
 				r.AddParameter("mode", "usrdel", ParameterType.GetOrPost);
-				if (imageOnly) {
+				if(imageOnly) {
 					r.AddParameter("onlyimgdel", "on", ParameterType.GetOrPost);
 				}
 
-				foreach (var cookie in cookies) {
+				foreach(var cookie in cookies) {
 					r.AddCookie(cookie.Name, cookie.Value);
 				}
 				var res = c.Execute(r);
-				if (res.StatusCode == System.Net.HttpStatusCode.OK) {
+				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 					var s = FutabaEncoding.GetString(res.RawBytes);
 					return (s == "ok", res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray(), s);
 				} else {
@@ -295,7 +295,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(bool Successed, string Raw)> PostSoudane(string baseUrl, string threadResNo, Data.Cookie[] cookies=null) {
+		public static async Task<(bool Successed, string Raw)> PostSoudane(string baseUrl, string threadResNo, Data.Cookie[] cookies = null) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(threadResNo != null);
 			return await Task.Run(() => {
@@ -307,7 +307,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				var r = new RestRequest(FutabaSoudaneEndPoint, Method.GET);
 				r.AddParameter(q, null);
 				var res = c.Execute(r);
-				if (res.StatusCode == System.Net.HttpStatusCode.OK) {
+				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 					var s = FutabaEncoding.GetString(res.RawBytes);
 					return (Regex.Match(s, @"^\d+$").Success, s);
 				} else {
@@ -333,7 +333,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				r.AddParameter("d", threadResNo, ParameterType.GetOrPost);
 				r.AddParameter("reason", reason.ApiValue, ParameterType.GetOrPost);
 				var res = c.Execute(r);
-				if (res.StatusCode == System.Net.HttpStatusCode.OK) {
+				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 					var s = res.Content;
 					return s == "ok";
 				} else {
@@ -367,10 +367,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			var c = new RestClient(u);
 			var r = new RestRequest(FutabaCachemt, Method.GET);
 			var res = c.Execute(r);
-			if (res.StatusCode == System.Net.HttpStatusCode.OK) {
+			if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 				var s = res.Content;
 				var m = Regex.Match(s, @"\d+");
-				if (m.Success) {
+				if(m.Success) {
 					return m.Value;
 				} else {
 					return "";

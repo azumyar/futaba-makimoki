@@ -16,7 +16,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 	public static class Futaba {
 		private static volatile object lockObj = new object();
 
-		public static  ReactiveProperty<Data.FutabaContext[]> Catalog { get; private set;  }
+		public static ReactiveProperty<Data.FutabaContext[]> Catalog { get; private set; }
 		public static ReactiveProperty<Data.FutabaContext[]> Threads { get; private set; }
 
 		public static void Initialize() {
@@ -27,8 +27,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static IObservable<Data.FutabaContext> UpdateCatalog(Data.BordConfig bord, Data.CatalogSortItem sort = null) {
 			return Observable.Create<Data.FutabaContext>(async o => {
 				var f = await Task.Run(async () => {
-					lock (lockObj) {
-						if (!Catalog.Value.Select(x => x.Url.BaseUrl).Contains(bord.Url)) {
+					lock(lockObj) {
+						if(!Catalog.Value.Select(x => x.Url.BaseUrl).Contains(bord.Url)) {
 							Catalog.Value = Catalog.Value.Concat(new Data.FutabaContext[] {
 								Data.FutabaContext.FromCatalogEmpty(bord),
 							}).ToArray();
@@ -41,7 +41,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							bord.Url,
 							Config.ConfigLoader.Cookies,
 							sort);
-						if (r.Raw == null) {
+						if(r.Raw == null) {
 							// TODO: エラー表示処理
 							goto end;
 						}
@@ -51,7 +51,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							Config.ConfigLoader.Cookies,
 							r.Response.Res.Length,
 							sort);
-						if (rr.Raw == null) {
+						if(rr.Raw == null) {
 							// TODO: エラー表示処理
 							goto end;
 						}
@@ -65,7 +65,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 									@"^res/([0-9]+)\.htm$",
 									"$1");
 								var count = x.QuerySelector("font")?.InnerHtml ?? "0";
-								if (int.TryParse(count, out var c)) {
+								if(int.TryParse(count, out var c)) {
 									return (no, c);
 								} else {
 									return (no, 0);
@@ -73,16 +73,16 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							}).ToArray();
 						var dic = new Dictionary<string, int>();
 						var sortList = new List<Data.NumberedResItem>();
-						foreach (var c in counter.Where(x => !string.IsNullOrWhiteSpace(x.No))) {
+						foreach(var c in counter.Where(x => !string.IsNullOrWhiteSpace(x.No))) {
 							var t = r.Response.Res.Where(x => x.No == c.No).FirstOrDefault();
 							if(t != null) {
 								sortList.Add(t);
 							}
 							dic.Add(c.No, c.Count);
 						}
-						lock (lockObj) {
-							for (var i = 0; i < Catalog.Value.Length; i++) {
-								if (Catalog.Value[i].Bord.Url == bord.Url) {
+						lock(lockObj) {
+							for(var i = 0; i < Catalog.Value.Length; i++) {
+								if(Catalog.Value[i].Bord.Url == bord.Url) {
 									result = Data.FutabaContext.FromCatalogResponse(
 										bord,
 										r.Response,
@@ -100,7 +100,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						}
 					end:;
 					}
-					catch (Exception e) { // TODO: 適切なエラーに
+					catch(Exception e) { // TODO: 適切なエラーに
 						System.Diagnostics.Debug.WriteLine(e.ToString());
 					}
 					return result;
@@ -114,9 +114,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static void UpdateThreadRes(Data.BordConfig bord, string threadNo) {
 			TaskUtil.Push(async () => {
 				try {
-					lock (lockObj) {
+					lock(lockObj) {
 						var u = new Data.UrlContext(bord.Url, threadNo);
-						if (!Threads.Value.Select(x => x.Url).Contains(u)) {
+						if(!Threads.Value.Select(x => x.Url).Contains(u)) {
 							Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] {
 								Data.FutabaContext.FromThreadEmpty(bord, threadNo),
 							}).ToArray();
@@ -128,13 +128,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						threadNo,
 						Config.ConfigLoader.Cookies);
 					Config.ConfigLoader.UpdateCookie(r.cookies);
-					lock (lockObj) {
+					lock(lockObj) {
 						var f = Data.FutabaContext.FromThreadResResponse(bord, threadNo, r.Response);
 						if(f == null) {
 							return;
 						}
-						for (var i = 0; i < Threads.Value.Length; i++) {
-							if (Threads.Value[i].Url == f.Url) {
+						for(var i = 0; i < Threads.Value.Length; i++) {
+							if(Threads.Value[i].Url == f.Url) {
 								Threads.Value[i] = f;
 								Threads.Value = Threads.Value.ToArray();
 								return;
@@ -143,7 +143,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] { f }).ToArray();
 					}
 				}
-				catch (Exception e) {
+				catch(Exception e) {
 					System.Diagnostics.Debug.WriteLine(e.ToString());
 					throw;
 				}
@@ -153,18 +153,18 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static void Open(Data.UrlContext url) {
 			System.Diagnostics.Debug.Assert(url != null);
 
-			lock (lockObj) {
-				if (url.IsCatalogUrl) {
+			lock(lockObj) {
+				if(url.IsCatalogUrl) {
 					var r = Catalog.Value.Where(x => x.Url == url).FirstOrDefault();
-					if (r == null) {
+					if(r == null) {
 						UpdateCatalog(Config.ConfigLoader.Bord.Where(x => x.Url == url.BaseUrl).First())
 							.Subscribe();
 					}
 				} else {
 					var r = Threads.Value.Where(x => x.Url == url).FirstOrDefault();
-					if (r == null) {
+					if(r == null) {
 						UpdateThreadRes(
-							Config.ConfigLoader.Bord.Where(x => x.Url == url.BaseUrl).First(), 
+							Config.ConfigLoader.Bord.Where(x => x.Url == url.BaseUrl).First(),
 							url.ThreadNo);
 					}
 				}
@@ -174,8 +174,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static void Remove(Data.UrlContext url) {
 			System.Diagnostics.Debug.Assert(url != null);
 
-			lock (lockObj) {
-				if (url.IsCatalogUrl) {
+			lock(lockObj) {
+				if(url.IsCatalogUrl) {
 					Catalog.Value = Catalog.Value.Where(x => x.Url != url).ToArray();
 				} else {
 					Threads.Value = Threads.Value.Where(x => x.Url != url).ToArray();
@@ -191,16 +191,16 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				byte[] b = null;
 				var localFile = CreateLocalFileName(url.BaseUrl, item.Thumb);
 				var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
-				if (!File.Exists(localPath)) {
+				if(!File.Exists(localPath)) {
 					Task<byte[]> t = FutabaApi.GetThumbImage(url.BaseUrl, item);
 					t.Wait();
 					b = t.Result;
-					if (b == null) {
+					if(b == null) {
 						return null;
 					}
 					// lockしたほうがいい？
-					if (!File.Exists(localPath)) {
-						using (var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
+					if(!File.Exists(localPath)) {
+						using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
 							fs.Write(b, 0, b.Length);
 							fs.Flush();
 						}
@@ -216,16 +216,16 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			byte[] b = null;
 			var localFile = CreateLocalFileName(url.BaseUrl, item.Thumb);
 			var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
-			if (!File.Exists(localPath)) {
+			if(!File.Exists(localPath)) {
 				Task<byte[]> t = FutabaApi.GetThumbImage(url.BaseUrl, item);
 				t.Wait();
 				b = t.Result;
-				if (b == null) {
+				if(b == null) {
 					return null;
 				}
 				// lockしたほうがいい？
-				if (!File.Exists(localPath)) {
-					using (var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
+				if(!File.Exists(localPath)) {
+					using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
 						fs.Write(b, 0, b.Length);
 						fs.Flush();
 					}
@@ -241,7 +241,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				var r = await FutabaApi.PostThread(bord,
 					Config.ConfigLoader.Cookies, Config.ConfigLoader.Ptua.Value,
 					name, email, subject, comment, filePath, passwd);
-				if (r.Raw == null) {
+				if(r.Raw == null) {
 					o.OnNext((false, "不明なエラー"));
 				} else {
 					Config.ConfigLoader.UpdateCookie(r.Cookies);
@@ -259,7 +259,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				var r = await FutabaApi.PostRes(bord, threadNo,
 					Config.ConfigLoader.Cookies, Config.ConfigLoader.Ptua.Value,
 					name, email, subject, comment, filePath, passwd);
-				if (r.Raw == null) {
+				if(r.Raw == null) {
 					o.OnNext((false, "不明なエラー"));
 				} else {
 					Config.ConfigLoader.UpdateCookie(r.Cookies);
@@ -282,7 +282,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static IObservable<(bool Successed, string Message)> PostDeleteThreadRes(Data.BordConfig bord, string threadNo, bool imageOnlyDel, string passwd) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
 				var r = await FutabaApi.PostDeleteThreadRes(bord.Url, threadNo, Config.ConfigLoader.Cookies, imageOnlyDel, passwd);
-				if (r.Raw == null) {
+				if(r.Raw == null) {
 					o.OnNext((false, "不明なエラー"));
 				} else {
 					Config.ConfigLoader.UpdateCookie(r.Cookies);
@@ -295,7 +295,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static IObservable<(bool Successed, string Message)> PostSoudane(Data.BordConfig bord, string threadNo) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
 				var r = await FutabaApi.PostSoudane(bord.Url, threadNo);
-				if (r.Raw == null) {
+				if(r.Raw == null) {
 					o.OnNext((false, "不明なエラー"));
 				} else {
 					o.OnNext((r.Successed, r.Raw));

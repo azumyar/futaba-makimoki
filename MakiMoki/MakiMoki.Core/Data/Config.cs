@@ -22,7 +22,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonProperty("display")]
 		public bool? Display { get; set; }
 
-		[JsonProperty("extra", Required=Required.DisallowNull)]
+		[JsonProperty("extra", Required = Required.DisallowNull)]
 		public BordConfigExtra Extra { get; set; }
 
 		[JsonIgnore]
@@ -69,7 +69,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 		[JsonIgnore]
 		public Dictionary<string, string> MimeTypes {
-			get { 
+			get {
 				if(this.mimeDic == null) {
 					this.mimeDic = new Dictionary<string, string>();
 					foreach(var t in this.Types) {

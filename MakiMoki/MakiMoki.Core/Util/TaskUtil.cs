@@ -22,7 +22,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							tasks.Clear();
 						}
 					}
-					if (t != null) {
+					if(t != null) {
 						Task.WaitAll(t);
 					} else {
 						await Task.Delay(1000);
@@ -31,15 +31,15 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 			imageTask = Task.Run(async () => {
 				var t = new List<Task>();
-				while (true) {
-					lock (lockObj) {
-						for (var i = 0; i < 5; i++) {
-							if (imageTasks.Count != 0) {
+				while(true) {
+					lock(lockObj) {
+						for(var i = 0; i < 5; i++) {
+							if(imageTasks.Count != 0) {
 								t.Add(Task.Run(imageTasks.Dequeue()));
 							}
 						}
 					}
-					if (0 < t.Count) {
+					if(0 < t.Count) {
 						Task.WaitAll(t.ToArray());
 						t.Clear();
 					} else {
@@ -50,20 +50,20 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 		public static void Push(params Action[] action) {
-			lock (lockObj) {
+			lock(lockObj) {
 				tasks.AddRange(action);
 			}
 		}
 
 		public static void PushImage(params Action[] action) {
-			lock (lockObj) {
-				foreach (var a in action) {
+			lock(lockObj) {
+				foreach(var a in action) {
 					imageTasks.Enqueue(a);
 				}
 			}
 		}
 
-		public static void Exit() { 
+		public static void Exit() {
 		}
 	}
 }

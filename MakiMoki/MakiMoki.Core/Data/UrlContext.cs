@@ -15,7 +15,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonIgnore]
 		public bool IsThreadUrl => !string.IsNullOrWhiteSpace(this.ThreadNo);
 
-		public UrlContext(string baseUrl) : this(baseUrl, "") {}
+		public UrlContext(string baseUrl) : this(baseUrl, "") { }
 
 		public UrlContext(string baseUrl, string threadNo) {
 			this.BaseUrl = baseUrl;
@@ -35,7 +35,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		}
 
 		public static bool operator ==(UrlContext z, UrlContext w) {
-			if (z is null || w is null) {
+			if(z is null || w is null) {
 				return false;
 			}
 

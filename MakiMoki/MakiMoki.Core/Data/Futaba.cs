@@ -14,8 +14,8 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
 				var dic = new Dictionary<string, ResItem>();
 				var keys = new List<string>();
-				while (reader.Read()) {
-					switch (reader.TokenType) {
+				while(reader.Read()) {
+					switch(reader.TokenType) {
 					case JsonToken.EndObject:
 					case JsonToken.EndArray:
 						goto end;
@@ -33,7 +33,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			}
 
 			public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
-				if (value is NumberedResItem[] nri) {
+				if(value is NumberedResItem[] nri) {
 					var dic = new Dictionary<string, ResItem>();
 					foreach(var i in nri) {
 						dic.Add(i.No, i.Res);
@@ -51,7 +51,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 			public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
 				var dic = new Dictionary<string, string>();
-				while (reader.Read()) {
+				while(reader.Read()) {
 					switch(reader.TokenType) {
 					case JsonToken.EndObject:
 					case JsonToken.EndArray:
@@ -110,14 +110,14 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonIgnore]
 		public DateTime? DieDateTime => DateTime.TryParse(DieLong,
 			System.Globalization.CultureInfo.InvariantCulture,
-			System.Globalization.DateTimeStyles.None, out var  d) ? (DateTime?)d : null;
+			System.Globalization.DateTimeStyles.None, out var d) ? (DateTime?)d : null;
 
 		// スレが落ちると Thu, 01 Jan 1970 01:07:29 GMT といった1970年まで落ちるので1日くらいマージンとっても問題ない
 		[JsonIgnore]
 		public bool IsDie => ((DieDateTime?.AddDays(1) ?? DateTime.MaxValue) < DateTime.Now);
 	}
 
-	public class NumberedResItem : JsonObject { 
+	public class NumberedResItem : JsonObject {
 		[JsonProperty("no")]
 		public string No { get; private set; }
 
@@ -169,7 +169,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public static class DelReason {
-		public static (string name, DelReasonItem[] value)[] Items => new [] {
+		public static (string name, DelReasonItem[] value)[] Items => new[] {
 			("文字・画像", new DelReasonItem[] {
 				new DelReasonItem("中傷・侮辱・名誉毀損", "101"),
 				new DelReasonItem("脅迫・自殺", "102"),
@@ -214,7 +214,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public static CatalogSortItem Few => new CatalogSortItem("少順", "4");
 		public static CatalogSortItem Soudane => new CatalogSortItem("そ順", "8");
 
-		public static CatalogSortItem[] Items => new [] {
+		public static CatalogSortItem[] Items => new[] {
 				Catalog,
 				New,
 				Old,
@@ -252,7 +252,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			}
 
 			public static Item FromCatalog(UrlContext url, NumberedResItem item, int counterCurrent, int counterPrev) {
-				return new Item(url, item) { 
+				return new Item(url, item) {
 					CounterCurrent = counterCurrent,
 					CounterPrev = counterPrev,
 				};
@@ -284,7 +284,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				Name = bord.Name,
 				Bord = bord,
 				Url = new UrlContext(bord.Url),
-				ResItems = new Item[] {},
+				ResItems = new Item[] { },
 				Raw = null,
 			};
 		}
@@ -333,7 +333,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				Url = url,
 				ResItems = new Item[] { p }.Concat(response.Res?.Select(x => {
 					var sd = 0;
-					if (response.Sd.TryGetValue(x.No, out var s) && int.TryParse(s, out var v)) {
+					if(response.Sd.TryGetValue(x.No, out var s) && int.TryParse(s, out var v)) {
 						sd = v;
 					}
 					return Item.FromThreadRes(url, x, sd);
