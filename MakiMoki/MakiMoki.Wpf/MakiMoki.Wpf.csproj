@@ -61,6 +61,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Controls\PlaceHolderBehavior.cs" />
+    <Compile Include="Converters\TabItemWidthConverter.cs" />
     <Compile Include="Converters\FutabaNewResVisibilityConverter.cs" />
     <Compile Include="Converters\FutabaNewResCountConverter.cs" />
     <Compile Include="Converters\FutabaViewerConverter.cs" />

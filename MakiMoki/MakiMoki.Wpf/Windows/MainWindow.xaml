@@ -18,6 +18,8 @@
         Title="ふたば@MakiMoki(仮)">
     <Window.Resources>
         <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
+        <converter:TabItemWidthConverter x:Key="TabItemWidthConverter"/>
+
         <Color x:Key="_Color">#4FC3F7</Color>
         <SolidColorBrush x:Key="PrimaryColorBrush" Color="{StaticResource _Color}" />
         <SolidColorBrush x:Key="BackgroundBrush" Color="#F5F5F5" />
@@ -48,22 +50,40 @@
                                 <RowDefinition />
                             </Grid.RowDefinitions>
 
-                            <DockPanel Grid.Row="0" Height="{TemplateBinding TabPanel.Height}" Background="{StaticResource PrimaryColorBrush}"> <!-- LightBlue 300-->
-                                <RepeatButton Name="rightButton" Width="24" Height="24" VerticalAlignment="Center"
-                                      Content="{StaticResource arrowRight}" DockPanel.Dock="Right"
-                                      CommandTarget="{Binding ElementName=scrollViewer}"
-                                      Command="ScrollBar.LineRightCommand"
-                                      Margin="0 0 4 0"/>
-                                <RepeatButton Name="leftButton" Width="24" Height="24" VerticalAlignment="Center"
-                                      Content="{StaticResource arrowLeft}" DockPanel.Dock="Right"
-                                      CommandTarget="{Binding ElementName=scrollViewer}"
-                                      Command="ScrollBar.LineLeftCommand" />
-                                <ScrollViewer Name="scrollViewer" CanContentScroll="True"
+                            <Grid Grid.Row="0" Height="{TemplateBinding TabPanel.Height}" Background="{StaticResource PrimaryColorBrush}"> <!-- LightBlue 300-->
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="4" />
+                                    <ColumnDefinition Width="24" />
+                                    <ColumnDefinition Width="24" />
+                                    <ColumnDefinition Width="4" />
+                                </Grid.ColumnDefinitions>
+                                <ScrollViewer Name="scrollViewer" Grid.Column="0" CanContentScroll="True"
                                       IsDeferredScrollingEnabled="False" SnapsToDevicePixels="True"
                                       HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
                                     <StackPanel Orientation="Horizontal" IsItemsHost="True" />
+                                    <i:Interaction.Triggers>
+                                        <i:DataTrigger Binding="{Binding ScrollableWidth, ElementName=scrollViewer}" Value="0" Comparison="Equal">
+                                            <i:ChangePropertyAction PropertyName="Visibility" TargetName="leftButton" Value="Hidden" />
+                                            <i:ChangePropertyAction PropertyName="Visibility" TargetName="rightButton" Value="Hidden" />
+                                        </i:DataTrigger>
+                                        <i:DataTrigger Binding="{Binding ScrollableWidth, ElementName=scrollViewer}" Value="0" Comparison="NotEqual">
+                                            <i:ChangePropertyAction PropertyName="Visibility" TargetName="leftButton" Value="Visible" />
+                                            <i:ChangePropertyAction PropertyName="Visibility" TargetName="rightButton" Value="Visible" />
+                                        </i:DataTrigger>
+                                    </i:Interaction.Triggers>
                                 </ScrollViewer>
-                            </DockPanel>
+                                <RepeatButton Name="leftButton" Grid.Column="2" Width="24" Height="24" VerticalAlignment="Center"
+                                      Content="{StaticResource arrowLeft}" DockPanel.Dock="Right"
+                                      CommandTarget="{Binding ElementName=scrollViewer}"
+                                      Command="ScrollBar.LineLeftCommand"
+                                      Visibility="Hidden"/>
+                                <RepeatButton Name="rightButton" Grid.Column="3" Width="24" Height="24" VerticalAlignment="Center"
+                                      Content="{StaticResource arrowRight}" DockPanel.Dock="Right"
+                                      CommandTarget="{Binding ElementName=scrollViewer}"
+                                      Command="ScrollBar.LineRightCommand"
+                                      Visibility="Hidden"/>
+                            </Grid>
 
                             <Border Name="ContentPanel" Grid.Row="1"
                               BorderThickness="{TemplateBinding Border.BorderThickness}"
@@ -95,13 +115,63 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type TabItem}">
-                        <Border CornerRadius="6,6,0,0" Background="{TemplateBinding Background}" 
+                        <Border 
+                            x:Name="TabItemBorder"
+                            CornerRadius="6,6,0,0"
+                            Background="{TemplateBinding Background}" 
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            Padding="{TemplateBinding Padding}">
-                            <ContentPresenter ContentSource="Header" 
-                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            Padding="{TemplateBinding Padding}"
+                            MinWidth="36"
+                            MaxWidth="164"
+                            >
+                            <Border.Width>
+                                <MultiBinding Converter="{StaticResource TabItemWidthConverter}">
+                                    <MultiBinding.Bindings>
+                                        <Binding Path="ItemsSource" RelativeSource="{RelativeSource FindAncestor, AncestorType=TabControl}" />
+                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType=ScrollViewer}" />
+                                    </MultiBinding.Bindings>
+                                </MultiBinding>
+                            </Border.Width>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter 
+                                    Grid.Column="0"
+                                    ContentSource="Header" 
+                                    HorizontalAlignment="Left" 
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                    ClipToBounds="True"/>
+                                <Button
+                                    Grid.Column="1"
+                                    Width="24"
+                                    Height="24"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    Visibility="Collapsed">
+                                    <TextBlock>
+                                    ✖
+                                    </TextBlock>
+                                    <i:Interaction.Triggers>
+                                        <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="False">
+                                            <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
+                                        </i:DataTrigger>
+                                        <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="True">
+                                            <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
+                                        </i:DataTrigger>
+                                        <i:EventTrigger EventName="PreviewMouseUp">
+                                            <ri:EventToReactiveCommand Command="{Binding Tag.TabCloseButtonCommand, ElementName=TabContainer}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <ri:EventToReactiveCommand Command="{Binding Tag.TabClickCommand, ElementName=TabContainer}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="False">
@@ -117,7 +187,7 @@
             </Setter>
         </Style>
     </Window.Resources>
-    <Grid>
+    <Grid UseLayoutRounding="True">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="160" MinWidth="100"/>
             <ColumnDefinition Width="Auto"/>
@@ -307,8 +377,13 @@
                             <Setter Source="{}"  Property="Source"  Value="True"/>
                         </DataTemplate.Triggers>
                         -->
-                        <StackPanel Orientation="Horizontal">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
                             <Viewbox
+                                Grid.Column="0"
                                 Width="24" Height="24" 
                                 StretchDirection="DownOnly"
                                 Visibility="{Binding ThumbVisibility.Value, Mode=OneWay}">
@@ -319,23 +394,8 @@
                                     </Image.CacheMode>
                                 </Image>
                             </Viewbox>
-                            <TextBlock Text="{Binding Name.Value, Mode=OneWay}" VerticalAlignment="Center" Margin="4 0 4 0" />
-                            <Button Width="24" Height="24">
-                                <TextBlock>
-                                    ✖
-                                </TextBlock>
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="PreviewMouseUp">
-                                        <ri:EventToReactiveCommand Command="{Binding Tag.TabCloseButtonCommand, ElementName=TabContainer}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </Button>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="PreviewMouseUp">
-                                    <ri:EventToReactiveCommand Command="{Binding Tag.TabClickCommand, ElementName=TabContainer}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding Name.Value, Mode=OneWay}" VerticalAlignment="Center" Margin="4 0 4 0" />
+                        </Grid>
                     </DataTemplate>
                 </TabControl.ItemTemplate>
 
