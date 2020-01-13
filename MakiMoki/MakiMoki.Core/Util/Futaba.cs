@@ -194,7 +194,18 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return GetUrlImage(u, localPath);
 		}
 
-		public static Task<string> GetThumbImage(Data.UrlContext url, Data.ResItem item) {
+		public static IObservable<(bool Successed, string LocalPath)> GetThumbImage(Data.UrlContext url, Data.ResItem item) {
+			System.Diagnostics.Debug.Assert(url != null);
+			System.Diagnostics.Debug.Assert(item != null);
+
+			var localFile = CreateLocalFileName(url.BaseUrl, item.Thumb);
+			var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
+			var uri = new Uri(url.BaseUrl);
+			var u = string.Format("{0}://{1}{2}", uri.Scheme, uri.Authority, item.Thumb);
+			return GetUrlImage(u, localPath);
+		}
+
+		public static Task<string> GetThumbImageAsync(Data.UrlContext url, Data.ResItem item) {
 			System.Diagnostics.Debug.Assert(url != null);
 			System.Diagnostics.Debug.Assert(item != null);
 
@@ -219,30 +230,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				}
 				return localPath;
 			});
-		}
-		public static string GetThumbImageSync(Data.UrlContext url, Data.ResItem item) {
-			System.Diagnostics.Debug.Assert(url != null);
-			System.Diagnostics.Debug.Assert(item != null);
-
-			byte[] b = null;
-			var localFile = CreateLocalFileName(url.BaseUrl, item.Thumb);
-			var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
-			if(!File.Exists(localPath)) {
-				Task<byte[]> t = FutabaApi.GetThumbImage(url.BaseUrl, item);
-				t.Wait();
-				b = t.Result;
-				if(b == null) {
-					return null;
-				}
-				// lockしたほうがいい？
-				if(!File.Exists(localPath)) {
-					using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
-						fs.Write(b, 0, b.Length);
-						fs.Flush();
-					}
-				}
-			}
-			return localPath;
 		}
 
 		public static IObservable<(bool Successed, string Message)> PostThread(Data.BordConfig bord,

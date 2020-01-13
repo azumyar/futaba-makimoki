@@ -304,23 +304,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				.Select(x => (x != null) ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
 			if(item.ResItem.Res.Fsize != 0) {
-				// TODO: ここに処理を書かない移動させる
-				Util.TaskUtil.PushImage(() => {
-					var t = Util.Futaba.GetThumbImage(item.Url, item.ResItem.Res);
-					t.Wait();
-					var localPath = t.Result;
-					if(localPath == null) {
-						// 通信失敗どうする?
-						return;
-					}
-
-					System.Windows.Application.Current?.Dispatcher.Invoke(() => {
-						// 通信中に終了するとnullになることがある				
-						if(ThumbSource != null) {
-							ThumbSource.Value = WpfUtil.ImageUtil.LoadImage(localPath);
+				Util.Futaba.GetThumbImage(item.Url, item.ResItem.Res)
+					.ObserveOnDispatcher()
+					.Subscribe(x => {
+						if(x.Successed) {
+							ThumbSource.Value = WpfUtil.ImageUtil.LoadImage(x.LocalPath);
+						} else {
+							// TODO: エラー画像表示
 						}
 					});
-				});
 				this.ImageName = new ReactiveProperty<string>(Regex.Replace(
 					item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$", "$1"));
 			} else {

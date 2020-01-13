@@ -131,7 +131,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						t.Wait();
 						return t.Result;
 						*/
-						return await Util.Futaba.GetThumbImage(x.Url, x.ResItem.Res);
+						return await Util.Futaba.GetThumbImageAsync(x.Url, x.ResItem.Res);
 					}
 				}).ObserveOnDispatcher()
 				.Select(x => (x != null) ? (ImageSource)WpfUtil.ImageUtil.LoadImage(x) : null)
