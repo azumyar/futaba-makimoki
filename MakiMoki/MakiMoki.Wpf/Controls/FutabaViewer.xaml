@@ -31,12 +31,15 @@
         <SolidColorBrush x:Key="PrimaryColorBrush" Color="#4FC3F7" />
     </UserControl.Resources>
     <i:Interaction.Triggers>
+        <!-- タブ切り替え時に画僧ビューワを初期化する -->
+        <i:DataTrigger Binding="{Binding Contents, ElementName=_this}" Value="{x:Null}" Comparison="NotEqual">
+            <i:ChangePropertyAction
+                PropertyName="Contents"
+                TargetName="MediaViewer"
+                Value="{x:Null}" />
+        </i:DataTrigger>
         <i:EventTrigger EventName="ContentsChanged">
-            <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}">
-                <!--
-                <converter:FutabaPropertyChangedConverter />
-                -->
-            </ri:EventToReactiveCommand>
+            <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid>
@@ -443,6 +446,7 @@
             </ListBox>
 
             <local:FutabaMediaViewer
+                x:Name="MediaViewer"
                 Grid.Row="1"
                 Contents="{Binding Contents.MediaContents.Value, ElementName=_this, Mode=TwoWay}"
                 />

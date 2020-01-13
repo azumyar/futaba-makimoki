@@ -25,6 +25,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		internal class CatalogListboxUpdatedMessage { }
+		internal class MediaViewerOpenMessage { 
+			public PlatformData.FutabaMedia Media { get; }
+
+			public MediaViewerOpenMessage(PlatformData.FutabaMedia media) {
+				this.Media = media;
+			}
+		}
 
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
@@ -63,12 +70,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<RoutedEventArgs> MenuItemDelClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemDeleteClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
-		private Model.IFutabaViewerContents bindedContents = null;
 		private bool isCatalogItemClicking = false;
 		private bool isThreadImageClicking = false;
 
 		public FutabaViewerViewModel() {
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
+
 			CatalogUpdateClickCommand.Subscribe(x => OnCatalogUpdateClick(x));
 			CatalogItemMouseDownCommand.Subscribe(x => OnCatalogItemMouseDown(x));
 			CatalogItemClickCommand.Subscribe(x => OnCatalogClick(x));
@@ -102,7 +109,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					if(ext.Success) {
 						// TODO: 内部画像ビューワを作ってそっちに移動
 						if(new string[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" }.Contains(ext.Value.ToLower())) {
-							this.bindedContents.MediaContents.Value = PlatformData.FutabaMedia.FromExternalUrl(u);
+							Messenger.Instance.GetEvent<PubSubEvent<MediaViewerOpenMessage>>()
+								.Publish(new MediaViewerOpenMessage(
+									PlatformData.FutabaMedia.FromExternalUrl(u)));
 							goto end;
 						} else if(new string[] { ".mp4", ".webm" }.Contains(ext.Value.ToLower())) {
 							this.StartBrowser(u);
@@ -141,7 +150,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnContentsChanged(RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents> e) {
 			this.PostViewVisibility.Value = Visibility.Collapsed;
-			this.bindedContents = e.NewValue;
 		}
 
 		private void OnCatalogItemMouseDown(MouseButtonEventArgs e) {
@@ -198,10 +206,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					case MouseButton.Left:
 					case MouseButton.Middle:
 						if(this.isThreadImageClicking) {
-							if(this.bindedContents != null) {
-								this.bindedContents.MediaContents.Value = PlatformData.FutabaMedia.FromFutabaUrl(
-									it.Raw.Value.Url, it.Raw.Value.ResItem.Res);
-							}
+							Messenger.Instance.GetEvent<PubSubEvent<MediaViewerOpenMessage>>()
+								.Publish(new MediaViewerOpenMessage(
+									PlatformData.FutabaMedia.FromFutabaUrl(
+										it.Raw.Value.Url, it.Raw.Value.ResItem.Res)));
 							this.isThreadImageClicking = false;
 						}
 						e.Handled = true;

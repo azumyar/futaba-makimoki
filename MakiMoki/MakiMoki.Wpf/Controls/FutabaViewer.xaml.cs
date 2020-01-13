@@ -21,8 +21,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	/// FutabaViewer.xaml の相互作用ロジック
 	/// </summary>
 	partial class FutabaViewer : UserControl {
-		public static readonly DependencyProperty ContentsProperty =
-			DependencyProperty.Register(
+		public static readonly DependencyProperty ContentsProperty
+			= DependencyProperty.Register(
 				nameof(Contents),
 				typeof(Model.IFutabaViewerContents),
 				typeof(FutabaViewer),
@@ -60,6 +60,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						var en = CatalogListBox.ItemsSource.GetEnumerator();
 						en.MoveNext();
 						CatalogListBox.ScrollIntoView(en.Current);
+					}
+				});
+			ViewModels.FutabaViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaViewerViewModel.MediaViewerOpenMessage>>()
+				.Subscribe(x => {
+					if(this.Contents != null) {
+						this.Contents.MediaContents.Value = x.Media;
 					}
 				});
 			this.CatalogListBox.Loaded += (s, e) => {
