@@ -164,7 +164,10 @@
                                                                     Width="24" Height="24" 
                                                                     StretchDirection="DownOnly"
                                                                     Visibility="{Binding ThumbVisibility.Value, Mode=OneWay}">
-                                                                    <Image Source="{Binding ThumbSource.Value, Mode=OneWay}">
+                                                                    <Image 
+                                                                        Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                                                        RenderOptions.EdgeMode="Aliased"
+                                                                        RenderOptions.BitmapScalingMode="Fant">
                                                                         <Image.CacheMode>
                                                                             <BitmapCache RenderAtScale="1" />
                                                                         </Image.CacheMode>
@@ -543,7 +546,10 @@
                                 StretchDirection="DownOnly"
                                 Visibility="{Binding ThumbVisibility.Value, Mode=OneWay}">
 
-                                <Image Source="{Binding ThumbSource.Value, Mode=OneWay}">
+                                <Image 
+                                    Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                    RenderOptions.EdgeMode="Aliased"
+                                    RenderOptions.BitmapScalingMode="Fant">
                                     <Image.CacheMode>
                                         <BitmapCache RenderAtScale="1" />
                                     </Image.CacheMode>
