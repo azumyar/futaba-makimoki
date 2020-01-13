@@ -64,9 +64,7 @@
                             </TextBlock>
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
-                                    <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogUpdateClickCommand, ElementName=_this}">
-                                        <converter:ViewerElementToFutabaConverter />
-                                    </ri:EventToReactiveCommand>
+                                    <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogUpdateClickCommand, ElementName=_this}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>

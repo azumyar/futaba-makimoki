@@ -14,18 +14,25 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
+using Prism.Events;
 using Prism.Mvvm;
 using Reactive.Bindings;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class FutabaViewerViewModel : BindableBase, IDisposable {
+		internal class Messenger : EventAggregator {
+			public static Messenger Instance { get; } = new Messenger();
+		}
+
+		internal class CatalogListboxUpdatedMessage { }
+
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
 
 		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; } 
 			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>>();
 
-		public ReactiveCommand<Data.FutabaContext> CatalogUpdateClickCommand { get; } = new ReactiveCommand<Data.FutabaContext>();
+		public ReactiveCommand<RoutedEventArgs> CatalogUpdateClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand CatalogSortClickCommand { get; } = new ReactiveCommand();
 		public ReactiveCommand<RoutedEventArgs> PostClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
@@ -121,12 +128,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			System.Diagnostics.Debug.WriteLine(e);
 		}
 
-		private void OnCatalogUpdateClick(Data.FutabaContext e) {
-			Util.Futaba.UpdateCatalog(e.Bord)
-				.SubscribeOnDispatcher()
-				.Subscribe(x => {
-					// TODO: カタログのスクロールリセットする
-				});
+		private void OnCatalogUpdateClick(RoutedEventArgs e) {
+			if((e.Source is FrameworkElement el) && (el.DataContext is Data.FutabaContext fc)) {
+				Util.Futaba.UpdateCatalog(fc.Bord)
+					.ObserveOnDispatcher()
+					.Subscribe(x => {
+						Messenger.Instance.GetEvent<PubSubEvent<CatalogListboxUpdatedMessage>>()
+							.Publish(new CatalogListboxUpdatedMessage());
+					});
+			}
 		}
 
 		private void OnContentsChanged(RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents> e) {

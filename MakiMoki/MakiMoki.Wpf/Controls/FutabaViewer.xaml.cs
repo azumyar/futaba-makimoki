@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xaml.Behaviors;
+using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,6 +52,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 
 		public FutabaViewer() {
 			InitializeComponent();
+
+			ViewModels.FutabaViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaViewerViewModel.CatalogListboxUpdatedMessage>>()
+				.Subscribe(_ => {
+					if(CatalogListBox.HasItems) {
+						var en = CatalogListBox.ItemsSource.GetEnumerator();
+						en.MoveNext();
+						CatalogListBox.ScrollIntoView(en.Current);
+					}
+				});
 			this.CatalogListBox.Loaded += (s, e) => {
 				if((this.scrollViewerCatalog = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.CatalogListBox)) != null) {
 					this.scrollViewerCatalog.ScrollChanged += (ss, arg) => {
