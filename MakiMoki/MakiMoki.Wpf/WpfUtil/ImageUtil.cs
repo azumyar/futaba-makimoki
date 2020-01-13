@@ -40,10 +40,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				return b;
 			}
 
-			System.Drawing.Image bitmap = null;
-			try {
+			if(Path.GetExtension(path).ToLower() == "webp") {
+				System.Drawing.Image bitmap = null;
 				try {
-					if(Path.GetExtension(path).ToLower() == "webp") {
+					try {
 						var decoder = new Imazen.WebP.SimpleDecoder();
 						using(var fs = new FileStream(path, FileMode.Open)) {
 							var l = new List<byte>();
@@ -56,33 +56,36 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 							}
 							bitmap = decoder.DecodeFromBytes(l.ToArray(), l.Count);
 						}
-					} else {
-						bitmap = System.Drawing.Bitmap.FromFile(path);
 					}
-				}
-				catch(IOException e) {
-					throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e);
-				}
-				catch(ArgumentException e) {
-					throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e);
-				}
+					catch(IOException e) {
+						throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e);
+					}
+					catch(ArgumentException e) {
+						throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e);
+					}
 
-				var bitmapImage = new BitmapImage();
-				using(var stream = new MemoryStream()) {
-					bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-					stream.Position = 0;
+					var bitmapImage = new BitmapImage();
+					using(var stream = new MemoryStream()) {
+						bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+						stream.Position = 0;
 
-					bitmapImage.BeginInit();
-					bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-					bitmapImage.StreamSource = stream;
-					bitmapImage.EndInit();
+						bitmapImage.BeginInit();
+						bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+						bitmapImage.StreamSource = stream;
+						bitmapImage.EndInit();
+					}
+
+					SetImage(path, bitmapImage);
+					return bitmapImage;
 				}
+				finally {
+					bitmap?.Dispose();
+				}
+			} else {
+				var bitmapImage = new BitmapImage(new Uri(path));
 
 				SetImage(path, bitmapImage);
 				return bitmapImage;
-			}
-			finally {
-				bitmap?.Dispose();
 			}
 		}
 
