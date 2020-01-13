@@ -24,6 +24,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Visibility> ThumbVisibility { get; }
 		public ReactiveProperty<BindableFutaba> Futaba { get; }
 
+		public ReactiveProperty<PlatformData.FutabaMedia> MediaContents { get; } 
+			= new ReactiveProperty<PlatformData.FutabaMedia>();
+
 		ReactiveProperty<object> IFutabaViewerContents.LastVisibleItem { get; }
 			= new ReactiveProperty<object>();
 		ReactiveProperty<double> IFutabaViewerContents.ScrollVerticalOffset { get; }

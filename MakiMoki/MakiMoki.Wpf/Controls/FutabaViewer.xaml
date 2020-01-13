@@ -443,7 +443,12 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            
+
+            <local:FutabaMediaViewer
+                Grid.Row="1"
+                Contents="{Binding Contents.MediaContents.Value, ElementName=_this, Mode=TwoWay}"
+                />
+
             <!-- 書き込みサブウィンドウ -->
             <Border
                 x:Name="PostView"

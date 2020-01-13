@@ -22,7 +22,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
 
-		public ReactiveCommand ContentsChangedCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; } 
+			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>>();
 
 		public ReactiveCommand<Data.FutabaContext> CatalogUpdateClickCommand { get; } = new ReactiveCommand<Data.FutabaContext>();
 		public ReactiveCommand CatalogSortClickCommand { get; } = new ReactiveCommand();
@@ -55,11 +56,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<RoutedEventArgs> MenuItemDelClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemDeleteClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
+		private Model.IFutabaViewerContents bindedContents = null;
 		private bool isCatalogItemClicking = false;
 		private bool isThreadImageClicking = false;
 
 		public FutabaViewerViewModel() {
-			ContentsChangedCommand.Subscribe(() => OnContentsChanged());
+			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
 			CatalogUpdateClickCommand.Subscribe(x => OnCatalogUpdateClick(x));
 			CatalogItemMouseDownCommand.Subscribe(x => OnCatalogItemMouseDown(x));
 			CatalogItemClickCommand.Subscribe(x => OnCatalogClick(x));
@@ -93,7 +95,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					if(ext.Success) {
 						// TODO: 内部画像ビューワを作ってそっちに移動
 						if(new string[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" }.Contains(ext.Value.ToLower())) {
-							this.StartBrowser(u);
+							this.bindedContents.MediaContents.Value = PlatformData.FutabaMedia.FromExternalUrl(u);
 							goto end;
 						} else if(new string[] { ".mp4", ".webm" }.Contains(ext.Value.ToLower())) {
 							this.StartBrowser(u);
@@ -127,8 +129,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				});
 		}
 
-		private void OnContentsChanged() {
-			PostViewVisibility.Value = Visibility.Collapsed;
+		private void OnContentsChanged(RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents> e) {
+			this.PostViewVisibility.Value = Visibility.Collapsed;
+			this.bindedContents = e.NewValue;
 		}
 
 		private void OnCatalogItemMouseDown(MouseButtonEventArgs e) {
@@ -185,9 +188,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					case MouseButton.Left:
 					case MouseButton.Middle:
 						if(this.isThreadImageClicking) {
-							// TODO: 内部画像ビューワを作ってそっちに移動
-							var url = new Uri(it.Bord.Value.Url);
-							this.StartBrowser(string.Format("{0}://{1}{2}", url.Scheme, url.Authority, it.Raw.Value.ResItem.Res.Src));
+							if(this.bindedContents != null) {
+								this.bindedContents.MediaContents.Value = PlatformData.FutabaMedia.FromFutabaUrl(
+									it.Raw.Value.Url, it.Raw.Value.ResItem.Res);
+							}
 							this.isThreadImageClicking = false;
 						}
 						e.Handled = true;

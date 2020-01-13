@@ -38,7 +38,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					WorkDirectory = AppWorkDirectory,
 				});
 			}
-			catch (Exceptions.InitializeFailedException ex) {
+			catch(Exceptions.InitializeFailedException ex) {
 				MessageBox.Show(ex.Message, "初期化エラー", MessageBoxButton.OK, MessageBoxImage.Error);
 				Environment.Exit(1);
 			}
@@ -54,6 +54,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 
 			ViewModelLocationProvider.Register<Windows.MainWindow, ViewModels.MainWindowViewModel>();
 			ViewModelLocationProvider.Register<Controls.FutabaViewer, ViewModels.FutabaViewerViewModel>();
+			ViewModelLocationProvider.Register<Controls.FutabaMediaViewer, ViewModels.FutabaMediaViewerViewModel>();
 		}
 
 		private void RemoveOldCache(string cacheDir) {
@@ -68,7 +69,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					try {
 						return (now - File.GetLastWriteTime(x)).TotalSeconds > confSec;
 					}
-					catch (IOException) {
+					catch(IOException) {
 						return false;
 					}
 				});
@@ -78,7 +79,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				try {
 					File.Delete(it);
 				}
-				catch (IOException) { /* 削除できないファイルは無視する */}
+				catch(IOException) { /* 削除できないファイルは無視する */}
 			}
 #if DEBUG
 			sw.Stop();

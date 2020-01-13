@@ -112,13 +112,34 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
+		public static async Task<byte[]> GetThreadResImage(string baseUrl, Data.ResItem resItem) {
+			System.Diagnostics.Debug.Assert(baseUrl != null);
+			return await Task.Run(() => {
+				try {
+					var url = new Uri(baseUrl);
+					var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
+
+					var c = new RestClient(u);
+					var r = new RestRequest(resItem.Src, Method.GET);
+					var res = c.Execute(r);
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+						return res.RawBytes;
+					} else {
+						return null;
+					}
+				}
+				catch(JsonSerializationException) { // TODO: こない
+					throw;
+				}
+			});
+		}
+
 		public static async Task<byte[]> GetThumbImage(string baseUrl, Data.ResItem resItem) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			return await Task.Run(() => {
 				try {
 					var url = new Uri(baseUrl);
 					var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
-					//var b = url.AbsolutePath.Replace("/", "");
 
 					var c = new RestClient(u);
 					var r = new RestRequest(resItem.Thumb, Method.GET);
@@ -129,7 +150,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return null;
 					}
 				}
-				catch(JsonSerializationException ex) {
+				catch(JsonSerializationException) { // TODO: こない
 					throw;
 				}
 			});

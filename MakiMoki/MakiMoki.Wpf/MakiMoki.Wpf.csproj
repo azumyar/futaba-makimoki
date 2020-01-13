@@ -60,6 +60,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\FutabaMediaViewer.xaml.cs">
+      <DependentUpon>FutabaMediaViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\PlaceHolderBehavior.cs" />
     <Compile Include="Converters\TabItemWidthConverter.cs" />
     <Compile Include="Converters\FutabaNewResVisibilityConverter.cs" />
@@ -68,10 +71,16 @@
     <Compile Include="Converters\ThreadResConverter.cs" />
     <Compile Include="Model\Interface.cs" />
     <Compile Include="PlatformData\Config.cs" />
+    <Compile Include="PlatformData\FutabaMedia.cs" />
+    <Compile Include="ViewModels\FutabaMediaViewerViewModel.cs" />
     <Compile Include="WinApi\Win32.cs" />
     <Compile Include="WpfUtil\ImageUtil.cs" />
     <Compile Include="WpfUtil\TextUtil.cs" />
     <Compile Include="WpfUtil\WpfHelper.cs" />
+    <Page Include="Controls\FutabaMediaViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\FutabaViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

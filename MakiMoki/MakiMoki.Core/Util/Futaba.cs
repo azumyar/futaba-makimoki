@@ -183,6 +183,17 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
+		public static IObservable<(bool Successed, string LocalPath)> GetThreadResImage(Data.UrlContext url, Data.ResItem item) {
+			System.Diagnostics.Debug.Assert(url != null);
+			System.Diagnostics.Debug.Assert(item != null);
+
+			var localFile = CreateLocalFileName(url.BaseUrl, item.Src);
+			var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
+			var uri = new Uri(url.BaseUrl);
+			var u = string.Format("{0}://{1}{2}", uri.Scheme, uri.Authority, item.Src);
+			return GetUrlImage(u, localPath);
+		}
+
 		public static Task<string> GetThumbImage(Data.UrlContext url, Data.ResItem item) {
 			System.Diagnostics.Debug.Assert(url != null);
 			System.Diagnostics.Debug.Assert(item != null);
@@ -270,6 +281,47 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
+		public static IObservable<(bool Successed, string LocalPath)> GetUploaderFile(string url) {
+			System.Diagnostics.Debug.Assert(url != null);
+			var localFile = CreateLocalFileNameFromUploader(url);
+			if(Config.ConfigLoader.Mime.Types.Select(x => x.Ext).Contains(Path.GetExtension(localFile).ToLower())) {
+				var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
+				return GetUrlImage(url, localPath);
+			} else {
+				// TODO: ダウンロードフォルダにDL
+				throw new NotImplementedException();
+			}
+		}
+
+		private static IObservable<(bool Successed, string LocalPath)> GetUrlImage(string url, string localPath) {
+			return Observable.Create<(bool Successed, string LocalPath)>(o => {
+				if(File.Exists(localPath)) {
+					o.OnNext((true, localPath));
+					o.OnCompleted();
+				} else {
+					var rest = new RestSharp.RestClient();
+					var r = new RestSharp.RestRequest(url, RestSharp.Method.GET);
+					rest.ExecuteAsync(r, (x, y) => {
+						if(x.StatusCode == System.Net.HttpStatusCode.OK) {
+							if(!File.Exists(localPath)) {
+								var b = x.RawBytes;
+								using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
+									fs.Write(b, 0, b.Length);
+									fs.Flush();
+								}
+							}
+							o.OnNext((true, localPath));
+							o.OnCompleted();
+						} else {
+							o.OnNext((false, null));
+							// TODO: o.OnError();
+						}
+					});
+				}
+				return System.Reactive.Disposables.Disposable.Empty;
+			});
+		}
+
 		private static string CreateLocalFileName(string baseUrl, string targetUrl) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(targetUrl != null);
@@ -277,6 +329,15 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			var url = new Uri(baseUrl);
 			var h = Regex.Replace(url.Authority, @"^([^\.]+)\..*$", "$1");
 			return string.Format("{0}{1}", h, targetUrl.Replace('/', '_'));
+		}
+
+		private static string CreateLocalFileNameFromUploader(string url) {
+			System.Diagnostics.Debug.Assert(url != null);
+
+			var m = Regex.Match(url, "/([^/]+)$");
+			System.Diagnostics.Debug.Assert(m.Success);
+
+			return m.Groups[1].Value;
 		}
 
 		public static IObservable<(bool Successed, string Message)> PostDeleteThreadRes(Data.BordConfig bord, string threadNo, bool imageOnlyDel, string passwd) {

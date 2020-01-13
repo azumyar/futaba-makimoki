@@ -62,7 +62,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				}
 			};
 
-			this.ThreadResListBox.Loaded += async (s, e) => {
+			this.ThreadResListBox.Loaded += (s, e) => {
 				if((this.scrollViewerThreadRes = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.ThreadResListBox)) != null) {
 					this.scrollViewerThreadRes.ScrollChanged += async (ss, arg) => {
 						if((this.Contents != null) && this.Contents.Futaba.Value.Url.IsThreadUrl) {
