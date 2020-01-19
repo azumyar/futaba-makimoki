@@ -75,6 +75,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				var input = new StringBuilder(s);
 				var output = new StringBuilder();
 
+				void EvalEmoji(string text, Color? color) {
+					var fb = (color.HasValue) ? new SolidColorBrush(color.Value) : tb.Foreground;
+					var pos = 0;
+					foreach(Match m in Emoji.Wpf.EmojiData.MatchMultiple.Matches(text)) {
+						tb.Inlines.Add(new Run(text.Substring(pos, m.Index - pos)) {
+							Foreground = fb,
+						});
+						tb.Inlines.Add(new Emoji.Wpf.EmojiInline() {
+							FallbackBrush = tb.Foreground,
+							Text = text.Substring(m.Index, m.Length),
+							FontSize = tb.FontSize,
+						});
+
+						pos = m.Index + m.Length;
+					}
+					tb.Inlines.Add(new Run(text.Substring(pos)) {
+						Foreground = fb,
+					});
+				}
+
 				void EvalFont(StringBuilder inputVal, StringBuilder outputVal) {
 					var fm = regexFontStart.Match(inputVal.ToString());
 					if(fm.Success) {
@@ -102,9 +122,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 							var t2 = Regex.Replace(text, @"<[^>]*>", "",
 								RegexOptions.IgnoreCase | RegexOptions.Multiline);
 							var t3 = System.Net.WebUtility.HtmlDecode(t2);
-							tb.Inlines.Add(new Run(t3) {
-								Foreground = (color.HasValue) ? new SolidColorBrush(color.Value) : null,
-							});
+							EvalEmoji(t3, color);
 							inputVal.Remove(0, fm2.Index + fm2.Length);
 						}
 					}
@@ -114,17 +132,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					foreach(var r in regex) {
 						var m = r.Match(inputVal.ToString());
 						if(m.Success) {
-							var link = new Hyperlink() {
-								TextDecorations = null,
-								Foreground = new SolidColorBrush(Colors.Blue),
-								NavigateUri = new Uri(ToUrl(m.Value)),
-							};
-							link.RequestNavigate += new RequestNavigateEventHandler(RequestNavigate);
-							link.MouseEnter += new MouseEventHandler(link_MouseEnter);
-							link.MouseLeave += new MouseEventHandler(link_MouseLeave);
-							link.Inlines.Add(m.Value);
-							tb.Inlines.Add(new Run(outputVal.ToString()));
-							tb.Inlines.Add(link);
+							try {
+								var uri = new Uri(ToUrl(m.Value));
+								var link = new Hyperlink() {
+									TextDecorations = null,
+									Foreground = new SolidColorBrush(Colors.Blue),
+									NavigateUri = uri,
+								};
+								link.RequestNavigate += new RequestNavigateEventHandler(RequestNavigate);
+								link.MouseEnter += new MouseEventHandler(link_MouseEnter);
+								link.MouseLeave += new MouseEventHandler(link_MouseLeave);
+								link.Inlines.Add(m.Value);
+								if(0 < outputVal.Length) {
+									EvalEmoji(outputVal.ToString(), null);
+								}
+								tb.Inlines.Add(link);
+							}
+							catch(UriFormatException) {
+								// URLが作れなかったのでべた書きする
+								if(0 < outputVal.Length) {
+									EvalEmoji(outputVal.ToString(), null);
+								}
+								EvalEmoji(m.Value, null);
+							}
 							outputVal.Clear();
 							inputVal.Remove(0, m.Length);
 							goto next;
@@ -158,7 +188,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						EvalLink(input2, output);
 					}
 					if(output.Length != 0) {
-						tb.Inlines.Add(new Run(output.ToString()));
+						EvalEmoji(output.ToString(), null);
 						output.Clear();
 					}
 					input.Remove(0, fontPos);
@@ -167,7 +197,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				}
 
 				if(output.Length != 0) {
-					tb.Inlines.Add(new Run(output.ToString()));
+					EvalEmoji(output.ToString(), null);
 					output.Clear();
 				}
 				if(!object.ReferenceEquals(lines, last)) {

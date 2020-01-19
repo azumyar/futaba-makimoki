@@ -149,6 +149,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Emoji.Wpf">
+      <Version>0.0.19-experimental</Version>
+    </PackageReference>
     <PackageReference Include="Imazen.WebP">
       <Version>10.0.1</Version>
     </PackageReference>
