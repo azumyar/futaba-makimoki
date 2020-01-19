@@ -12,26 +12,30 @@ using System.Windows.Media.Imaging;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 	static class ImageUtil {
-		private static Dictionary<string, WeakReference<BitmapImage>> bitmapDic
+		private volatile static Dictionary<string, WeakReference<BitmapImage>> bitmapDic
 			= new Dictionary<string, WeakReference<BitmapImage>>();
 
 		private static bool TryGetImage(string file, out BitmapImage image) {
-			if(bitmapDic.TryGetValue(file, out var v)) {
-				if(v.TryGetTarget(out var b)) {
-					image = b;
-					return true;
+			lock(bitmapDic) {
+				if(bitmapDic.TryGetValue(file, out var v)) {
+					if(v.TryGetTarget(out var b)) {
+						image = b;
+						return true;
+					}
 				}
+				image = null;
+				return false;
 			}
-			image = null;
-			return false;
 		}
 
 		private static void SetImage(string file, BitmapImage image) {
-			var r = new WeakReference<BitmapImage>(image);
-			if(bitmapDic.ContainsKey(file)) {
-				bitmapDic[file] = r;
-			} else {
-				bitmapDic.Add(file, r);
+			lock(bitmapDic) {
+				var r = new WeakReference<BitmapImage>(image);
+				if(bitmapDic.ContainsKey(file)) {
+					bitmapDic[file] = r;
+				} else {
+					bitmapDic.Add(file, r);
+				}
 			}
 		}
 
@@ -40,52 +44,71 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				return b;
 			}
 
-			if(Path.GetExtension(path).ToLower() == "webp") {
-				System.Drawing.Image bitmap = null;
-				try {
+			try {
+				if(Path.GetExtension(path).ToLower() == ".webp") {
+					System.Drawing.Image bitmap = null;
 					try {
-						var decoder = new Imazen.WebP.SimpleDecoder();
-						using(var fs = new FileStream(path, FileMode.Open)) {
-							var l = new List<byte>();
-							while(fs.CanRead) {
-								var bb = new byte[1024];
-								var c = fs.Read(bb, 0, bb.Length);
-								for(var i = 0; i < c; i++) {
-									l.Add(bb[i]);
+						try {
+							var decoder = new Imazen.WebP.SimpleDecoder();
+							using(var fs = new FileStream(path, FileMode.Open)) {
+								var l = new List<byte>();
+								while(fs.CanRead) {
+									var bb = new byte[1024];
+									var c = fs.Read(bb, 0, bb.Length);
+									for(var i = 0; i < c; i++) {
+										l.Add(bb[i]);
+									}
 								}
+								bitmap = decoder.DecodeFromBytes(l.ToArray(), l.Count);
 							}
-							bitmap = decoder.DecodeFromBytes(l.ToArray(), l.Count);
 						}
-					}
-					catch(IOException e) {
-						throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e);
-					}
-					catch(ArgumentException e) {
-						throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e);
-					}
+						catch(IOException e) {
+							throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e);
+						}
+						catch(ArgumentException e) {
+							throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e);
+						}
 
+						var bitmapImage = new BitmapImage();
+						using(var stream = new MemoryStream()) {
+							bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+							stream.Position = 0;
+
+							bitmapImage.BeginInit();
+							bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+							bitmapImage.StreamSource = stream;
+							bitmapImage.EndInit();
+							bitmapImage.Freeze();
+						}
+
+						SetImage(path, bitmapImage);
+						return bitmapImage;
+					}
+					finally {
+						bitmap?.Dispose();
+					}
+				} else {
+					//var bitmapImage = new BitmapImage(new Uri(path));
+					//bitmapImage.Freeze();
 					var bitmapImage = new BitmapImage();
-					using(var stream = new MemoryStream()) {
-						bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-						stream.Position = 0;
-
+					using(var stream = new FileStream(path, FileMode.Open)) {
 						bitmapImage.BeginInit();
 						bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
 						bitmapImage.StreamSource = stream;
 						bitmapImage.EndInit();
+						bitmapImage.Freeze();
 					}
 
 					SetImage(path, bitmapImage);
 					return bitmapImage;
 				}
-				finally {
-					bitmap?.Dispose();
+			}
+			finally {
+				var d = System.Windows.Threading.Dispatcher.CurrentDispatcher;
+				if(d != System.Windows.Application.Current?.Dispatcher) {
+					d.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.SystemIdle);
+					//System.Windows.Threading.Dispatcher.Run();
 				}
-			} else {
-				var bitmapImage = new BitmapImage(new Uri(path));
-
-				SetImage(path, bitmapImage);
-				return bitmapImage;
 			}
 		}
 

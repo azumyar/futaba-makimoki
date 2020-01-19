@@ -44,6 +44,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			}
 			Util.TaskUtil.Initialize();
 			Util.Futaba.Initialize();
+			Reactive.Bindings.UIDispatcherScheduler.Initialize();
 			RemoveOldCache(AppCacheDirectory);
 
 			return Container.Resolve<Windows.MainWindow>();

@@ -238,7 +238,7 @@
                                         VerticalAlignment="Center"
                                         >
                                         <Image
-                                            Source="{Binding ThumbSource.Value}"
+                                            Source="{Binding ThumbSource.Value, Mode=OneWay}"
                                             RenderOptions.EdgeMode="Aliased"
                                             RenderOptions.BitmapScalingMode="Fant">
                                             <Image.CacheMode>
@@ -247,7 +247,7 @@
                                         </Image>
                                     </Viewbox>
                                     <!-- 新着レス数-->
-                                    <Viewbox
+                                    <Grid
                                         Grid.Row="0"
                                         Margin="2"
                                         Width="16"
@@ -256,41 +256,37 @@
                                         VerticalAlignment="Top"
                                         Visibility="{Binding Raw.Value, Converter={StaticResource FutabaNewResVisibilityConverter}, Mode=OneWay}"
                                         >
-                                        <Grid>
-                                            <Ellipse Width="16" Height="16" Fill="Red" />
-                                            <TextBlock
-                                                Text="{Binding Raw.Value, Converter={StaticResource FutabaNewResCountConverter}, Mode=OneWay}"
-                                                Foreground="White"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"/>
-                                        </Grid>
-                                    </Viewbox>
+                                        <Ellipse Width="16" Height="16" Fill="Red" />
+                                        <TextBlock
+                                            Text="{Binding Raw.Value, Converter={StaticResource FutabaNewResCountConverter}, Mode=OneWay}"
+                                            FontSize="10"
+                                            Foreground="White"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                                    </Grid>
                                     <!-- レス-->
-                                    <Viewbox
+                                    <Grid
                                         Grid.Column="0"
                                         Grid.Row="1"
-                                        StretchDirection="DownOnly"
-                                        Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}"
                                         VerticalAlignment="Bottom"
-                                        >
-                                        <Grid Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock
-                                                Grid.Column="0"
-                                                Text="{Binding Raw.Value.ResItem.Res, Converter={StaticResource CatalogTextConverter}, Mode=OneWay}"
-                                                HorizontalAlignment="Left"
-                                                VerticalAlignment="Bottom"/>
-                                            <TextBlock
-                                                Grid.Column="2"
-                                                Text="{Binding Raw.Value.CounterCurrent, Mode=OneWay}"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Bottom"/>
-                                        </Grid>
-                                    </Viewbox>
+                                        Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}"
+                                        Height="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Text="{Binding Raw.Value.ResItem.Res, Converter={StaticResource CatalogTextConverter}, Mode=OneWay}"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Bottom"/>
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Text="{Binding Raw.Value.CounterCurrent, Mode=OneWay}"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Bottom"/>
+                                    </Grid>
                                 </Grid>
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="PreviewMouseDown">
