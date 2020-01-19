@@ -262,7 +262,8 @@
                                             FontSize="10"
                                             Foreground="White"
                                             HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"/>
+                                            VerticalAlignment="Center"
+                                            Padding="0 0 0 1"/>
                                     </Grid>
                                     <!-- レス-->
                                     <Grid
