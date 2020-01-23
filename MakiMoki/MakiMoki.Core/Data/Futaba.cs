@@ -166,6 +166,37 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 		[JsonIgnore]
 		public bool IsDel => (Del == "del") || (Del == "del2"); // del2は隔離JSONに隔離メッセージ乗ってこないから分けたほうがいいかもしれない
+
+		[JsonIgnore]
+		public bool IsDel2 => (Del == "del2");
+
+		internal static ResItem From(
+			string sub, string name,
+			string email, string com, 
+			string id, string host, string del,
+			string src, string thumb, string ext, int fsize, int w, int h,
+			string now, string tim,
+			int rsc) {
+
+			return new ResItem() {
+				Sub = sub,
+				Name = name,
+				Email = email,
+				Com = com,
+				Id = id,
+				Host = host,
+				Del = del,
+				Src = src,
+				Thumb = thumb,
+				Ext = ext,
+				Fsize = fsize,
+				H = h,
+				W = w,
+				Now = now,
+				Tim = tim,
+				Rsc = rsc,
+			};
+		}
 	}
 
 	public static class DelReason {
@@ -315,6 +346,27 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			};
 		}
 
+		public static FutabaContext FromThreadResResponse(BordConfig bord, string threadNo, FutabaResonse response, Data.NumberedResItem parent, int soudane) {
+			var url = new UrlContext(bord.Url, threadNo);
+			var p = Item.FromThreadRes(url, parent, soudane);
+			return new FutabaContext() {
+				Name = Util.TextUtil.SafeSubstring(
+					Util.TextUtil.RemoveCrLf(
+						Util.TextUtil.RowComment2Text(p.ResItem.Res.Com)
+					), 8),
+				Bord = bord,
+				Url = url,
+				ResItems = new Item[] { p }.Concat(response.Res?.Select(x => {
+					var sd = 0;
+					if(response.Sd.TryGetValue(x.No, out var s) && int.TryParse(s, out var v)) {
+						sd = v;
+					}
+					return Item.FromThreadRes(url, x, sd);
+				}) ?? new Item[0]).ToArray(),
+				Raw = response,
+			};
+		}
+		
 		public static FutabaContext FromThreadResResponse(BordConfig bord, string threadNo, FutabaResonse response) {
 			var parent = Util.Futaba.Catalog.Value.Where(x => x.Bord.Url == bord.Url).FirstOrDefault()
 				?.ResItems.Where(x => x.ResItem.No == threadNo).FirstOrDefault();

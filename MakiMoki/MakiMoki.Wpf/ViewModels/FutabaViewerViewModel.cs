@@ -238,18 +238,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						x.PostData.Value.Name.Value,
 						x.PostData.Value.Mail.Value,
 						x.PostData.Value.Subject.Value,
-						x.PostData.Value.Comment.Value,
+						x.PostData.Value.CommentEncoded.Value,
 						x.PostData.Value.ImagePath.Value,
 						x.PostData.Value.Password.Value)
-					.SubscribeOnDispatcher()
+					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(y => {
 						if(y.Successed) {
 							PostViewVisibility.Value = Visibility.Collapsed;
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
-							//Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo);
+							Task.Run(async () => {
+								await Task.Delay(1000); // すぐにスレが作られないので1秒くらい待つ
+								Util.Futaba.UpdateThreadRes(x.Raw.Bord, y.NextOrMessage);
+							});
 						} else {
 							// TODO: あとでいい感じにする
-							MessageBox.Show(y.Message);
+							MessageBox.Show(y.NextOrMessage);
 						}
 					});
 				} else {
@@ -257,10 +260,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						x.PostData.Value.Name.Value,
 						x.PostData.Value.Mail.Value,
 						x.PostData.Value.Subject.Value,
-						x.PostData.Value.Comment.Value,
+						x.PostData.Value.CommentEncoded.Value,
 						x.PostData.Value.ImagePath.Value,
 						x.PostData.Value.Password.Value)
-					.SubscribeOnDispatcher()
+					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(y => {
 						if(y.Successed) {
 							PostViewVisibility.Value = Visibility.Collapsed;

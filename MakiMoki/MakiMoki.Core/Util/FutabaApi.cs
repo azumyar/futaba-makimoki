@@ -66,7 +66,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					r.AddCookie("cxyl", string.Format("{0}x{1}x0x0x0", w, h));
 					var res = c.Execute(r);
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-						var s = res.Content;
+						var s = FutabaEncoding.GetString(res.RawBytes);
 						var rc = res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray();
 						return (rc, s);
 					} else {
@@ -112,6 +112,27 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
+		public static async Task<(Data.Cookie[] Cookies, string Raw)> GetThreadResHtml(string baseUrl, string threadNo, Data.Cookie[] cookies) {
+			System.Diagnostics.Debug.Assert(baseUrl != null);
+			return await Task.Run(() => {
+				try {
+					var c = new RestClient(baseUrl);
+					var r = new RestRequest(string.Format("res/{0}.htm", threadNo), Method.GET);
+					foreach(var cookie in cookies) {
+						r.AddCookie(cookie.Name, cookie.Value);
+					}
+					var res = c.Execute(r);
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+						var s = FutabaEncoding.GetString(res.RawBytes);
+						var rc = res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray();
+						return (rc, s);
+					} else {
+						return (null, null);
+					}
+				}
+				finally { }
+			});
+		}
 		public static async Task<byte[]> GetThreadResImage(string baseUrl, Data.ResItem resItem) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			return await Task.Run(() => {
@@ -157,7 +178,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static async Task<(bool Successed, Data.Cookie[] Cookies, string Raw)> PostThread(Data.BordConfig bord,
+		public static async Task<(bool Successed, string NextOrMessage, Data.Cookie[] Cookies, string Raw)> PostThread(Data.BordConfig bord,
 			Data.Cookie[] cookies, string ptua,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
@@ -175,6 +196,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				//var c = new RestClient("http://127.0.0.1:8080/");
 				var c = new RestClient(bord.Url);
 				var r = new RestRequest(FutabaEndPoint, Method.POST);
+				c.Encoding = FutabaEncoding;
 				r.AddHeader("Content-Type", "multipart/form-data");
 				r.AddParameter("guid", "on", ParameterType.QueryString);
 
@@ -187,11 +209,33 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				}
 				var res = c.Execute(r);
 				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-					// TODO: これだと立ったスレッド番号がわからないのでAJAXモード外す
 					var s = FutabaEncoding.GetString(res.RawBytes);
-					return (s == "ok", res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray(), s);
+					var m = Regex.Match(s,
+						"<meta\\s+http-equiv=\"refresh\"\\s+content=\"1;url=res/([0-9]+).htm\">",
+						RegexOptions.IgnoreCase);
+					if(m.Success) {
+						return (true, m.Groups[1].Value, res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray(), s);
+					} else {
+						// エラー解析めどい…めどくない？
+						var msg = "不明なエラー";
+						var ln = s.Replace("\r", "").Split('\n');
+						if(1 < ln.Length) {
+							msg = Regex.Replace(ln[ln.Length - 1], "<[^>]+>", "");
+							if(msg.EndsWith("リロード")) {
+								msg = msg.Substring(0, msg.Length - "リロード".Length);
+							}
+						} else {
+							var mm = Regex.Match(s,
+								"<body>(.+)</body>",
+								RegexOptions.IgnoreCase);
+							if(mm.Success && !mm.Groups[1].Value.Contains("<")) {
+								msg = mm.Groups[1].Value;
+							}
+						}
+						return (false, msg, res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray(), s);
+					}
 				} else {
-					return (false, null, null);
+					return (false, "HTTPエラー", null, null);
 				}
 			});
 		}
@@ -226,6 +270,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				SetPostParameter(r, bord, threadNo,
 					ptua,
 					name, email, subject, comment, filePath, passwd);
+				r.AddParameter("responsemode", "ajax", ParameterType.GetOrPost);
 				foreach(var cookie in cookies) {
 					r.AddCookie(cookie.Name, cookie.Value);
 				}
@@ -257,7 +302,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			r.AddParameter("js", "on", ParameterType.GetOrPost);
 			r.AddParameter("scsz", "1024x768x24", ParameterType.GetOrPost);
 			r.AddParameter("chrenc", "文字", ParameterType.GetOrPost);
-			r.AddParameter("responsemode", "ajax", ParameterType.GetOrPost);
 			if(bord.Extra?.NameValue ?? true) {
 				r.AddParameter("name", name, ParameterType.GetOrPost);
 				r.AddParameter("sub", subject, ParameterType.GetOrPost);

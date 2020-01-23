@@ -32,6 +32,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
 			public ReactiveProperty<string> Comment { get; } = new ReactiveProperty<string>("");
+			public ReadOnlyReactiveProperty<string> CommentEncoded { get; }
 			public ReadOnlyReactiveProperty<int> CommentBytes { get; }
 			public ReadOnlyReactiveProperty<int> CommentLines { get; }
 
@@ -83,9 +84,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					return null;
 				}).ToReactiveProperty();
 
-				this.CommentBytes = this.Comment.Select(x => {
+				this.CommentEncoded = this.Comment.Select(x => {
 					// System.Net.WebUtility.HtmlEncode(x) ♡などをスルーするので自前で解析もする
-					// StringBuilder に入れる必要はないけど結果を見たいので入れる
 					var sb = new StringBuilder(System.Net.WebUtility.HtmlEncode(x));
 					for(var i = 0; i < sb.Length; i++) {
 						var c = sb[i];
@@ -99,10 +99,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 							i += ss.Length;
 						}
 					}
-					System.Diagnostics.Debug.WriteLine(sb);
-					//System.Diagnostics.Debug.WriteLine(FutabaEncoding.GetString(FutabaEncoding.GetBytes(sb.ToString())));
-
-					return FutabaEncoding.GetByteCount(sb.ToString());
+					return sb.ToString();
+				}).ToReadOnlyReactiveProperty();
+				this.CommentBytes = this.CommentEncoded.Select(x => {
+					return FutabaEncoding.GetByteCount(x);
 				}).ToReadOnlyReactiveProperty();
 				this.CommentLines = this.Comment
 					.Select(x => (x.Length == 0) ? 0 : (x.Replace(@"\r", "").Where(y => y == '\n').Count() + 1))

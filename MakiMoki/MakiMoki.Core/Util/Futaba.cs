@@ -123,14 +123,114 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						}
 					}
 
-					var r = await FutabaApi.GetThreadRes(
+					var r = FutabaApi.GetThreadRes(
 						bord.Url,
 						threadNo,
 						Config.ConfigLoader.Cookies);
-					Config.ConfigLoader.UpdateCookie(r.cookies);
+					var rr = FutabaApi.GetThreadResHtml(
+						bord.Url,
+						threadNo,
+						Config.ConfigLoader.Cookies);
+					Task.WaitAll(r, rr);
+					if((r.Result.Response == null) || (rr.Result.Raw == null)) {
+						// TODO: 404の処理
+						// TODO: エラー処理
+						return;
+					}
+					Config.ConfigLoader.UpdateCookie(r.Result.cookies);
 					lock(lockObj) {
-						var f = Data.FutabaContext.FromThreadResResponse(bord, threadNo, r.Response);
+						var name = "";
+						var email = "";
+						var id = "";
+						var soudane = 0;
+						var host = "";
+						var thumb = "";
+						var w = 0;
+						var h = 0;
+						var fsize = 0;
+						var time = "";
+						var utc = 0l;
+						var parser = new HtmlParser();
+						var doc = parser.ParseDocument(rr.Result.Raw);
+						var sub = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > span.csb", threadNo))?.Text() ?? "";
+						var nameEl = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > span.cnm", threadNo));
+						if(nameEl != null) {
+							name = nameEl.Text();
+							var mailEl = nameEl.QuerySelector("a");
+							if(mailEl != null) {
+								email = mailEl.GetAttribute("href").Substring("mailto:".Length);
+							}
+						}
+						var timeEl = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > span.cnw", threadNo));
+						if(timeEl != null) {
+							time = timeEl.Text();
+							var t = Regex.Split(time, @"\s+");
+							var ip = "";
+							if(1 < t.Length) {
+								time = t[0];
+								for(var i=1; i<t.Length; i++) {
+									if(t[i].StartsWith("ID:")) {
+										id = t[i];
+									} else if(t[i].StartsWith("IP:")) {
+										ip = t[i];
+									}
+								}
+							}
+							var m = Regex.Match(time, @"^(\d\d/\d\d/\d\d)\(\S\)(\d\d:\d\d:\d\d)");
+							if(m.Success) {
+								var tms = m.Groups[1].Value + " " + m.Groups[2].Value;
+								if(DateTime.TryParseExact(tms, "yy/MM/dd hh:mm:ss", 
+									System.Globalization.CultureInfo.InvariantCulture, 
+									System.Globalization.DateTimeStyles.None,
+									out var dt)) {
+
+									// ミリ秒以下がなくなるが仕方無し
+									utc = new DateTimeOffset(dt.Ticks, new TimeSpan(9, 0, 0)).ToUnixTimeMilliseconds();
+								}
+							}
+							if(0 < ip.Length) {
+								time = time + " " + ip;
+							}
+							var mailEl = timeEl.QuerySelector("a");
+							if(mailEl != null) {
+								email = mailEl.GetAttribute("href").Substring("mailto:".Length);
+							}
+						}
+						var sd = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a.sod", threadNo))?.Text() ?? "";
+						if(sd.StartsWith("そうだねx")) {
+							var m = Regex.Match(sd, @"(\d+)$");
+							if(m.Success && int.TryParse(m.Groups[1].Value, out var sdn)) {
+								soudane = sdn;
+							}
+						}
+						var src = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a", threadNo))?.GetAttribute("href") ?? "";
+						var ext = Path.GetExtension(src);
+						var thumbEl = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a > img", threadNo));
+						if(thumbEl != null) {
+							thumb = thumbEl.GetAttribute("src");
+							if(int.TryParse(thumbEl.GetAttribute("width"), out var ww)) {
+								w = ww;
+							}
+							if(int.TryParse(thumbEl.GetAttribute("height"), out var hh)) {
+								h = hh;
+							}
+							var alt = thumbEl.GetAttribute("alt");
+							var m = Regex.Match(alt, @"^(\d+)");
+							if(m.Success && int.TryParse(m.Groups[1].Value, out var fs)) {
+								fsize = fs;
+							}
+						}
+						var com = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > blockquote", threadNo))?.InnerHtml ?? "";
+						var f = Data.FutabaContext.FromThreadResResponse(bord, threadNo, r.Result.Response,
+							new Data.NumberedResItem(threadNo,
+								Data.ResItem.From(
+									sub, name, email, com,
+									id, host, "",
+									src, thumb, ext, fsize, w, h,
+									time, utc.ToString(),
+									0)), soudane);
 						if(f == null) {
+							// TODO: エラー処理
 							return;
 						}
 						for(var i = 0; i < Threads.Value.Length; i++) {
@@ -232,7 +332,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostThread(Data.BordConfig bord,
+		public static IObservable<(bool Successed, string NextOrMessage)> PostThread(Data.BordConfig bord,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
@@ -244,7 +344,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				} else {
 					Config.ConfigLoader.UpdateCookie(r.Cookies);
 					Config.ConfigLoader.UpdateFutabaPassword(passwd);
-					o.OnNext((r.Successed, r.Raw));
+					o.OnNext((r.Successed, r.NextOrMessage));
 				}
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
