@@ -11,6 +11,7 @@
              xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
              xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
+             xmlns:behavior="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Behaviors"
              xmlns:model="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Model"
              xmlns:data="clr-namespace:Yarukizero.Net.MakiMoki.Data;assembly=MakiMoki.Core"
              mc:Ignorable="d" 
@@ -334,110 +335,164 @@
                         <VirtualizingStackPanel
                             Orientation="Vertical"
                             IsItemsHost="True" 
-                            HorizontalAlignment="Left"
-                            Width="{Binding ActualWidth, ElementName=ThreadResContainer, Mode=OneWay}"
-                            MaxWidth="1024"/>
+                            HorizontalAlignment="Stretch"
+                            />
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Vertical" Margin="16 4 16 4" Background="Transparent">
-                            <WrapPanel Orientation="Horizontal" TextBlock.FontSize="14">
-                                <!-- AlternationCount/AlternationIndexではアイテム追加時に追従してくれない -->
-                                <TextBlock>
-                                    <Run Text="{Binding Index.Value, StringFormat='\{0\} ', Mode=OneWay}" />
-                                </TextBlock>
-                                <TextBlock Visibility="{Binding NameVisibility.Value, Mode=OneWay}">
-                                    <Run Text="{Binding Raw.Value.ResItem.Res.Sub, StringFormat='\{0\} ', Mode=OneWay}" />
-                                </TextBlock>
-                                <TextBlock Visibility="{Binding NameVisibility.Value, Mode=OneWay}">
-                                    <Run Text="{Binding Raw.Value.ResItem.Res.Name, StringFormat='\{0\} ', Mode=OneWay}" />
-                                </TextBlock>
-                                <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Email, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
-                                    <Run Text="{Binding Raw.Value.ResItem.Res.Email,  StringFormat='[\{0\}] ', Mode=OneWay}" />
-                                </TextBlock>
-                                <TextBlock>
-                                    <Run Text="{Binding Raw.Value.ResItem.Res.Now, StringFormat='\{0\} ', Converter={StaticResource FutabaResItemNowConverter}, Mode=OneWay}" />
-                                </TextBlock>
-                                <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Id, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
-                                    <Run Text="{Binding Raw.Value.ResItem.Res.Id, Mode=OneWay}" />
-                                </TextBlock>
-                                <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Host, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
-                                    <Run Text="{Binding Raw.Value.ResItem.Res.Host, StringFormat='\{0\} ', Mode=OneWay}" />
-                                </TextBlock>
-                                <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
-                                    <Run Text="{Binding Raw.Value.Soudane, Mode=OneWay, StringFormat='そうだね×\{0\} '}" />
-                                </TextBlock>
-                                <TextBlock>
-                                    <Run Text="{Binding Raw.Value.ResItem.No,  StringFormat='No.\{0\} ', Mode=OneWay}" />
-                                </TextBlock>
-                            </WrapPanel>
-                            <WrapPanel Orientation="Horizontal" TextBlock.FontSize="16">
-                                <Grid  Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
-                                    <TextBlock
-                                        Grid.Row="0"
-                                        FontSize="14"
-                                        Text="{Binding ImageName.Value}" 
-                                        HorizontalAlignment="Left" />
-                                    <Viewbox
-                                        Grid.Row="1"
-                                        HorizontalAlignment="Left"
-                                        StretchDirection="DownOnly">
-                                        <Button BorderThickness="0" BorderBrush="Transparent" Margin="0 0 4 0">
-                                            <Image 
-                                                Source="{Binding ThumbSource.Value}"
-                                                RenderOptions.EdgeMode="Aliased"
-                                                RenderOptions.BitmapScalingMode="Fant">
-                                                <Image.CacheMode>
-                                                    <BitmapCache RenderAtScale="1" />
-                                                </Image.CacheMode>
-                                            </Image>
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="PreviewMouseDown">
-                                                    <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadImageMouseDownCommand, ElementName=_this}" />
-                                                </i:EventTrigger>
-                                                <i:EventTrigger EventName="PreviewMouseUp">
-                                                    <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadImageClickCommand, ElementName=_this}" />
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                        </Button>
-                                    </Viewbox>
-                                </Grid>
-                                <local:FutabaCommentBlock Text="{Binding Raw.Value.ResItem.Res.Com, Mode=OneWay}" TextWrapping="Wrap" Margin="4 4 0 4">
-                                    <local:FutabaCommentBlock.Inline>
-                                        <Binding Path="Raw.Value.ResItem.Res.Com" Mode="OneWay" />
-                                    </local:FutabaCommentBlock.Inline>
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="LinkClick">
-                                            <ri:EventToReactiveCommand Command="{Binding DataContext.LinkClickCommand, ElementName=_this}" />
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
-                                </local:FutabaCommentBlock>
-                            </WrapPanel>
-                            <StackPanel.ContextMenu>
-                                <ContextMenu>
-                                    <!-- Interaction.Triggers使えない？ -->
-                                    <MenuItem Header="レスをコピー" Click="OnMenuItemCopyClickCommand">
-                                    </MenuItem>
-                                    <MenuItem Header="返信" Click="OnMenuItemReplyClickCommand">
-                                        <!--
+                        <Grid Margin="16 4 16 4" Background="Transparent">
+                            <Grid
+                                x:Name="viewGrid"
+                                MaxWidth="1024"
+                                Background="Transparent"
+                                HorizontalAlignment="Left" 
+                                Visibility="Visible">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <WrapPanel Grid.Row="0" Orientation="Horizontal" TextBlock.FontSize="14">
+                                    <!-- AlternationCount/AlternationIndexではアイテム追加時に追従してくれない -->
+                                    <TextBlock>
+                                        <Run Text="{Binding Index.Value, StringFormat='\{0\} ', Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock Visibility="{Binding NameVisibility.Value, Mode=OneWay}">
+                                        <Run Text="{Binding Raw.Value.ResItem.Res.Sub, StringFormat='\{0\} ', Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock Visibility="{Binding NameVisibility.Value, Mode=OneWay}">
+                                        <Run Text="{Binding Raw.Value.ResItem.Res.Name, StringFormat='\{0\} ', Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Email, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                                        <Run Text="{Binding Raw.Value.ResItem.Res.Email,  StringFormat='[\{0\}] ', Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock>
+                                        <Run Text="{Binding Raw.Value.ResItem.Res.Now, StringFormat='\{0\} ', Converter={StaticResource FutabaResItemNowConverter}, Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Id, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                                        <Run Text="{Binding Raw.Value.ResItem.Res.Id, Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Host, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                                        <Run Text="{Binding Raw.Value.ResItem.Res.Host, StringFormat='\{0\} ', Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                                        <Run Text="{Binding Raw.Value.Soudane, Mode=OneWay, StringFormat='そうだね×\{0\} '}" />
+                                    </TextBlock>
+                                    <TextBlock>
+                                        <Run Text="{Binding Raw.Value.ResItem.No,  StringFormat='No.\{0\} ', Mode=OneWay}" />
+                                    </TextBlock>
+                                </WrapPanel>
+                                <WrapPanel Grid.Row="1" Orientation="Horizontal" TextBlock.FontSize="16">
+                                    <Grid  Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <TextBlock
+                                            Grid.Row="0"
+                                            FontSize="14"
+                                            Text="{Binding ImageName.Value}" 
+                                            HorizontalAlignment="Left" />
+                                        <Viewbox
+                                            Grid.Row="1"
+                                            HorizontalAlignment="Left"
+                                            StretchDirection="DownOnly">
+                                            <Button BorderThickness="0" BorderBrush="Transparent" Margin="0 0 4 0">
+                                                <Image 
+                                                    Source="{Binding ThumbSource.Value}"
+                                                    RenderOptions.EdgeMode="Aliased"
+                                                    RenderOptions.BitmapScalingMode="Fant">
+                                                    <Image.CacheMode>
+                                                        <BitmapCache RenderAtScale="1" />
+                                                    </Image.CacheMode>
+                                                </Image>
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="PreviewMouseDown">
+                                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadImageMouseDownCommand, ElementName=_this}" />
+                                                    </i:EventTrigger>
+                                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadImageClickCommand, ElementName=_this}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </Button>
+                                        </Viewbox>
+                                    </Grid>
+                                    <local:FutabaCommentBlock Text="{Binding CommentHtml.Value, Mode=OneWay}" TextWrapping="Wrap" Margin="4 4 0 4">
+                                        <local:FutabaCommentBlock.Inline>
+                                            <Binding Path="CommentHtml.Value" Mode="OneWay" />
+                                        </local:FutabaCommentBlock.Inline>
                                         <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="Click">
-                                                <ri:EventToReactiveCommand Command="{Binding DataContext.MenuItemReplyClickCommand, ElementName=_this}" />
+                                            <i:EventTrigger EventName="LinkClick">
+                                                <ri:EventToReactiveCommand Command="{Binding DataContext.LinkClickCommand, ElementName=_this}" />
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
-                                        -->
-                                    </MenuItem>
-                                    <MenuItem Header="そうだね" Click="OnMenuItemSoudaneClickCommand" />
-                                    <MenuItem Header="del" Click="OnMenuItemDelClickCommand" IsEnabled="False" />
-                                    <MenuItem Header="削除" Click="OnMenuItemDeleteClickCommand" />
-                                </ContextMenu>
-                            </StackPanel.ContextMenu>
-                        </StackPanel>
+                                    </local:FutabaCommentBlock>
+                                </WrapPanel>
+                                <Button 
+                                    x:Name="copyButton" 
+                                    Grid.Row="1" 
+                                    Width="24" Height="24" Opacity="0.6"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Bottom" Visibility="Hidden">
+                                    <TextBlock>マ</TextBlock>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <i:ChangePropertyAction PropertyName="Visibility" TargetName="copywGrid" Value="Visible" />
+                                            <i:ChangePropertyAction PropertyName="Visibility" TargetName="viewGrid" Value="Hidden" />
+                                            <i:CallMethodAction TargetObject="{Binding ElementName=copyTextBox, Mode=OneWay}" MethodName="Focus" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
+                                <Grid.ContextMenu>
+                                    <ContextMenu>
+                                        <!-- Interaction.Triggers使えない？ -->
+                                        <MenuItem Header="レスをコピー" Click="OnMenuItemCopyClickCommand" />
+                                        <MenuItem Header="返信" Click="OnMenuItemReplyClickCommand">
+                                            <!--
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Click">
+                                                    <ri:EventToReactiveCommand Command="{Binding DataContext.MenuItemReplyClickCommand, ElementName=_this}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                            -->
+                                        </MenuItem>
+                                        <MenuItem Header="そうだね" Click="OnMenuItemSoudaneClickCommand" />
+                                        <MenuItem Header="del" Click="OnMenuItemDelClickCommand" IsEnabled="False" />
+                                        <MenuItem Header="削除" Click="OnMenuItemDeleteClickCommand" />
+                                    </ContextMenu>
+                                </Grid.ContextMenu>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseEnter">
+                                        <i:ChangePropertyAction PropertyName="Visibility" TargetName="copyButton" Value="Visible" />
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="MouseLeave">
+                                        <i:ChangePropertyAction PropertyName="Visibility" TargetName="copyButton" Value="Hidden" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Grid>
+                            <Grid
+                                x:Name="copywGrid"
+                                MaxWidth="1024"
+                                Background="Transparent"
+                                HorizontalAlignment="Left"
+                                Visibility="Hidden">
+                                <TextBox
+                                    Text="{Binding CommentCopy.Value, Mode=OneWay}"
+                                    TextWrapping="Wrap" Margin="4"
+                                    FontSize="16"
+                                    IsReadOnly="True">
+                                    <i:Interaction.Behaviors>
+                                        <behavior:FocusBehavior x:Name="copyTextBox" />
+                                    </i:Interaction.Behaviors>
+                                </TextBox>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="LostFocus">
+                                        <i:ChangePropertyAction PropertyName="Visibility" TargetName="copywGrid" Value="Hidden" />
+                                        <i:ChangePropertyAction PropertyName="Visibility" TargetName="viewGrid" Value="Visible" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Grid>
+                        </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

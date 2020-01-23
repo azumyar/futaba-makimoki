@@ -286,6 +286,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> ThreadResNo { get; }
 		public ReactiveProperty<Data.FutabaContext.Item> Raw { get; }
 
+		public ReactiveProperty<string> CommentHtml { get; }
+		public ReactiveProperty<string> CommentCopy { get; }
+
 		public ReactiveProperty<BindableFutaba> Parent { get; }
 
 		public BindableFutabaResItem(int index, Data.FutabaContext.Item item, string baseUrl, BindableFutaba parent) {
@@ -306,6 +309,36 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ResImageVisibility = this.ThumbSource
 				.Select(x => (x != null) ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
+
+			this.CommentHtml = new ReactiveProperty<string>(Raw.Value.ResItem.Res.Com);
+			var sb = new StringBuilder()
+				.Append(Index.Value)
+				.Append(" ")
+				.Append("No.")
+				.Append(Raw.Value.ResItem.No);
+			if(Bord.Value.Extra?.NameValue ?? true) {
+				sb.Append(" ")
+					.Append(Raw.Value.ResItem.Res.Sub)
+					.Append(" ")
+					.Append(Raw.Value.ResItem.Res.Name);
+			}
+			if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Email)) {
+				sb.Append(" [").Append(Raw.Value.ResItem.Res.Email).Append("]");
+			}
+			sb.Append(" ").Append(Raw.Value.ResItem.Res.Now);
+			if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Host)) {
+				sb.Append(" ").Append(Raw.Value.ResItem.Res.Host);
+			}
+			if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Id)) {
+				sb.Append(" ").Append(Raw.Value.ResItem.Res.Id);
+			}
+			if(0 < Raw.Value.Soudane) {
+				sb.Append(" そうだね×").Append(Raw.Value.Soudane);
+			}
+			sb.AppendLine();
+			sb.Append(WpfUtil.TextUtil.RawComment2Text(Raw.Value.ResItem.Res.Com));
+			this.CommentCopy = new ReactiveProperty<string>(sb.ToString());
+
 			if(item.ResItem.Res.Fsize != 0) {
 				Task.Run(() => {
 					Util.Futaba.GetThumbImage(item.Url, item.ResItem.Res)
