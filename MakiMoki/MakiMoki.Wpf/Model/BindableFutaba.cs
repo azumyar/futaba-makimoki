@@ -136,6 +136,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 #pragma warning restore CS0067
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 		public ReactiveProperty<BindableFutabaResItem[]> ResItems { get; }
+		public ReactiveProperty<int> ResCount { get; }
 
 		public ReactiveProperty<string> PostTitle { get; }
 		public ReactiveProperty<PostHolder> PostData { get; }
@@ -170,6 +171,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				futaba.ResItems
 					.Select(x => new BindableFutabaResItem(c++, x, futaba.Url.BaseUrl, this))
 					.ToArray());
+			this.ResCount = this.ResItems.Select(x => futaba.Url.IsCatalogUrl ? x.Length : (x.Length - 1)).ToReactiveProperty();
 			var bord = Config.ConfigLoader.Bord.Where(x => x.Url == futaba.Url.BaseUrl).FirstOrDefault();
 			this.PostTitle = new ReactiveProperty<string>(futaba.Url.IsCatalogUrl ? "スレ立て" : "レス");
 			if(bord == null) {

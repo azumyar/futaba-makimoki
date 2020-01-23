@@ -141,7 +141,7 @@
 
                         </TextBlock>
                         <TextBlock
-                            Text="{Binding  Contents.Futaba.Value.ResItems.Value.Length, ElementName=_this, StringFormat='レス:{0}', Mode=OneWay}"
+                            Text="{Binding  Contents.Futaba.Value.ResCount.Value, ElementName=_this, StringFormat='レス:{0}', Mode=OneWay}"
                             FontSize="14"                            
                             VerticalAlignment="Center"
                             Margin="4" />
