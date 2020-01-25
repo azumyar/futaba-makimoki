@@ -323,7 +323,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnMenuItemSoudaneClickCommand(RoutedEventArgs e) {
 			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
 				Util.Futaba.PostSoudane(ri.Bord.Value, ri.Raw.Value.ResItem.No)
-					.SubscribeOnDispatcher()
+					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
 						var m = x.Message;
 						if(x.Successed) {
@@ -348,7 +348,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				var resNo = ri.Raw.Value.ResItem.No;
 				var threadNo = ri.Parent.Value.Url.IsCatalogUrl ? resNo : ri.Parent.Value.ResItems.Value.First().Raw.Value.ResItem.No;
 				Util.Futaba.PostDel(ri.Bord.Value, threadNo, resNo)
-					.SubscribeOnDispatcher()
+					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
 						var m = x.Message;
 						if(x.Successed) {
@@ -364,7 +364,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
 				// TODO: 確認ダイアログを出す
 				Util.Futaba.PostDeleteThreadRes(ri.Bord.Value, ri.Raw.Value.ResItem.No, false, Config.ConfigLoader.Password.Futaba)
-					.SubscribeOnDispatcher()
+					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
 						var m = x.Message;
 						if(x.Successed) {
