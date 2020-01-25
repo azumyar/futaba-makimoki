@@ -61,7 +61,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			= new ReactiveCommand<MouseButtonEventArgs>();
 
 		public ReactiveProperty<Visibility> PostViewVisibility { get; }
-			= new ReactiveProperty<Visibility>(Visibility.Collapsed);
+			= new ReactiveProperty<Visibility>(Visibility.Hidden);
 
 
 		public ReactiveCommand<RoutedEventArgs> MenuItemCopyClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
@@ -149,7 +149,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnContentsChanged(RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents> e) {
-			this.PostViewVisibility.Value = Visibility.Collapsed;
+			this.PostViewVisibility.Value = Visibility.Hidden;
 		}
 
 		private void OnCatalogItemMouseDown(MouseButtonEventArgs e) {
@@ -227,7 +227,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnPostClick(Model.BindableFutaba x) {
 			if(x != null) {
-				this.PostViewVisibility.Value = (this.PostViewVisibility.Value == Visibility.Collapsed) ? Visibility.Visible : Visibility.Collapsed;
+				this.PostViewVisibility.Value = (this.PostViewVisibility.Value == Visibility.Hidden) ? Visibility.Visible : Visibility.Hidden;
 			}
 		}
 
@@ -244,7 +244,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(y => {
 						if(y.Successed) {
-							PostViewVisibility.Value = Visibility.Collapsed;
+							PostViewVisibility.Value = Visibility.Hidden;
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
 							Task.Run(async () => {
 								await Task.Delay(1000); // すぐにスレが作られないので1秒くらい待つ
@@ -266,7 +266,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(y => {
 						if(y.Successed) {
-							PostViewVisibility.Value = Visibility.Collapsed;
+							PostViewVisibility.Value = Visibility.Hidden;
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
 							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo);
 						} else {
