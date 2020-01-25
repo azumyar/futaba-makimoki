@@ -381,6 +381,35 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
+		public static async Task<(bool Successed, string Raw)> PostDel(string baseUrl, string threadNo, string resNo, Data.Cookie[] cookies) {
+			System.Diagnostics.Debug.Assert(baseUrl != null);
+			System.Diagnostics.Debug.Assert(threadNo != null);
+			System.Diagnostics.Debug.Assert(resNo != null);
+			var reason = 110;
+			return await Task.Run(() => {
+				var url = new Uri(baseUrl);
+				var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
+				var b = url.AbsolutePath.Replace("/", "");
+
+				var c = new RestClient(u);
+				var r = new RestRequest(FutabaDelEndPoint, Method.POST);
+				r.AddHeader("referer", string.Format("{0}res/{1}.htm", baseUrl, threadNo)); // delはリファラが必要
+				r.AddParameter("mode", "post", ParameterType.GetOrPost);
+				r.AddParameter("responsemode", "ajax", ParameterType.GetOrPost);
+				r.AddParameter("b", b, ParameterType.GetOrPost);
+				r.AddParameter("d", resNo, ParameterType.GetOrPost);
+				r.AddParameter("reason", reason, ParameterType.GetOrPost);
+				var res = c.Execute(r);
+				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+					var s = FutabaEncoding.GetString(res.RawBytes);
+					return (s == "ok", s);
+				} else {
+					return (false, null);
+				}
+			});
+		}
+
+		[Obsolete]
 		public static async Task<bool> PostDel(string baseUrl, string threadResNo, Data.Cookie[] cookies, Data.DelReasonItem reason) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(threadResNo != null);

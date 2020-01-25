@@ -461,7 +461,7 @@
                                             -->
                                         </MenuItem>
                                         <MenuItem Header="そうだね" Click="OnMenuItemSoudaneClickCommand" />
-                                        <MenuItem Header="del" Click="OnMenuItemDelClickCommand" IsEnabled="False" />
+                                        <MenuItem Header="del" Click="OnMenuItemDelClickCommand" />
                                         <MenuItem Header="削除" Click="OnMenuItemDeleteClickCommand" />
                                     </ContextMenu>
                                 </Grid.ContextMenu>

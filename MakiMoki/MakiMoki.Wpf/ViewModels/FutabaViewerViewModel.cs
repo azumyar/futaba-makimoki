@@ -343,7 +343,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnMenuItemDelClickCommand(RoutedEventArgs e) {
-			System.Diagnostics.Debug.WriteLine(e);
+			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
+				// TODO: 確認ダイアログを出す
+				var resNo = ri.Raw.Value.ResItem.No;
+				var threadNo = ri.Parent.Value.Url.IsCatalogUrl ? resNo : ri.Parent.Value.ResItems.Value.First().Raw.Value.ResItem.No;
+				Util.Futaba.PostDel(ri.Bord.Value, threadNo, resNo)
+					.SubscribeOnDispatcher()
+					.Subscribe(x => {
+						var m = x.Message;
+						if(x.Successed) {
+						}
+						// TODO: いい感じにする
+						MessageBox.Show(m);
+					});
+			}
 		}
 
 		private void OnMenuItemDeleteClickCommand(RoutedEventArgs e) {

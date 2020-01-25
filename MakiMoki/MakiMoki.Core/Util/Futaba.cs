@@ -451,5 +451,17 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
+
+		public static IObservable<(bool Successed, string Message)> PostDel(Data.BordConfig bord, string threadNo, string resNo) {
+			return Observable.Create<(bool Successed, string Message)>(async o => {
+				var r = await FutabaApi.PostDel(bord.Url, threadNo, resNo, Config.ConfigLoader.Cookies);
+				if(r.Raw == null) {
+					o.OnNext((false, "不明なエラー"));
+				} else {
+					o.OnNext((r.Successed, r.Raw));
+				}
+				return System.Reactive.Disposables.Disposable.Empty;
+			});
+		}
 	}
 }
