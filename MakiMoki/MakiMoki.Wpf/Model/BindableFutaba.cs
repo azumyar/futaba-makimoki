@@ -312,7 +312,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 			if(Raw.Value.ResItem.Res.IsDel2) {
 				this.CommentHtml = new ReactiveProperty<string>(string.Format(
-					"<font color=\"ff0000\">削除依頼によって隔離されました</font><br>{0}",
+					"<font color=\"#ff0000\">削除依頼によって隔離されました</font><br>{0}",
 					Raw.Value.ResItem.Res.Com));
 			} else {
 				this.CommentHtml = new ReactiveProperty<string>(Raw.Value.ResItem.Res.Com);
