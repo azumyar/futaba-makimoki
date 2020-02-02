@@ -137,6 +137,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 		public ReactiveProperty<BindableFutabaResItem[]> ResItems { get; }
 		public ReactiveProperty<int> ResCount { get; }
+		public ReactiveProperty<string> DieTextLong { get; }
 
 		public ReactiveProperty<string> PostTitle { get; }
 		public ReactiveProperty<PostHolder> PostData { get; }
@@ -155,6 +156,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveCommand MailIdClickCommand { get; } = new ReactiveCommand();
 		public ReactiveCommand MailIpClickCommand { get; } = new ReactiveCommand();
 
+		public ReactiveCommand ExportCommand { get; } = new ReactiveCommand();
+
 
 		public string Name { get; }
 
@@ -172,6 +175,31 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					.Select(x => new BindableFutabaResItem(c++, x, futaba.Url.BaseUrl, this))
 					.ToArray());
 			this.ResCount = this.ResItems.Select(x => futaba.Url.IsCatalogUrl ? x.Length : (x.Length - 1)).ToReactiveProperty();
+			if(futaba.Raw == null) {
+				this.DieTextLong = new ReactiveProperty<string>("");
+			} else if(futaba.Raw.IsDie) {
+				this.DieTextLong = new ReactiveProperty<string>("スレッドは落ちました");
+			} else {
+				var t = futaba.Raw.DieDateTime ?? DateTime.Now;
+				var ts = t - DateTime.Now;
+				if(ts.TotalSeconds < 0){
+					this.DieTextLong = new ReactiveProperty<string>(
+						string.Format("スレ消滅：{0}(消滅時間を過ぎました)", t.ToString("mm:ss")));
+				} else if(0 < ts.Days) {
+					this.DieTextLong = new ReactiveProperty<string>(
+						string.Format("スレ消滅：{0}(あと{1})", t.ToString("MM/dd"), ts.ToString(@"dd\日hh\時\間")));
+				} else if(0 < ts.Hours) {
+					this.DieTextLong = new ReactiveProperty<string>(
+						string.Format("スレ消滅：{0}(あと{1})", t.ToString("hh:mm"), ts.ToString(@"hh\時\間mm\分")));
+				} else if(0 < ts.Minutes) {
+					this.DieTextLong = new ReactiveProperty<string>(
+						string.Format("スレ消滅：{0}(あと{1})", t.ToString("hh:mm"), ts.ToString(@"mm\分ss\秒")));
+				} else {
+					this.DieTextLong = new ReactiveProperty<string>(
+						string.Format("スレ消滅：{0}(あと{1})", t.ToString("hh:mm"), ts.ToString(@"ss\秒")));
+				}
+			}
+
 			var bord = Config.ConfigLoader.Bord.Where(x => x.Url == futaba.Url.BaseUrl).FirstOrDefault();
 			this.PostTitle = new ReactiveProperty<string>(futaba.Url.IsCatalogUrl ? "スレ立て" : "レス");
 			if(bord == null) {
@@ -202,6 +230,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.MailIdClickCommand.Subscribe(x => OnMailIdClick());
 			this.MailIpClickCommand.Subscribe(x => OnMailIpClick());
 			this.DeletePostDataCommand.Subscribe(() => OnDeletePostData());
+			this.ExportCommand.Subscribe(() => OnExport());
 		}
 
 		public void Dispose() {
@@ -264,6 +293,70 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		private void OnDeletePostData() {
 			this.PostData.Value = new PostHolder();
+		}
+
+		private void OnExport() {
+			if(this.Raw == null) {
+				return;
+			}
+
+			var sfd= new Microsoft.Win32.SaveFileDialog() {
+				AddExtension = true,
+				Filter = "HTML5ファイル|*.html;*.htm", 
+			};
+			if(sfd.ShowDialog() ?? false) {
+				string getImageBase64(Data.UrlContext url, Data.ResItem item) {
+					if(item.Fsize == 0) {
+						return "";
+					}
+
+					return Util.Futaba.GetThumbImage(url, item)
+						.Select(x => {
+							if(x.Successed) {
+								if(Config.ConfigLoader.Mime.MimeTypes.TryGetValue(Path.GetExtension(x.LocalPath).ToLower(), out var mime)) {
+									using(var stream = new FileStream(x.LocalPath, FileMode.Open)) {
+										var list = new List<byte>();
+										var b = new byte[1024];
+										var r = 0;
+										while(0 < (r = stream.Read(b, 0, b.Length))) {
+											for(var i = 0; i < r; i++) {
+												list.Add(b[i]);
+											}
+										}
+										return "data:" + mime + ";base64," + Convert.ToBase64String(list.ToArray(), Base64FormattingOptions.None);
+									}
+								}
+							}
+							return "";
+						}).Wait();
+				}
+
+				try {
+					var fm = File.Exists(sfd.FileName) ? FileMode.Truncate : FileMode.OpenOrCreate;
+					using(var sf = new FileStream(sfd.FileName, fm)) {
+						Util.ExportUtil.ExportHtml(sf,
+							new Data.ExportHolder(
+								this.Raw.Bord.Name, this.Raw.Bord.Extra.NameValue,
+								this.ResItems.Value.Select(x => new Data.ExportData() {
+									Subject = x.Raw.Value.ResItem.Res.Sub,
+									Name = x.Raw.Value.ResItem.Res.Name,
+									Email = x.Raw.Value.ResItem.Res.Email,
+									Comment = x.CommentHtml.Value,
+									No = x.Raw.Value.ResItem.No,
+									Date = string.Format("{0}{1}", x.Raw.Value.ResItem.Res.Now, string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Id) ? "" : (" " + x.Raw.Value.ResItem.Res.Id)),
+									Soudane = x.Raw.Value.Soudane,
+									OriginalImageName = x.ImageName.Value,
+									ThumbnailImageData = getImageBase64(x.Raw.Value.Url, x.Raw.Value.ResItem.Res),
+								}).ToArray()
+							));
+						sf.Flush();
+					}
+				}
+				catch(IOException) {
+					// TODO: いい感じにする
+					MessageBox.Show("保存に失敗");
+				}
+			}
 		}
 	}
 

@@ -77,4 +77,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			throw new NotImplementedException();
 		}
 	}
+
+	class FutabaResItemFooterVisibleConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value == null) {
+				return Visibility.Collapsed;
+			}
+
+			if(value is Model.BindableFutabaResItem v) {
+				return v.Index.Value == v.Parent.Value.ResCount.Value ? Visibility.Visible : Visibility.Collapsed;
+			}
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
 }

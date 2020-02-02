@@ -81,7 +81,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			CatalogItemClickCommand.Subscribe(x => OnCatalogClick(x));
 			ThreadImageMouseDownCommand.Subscribe(x => OnThreadImageMouseDown(x));
 			ThreadImageClickCommand.Subscribe(x => OnThreadImageClick(x));
-			ThreadUpdateCommand.Subscribe(x => OnThreadUpdateClick((x.Source as FrameworkElement)?.DataContext as Data.FutabaContext));
+			ThreadUpdateCommand.Subscribe(x => OnThreadUpdateClick(x));
 			PostClickCommand.Subscribe(x => OnPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
 			PostViewPostCommand.Subscribe(x => OnPostViewPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
 			LinkClickCommand.Subscribe(x => OnLinkClick(x));
@@ -219,9 +219,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private void OnThreadUpdateClick(Data.FutabaContext x) {
-			if(x != null) {
-				Util.Futaba.UpdateThreadRes(x.Bord, x.Url.ThreadNo);//.Subscribe();
+		private void OnThreadUpdateClick(RoutedEventArgs e) {
+			if(e.Source is FrameworkElement el) {
+				if(el.DataContext is Data.FutabaContext x) {
+					Util.Futaba.UpdateThreadRes(x.Bord, x.Url.ThreadNo);//.Subscribe();
+				} else if(el.DataContext is Model.BindableFutabaResItem y) {
+					Util.Futaba.UpdateThreadRes(y.Bord.Value, y.Parent.Value.Url.ThreadNo);//.Subscribe();
+				}
 			}
 		}
 

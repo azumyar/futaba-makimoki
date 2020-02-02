@@ -26,6 +26,7 @@
         <converter:FutabaNewResVisibilityConverter x:Key="FutabaNewResVisibilityConverter"/>
         <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
         <converter:FutabaResItemNowConverter x:Key="FutabaResItemNowConverter"/>
+        <converter:FutabaResItemFooterVisibleConverter x:Key="FutabaResItemFooterVisibleConverter" />
 
         <SolidColorBrush x:Key="BackgroundBrush" Color="#F5F5F5" />
         <SolidColorBrush x:Key="DockBorderBrush" Color="Gray" />
@@ -342,8 +343,13 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="16 4 16 4" Background="Transparent">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
                             <Grid
                                 x:Name="viewGrid"
+                                Grid.Column="0" Grid.Row="0"
                                 MaxWidth="1024"
                                 Background="Transparent"
                                 HorizontalAlignment="Left" 
@@ -476,6 +482,7 @@
                             </Grid>
                             <Grid
                                 x:Name="copywGrid"
+                                Grid.Column="0" Grid.Row="0"
                                 MaxWidth="1024"
                                 Background="Transparent"
                                 HorizontalAlignment="Left"
@@ -495,6 +502,51 @@
                                         <i:ChangePropertyAction PropertyName="Visibility" TargetName="viewGrid" Value="Visible" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
+                            </Grid>
+                            <!-- リストビューアイテムフッタ テンプレートで何とかしたいけど無理だったよ… -->
+                            <Grid 
+                                Grid.Column="0" Grid.Row="1"
+                                Margin="0 4 0 4"
+                                Visibility="{Binding Converter={StaticResource FutabaResItemFooterVisibleConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="4" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0"  MinWidth="80" Height="28">
+                                    <TextBlock>
+                                        続きを読む
+                                    </TextBlock>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadUpdateCommand, ElementName=_this}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
+                                <Border Grid.Column="2" BorderBrush="Black" BorderThickness="1" CornerRadius="4" Padding="4">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="4" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            VerticalAlignment="Center"
+                                            Text="{Binding Parent.Value.DieTextLong.Value, Mode=OneWay}"
+                                            FontSize="14" />
+                                        <Button Grid.Column="2">
+                                            <TextBlock>
+                                                保存
+                                            </TextBlock>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Click">
+                                                    <ri:EventToReactiveCommand Command="{Binding Parent.Value.ExportCommand}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Button>
+                                    </Grid>
+                                </Border>
                             </Grid>
                         </Grid>
                     </DataTemplate>
