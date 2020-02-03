@@ -383,8 +383,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		private static IObservable<(bool Successed, string LocalPath)> GetUrlImage(string url, string localPath) {
 			return Observable.Create<(bool Successed, string LocalPath)>(o => {
 				if(File.Exists(localPath)) {
-					o.OnNext((true, localPath));
-					o.OnCompleted();
+					Task.Run(() => {
+						o.OnNext((true, localPath));
+						o.OnCompleted();
+					});
 				} else {
 					var rest = new RestSharp.RestClient();
 					var r = new RestSharp.RestRequest(url, RestSharp.Method.GET);

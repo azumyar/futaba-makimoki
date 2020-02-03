@@ -439,25 +439,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.CommentCopy = new ReactiveProperty<string>(sb.ToString());
 
 			if(item.ResItem.Res.Fsize != 0) {
-				Task.Run(() => {
-					Util.Futaba.GetThumbImage(item.Url, item.ResItem.Res)
-						.ObserveOn(ThreadPoolScheduler.Instance)
-						.Select(x => {
-							if(x.Successed) {
-								return WpfUtil.ImageUtil.LoadImage(x.LocalPath);
-							} else {
-								return null;
-							}
-						})
-						.ObserveOn(UIDispatcherScheduler.Default)
-						.Subscribe(x => {
-							if(x != null) {
-								ThumbSource.Value = x;
-							} else {
-								// TODO: エラー画像表示
-							}
-						});
-				});
+				Util.Futaba.GetThumbImage(item.Url, item.ResItem.Res)
+					.Select(x => {
+						if(x.Successed) {
+							return WpfUtil.ImageUtil.LoadImage(x.LocalPath);
+						} else {
+							return null;
+						}
+					})
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(x => {
+						if(x != null) {
+							ThumbSource.Value = x;
+						} else {
+							// TODO: エラー画像表示
+						}
+					});
 				this.ImageName = new ReactiveProperty<string>(Regex.Replace(
 					item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$", "$1"));
 			} else {
