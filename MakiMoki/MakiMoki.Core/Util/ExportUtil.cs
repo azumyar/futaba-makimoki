@@ -22,6 +22,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				if(!holder.IsName && !string.IsNullOrEmpty(it.Email)) {
 					export.AppendFormat(@"<span class='res-email'>[{0}]</span>", it.Email);
 				}
+				export.AppendFormat(@"<span class='res-no'>No.{0}</span>", it.No);
 				if(0 < it.Soudane) {
 					export.AppendFormat(@"<span class='res-soudane'>そうだねx{0}</span>", it.Soudane);
 				}
@@ -41,8 +42,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				.AppendLine(@".res { display: table; background-color: #F0E0D6; margin: 0.5em 1em 0 1em; padding: 4px; min-width: 480px; }")
 				.AppendLine(@".res .res-body { display: flex; }")
 				.AppendLine(@".res-comment-body { margin: 1em 2em 1em 2em; word-wrap: break-word; max-width: 800px; min-width: 150px; }")
-				.AppendLine(@".res-count, .res-subject, .res-name, .res-date { margin-right: 0.5em; }")
-				.AppendLine(@".res-soudane { margin: 0 1em 0 1em }")
+				.AppendLine(@".res-count, .res-subject, .res-name, .res-date, .res-no, .res-soudane { margin-right: 0.5em; }")
 				.AppendLine(@".res-subject { color: #cc1105; font-weight: bold; }")
 				.AppendLine(@".res-name { color: #117743; font-weight: bold; }")
 				.AppendLine(@".res-email { color: rgb(0, 92, 230); }")
