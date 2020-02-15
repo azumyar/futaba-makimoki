@@ -113,8 +113,9 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			System.Globalization.DateTimeStyles.None, out var d) ? (DateTime?)d : null;
 
 		// スレが落ちると Thu, 01 Jan 1970 01:07:29 GMT といった1970年まで落ちるので1日くらいマージンとっても問題ない
+		// …と思ってたらつけっぱで普通に誤爆したので1年マージンとる
 		[JsonIgnore]
-		public bool IsDie => ((DieDateTime?.AddDays(1) ?? DateTime.MaxValue) < DateTime.Now);
+		public bool IsDie => ((DieDateTime?.AddDays(365) ?? DateTime.MaxValue) < DateTime.Now);
 	}
 
 	public class NumberedResItem : JsonObject {
@@ -366,29 +367,34 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				Raw = response,
 			};
 		}
-		
-		public static FutabaContext FromThreadResResponse(BordConfig bord, string threadNo, FutabaResonse response) {
-			var parent = Util.Futaba.Catalog.Value.Where(x => x.Bord.Url == bord.Url).FirstOrDefault()
-				?.ResItems.Where(x => x.ResItem.No == threadNo).FirstOrDefault();
-			if(parent == null) {
+
+		public static FutabaContext FromThreadResResponse404(FutabaContext ctx, FutabaResonse response) {
+			if(response == null) {
 				return null;
 			}
 
-			var url = new UrlContext(bord.Url, threadNo);
-			var p = Item.FromThreadRes(url, parent.ResItem, parent.Soudane);
+			// 足りないレスを抜き出す
+			var ad = new List<NumberedResItem>();
+			if(response.Res != null) {
+				foreach(var r in response.Res.Reverse()) {
+					if(ctx.ResItems.Select(x => x.ResItem.No).Contains(r.No)) {
+						break;
+					} else {
+						ad.Insert(0, r);
+					}
+				}
+			}
+
 			return new FutabaContext() {
-				Name = Util.TextUtil.SafeSubstring(
-					Util.TextUtil.RemoveCrLf(
-						Util.TextUtil.RowComment2Text(p.ResItem.Res.Com)
-					), 8),
-				Bord = bord,
-				Url = url,
-				ResItems = new Item[] { p }.Concat(response.Res?.Select(x => {
+				Name = ctx.Name,
+				Bord = ctx.Bord,
+				Url = ctx.Url,
+				ResItems = ctx.ResItems.Concat(ad.Select(x => {
 					var sd = 0;
 					if(response.Sd.TryGetValue(x.No, out var s) && int.TryParse(s, out var v)) {
 						sd = v;
 					}
-					return Item.FromThreadRes(url, x, sd);
+					return Item.FromThreadRes(ctx.Url, x, sd);
 				}) ?? new Item[0]).ToArray(),
 				Raw = response,
 			};

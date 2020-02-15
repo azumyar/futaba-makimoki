@@ -114,8 +114,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static void UpdateThreadRes(Data.BordConfig bord, string threadNo) {
 			TaskUtil.Push(async () => {
 				try {
+					var u = new Data.UrlContext(bord.Url, threadNo);
 					lock(lockObj) {
-						var u = new Data.UrlContext(bord.Url, threadNo);
 						if(!Threads.Value.Select(x => x.Url).Contains(u)) {
 							Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] {
 								Data.FutabaContext.FromThreadEmpty(bord, threadNo),
@@ -132,9 +132,31 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						threadNo,
 						Config.ConfigLoader.Cookies);
 					Task.WaitAll(r, rr);
-					if((r.Result.Response == null) || (rr.Result.Raw == null)) {
-						// TODO: 404の処理
-						// TODO: エラー処理
+					if(!r.Result.Successed || !rr.Result.Successed) {
+						// 404の場脚の処理を行う
+						if((r.Result.Successed && r.Result.Response.IsDie)
+							|| (rr.Result.Is404)) {
+
+							Data.FutabaContext fc = null;
+							var index = 0;
+							lock(lockObj) {
+								for(index =0;index<Threads.Value.Length;index++) {
+									if(Threads.Value[index].Url == u) {
+										fc = Threads.Value[index];
+										break;
+									}
+								}
+
+								if(fc != null) {
+									var fc2 = Data.FutabaContext.FromThreadResResponse404(fc, r.Result.Response);
+									if(fc2 != null) {
+										var ary = Threads.Value.ToArray();
+										ary[index] = fc2;
+										Threads.Value = ary;
+									}
+								}
+							}
+						}
 						return;
 					}
 					Config.ConfigLoader.UpdateCookie(r.Result.cookies);
