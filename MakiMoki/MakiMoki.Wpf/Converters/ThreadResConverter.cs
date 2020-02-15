@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -91,6 +92,40 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
+	class FutabaResItemNextButtonEnabledConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value == null) {
+				return Visibility.Collapsed;
+			}
+
+			if(value is Model.BindableFutaba v) {
+				return !v.IsDie.Value;
+			}
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
+	class FutabaResItemOldColorConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if((values.Length == 3) && (values[1] is System.Windows.Media.Color normalColor)) {
+				if((values[0] is Model.BindableFutaba f) && (values[2] is System.Windows.Media.Color oldColor)) {
+					return f.IsOld.Value ? oldColor : normalColor;
+				}
+				return normalColor; // スレを受信していない場合values[0]が設定されていないのでnormalColorを返す
+			}
+
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
 			throw new NotImplementedException();
 		}
 	}

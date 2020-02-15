@@ -27,6 +27,11 @@
         <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
         <converter:FutabaResItemNowConverter x:Key="FutabaResItemNowConverter"/>
         <converter:FutabaResItemFooterVisibleConverter x:Key="FutabaResItemFooterVisibleConverter" />
+        <converter:FutabaResItemNextButtonEnabledConverter x:Key="FutabaResItemNextButtonEnabledConverter" />
+        <converter:FutabaResItemOldColorConverter x:Key="FutabaResItemOldColorConverter" />
+
+        <Color x:Key="TextColor">Black</Color>
+        <Color x:Key="OldColor">Red</Color>
 
         <SolidColorBrush x:Key="BackgroundBrush" Color="#F5F5F5" />
         <SolidColorBrush x:Key="DockBorderBrush" Color="Gray" />
@@ -124,17 +129,24 @@
                             FontSize="14"
                             VerticalAlignment="Center"
                             Margin="4">
+                            <TextBlock.Foreground>
+                                <SolidColorBrush>
+                                    <SolidColorBrush.Color>
+                                        <MultiBinding Converter="{StaticResource FutabaResItemOldColorConverter}">
+                                            <Binding Path="Contents.Futaba.Value" Mode="OneWay" ElementName="_this" />
+                                            <Binding Source="{StaticResource TextColor}" />
+                                            <Binding Source="{StaticResource OldColor}" />
+                                        </MultiBinding>
+                                    </SolidColorBrush.Color>
+                                </SolidColorBrush>
+                            </TextBlock.Foreground>
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Style.Triggers>
                                         <DataTrigger  Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="False">
                                             <Setter Property="Text" Value="{Binding  Contents.Futaba.Value.Raw.Raw.Die, ElementName=_this, StringFormat='消:{0}', Mode=OneWay}"/>
                                         </DataTrigger>
-                                        <DataTrigger  Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsOld, ElementName=_this, Mode=OneWay}" Value="True">
-                                            <Setter Property="Foreground" Value="Red"/>
-                                        </DataTrigger>
                                         <DataTrigger  Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True">
-                                            <Setter Property="Foreground" Value="Red"/>
                                             <Setter Property="Text" Value="消:落ち"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -513,7 +525,10 @@
                                     <ColumnDefinition Width="4" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0"  MinWidth="80" Height="28">
+                                <Button
+                                    Grid.Column="0" 
+                                    MinWidth="80" Height="28"
+                                    IsEnabled="{Binding  Parent.Value, Mode=OneWay, Converter={StaticResource FutabaResItemNextButtonEnabledConverter}}">
                                     <TextBlock>
                                         続きを読む
                                     </TextBlock>
@@ -534,7 +549,19 @@
                                             Grid.Column="0"
                                             VerticalAlignment="Center"
                                             Text="{Binding Parent.Value.DieTextLong.Value, Mode=OneWay}"
-                                            FontSize="14" />
+                                            FontSize="14">
+                                            <TextBlock.Foreground>
+                                                <SolidColorBrush>
+                                                    <SolidColorBrush.Color>
+                                                        <MultiBinding Converter="{StaticResource FutabaResItemOldColorConverter}">
+                                                            <Binding Path="Parent.Value" Mode="OneWay" />
+                                                            <Binding Source="{StaticResource TextColor}" />
+                                                            <Binding Source="{StaticResource OldColor}" />
+                                                        </MultiBinding>
+                                                    </SolidColorBrush.Color>
+                                                </SolidColorBrush>
+                                            </TextBlock.Foreground>
+                                        </TextBlock>
                                         <Button Grid.Column="2">
                                             <TextBlock>
                                                 保存
