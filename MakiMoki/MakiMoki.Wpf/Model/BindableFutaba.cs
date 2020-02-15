@@ -195,13 +195,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						string.Format("スレ消滅：{0}(あと{1})", t.ToString("MM/dd"), ts.ToString(@"dd\日hh\時\間")));
 				} else if(0 < ts.Hours) {
 					this.DieTextLong = new ReactiveProperty<string>(
-						string.Format("スレ消滅：{0}(あと{1})", t.ToString("hh:mm"), ts.ToString(@"hh\時\間mm\分")));
+						string.Format("スレ消滅：{0}(あと{1})", t.ToString("HH:mm"), ts.ToString(@"hh\時\間mm\分")));
 				} else if(0 < ts.Minutes) {
 					this.DieTextLong = new ReactiveProperty<string>(
-						string.Format("スレ消滅：{0}(あと{1})", t.ToString("hh:mm"), ts.ToString(@"mm\分ss\秒")));
+						string.Format("スレ消滅：{0}(あと{1})", t.ToString("HH:mm"), ts.ToString(@"mm\分ss\秒")));
 				} else {
 					this.DieTextLong = new ReactiveProperty<string>(
-						string.Format("スレ消滅：{0}(あと{1})", t.ToString("hh:mm"), ts.ToString(@"ss\秒")));
+						string.Format("スレ消滅：{0}(あと{1})", t.ToString("HH:mm"), ts.ToString(@"ss\秒")));
 				}
 			}
 
