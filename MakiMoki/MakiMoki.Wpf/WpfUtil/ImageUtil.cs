@@ -50,7 +50,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 					try {
 						try {
 							var decoder = new Imazen.WebP.SimpleDecoder();
-							using(var fs = new FileStream(path, FileMode.Open)) {
+							using(var fs = new FileStream(path, FileMode.Open, FileAccess.Read)) {
 								var l = new List<byte>();
 								while(fs.CanRead) {
 									var bb = new byte[1024];
@@ -91,7 +91,60 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 					//var bitmapImage = new BitmapImage(new Uri(path));
 					//bitmapImage.Freeze();
 					var bitmapImage = new BitmapImage();
-					using(var stream = new FileStream(path, FileMode.Open)) {
+					using(var stream = new FileStream(path, FileMode.Open, FileAccess.Read)) {
+						bitmapImage.BeginInit();
+						bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+						bitmapImage.StreamSource = stream;
+						bitmapImage.EndInit();
+						bitmapImage.Freeze();
+					}
+
+					SetImage(path, bitmapImage);
+					return bitmapImage;
+				}
+			}
+			finally {
+				var d = System.Windows.Threading.Dispatcher.CurrentDispatcher;
+				if(d != System.Windows.Application.Current?.Dispatcher) {
+					d.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.SystemIdle);
+					//System.Windows.Threading.Dispatcher.Run();
+				}
+			}
+		}
+
+		public static BitmapImage LoadImage(string path, byte[] imageBytes) {
+			if(TryGetImage(path, out var b)) {
+				return b;
+			}
+
+			try {
+				if(Path.GetExtension(path).ToLower() == ".webp") {
+					System.Drawing.Image bitmap = null;
+					try {
+						var decoder = new Imazen.WebP.SimpleDecoder();
+						bitmap = decoder.DecodeFromBytes(imageBytes, imageBytes.Length);
+
+						var bitmapImage = new BitmapImage();
+						using(var stream = new MemoryStream()) {
+							bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+							stream.Position = 0;
+
+							bitmapImage.BeginInit();
+							bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+							bitmapImage.StreamSource = stream;
+							bitmapImage.EndInit();
+							bitmapImage.Freeze();
+						}
+
+						SetImage(path, bitmapImage);
+						return bitmapImage;
+					}
+					finally {
+						bitmap?.Dispose();
+					}
+				} else {
+					var bitmapImage = new BitmapImage();
+					using(var stream = new MemoryStream(imageBytes)) {
 						bitmapImage.BeginInit();
 						bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
 						bitmapImage.StreamSource = stream;

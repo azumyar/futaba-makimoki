@@ -305,7 +305,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
-		public static IObservable<(bool Successed, string LocalPath)> GetThreadResImage(Data.UrlContext url, Data.ResItem item) {
+		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThreadResImage(Data.UrlContext url, Data.ResItem item) {
 			System.Diagnostics.Debug.Assert(url != null);
 			System.Diagnostics.Debug.Assert(item != null);
 
@@ -316,7 +316,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return GetUrlImage(u, localPath);
 		}
 
-		public static IObservable<(bool Successed, string LocalPath)> GetThumbImage(Data.UrlContext url, Data.ResItem item) {
+		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThumbImage(Data.UrlContext url, Data.ResItem item) {
 			System.Diagnostics.Debug.Assert(url != null);
 			System.Diagnostics.Debug.Assert(item != null);
 
@@ -390,7 +390,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string LocalPath)> GetUploaderFile(string url) {
+		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUploaderFile(string url) {
 			System.Diagnostics.Debug.Assert(url != null);
 			var localFile = CreateLocalFileNameFromUploader(url);
 			if(Config.ConfigLoader.Mime.Types.Select(x => x.Ext).Contains(Path.GetExtension(localFile).ToLower())) {
@@ -402,11 +402,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
-		private static IObservable<(bool Successed, string LocalPath)> GetUrlImage(string url, string localPath) {
-			return Observable.Create<(bool Successed, string LocalPath)>(o => {
+		private static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUrlImage(string url, string localPath) {
+			return Observable.Create<(bool Successed, string LocalPath, byte[] FileBytes)>(o => {
 				if(File.Exists(localPath)) {
 					Task.Run(() => {
-						o.OnNext((true, localPath));
+						o.OnNext((true, localPath, null));
 						o.OnCompleted();
 					});
 				} else {
@@ -421,10 +421,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 									fs.Flush();
 								}
 							}
-							o.OnNext((true, localPath));
+							o.OnNext((true, localPath, x.RawBytes));
 							o.OnCompleted();
 						} else {
-							o.OnNext((false, null));
+							o.OnNext((false, null, null));
 							// TODO: o.OnError();
 						}
 					});

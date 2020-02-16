@@ -315,6 +315,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						return "";
 					}
 
+					// 基本的にキャッシュされているはずだけど良くないのでメソッドの変更を考える
 					return Util.Futaba.GetThumbImage(url, item)
 						.Select(x => {
 							if(x.Successed) {
@@ -445,7 +446,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				Util.Futaba.GetThumbImage(item.Url, item.ResItem.Res)
 					.Select(x => {
 						if(x.Successed) {
-							return WpfUtil.ImageUtil.LoadImage(x.LocalPath);
+							if(x.FileBytes != null) {
+								return WpfUtil.ImageUtil.LoadImage(x.LocalPath, x.FileBytes);
+							} else {
+								return WpfUtil.ImageUtil.LoadImage(x.LocalPath);
+							}
 						} else {
 							return null;
 						}
