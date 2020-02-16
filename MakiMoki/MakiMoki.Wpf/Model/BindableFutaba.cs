@@ -416,10 +416,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.CommentHtml = new ReactiveProperty<string>(Raw.Value.ResItem.Res.Com);
 			}
 			var sb = new StringBuilder()
-				.Append(Index.Value)
-				.Append(" ")
-				.Append("No.")
-				.Append(Raw.Value.ResItem.No);
+				.Append(Index.Value);
 			if(Bord.Value.Extra?.NameValue ?? true) {
 				sb.Append(" ")
 					.Append(Raw.Value.ResItem.Res.Sub)
@@ -439,6 +436,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			if(0 < Raw.Value.Soudane) {
 				sb.Append(" そうだね×").Append(Raw.Value.Soudane);
 			}
+			sb.Append(" No.").Append(Raw.Value.ResItem.No);
 			sb.AppendLine();
 			sb.Append(WpfUtil.TextUtil.RawComment2Text(Raw.Value.ResItem.Res.Com));
 			this.CommentCopy = new ReactiveProperty<string>(sb.ToString());
