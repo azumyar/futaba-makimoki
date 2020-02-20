@@ -388,7 +388,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> CommentHtml { get; }
 		public ReactiveProperty<string> CommentCopy { get; }
 
+		public ReactiveProperty<bool> IsCopyMode { get; } = new ReactiveProperty<bool>(false);
+
+		public ReactiveProperty<Visibility> FutabaTextBlockVisibility { get; }
+		public ReactiveProperty<Visibility> CopyBlockVisibility { get; }
+
+
 		public ReactiveProperty<BindableFutaba> Parent { get; }
+
+		public ReactiveCommand<MouseButtonEventArgs> FutabaTextBlockMouseDownCommand { get; }
+			= new ReactiveCommand<MouseButtonEventArgs>();
 
 		public BindableFutabaResItem(int index, Data.FutabaContext.Item item, string baseUrl, BindableFutaba parent) {
 			System.Diagnostics.Debug.Assert(item != null);
@@ -468,10 +477,27 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			} else {
 				this.ImageName = new ReactiveProperty<string>("");
 			}
+			this.FutabaTextBlockVisibility = this.IsCopyMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
+			this.CopyBlockVisibility = this.IsCopyMode.Select(x => x ? Visibility.Visible : Visibility.Hidden).ToReactiveProperty();
+			this.FutabaTextBlockMouseDownCommand.Subscribe(x => OnFutabaTextBlockMouseDown(x));
 		}
 
 		public void Dispose() {
 			Disposable.Dispose();
+		}
+
+		public void StartCopyMode() {
+			this.IsCopyMode.Value = true;
+		}
+
+		public void EndCopyMode() {
+			this.IsCopyMode.Value = false;
+		}
+
+		private void OnFutabaTextBlockMouseDown(MouseButtonEventArgs e) {
+			if((e.ClickCount == 2) && (e.ChangedButton == MouseButton.Left)) {
+				this.StartCopyMode();
+			}
 		}
 	}
 }

@@ -365,7 +365,7 @@
                                 MaxWidth="1024"
                                 Background="Transparent"
                                 HorizontalAlignment="Left" 
-                                Visibility="Visible">
+                                Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
@@ -459,9 +459,9 @@
                                     <TextBlock>マ</TextBlock>
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="Click">
-                                            <i:ChangePropertyAction PropertyName="Visibility" TargetName="copywGrid" Value="Visible" />
-                                            <i:ChangePropertyAction PropertyName="Visibility" TargetName="viewGrid" Value="Hidden" />
-                                            <i:CallMethodAction TargetObject="{Binding ElementName=copyTextBox, Mode=OneWay}" MethodName="Focus" />
+                                            <i:CallMethodAction
+                                                MethodName="StartCopyMode"
+                                                TargetObject="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" />
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </Button>
@@ -490,6 +490,9 @@
                                     <i:EventTrigger EventName="MouseLeave">
                                         <i:ChangePropertyAction PropertyName="Visibility" TargetName="copyButton" Value="Hidden" />
                                     </i:EventTrigger>
+                                    <i:EventTrigger EventName="MouseDown">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.FutabaTextBlockMouseDownCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" />
+                                    </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </Grid>
                             <Grid
@@ -498,7 +501,7 @@
                                 MaxWidth="1024"
                                 Background="Transparent"
                                 HorizontalAlignment="Left"
-                                Visibility="Hidden">
+                                Visibility="{Binding CopyBlockVisibility.Value, Mode=OneWay}">
                                 <TextBox
                                     Text="{Binding CommentCopy.Value, Mode=OneWay}"
                                     TextWrapping="Wrap" Margin="4"
@@ -510,9 +513,13 @@
                                 </TextBox>
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="LostFocus">
-                                        <i:ChangePropertyAction PropertyName="Visibility" TargetName="copywGrid" Value="Hidden" />
-                                        <i:ChangePropertyAction PropertyName="Visibility" TargetName="viewGrid" Value="Visible" />
+                                        <i:CallMethodAction
+                                            MethodName="EndCopyMode"
+                                            TargetObject="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" />
                                     </i:EventTrigger>
+                                    <i:DataTrigger Binding="{Binding IsVisible, Mode=OneWay, ElementName=copywGrid}"  Value="true" Comparison="Equal">
+                                        <i:CallMethodAction TargetObject="{Binding ElementName=copyTextBox, Mode=OneWay}" MethodName="Focus" />
+                                    </i:DataTrigger>
                                 </i:Interaction.Triggers>
                             </Grid>
                             <!-- リストビューアイテムフッタ テンプレートで何とかしたいけど無理だったよ… -->
