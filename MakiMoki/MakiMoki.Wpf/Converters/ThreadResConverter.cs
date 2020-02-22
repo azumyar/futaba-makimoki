@@ -103,7 +103,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			}
 
 			if(value is Model.BindableFutaba v) {
-				return !v.IsDie.Value;
+				return !v.IsDie.Value; // && !v.IsMaxRes.Value; そうだねが更新できなくなるので保留
 			}
 			throw new ArgumentException("型不正。", "value");
 		}
@@ -118,6 +118,23 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if((values.Length == 3) && (values[1] is System.Windows.Media.Color normalColor)) {
 				if((values[0] is Model.BindableFutaba f) && (values[2] is System.Windows.Media.Color oldColor)) {
 					return f.IsOld.Value ? oldColor : normalColor;
+				}
+				return normalColor; // スレを受信していない場合values[0]が設定されていないのでnormalColorを返す
+			}
+
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
+	class FutabaResItemResCountColorConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if((values.Length == 3) && (values[1] is System.Windows.Media.Color normalColor)) {
+				if((values[0] is Model.BindableFutaba f) && (values[2] is System.Windows.Media.Color oldColor)) {
+					return f.IsMaxRes.Value ? oldColor : normalColor;
 				}
 				return normalColor; // スレを受信していない場合values[0]が設定されていないのでnormalColorを返す
 			}

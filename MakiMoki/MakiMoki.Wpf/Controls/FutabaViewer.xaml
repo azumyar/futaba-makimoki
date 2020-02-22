@@ -29,6 +29,7 @@
         <converter:FutabaResItemFooterVisibleConverter x:Key="FutabaResItemFooterVisibleConverter" />
         <converter:FutabaResItemNextButtonEnabledConverter x:Key="FutabaResItemNextButtonEnabledConverter" />
         <converter:FutabaResItemOldColorConverter x:Key="FutabaResItemOldColorConverter" />
+        <converter:FutabaResItemResCountColorConverter x:Key="FutabaResItemResCountColorConverter" />
 
         <Color x:Key="TextColor">Black</Color>
         <Color x:Key="OldColor">Red</Color>
@@ -158,7 +159,19 @@
                             Text="{Binding  Contents.Futaba.Value.ResCount.Value, ElementName=_this, StringFormat='レス:{0}', Mode=OneWay}"
                             FontSize="14"                            
                             VerticalAlignment="Center"
-                            Margin="4" />
+                            Margin="4">
+                            <TextBlock.Foreground>
+                                <SolidColorBrush>
+                                    <SolidColorBrush.Color>
+                                        <MultiBinding Converter="{StaticResource FutabaResItemResCountColorConverter}">
+                                            <Binding Path="Contents.Futaba.Value" Mode="OneWay" ElementName="_this" />
+                                            <Binding Source="{StaticResource TextColor}" />
+                                            <Binding Source="{StaticResource OldColor}" />
+                                        </MultiBinding>
+                                    </SolidColorBrush.Color>
+                                </SolidColorBrush>
+                            </TextBlock.Foreground>
+                        </TextBlock>
                         <Button
                     Height="32"
                     Margin="2"

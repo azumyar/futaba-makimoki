@@ -116,6 +116,11 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		// …と思ってたらつけっぱで普通に誤爆したので1年マージンとる
 		[JsonIgnore]
 		public bool IsDie => ((DieDateTime?.AddDays(365) ?? DateTime.MaxValue) < DateTime.Now);
+
+		// 最大レスの閾値を超えた場合MaxResには下記のような文言が入る
+		// 上限2000レスに達しました
+		[JsonIgnore]
+		public bool IsMaxRes => !string.IsNullOrEmpty(MaxRes);
 	}
 
 	public class NumberedResItem : JsonObject {

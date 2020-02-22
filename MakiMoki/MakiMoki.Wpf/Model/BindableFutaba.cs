@@ -167,6 +167,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public ReactiveProperty<bool> IsOld { get; }
 		public ReactiveProperty<bool> IsDie { get; }
+		public ReactiveProperty<bool> IsMaxRes { get; }
 
 		public BindableFutaba(Data.FutabaContext futaba, BindableFutaba old = null) {
 			int c = 0;
@@ -180,6 +181,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ResCount = this.ResItems.Select(x => futaba.Url.IsCatalogUrl ? x.Length : (x.Length - 1)).ToReactiveProperty();
 			this.IsDie = new ReactiveProperty<bool>(futaba.Raw?.IsDie ?? false);
 			this.IsOld = new ReactiveProperty<bool>(futaba.Raw?.IsOld ?? false || this.IsDie.Value);
+			this.IsMaxRes = new ReactiveProperty<bool>(futaba.Raw?.IsMaxRes ?? false);
 			if(futaba.Raw == null) {
 				this.DieTextLong = new ReactiveProperty<string>("");
 			} else if(futaba.Raw.IsDie) {
