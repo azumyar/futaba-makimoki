@@ -55,9 +55,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 								while(fs.CanRead) {
 									var bb = new byte[1024];
 									var c = fs.Read(bb, 0, bb.Length);
-									for(var i = 0; i < c; i++) {
-										l.Add(bb[i]);
+									if(c == 0) {
+										break;
 									}
+									l.AddRange(bb.Take(c));
 								}
 								bitmap = decoder.DecodeFromBytes(l.ToArray(), l.Count);
 							}
@@ -88,19 +89,27 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						bitmap?.Dispose();
 					}
 				} else {
-					//var bitmapImage = new BitmapImage(new Uri(path));
-					//bitmapImage.Freeze();
-					var bitmapImage = new BitmapImage();
-					using(var stream = new FileStream(path, FileMode.Open, FileAccess.Read)) {
+					Stream stream = null;
+					try {
+						if(Path.GetExtension(path).ToLower() == ".png") {
+							stream = LoadPng(path, null);
+						}
+						//var bitmapImage = new BitmapImage(new Uri(path));
+						//bitmapImage.Freeze();
+						var bitmapImage = new BitmapImage();
+						stream = stream ?? new FileStream(path, FileMode.Open, FileAccess.Read);
 						bitmapImage.BeginInit();
 						bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
 						bitmapImage.StreamSource = stream;
 						bitmapImage.EndInit();
 						bitmapImage.Freeze();
-					}
 
-					SetImage(path, bitmapImage);
-					return bitmapImage;
+						SetImage(path, bitmapImage);
+						return bitmapImage;
+					}
+					finally {
+						stream?.Dispose();
+					}
 				}
 			}
 			finally {
@@ -143,17 +152,28 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						bitmap?.Dispose();
 					}
 				} else {
-					var bitmapImage = new BitmapImage();
-					using(var stream = new MemoryStream(imageBytes)) {
+					Stream stream = null;
+					try {
+						if(Path.GetExtension(path).ToLower() == ".png") {
+							stream = LoadPng(path, imageBytes);
+						}
+
+						if(stream == null) {
+							stream = new MemoryStream(imageBytes);
+						}
+						var bitmapImage = new BitmapImage();
 						bitmapImage.BeginInit();
 						bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
 						bitmapImage.StreamSource = stream;
 						bitmapImage.EndInit();
 						bitmapImage.Freeze();
-					}
 
-					SetImage(path, bitmapImage);
-					return bitmapImage;
+						SetImage(path, bitmapImage);
+						return bitmapImage;
+					}
+					finally {
+						stream?.Dispose();
+					}
 				}
 			}
 			finally {
@@ -163,6 +183,56 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 					//System.Windows.Threading.Dispatcher.Run();
 				}
 			}
+		}
+
+		private static Stream LoadPng(string path, byte[] imageBytes) {
+			var list = new List<byte>();
+			if(imageBytes == null) {
+				using(var fs = new FileStream(path, FileMode.Open, FileAccess.Read)) {
+					while(fs.CanRead) {
+						var bb = new byte[1024];
+						var c = fs.Read(bb, 0, bb.Length);
+						if(c == 0) {
+							break;
+						}
+						list.AddRange(bb.Take(c));
+					}
+					/*
+					if((8 + 0x10) <= l.Count) {
+						width = BitConverter.ToInt32(list.Skip(8 + 0x08).Take(4).Reverse().ToArray(), 0);
+						height = BitConverter.ToInt32(list.Skip(8 + 0x0c).Take(4).Reverse().ToArray(), 0);
+					}
+					*/
+				}
+			} else {
+				list.AddRange(imageBytes);
+			}
+			var i = 8 + 25;
+			while(i < list.Count) {
+				const int chankDataLength = 4;
+				const int chankType = 4;
+				const int crc = 4;
+				var sz = BitConverter.ToInt32(list.Skip(i).Take(4).Reverse().ToArray(), 0);
+				var tp = list.Skip(i).Skip(0x04).Take(4).ToArray();
+				// pHYsチャンク判定
+				if((tp[0] == 0x70) && (tp[1] == 0x48) && (tp[2] == 0x59) && (tp[3] == 0x73)) {
+					/*
+					var isM = list.Skip(i).Skip(0x10).Take(1).First();
+					if(isM == 1) {
+						const double inch = 39.3700787d;
+						var dpix = BitConverter.ToInt32(list.Skip(i).Skip(0x08).Take(4).Reverse().ToArray(), 0) / inch;
+						var dpiy = BitConverter.ToInt32(list.Skip(i).Skip(0x0c).Take(4).Reverse().ToArray(), 0) / inch;
+						System.Diagnostics.Debug.WriteLine($"{dpix}/{dpiy}");
+					}
+					*/
+					// pHYsチャンクを削除する
+					list.RemoveRange(i, sz + chankDataLength + chankType + crc);
+					break;
+				} else {
+					i += sz + chankDataLength + chankType + crc;
+				}
+			}
+			return new MemoryStream(list.ToArray());
 		}
 
 		private static string GetErrorMessage(string path) {
