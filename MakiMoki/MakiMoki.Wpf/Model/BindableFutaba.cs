@@ -420,7 +420,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				.Select(x => (x != null) ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
 
-			if(Raw.Value.ResItem.Res.IsDel2) {
+			if(Raw.Value.ResItem.Res.IsDel) {
+				this.CommentHtml = new ReactiveProperty<string>(string.Format(
+					"<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font><br>{0}",
+					Raw.Value.ResItem.Res.Com));
+			} else if(Raw.Value.ResItem.Res.IsDel2) {
 				this.CommentHtml = new ReactiveProperty<string>(string.Format(
 					"<font color=\"#ff0000\">削除依頼によって隔離されました</font><br>{0}",
 					Raw.Value.ResItem.Res.Com));

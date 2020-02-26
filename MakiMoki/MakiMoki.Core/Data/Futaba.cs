@@ -171,7 +171,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public int W { get; private set; }
 
 		[JsonIgnore]
-		public bool IsDel => (Del == "del") || (Del == "del2"); // del2は隔離JSONに隔離メッセージ乗ってこないから分けたほうがいいかもしれない
+		public bool IsDel => (Del == "del");
 
 		[JsonIgnore]
 		public bool IsDel2 => (Del == "del2");
