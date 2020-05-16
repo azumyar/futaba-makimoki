@@ -111,164 +111,179 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static void UpdateThreadRes(Data.BordConfig bord, string threadNo) {
-			TaskUtil.Push(async () => {
-				try {
-					var u = new Data.UrlContext(bord.Url, threadNo);
-					lock(lockObj) {
-						if(!Threads.Value.Select(x => x.Url).Contains(u)) {
-							Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] {
-								Data.FutabaContext.FromThreadEmpty(bord, threadNo),
-							}).ToArray();
-						}
-					}
-
-					var r = FutabaApi.GetThreadRes(
-						bord.Url,
-						threadNo,
-						Config.ConfigLoader.Cookies);
-					var rr = FutabaApi.GetThreadResHtml(
-						bord.Url,
-						threadNo,
-						Config.ConfigLoader.Cookies);
-					Task.WaitAll(r, rr);
-					if(!r.Result.Successed || !rr.Result.Successed) {
-						// 404の場脚の処理を行う
-						if((r.Result.Successed && r.Result.Response.IsDie)
-							|| (rr.Result.Is404)) {
-
-							Data.FutabaContext fc = null;
-							var index = 0;
-							lock(lockObj) {
-								for(index =0;index<Threads.Value.Length;index++) {
-									if(Threads.Value[index].Url == u) {
-										fc = Threads.Value[index];
-										break;
-									}
-								}
-
-								if(fc != null) {
-									var fc2 = Data.FutabaContext.FromThreadResResponse404(fc, r.Result.Response);
-									if(fc2 != null) {
-										var ary = Threads.Value.ToArray();
-										ary[index] = fc2;
-										Threads.Value = ary;
-									}
-								}
+		public static IObservable<Data.FutabaContext> UpdateThreadRes(Data.BordConfig bord, string threadNo) {
+			return Observable.Create<Data.FutabaContext>(async o => {
+				var ctx = await Task.Run(() => {
+					Data.FutabaContext result = null;
+					try {
+						var u = new Data.UrlContext(bord.Url, threadNo);
+						lock(lockObj) {
+							if(!Threads.Value.Select(x => x.Url).Contains(u)) {
+								Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] {
+									result = Data.FutabaContext.FromThreadEmpty(bord, threadNo),
+								}).ToArray();
 							}
 						}
-						return;
-					}
-					Config.ConfigLoader.UpdateCookie(r.Result.cookies);
-					lock(lockObj) {
-						var name = "";
-						var email = "";
-						var id = "";
-						var soudane = 0;
-						var host = "";
-						var thumb = "";
-						var w = 0;
-						var h = 0;
-						var fsize = 0;
-						var time = "";
-						var utc = 0l;
-						var parser = new HtmlParser();
-						var doc = parser.ParseDocument(rr.Result.Raw);
-						var sub = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > span.csb", threadNo))?.Text() ?? "";
-						var nameEl = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > span.cnm", threadNo));
-						if(nameEl != null) {
-							name = nameEl.Text();
-							var mailEl = nameEl.QuerySelector("a");
-							if(mailEl != null) {
-								email = mailEl.GetAttribute("href").Substring("mailto:".Length);
-							}
-						}
-						var timeEl = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > span.cnw", threadNo));
-						if(timeEl != null) {
-							time = timeEl.Text();
-							var t = Regex.Split(time, @"\s+");
-							var ip = "";
-							if(1 < t.Length) {
-								time = t[0];
-								for(var i=1; i<t.Length; i++) {
-									if(t[i].StartsWith("ID:")) {
-										id = t[i];
-									} else if(t[i].StartsWith("IP:")) {
-										ip = t[i];
+
+						var r = FutabaApi.GetThreadRes(
+							bord.Url,
+							threadNo,
+							Config.ConfigLoader.Cookies);
+						var rr = FutabaApi.GetThreadResHtml(
+							bord.Url,
+							threadNo,
+							Config.ConfigLoader.Cookies);
+						Task.WaitAll(r, rr);
+						if(!r.Result.Successed || !rr.Result.Successed) {
+							// 404の場脚の処理を行う
+							if((r.Result.Successed && r.Result.Response.IsDie)
+								|| (rr.Result.Is404)) {
+
+								Data.FutabaContext fc = null;
+								var index = 0;
+								lock(lockObj) {
+									for(index = 0; index < Threads.Value.Length; index++) {
+										if(Threads.Value[index].Url == u) {
+											fc = Threads.Value[index];
+											break;
+										}
+									}
+
+									if(fc != null) {
+										var fc2 = Data.FutabaContext.FromThreadResResponse404(fc, r.Result.Response);
+										if(fc2 != null) {
+											var ary = Threads.Value.ToArray();
+											ary[index] = fc2;
+											Threads.Value = ary;
+											result = fc2;
+										} else {
+											result = fc;
+										}
 									}
 								}
 							}
-							var m = Regex.Match(time, @"^(\d\d/\d\d/\d\d)\(\S\)(\d\d:\d\d:\d\d)");
-							if(m.Success) {
-								var tms = m.Groups[1].Value + " " + m.Groups[2].Value;
-								if(DateTime.TryParseExact(tms, "yy/MM/dd hh:mm:ss", 
-									System.Globalization.CultureInfo.InvariantCulture, 
-									System.Globalization.DateTimeStyles.None,
-									out var dt)) {
-
-									// ミリ秒以下がなくなるが仕方無し
-									utc = new DateTimeOffset(dt.Ticks, new TimeSpan(9, 0, 0)).ToUnixTimeMilliseconds();
+							goto end;
+						}
+						Config.ConfigLoader.UpdateCookie(r.Result.cookies);
+						lock(lockObj) {
+							var name = "";
+							var email = "";
+							var id = "";
+							var soudane = 0;
+							var host = "";
+							var thumb = "";
+							var w = 0;
+							var h = 0;
+							var fsize = 0;
+							var time = "";
+							var utc = 0l;
+							var parser = new HtmlParser();
+							var doc = parser.ParseDocument(rr.Result.Raw);
+							var sub = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > span.csb", threadNo))?.Text() ?? "";
+							var nameEl = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > span.cnm", threadNo));
+							if(nameEl != null) {
+								name = nameEl.Text();
+								var mailEl = nameEl.QuerySelector("a");
+								if(mailEl != null) {
+									email = mailEl.GetAttribute("href").Substring("mailto:".Length);
 								}
 							}
-							if(0 < ip.Length) {
-								time = time + " " + ip;
+							var timeEl = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > span.cnw", threadNo));
+							if(timeEl != null) {
+								time = timeEl.Text();
+								var t = Regex.Split(time, @"\s+");
+								var ip = "";
+								if(1 < t.Length) {
+									time = t[0];
+									for(var i = 1; i < t.Length; i++) {
+										if(t[i].StartsWith("ID:")) {
+											id = t[i];
+										} else if(t[i].StartsWith("IP:")) {
+											ip = t[i];
+										}
+									}
+								}
+								var m = Regex.Match(time, @"^(\d\d/\d\d/\d\d)\(\S\)(\d\d:\d\d:\d\d)");
+								if(m.Success) {
+									var tms = m.Groups[1].Value + " " + m.Groups[2].Value;
+									if(DateTime.TryParseExact(tms, "yy/MM/dd hh:mm:ss",
+										System.Globalization.CultureInfo.InvariantCulture,
+										System.Globalization.DateTimeStyles.None,
+										out var dt)) {
+
+										// ミリ秒以下がなくなるが仕方無し
+										utc = new DateTimeOffset(dt.Ticks, new TimeSpan(9, 0, 0)).ToUnixTimeMilliseconds();
+									}
+								}
+								if(0 < ip.Length) {
+									time = time + " " + ip;
+								}
+								var mailEl = timeEl.QuerySelector("a");
+								if(mailEl != null) {
+									email = mailEl.GetAttribute("href").Substring("mailto:".Length);
+								}
 							}
-							var mailEl = timeEl.QuerySelector("a");
-							if(mailEl != null) {
-								email = mailEl.GetAttribute("href").Substring("mailto:".Length);
+							var sd = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a.sod", threadNo))?.Text() ?? "";
+							if(sd.StartsWith("そうだねx")) {
+								var m = Regex.Match(sd, @"(\d+)$");
+								if(m.Success && int.TryParse(m.Groups[1].Value, out var sdn)) {
+									soudane = sdn;
+								}
 							}
+							var src = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a", threadNo))?.GetAttribute("href") ?? "";
+							var ext = Path.GetExtension(src);
+							var thumbEl = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a > img", threadNo));
+							if(thumbEl != null) {
+								thumb = thumbEl.GetAttribute("src");
+								if(int.TryParse(thumbEl.GetAttribute("width"), out var ww)) {
+									w = ww;
+								}
+								if(int.TryParse(thumbEl.GetAttribute("height"), out var hh)) {
+									h = hh;
+								}
+								var alt = thumbEl.GetAttribute("alt");
+								var m = Regex.Match(alt, @"^(\d+)");
+								if(m.Success && int.TryParse(m.Groups[1].Value, out var fs)) {
+									fsize = fs;
+								}
+							}
+							var com = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > blockquote", threadNo))?.InnerHtml ?? "";
+							var f = Data.FutabaContext.FromThreadResResponse(bord, threadNo, r.Result.Response,
+								new Data.NumberedResItem(threadNo,
+									Data.ResItem.From(
+										sub, name, email, com,
+										id, host, "",
+										src, thumb, ext, fsize, w, h,
+										time, utc.ToString(),
+										0)), soudane);
+							if(f == null) {
+								// TODO: エラー処理
+								goto end;
+							}
+							for(var i = 0; i < Threads.Value.Length; i++) {
+								if(Threads.Value[i].Url == f.Url) {
+									Threads.Value[i] = f;
+									Threads.Value = Threads.Value.ToArray();
+
+									result = f;
+									goto end;
+								}
+							}
+							Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] { f }).ToArray();
+
+							result = f;
+							goto end;
 						}
-						var sd = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a.sod", threadNo))?.Text() ?? "";
-						if(sd.StartsWith("そうだねx")) {
-							var m = Regex.Match(sd, @"(\d+)$");
-							if(m.Success && int.TryParse(m.Groups[1].Value, out var sdn)) {
-								soudane = sdn;
-							}
-						}
-						var src = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a", threadNo))?.GetAttribute("href") ?? "";
-						var ext = Path.GetExtension(src);
-						var thumbEl = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a > img", threadNo));
-						if(thumbEl != null) {
-							thumb = thumbEl.GetAttribute("src");
-							if(int.TryParse(thumbEl.GetAttribute("width"), out var ww)) {
-								w = ww;
-							}
-							if(int.TryParse(thumbEl.GetAttribute("height"), out var hh)) {
-								h = hh;
-							}
-							var alt = thumbEl.GetAttribute("alt");
-							var m = Regex.Match(alt, @"^(\d+)");
-							if(m.Success && int.TryParse(m.Groups[1].Value, out var fs)) {
-								fsize = fs;
-							}
-						}
-						var com = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > blockquote", threadNo))?.InnerHtml ?? "";
-						var f = Data.FutabaContext.FromThreadResResponse(bord, threadNo, r.Result.Response,
-							new Data.NumberedResItem(threadNo,
-								Data.ResItem.From(
-									sub, name, email, com,
-									id, host, "",
-									src, thumb, ext, fsize, w, h,
-									time, utc.ToString(),
-									0)), soudane);
-						if(f == null) {
-							// TODO: エラー処理
-							return;
-						}
-						for(var i = 0; i < Threads.Value.Length; i++) {
-							if(Threads.Value[i].Url == f.Url) {
-								Threads.Value[i] = f;
-								Threads.Value = Threads.Value.ToArray();
-								return;
-							}
-						}
-						Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] { f }).ToArray();
 					}
-				}
-				catch(Exception e) {
-					System.Diagnostics.Debug.WriteLine(e.ToString());
-					throw;
-				}
+					catch(Exception e) {
+						System.Diagnostics.Debug.WriteLine(e.ToString());
+						throw;
+					}
+				end:
+					return result;
+				});
+				o.OnNext(ctx);
+				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
 

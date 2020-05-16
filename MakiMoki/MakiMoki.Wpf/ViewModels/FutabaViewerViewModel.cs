@@ -174,7 +174,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					switch(e.ChangedButton) {
 					case MouseButton.Left:
 						if(this.isCatalogItemClicking) {
-							Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value);
+							Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value).Subscribe(
+								x => {
+									if(x != null) {
+										MainWindowViewModel.Messenger.Instance.GetEvent<PubSubEvent<MainWindowViewModel.CurrentTabChanged>>()
+											.Publish(new MainWindowViewModel.CurrentTabChanged(x));
+									}
+								});
 							this.isCatalogItemClicking = false;
 						}
 						e.Handled = true;
@@ -182,7 +188,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					case MouseButton.Middle:
 						if(this.isCatalogItemClicking) {
 							// TODO: そのうちこっちは裏で開くように返れたらいいな
-							Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value);
+							Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value).Subscribe(
+								x => {
+									/*
+									if(x != null) {
+										MainWindowViewModel.Messenger.Instance.GetEvent<PubSubEvent<MainWindowViewModel.CurrentTabChanged>>()
+											.Publish(new MainWindowViewModel.CurrentTabChanged(x));
+									}
+									*/
+								});
 							this.isCatalogItemClicking = false;
 						}
 						e.Handled = true;
@@ -226,9 +240,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnThreadUpdateClick(RoutedEventArgs e) {
 			if(e.Source is FrameworkElement el) {
 				if(el.DataContext is Data.FutabaContext x) {
-					Util.Futaba.UpdateThreadRes(x.Bord, x.Url.ThreadNo);//.Subscribe();
+					Util.Futaba.UpdateThreadRes(x.Bord, x.Url.ThreadNo).Subscribe();
 				} else if(el.DataContext is Model.BindableFutabaResItem y) {
-					Util.Futaba.UpdateThreadRes(y.Bord.Value, y.Parent.Value.Url.ThreadNo);//.Subscribe();
+					Util.Futaba.UpdateThreadRes(y.Bord.Value, y.Parent.Value.Url.ThreadNo).Subscribe();
 				}
 			}
 		}
@@ -284,7 +298,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
 							Task.Run(async () => {
 								await Task.Delay(1000); // すぐにスレが作られないので1秒くらい待つ
-								Util.Futaba.UpdateThreadRes(x.Raw.Bord, y.NextOrMessage);
+								Util.Futaba.UpdateThreadRes(x.Raw.Bord, y.NextOrMessage).Subscribe();
 							});
 						} else {
 							// TODO: あとでいい感じにする
@@ -304,7 +318,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						if(y.Successed) {
 							PostViewVisibility.Value = Visibility.Hidden;
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
-							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo);
+							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo).Subscribe();
 						} else {
 							// TODO: あとでいい感じにする
 							MessageBox.Show(y.Message);
@@ -365,7 +379,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						if(x.Successed) {
 							if(int.TryParse(x.Message, out var i)) {
 								if(ri.Raw.Value.Soudane != i) {
-									Util.Futaba.UpdateThreadRes(ri.Bord.Value, ri.Raw.Value.Url.ThreadNo);//.Subscribe();
+									Util.Futaba.UpdateThreadRes(ri.Bord.Value, ri.Raw.Value.Url.ThreadNo).Subscribe();
 									goto exit;
 								}
 							}

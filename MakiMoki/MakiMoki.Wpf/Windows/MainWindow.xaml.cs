@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Prism.Events;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -25,6 +26,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 
 		public MainWindow() {
 			InitializeComponent();
+
+			ViewModels.MainWindowViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.CurrentTabChanged>>()
+				.Subscribe(x => {
+					foreach(var it in this.TabContainer.Items) {
+						if(it is Model.TabItem ti) {
+							if(ti.Url == x.FutabaContext?.Url) {
+								this.TabContainer.SelectedItem = ti;
+							}
+						}
+					}
+				});
 		}
 
 		private void SystemCommandsCanExecute(object sender, CanExecuteRoutedEventArgs e) {

@@ -9,12 +9,27 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using Prism.Events;
 using Prism.Mvvm;
 using Reactive.Bindings;
+using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Wpf.Model;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class MainWindowViewModel : BindableBase, IDisposable {
+		internal class Messenger : EventAggregator {
+			public static Messenger Instance { get; } = new Messenger();
+		}
+
+		internal class CurrentTabChanged {
+			public FutabaContext FutabaContext { get; }
+
+			public CurrentTabChanged(FutabaContext futaba) {
+				this.FutabaContext = futaba;
+			}
+		}
+
+
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
 		public ReactiveProperty<Data.BordConfig[]> Bords { get; }
