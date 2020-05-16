@@ -135,7 +135,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore CS0067
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
-		public ReactiveProperty<BindableFutabaResItem[]> ResItems { get; }
+		public ReactiveCollection<BindableFutabaResItem> ResItems { get; }
 		public ReactiveProperty<int> ResCount { get; }
 		public ReactiveProperty<string> DieTextLong { get; }
 
@@ -170,15 +170,65 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<bool> IsMaxRes { get; }
 
 		public BindableFutaba(Data.FutabaContext futaba, BindableFutaba old = null) {
-			int c = 0;
 			this.Raw = futaba;
 			this.Name = futaba.Name;
 			this.Url = futaba.Url;
-			this.ResItems = new ReactiveProperty<BindableFutabaResItem[]>(
-				futaba.ResItems
-					.Select(x => new BindableFutabaResItem(c++, x, futaba.Url.BaseUrl, this))
-					.ToArray());
-			this.ResCount = this.ResItems.Select(x => futaba.Url.IsCatalogUrl ? x.Length : (x.Length - 1)).ToReactiveProperty();
+
+			var updateItems = new List<(int Index, BindableFutabaResItem Item)>();
+			if(old == null) {
+				this.ResItems = new ReactiveCollection<BindableFutabaResItem>();
+				int c = 0;
+				foreach(var it in futaba.ResItems
+						.Select(x => new BindableFutabaResItem(c++, x, futaba.Url.BaseUrl, this))
+						.ToArray()) {
+
+					this.ResItems.Add(it);
+				}
+			} else {
+				this.ResItems = old.ResItems;
+				var i = 0;
+				var prevId = this.ResItems.Select(x => x.Raw.Value.ResItem.No).ToArray();
+				var newId = futaba.ResItems.Select(x => x.ResItem.No).ToArray();
+				var ep = prevId.Except(newId).ToArray();
+				foreach(var it in ep) {
+					for(var ii=0; ii<this.ResItems.Count;ii++) {
+						if(it == this.ResItems[ii].Raw.Value.ResItem.No) {
+							this.ResItems.RemoveAt(ii);
+							break;
+						}
+					}
+				}
+
+				while((i < this.ResItems.Count) && (i < futaba.ResItems.Length)) {
+					var a = this.ResItems[i];
+					var b = futaba.ResItems[i];
+					if(a.Raw.Value.ResItem.No != b.ResItem.No) {
+						// 普通は来ない
+						System.Diagnostics.Debug.WriteLine("%%%%%%%%%%%%%%%%%%%%%%%%%% this.ResItems.RemoveAt(i) %%%%%%%%%%%%%%%%%%%%%%%");
+						this.ResItems.RemoveAt(i);
+						continue;
+					}
+
+					if(a.Raw.Value.HashText != b.HashText) {
+						// 画面から参照されているので this の初期化が終わっていないこのタイミングで書き換えてはいけない
+						//this.ResItems[i] = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
+						updateItems.Add((i, new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this)));
+					}
+					i++;
+				}
+
+				if(i < futaba.ResItems.Length) {
+					foreach(var it in futaba.ResItems
+							.Skip(i)
+							.Select(x => new BindableFutabaResItem(i++, x, futaba.Url.BaseUrl, this))
+							.ToArray()) {
+
+						this.ResItems.Add(it);
+					}
+				}
+			}
+
+			this.ResCount = new ReactiveProperty<int>(futaba.Url.IsCatalogUrl ? this.ResItems.Count : (this.ResItems.Count - 1));
 			this.IsDie = new ReactiveProperty<bool>(futaba.Raw?.IsDie ?? false);
 			this.IsOld = new ReactiveProperty<bool>(futaba.Raw?.IsOld ?? false || this.IsDie.Value);
 			this.IsMaxRes = new ReactiveProperty<bool>(futaba.Raw?.IsMaxRes ?? false);
@@ -238,6 +288,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.MailIpClickCommand.Subscribe(x => OnMailIpClick());
 			this.DeletePostDataCommand.Subscribe(() => OnDeletePostData());
 			this.ExportCommand.Subscribe(() => OnExport());
+
+			// 初期化がすべて終わったタイミングで書き換える
+			foreach(var it in this.ResItems) {
+				it.Parent.Value = this;
+			}
+			foreach(var it in updateItems) {
+				this.ResItems[it.Index] = it.Item;
+			}
 		}
 
 		public void Dispose() {
@@ -345,7 +403,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						Util.ExportUtil.ExportHtml(sf,
 							new Data.ExportHolder(
 								this.Raw.Bord.Name, this.Raw.Bord.Extra.NameValue,
-								this.ResItems.Value.Select(x => new Data.ExportData() {
+								this.ResItems.Select(x => new Data.ExportData() {
 									Subject = x.Raw.Value.ResItem.Res.Sub,
 									Name = x.Raw.Value.ResItem.Res.Name,
 									Email = x.Raw.Value.ResItem.Res.Email,

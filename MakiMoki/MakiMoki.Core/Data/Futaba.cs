@@ -300,6 +300,13 @@ namespace Yarukizero.Net.MakiMoki.Data {
 					Soudane = soudane,
 				};
 			}
+
+			public string HashText => ResItem.Res.Id
+				+ ResItem.Res.Del
+				+ ResItem.Res.Host
+				+ ResItem.Res.Com
+				+ ResItem.Res.Thumb
+				+ Soudane;
 		}
 
 		public string Name { get; set; }

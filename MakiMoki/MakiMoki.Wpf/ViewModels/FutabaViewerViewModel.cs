@@ -350,7 +350,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
 				// TODO: 確認ダイアログを出す
 				var resNo = ri.Raw.Value.ResItem.No;
-				var threadNo = ri.Parent.Value.Url.IsCatalogUrl ? resNo : ri.Parent.Value.ResItems.Value.First().Raw.Value.ResItem.No;
+				var threadNo = ri.Parent.Value.Url.IsCatalogUrl ? resNo : ri.Parent.Value.ResItems.First().Raw.Value.ResItem.No;
 				Util.Futaba.PostDel(ri.Bord.Value, threadNo, resNo)
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
