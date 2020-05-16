@@ -2,8 +2,36 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf">
     <Application.Resources>
-         
+        <!-- LightBlueの300 -->
+        <Color x:Key="ViewerPrimaryColor">#4FC3F7</Color>
+        <!-- BlueGrayの900 -->
+        <Color x:Key="ViewerForegroundColor">#263238</Color>
+        <Color x:Key="ViewerBackgroundColor">#F5F5F5</Color>
+        <Color x:Key="ViewerBorderColor">Gray</Color>
+
+        <sys:Double x:Key="CatalogImageSize">72</sys:Double>
+        <sys:Double x:Key="CatalogTextSize">14</sys:Double>
+        <sys:Double x:Key="CatalogBadgeSize">16</sys:Double>
+        <Color x:Key="CatalogBadgeCountBackgroundColor">Red</Color>
+        <Color x:Key="CatalogBadgeCountForegroundColor">White</Color>
+        <FontFamily x:Key="CatalogBadgeCountFont">Segoe UI</FontFamily>
+
+        <!-- Greenの800 -->
+        <Color x:Key="ThreadHeaderSubjectColor">#2E7D32</Color>
+        <!-- Redの800 -->
+        <Color x:Key="ThreadHeaderNameColor">#c62828</Color>
+        <!-- Blueの800 -->
+        <Color x:Key="ThreadHeaderMailColor">#1565C0</Color>
+        <!-- Deep Orangeの800 -->
+        <Color x:Key="ThreadHeaderSoudaneColor">#D84315</Color>
+        <sys:Double x:Key="ThreadHeaderFontSize">14</sys:Double>
+        <FontFamily x:Key="ThreadHeaderFont">メイリオ</FontFamily>
+        <sys:Double x:Key="ThreadTextFontSize">16</sys:Double>
+        <FontFamily x:Key="ThreadTextFont">メイリオ</FontFamily>
+
+
     </Application.Resources>
 </prism:PrismApplication>

@@ -34,8 +34,6 @@
         <Color x:Key="TextColor">Black</Color>
         <Color x:Key="OldColor">Red</Color>
 
-        <SolidColorBrush x:Key="BackgroundBrush" Color="#F5F5F5" />
-        <SolidColorBrush x:Key="DockBorderBrush" Color="Gray" />
         <SolidColorBrush x:Key="PrimaryColorBrush" Color="#4FC3F7" />
     </UserControl.Resources>
     <i:Interaction.Triggers>
@@ -57,7 +55,10 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Margin="0" BorderThickness="0 0 0 1" BorderBrush="{StaticResource DockBorderBrush}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+            <Border Grid.Row="0" Margin="0" BorderThickness="0 0 0 1" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                <Border.BorderBrush>
+                    <SolidColorBrush Color="{DynamicResource ViewerBorderColor}" />
+                </Border.BorderBrush>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" MinWidth="0" />
@@ -206,7 +207,6 @@
                 x:Name="CatalogListBox"
                 Grid.Row="1"
                 ItemsSource="{Binding Contents.Futaba.Value.ResItems.Value, ElementName=_this, Mode=OneWay}"
-                Background="{StaticResource BackgroundBrush}"
                 BorderThickness="0"
                 Visibility="{Binding Contents.Futaba.Value.Raw, ElementName=_this, Converter={StaticResource FutabaCatalogVisibleConverter}}"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -215,6 +215,9 @@
                 VirtualizingPanel.IsVirtualizing="True"
                 VirtualizingPanel.VirtualizationMode="Recycling"
                 >
+                <ListBox.Background>
+                    <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                </ListBox.Background>
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                         <Setter Property="Template">
@@ -250,19 +253,24 @@
                                 BorderBrush="Transparent"
                                 HorizontalContentAlignment="Stretch"
                                 VerticalContentAlignment="Stretch">
-                                <Grid x:Name="CatalogItem" Width="72" Height="86">
+                                <Grid x:Name="CatalogItem">
+                                    <TextBlock.Foreground>
+                                        <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                                    </TextBlock.Foreground>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="72" />
+                                        <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="72"/>
-                                        <RowDefinition Height="14"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <!-- スレ画-->
                                     <Viewbox
                                         Grid.Row="0"
+                                        Width="{DynamicResource CatalogImageSize}" Height="{DynamicResource CatalogImageSize}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
+                                        Stretch="Uniform"
                                         >
                                         <Image
                                             Source="{Binding ThumbSource.Value, Mode=OneWay}"
@@ -274,31 +282,47 @@
                                         </Image>
                                     </Viewbox>
                                     <!-- 新着レス数-->
-                                    <Grid
+                                    <Viewbox
                                         Grid.Row="0"
                                         Margin="2"
-                                        Width="16"
-                                        Height="16"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Top"
-                                        Visibility="{Binding Raw.Value, Converter={StaticResource FutabaNewResVisibilityConverter}, Mode=OneWay}"
+                                        Visibility="{Binding Raw.Value, Converter={StaticResource FutabaNewResVisibilityConverter}, Mode=OneWay}"                                        
+                                        Width="{DynamicResource CatalogBadgeSize}"
+                                        Height="{DynamicResource CatalogBadgeSize}"
                                         >
-                                        <Ellipse Width="16" Height="16" Fill="Red" />
-                                        <TextBlock
-                                            Text="{Binding Raw.Value, Converter={StaticResource FutabaNewResCountConverter}, Mode=OneWay}"
-                                            FontSize="10"
-                                            Foreground="White"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Padding="0 0 0 1"/>
-                                    </Grid>
+                                        <Grid
+                                            Width="16"
+                                            Height="16"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            >
+                                            <Ellipse Width="16" Height="16">
+                                                <Ellipse.Fill>
+                                                    <SolidColorBrush Color="{DynamicResource CatalogBadgeCountBackgroundColor}" />
+                                                </Ellipse.Fill>
+                                            </Ellipse>
+                                            <TextBlock
+                                                Text="{Binding Raw.Value, Converter={StaticResource FutabaNewResCountConverter}, Mode=OneWay}"
+                                                FontFamily="{DynamicResource CatalogBadgeCountFont}"
+                                                FontSize="10"
+                                                FontWeight="Bold"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Padding="0 0 0 1">
+                                                <TextBlock.Foreground>
+                                                    <SolidColorBrush Color="{DynamicResource CatalogBadgeCountForegroundColor}" />
+                                                </TextBlock.Foreground>
+                                            </TextBlock>
+                                        </Grid>
+                                    </Viewbox>
                                     <!-- レス-->
                                     <Grid
                                         Grid.Column="0"
                                         Grid.Row="1"
                                         VerticalAlignment="Bottom"
                                         Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}"
-                                        Height="16">
+                                        Height="{DynamicResource CatalogTextSize}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
@@ -335,7 +359,6 @@
                 x:Name="ThreadResListBox"
                 Grid.Row="1"
                 ItemsSource="{Binding Contents.Futaba.Value.ResItems.Value, ElementName=_this, Mode=OneWay}"
-                Background="{StaticResource BackgroundBrush}"
                 BorderThickness="0"
                 Visibility="{Binding Contents.Futaba.Value.Raw, ElementName=_this, Converter={StaticResource FutabaThreadResVisibleConverter}, Mode=OneWay}"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -345,6 +368,9 @@
                 VirtualizingPanel.VirtualizationMode="Recycling"
                 HorizontalContentAlignment="Stretch"
                 >
+                <ListBox.Background>
+                    <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                </ListBox.Background>
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                         <Setter Property="Template">
@@ -368,6 +394,9 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="16 4 16 4" Background="Transparent">
+                            <TextBlock.Foreground>
+                                <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                            </TextBlock.Foreground>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -387,18 +416,32 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-                                <WrapPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" TextBlock.FontSize="14">
+                                <WrapPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal"
+                                           TextBlock.FontSize="{DynamicResource ThreadHeaderFontSize}"
+                                           TextBlock.FontFamily="{DynamicResource ThreadHeaderFont}">
                                     <!-- AlternationCount/AlternationIndexではアイテム追加時に追従してくれない -->
                                     <TextBlock>
                                         <Run Text="{Binding Index.Value, StringFormat='\{0\} ', Mode=OneWay}" />
                                     </TextBlock>
                                     <TextBlock Visibility="{Binding NameVisibility.Value, Mode=OneWay}">
-                                        <Run Text="{Binding Raw.Value.ResItem.Res.Sub, StringFormat='\{0\} ', Mode=OneWay}" />
+                                        <TextBlock.Foreground>
+                                            <SolidColorBrush Color="{DynamicResource ThreadHeaderSubjectColor}" />
+                                        </TextBlock.Foreground>
+                                        <Run Text="{Binding Raw.Value.ResItem.Res.Sub, StringFormat='\{0\}', Mode=OneWay}" FontWeight="Bold" />
+                                        <Run Text=" " />
                                     </TextBlock>
                                     <TextBlock Visibility="{Binding NameVisibility.Value, Mode=OneWay}">
-                                        <Run Text="{Binding Raw.Value.ResItem.Res.Name, StringFormat='\{0\} ', Mode=OneWay}" />
+                                        <TextBlock.Foreground>
+                                            <SolidColorBrush Color="{DynamicResource ThreadHeaderNameColor}" />
+                                        </TextBlock.Foreground>
+                                        <Run Text="{Binding Raw.Value.ResItem.Res.Name, StringFormat='\{0\}', Mode=OneWay}" FontWeight="Bold" />
+                                        <Run Text=" " />
                                     </TextBlock>
                                     <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Email, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                                        <TextBlock.Foreground>
+                                            <SolidColorBrush Color="{DynamicResource ThreadHeaderMailColor}" />
+                                        </TextBlock.Foreground>
+                                        <!-- メールは文字の太さを変えないのでRunはひとつでいい -->
                                         <Run Text="{Binding Raw.Value.ResItem.Res.Email,  StringFormat='[\{0\}] ', Mode=OneWay}" />
                                     </TextBlock>
                                     <TextBlock>
@@ -411,14 +454,22 @@
                                         <Run Text="{Binding Raw.Value.ResItem.Res.Host, StringFormat='\{0\} ', Mode=OneWay}" />
                                     </TextBlock>
                                     <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                                        <TextBlock.Foreground>
+                                            <SolidColorBrush Color="{DynamicResource ThreadHeaderSoudaneColor}" />
+                                        </TextBlock.Foreground>
+                                        <!-- そうだねは文字の太さを変えないのでRunはひとつでいい -->
                                         <Run Text="{Binding Raw.Value.Soudane, Mode=OneWay, StringFormat='そうだね×\{0\} '}" />
                                     </TextBlock>
                                     <TextBlock>
                                         <Run Text="{Binding Raw.Value.ResItem.No,  StringFormat='No.\{0\} ', Mode=OneWay}" />
                                     </TextBlock>
                                 </WrapPanel>
-                                <WrapPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" TextBlock.FontSize="16">
-                                    <Grid  Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}">
+                                <WrapPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" 
+                                           TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
+                                           TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
+                                    <Grid  Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}"
+                                           TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
+                                           TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto" />
                                             <RowDefinition Height="*" />
@@ -614,12 +665,17 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
                 DataContext="{Binding Contents.Futaba.Value, ElementName=_this}"
-                Background="{StaticResource BackgroundBrush}"
-                BorderBrush="{StaticResource DockBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="6"
                 Margin="4"
                 Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=OneWay}">
+                <Border.Background>
+                    <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                </Border.Background>
+                <Border.BorderBrush>
+                    <SolidColorBrush Color="{DynamicResource ViewerBorderColor}" />
+                </Border.BorderBrush>
+               
                 <i:Interaction.Triggers>
                     <i:DataTrigger Binding="{Binding ActualWidth, ElementName=_this, Mode=OneWay}" Value="380" Comparison="GreaterThan">
                         <i:ChangePropertyAction TargetName="PostView" PropertyName="MinWidth" Value="380" />
