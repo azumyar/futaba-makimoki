@@ -420,42 +420,49 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				.Select(x => (x != null) ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
 
-			if(Raw.Value.ResItem.Res.IsDel) {
-				this.CommentHtml = new ReactiveProperty<string>(string.Format(
-					"<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font><br>{0}",
-					Raw.Value.ResItem.Res.Com));
-			} else if(Raw.Value.ResItem.Res.IsDel2) {
-				this.CommentHtml = new ReactiveProperty<string>(string.Format(
-					"<font color=\"#ff0000\">削除依頼によって隔離されました</font><br>{0}",
-					Raw.Value.ResItem.Res.Com));
-			} else {
-				this.CommentHtml = new ReactiveProperty<string>(Raw.Value.ResItem.Res.Com);
+			// delとhostの処理
+			{
+				var com = new StringBuilder();
+				if(Raw.Value.ResItem.Res.IsDel) {
+					com.Append("<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font><br>");
+				} else if(Raw.Value.ResItem.Res.IsDel2) {
+					com.Append("<font color=\"#ff0000\">削除依頼によって隔離されました</font><br>");
+				}
+				if(!string.IsNullOrEmpty(Raw.Value.ResItem.Res.Host)) {
+					com.AppendFormat("[<font color=\"#ff0000\">{0}</font>]<br>", Raw.Value.ResItem.Res.Host);
+				}
+				com.Append(Raw.Value.ResItem.Res.Com);
+				this.CommentHtml = new ReactiveProperty<string>(com.ToString());
 			}
-			var sb = new StringBuilder()
-				.Append(Index.Value);
-			if(Bord.Value.Extra?.NameValue ?? true) {
-				sb.Append(" ")
-					.Append(Raw.Value.ResItem.Res.Sub)
-					.Append(" ")
-					.Append(Raw.Value.ResItem.Res.Name);
+
+			// コピー用コメント生成
+			{
+				var sb = new StringBuilder()
+					.Append(Index.Value);
+				if(Bord.Value.Extra?.NameValue ?? true) {
+					sb.Append(" ")
+						.Append(Raw.Value.ResItem.Res.Sub)
+						.Append(" ")
+						.Append(Raw.Value.ResItem.Res.Name);
+				}
+				if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Email)) {
+					sb.Append(" [").Append(Raw.Value.ResItem.Res.Email).Append("]");
+				}
+				sb.Append(" ").Append(Raw.Value.ResItem.Res.Now);
+				if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Host)) {
+					sb.Append(" ").Append(Raw.Value.ResItem.Res.Host);
+				}
+				if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Id)) {
+					sb.Append(" ").Append(Raw.Value.ResItem.Res.Id);
+				}
+				if(0 < Raw.Value.Soudane) {
+					sb.Append(" そうだね×").Append(Raw.Value.Soudane);
+				}
+				sb.Append(" No.").Append(Raw.Value.ResItem.No);
+				sb.AppendLine();
+				sb.Append(WpfUtil.TextUtil.RawComment2Text(Raw.Value.ResItem.Res.Com));
+				this.CommentCopy = new ReactiveProperty<string>(sb.ToString());
 			}
-			if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Email)) {
-				sb.Append(" [").Append(Raw.Value.ResItem.Res.Email).Append("]");
-			}
-			sb.Append(" ").Append(Raw.Value.ResItem.Res.Now);
-			if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Host)) {
-				sb.Append(" ").Append(Raw.Value.ResItem.Res.Host);
-			}
-			if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Id)) {
-				sb.Append(" ").Append(Raw.Value.ResItem.Res.Id);
-			}
-			if(0 < Raw.Value.Soudane) {
-				sb.Append(" そうだね×").Append(Raw.Value.Soudane);
-			}
-			sb.Append(" No.").Append(Raw.Value.ResItem.No);
-			sb.AppendLine();
-			sb.Append(WpfUtil.TextUtil.RawComment2Text(Raw.Value.ResItem.Res.Com));
-			this.CommentCopy = new ReactiveProperty<string>(sb.ToString());
 
 			if(item.ResItem.Res.Fsize != 0) {
 				Util.Futaba.GetThumbImage(item.Url, item.ResItem.Res)
