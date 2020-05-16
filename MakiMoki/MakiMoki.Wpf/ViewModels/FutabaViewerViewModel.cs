@@ -45,6 +45,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<RoutedEventArgs> ThreadUpdateCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
+		public ReactiveCommand<DragEventArgs> ImageDragOver { get; } = new ReactiveCommand<DragEventArgs>();
+		public ReactiveCommand<DragEventArgs> ImageDrop { get; } = new ReactiveCommand<DragEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> PostViewPostCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
 
@@ -83,6 +85,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			ThreadImageClickCommand.Subscribe(x => OnThreadImageClick(x));
 			ThreadUpdateCommand.Subscribe(x => OnThreadUpdateClick(x));
 			PostClickCommand.Subscribe(x => OnPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
+			ImageDragOver.Subscribe(x => OnImageDragOver(x));
+			ImageDrop.Subscribe(x => OnImageDrop(x));
 			PostViewPostCommand.Subscribe(x => OnPostViewPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
 			LinkClickCommand.Subscribe(x => OnLinkClick(x));
 
@@ -233,6 +237,34 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if(x != null) {
 				this.PostViewVisibility.Value = (this.PostViewVisibility.Value == Visibility.Hidden) ? Visibility.Visible : Visibility.Hidden;
 			}
+		}
+
+		private void OnImageDragOver(DragEventArgs e) {
+			if(IsValidDragFile(e)) {
+				e.Effects = DragDropEffects.Copy;
+			} else {
+				e.Effects = DragDropEffects.None; // 機能していないけど今度調べる
+			}
+
+			e.Handled = true;
+		}
+
+		private void OnImageDrop(DragEventArgs e) {
+			if((e.Source as FrameworkElement)?.DataContext is Model.BindableFutaba f) {
+				if(IsValidDragFile(e) && e.Data.GetData(DataFormats.FileDrop) is string[] files) {
+					f.PostData.Value.ImagePath.Value = files[0];
+				} else {
+					MessageBox.Show("未対応のファイル"); // TODO: メッセージをいい感じにする
+				}
+			}
+		}
+
+		private bool IsValidDragFile(DragEventArgs e) {
+			var ext = Config.ConfigLoader.Mime.Types.Select(x => x.Ext);
+			return (e.Data.GetDataPresent(DataFormats.FileDrop, false)
+				&& e.Data.GetData(System.Windows.DataFormats.FileDrop) is string[] files
+				&& (files.Length == 1)
+				&& ext.Contains(Path.GetExtension(files[0])));
 		}
 
 		private void OnPostViewPostClick(Model.BindableFutaba x) {

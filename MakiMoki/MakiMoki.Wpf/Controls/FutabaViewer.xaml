@@ -841,11 +841,18 @@
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </Button>
-                            <Button Height="24" Margin="2" Visibility="{Binding PostImageVisibility.Value, Mode=OneWay}">
+                            <Button Height="24" Margin="2" AllowDrop="True" Visibility="{Binding PostImageVisibility.Value, Mode=OneWay}">
                                 <TextBlock>画像</TextBlock>
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="PreviewMouseUp">
                                         <ri:EventToReactiveCommand Command="{Binding OpenImageCommand}" />
+                                    </i:EventTrigger>
+
+                                    <i:EventTrigger EventName="PreviewDragOver">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ImageDragOver, ElementName=_this}" />
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="Drop">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ImageDrop, ElementName=_this}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </Button>
