@@ -62,6 +62,37 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 	}
 
+	class FutabaResItemIdTextConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value == null) {
+				return "";
+			}
+
+			if(value is Model.BindableFutabaResItem ri) {
+				var id = ri.Raw.Value.ResItem.Res.Id;
+				var no = ri.Raw.Value.ResItem.No;
+				if(!string.IsNullOrEmpty(id)) {
+					var array = ri.Parent.Value.ResItems
+						.Where(x => id == x.Raw.Value.ResItem.Res.Id)
+						.Select(x => x.Raw.Value.ResItem.No)
+						.ToArray();
+					for(var i=0; i<array.Length; i++) {
+						if(array[i] == no) {
+							return $"{ id }({ i + 1 }/{ array.Length })";
+						}
+					}
+				}
+				return "";
+			}
+
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
 	class FutabaResItemNowConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			if(value == null) {
