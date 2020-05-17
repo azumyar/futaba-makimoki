@@ -175,7 +175,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.Url = futaba.Url;
 
 			var updateItems = new List<(int Index, BindableFutabaResItem Item)>();
-			if(old == null) {
+			if((old == null) || old.Raw.Url.IsCatalogUrl) { // カタログはそうとっかえする
 				this.ResItems = new ReactiveCollection<BindableFutabaResItem>();
 				int c = 0;
 				foreach(var it in futaba.ResItems
