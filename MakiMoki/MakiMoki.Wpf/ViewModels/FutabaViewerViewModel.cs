@@ -133,7 +133,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									PlatformData.FutabaMedia.FromExternalUrl(u)));
 							goto end;
 						} else if(new string[] { ".mp4", ".webm" }.Contains(ext.Value.ToLower())) {
-							this.StartBrowser(u);
+							Messenger.Instance.GetEvent<PubSubEvent<MediaViewerOpenMessage>>()
+								.Publish(new MediaViewerOpenMessage(
+									PlatformData.FutabaMedia.FromExternalUrl(u)));
 							goto end;
 						}
 					}

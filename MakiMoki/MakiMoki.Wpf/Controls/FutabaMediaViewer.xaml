@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.NET46"
+             xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
              mc:Ignorable="d" 
@@ -19,6 +20,22 @@
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="ContentsChanged">
             <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
+        </i:EventTrigger>
+
+        <i:EventTrigger EventName="VideoViewPlaying">
+            <ri:EventToReactiveCommand Command="{Binding VideoViewPlayingCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="VideoViewPaused">
+            <ri:EventToReactiveCommand Command="{Binding VideoViewPausedCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="VideoViewStopped">
+            <ri:EventToReactiveCommand Command="{Binding VideoViewStoppedCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="VideoViewEndReached">
+            <ri:EventToReactiveCommand Command="{Binding VideoViewEndReachedCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="VideoViewPositionChanged">
+            <ri:EventToReactiveCommand Command="{Binding VideoViewPositionChangedCommand}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid>
@@ -37,6 +54,7 @@
         <!-- 画像 -->
         <ScrollViewer
             Grid.Row="1" Grid.Column="1"
+            Visibility="{Binding ImageViewVisibility.Value, Mode=OneWay}"
             HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled"
             ClipToBounds="True"
             IsManipulationEnabled="True">
@@ -75,6 +93,100 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </ScrollViewer>
+
+        <Grid
+            Grid.Row="1" Grid.Column="1"
+            Visibility="{Binding VideoViewVisibility.Value, Mode=OneWay}"
+            Background="Black"
+            >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="32" />
+            </Grid.RowDefinitions>
+            <vlc:VideoView x:Name="VideoView" Grid.Row="0" />
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="32" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Visibility="{Binding VideoPlayButtonVisibility.Value, Mode=OneWay}">
+                    <Button.Content>
+                        <TextBlock>再生</TextBlock>
+                    </Button.Content>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <ri:EventToReactiveCommand Command="{Binding VideoPlayCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+
+                <Button Grid.Column="0" Visibility="{Binding VideoPauseButtonVisibility.Value, Mode=OneWay}">
+                    <Button.Content>
+                        <TextBlock>一停</TextBlock>
+                    </Button.Content>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <ri:EventToReactiveCommand Command="{Binding VideoPauseCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+
+                <Button Grid.Column="1">
+                    <Button.Content>
+                        <TextBlock>停止</TextBlock>
+                    </Button.Content>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <ri:EventToReactiveCommand Command="{Binding VideoStopCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+
+                <Slider
+                    Grid.Column="2"
+                    Margin="4 0 4 0"
+                    VerticalAlignment="Center"
+                    IsMoveToPointEnabled ="True"
+                    Minimum="0"
+                    Maximum="1.0"
+                    Value="{Binding VideoSliderValue.Value, Mode=OneWay}"
+                    >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="ValueChanged">
+                            <ri:EventToReactiveCommand Command="{Binding VideoSliderValueChangedCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Slider>
+
+                <Button
+                    Grid.Column="3"
+                    Width="32" Height="32"
+                    Foreground="White"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    >
+                    <Button.Content>
+                        <TextBlock>
+                            ✖
+                        </TextBlock>
+                    </Button.Content>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <i:ChangePropertyAction
+                                PropertyName="Contents"
+                                TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}"
+                                Value="{x:Null}"
+                                />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+
+            </Grid>
+        </Grid>
         
         <!-- ツールバー -->
         <Border

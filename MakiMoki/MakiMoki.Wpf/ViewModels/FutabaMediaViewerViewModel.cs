@@ -12,9 +12,35 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Prism.Mvvm;
 using Reactive.Bindings;
+using Prism.Events;
+using Yarukizero.Net.MakiMoki.Wpf.Controls;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class FutabaMediaViewerViewModel : BindableBase, IDisposable {
+		internal class Messenger : EventAggregator {
+			public static Messenger Instance { get; } = new Messenger();
+		}
+
+		internal class VideoLoadMessage {
+			public string Path { get; }
+
+			public VideoLoadMessage(string path ) {
+				this.Path = path;
+			}
+		}
+
+		internal class VideoPlayMessage { }
+		internal class VideoPauseMessage { }
+		internal class VideoStopMessage { }
+
+		internal class VideoPositionMessage {
+			public float Position { get; }
+
+			public VideoPositionMessage(float position) {
+				this.Position = position;
+			}
+		}
+
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 		public ReactiveCommand<RoutedPropertyChangedEventArgs<PlatformData.FutabaMedia>> ContentsChangedCommand { get; } 
 			= new ReactiveCommand<RoutedPropertyChangedEventArgs<PlatformData.FutabaMedia>>();
@@ -33,18 +59,34 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<MouseWheelEventArgs> MouseWheelCommand { get; }
 			= new ReactiveCommand<MouseWheelEventArgs>();
 
-		public ReactiveProperty<Visibility> ViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Collapsed);
+		public ReactiveProperty<Visibility> ViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Hidden);
 
 		public ReactiveProperty<ImageSource> ImageSource { get; } = new ReactiveProperty<ImageSource>();
 		public ReactiveProperty<Visibility> ImageViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Collapsed);
 		public ReactiveProperty<MatrixTransform> ImageMatrix { get; }
 			= new ReactiveProperty<MatrixTransform>(new MatrixTransform(Matrix.Identity));
 
+		public ReactiveProperty<Visibility> VideoViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Hidden);
+		public ReactiveProperty<Visibility> VideoPlayButtonVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Visible);
+		public ReactiveProperty<Visibility> VideoPauseButtonVisibility { get; }
+		public ReactiveProperty<double> VideoSliderValue { get; } = new ReactiveProperty<double>(0);
+
+		public ReactiveCommand VideoPlayCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand VideoPauseCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand VideoStopCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand<RoutedPropertyChangedEventArgs<double>> VideoSliderValueChangedCommand { get; } = new ReactiveCommand<RoutedPropertyChangedEventArgs<double>>();
+		public ReactiveCommand VideoViewPlayingCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand VideoViewPausedCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand VideoViewStoppedCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand VideoViewEndReachedCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand<FutabaMediaViewer.RoutedPositionEventArgs> VideoViewPositionChangedCommand { get; } = new ReactiveCommand<FutabaMediaViewer.RoutedPositionEventArgs>();
+
+
 		private bool isMouseLeftButtonDown = false;
 		private Point mouseDonwStartPoint = new Point(0, 0);
 		private Point mouseCurrentPoint = new Point(0, 0);
 		private FrameworkElement inputElement = null;
-
+		private double prevPosition = double.NaN;
 		public FutabaMediaViewerViewModel() {
 			this.ContentsChangedCommand.Subscribe(x => this.OnContentsChanged(x));
 
@@ -55,6 +97,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			this.MouseMoveCommand.Subscribe(x => this.OnMouseMove(x));
 			this.MouseLeaveCommand.Subscribe(x => this.OnMouseLeave(x));
 			this.MouseWheelCommand.Subscribe(x => this.OnMouseWheel(x));
+
+			this.VideoPauseButtonVisibility = this.VideoPlayButtonVisibility
+				.Select(x => (x == Visibility.Visible) ? Visibility.Hidden : Visibility.Visible)
+				.ToReactiveProperty();
+			this.VideoPlayCommand.Subscribe(_ => OnVideoPlay());
+			this.VideoPauseCommand.Subscribe(_ => OnVideoPause());
+			this.VideoStopCommand.Subscribe(_ => OnVideoStop());
+			this.VideoSliderValueChangedCommand.Subscribe(x => OnVideoSliderValueChanged(x));
+			this.VideoViewPlayingCommand.Subscribe(_ => OnVideoViewPlaying());
+			this.VideoViewPausedCommand.Subscribe(_ => OnVideoViewPaused());
+			this.VideoViewStoppedCommand.Subscribe(_ => OnVideoViewStopped());
+			this.VideoViewEndReachedCommand.Subscribe(_ => OnVideoViewEndReached());
+			this.VideoViewPositionChangedCommand.Subscribe(x => OnVideoViewPositionChanged(x));
 		}
 
 		public void Dispose() {
@@ -64,8 +119,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnContentsChanged(RoutedPropertyChangedEventArgs<PlatformData.FutabaMedia> e) {
 			if(e.NewValue == null) {
 				this.ViewVisibility.Value = Visibility.Collapsed;
-				this.ImageViewVisibility.Value = Visibility.Collapsed;
+				this.ImageViewVisibility.Value = Visibility.Hidden;
+				this.VideoViewVisibility.Value = Visibility.Hidden;
 				this.ImageSource.Value = null;
+				Messenger.Instance.GetEvent<PubSubEvent<VideoStopMessage>>()
+					.Publish(new VideoStopMessage());
 			} else {
 				this.ImageMatrix.Value = new MatrixTransform(Matrix.Identity);
 				if(e.NewValue.IsExternalUrl) {
@@ -77,39 +135,47 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OpenFutabaUrl(Data.UrlContext url, Data.ResItem res) {
-			if(this.IsImageFile(res.Src)) {
-				this.ViewVisibility.Value = Visibility.Visible;
-				Util.Futaba.GetThreadResImage(url, res)
-					.ObserveOnDispatcher()
-					.Subscribe(x => {
-						if(x.Successed) {
+			this.ViewVisibility.Value = Visibility.Visible;
+			Util.Futaba.GetThreadResImage(url, res)
+				.ObserveOnDispatcher()
+				.Subscribe(x => {
+					if(x.Successed) {
+						if(this.IsImageFile(res.Src)) {
+							this.ImageViewVisibility.Value = Visibility.Visible;
 							this.ImageSource.Value = WpfUtil.ImageUtil.LoadImage(x.LocalPath);
 							this.ImageViewVisibility.Value = Visibility.Visible;
-						} else {
-								// TODO: なんかエラー画像出す
-							}
-					});
-			} else if(this.IsMovieFile(res.Src)) {
-				// TODO: 動画ビューワ作る
-			}
+						} else if(this.IsMovieFile(res.Src)) {
+							this.VideoViewVisibility.Value = Visibility.Visible;
+							Messenger.Instance.GetEvent<PubSubEvent<VideoLoadMessage>>()
+								.Publish(new VideoLoadMessage(x.LocalPath));
+						}
+						// TODO: 不明なファイル
+					} else {
+						// TODO: なんかエラー画像出す
+					}
+				});
 		}
 
 		private void OpenExternalUrl(string u) {
-			if(this.IsImageFile(u)) {
-				this.ViewVisibility.Value = Visibility.Visible;
-				Util.Futaba.GetUploaderFile(u)
-					.ObserveOnDispatcher()
-					.Subscribe(x => {
-						if(x.Successed) {
+			this.ViewVisibility.Value = Visibility.Visible;
+			Util.Futaba.GetUploaderFile(u)
+				.ObserveOnDispatcher()
+				.Subscribe(x => {
+					if(x.Successed) {
+						if(this.IsImageFile(u)) {
+							this.ImageViewVisibility.Value = Visibility.Visible;
 							this.ImageSource.Value = WpfUtil.ImageUtil.LoadImage(x.LocalPath);
 							this.ImageViewVisibility.Value = Visibility.Visible;
-						} else {
-								// TODO: なんかエラー画像出す
-							}
-					});
-			} else if(this.IsMovieFile(u)) {
-				// TODO: 動画ビューワ作る
-			}
+						} else if(this.IsMovieFile(u)) {
+							this.VideoViewVisibility.Value = Visibility.Visible;
+							Messenger.Instance.GetEvent<PubSubEvent<VideoLoadMessage>>()
+								.Publish(new VideoLoadMessage(x.LocalPath));
+						}
+						// TODO: 不明なファイル
+					} else {
+						// TODO: なんかエラー画像出す
+					}
+				});
 		}
 
 		private bool IsImageFile(string url) {
@@ -197,6 +263,42 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 				this.ImageMatrix.Value = new MatrixTransform(matrix);
 			}
+		}
+
+		private void OnVideoPlay() {
+			Messenger.Instance.GetEvent<PubSubEvent<VideoPlayMessage>>()
+				.Publish(new VideoPlayMessage());
+		}
+		private void OnVideoPause() {
+			Messenger.Instance.GetEvent<PubSubEvent<VideoPauseMessage>>()
+				.Publish(new VideoPauseMessage());
+		}
+		private void OnVideoStop() {
+			Messenger.Instance.GetEvent<PubSubEvent<VideoStopMessage>>()
+				.Publish(new VideoStopMessage());
+		}
+
+		private void OnVideoSliderValueChanged(RoutedPropertyChangedEventArgs<double> e) {
+			if(e.NewValue != this.prevPosition) {
+				Messenger.Instance.GetEvent<PubSubEvent<VideoPositionMessage>>()
+					.Publish(new VideoPositionMessage((float)e.NewValue));
+			}
+		}
+
+
+		private void OnVideoViewPlaying() => this.VideoPlayButtonVisibility.Value = Visibility.Hidden;
+		private void OnVideoViewPaused() => this.VideoPlayButtonVisibility.Value = Visibility.Visible;
+		private void OnVideoViewStopped() => this.VideoPlayButtonVisibility.Value = Visibility.Visible;
+		private void OnVideoViewEndReached() {
+			this.VideoPlayButtonVisibility.Value = Visibility.Visible;
+			Messenger.Instance.GetEvent<PubSubEvent<VideoStopMessage>>()
+				.Publish(new VideoStopMessage());
+		}
+
+		private void OnVideoViewPositionChanged(FutabaMediaViewer.RoutedPositionEventArgs e) {
+			this.VideoSliderValue.Value
+				= this.prevPosition
+				= e.Position;
 		}
 	}
 }
