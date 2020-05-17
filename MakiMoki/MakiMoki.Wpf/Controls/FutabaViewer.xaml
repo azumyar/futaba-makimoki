@@ -452,9 +452,6 @@
                                         <Run Text="{Binding Converter={StaticResource FutabaResItemIdTextConverter}, Mode=OneWay}" />
                                         <Run Text=" " />
                                     </TextBlock>
-                                    <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Host, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
-                                        <Run Text="{Binding Raw.Value.ResItem.Res.Host, StringFormat='\{0\} ', Mode=OneWay}" />
-                                    </TextBlock>
                                     <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
                                         <TextBlock.Foreground>
                                             <SolidColorBrush Color="{DynamicResource ThreadHeaderSoudaneColor}" />
@@ -839,7 +836,7 @@
 
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="PreviewMouseUp">
-                                        <ri:EventToReactiveCommand Command="{Binding DataContext.PostViewPostCommand, ElementName=_this}" />
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.PostViewPostCommand, ElementName=_this, Mode=OneWay}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </Button>
@@ -851,10 +848,25 @@
                                     </i:EventTrigger>
 
                                     <i:EventTrigger EventName="PreviewDragOver">
-                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ImageDragOver, ElementName=_this}" />
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ImageDragOverpCommand, ElementName=_this, Mode=OneWay}" />
                                     </i:EventTrigger>
                                     <i:EventTrigger EventName="Drop">
-                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ImageDrop, ElementName=_this}" />
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ImageDroppCommand, ElementName=_this, Mode=OneWay}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                            <Button Height="24" Margin="2" AllowDrop="True">
+                                <TextBlock>ロダ</TextBlock>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.OpenUploadCommand, ElementName=_this, Mode=OneWay}" />
+                                    </i:EventTrigger>
+
+                                    <i:EventTrigger EventName="PreviewDragOver">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.UploadDragOverpCommand, ElementName=_this, Mode=OneWay}" />
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="Drop">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.UploadDroppCommand, ElementName=_this, Mode=OneWay}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </Button>

@@ -69,6 +69,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						this.Contents.MediaContents.Value = x.Media;
 					}
 				});
+			ViewModels.FutabaViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaViewerViewModel.AppendUploadFileMessage>>()
+				.Subscribe(x => {
+					var s = x.FileName + Environment.NewLine;
+					var ss = this.PostCommentTextBox.SelectionStart;
+					var sb = new StringBuilder(this.PostCommentTextBox.Text);
+					sb.Insert(ss, s);
+					this.PostCommentTextBox.Text = sb.ToString();
+					this.PostCommentTextBox.SelectionStart = ss + s.Length;
+					this.PostCommentTextBox.SelectionLength = 0;
+				});
 			this.CatalogListBox.Loaded += (s, e) => {
 				if((this.scrollViewerCatalog = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.CatalogListBox)) != null) {
 					this.scrollViewerCatalog.ScrollChanged += (ss, arg) => {

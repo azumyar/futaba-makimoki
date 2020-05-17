@@ -7,6 +7,8 @@ using RestSharp;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using System.IO;
+using AngleSharp.Html.Parser;
+using AngleSharp.Dom;
 
 namespace Yarukizero.Net.MakiMoki.Util {
 	public static class FutabaApi {
@@ -14,6 +16,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		private static readonly string FutabaSoudaneEndPoint = "/sd.php";
 		private static readonly string FutabaDelEndPoint = "/del.php";
 		private static readonly string FutabaCachemt = "/bin/cachemt7.php";
+		private static readonly string FutabaUp2Url = "https://dec.2chan.net/up2/";
+		private static readonly string FutabaUp2Endpoint = "up.php";
+		private static readonly string FutabaUp2Html = "https://dec.2chan.net/up2/up.htm";
 		private static readonly Encoding FutabaEncoding = Encoding.GetEncoding("Shift_JIS");
 
 		public static async Task<(Data.FutabaResonse Response, Data.Cookie[] Cookies, string Raw)> GetCatalog(string baseUrl, Data.Cookie[] cookies, Data.CatalogSortItem sort = null) {
@@ -436,12 +441,70 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<string> UploadUp2(string comment, string filePath, string passwd) {
+		public static async Task<(bool Successed, string Message)> UploadUp2(string comment, string filePath, string passwd) {
 			System.Diagnostics.Debug.Assert(comment != null);
 			System.Diagnostics.Debug.Assert(filePath != null);
 			System.Diagnostics.Debug.Assert(passwd != null);
 			return await Task.Run(() => {
-				return "";
+				if(Config.ConfigLoader.Mime.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
+					// コメントがない場合ファイルのMD5 sumを埋め込む
+					if(string.IsNullOrEmpty(comment)) {
+						try {
+							using(var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+							using(var md5 = new System.Security.Cryptography.MD5CryptoServiceProvider()) {
+								var bs = md5.ComputeHash(fs);
+								var sb = new StringBuilder();
+								foreach(byte b in bs) {
+									sb.Append(b.ToString("x2"));
+								}
+								comment = sb.ToString();
+							}
+						}
+						catch(FileNotFoundException) {
+							return (false, "アップロードファイルが見つかりません");
+						}
+						catch(IOException) {
+							return (false, "アップロードファイルが開けません");
+						}
+					}
+
+					// アップロード
+					var c = new RestClient(FutabaUp2Url) {
+						Encoding = FutabaEncoding,
+					};
+					var r = new RestRequest(FutabaUp2Endpoint, Method.POST);
+					r.AddHeader("Content-Type", "multipart/form-data");
+					r.AddParameter("MAX_FILE_SIZE", "3000000", ParameterType.GetOrPost);
+					r.AddParameter("mode", "reg", ParameterType.GetOrPost);
+					r.AddFile("up", filePath, m);
+					r.AddParameter("com", comment, ParameterType.GetOrPost);
+					r.AddParameter("pass", passwd, ParameterType.GetOrPost);
+					var res = c.Execute(r);
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+						// HTMLファイルから目的のファイルを見つける
+						var cc = new RestClient(FutabaUp2Html) {
+							Encoding = FutabaEncoding,
+						};
+						var html = cc.Execute(new RestRequest(Method.GET));
+						if(html.StatusCode == System.Net.HttpStatusCode.OK) {
+							var parser = new HtmlParser();
+							var doc = parser.ParseDocument(FutabaEncoding.GetString(html.RawBytes));
+							var root = doc.QuerySelector("table.files");
+							foreach(var tr in root?.QuerySelectorAll("tr")) {
+								var fnm = tr.QuerySelector("td.fnm");
+								var fco = tr.QuerySelector("td.fco");
+								if((fnm != null) && (fco != null)) {
+									if(fco.TextContent == comment) {
+										return (true, fnm.TextContent);
+									}
+								}
+							}
+						}
+					}
+					return (false, "アップロード失敗");
+				} else {
+					return (false, "アップロードできないファイル形式");
+				}
 			});
 		}
 

@@ -32,6 +32,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				this.Media = media;
 			}
 		}
+		internal class AppendUploadFileMessage {
+			public string FileName { get; }
+
+			public AppendUploadFileMessage(string fileName) {
+				this.FileName = fileName;
+			}
+		}
+
 
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
@@ -45,8 +53,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<RoutedEventArgs> ThreadUpdateCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
-		public ReactiveCommand<DragEventArgs> ImageDragOver { get; } = new ReactiveCommand<DragEventArgs>();
-		public ReactiveCommand<DragEventArgs> ImageDrop { get; } = new ReactiveCommand<DragEventArgs>();
+		public ReactiveCommand<DragEventArgs> ImageDragOverCommand { get; } = new ReactiveCommand<DragEventArgs>();
+		public ReactiveCommand<DragEventArgs> ImageDropCommand { get; } = new ReactiveCommand<DragEventArgs>();
+		public ReactiveCommand<MouseButtonEventArgs> OpenUploadCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
+		public ReactiveCommand<DragEventArgs> UploadDragOverpCommand { get; } = new ReactiveCommand<DragEventArgs>();
+		public ReactiveCommand<DragEventArgs> UploadDroppCommand { get; } = new ReactiveCommand<DragEventArgs>();
+
 		public ReactiveCommand<RoutedEventArgs> PostViewPostCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
 
@@ -85,8 +97,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			ThreadImageClickCommand.Subscribe(x => OnThreadImageClick(x));
 			ThreadUpdateCommand.Subscribe(x => OnThreadUpdateClick(x));
 			PostClickCommand.Subscribe(x => OnPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
-			ImageDragOver.Subscribe(x => OnImageDragOver(x));
-			ImageDrop.Subscribe(x => OnImageDrop(x));
+			OpenUploadCommand.Subscribe(x => OnOpenUpload(x));
+			ImageDragOverCommand.Subscribe(x => OnImageDragOver(x));
+			ImageDropCommand.Subscribe(x => OnImageDrop(x));
+			UploadDragOverpCommand.Subscribe(x => OnUploadDragOver(x));
+			UploadDroppCommand.Subscribe(x => OnUploadDrop(x));
 			PostViewPostCommand.Subscribe(x => OnPostViewPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
 			LinkClickCommand.Subscribe(x => OnLinkClick(x));
 
@@ -273,12 +288,78 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
+		private async void OnOpenUpload(MouseButtonEventArgs e) {
+			if(e.Source is FrameworkElement o && o.DataContext is Model.BindableFutaba f) {
+				if((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
+					switch(e.ChangedButton) {
+					case MouseButton.Left:
+						try {
+							Application.Current.MainWindow.IsEnabled = false;
+							var ext = Config.ConfigLoader.Mime.Types.Select(x => x.Ext);
+							var ofd = new Microsoft.Win32.OpenFileDialog() {
+								Filter = "ふたば画像ファイル|"
+									+ string.Join(";", ext.Select(x => "*" + x).ToArray())
+									+ "|すべてのファイル|*.*"
+							};
+							e.Handled = true;
+							if(ofd.ShowDialog() ?? false) {
+								Util.Futaba.UploadUp2(ofd.FileName, f.PostData.Value.Password.Value)
+									.Subscribe(x => {
+										if(x.Successed) {
+											Messenger.Instance.GetEvent<PubSubEvent<AppendUploadFileMessage>>()
+												.Publish(new AppendUploadFileMessage(x.FileNameOrMessage));
+										} else {
+											MessageBox.Show(x.FileNameOrMessage);
+										}
+									});
+								// ダイアログをダブルクリックで選択するとウィンドウに当たり判定がいくので
+								// 一度待つ
+								await Task.Delay(1);
+							}
+						}
+						finally {
+							Application.Current.MainWindow.IsEnabled = true;
+						}
+						break;
+					}
+				}
+			}
+		}
+
+		private void OnUploadDragOver(DragEventArgs e) {
+			if(IsValidDragFile(e)) {
+				e.Effects = DragDropEffects.Copy;
+			} else {
+				e.Effects = DragDropEffects.None; // 機能していないけど今度調べる
+			}
+
+			e.Handled = true;
+		}
+
+		private void OnUploadDrop(DragEventArgs e) {
+			if((e.Source as FrameworkElement)?.DataContext is Model.BindableFutaba f) {
+				if(IsValidDragFile(e) && e.Data.GetData(DataFormats.FileDrop) is string[] files) {
+					Util.Futaba.UploadUp2(files[0], f.PostData.Value.Password.Value)
+						.Subscribe(x => {
+							if(x.Successed) {
+								Messenger.Instance.GetEvent<PubSubEvent<AppendUploadFileMessage>>()
+									.Publish(new AppendUploadFileMessage(x.FileNameOrMessage));
+							} else {
+								MessageBox.Show(x.FileNameOrMessage);
+							}
+						});
+				} else {
+					MessageBox.Show("未対応のファイル"); // TODO: メッセージをいい感じにする
+				}
+			}
+		}
+
 		private bool IsValidDragFile(DragEventArgs e) {
 			var ext = Config.ConfigLoader.Mime.Types.Select(x => x.Ext);
 			return (e.Data.GetDataPresent(DataFormats.FileDrop, false)
 				&& e.Data.GetData(System.Windows.DataFormats.FileDrop) is string[] files
 				&& (files.Length == 1)
-				&& ext.Contains(Path.GetExtension(files[0])));
+				&& ext.Contains(Path.GetExtension(files[0]).ToLower()));
 		}
 
 		private void OnPostViewPostClick(Model.BindableFutaba x) {

@@ -502,5 +502,18 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
+
+		public static IObservable<(bool Successed, string FileNameOrMessage)> UploadUp2(string filePath, string passwd) {
+			return UploadUp2("", filePath, passwd);
+		}
+
+		public static IObservable<(bool Successed, string FileNameOrMessage)> UploadUp2(string comment, string filePath, string passwd) {
+			return Observable.Create<(bool Successed, string Message)>(async o => {
+				var r = await FutabaApi.UploadUp2(comment, filePath, passwd);
+				Config.ConfigLoader.UpdateFutabaPassword(passwd);
+				o.OnNext((r.Successed, r.Message));
+				return System.Reactive.Disposables.Disposable.Empty;
+			});
+		}
 	}
 }
