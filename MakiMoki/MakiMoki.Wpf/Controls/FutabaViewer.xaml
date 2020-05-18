@@ -848,10 +848,10 @@
                                     </i:EventTrigger>
 
                                     <i:EventTrigger EventName="PreviewDragOver">
-                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ImageDragOverpCommand, ElementName=_this, Mode=OneWay}" />
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ImageDragOverCommand, ElementName=_this, Mode=OneWay}" />
                                     </i:EventTrigger>
                                     <i:EventTrigger EventName="Drop">
-                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ImageDroppCommand, ElementName=_this, Mode=OneWay}" />
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ImageDropCommand, ElementName=_this, Mode=OneWay}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </Button>
