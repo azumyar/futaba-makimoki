@@ -238,7 +238,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 		internal DelReasonItem(string name, string apiValue) {
 			this.Name = name;
-			this.ApiValue = ApiValue;
+			this.ApiValue = apiValue;
 		}
 	}
 
@@ -269,7 +269,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 		internal CatalogSortItem(string name, string apiValue) {
 			this.Name = name;
-			this.ApiValue = ApiValue;
+			this.ApiValue = apiValue;
 		}
 	}
 

@@ -17,12 +17,15 @@ using System.Windows.Navigation;
 using Prism.Events;
 using Prism.Mvvm;
 using Reactive.Bindings;
+using Yarukizero.Net.MakiMoki.Data;
+using Yarukizero.Net.MakiMoki.Wpf.Controls;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class FutabaViewerViewModel : BindableBase, IDisposable {
 		internal class Messenger : EventAggregator {
 			public static Messenger Instance { get; } = new Messenger();
 		}
+		internal class CatalogSortContextMenuMessage { }
 
 		internal class CatalogListboxUpdatedMessage { }
 		internal class MediaViewerOpenMessage { 
@@ -77,6 +80,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Visibility> PostViewVisibility { get; }
 			= new ReactiveProperty<Visibility>(Visibility.Hidden);
 
+		private ReactiveProperty<Data.CatalogSortItem> CatalogSortItem { get; } = new ReactiveProperty<Data.CatalogSortItem>(Data.CatalogSort.Catalog);
+		public ReactiveProperty<bool> CatalogSortCheckedCatalog { get; }
+		public ReactiveProperty<bool> CatalogSortCheckedNew { get; }
+		public ReactiveProperty<bool> CatalogSortCheckedOld { get; }
+		public ReactiveProperty<bool> CatalogSortCheckedMany { get; }
+		public ReactiveProperty<bool> CatalogSortCheckedMomentum { get; }
+		public ReactiveProperty<bool> CatalogSortCheckedFew { get; }
+		public ReactiveProperty<bool> CatalogSortCheckedSoudane { get; }
+
+		public ReactiveCommand<RoutedEventArgs> CatalogSortItemCatalogClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<RoutedEventArgs> CatalogSortItemNewClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<RoutedEventArgs> CatalogSortItemOldClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<RoutedEventArgs> CatalogSortItemManyClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<RoutedEventArgs> CatalogSortItemMomentumClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<RoutedEventArgs> CatalogSortItemFewClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<RoutedEventArgs> CatalogSortItemSoudaneClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+
+		public ReactiveCommand<RoutedEventArgs> CatalogMenuItemDelClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+
+		public ReactiveCommand<RoutedEventArgs> ThreadResHamburgerItemUrlClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
 		public ReactiveCommand<RoutedEventArgs> MenuItemCopyClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemReplyClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
@@ -88,9 +111,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private bool isThreadImageClicking = false;
 
 		public FutabaViewerViewModel() {
+			CatalogSortCheckedCatalog = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Catalog.ApiValue).ToReactiveProperty();
+			CatalogSortCheckedNew = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.New.ApiValue).ToReactiveProperty();
+			CatalogSortCheckedOld = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Old.ApiValue).ToReactiveProperty();
+			CatalogSortCheckedMany = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Many.ApiValue).ToReactiveProperty();
+			CatalogSortCheckedMomentum = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Momentum.ApiValue).ToReactiveProperty();
+			CatalogSortCheckedFew = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Few.ApiValue).ToReactiveProperty();
+			CatalogSortCheckedSoudane = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Soudane.ApiValue).ToReactiveProperty();
+
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
 
 			CatalogUpdateClickCommand.Subscribe(x => OnCatalogUpdateClick(x));
+			CatalogSortItemCatalogClickCommand.Subscribe(x => OnCatalogSortItemCatalogClick(x));
+			CatalogSortItemNewClickCommand.Subscribe(x => OnCatalogSortItemNewClick(x));
+			CatalogSortItemOldClickCommand.Subscribe(x => OnCatalogSortItemOldClick(x));
+			CatalogSortItemManyClickCommand.Subscribe(x => OnCatalogSortItemManyClick(x));
+			CatalogSortItemMomentumClickCommand.Subscribe(x => OnCatalogSortItemMomentumClick(x));
+			CatalogSortItemFewClickCommand.Subscribe(x => OnCatalogSortItemFewClick(x));
+			CatalogSortItemSoudaneClickCommand.Subscribe(x => OnCatalogSortItemSoudaneClick(x));
 			CatalogItemMouseDownCommand.Subscribe(x => OnCatalogItemMouseDown(x));
 			CatalogItemClickCommand.Subscribe(x => OnCatalogClick(x));
 			ThreadImageMouseDownCommand.Subscribe(x => OnThreadImageMouseDown(x));
@@ -105,6 +143,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			PostViewPostCommand.Subscribe(x => OnPostViewPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
 			LinkClickCommand.Subscribe(x => OnLinkClick(x));
 
+			CatalogMenuItemDelClickCommand.Subscribe(x => OnCatalogMenuItemDelClickCommand(x));
+			ThreadResHamburgerItemUrlClickCommand.Subscribe(x => OnThreadResHamburgerItemUrlClick(x));
 			MenuItemCopyClickCommand.Subscribe(x => OnMenuItemCopyClickCommand(x));
 			MenuItemReplyClickCommand.Subscribe(x => OnMenuItemReplyClickCommand(x));
 			MenuItemSoudaneClickCommand.Subscribe(x => OnMenuItemSoudaneClickCommand(x));
@@ -126,13 +166,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					|| u.StartsWith("https://dec.2chan.net/up/src/")) {
 					var ext = Regex.Match(u, @"\.[a-zA-Z0-9]+$");
 					if(ext.Success) {
-						// TODO: 内部画像ビューワを作ってそっちに移動
-						if(new string[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" }.Contains(ext.Value.ToLower())) {
-							Messenger.Instance.GetEvent<PubSubEvent<MediaViewerOpenMessage>>()
-								.Publish(new MediaViewerOpenMessage(
-									PlatformData.FutabaMedia.FromExternalUrl(u)));
-							goto end;
-						} else if(new string[] { ".mp4", ".webm" }.Contains(ext.Value.ToLower())) {
+						if(Config.ConfigLoader.Mime.Types.Select(x => x.Ext).Contains(ext.Value.ToLower())) {
 							Messenger.Instance.GetEvent<PubSubEvent<MediaViewerOpenMessage>>()
 								.Publish(new MediaViewerOpenMessage(
 									PlatformData.FutabaMedia.FromExternalUrl(u)));
@@ -158,14 +192,62 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			System.Diagnostics.Debug.WriteLine(e);
 		}
 
+		private void UpdateCatalog(BordConfig bord) {
+			Util.Futaba.UpdateCatalog(bord, this.CatalogSortItem.Value)
+				.ObserveOn(UIDispatcherScheduler.Default)
+				.Subscribe(x => {
+					Messenger.Instance.GetEvent<PubSubEvent<CatalogListboxUpdatedMessage>>()
+						.Publish(new CatalogListboxUpdatedMessage());
+				});
+		}
+
+
 		private void OnCatalogUpdateClick(RoutedEventArgs e) {
 			if((e.Source is FrameworkElement el) && (el.DataContext is Data.FutabaContext fc)) {
-				Util.Futaba.UpdateCatalog(fc.Bord)
-					.ObserveOnDispatcher()
-					.Subscribe(x => {
-						Messenger.Instance.GetEvent<PubSubEvent<CatalogListboxUpdatedMessage>>()
-							.Publish(new CatalogListboxUpdatedMessage());
-					});
+				this.UpdateCatalog(fc.Bord);
+			}
+		}
+
+		private void OnCatalogSortItemCatalogClick(RoutedEventArgs e) {
+			this.CatalogSortItem.Value = Data.CatalogSort.Catalog;
+			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
+				this.UpdateCatalog(c.Futaba.Value.Raw.Bord);
+			}
+		}
+		private void OnCatalogSortItemNewClick(RoutedEventArgs e) {
+			this.CatalogSortItem.Value = Data.CatalogSort.New;
+			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
+				this.UpdateCatalog(c.Futaba.Value.Raw.Bord);
+			}
+		}
+		private void OnCatalogSortItemOldClick(RoutedEventArgs e) {
+			this.CatalogSortItem.Value = Data.CatalogSort.Old;
+			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
+				this.UpdateCatalog(c.Futaba.Value.Raw.Bord);
+			}
+		}
+		private void OnCatalogSortItemManyClick(RoutedEventArgs e) {
+			this.CatalogSortItem.Value = Data.CatalogSort.Many;
+			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
+				this.UpdateCatalog(c.Futaba.Value.Raw.Bord);
+			}
+		}
+		private void OnCatalogSortItemMomentumClick(RoutedEventArgs e) {
+			this.CatalogSortItem.Value = Data.CatalogSort.Momentum;
+			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
+				this.UpdateCatalog(c.Futaba.Value.Raw.Bord);
+			}
+		}
+		private void OnCatalogSortItemFewClick(RoutedEventArgs e) {
+			this.CatalogSortItem.Value = Data.CatalogSort.Few;
+			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
+				this.UpdateCatalog(c.Futaba.Value.Raw.Bord);
+			}
+		}
+		private void OnCatalogSortItemSoudaneClick(RoutedEventArgs e) {
+			this.CatalogSortItem.Value = Data.CatalogSort.Soudane;
+			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
+				this.UpdateCatalog(c.Futaba.Value.Raw.Bord);
 			}
 		}
 
@@ -407,6 +489,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							MessageBox.Show(y.Message);
 						}
 					});
+				}
+			}
+		}
+
+		private void OnCatalogMenuItemDelClickCommand(RoutedEventArgs e) {
+			this.OnMenuItemDelClickCommand(e);
+		}
+
+		private void OnThreadResHamburgerItemUrlClick(RoutedEventArgs e) {
+			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
+				var u = c.Futaba.Value.Raw.Url;
+				if(u.IsThreadUrl) {
+					Clipboard.SetText($"{ u.BaseUrl }res/{ u.ThreadNo }.htm");
 				}
 			}
 		}

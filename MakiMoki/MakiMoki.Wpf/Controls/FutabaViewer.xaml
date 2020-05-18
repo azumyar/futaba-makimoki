@@ -36,6 +36,20 @@
         <Color x:Key="OldColor">Red</Color>
 
         <SolidColorBrush x:Key="PrimaryColorBrush" Color="#4FC3F7" />
+
+        <ContextMenu x:Key="CatalogSortContextMenu">
+            <MenuItem Header="カタログ" IsChecked="{Binding CatalogSortCheckedCatalog.Value, Mode=OneWay}" Click="OnCatalogSortItemCatalogClickCommand" />
+            <MenuItem Header="新順" IsChecked="{Binding CatalogSortCheckedNew.Value, Mode=OneWay}" Click="OnCatalogSortItemNewClickCommand" />
+            <MenuItem Header="古順" IsChecked="{Binding CatalogSortCheckedOld.Value, Mode=OneWay}" Click="OnCatalogSortItemOldClickCommand" />
+            <MenuItem Header="多順" IsChecked="{Binding CatalogSortCheckedMany.Value, Mode=OneWay}" Click="OnCatalogSortItemManyClickCommand" />
+            <MenuItem Header="勢順" IsChecked="{Binding CatalogSortCheckedMomentum.Value, Mode=OneWay}" Click="OnCatalogSortItemMomentumClickCommand" />
+            <MenuItem Header="少順" IsChecked="{Binding CatalogSortCheckedFew.Value, Mode=OneWay}" Click="OnCatalogSortItemFewClickCommand" />
+            <MenuItem Header="そ順" IsChecked="{Binding CatalogSortCheckedSoudane.Value, Mode=OneWay}" Click="OnCatalogSortItemSoudaneClickCommand" />
+        </ContextMenu>
+
+        <ContextMenu x:Key="ThreadResHamburgerContextMenu">
+            <MenuItem Header="URLをコピー" Click="OnThreadResHamburgerItemUrlClickCommand" />
+        </ContextMenu>
     </UserControl.Resources>
     <i:Interaction.Triggers>
         <!-- タブ切り替え時に画僧ビューワを初期化する -->
@@ -82,7 +96,6 @@
                             </i:Interaction.Triggers>
                         </Button>
                         <Button
-                            IsEnabled="False"
                             Height="32"
                             Margin="2">
                             <TextBlock>
@@ -90,9 +103,18 @@
                             </TextBlock>
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
-                                    <!--
-                                    <ri:EventToReactiveCommand Command="{Binding CatalogSortClickCommand}" />
-                                    -->
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{StaticResource CatalogSortContextMenu}" 
+                                        PropertyName="DataContext"
+                                        Value="{Binding DataContext, ElementName=_this, Mode=OneWay}"/>
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{StaticResource CatalogSortContextMenu}" 
+                                        PropertyName="IsOpen"
+                                        Value="True"/>
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{StaticResource CatalogSortContextMenu}" 
+                                        PropertyName="Tag" 
+                                        Value="{Binding Contents, ElementName=_this, Mode=OneWay}"/>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
@@ -201,6 +223,27 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
+                        <Button
+                            Height="32"
+                            Margin="2">
+                            <TextBlock Text=" … " />
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{StaticResource ThreadResHamburgerContextMenu}" 
+                                        PropertyName="DataContext"
+                                        Value="{Binding DataContext, ElementName=_this, Mode=OneWay}"/>
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{StaticResource ThreadResHamburgerContextMenu}" 
+                                        PropertyName="IsOpen"
+                                        Value="True"/>
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{StaticResource ThreadResHamburgerContextMenu}" 
+                                        PropertyName="Tag" 
+                                        Value="{Binding Contents, ElementName=_this, Mode=OneWay}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
                     </WrapPanel>
                 </Grid>
             </Border>
@@ -254,6 +297,11 @@
                                 BorderBrush="Transparent"
                                 HorizontalContentAlignment="Stretch"
                                 VerticalContentAlignment="Stretch">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="del" Click="OnCatalogMenuItemDelClickCommand" />
+                                    </ContextMenu>
+                                </Button.ContextMenu>
                                 <Grid x:Name="CatalogItem">
                                     <TextBlock.Foreground>
                                         <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />

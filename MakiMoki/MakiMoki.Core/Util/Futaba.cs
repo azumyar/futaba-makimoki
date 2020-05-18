@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using System.IO;
-using System.Diagnostics;
 
 namespace Yarukizero.Net.MakiMoki.Util {
 	public static class Futaba {

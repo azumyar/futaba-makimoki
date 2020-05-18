@@ -168,36 +168,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			}
 		}
 
-		public void OnMenuItemCopyClickCommand(object swender, RoutedEventArgs e) {
-			if(this.DataContext is ViewModels.FutabaViewerViewModel vm) {
-				vm.MenuItemCopyClickCommand.Execute(e);
-			}
-		}
+		private ViewModels.FutabaViewerViewModel GetViewModel() => this.DataContext as ViewModels.FutabaViewerViewModel;
 
-		public void OnMenuItemReplyClickCommand(object swender, RoutedEventArgs e) {
-			if(this.DataContext is ViewModels.FutabaViewerViewModel vm) {
-				vm.MenuItemReplyClickCommand.Execute(e);
-			}
-		}
+		private void OnCatalogSortItemCatalogClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemCatalogClickCommand.Execute(e);
+		private void OnCatalogSortItemNewClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemNewClickCommand.Execute(e);
+		private void OnCatalogSortItemOldClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemOldClickCommand.Execute(e);
+		private void OnCatalogSortItemManyClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemManyClickCommand.Execute(e);
+		private void OnCatalogSortItemMomentumClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemMomentumClickCommand.Execute(e);
+		private void OnCatalogSortItemFewClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemFewClickCommand.Execute(e);
+		private void OnCatalogSortItemSoudaneClickCommand(object swender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemSoudaneClickCommand.Execute(e);
 
-		public void OnMenuItemSoudaneClickCommand(object swender, RoutedEventArgs e) {
-			if(this.DataContext is ViewModels.FutabaViewerViewModel vm) {
-				vm.MenuItemSoudaneClickCommand.Execute(e);
-			}
-		}
+		private void OnCatalogMenuItemDelClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogMenuItemDelClickCommand.Execute(e);
 
+		private void OnThreadResHamburgerItemUrlClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.ThreadResHamburgerItemUrlClickCommand.Execute(e);
 
-		public void OnMenuItemDelClickCommand(object swender, RoutedEventArgs e) {
-			if(this.DataContext is ViewModels.FutabaViewerViewModel vm) {
-				vm.MenuItemDelClickCommand.Execute(e);
-			}
-		}
-
-
-		public void OnMenuItemDeleteClickCommand(object swender, RoutedEventArgs e) {
-			if(this.DataContext is ViewModels.FutabaViewerViewModel vm) {
-				vm.MenuItemDeleteClickCommand.Execute(e);
-			}
-		}
+		private void OnMenuItemCopyClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.MenuItemCopyClickCommand.Execute(e);
+		private void OnMenuItemReplyClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.MenuItemReplyClickCommand.Execute(e);
+		private void OnMenuItemSoudaneClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.MenuItemSoudaneClickCommand.Execute(e);
+		private void OnMenuItemDelClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.MenuItemDelClickCommand.Execute(e);
+		private void OnMenuItemDeleteClickCommand(object swender, RoutedEventArgs e) => GetViewModel()?.MenuItemDeleteClickCommand.Execute(e);
 	}
 }

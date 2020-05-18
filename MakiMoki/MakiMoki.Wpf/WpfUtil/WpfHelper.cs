@@ -20,7 +20,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 					return r;
 				}
 			}
-			return default(T);
+			return default;
 		}
 
 		public static T FindLastChild<T>(DependencyObject o) {
@@ -35,7 +35,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 					return r;
 				}
 			}
-			return default(T);
+			return default;
+		}
+
+		public static T FindFirstParent<T>(DependencyObject o) {
+			var p = VisualTreeHelper.GetParent(o);
+			do {
+				if(p is T t) {
+					return t;
+				}
+				p = VisualTreeHelper.GetParent(p);
+			} while(p != null);
+
+			return default;
 		}
 	}
 }
