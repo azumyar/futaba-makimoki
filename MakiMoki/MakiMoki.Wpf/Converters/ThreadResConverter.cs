@@ -51,7 +51,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 						return vm.TabItems.Value
 							.Where(x => x.Futaba.Value.Url.IsThreadUrl)
 							.Select(x => x.Futaba.Value.ResItems.FirstOrDefault()?.Raw.Value.ResItem.No)
-							.Contains(f.Raw.Value.ResItem.No) 
+							.Contains(f.Raw.Value.ResItem.No)
 								? opendColor : normalColor;
 					}
 				}
@@ -59,6 +59,27 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			}
 
 			throw new ArgumentException("型不正。", "value");
+		}
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
+	class FutabaCatalogItemFilterConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if((values.Length == 2) && (values[0] is IEnumerable<Model.BindableFutabaResItem> en)) {
+				if(values[1] is string filter && !string.IsNullOrEmpty(filter)) {
+					var f = Util.TextUtil.Filter2SearchText(filter);
+					return en.Select<Model.BindableFutabaResItem, (string Text, Model.BindableFutabaResItem Raw)>(
+						x => (Util.TextUtil.Comment2SearchText(x.Raw.Value.ResItem.Res.Com), x))
+						.Where(x => x.Text.Contains(f))
+						.Select(x => x.Raw)
+						.ToArray();
+				}
+			}
+
+			// まだカタログを取得していない場合values[0]が壊れているので例外は投げない
+			return values[0];
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {

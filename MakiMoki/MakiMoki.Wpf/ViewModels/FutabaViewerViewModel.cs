@@ -80,6 +80,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Visibility> PostViewVisibility { get; }
 			= new ReactiveProperty<Visibility>(Visibility.Hidden);
 
+		public ReactiveProperty<string> FilterText { get; } = new ReactiveProperty<string>("");
+
 		private ReactiveProperty<Data.CatalogSortItem> CatalogSortItem { get; } = new ReactiveProperty<Data.CatalogSortItem>(Data.CatalogSort.Catalog);
 		public ReactiveProperty<bool> CatalogSortCheckedCatalog { get; }
 		public ReactiveProperty<bool> CatalogSortCheckedNew { get; }
@@ -88,6 +90,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> CatalogSortCheckedMomentum { get; }
 		public ReactiveProperty<bool> CatalogSortCheckedFew { get; }
 		public ReactiveProperty<bool> CatalogSortCheckedSoudane { get; }
+
+		public ReactiveCommand<TextChangedEventArgs> FilterTextChangedCommand { get; } = new ReactiveCommand<TextChangedEventArgs>();
 
 		public ReactiveCommand<RoutedEventArgs> CatalogSortItemCatalogClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> CatalogSortItemNewClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
@@ -120,6 +124,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			CatalogSortCheckedSoudane = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Soudane.ApiValue).ToReactiveProperty();
 
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
+
+			FilterTextChangedCommand.Subscribe(x => OnFilterTextChanged(x));
 
 			CatalogUpdateClickCommand.Subscribe(x => OnCatalogUpdateClick(x));
 			CatalogSortItemCatalogClickCommand.Subscribe(x => OnCatalogSortItemCatalogClick(x));
@@ -195,7 +201,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void UpdateCatalog(BordConfig bord) {
 			Util.Futaba.UpdateCatalog(bord, this.CatalogSortItem.Value)
 				.ObserveOn(UIDispatcherScheduler.Default)
-				.Subscribe(x => {
+				.Subscribe(async x => {
+					await Task.Delay(1); // この時点ではCatalogListBoxのConverterが動いていいないので一度待つ
+
 					Messenger.Instance.GetEvent<PubSubEvent<CatalogListboxUpdatedMessage>>()
 						.Publish(new CatalogListboxUpdatedMessage());
 				});
@@ -253,6 +261,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnContentsChanged(RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents> e) {
 			this.PostViewVisibility.Value = Visibility.Hidden;
+		}
+
+		private async void OnFilterTextChanged(TextChangedEventArgs e) {
+			if(e.Source is TextBox tb) {
+				var s = tb.Text.Clone().ToString();
+				await Task.Delay(500);
+				if(tb.Text == s) {
+					FilterText.Value = s;
+				}
+			}
 		}
 
 		private void OnCatalogItemMouseDown(MouseButtonEventArgs e) {

@@ -24,5 +24,18 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static string SafeSubstring(string text, int num) {
 			return (num < text.Length) ? text.Substring(0, num) : text;
 		}
+
+		public static string Filter2SearchText(string input) {
+			return CSharp.Japanese.Kanaxs.KanaEx.ToHiragana(CSharp.Japanese.Kanaxs.KanaEx.ToZenkakuKana(input));
+		}
+
+		public static string Comment2SearchText(string input) {
+			var text = input.ToString();
+			var t2 = Regex.Replace(text, @"<[^>]*>", "",
+				RegexOptions.IgnoreCase | RegexOptions.Multiline);
+			var t3 = System.Net.WebUtility.HtmlDecode(t2);
+
+			return CSharp.Japanese.Kanaxs.KanaEx.ToHiragana(CSharp.Japanese.Kanaxs.KanaEx.ToZenkakuKana(t3));
+		}
 	}
 }
