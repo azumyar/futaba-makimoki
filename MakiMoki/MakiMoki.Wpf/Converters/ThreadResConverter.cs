@@ -45,17 +45,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 	class FutabaCatalogItemOpenedColorConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-			if((values.Length == 4) && (values[0] is DependencyObject o) && (values[2] is System.Windows.Media.Color normalColor)) {
-				if((values[1] is Model.BindableFutabaResItem f) && (values[3] is System.Windows.Media.Color opendColor)) {
-					if(Window.GetWindow(o)?.DataContext is ViewModels.MainWindowViewModel vm) {
-						return vm.TabItems.Value
-							.Where(x => x.Futaba.Value.Url.IsThreadUrl)
-							.Select(x => x.Futaba.Value.ResItems.FirstOrDefault()?.Raw.Value.ResItem.No)
-							.Contains(f.Raw.Value.ResItem.No)
-								? opendColor : normalColor;
-					}
+			if((values.Length == 3) && (values[1] is System.Windows.Media.Color normalColor)) {
+				if((values[0] is Model.BindableFutabaResItem f) && (values[2] is System.Windows.Media.Color opendColor)) {
+					return Util.Futaba.Threads.Value
+						.Where(x => x.Url.IsThreadUrl)
+						.Select(x => x.ResItems.FirstOrDefault()?.ResItem.No)
+						.Contains(f.Raw.Value.ResItem.No)
+							? opendColor : normalColor;
 				}
-				return normalColor; // スレを受信していない場合values[1]が設定されていないのでnormalColorを返す
+				return normalColor; // スレを受信していない場合values[0]が設定されていないのでnormalColorを返す
 			}
 
 			throw new ArgumentException("型不正。", "value");
