@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using System.IO;
+using System.Diagnostics;
 
 namespace Yarukizero.Net.MakiMoki.Util {
 	public static class Futaba {
@@ -419,31 +420,30 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 		private static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUrlImage(string url, string localPath) {
 			return Observable.Create<(bool Successed, string LocalPath, byte[] FileBytes)>(o => {
-				if(File.Exists(localPath)) {
-					Task.Run(() => {
+				Task.Run(() => {
+					if(File.Exists(localPath)) {
 						o.OnNext((true, localPath, null));
 						o.OnCompleted();
-					});
-				} else {
-					var rest = new RestSharp.RestClient();
-					var r = new RestSharp.RestRequest(url, RestSharp.Method.GET);
-					rest.ExecuteAsync(r, (x, y) => {
-						if(x.StatusCode == System.Net.HttpStatusCode.OK) {
+					} else {
+						var c= new RestSharp.RestClient();
+						var r = new RestSharp.RestRequest(url, RestSharp.Method.GET);
+						var res = c.Execute(r);
+						if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 							if(!File.Exists(localPath)) {
-								var b = x.RawBytes;
+								var b = res.RawBytes;
 								using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
 									fs.Write(b, 0, b.Length);
 									fs.Flush();
 								}
 							}
-							o.OnNext((true, localPath, x.RawBytes));
+							o.OnNext((true, localPath, res.RawBytes));
 							o.OnCompleted();
 						} else {
 							o.OnNext((false, null, null));
 							// TODO: o.OnError();
 						}
-					});
-				}
+					}
+				});
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
