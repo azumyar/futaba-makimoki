@@ -455,34 +455,40 @@
                                     BorderBrush="Transparent"
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch">
-                                    <Grid x:Name="CatalogItem" Width="72" Height="86">
+                                    <Grid x:Name="CatalogItem">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="72" />
+                                            <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <Grid.RowDefinitions>
-                                            <RowDefinition Height="72"/>
-                                            <RowDefinition Height="14"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
-                                        <!-- レス-->
                                         <Viewbox
                                             Grid.Column="0"
-                                            Grid.Row="1"
-                                            StretchDirection="DownOnly"
-                                            Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}"
-                                            VerticalAlignment="Bottom"
+                                            Grid.Row="0"
+                                            Width="{DynamicResource CatalogImageSize}" Height="{DynamicResource CatalogImageSize}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Stretch="Uniform"
                                             >
-                                            <Grid Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock
+                                        </Viewbox>
+                                        <Grid
+                                            Grid.Column="0"
+                                            Grid.Row="1"
+                                            VerticalAlignment="Bottom"
+                                            Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}"
+                                            Height="{DynamicResource CatalogTextSize}"
+                                            >
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock
                                                 Grid.Column="2"
                                                 Text="{Binding Name, Mode=OneWay}"
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Bottom"/>
-                                            </Grid>
-                                        </Viewbox>
+                                        </Grid>
                                     </Grid>
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="PreviewMouseUp">
