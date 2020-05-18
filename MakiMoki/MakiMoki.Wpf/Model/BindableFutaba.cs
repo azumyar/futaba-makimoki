@@ -15,6 +15,7 @@ using System.ComponentModel;
 using System.Reactive.Disposables;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Concurrency;
+using Yarukizero.Net.MakiMoki.Data;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	public class BindableFutaba : INotifyPropertyChanged, IDisposable {
@@ -158,6 +159,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public ReactiveCommand ExportCommand { get; } = new ReactiveCommand();
 
+		public ReactiveProperty<Data.CatalogSortItem> CatalogSortItem { get; } = new ReactiveProperty<Data.CatalogSortItem>(Data.CatalogSort.Catalog);
+		public ReactiveProperty<bool> CatalogSortCheckedCatalog { get; }
+		public ReactiveProperty<bool> CatalogSortCheckedNew { get; }
+		public ReactiveProperty<bool> CatalogSortCheckedOld { get; }
+		public ReactiveProperty<bool> CatalogSortCheckedMany { get; }
+		public ReactiveProperty<bool> CatalogSortCheckedMomentum { get; }
+		public ReactiveProperty<bool> CatalogSortCheckedFew { get; }
+		public ReactiveProperty<bool> CatalogSortCheckedSoudane { get; }
 
 		public string Name { get; }
 
@@ -170,6 +179,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<bool> IsMaxRes { get; }
 
 		public BindableFutaba(Data.FutabaContext futaba, BindableFutaba old = null) {
+			CatalogSortCheckedCatalog = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Catalog.ApiValue).ToReactiveProperty();
+			CatalogSortCheckedNew = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.New.ApiValue).ToReactiveProperty();
+			CatalogSortCheckedOld = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Old.ApiValue).ToReactiveProperty();
+			CatalogSortCheckedMany = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Many.ApiValue).ToReactiveProperty();
+			CatalogSortCheckedMomentum = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Momentum.ApiValue).ToReactiveProperty();
+			CatalogSortCheckedFew = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Few.ApiValue).ToReactiveProperty();
+			CatalogSortCheckedSoudane = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Soudane.ApiValue).ToReactiveProperty();
+			if(old != null) {
+				CatalogSortItem.Value = old.CatalogSortItem.Value;
+			}
+
+
 			this.Raw = futaba;
 			this.Name = futaba.Name;
 			this.Url = futaba.Url;

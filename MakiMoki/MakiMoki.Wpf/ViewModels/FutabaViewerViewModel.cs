@@ -19,6 +19,7 @@ using Prism.Mvvm;
 using Reactive.Bindings;
 using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Wpf.Controls;
+using Yarukizero.Net.MakiMoki.Wpf.Model;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class FutabaViewerViewModel : BindableBase, IDisposable {
@@ -82,15 +83,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<string> FilterText { get; } = new ReactiveProperty<string>("");
 
-		private ReactiveProperty<Data.CatalogSortItem> CatalogSortItem { get; } = new ReactiveProperty<Data.CatalogSortItem>(Data.CatalogSort.Catalog);
-		public ReactiveProperty<bool> CatalogSortCheckedCatalog { get; }
-		public ReactiveProperty<bool> CatalogSortCheckedNew { get; }
-		public ReactiveProperty<bool> CatalogSortCheckedOld { get; }
-		public ReactiveProperty<bool> CatalogSortCheckedMany { get; }
-		public ReactiveProperty<bool> CatalogSortCheckedMomentum { get; }
-		public ReactiveProperty<bool> CatalogSortCheckedFew { get; }
-		public ReactiveProperty<bool> CatalogSortCheckedSoudane { get; }
-
 		public ReactiveCommand<TextChangedEventArgs> FilterTextChangedCommand { get; } = new ReactiveCommand<TextChangedEventArgs>();
 
 		public ReactiveCommand<RoutedEventArgs> CatalogSortItemCatalogClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
@@ -115,14 +107,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private bool isThreadImageClicking = false;
 
 		public FutabaViewerViewModel() {
-			CatalogSortCheckedCatalog = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Catalog.ApiValue).ToReactiveProperty();
-			CatalogSortCheckedNew = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.New.ApiValue).ToReactiveProperty();
-			CatalogSortCheckedOld = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Old.ApiValue).ToReactiveProperty();
-			CatalogSortCheckedMany = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Many.ApiValue).ToReactiveProperty();
-			CatalogSortCheckedMomentum = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Momentum.ApiValue).ToReactiveProperty();
-			CatalogSortCheckedFew = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Few.ApiValue).ToReactiveProperty();
-			CatalogSortCheckedSoudane = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Soudane.ApiValue).ToReactiveProperty();
-
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
 
 			FilterTextChangedCommand.Subscribe(x => OnFilterTextChanged(x));
@@ -198,8 +182,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			System.Diagnostics.Debug.WriteLine(e);
 		}
 
-		private void UpdateCatalog(BordConfig bord) {
-			Util.Futaba.UpdateCatalog(bord, this.CatalogSortItem.Value)
+		private void UpdateCatalog(BindableFutaba bf) {
+			Util.Futaba.UpdateCatalog(bf.Raw.Bord, bf.CatalogSortItem.Value)
 				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(async x => {
 					await Task.Delay(1); // この時点ではCatalogListBoxのConverterが動いていいないので一度待つ
@@ -209,53 +193,52 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				});
 		}
 
-
 		private void OnCatalogUpdateClick(RoutedEventArgs e) {
-			if((e.Source is FrameworkElement el) && (el.DataContext is Data.FutabaContext fc)) {
-				this.UpdateCatalog(fc.Bord);
+			if((e.Source is FrameworkElement el) && (el.DataContext is BindableFutaba bf)) {
+				this.UpdateCatalog(bf);
 			}
 		}
 
 		private void OnCatalogSortItemCatalogClick(RoutedEventArgs e) {
-			this.CatalogSortItem.Value = Data.CatalogSort.Catalog;
-			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
-				this.UpdateCatalog(c.Futaba.Value.Raw.Bord);
+			if(e.Source is FrameworkElement el && el.DataContext is BindableFutaba bf) {
+				bf.CatalogSortItem.Value = Data.CatalogSort.Catalog;
+				this.UpdateCatalog(bf);
 			}
 		}
 		private void OnCatalogSortItemNewClick(RoutedEventArgs e) {
-			this.CatalogSortItem.Value = Data.CatalogSort.New;
-			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
-				this.UpdateCatalog(c.Futaba.Value.Raw.Bord);
+			if(e.Source is FrameworkElement el && el.DataContext is BindableFutaba bf) {
+				bf.CatalogSortItem.Value = Data.CatalogSort.New;
+				this.UpdateCatalog(bf);
 			}
 		}
 		private void OnCatalogSortItemOldClick(RoutedEventArgs e) {
-			this.CatalogSortItem.Value = Data.CatalogSort.Old;
-			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
-				this.UpdateCatalog(c.Futaba.Value.Raw.Bord);
+			if(e.Source is FrameworkElement el && el.DataContext is BindableFutaba bf) {
+				bf.CatalogSortItem.Value = Data.CatalogSort.Old;
+				this.UpdateCatalog(bf);
 			}
 		}
 		private void OnCatalogSortItemManyClick(RoutedEventArgs e) {
-			this.CatalogSortItem.Value = Data.CatalogSort.Many;
-			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
-				this.UpdateCatalog(c.Futaba.Value.Raw.Bord);
+			if(e.Source is FrameworkElement el && el.DataContext is BindableFutaba bf) {
+				bf.CatalogSortItem.Value = Data.CatalogSort.Many;
+				this.UpdateCatalog(bf);
 			}
 		}
 		private void OnCatalogSortItemMomentumClick(RoutedEventArgs e) {
-			this.CatalogSortItem.Value = Data.CatalogSort.Momentum;
-			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
-				this.UpdateCatalog(c.Futaba.Value.Raw.Bord);
+			if(e.Source is FrameworkElement el && el.DataContext is BindableFutaba bf) {
+				bf.CatalogSortItem.Value = Data.CatalogSort.Momentum;
+				this.UpdateCatalog(bf);
 			}
 		}
 		private void OnCatalogSortItemFewClick(RoutedEventArgs e) {
-			this.CatalogSortItem.Value = Data.CatalogSort.Few;
-			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
-				this.UpdateCatalog(c.Futaba.Value.Raw.Bord);
+			if(e.Source is FrameworkElement el && el.DataContext is BindableFutaba bf) {
+				bf.CatalogSortItem.Value = Data.CatalogSort.Few;
+				this.UpdateCatalog(bf);
 			}
 		}
 		private void OnCatalogSortItemSoudaneClick(RoutedEventArgs e) {
-			this.CatalogSortItem.Value = Data.CatalogSort.Soudane;
-			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
-				this.UpdateCatalog(c.Futaba.Value.Raw.Bord);
+			if(e.Source is FrameworkElement el && el.DataContext is BindableFutaba bf) {
+				bf.CatalogSortItem.Value = Data.CatalogSort.Soudane;
+				this.UpdateCatalog(bf);
 			}
 		}
 
