@@ -118,41 +118,88 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			remove { RemoveHandler(VideoViewPositionChangedEvent, value); }
 		}
 
+		private volatile bool isDisposed = false;
+
 		public FutabaMediaViewer() {
 			InitializeComponent();
 
-			this.VideoView.MediaPlayer = new LibVLCSharp.Shared.MediaPlayer((Application.Current as App).LibVLC);
-			this.VideoView.MediaPlayer.Playing += (s, e) => this.Dispatcher.Invoke(() => this.RaiseEvent(new RoutedEventArgs(VideoViewPlayingEvent)));
-			this.VideoView.MediaPlayer.Paused += (s, e) => this.Dispatcher.Invoke(() => this.RaiseEvent(new RoutedEventArgs(VideoViewPausedEvent)));
-			this.VideoView.MediaPlayer.Stopped += (s, e) => this.Dispatcher.Invoke(() => {
-				this.RaiseEvent(new RoutedEventArgs(VideoViewStoppedEvent));
-				// イベントが飛ばない
-				this.VideoView.MediaPlayer.Position = 0;
-				this.RaiseEvent(new RoutedPositionEventArgs(0, VideoViewPositionChangedEvent));
-			});
-			this.VideoView.MediaPlayer.EndReached += (s, e) => this.Dispatcher.Invoke(() => {
-				this.RaiseEvent(new RoutedEventArgs(VideoViewEndReachedEvent));
-				// イベントが飛ばない
-				this.VideoView.MediaPlayer.Position = 0;
-				this.RaiseEvent(new RoutedPositionEventArgs(0, VideoViewPositionChangedEvent));
-			});
-			this.VideoView.MediaPlayer.PositionChanged += (s, e) => this.Dispatcher.Invoke(() => this.RaiseEvent(new RoutedPositionEventArgs(e.Position, VideoViewPositionChangedEvent)));
-
 			ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoLoadMessage>>()
-				.Subscribe(x => this.VideoView.MediaPlayer.Play(new LibVLCSharp.Shared.Media((Application.Current as App).LibVLC, x.Path, LibVLCSharp.Shared.FromType.FromPath)));
+				.Subscribe(x => {
+					lock(this.VideoView) {
+						if(!this.isDisposed) {
+							this.VideoView.MediaPlayer.Play(new LibVLCSharp.Shared.Media(
+									(Application.Current as App).LibVLC,
+									x.Path,
+									LibVLCSharp.Shared.FromType.FromPath));
+						}
+					}
+				});
 			ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPlayMessage>>()
-				.Subscribe(_ => this.VideoView.MediaPlayer.Play());
+				.Subscribe(_ => {
+					lock(this.VideoView) {
+						if(!this.isDisposed) {
+							this.VideoView.MediaPlayer?.Play();
+						}
+					}
+				});
 			ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPauseMessage>>()
-				.Subscribe(_ => this.VideoView.MediaPlayer.Pause());
+				.Subscribe(_ => {
+					lock(this.VideoView) {
+						if(!this.isDisposed) {
+							this.VideoView.MediaPlayer.Pause();
+						}
+					}
+				});
 			ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoStopMessage>>()
-				.Subscribe(_ => this.VideoView.MediaPlayer.Stop());
+				.Subscribe(_ => {
+					lock(this.VideoView) {
+						if(!this.isDisposed) {
+							this.VideoView.MediaPlayer.Stop();
+						}
+					}
+				});
 			ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPositionMessage>>()
-				.Subscribe(x => this.VideoView.MediaPlayer.Position = x.Position);
+				.Subscribe(x => {
+					lock(this.VideoView) {
+						if(!this.isDisposed) {
+							this.VideoView.MediaPlayer.Position = x.Position;
+						}
+					}
+				});
+
+			this.Loaded += (sender, ev) => {
+				this.VideoView.MediaPlayer = new LibVLCSharp.Shared.MediaPlayer((Application.Current as App).LibVLC);
+				this.VideoView.MediaPlayer.Playing += (s, e) => this.Dispatcher.Invoke(() => this.RaiseEvent(new RoutedEventArgs(VideoViewPlayingEvent)));
+				this.VideoView.MediaPlayer.Paused += (s, e) => this.Dispatcher.Invoke(() => this.RaiseEvent(new RoutedEventArgs(VideoViewPausedEvent)));
+				this.VideoView.MediaPlayer.Stopped += (s, e) => this.Dispatcher.Invoke(() => {
+					this.RaiseEvent(new RoutedEventArgs(VideoViewStoppedEvent));
+					// イベントが飛ばない
+					this.VideoView.MediaPlayer.Position = 0;
+					this.RaiseEvent(new RoutedPositionEventArgs(0, VideoViewPositionChangedEvent));
+				});
+				this.VideoView.MediaPlayer.EndReached += (s, e) => this.Dispatcher.Invoke(() => {
+					this.RaiseEvent(new RoutedEventArgs(VideoViewEndReachedEvent));
+					// イベントが飛ばない
+					this.VideoView.MediaPlayer.Position = 0;
+					this.RaiseEvent(new RoutedPositionEventArgs(0, VideoViewPositionChangedEvent));
+				});
+				this.VideoView.MediaPlayer.PositionChanged += (s, e) => this.Dispatcher.Invoke(() => this.RaiseEvent(new RoutedPositionEventArgs(e.Position, VideoViewPositionChangedEvent)));
+			};
+
+			this.Unloaded += (s, e) => {
+				lock(this.VideoView) {
+					if(!isDisposed) {
+						// this.VideoView.MediaPlayer.Dispose();
+						this.VideoView.Dispose();
+						this.isDisposed = true;
+					}
+				}
+			};
 		}
 
 		private static void OnContentsChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
