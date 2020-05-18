@@ -22,6 +22,7 @@
         <converter:FutabaResItemConverter x:Key="FutabaResItemConverter"/>
         <converter:FutabaCatalogVisibleConverter x:Key="FutabaCatalogVisibleConverter"/>
         <converter:FutabaThreadResVisibleConverter x:Key="FutabaThreadResVisibleConverter"/>
+        <converter:FutabaCatalogItemOpenedColorConverter x:Key="FutabaCatalogItemOpenedColorConverter" />
         <converter:FutabaNewResCountConverter x:Key="FutabaNewResCountConverter"/>
         <converter:FutabaNewResVisibilityConverter x:Key="FutabaNewResVisibilityConverter"/>
         <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
@@ -64,6 +65,15 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid>
+        <!-- DynamicResource取得用のElement -->
+        <FrameworkElement 
+            x:Name="CatalogItemBackgroundColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource CatalogItemBackgroundColor}" />
+        <FrameworkElement 
+            x:Name="CatalogItemOpendBackgroundColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource CatalogItemOpendBackgroundColor}" />
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -291,7 +301,6 @@
                         <Grid>
                             <Button
                                 x:Name="button"
-                                Background="White"
                                 Margin="4" 
                                 BorderThickness="0"
                                 BorderBrush="Transparent"
@@ -302,6 +311,18 @@
                                         <MenuItem Header="del" Click="OnCatalogMenuItemDelClickCommand" />
                                     </ContextMenu>
                                 </Button.ContextMenu>
+                                <Button.Background>
+                                    <SolidColorBrush>
+                                        <SolidColorBrush.Color>
+                                            <MultiBinding  Converter="{StaticResource FutabaCatalogItemOpenedColorConverter}">
+                                                <Binding ElementName="_this" Mode="OneWay" />
+                                                <Binding Mode="OneWay" />
+                                                <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
+                                                <Binding Path="DataContext" ElementName="CatalogItemOpendBackgroundColorGetter" Mode="OneWay" />
+                                            </MultiBinding>
+                                        </SolidColorBrush.Color>
+                                    </SolidColorBrush>
+                                </Button.Background>
                                 <Grid x:Name="CatalogItem">
                                     <TextBlock.Foreground>
                                         <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
