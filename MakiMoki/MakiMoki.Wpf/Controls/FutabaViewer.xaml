@@ -91,15 +91,6 @@
                         <ColumnDefinition Width="*" MinWidth="0" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        FontSize="14"
-                        Margin="4"
-                        TextTrimming="CharacterEllipsis"
-                        Text="{Binding Raw.Bord.Name, Mode=OneWay}"
-                        />
-
 
                     <!-- カタログ -->
                     <WrapPanel Grid.Column="4" HorizontalAlignment="Right"  Visibility="{Binding Contents.Futaba.Value.Raw, ElementName=_this, Converter={StaticResource FutabaCatalogVisibleConverter}}">
@@ -189,6 +180,16 @@
                                         TargetObject="{StaticResource CatalogSortContextMenu}" 
                                         PropertyName="IsOpen"
                                         Value="True"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                        <Button Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                            <TextBlock>
+                                切替
+                            </TextBlock>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogListWrapClickCommand, ElementName=_this}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
@@ -312,11 +313,12 @@
                     </WrapPanel>
                 </Grid>
             </Border>
+
             <ListBox
                 x:Name="CatalogListBox"
                 Grid.Row="1"
                 BorderThickness="0"
-                Visibility="{Binding Contents.Futaba.Value.Raw, ElementName=_this, Converter={StaticResource FutabaCatalogVisibleConverter}}"
+                Visibility="{Binding Contents.Futaba.Value.CatalogWrapVisibility.Value, Mode=OneWay, ElementName=_this}"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 ScrollViewer.CanContentScroll="True"
                 VirtualizingPanel.ScrollUnit="Pixel"
@@ -482,6 +484,169 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
+
+            <ListBox
+                Grid.Row="1"
+                BorderThickness="0"
+                Visibility="{Binding Contents.Futaba.Value.CatalogListVisibility.Value, Mode=OneWay, ElementName=_this}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                ScrollViewer.CanContentScroll="True"
+                VirtualizingPanel.ScrollUnit="Pixel"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.VirtualizationMode="Recycling"
+                >
+                <ListBox.ItemsSource>
+                    <MultiBinding Converter="{StaticResource FutabaCatalogItemFilterConverter}">
+                        <Binding Path="Contents.Futaba.Value.ResItems" Mode="OneWay" ElementName="_this" />
+                        <Binding Path="DataContext.FilterText.Value" Mode="OneWay" ElementName="_this" />
+                    </MultiBinding>
+                </ListBox.ItemsSource>
+                <ListBox.Background>
+                    <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                </ListBox.Background>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel
+                            Orientation="Vertical"
+                            IsItemsHost="True" 
+                            HorizontalAlignment="Stretch"
+                            />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Button
+                                x:Name="button"
+                                Margin="4" 
+                                BorderThickness="0"
+                                BorderBrush="Transparent"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="del" Click="OnCatalogMenuItemDelClickCommand" />
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                                <Button.Background>
+                                    <SolidColorBrush>
+                                        <SolidColorBrush.Color>
+                                            <MultiBinding  Converter="{StaticResource FutabaCatalogItemOpenedColorConverter}">
+                                                <Binding Mode="OneWay" />
+                                                <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
+                                                <Binding Path="DataContext" ElementName="CatalogItemOpendBackgroundColorGetter" Mode="OneWay" />
+                                            </MultiBinding>
+                                        </SolidColorBrush.Color>
+                                    </SolidColorBrush>
+                                </Button.Background>
+                                <Grid Margin="16 4 16 4" Background="Transparent" IsHitTestVisible="False">
+                                    <TextBlock.Foreground>
+                                        <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                                    </TextBlock.Foreground>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid
+                                        x:Name="viewGrid"
+                                        Grid.Column="0" Grid.Row="0"
+                                        MaxWidth="1024"
+                                        Background="Transparent"
+                                        HorizontalAlignment="Left">
+
+                                        <WrapPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" 
+                                           TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
+                                           TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
+                                            <Grid
+                                                Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}"
+                                                TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
+                                                TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
+                                                <Viewbox
+                                                    Grid.Row="1"
+                                                    MaxWidth="96"
+                                                    MaxHeight="96"
+                                                    HorizontalAlignment="Left"
+                                                    StretchDirection="DownOnly">
+                                                    <Image 
+                                                        Source="{Binding ThumbSource.Value}"
+                                                        RenderOptions.EdgeMode="Aliased"
+                                                        RenderOptions.BitmapScalingMode="Fant">
+                                                        <Image.CacheMode>
+                                                            <BitmapCache RenderAtScale="1" />
+                                                        </Image.CacheMode>
+                                                    </Image>
+                                                </Viewbox>
+
+                                                <!-- 新着レス数-->
+                                                <Viewbox
+                                                    Grid.Row="0"
+                                                    Margin="2"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Top"
+                                                    Visibility="{Binding Raw.Value, Converter={StaticResource FutabaNewResVisibilityConverter}, Mode=OneWay}"                                        
+                                                    Width="{DynamicResource CatalogBadgeSize}"
+                                                    Height="{DynamicResource CatalogBadgeSize}"
+                                                    >
+                                                    <Grid
+                                                        Width="16"
+                                                        Height="16"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Top"
+                                                        >
+                                                        <Ellipse Width="16" Height="16">
+                                                            <Ellipse.Fill>
+                                                                <SolidColorBrush Color="{DynamicResource CatalogBadgeCountBackgroundColor}" />
+                                                            </Ellipse.Fill>
+                                                        </Ellipse>
+                                                        <TextBlock
+                                                            Text="{Binding Raw.Value, Converter={StaticResource FutabaNewResCountConverter}, Mode=OneWay}"
+                                                            FontFamily="{DynamicResource CatalogBadgeCountFont}"
+                                                            FontSize="10"
+                                                            FontWeight="Bold"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Padding="0 0 0 1">
+                                                            <TextBlock.Foreground>
+                                                                <SolidColorBrush Color="{DynamicResource CatalogBadgeCountForegroundColor}" />
+                                                            </TextBlock.Foreground>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                </Viewbox>
+                                            </Grid>
+                                            <local:FutabaCommentBlock Text="{Binding CommentHtml.Value, Mode=OneWay}" TextWrapping="Wrap" Margin="4 4 0 4">
+                                                <local:FutabaCommentBlock.Inline>
+                                                    <Binding Path="CommentHtml.Value" Mode="OneWay" />
+                                                </local:FutabaCommentBlock.Inline>
+                                            </local:FutabaCommentBlock>
+                                        </WrapPanel>
+                                    </Grid>
+                                </Grid>
+
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseDown">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogItemMouseDownCommand, ElementName=_this}" />
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogItemClickCommand, ElementName=_this}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
 
             <!-- スレッド -->
             <ListBox

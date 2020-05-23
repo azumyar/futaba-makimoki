@@ -40,7 +40,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<MouseButtonEventArgs> BordListClickCommand { get; }
 			= new ReactiveCommand<MouseButtonEventArgs>();
-
+		public ReactiveCommand<BordConfig> BordOpenCommand { get; }
+		= new ReactiveCommand<BordConfig>();
 
 		public ReactiveCommand<Data.UrlContext> TreeViewSelectedCommand { get; }
 			= new ReactiveCommand<Data.UrlContext>();
@@ -65,6 +66,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				.ToReactiveProperty();
 			//TreeViewSelectedCommand.Subscribe(x => OnTreeViewItemSelectedChanged(x));
 			BordListClickCommand.Subscribe(x => OnBordListClick(x));
+			BordOpenCommand.Subscribe(x => OnBordOpen(x));
 			TabClickCommand.Subscribe(x => OnTabClick(x));
 			TabCloseButtonCommand.Subscribe(x => OnTabClose(x));
 			TreeViewClickCommand.Subscribe(x => OnTreeViewClick(x));
@@ -98,7 +100,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				}
 			}
 		}
-
+		
+		private void OnBordOpen(BordConfig bc) {
+			Util.Futaba.UpdateCatalog(bc).Subscribe();
+		}
 		private void OnTabClick(MouseButtonEventArgs e) {
 			if((e.Source is FrameworkElement o) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
 				if(o.DataContext is Model.TabItem ti) {

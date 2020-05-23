@@ -168,6 +168,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<bool> CatalogSortCheckedFew { get; }
 		public ReactiveProperty<bool> CatalogSortCheckedSoudane { get; }
 
+		public ReactiveProperty<bool> CatalogListMode { get; } = new ReactiveProperty<bool>(false);
+		public ReactiveProperty<Visibility> CatalogListVisibility { get; }
+		public ReactiveProperty<Visibility> CatalogWrapVisibility { get; }
+
 		public string Name { get; }
 
 		public Data.UrlContext Url { get; }
@@ -179,6 +183,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<bool> IsMaxRes { get; }
 
 		public BindableFutaba(Data.FutabaContext futaba, BindableFutaba old = null) {
+			CatalogListVisibility = CatalogListMode.Select(x => futaba.Url.IsCatalogUrl ? (x ? Visibility.Visible : Visibility.Hidden) :  Visibility.Hidden).ToReactiveProperty();
+			CatalogWrapVisibility = CatalogListMode.Select(x => futaba.Url.IsCatalogUrl ? (x ? Visibility.Hidden : Visibility.Visible) :  Visibility.Hidden).ToReactiveProperty();
 			CatalogSortCheckedCatalog = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Catalog.ApiValue).ToReactiveProperty();
 			CatalogSortCheckedNew = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.New.ApiValue).ToReactiveProperty();
 			CatalogSortCheckedOld = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Old.ApiValue).ToReactiveProperty();
@@ -188,6 +194,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			CatalogSortCheckedSoudane = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Soudane.ApiValue).ToReactiveProperty();
 			if(old != null) {
 				CatalogSortItem.Value = old.CatalogSortItem.Value;
+				CatalogListMode.Value = old.CatalogListMode.Value;
 			}
 
 

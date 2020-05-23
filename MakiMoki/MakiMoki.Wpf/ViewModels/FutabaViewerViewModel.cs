@@ -53,6 +53,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<RoutedEventArgs> CatalogUpdateClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand CatalogSortClickCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand<RoutedEventArgs> CatalogListWrapClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> PostClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
 		public ReactiveCommand<RoutedEventArgs> ThreadUpdateCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
@@ -113,6 +114,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 			CatalogUpdateClickCommand.Subscribe(x => OnCatalogUpdateClick(x));
 			CatalogSortItemCatalogClickCommand.Subscribe(x => OnCatalogSortItemCatalogClick(x));
+			CatalogListWrapClickCommand.Subscribe(x => OnCatalogListWrapClick(x));
 			CatalogSortItemNewClickCommand.Subscribe(x => OnCatalogSortItemNewClick(x));
 			CatalogSortItemOldClickCommand.Subscribe(x => OnCatalogSortItemOldClick(x));
 			CatalogSortItemManyClickCommand.Subscribe(x => OnCatalogSortItemManyClick(x));
@@ -203,6 +205,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if(e.Source is FrameworkElement el && el.DataContext is BindableFutaba bf) {
 				bf.CatalogSortItem.Value = Data.CatalogSort.Catalog;
 				this.UpdateCatalog(bf);
+			}
+		}
+
+		private void OnCatalogListWrapClick(RoutedEventArgs e) {
+			if(e.Source is FrameworkElement el && el.DataContext is BindableFutaba bf) {
+				bf.CatalogListMode.Value = !bf.CatalogListMode.Value;
 			}
 		}
 		private void OnCatalogSortItemNewClick(RoutedEventArgs e) {
