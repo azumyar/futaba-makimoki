@@ -758,7 +758,7 @@
                 x:Name="TabContainer"
                 Grid.Row="0" Grid.RowSpan="2"
                 Visibility="{Binding TabVisibility.Value, Mode=OneWay}"
-                ItemsSource="{Binding TabItems.Value, Converter={StaticResource TabItemCatalogConverter}, Mode=OneWay}"
+                ItemsSource="{Binding Catalogs, Mode=OneWay}"
                 SelectedItem="{Binding Path=TabControlSelectedItem.Value,UpdateSourceTrigger=PropertyChanged,Mode=Twoway}"
                 TabStripPlacement="Left"
                 Padding="0">
@@ -798,11 +798,14 @@
                                 <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
                             </TabControl.Background>
 
+                            <!--
+                            ItemsSource="{Binding DataContext.Threads, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}, Mode=OneWay}"
+                            -->
                             <TabControl.ItemsSource>
                                 <MultiBinding Converter="{StaticResource TabItemThreadConverter}" Mode="OneWay">
                                     <MultiBinding.Bindings>
                                         <Binding Path="DataContext.Futaba.Value" ElementName="container" />
-                                        <Binding Path="DataContext.TabItems.Value" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:MainWindow}" />
+                                        <Binding Path="DataContext.Threads" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:MainWindow}" />
                                     </MultiBinding.Bindings>
                                 </MultiBinding>
                             </TabControl.ItemsSource>

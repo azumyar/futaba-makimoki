@@ -12,6 +12,7 @@ using System.Windows.Media;
 using Prism.Events;
 using Prism.Mvvm;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Wpf.Model;
 
@@ -33,8 +34,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
 		public ReactiveProperty<Data.BordConfig[]> Bords { get; }
-		public ReactiveProperty<Model.TabItem[]> TabItems { get; }
-		public ReactiveProperty<Model.TreeItem[]> TreeItems { get; }
+		public ReactiveCollection<Model.TabItem> Catalogs { get; } = new ReactiveCollection<TabItem>();
+		public ReactiveCollection<Model.TabItem> Threads { get; } = new ReactiveCollection<TabItem>();
 
 		public ReactiveProperty<Visibility> TabVisibility { get; }
 
@@ -50,12 +51,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public MainWindowViewModel() {
 			Bords = new ReactiveProperty<Data.BordConfig[]>(Config.ConfigLoader.Bord);
-			TabItems = new ReactiveProperty<Model.TabItem[]>(new Model.TabItem[0]);
-			TreeItems = new ReactiveProperty<Model.TreeItem[]>(
-				Config.ConfigLoader.Bord.Select((x) => new Model.TreeItem(x)).ToArray());
-			this.TabVisibility = this.TabItems
-				.Select(x => (x.Length == 0) ? Visibility.Collapsed : Visibility.Visible)
-				.ToReactiveProperty();
+			this.TabVisibility = new ReactiveProperty<Visibility>(Visibility.Collapsed);
 			BordListClickCommand.Subscribe(x => OnBordListClick(x));
 			BordOpenCommand.Subscribe(x => OnBordOpen(x));
 			TabClickCommand.Subscribe(x => OnTabClick(x));
@@ -117,40 +113,37 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			System.Diagnostics.Debug.WriteLine(e);
 		}
 
-		private async void OnUpdateCatalog(Data.FutabaContext[] catalog) {
-			var it = Update(catalog, false);
+		private void OnUpdateCatalog(Data.FutabaContext[] catalog) {
+			var it = Update2(this.Catalogs, catalog, false);
 			if(it != null) {
-				// この時点でTabコントロールの再処理が行われていないので一度UIスレッドから離れる
-				// きもい
-				await Task.Delay(1);
 				this.TabControlSelectedItem.Value = it;
 			}
+			//RaisePropertyChanged("Catalogs");
+			this.TabVisibility.Value = this.Catalogs.Count != 0 ? Visibility.Visible : Visibility.Collapsed;
 		}
 
-		private async void OnUpdateThreadRes(Data.FutabaContext[] threads) {
-			var it = Update(threads, true);
+		private void OnUpdateThreadRes(Data.FutabaContext[] threads) {
+			var url = this.TabControlSelectedItem.Value?.Futaba.Value?.Url.BaseUrl ?? "";
+			var it = Update2(this.Threads, threads /*.Where(x => x.Url.BaseUrl == url).ToArray() */, true);
 			if(it != null) {
-				// この時点でTabコントロールの再処理が行われていないので一度UIスレッドから離れる
-				// きもい
-				await Task.Delay(1);
 				this.ThreadTabSelectedItem.Value = it;
 			}
+			RaisePropertyChanged("Threads"); // これがないとコンバータが起動しない
 		}
 
-		private Model.TabItem Update(Data.FutabaContext[] catalog, bool isThreadUpdated) {
-			var l = this.TabItems.Value.ToList();
+		private Model.TabItem Update2(ReactiveCollection<Model.TabItem> collection, Data.FutabaContext[] catalog, bool isThreadUpdated) {
 			var act = isThreadUpdated ? this.ThreadTabSelectedItem.Value : this.TabControlSelectedItem.Value;
 
 			var c = catalog.Select(x => x.Url).ToList();
-			var t = this.TabItems.Value.Select(x => x.Url).ToList();
+			var t = collection.Select(x => x.Url).ToList();
 			var cc = c.Except(t);
 			var tt = t.Except(c);
 			Model.TabItem r = null;
 			if(cc.Count() != 0) {
 				foreach(var it in cc) {
-					l.Add(new Model.TabItem(catalog.Where(x => x.Url == it).First()));
+					collection.Add(new Model.TabItem(catalog.Where(x => x.Url == it).First()));
 				}
-				r = l.Last();
+				r = collection.Last();
 			}
 			if(tt.Count() != 0) {
 				var rm = new List<Model.TabItem>();
@@ -160,15 +153,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						if(act?.Url == it) {
 							idx = t.IndexOf(it);
 						}
-						l.Remove(l.Where(x => x.Url == it).First());
+						collection.Remove(collection.Where(x => x.Url == it).First());
 					}
 				}
-				if((0 <= idx) && (l.Count != 0)) {
-					r = (l.Count <= idx) ? l.Last() : l[idx];
+				if((0 <= idx) && (collection.Count != 0)) {
+					r = (collection.Count <= idx) ? collection.Last() : collection[idx];
 				}
 			}
-			for(var i = 0; i < l.Count; i++) {
-				var it = l[i];
+			for(var i = 0; i < collection.Count; i++) {
+				var it = collection[i];
 				if(cc.Contains(it.Url)) {
 					continue;
 				}
@@ -179,9 +172,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					}
 				}
 			}
-			this.TabItems.Value = l.ToArray();
 			return r;
 		}
+
 
 		private async void OnTabSelectedChanged(TabItem tabItem) {
 			// 何も選択されていない場合
@@ -192,6 +185,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if(tabItem.Futaba.Value.Url.IsCatalogUrl) {
 				if(this.SelectedTabItem.TryGetValue(tabItem.Futaba.Value.Url.BaseUrl, out var ti)) {
 					await Task.Delay(1);
+					this.OnUpdateThreadRes(Util.Futaba.Threads.Value);
 					this.ThreadTabSelectedItem.Value = ti;
 				}
 			} else {
