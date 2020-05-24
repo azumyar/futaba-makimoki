@@ -20,6 +20,8 @@
     <UserControl.Resources>
         <converter:CatalogTextConverter x:Key="CatalogTextConverter"/>
         <converter:FutabaResItemConverter x:Key="FutabaResItemConverter"/>
+        <converter:FutabaCatalogSortCheckedConverter x:Key="FutabaCatalogSortCheckedConverter"/>
+        <converter:FutabaCatalogSortParamConverter x:Key="FutabaCatalogSortParamConverter"/>
         <converter:FutabaCatalogVisibleConverter x:Key="FutabaCatalogVisibleConverter"/>
         <converter:FutabaCatalogStyleConverter x:Key="FutabaCatalogStyleConverter"/>
         <converter:FutabaThreadResVisibleConverter x:Key="FutabaThreadResVisibleConverter"/>
@@ -320,7 +322,7 @@
         </Style>
 
 
-        <ContextMenu x:Key="CatalogSortContextMenu">
+        <ContextMenu x:Key="CatalogSortContextMenu_">
             <MenuItem Header="カタログ" IsChecked="{Binding CatalogSortCheckedCatalog.Value, Mode=OneWay}" Click="OnCatalogSortItemCatalogClickCommand" />
             <MenuItem Header="新順" IsChecked="{Binding CatalogSortCheckedNew.Value, Mode=OneWay}" Click="OnCatalogSortItemNewClickCommand" />
             <MenuItem Header="古順" IsChecked="{Binding CatalogSortCheckedOld.Value, Mode=OneWay}" Click="OnCatalogSortItemOldClickCommand" />
@@ -328,6 +330,31 @@
             <MenuItem Header="勢順" IsChecked="{Binding CatalogSortCheckedMomentum.Value, Mode=OneWay}" Click="OnCatalogSortItemMomentumClickCommand" />
             <MenuItem Header="少順" IsChecked="{Binding CatalogSortCheckedFew.Value, Mode=OneWay}" Click="OnCatalogSortItemFewClickCommand" />
             <MenuItem Header="そ順" IsChecked="{Binding CatalogSortCheckedSoudane.Value, Mode=OneWay}" Click="OnCatalogSortItemSoudaneClickCommand" />
+        </ContextMenu>
+
+        <ContextMenu x:Key="CatalogSortContextMenu" ItemsSource="{Binding CatalogSortItem.Value}">
+            <ContextMenu.ItemContainerStyle>
+                <Style TargetType="MenuItem">
+                    <Setter Property="Header" Value="{Binding Name}" />
+                    <Setter Property="IsChecked">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource FutabaCatalogSortCheckedConverter}">
+                                <Binding Mode="OneWay" />
+                                <Binding Path="Tag.CatalogSortItem.Value" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" Mode="OneWay" />
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Command" Value="{Binding DataContext.CatalogSortItemClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                    <Setter Property="CommandParameter">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource FutabaCatalogSortParamConverter}">
+                                <Binding Mode="OneWay" />
+                                <Binding Path="Tag" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" Mode="OneWay" />
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ContextMenu.ItemContainerStyle>
         </ContextMenu>
     </UserControl.Resources>
     <i:Interaction.Triggers>
@@ -448,6 +475,10 @@
                                     <i:ChangePropertyAction 
                                         TargetObject="{StaticResource CatalogSortContextMenu}" 
                                         PropertyName="DataContext"
+                                        Value="{Binding DataContext, ElementName=_this, Mode=OneWay}"/>
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{StaticResource CatalogSortContextMenu}" 
+                                        PropertyName="Tag"
                                         Value="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"/>
                                     <i:ChangePropertyAction 
                                         TargetObject="{StaticResource CatalogSortContextMenu}" 

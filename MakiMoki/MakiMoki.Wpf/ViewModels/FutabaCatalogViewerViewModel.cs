@@ -62,6 +62,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<RoutedEventArgs> CatalogSortItemFewClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> CatalogSortItemSoudaneClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
+		public ReactiveProperty<Data.CatalogSortItem[]> CatalogSortItem { get; } = new ReactiveProperty<CatalogSortItem[]>(Data.CatalogSort.Items);
+		public ReactiveCommand<(Data.CatalogSortItem Item, Model.BindableFutaba Futaba)> CatalogSortItemClickCommand { get; } = new ReactiveCommand<(Data.CatalogSortItem Item, Model.BindableFutaba Futaba)>();
+
 		public ReactiveCommand<RoutedEventArgs> CatalogMenuItemDelClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
 		private bool isCatalogItemClicking = false;
@@ -74,12 +77,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			CatalogUpdateClickCommand.Subscribe(x => OnCatalogUpdateClick(x));
 			CatalogSortItemCatalogClickCommand.Subscribe(x => OnCatalogSortItemCatalogClick(x));
 			CatalogListWrapClickCommand.Subscribe(x => OnCatalogListWrapClick(x));
+
+			CatalogSortItemClickCommand.Subscribe(x => OnCatalogSortItemClick(x));
+
 			CatalogSortItemNewClickCommand.Subscribe(x => OnCatalogSortItemNewClick(x));
 			CatalogSortItemOldClickCommand.Subscribe(x => OnCatalogSortItemOldClick(x));
 			CatalogSortItemManyClickCommand.Subscribe(x => OnCatalogSortItemManyClick(x));
 			CatalogSortItemMomentumClickCommand.Subscribe(x => OnCatalogSortItemMomentumClick(x));
 			CatalogSortItemFewClickCommand.Subscribe(x => OnCatalogSortItemFewClick(x));
 			CatalogSortItemSoudaneClickCommand.Subscribe(x => OnCatalogSortItemSoudaneClick(x));
+			
 			CatalogItemMouseDownCommand.Subscribe(x => OnCatalogItemMouseDown(x));
 			CatalogItemClickCommand.Subscribe(x => OnCatalogClick(x));
 			PostClickCommand.Subscribe(x => OnPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
@@ -120,6 +127,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				bf.CatalogListMode.Value = !bf.CatalogListMode.Value;
 			}
 		}
+
+		private void OnCatalogSortItemClick((Data.CatalogSortItem Item, Model.BindableFutaba Futaba) e) {
+			e.Futaba.CatalogSortItem.Value = e.Item;
+			this.UpdateCatalog(e.Futaba);
+		}
+
 		private void OnCatalogSortItemNewClick(RoutedEventArgs e) {
 			if(e.Source is FrameworkElement el && el.DataContext is BindableFutaba bf) {
 				bf.CatalogSortItem.Value = Data.CatalogSort.New;

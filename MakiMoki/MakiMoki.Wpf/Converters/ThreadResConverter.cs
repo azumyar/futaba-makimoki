@@ -102,6 +102,40 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 	}
 
+	class FutabaCatalogSortCheckedConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if((values.Length == 2)
+				&& (values[0] is Data.CatalogSortItem i1)
+				&& (values[1] is Data.CatalogSortItem i2)) {
+
+				return i1.ApiValue == i2.ApiValue;
+			}
+
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
+	class FutabaCatalogSortParamConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if((values.Length == 2)
+				&& (values[0] is Data.CatalogSortItem i1)
+				&& (values[1] is Model.BindableFutaba i2)) {
+
+				return (i1, i2);
+			}
+	
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
 	class FutabaResItemVisibleConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			if(value == null) {
