@@ -314,6 +314,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			lock(lockObj) {
 				if(url.IsCatalogUrl) {
 					Catalog.Value = Catalog.Value.Where(x => x.Url != url).ToArray();
+					Threads.Value = Threads.Value.Where(x => x.Url.BaseUrl != url.BaseUrl).ToArray();
 				} else {
 					Threads.Value = Threads.Value.Where(x => x.Url != url).ToArray();
 				}

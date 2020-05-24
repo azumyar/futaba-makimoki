@@ -142,7 +142,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private Model.TabItem Update(Data.FutabaContext[] catalog, bool isThreadUpdated) {
 			var l = this.TabItems.Value.ToList();
-			var act = this.TabControlSelectedItem.Value;
+			var act = isThreadUpdated ? this.ThreadTabSelectedItem.Value : this.TabControlSelectedItem.Value;
 
 			var c = catalog.Select(x => x.Url).ToList();
 			var t = this.TabItems.Value.Select(x => x.Url).ToList();
