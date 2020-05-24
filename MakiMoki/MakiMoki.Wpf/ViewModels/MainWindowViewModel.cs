@@ -146,8 +146,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				r = collection.Last();
 			}
 			if(tt.Count() != 0) {
-				var rm = new List<Model.TabItem>();
-				var idx = -1;
+				var idx = default(int?);
 				foreach(var it in tt) {
 					if(it.IsThreadUrl == isThreadUpdated) {
 						if(act?.Url == it) {
@@ -156,12 +155,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						collection.Remove(collection.Where(x => x.Url == it).First());
 					}
 				}
-				while((0 <= idx) && (collection.Count != 0)) {
-					r = (collection.Count <= idx) ? collection.Last() : collection[idx];
-					if(r.Futaba.Value.Url.BaseUrl == act.Url.BaseUrl) {
-						break;
+				if(idx.HasValue) {
+					var idx2 = idx.Value;
+					while((0 <= idx2) && (collection.Count != 0)) {
+						var tr = (collection.Count <= idx2) ? collection.Last() : collection[idx2];
+						if(tr.Futaba.Value.Url.BaseUrl == act.Url.BaseUrl) {
+							r = tr;
+							break;
+						}
+						idx2--;
 					}
-					idx--;
+					if(r == null) {
+						idx2 = idx.Value;
+						while((idx2 < collection.Count) && (collection.Count != 0)) {
+							if(collection[idx2].Futaba.Value.Url.BaseUrl == act.Url.BaseUrl) {
+								r = collection[idx2];
+								break;
+							}
+							idx2++;
+						}
+					}
 				}
 			}
 			for(var i = 0; i < collection.Count; i++) {
