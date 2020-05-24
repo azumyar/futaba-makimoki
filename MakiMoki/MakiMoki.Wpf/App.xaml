@@ -14,7 +14,7 @@
 
         <sys:Double x:Key="CatalogImageSize">80</sys:Double>
         <sys:Double x:Key="CatalogTextSize">16</sys:Double>
-        <sys:Double x:Key="CatalogBadgeSize">16</sys:Double>
+        <sys:Double x:Key="CatalogBadgeSize">20</sys:Double>
         <Color x:Key="CatalogBadgeCountBackgroundColor">Red</Color>
         <Color x:Key="CatalogBadgeCountForegroundColor">White</Color>
         <FontFamily x:Key="CatalogBadgeCountFont">Segoe UI</FontFamily>

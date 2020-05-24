@@ -104,7 +104,7 @@
                                       Command="ScrollBar.LineRightCommand"
                                       Visibility="Hidden"/>
                                 <StackPanel Grid.Column="1" Grid.Row="6" Orientation="Vertical">
-                                    <Button x:Name="bordButton" Width="24" Height="24" Content="＋">
+                                    <Button x:Name="bordButton" Width="24" Height="24" Margin="2" Content="＋">
                                         <!--
                                         <Button.Resources>
                                             <ContextMenu x:Key="aaaa" ItemsSource="{Binding DataContext, Converter={StaticResource TabItemCatalogConverter}, ElementName=bordButton}">
@@ -155,68 +155,6 @@
                               KeyboardNavigation.TabNavigation="Local"
                               KeyboardNavigation.DirectionalNavigation="Contained">
                                 <Grid>
-                                    <!--
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="160" MinWidth="100"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*" MinWidth="100"/>
-                                    </Grid.ColumnDefinitions>
-                                    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="{StaticResource PrimaryColorBrush}" />
-
-                                    <Grid Grid.Column="0">
-                                        <TreeView
-                                            BorderBrush="Transparent"
-                                            BorderThickness="0"
-                                            ItemsSource="{Binding TreeItems.Value, Mode=OneWay}">
-                                            <TreeView.ItemContainerStyle>
-                                                <Style TargetType="{x:Type TreeViewItem}">
-                                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                                    <Setter Property="IsSelected" Value="{Binding IsSelected.Value, Mode=TwoWay}"/>
-                                                    <Setter Property="IsExpanded" Value="{Binding IsExpanded.Value, Mode=TwoWay}"/>
-                                                </Style>
-                                            </TreeView.ItemContainerStyle>
-                                            <TreeView.ItemTemplate>
-                                                <HierarchicalDataTemplate DataType= "model:TreeItem" ItemsSource="{Binding ChildItems.Value}">
-                                                    <Button 
-                                                        Background="White"
-                                                        BorderThickness="0"
-                                                        BorderBrush="Transparent"
-                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                                        <Button.Content>
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="Auto" />
-                                                                    <ColumnDefinition Width="*" />
-                                                                </Grid.ColumnDefinitions>
-                                                                <Viewbox
-                                                                    Grid.Column="0"
-                                                                    Width="24" Height="24" 
-                                                                    StretchDirection="DownOnly"
-                                                                    Visibility="{Binding ThumbVisibility.Value, Mode=OneWay}">
-                                                                    <Image 
-                                                                        Source="{Binding ThumbSource.Value, Mode=OneWay}"
-                                                                        RenderOptions.EdgeMode="Aliased"
-                                                                        RenderOptions.BitmapScalingMode="Fant">
-                                                                        <Image.CacheMode>
-                                                                            <BitmapCache RenderAtScale="1" />
-                                                                        </Image.CacheMode>
-                                                                    </Image>
-                                                                </Viewbox>
-                                                                <TextBlock  Grid.Column="1" Text="{Binding Name, Mode=OneWay}"  VerticalAlignment="Center" Margin="4 0 4 0" />
-                                                            </Grid>
-                                                        </Button.Content>
-                                                        <i:Interaction.Triggers>
-                                                            <i:EventTrigger EventName="PreviewMouseUp">
-                                                                <ri:EventToReactiveCommand Command="{Binding DataContext.TreeViewClickCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" />
-                                                            </i:EventTrigger>
-                                                        </i:Interaction.Triggers>
-                                                    </Button>
-                                                </HierarchicalDataTemplate>
-                                            </TreeView.ItemTemplate>
-                                        </TreeView>
-                                    </Grid>
-                                    -->
-
                                     <ContentPresenter 
                                         ContentSource="SelectedContent"
                                         Content="{TemplateBinding TabControl.SelectedContent}"
@@ -798,9 +736,6 @@
                                 <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
                             </TabControl.Background>
 
-                            <!--
-                            ItemsSource="{Binding DataContext.Threads, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}, Mode=OneWay}"
-                            -->
                             <TabControl.ItemsSource>
                                 <MultiBinding Converter="{StaticResource TabItemThreadConverter}" Mode="OneWay">
                                     <MultiBinding.Bindings>

@@ -217,7 +217,11 @@
                                         </SolidColorBrush.Color>
                                     </SolidColorBrush>
                                 </Button.Background>
-                                <Grid Margin="16 4 16 4" Background="Transparent" IsHitTestVisible="False">
+                                <Grid
+                                    Margin="16 4 16 4" 
+                                    Background="Transparent"
+                                        MaxWidth="1024"
+                                    IsHitTestVisible="False">
                                     <TextBlock.Foreground>
                                         <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                                     </TextBlock.Foreground>
@@ -225,79 +229,77 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-                                    <Grid
-                                        x:Name="viewGrid"
-                                        Grid.Column="0" Grid.Row="0"
-                                        MaxWidth="1024"
-                                        Background="Transparent"
-                                        HorizontalAlignment="Left">
+ 
+                                    <WrapPanel
+                                        Grid.Row="0" Orientation="Horizontal" 
+                                        TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
+                                        TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
+                                        <Grid Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}">
+                                            <Viewbox
+                                                MaxWidth="96"
+                                                MaxHeight="96"
+                                                HorizontalAlignment="Left"
+                                                StretchDirection="DownOnly">
+                                                <Image 
+                                                    Source="{Binding ThumbSource.Value}"
+                                                    RenderOptions.EdgeMode="Aliased"
+                                                    RenderOptions.BitmapScalingMode="Fant">
+                                                    <Image.CacheMode>
+                                                        <BitmapCache RenderAtScale="1" />
+                                                    </Image.CacheMode>
+                                                </Image>
+                                            </Viewbox>
 
-                                        <WrapPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" 
-                                           TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
-                                           TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
-                                            <Grid
-                                                Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}"
-                                                TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
-                                                TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
-                                                <Viewbox
-                                                    Grid.Row="1"
-                                                    MaxWidth="96"
-                                                    MaxHeight="96"
-                                                    HorizontalAlignment="Left"
-                                                    StretchDirection="DownOnly">
-                                                    <Image 
-                                                        Source="{Binding ThumbSource.Value}"
-                                                        RenderOptions.EdgeMode="Aliased"
-                                                        RenderOptions.BitmapScalingMode="Fant">
-                                                        <Image.CacheMode>
-                                                            <BitmapCache RenderAtScale="1" />
-                                                        </Image.CacheMode>
-                                                    </Image>
-                                                </Viewbox>
-
-                                                <!-- 新着レス数-->
-                                                <Viewbox
-                                                    Grid.Row="0"
-                                                    Margin="2"
+                                            <!-- 新着レス数-->
+                                            <Viewbox
+                                                Margin="2"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                Visibility="{Binding Raw.Value, Converter={StaticResource FutabaNewResVisibilityConverter}, Mode=OneWay}"                                        
+                                                Width="{DynamicResource CatalogBadgeSize}"
+                                                Height="{DynamicResource CatalogBadgeSize}"
+                                                >
+                                                <Grid
+                                                    Width="16" Height="16"
                                                     HorizontalAlignment="Right"
                                                     VerticalAlignment="Top"
-                                                    Visibility="{Binding Raw.Value, Converter={StaticResource FutabaNewResVisibilityConverter}, Mode=OneWay}"                                        
-                                                    Width="{DynamicResource CatalogBadgeSize}"
-                                                    Height="{DynamicResource CatalogBadgeSize}"
                                                     >
-                                                    <Grid
-                                                        Width="16"
-                                                        Height="16"
-                                                        HorizontalAlignment="Right"
-                                                        VerticalAlignment="Top"
-                                                        >
-                                                        <Ellipse Width="16" Height="16">
-                                                            <Ellipse.Fill>
-                                                                <SolidColorBrush Color="{DynamicResource CatalogBadgeCountBackgroundColor}" />
-                                                            </Ellipse.Fill>
-                                                        </Ellipse>
-                                                        <TextBlock
-                                                            Text="{Binding Raw.Value, Converter={StaticResource FutabaNewResCountConverter}, Mode=OneWay}"
-                                                            FontFamily="{DynamicResource CatalogBadgeCountFont}"
-                                                            FontSize="10"
-                                                            FontWeight="Bold"
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"
-                                                            Padding="0 0 0 1">
-                                                            <TextBlock.Foreground>
-                                                                <SolidColorBrush Color="{DynamicResource CatalogBadgeCountForegroundColor}" />
-                                                            </TextBlock.Foreground>
-                                                        </TextBlock>
-                                                    </Grid>
-                                                </Viewbox>
-                                            </Grid>
-                                            <local:FutabaCommentBlock Text="{Binding CommentHtml.Value, Mode=OneWay}" TextWrapping="Wrap" Margin="4 4 0 4">
-                                                <local:FutabaCommentBlock.Inline>
-                                                    <Binding Path="CommentHtml.Value" Mode="OneWay" />
-                                                </local:FutabaCommentBlock.Inline>
-                                            </local:FutabaCommentBlock>
-                                        </WrapPanel>
-                                    </Grid>
+                                                    <Ellipse Width="16" Height="16">
+                                                        <Ellipse.Fill>
+                                                            <SolidColorBrush Color="{DynamicResource CatalogBadgeCountBackgroundColor}" />
+                                                        </Ellipse.Fill>
+                                                    </Ellipse>
+                                                    <TextBlock
+                                                        Text="{Binding Raw.Value, Converter={StaticResource FutabaNewResCountConverter}, Mode=OneWay}"
+                                                        FontFamily="{DynamicResource CatalogBadgeCountFont}"
+                                                        FontSize="10"
+                                                        FontWeight="Bold"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        Padding="0 0 0 1">
+                                                        <TextBlock.Foreground>
+                                                            <SolidColorBrush Color="{DynamicResource CatalogBadgeCountForegroundColor}" />
+                                                        </TextBlock.Foreground>
+                                                    </TextBlock>
+                                                </Grid>
+                                            </Viewbox>
+                                        </Grid>
+                                        <local:FutabaCommentBlock
+                                            Text="{Binding CommentHtml.Value, Mode=OneWay}"
+                                            TextWrapping="Wrap"
+                                            Margin="4 4 0 4">
+                                            <local:FutabaCommentBlock.Inline>
+                                                <Binding Path="CommentHtml.Value" Mode="OneWay" />
+                                            </local:FutabaCommentBlock.Inline>
+                                        </local:FutabaCommentBlock>
+                                    </WrapPanel>
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Text="{Binding Raw.Value.CounterCurrent, Mode=OneWay, StringFormat='\{0\}レス'}"
+                                        TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
+                                        TextBlock.FontFamily="{DynamicResource ThreadTextFont}"
+                                        HorizontalAlignment="Right"
+                                        Margin="2"/>
                                 </Grid>
 
                                 <i:Interaction.Triggers>
