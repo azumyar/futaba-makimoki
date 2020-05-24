@@ -56,19 +56,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			this.TabVisibility = this.TabItems
 				.Select(x => (x.Length == 0) ? Visibility.Collapsed : Visibility.Visible)
 				.ToReactiveProperty();
-			//TreeViewSelectedCommand.Subscribe(x => OnTreeViewItemSelectedChanged(x));
 			BordListClickCommand.Subscribe(x => OnBordListClick(x));
 			BordOpenCommand.Subscribe(x => OnBordOpen(x));
 			TabClickCommand.Subscribe(x => OnTabClick(x));
 			TabCloseButtonCommand.Subscribe(x => OnTabClose(x));
 			Util.Futaba.Catalog
-				.ObserveOnDispatcher()
+				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => OnUpdateCatalog(x));
 			Util.Futaba.Threads
-				.ObserveOnDispatcher()
+				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => OnUpdateThreadRes(x));
-			//TabItems.ObserveOnDispatcher()
-			//	.Subscribe(x => OnUpdateTabItem(x));
 			TabControlSelectedItem.Subscribe(x => OnTabSelectedChanged(x));
 			ThreadTabSelectedItem.Subscribe(x => OnTabSelectedChanged(x));
 		}
