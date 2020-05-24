@@ -788,56 +788,55 @@
 
                 <TabControl.ContentTemplate>
                     <DataTemplate>
-                        <Grid x:Name="container">
-                            <TabControl
-                                Style="{StaticResource FutabaTabControl}"
-                                ItemContainerStyle="{StaticResource FutabaTabItem}"
-                                Padding="0">
-                                <TabControl.ItemsSource>
-                                    <MultiBinding Converter="{StaticResource TabItemThreadConverter}" Mode="OneWay">
-                                        <MultiBinding.Bindings>
-                                            <Binding Path="DataContext.Futaba.Value" ElementName="container" />
-                                            <Binding Path="DataContext.TabItems.Value" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:MainWindow}" />
-                                        </MultiBinding.Bindings>
-                                    </MultiBinding>
-                                </TabControl.ItemsSource>
-                                
-                                <TabControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
-                                            <Viewbox
-                                                Grid.Column="0"
-                                                Width="24" Height="24" 
-                                                StretchDirection="DownOnly"
-                                                Visibility="{Binding ThumbVisibility.Value, Mode=OneWay}">
+                        <TabControl
+                            x:Name="container"
+                            Style="{StaticResource FutabaTabControl}"
+                            ItemContainerStyle="{StaticResource FutabaTabItem}"
+                            SelectedItem="{Binding DataContext.ThreadTabSelectedItem.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}, UpdateSourceTrigger=PropertyChanged,Mode=Twoway}"
+                            Padding="0">
+                            <TabControl.ItemsSource>
+                                <MultiBinding Converter="{StaticResource TabItemThreadConverter}" Mode="OneWay">
+                                    <MultiBinding.Bindings>
+                                        <Binding Path="DataContext.Futaba.Value" ElementName="container" />
+                                        <Binding Path="DataContext.TabItems.Value" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:MainWindow}" />
+                                    </MultiBinding.Bindings>
+                                </MultiBinding>
+                            </TabControl.ItemsSource>
 
-                                                <Image 
-                                                    Source="{Binding ThumbSource.Value, Mode=OneWay}"
-                                                    RenderOptions.EdgeMode="Aliased"
-                                                    RenderOptions.BitmapScalingMode="Fant">
-                                                    <Image.CacheMode>
-                                                        <BitmapCache RenderAtScale="1" />
-                                                    </Image.CacheMode>
-                                                </Image>
-                                            </Viewbox>
-                                            <TextBlock Grid.Column="1" Text="{Binding Name.Value, Mode=OneWay}" VerticalAlignment="Center" Margin="4 0 4 0" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </TabControl.ItemTemplate>
+                            <TabControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Viewbox
+                                            Grid.Column="0"
+                                            Width="24" Height="24" 
+                                            StretchDirection="DownOnly"
+                                            Visibility="{Binding ThumbVisibility.Value, Mode=OneWay}">
+                                            <Image 
+                                                Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                                RenderOptions.EdgeMode="Aliased"
+                                                RenderOptions.BitmapScalingMode="Fant">
+                                                <Image.CacheMode>
+                                                    <BitmapCache RenderAtScale="1" />
+                                                </Image.CacheMode>
+                                            </Image>
+                                        </Viewbox>
+                                        <TextBlock Grid.Column="1" Text="{Binding Name.Value, Mode=OneWay}" VerticalAlignment="Center" Margin="4 0 4 0" />
+                                    </Grid>
+                                </DataTemplate>
+                            </TabControl.ItemTemplate>
 
-                                <TabControl.ContentTemplate>
-                                    <DataTemplate>
-                                        <Grid x:Name="container">
-                                            <control:FutabaViewer Contents="{Binding DataContext, Mode=OneWay, ElementName=container}" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </TabControl.ContentTemplate>
-                            </TabControl>
-                        </Grid>
+                            <TabControl.ContentTemplate>
+                                <DataTemplate>
+                                    <Grid x:Name="container">
+                                        <control:FutabaViewer Contents="{Binding DataContext, Mode=OneWay, ElementName=container}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </TabControl.ContentTemplate>
+                        </TabControl>
                     </DataTemplate>
                 </TabControl.ContentTemplate>
                 <i:Interaction.Triggers>

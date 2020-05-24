@@ -38,23 +38,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<Visibility> TabVisibility { get; }
 
-		public ReactiveCommand<MouseButtonEventArgs> BordListClickCommand { get; }
-			= new ReactiveCommand<MouseButtonEventArgs>();
-		public ReactiveCommand<BordConfig> BordOpenCommand { get; }
-		= new ReactiveCommand<BordConfig>();
+		public ReactiveCommand<MouseButtonEventArgs> BordListClickCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
+		public ReactiveCommand<BordConfig> BordOpenCommand { get; } = new ReactiveCommand<BordConfig>();
 
-		public ReactiveCommand<Data.UrlContext> TreeViewSelectedCommand { get; }
-			= new ReactiveCommand<Data.UrlContext>();
+		public ReactiveCommand<MouseButtonEventArgs> TabClickCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
+		public ReactiveCommand<MouseButtonEventArgs> TabCloseButtonCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
 
-		public ReactiveCommand<MouseButtonEventArgs> TabClickCommand { get; }
-			= new ReactiveCommand<MouseButtonEventArgs>();
-		public ReactiveCommand<MouseButtonEventArgs> TabCloseButtonCommand { get; }
-			= new ReactiveCommand<MouseButtonEventArgs>();
-		public ReactiveCommand<MouseButtonEventArgs> TreeViewClickCommand { get; }
-			= new ReactiveCommand<MouseButtonEventArgs>();
-
+		private Dictionary<string, Model.TabItem> SelectedTabItem { get; } = new Dictionary<string, TabItem>();
 		public ReactiveProperty<Model.TabItem> TabControlSelectedItem { get; } = new ReactiveProperty<Model.TabItem>();
-
+		public ReactiveProperty<Model.TabItem> ThreadTabSelectedItem { get; } = new ReactiveProperty<Model.TabItem>();
 
 		public MainWindowViewModel() {
 			Bords = new ReactiveProperty<Data.BordConfig[]>(Config.ConfigLoader.Bord);
@@ -69,7 +61,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			BordOpenCommand.Subscribe(x => OnBordOpen(x));
 			TabClickCommand.Subscribe(x => OnTabClick(x));
 			TabCloseButtonCommand.Subscribe(x => OnTabClose(x));
-			TreeViewClickCommand.Subscribe(x => OnTreeViewClick(x));
 			Util.Futaba.Catalog
 				.ObserveOnDispatcher()
 				.Subscribe(x => OnUpdateCatalog(x));
@@ -79,8 +70,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			//TabItems.ObserveOnDispatcher()
 			//	.Subscribe(x => OnUpdateTabItem(x));
 			TabControlSelectedItem.Subscribe(x => OnTabSelectedChanged(x));
+			ThreadTabSelectedItem.Subscribe(x => OnTabSelectedChanged(x));
 		}
-
 		public void Dispose() {
 			Disposable.Dispose();
 		}
@@ -115,41 +106,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private void OnTreeViewClick(MouseButtonEventArgs e) {
-			if(e.ClickCount == 1) {
-				if(e.Source is FrameworkElement o) {
-					if(VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null) {
-						if(o.DataContext is Model.TreeItem ti) {
-							var it = this.TabItems.Value.Where(x => x.Url == ti.Url).FirstOrDefault();
-							switch(e.ChangedButton) {
-							case MouseButton.Left:
-								if(it == null) {
-									if(ti.Url.IsCatalogUrl) {
-										Util.Futaba.UpdateCatalog(
-											Bords.Value.Where(x => x.Url == ti.Url.BaseUrl).FirstOrDefault())
-											.Subscribe();
-									} else {
-										// スレッドを開く
-									}
-								} else {
-									this.TabControlSelectedItem.Value = it;
-								}
-								e.Handled = true;
-								break;
-							case MouseButton.Middle:
-								if(it == null) {
-								} else {
-									Util.Futaba.Remove(it.Url);
-								}
-								e.Handled = true;
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-
 		private void OnTabClose(MouseButtonEventArgs e) {
 			if(e.ClickCount == 1) {
 				switch(e.ChangedButton) {
@@ -164,49 +120,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			System.Diagnostics.Debug.WriteLine(e);
 		}
 
-		private void OnUpdateTabItem(TabItem[] items) {
-			/*
-			var dic = new Dictionary<string, List<Model.TabItem>>();
-			foreach (var it in items.Where(x => string.IsNullOrWhiteSpace(x.Url.ThreadNo))) {
-				if (dic.Keys.Contains(it.Url.BaseUrl)) {
-					dic[it.Url.BaseUrl].Add(it);
-				} else {
-					dic.Add(it.Url.BaseUrl, new List<TabItem>() { it });
-				}
-			}
-
-			var update = false;
-			foreach (var it in this.TreeItems.Value) {
-				if (dic.Keys.Contains(it.Url.BaseUrl)) {
-					var l = dic[it.Url.BaseUrl];
-					var rm = it.ChildItems.Value.ToList();
-					foreach (var c in it.ChildItems.Value) {
-						var t = l.Where(x => x.Url == c.Url).FirstOrDefault();
-						if (t != null) {
-							l.Remove(t);
-							rm.Remove(c);
-						}
-					}
-					if (0 < rm.Count) {
-						foreach (var t in rm) {
-							it.ChildItems.Value.Remove(t);
-						}
-						update = true;
-					}
-
-					if (0 < l.Count) {
-						it.ChildItems.Value.AddRange(l.Select(x => new TreeItem(x.Futaba.Value)));
-						update = true;
-					}
-				}
-			}
-
-			if (update) {
-				this.TreeItems.Value = this.TreeItems.Value;
-			}
-			*/
-		}
-
 		private async void OnUpdateCatalog(Data.FutabaContext[] catalog) {
 			var it = Update(catalog, false);
 			if(it != null) {
@@ -219,12 +132,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private async void OnUpdateThreadRes(Data.FutabaContext[] threads) {
 			var it = Update(threads, true);
-			UpdateTree(threads);
 			if(it != null) {
 				// この時点でTabコントロールの再処理が行われていないので一度UIスレッドから離れる
 				// きもい
 				await Task.Delay(1);
-				this.TabControlSelectedItem.Value = it;
+				this.ThreadTabSelectedItem.Value = it;
 			}
 		}
 
@@ -274,87 +186,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			return r;
 		}
 
-		private void UpdateTree(Data.FutabaContext[] threads) {
-			var d1 = new Dictionary<string, List<Data.UrlContext>>();
-			var d2 = new Dictionary<string, List<Data.UrlContext>>();
-			var tm = new Dictionary<string, TreeItem>();
-			foreach(var b in Bords.Value) {
-				d1.Add(b.Url, new List<Data.UrlContext>());
-				d2.Add(b.Url, new List<Data.UrlContext>());
-				tm.Add(b.Url, this.TreeItems.Value.Where(x => x.Url.BaseUrl == b.Url).First());
-			}
-
-			foreach(var t in this.TreeItems.Value) {
-				foreach(var ci in t.ChildItems.Value) {
-					d1[ci.Url.BaseUrl].Add(ci.Url);
-				}
-			}
-			foreach(var t in threads.Where(x => x.Url.IsThreadUrl)) {
-				d2[t.Url.BaseUrl].Add(t.Url);
-			}
-
-			foreach(var b in Bords.Value) {
-				var cc = d2[b.Url].Except(d1[b.Url]);
-				var tt = d1[b.Url].Except(d2[b.Url]);
-				var ti = tm[b.Url];
-
-				if(cc.Count() != 0) {
-					var l = new List<Data.FutabaContext>();
-					foreach(var c in cc) {
-						l.Add(threads.Where(x => x.Url == c).First());
-					}
-					ti.ChildItems.Value = ti.ChildItems.Value.Concat(
-						l.Select(x => new TreeItem(x))).ToArray();
-				}
-
-				if(tt.Count() != 0) {
-					var l = tm[b.Url].ChildItems.Value.ToList();
-					foreach(var t in tt) {
-						l.Remove(l.Where(x => x.Url == t).First());
-					}
-					ti.ChildItems.Value = l.ToArray();
-				}
-
-				var updated = false;
-				for(var i = 0; i < ti.ChildItems.Value.Length; i++) {
-					var it = ti.ChildItems.Value[i];
-					if(cc.Contains(it.Url)) {
-						continue;
-					}
-					var futaba = threads.Where(x => x.Url == it.Url).FirstOrDefault();
-					if(futaba != null) {
-						if(futaba.Token != it.Futaba.Value.Raw.Token) {
-							it.Futaba.Value = new BindableFutaba(futaba, it.Futaba.Value);
-							updated = true;
-						}
-					}
-				}
-				if(updated) {
-					ti.ChildItems.Value = ti.ChildItems.Value.ToArray();
-				}
-			}
-		}
-
-		private void OnTabSelectedChanged(TabItem tabItem) {
+		private async void OnTabSelectedChanged(TabItem tabItem) {
 			// 何も選択されていない場合
 			if(tabItem == null) {
 				return;
 			}
 
-			var p = this.TreeItems.Value
-				.Where(x => x.Url.BaseUrl == tabItem.Futaba.Value.Url.BaseUrl)
-				.FirstOrDefault();
-			if(p != null) {
-				if(tabItem.Futaba.Value.Url.IsCatalogUrl) {
-					p.IsSelected.Value = true;
+			if(tabItem.Futaba.Value.Url.IsCatalogUrl) {
+				if(this.SelectedTabItem.TryGetValue(tabItem.Futaba.Value.Url.BaseUrl, out var ti)) {
+					await Task.Delay(1);
+					this.ThreadTabSelectedItem.Value = ti;
+				}
+			} else {
+				if(this.SelectedTabItem.ContainsKey(tabItem.Futaba.Value.Url.BaseUrl)) {
+					this.SelectedTabItem[this.TabControlSelectedItem.Value.Futaba.Value.Url.BaseUrl] = tabItem;
 				} else {
-					var c = p.ChildItems.Value
-						.Where(x => x.Url == tabItem.Futaba.Value.Url)
-						.FirstOrDefault();
-					if(c != null) {
-						p.IsExpanded.Value = true;
-						c.IsSelected.Value = true;
-					}
+					this.SelectedTabItem.Add(this.TabControlSelectedItem.Value.Futaba.Value.Url.BaseUrl, tabItem);
 				}
 			}
 		}
