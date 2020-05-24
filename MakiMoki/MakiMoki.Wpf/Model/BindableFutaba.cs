@@ -182,9 +182,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<bool> IsDie { get; }
 		public ReactiveProperty<bool> IsMaxRes { get; }
 
+		public ReactiveCommand FullScreenClickCommand { get; } = new ReactiveCommand();
+		public ReactiveProperty<bool> IsFullScreenMode { get; } = new ReactiveProperty<bool>(false);
+		public ReactiveProperty<int> FullScreenSpan { get; }
+		public ReactiveProperty<Visibility> FullScreenVisibility { get; }
+
 		public BindableFutaba(Data.FutabaContext futaba, BindableFutaba old = null) {
 			CatalogListVisibility = CatalogListMode.Select(x => futaba.Url.IsCatalogUrl ? (x ? Visibility.Visible : Visibility.Hidden) :  Visibility.Hidden).ToReactiveProperty();
-			CatalogWrapVisibility = CatalogListMode.Select(x => futaba.Url.IsCatalogUrl ? (x ? Visibility.Hidden : Visibility.Visible) :  Visibility.Hidden).ToReactiveProperty();
+			FullScreenVisibility = CatalogListMode.Select(x => futaba.Url.IsCatalogUrl ? (x ? Visibility.Hidden : Visibility.Visible) :  Visibility.Hidden).ToReactiveProperty();
+			FullScreenSpan = IsFullScreenMode.Select(x => x ? 3 : 0).ToReactiveProperty();
+			FullScreenVisibility = IsFullScreenMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
 			CatalogSortCheckedCatalog = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Catalog.ApiValue).ToReactiveProperty();
 			CatalogSortCheckedNew = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.New.ApiValue).ToReactiveProperty();
 			CatalogSortCheckedOld = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Old.ApiValue).ToReactiveProperty();
@@ -317,6 +324,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.DeletePostDataCommand.Subscribe(() => OnDeletePostData());
 			this.ExportCommand.Subscribe(() => OnExport());
 
+			this.FullScreenClickCommand.Subscribe(() => OnFullScreenClick());
+
 			// 初期化がすべて終わったタイミングで書き換える
 			foreach(var it in this.ResItems) {
 				it.Parent.Value = this;
@@ -386,6 +395,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		private void OnDeletePostData() {
 			this.PostData.Value = new PostHolder();
+		}
+
+		private void OnFullScreenClick() {
+			this.IsFullScreenMode.Value = !this.IsFullScreenMode.Value;
 		}
 
 		private void OnExport() {

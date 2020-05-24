@@ -220,11 +220,13 @@
                                 <Grid
                                     Margin="16 4 16 4" 
                                     Background="Transparent"
-                                        MaxWidth="1024"
                                     IsHitTestVisible="False">
                                     <TextBlock.Foreground>
                                         <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                                     </TextBlock.Foreground>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" MaxWidth="1024" />
+                                    </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
@@ -472,6 +474,27 @@
                                 <i:EventTrigger EventName="Click">
                                     <ri:EventToReactiveCommand Command="{Binding DataContext.PostClickCommand, ElementName=_this}" />
                                 </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                        <Button Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    >>                                
+                                </TextBlock.Text>
+                                <TextBlock.LayoutTransform>
+                                    <RotateTransform x:Name="FullScreenRotate" Angle="0" />
+                                </TextBlock.LayoutTransform>
+                            </TextBlock>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <ri:EventToReactiveCommand Command="{Binding FullScreenClickCommand}" />
+                                </i:EventTrigger>
+                                <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="Equal">
+                                    <i:ChangePropertyAction TargetName="FullScreenRotate" PropertyName="Angle" Value="180" />
+                                </i:DataTrigger>
+                                <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="NotEqual">
+                                    <i:ChangePropertyAction TargetName="FullScreenRotate" PropertyName="Angle" Value="0" />
+                                </i:DataTrigger>
                             </i:Interaction.Triggers>
                         </Button>
                     </WrapPanel>

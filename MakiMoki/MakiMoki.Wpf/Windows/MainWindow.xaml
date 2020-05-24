@@ -341,25 +341,32 @@
                               KeyboardNavigation.TabIndex="2"
                               KeyboardNavigation.TabNavigation="Local"
                               KeyboardNavigation.DirectionalNavigation="Contained">
-                                <Grid>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="360" MinWidth="360"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="{StaticResource PrimaryColorBrush}" />
+                                <Grid DataContext="{TemplateBinding TabControl.DataContext}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="360" MinWidth="360"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <GridSplitter
+                                        Grid.Column="1" Width="5"
+                                        HorizontalAlignment="Stretch"
+                                        Visibility="{Binding DataContext.Futaba.Value.FullScreenVisibility.Value, RelativeSource={RelativeSource Self}}"
+                                        Background="{StaticResource PrimaryColorBrush}" />
 
-                                        <control:FutabaCatalogViewer Grid.Column="0" Contents="{TemplateBinding TabControl.DataContext}" />
-                                        <ContentPresenter
-                                            Grid.Column="2"
-                                            ContentSource="SelectedContent"
-                                            Content="{TemplateBinding TabControl.SelectedContent}"
-                                            ContentTemplate="{TemplateBinding TabControl.SelectedContentTemplate}"
-                                            ContentStringFormat="{TemplateBinding TabControl.SelectedContentStringFormat}"
-                                            Margin="{TemplateBinding Control.Padding}"
-                                            SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
-                                    </Grid>
+                                    <control:FutabaCatalogViewer
+                                        x:Name="FutabaCatalogViewer"
+                                        Grid.Column="0" Grid.ColumnSpan="{Binding DataContext.Futaba.Value.FullScreenSpan.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
+                                        Contents="{TemplateBinding TabControl.DataContext}" />
+
+                                    <ContentPresenter
+                                        Grid.Column="2"
+                                        Visibility="{Binding DataContext.Futaba.Value.FullScreenVisibility.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
+                                        ContentSource="SelectedContent"
+                                        Content="{TemplateBinding TabControl.SelectedContent}"
+                                        ContentTemplate="{TemplateBinding TabControl.SelectedContentTemplate}"
+                                        ContentStringFormat="{TemplateBinding TabControl.SelectedContentStringFormat}"
+                                        Margin="{TemplateBinding Control.Padding}"
+                                        SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
                                 </Grid>
                             </Border>
                         </Grid>
