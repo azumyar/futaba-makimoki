@@ -63,6 +63,23 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 	}
 
+	class FutabaCatalogStyleConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if(values.Length == 3) {
+				if(values[0] is bool f) {
+					return f ? values[2] : values[1];
+				}
+				return values[1];
+			}
+
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
 	class FutabaCatalogItemFilterConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
 			if((values.Length == 2) && (values[0] is IEnumerable<Model.BindableFutabaResItem> en)) {

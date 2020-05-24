@@ -59,9 +59,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			base.ConfigureViewModelLocator();
 
 			ViewModelLocationProvider.Register<Windows.MainWindow, ViewModels.MainWindowViewModel>();
+			/*
 			ViewModelLocationProvider.Register<Controls.FutabaViewer, ViewModels.FutabaViewerViewModel>();
 			ViewModelLocationProvider.Register<Controls.FutabaCatalogViewer, ViewModels.FutabaCatalogViewerViewModel>();
 			ViewModelLocationProvider.Register<Controls.FutabaMediaViewer, ViewModels.FutabaMediaViewerViewModel>();
+			*/
+			var controlType = typeof(Controls.FutabaCatalogViewer);
+			var vmType = typeof(ViewModels.FutabaCatalogViewerViewModel);
+			var ca = controlType.Assembly.GetTypes().Where(x => x.Namespace == controlType.Namespace).ToArray();
+			var va = vmType.Assembly.GetTypes().Where(x => x.Namespace == vmType.Namespace).ToArray();
+			var m = typeof(ViewModelLocationProvider).GetMethod("Register", new Type[0]);
+			System.Diagnostics.Debug.Assert(m != null);
+			foreach(var t in ca) {
+				var vm = va.Where(x => x.FullName == $"{ x.Namespace }.{ t.Name }ViewModel").FirstOrDefault();
+				if(vm != null) {
+					System.Diagnostics.Debug.WriteLine($"Register: { vm.Name }");
+					m.MakeGenericMethod(t, vm).Invoke(null, new object[0]);
+				}
+			}
 		}
 
 		private void RemoveOldCache(string cacheDir) {

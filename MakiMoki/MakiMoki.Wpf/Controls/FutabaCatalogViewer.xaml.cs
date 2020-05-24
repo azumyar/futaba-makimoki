@@ -55,22 +55,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			ViewModels.FutabaCatalogViewerViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaCatalogViewerViewModel.CatalogListboxUpdatedMessage>>()
 				.Subscribe(_ => {
-					if(CatalogListBox.HasItems) {
-						var en = CatalogListBox.ItemsSource.GetEnumerator();
-						en.MoveNext();
-						CatalogListBox.ScrollIntoView(en.Current);
-					}
-				});
-			ViewModels.FutabaCatalogViewerViewModel.Messenger.Instance
-				.GetEvent<PubSubEvent<ViewModels.FutabaCatalogViewerViewModel.AppendUploadFileMessage>>()
-				.Subscribe(x => {
-					var s = x.FileName + Environment.NewLine;
-					var ss = this.PostCommentTextBox.SelectionStart;
-					var sb = new StringBuilder(this.PostCommentTextBox.Text);
-					sb.Insert(ss, s);
-					this.PostCommentTextBox.Text = sb.ToString();
-					this.PostCommentTextBox.SelectionStart = ss + s.Length;
-					this.PostCommentTextBox.SelectionLength = 0;
+					scrollViewerCatalog.ScrollToVerticalOffset(0);
+					scrollViewerCatalog.ScrollToHorizontalOffset(0);
 				});
 			this.CatalogListBox.Loaded += (s, e) => {
 				if((this.scrollViewerCatalog = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.CatalogListBox)) != null) {
@@ -84,37 +70,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			};
 		}
 
-		public static T FindLastDisplayedChild<T>(
-			FrameworkElement el,
-			FrameworkElement parent = null,
-			Point? targetPt = null) where T : FrameworkElement {
-
-			var pt = parent ?? el;
-			var zeroPt = targetPt ?? new Point(0, 0);
-			int c = VisualTreeHelper.GetChildrenCount(el);
-			for(var i = c - 1; 0 <= i; i--) {
-				var co = VisualTreeHelper.GetChild(el, i);
-				if(co is FrameworkElement fe) {
-					var p = fe.TranslatePoint(zeroPt, pt);
-					if((0 <= p.X) && (p.X <= pt.ActualWidth)
-						&& (0 <= p.Y) && (p.Y <= pt.ActualHeight)) {
-
-						if(co is T t) {
-							return t;
-						}
-						/* 子供はいらない
-						var r = FindLastDisplayedChild<T>(fe, pt, zeroPt);
-						if (r != null) {
-							return r;
-						}
-						*/
-					}
-				}
-			}
-			return default(T);
-		}
-
-		private static async void OnContentsChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
+		private static void OnContentsChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
 			if(obj is UIElement el) {
 				el.RaiseEvent(new RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>(
 					e.OldValue as Model.IFutabaViewerContents,
@@ -140,13 +96,5 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		private void OnCatalogSortItemSoudaneClickCommand(object swender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemSoudaneClickCommand.Execute(e);
 
 		private void OnCatalogMenuItemDelClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogMenuItemDelClickCommand.Execute(e);
-
-		private void OnThreadResHamburgerItemUrlClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.ThreadResHamburgerItemUrlClickCommand.Execute(e);
-
-		private void OnMenuItemCopyClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.MenuItemCopyClickCommand.Execute(e);
-		private void OnMenuItemReplyClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.MenuItemReplyClickCommand.Execute(e);
-		private void OnMenuItemSoudaneClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.MenuItemSoudaneClickCommand.Execute(e);
-		private void OnMenuItemDelClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.MenuItemDelClickCommand.Execute(e);
-		private void OnMenuItemDeleteClickCommand(object swender, RoutedEventArgs e) => GetViewModel()?.MenuItemDeleteClickCommand.Execute(e);
 	}
 }

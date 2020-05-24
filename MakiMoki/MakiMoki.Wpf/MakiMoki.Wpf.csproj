@@ -61,6 +61,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Behaviors\FocusBehavior.cs" />
+    <Compile Include="Controls\FutabaPostView.xaml.cs">
+      <DependentUpon>FutabaPostView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\FutabaMediaViewer.xaml.cs">
       <DependentUpon>FutabaMediaViewer.xaml</DependentUpon>
     </Compile>
@@ -76,12 +79,17 @@
     <Compile Include="Model\Interface.cs" />
     <Compile Include="PlatformData\Config.cs" />
     <Compile Include="PlatformData\FutabaMedia.cs" />
+    <Compile Include="ViewModels\FutabaPostViewViewModel.cs" />
     <Compile Include="ViewModels\FutabaMediaViewerViewModel.cs" />
     <Compile Include="ViewModels\FutabaViewerViewModel.cs" />
     <Compile Include="WinApi\Win32.cs" />
     <Compile Include="WpfUtil\ImageUtil.cs" />
     <Compile Include="WpfUtil\TextUtil.cs" />
     <Compile Include="WpfUtil\WpfHelper.cs" />
+    <Page Include="Controls\FutabaPostView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\FutabaMediaViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
