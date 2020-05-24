@@ -155,24 +155,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						collection.Remove(collection.Where(x => x.Url == it).First());
 					}
 				}
-				if(idx.HasValue) {
-					var idx2 = idx.Value;
-					while((0 <= idx2) && (collection.Count != 0)) {
+				if(idx.HasValue && (collection.Count != 0)) {
+					for(var idx2 = idx.Value; 0 <= idx2; idx2--) {
 						var tr = (collection.Count <= idx2) ? collection.Last() : collection[idx2];
 						if(tr.Futaba.Value.Url.BaseUrl == act.Url.BaseUrl) {
 							r = tr;
 							break;
 						}
-						idx2--;
 					}
 					if(r == null) {
-						idx2 = idx.Value;
-						while((idx2 < collection.Count) && (collection.Count != 0)) {
+						for(var idx2 = idx.Value + 1; idx2 < collection.Count; idx2++) {
 							if(collection[idx2].Futaba.Value.Url.BaseUrl == act.Url.BaseUrl) {
 								r = collection[idx2];
 								break;
 							}
-							idx2++;
 						}
 					}
 				}
