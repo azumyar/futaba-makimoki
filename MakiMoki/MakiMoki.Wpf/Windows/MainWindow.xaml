@@ -32,14 +32,12 @@
         <SolidColorBrush x:Key="BackgroundBrush" Color="#F5F5F5" />
         <SolidColorBrush x:Key="DockBorderBrush" Color="Gray" />
 
-        <Path x:Key="arrowLeft" Stroke="Black" Fill="Black" Stretch="None"
-	VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Path x:Key="arrowLeft" Stroke="Black" Fill="Black" Stretch="None" VerticalAlignment="Center" HorizontalAlignment="Center">
             <Path.Data>
                 <Geometry>M0,3 L6,6 6,0Z</Geometry>
             </Path.Data>
         </Path>
-        <Path x:Key="arrowRight" Stroke="Black" Fill="Black" Stretch="None"
-	VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Path x:Key="arrowRight" Stroke="Black" Fill="Black" Stretch="None" VerticalAlignment="Center" HorizontalAlignment="Center">
             <Path.Data>
                 <Geometry>M0,0 L6,3 L0,6Z</Geometry>
             </Path.Data>
@@ -48,6 +46,7 @@
         <Style x:Key="{x:Type TabControl}" TargetType="TabControl">
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabControl">
@@ -68,13 +67,13 @@
                                     <RowDefinition Height="48" />
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="4" />
-                                    <RowDefinition Height="24" />
-                                    <RowDefinition Height="24" />
+                                    <RowDefinition Height="32" />
+                                    <RowDefinition Height="32" />
                                     <RowDefinition Height="4" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <ScrollViewer
-                                    Name="scrollViewer"
+                                    x:Name="scrollViewer"
                                     Grid.Column="1" Grid.Row="1"
                                     CanContentScroll="True"
                                     IsDeferredScrollingEnabled="False"
@@ -83,28 +82,36 @@
                                     VerticalScrollBarVisibility="Hidden">
                                     <StackPanel Orientation="Vertical" IsItemsHost="True" />
                                     <i:Interaction.Triggers>
-                                        <i:DataTrigger Binding="{Binding ScrollableWidth, ElementName=scrollViewer}" Value="0" Comparison="Equal">
+                                        <i:DataTrigger Binding="{Binding ScrollableHeight, ElementName=scrollViewer}" Value="0" Comparison="Equal">
                                             <i:ChangePropertyAction PropertyName="Visibility" TargetName="leftButton" Value="Hidden" />
                                             <i:ChangePropertyAction PropertyName="Visibility" TargetName="rightButton" Value="Hidden" />
                                         </i:DataTrigger>
-                                        <i:DataTrigger Binding="{Binding ScrollableWidth, ElementName=scrollViewer}" Value="0" Comparison="NotEqual">
+                                        <i:DataTrigger Binding="{Binding ScrollableHeight, ElementName=scrollViewer}" Value="0" Comparison="NotEqual">
                                             <i:ChangePropertyAction PropertyName="Visibility" TargetName="leftButton" Value="Visible" />
                                             <i:ChangePropertyAction PropertyName="Visibility" TargetName="rightButton" Value="Visible" />
                                         </i:DataTrigger>
                                     </i:Interaction.Triggers>
                                 </ScrollViewer>
-                                <RepeatButton Name="leftButton" Grid.Column="1" Grid.Row="3" Width="24" Height="24" VerticalAlignment="Center"
-                                      Content="{StaticResource arrowLeft}" DockPanel.Dock="Right"
-                                      CommandTarget="{Binding ElementName=scrollViewer}"
-                                      Command="ScrollBar.LineLeftCommand"
-                                      Visibility="Hidden"/>
-                                <RepeatButton Name="rightButton" Grid.Column="1" Grid.Row="4" Width="24" Height="24" VerticalAlignment="Center"
-                                      Content="{StaticResource arrowRight}" DockPanel.Dock="Right"
-                                      CommandTarget="{Binding ElementName=scrollViewer}"
-                                      Command="ScrollBar.LineRightCommand"
-                                      Visibility="Hidden"/>
+                                <RepeatButton
+                                    x:Name="leftButton"
+                                    Grid.Column="1" Grid.Row="3"
+                                    Width="32" Height="32"
+                                    VerticalAlignment="Center"
+                                    Content="{StaticResource arrowLeft}"
+                                    CommandTarget="{Binding ElementName=scrollViewer}"
+                                    Command="ScrollBar.LineUpCommand"
+                                    Visibility="Hidden" />
+                                <RepeatButton
+                                    x:Name="rightButton"
+                                    Grid.Column="1" Grid.Row="4"
+                                    Width="32" Height="32"
+                                    VerticalAlignment="Center"
+                                    Content="{StaticResource arrowRight}"
+                                    CommandTarget="{Binding ElementName=scrollViewer}"
+                                    Command="ScrollBar.LineDownCommand"
+                                    Visibility="Hidden" />
                                 <StackPanel Grid.Column="1" Grid.Row="6" Orientation="Vertical">
-                                    <Button x:Name="bordButton" Width="24" Height="24" Margin="2" Content="＋">
+                                    <Button x:Name="bordButton" Width="32" Height="32" Margin="2" Content="＋">
                                         <!--
                                         <Button.Resources>
                                             <ContextMenu x:Key="aaaa" ItemsSource="{Binding DataContext, Converter={StaticResource TabItemCatalogConverter}, ElementName=bordButton}">
@@ -117,9 +124,13 @@
                                             </ContextMenu>
                                         </Button.Resources>
                                         <!-->
-                                        <Button.ContextMenu>
+                                        <Button.Resources>
                                             <!-- VMとバインドできない？？ -->
-                                            <ContextMenu ItemsSource="{Binding Source={x:Static conf:ConfigLoader.Bord}}">
+                                            <ContextMenu
+                                                x:Key="ContextMenu"
+                                                ItemsSource="{Binding Source={x:Static conf:ConfigLoader.Bord}}"
+                                                Placement="Top"
+                                                VerticalOffset="4" HorizontalOffset="0">
                                                 <ContextMenu.ItemContainerStyle>
                                                     <Style TargetType="MenuItem">
                                                         <Setter Property="Header" Value="{Binding Name}" />
@@ -129,16 +140,16 @@
                                                     </Style>
                                                 </ContextMenu.ItemContainerStyle>
                                             </ContextMenu>
-                                        </Button.ContextMenu>
+                                        </Button.Resources>
 
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="Click">
                                                 <i:ChangePropertyAction
-                                                    TargetObject="{Binding ContextMenu, ElementName=bordButton}"
+                                                    TargetObject="{StaticResource ContextMenu}"
                                                     PropertyName="IsOpen"
                                                     Value="True"/>
                                                 <i:ChangePropertyAction
-                                                    TargetObject="{Binding ContextMenu, ElementName=bordButton}" 
+                                                    TargetObject="{StaticResource ContextMenu}" 
                                                     PropertyName="PlacementTarget" 
                                                     Value="{Binding ElementName=bordButton, Mode=OneWay}"/>
                                             </i:EventTrigger>
@@ -188,7 +199,7 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             Padding="{TemplateBinding Padding}"
-                            MinHeight="36"
+                            MinHeight="64"
                             MaxHeight="164"
                             VerticalAlignment="Bottom"
                             >
@@ -200,7 +211,7 @@
                                     </MultiBinding.Bindings>
                                 </MultiBinding>
                             </Border.Height>
-                            <Grid>
+                            <Grid Background="Transparent">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="Auto" />
@@ -277,12 +288,12 @@
                                     <ColumnDefinition Width="8" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="4" />
-                                    <ColumnDefinition Width="24" />
-                                    <ColumnDefinition Width="24" />
+                                    <ColumnDefinition Width="32" />
+                                    <ColumnDefinition Width="32" />
                                     <ColumnDefinition Width="4" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <ScrollViewer Name="scrollViewer" Grid.Column="1" CanContentScroll="True"
+                                <ScrollViewer x:Name="scrollViewer" Grid.Column="1" CanContentScroll="True"
                                       IsDeferredScrollingEnabled="False" SnapsToDevicePixels="True"
                                       HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
                                     <StackPanel Orientation="Horizontal" IsItemsHost="True" />
@@ -297,16 +308,22 @@
                                         </i:DataTrigger>
                                     </i:Interaction.Triggers>
                                 </ScrollViewer>
-                                <RepeatButton Name="leftButton" Grid.Column="3" Width="24" Height="24" VerticalAlignment="Center"
-                                      Content="{StaticResource arrowLeft}" DockPanel.Dock="Right"
-                                      CommandTarget="{Binding ElementName=scrollViewer}"
-                                      Command="ScrollBar.LineLeftCommand"
-                                      Visibility="Hidden"/>
-                                <RepeatButton Name="rightButton" Grid.Column="4" Width="24" Height="24" VerticalAlignment="Center"
-                                      Content="{StaticResource arrowRight}" DockPanel.Dock="Right"
-                                      CommandTarget="{Binding ElementName=scrollViewer}"
-                                      Command="ScrollBar.LineRightCommand"
-                                      Visibility="Hidden"/>
+                                <RepeatButton
+                                    x:Name="leftButton" Grid.Column="3"
+                                    Width="32" Height="32"
+                                    VerticalAlignment="Center"
+                                    Content="{StaticResource arrowLeft}"
+                                    CommandTarget="{Binding ElementName=scrollViewer}"
+                                    Command="ScrollBar.LineLeftCommand"
+                                    Visibility="Hidden"/>
+                                <RepeatButton
+                                    x:Name="rightButton" Grid.Column="4"
+                                    Width="32" Height="32"
+                                    VerticalAlignment="Center"
+                                    Content="{StaticResource arrowRight}"
+                                    CommandTarget="{Binding ElementName=scrollViewer}"
+                                    Command="ScrollBar.LineRightCommand"
+                                    Visibility="Hidden"/>
                                 <StackPanel Grid.Column="6" Orientation="Horizontal">
                                     <Button Content="0" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
                                     <Button Content="1" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MaximizeWindowCommand}">
@@ -406,7 +423,7 @@
                                     </MultiBinding.Bindings>
                                 </MultiBinding>
                             </Border.Width>
-                            <Grid>
+                            <Grid Background="Transparent">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
@@ -513,9 +530,12 @@
                                     <VisualState x:Name="Disabled"/>
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
-                            <ContentPresenter x:Name="contentPresenter" Focusable="False" Margin="{TemplateBinding Padding}"
-                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                            <ContentPresenter
+                                x:Name="contentPresenter"
+                                Focusable="False"
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -713,19 +733,13 @@
                             <TextBlock
                                 Grid.Column="1"
                                 Text="{Binding Name.Value, Mode=OneWay}"
-                                VerticalAlignment="Center"
+                                TextTrimming="CharacterEllipsis"
+                                TextWrapping="NoWrap"
+                                VerticalAlignment="Stretch"
                                 Margin="4 0 4 0">
-                                <TextBlock.Resources>
-                                    <Style TargetType="{x:Type TextBlock}">
-                                        <Setter Property="LayoutTransform">
-                                            <Setter.Value>
-                                                <TransformGroup>
-                                                    <RotateTransform Angle="90"/>
-                                                </TransformGroup>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </TextBlock.Resources>
+                                <TextBlock.LayoutTransform>
+                                    <RotateTransform Angle="90"/>
+                                </TextBlock.LayoutTransform>
                             </TextBlock>
                         </Grid>
                     </DataTemplate>

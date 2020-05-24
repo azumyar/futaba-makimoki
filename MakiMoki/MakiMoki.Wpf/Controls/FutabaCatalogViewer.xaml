@@ -321,7 +321,11 @@
             </Setter>
         </Style>
 
-        <ContextMenu x:Key="CatalogSortContextMenu" ItemsSource="{Binding CatalogSortItem.Value}">
+        <ContextMenu 
+            x:Key="CatalogSortContextMenu"
+            ItemsSource="{Binding CatalogSortItem.Value}"
+            Placement="Bottom"
+            VerticalOffset="4" HorizontalOffset="0">
             <ContextMenu.ItemContainerStyle>
                 <Style TargetType="MenuItem">
                     <Setter Property="Header" Value="{Binding Name}" />
@@ -473,6 +477,10 @@
                                         TargetObject="{StaticResource CatalogSortContextMenu}" 
                                         PropertyName="IsOpen"
                                         Value="True"/>
+                                    <i:ChangePropertyAction
+                                        TargetObject="{StaticResource CatalogSortContextMenu}" 
+                                        PropertyName="PlacementTarget" 
+                                        Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
