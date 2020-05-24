@@ -519,7 +519,7 @@
             <local:FutabaPostView
                 Grid.Row="1"
                 Contents="{Binding Contents.Futaba.Value, ElementName=_this}"
-                Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=OneWay}" />
+                Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=TwoWay}" />
         </Grid>
     </Grid>
 </UserControl>

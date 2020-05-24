@@ -26,11 +26,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		internal class Messenger : EventAggregator {
 			public static Messenger Instance { get; } = new Messenger();
 		}
-		internal class PostEndedMessage { }
+		internal class PostEndedMessage {
+			public UrlContext Url { get; }
+
+			public PostEndedMessage(UrlContext url) {
+				this.Url = url;
+			}
+		}
 		internal class AppendUploadFileMessage {
+			public UrlContext Url { get; }
 			public string FileName { get; }
 
-			public AppendUploadFileMessage(string fileName) {
+			public AppendUploadFileMessage(UrlContext url, string fileName) {
+				this.Url = url;
 				this.FileName = fileName;
 			}
 		}
@@ -107,7 +115,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									.Subscribe(x => {
 										if(x.Successed) {
 											Messenger.Instance.GetEvent<PubSubEvent<AppendUploadFileMessage>>()
-												.Publish(new AppendUploadFileMessage(x.FileNameOrMessage));
+												.Publish(new AppendUploadFileMessage(f.Url, x.FileNameOrMessage));
 										} else {
 											MessageBox.Show(x.FileNameOrMessage);
 										}
@@ -143,7 +151,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						.Subscribe(x => {
 							if(x.Successed) {
 								Messenger.Instance.GetEvent<PubSubEvent<AppendUploadFileMessage>>()
-									.Publish(new AppendUploadFileMessage(x.FileNameOrMessage));
+									.Publish(new AppendUploadFileMessage(f.Url, x.FileNameOrMessage));
 							} else {
 								MessageBox.Show(x.FileNameOrMessage);
 							}
@@ -175,7 +183,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(y => {
 						if(y.Successed) {
-							Messenger.Instance.GetEvent<PubSubEvent<PostEndedMessage>>().Publish(new PostEndedMessage());
+							Messenger.Instance.GetEvent<PubSubEvent<PostEndedMessage>>().Publish(new PostEndedMessage(x.Url));
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
 							Task.Run(async () => {
 								await Task.Delay(1000); // すぐにスレが作られないので1秒くらい待つ
@@ -197,7 +205,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(y => {
 						if(y.Successed) {
-							Messenger.Instance.GetEvent<PubSubEvent<PostEndedMessage>>().Publish(new PostEndedMessage());
+							Messenger.Instance.GetEvent<PubSubEvent<PostEndedMessage>>().Publish(new PostEndedMessage(x.Url));
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
 							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo).Subscribe();
 						} else {

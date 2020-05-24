@@ -20,19 +20,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	/// <summary>
 	/// FutabaViewer.xaml の相互作用ロジック
 	/// </summary>
-	partial class FutabaViewer : UserControl {
+	partial class FutabaThreadResViewer : UserControl {
 		public static readonly DependencyProperty ContentsProperty
 			= DependencyProperty.Register(
 				nameof(Contents),
 				typeof(Model.IFutabaViewerContents),
-				typeof(FutabaViewer),
+				typeof(FutabaThreadResViewer),
 				new PropertyMetadata(OnContentsChanged));
 		public static RoutedEvent ContentsChangedEvent
 			= EventManager.RegisterRoutedEvent(
 				nameof(ContentsChanged),
 				RoutingStrategy.Tunnel,
 				typeof(RoutedPropertyChangedEventHandler<Model.IFutabaViewerContents>),
-				typeof(FutabaViewer));
+				typeof(FutabaThreadResViewer));
 
 
 		public Model.IFutabaViewerContents Contents {
@@ -47,49 +47,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			remove { RemoveHandler(ContentsChangedEvent, value); }
 		}
 
-		private ScrollViewer scrollViewerCatalog;
 		private ScrollViewer scrollViewerThreadRes;
 
-		public FutabaViewer() {
+		public FutabaThreadResViewer() {
 			InitializeComponent();
 
-			ViewModels.FutabaViewerViewModel.Messenger.Instance
-				.GetEvent<PubSubEvent<ViewModels.FutabaViewerViewModel.CatalogListboxUpdatedMessage>>()
-				.Subscribe(_ => {
-					if(CatalogListBox.HasItems) {
-						var en = CatalogListBox.ItemsSource.GetEnumerator();
-						en.MoveNext();
-						CatalogListBox.ScrollIntoView(en.Current);
-					}
-				});
-			ViewModels.FutabaViewerViewModel.Messenger.Instance
-				.GetEvent<PubSubEvent<ViewModels.FutabaViewerViewModel.MediaViewerOpenMessage>>()
+			ViewModels.FutabaThreadResViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.MediaViewerOpenMessage>>()
 				.Subscribe(x => {
 					if(this.Contents != null) {
 						this.Contents.MediaContents.Value = x.Media;
 					}
 				});
-			ViewModels.FutabaViewerViewModel.Messenger.Instance
-				.GetEvent<PubSubEvent<ViewModels.FutabaViewerViewModel.AppendUploadFileMessage>>()
-				.Subscribe(x => {
-					var s = x.FileName + Environment.NewLine;
-					var ss = this.PostCommentTextBox.SelectionStart;
-					var sb = new StringBuilder(this.PostCommentTextBox.Text);
-					sb.Insert(ss, s);
-					this.PostCommentTextBox.Text = sb.ToString();
-					this.PostCommentTextBox.SelectionStart = ss + s.Length;
-					this.PostCommentTextBox.SelectionLength = 0;
-				});
-			this.CatalogListBox.Loaded += (s, e) => {
-				if((this.scrollViewerCatalog = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.CatalogListBox)) != null) {
-					this.scrollViewerCatalog.ScrollChanged += (ss, arg) => {
-						if((this.Contents != null) && this.Contents.Futaba.Value.Url.IsCatalogUrl) {
-							this.Contents.ScrollVerticalOffset.Value = this.scrollViewerCatalog.VerticalOffset;
-							this.Contents.ScrollHorizontalOffset.Value = this.scrollViewerCatalog.HorizontalOffset;
-						}
-					};
-				}
-			};
 
 			this.ThreadResListBox.Loaded += (s, e) => {
 				if((this.scrollViewerThreadRes = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.ThreadResListBox)) != null) {
@@ -149,11 +118,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					e.OldValue as Model.IFutabaViewerContents,
 					e.NewValue as Model.IFutabaViewerContents,
 					ContentsChangedEvent));
-				if((obj is FutabaViewer fv) && (e.NewValue is Model.IFutabaViewerContents c)) {
-					if(c.Futaba.Value.Url.IsCatalogUrl) {
-						fv.scrollViewerCatalog?.ScrollToHorizontalOffset(c.ScrollHorizontalOffset.Value);
-						fv.scrollViewerCatalog?.ScrollToVerticalOffset(c.ScrollVerticalOffset.Value);
-					} else if(c.Futaba.Value.Url.IsThreadUrl) {
+				if((obj is FutabaThreadResViewer fv) && (e.NewValue is Model.IFutabaViewerContents c)) {
+					if(c.Futaba.Value.Url.IsThreadUrl) {
 						if(c.LastVisibleItem.Value != null) {
 							// コンテンツ切り替えがまだListBoxに伝搬していないので一度UIスレッドを進める
 							await Task.Delay(1);
@@ -168,17 +134,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			}
 		}
 
-		private ViewModels.FutabaViewerViewModel GetViewModel() => this.DataContext as ViewModels.FutabaViewerViewModel;
-
-		private void OnCatalogSortItemCatalogClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemCatalogClickCommand.Execute(e);
-		private void OnCatalogSortItemNewClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemNewClickCommand.Execute(e);
-		private void OnCatalogSortItemOldClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemOldClickCommand.Execute(e);
-		private void OnCatalogSortItemManyClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemManyClickCommand.Execute(e);
-		private void OnCatalogSortItemMomentumClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemMomentumClickCommand.Execute(e);
-		private void OnCatalogSortItemFewClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemFewClickCommand.Execute(e);
-		private void OnCatalogSortItemSoudaneClickCommand(object swender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemSoudaneClickCommand.Execute(e);
-
-		private void OnCatalogMenuItemDelClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogMenuItemDelClickCommand.Execute(e);
+		private ViewModels.FutabaThreadResViewerViewModel GetViewModel() => this.DataContext as ViewModels.FutabaThreadResViewerViewModel;
 
 		private void OnThreadResHamburgerItemUrlClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.ThreadResHamburgerItemUrlClickCommand.Execute(e);
 

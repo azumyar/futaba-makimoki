@@ -81,7 +81,7 @@
     <Compile Include="PlatformData\FutabaMedia.cs" />
     <Compile Include="ViewModels\FutabaPostViewViewModel.cs" />
     <Compile Include="ViewModels\FutabaMediaViewerViewModel.cs" />
-    <Compile Include="ViewModels\FutabaViewerViewModel.cs" />
+    <Compile Include="ViewModels\FutabaThreadResViewerViewModel.cs" />
     <Compile Include="WinApi\Win32.cs" />
     <Compile Include="WpfUtil\ImageUtil.cs" />
     <Compile Include="WpfUtil\TextUtil.cs" />
@@ -98,7 +98,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\FutabaViewer.xaml">
+    <Page Include="Controls\FutabaThreadResViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -111,8 +111,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controls\FutabaCommentBlock.cs" />
-    <Compile Include="Controls\FutabaViewer.xaml.cs">
-      <DependentUpon>FutabaViewer.xaml</DependentUpon>
+    <Compile Include="Controls\FutabaThreadResViewer.xaml.cs">
+      <DependentUpon>FutabaThreadResViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\FutabaResItemConverter.cs" />
     <Compile Include="Converters\CatalogTextConverter.cs" />

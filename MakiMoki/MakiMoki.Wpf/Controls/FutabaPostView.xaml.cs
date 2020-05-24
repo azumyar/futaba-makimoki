@@ -53,18 +53,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			ViewModels.FutabaPostViewViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.PostEndedMessage>>()
 				.Subscribe(x => {
-					this.Visibility = Visibility.Hidden;
+					if(x.Url == this.Contents?.Url) {
+						this.Visibility = Visibility.Hidden;
+					}
 				});
 			ViewModels.FutabaPostViewViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.AppendUploadFileMessage>>()
 				.Subscribe(x => {
-					var s = x.FileName + Environment.NewLine;
-					var ss = this.PostCommentTextBox.SelectionStart;
-					var sb = new StringBuilder(this.PostCommentTextBox.Text);
-					sb.Insert(ss, s);
-					this.PostCommentTextBox.Text = sb.ToString();
-					this.PostCommentTextBox.SelectionStart = ss + s.Length;
-					this.PostCommentTextBox.SelectionLength = 0;
+					if(x.Url == this.Contents?.Url) {
+						var s = x.FileName + Environment.NewLine;
+						var ss = this.PostCommentTextBox.SelectionStart;
+						var sb = new StringBuilder(this.PostCommentTextBox.Text);
+						sb.Insert(ss, s);
+						this.PostCommentTextBox.Text = sb.ToString();
+						this.PostCommentTextBox.SelectionStart = ss + s.Length;
+						this.PostCommentTextBox.SelectionLength = 0;
+					}
 				});
 		}
 

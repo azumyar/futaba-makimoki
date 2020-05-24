@@ -85,7 +85,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			}
 		}
 
-		private ViewModels.FutabaViewerViewModel GetViewModel() => this.DataContext as ViewModels.FutabaViewerViewModel;
+		private ViewModels.FutabaCatalogViewerViewModel GetViewModel() => this.DataContext as ViewModels.FutabaCatalogViewerViewModel;
 
 		private void OnCatalogSortItemCatalogClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemCatalogClickCommand.Execute(e);
 		private void OnCatalogSortItemNewClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogSortItemNewClickCommand.Execute(e);
