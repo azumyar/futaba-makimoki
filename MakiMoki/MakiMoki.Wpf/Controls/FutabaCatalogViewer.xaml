@@ -321,17 +321,6 @@
             </Setter>
         </Style>
 
-
-        <ContextMenu x:Key="CatalogSortContextMenu_">
-            <MenuItem Header="カタログ" IsChecked="{Binding CatalogSortCheckedCatalog.Value, Mode=OneWay}" Click="OnCatalogSortItemCatalogClickCommand" />
-            <MenuItem Header="新順" IsChecked="{Binding CatalogSortCheckedNew.Value, Mode=OneWay}" Click="OnCatalogSortItemNewClickCommand" />
-            <MenuItem Header="古順" IsChecked="{Binding CatalogSortCheckedOld.Value, Mode=OneWay}" Click="OnCatalogSortItemOldClickCommand" />
-            <MenuItem Header="多順" IsChecked="{Binding CatalogSortCheckedMany.Value, Mode=OneWay}" Click="OnCatalogSortItemManyClickCommand" />
-            <MenuItem Header="勢順" IsChecked="{Binding CatalogSortCheckedMomentum.Value, Mode=OneWay}" Click="OnCatalogSortItemMomentumClickCommand" />
-            <MenuItem Header="少順" IsChecked="{Binding CatalogSortCheckedFew.Value, Mode=OneWay}" Click="OnCatalogSortItemFewClickCommand" />
-            <MenuItem Header="そ順" IsChecked="{Binding CatalogSortCheckedSoudane.Value, Mode=OneWay}" Click="OnCatalogSortItemSoudaneClickCommand" />
-        </ContextMenu>
-
         <ContextMenu x:Key="CatalogSortContextMenu" ItemsSource="{Binding CatalogSortItem.Value}">
             <ContextMenu.ItemContainerStyle>
                 <Style TargetType="MenuItem">
