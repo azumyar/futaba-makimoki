@@ -412,7 +412,7 @@
                                         </Grid.ColumnDefinitions>
                                         <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="{StaticResource PrimaryColorBrush}" />
 
-                                        <control:FutabaViewer Grid.Column="0" Contents="{TemplateBinding TabControl.DataContext}" />
+                                        <control:FutabaCatalogViewer Grid.Column="0" Contents="{TemplateBinding TabControl.DataContext}" />
                                         <ContentPresenter
                                             Grid.Column="2"
                                             ContentSource="SelectedContent"
@@ -794,6 +794,10 @@
                             ItemContainerStyle="{StaticResource FutabaTabItem}"
                             SelectedItem="{Binding DataContext.ThreadTabSelectedItem.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}, UpdateSourceTrigger=PropertyChanged,Mode=Twoway}"
                             Padding="0">
+                            <TabControl.Background>
+                                <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                            </TabControl.Background>
+
                             <TabControl.ItemsSource>
                                 <MultiBinding Converter="{StaticResource TabItemThreadConverter}" Mode="OneWay">
                                     <MultiBinding.Bindings>

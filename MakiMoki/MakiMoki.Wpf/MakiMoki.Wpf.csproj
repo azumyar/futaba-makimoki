@@ -64,6 +64,9 @@
     <Compile Include="Controls\FutabaMediaViewer.xaml.cs">
       <DependentUpon>FutabaMediaViewer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\FutabaCatalogViewer.xaml.cs">
+      <DependentUpon>FutabaCatalogViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\PlaceHolderBehavior.cs" />
     <Compile Include="Converters\MainWindowConverter.cs" />
     <Compile Include="Converters\FutabaNewResVisibilityConverter.cs" />
@@ -74,6 +77,7 @@
     <Compile Include="PlatformData\Config.cs" />
     <Compile Include="PlatformData\FutabaMedia.cs" />
     <Compile Include="ViewModels\FutabaMediaViewerViewModel.cs" />
+    <Compile Include="ViewModels\FutabaViewerViewModel.cs" />
     <Compile Include="WinApi\Win32.cs" />
     <Compile Include="WpfUtil\ImageUtil.cs" />
     <Compile Include="WpfUtil\TextUtil.cs" />
@@ -81,6 +85,10 @@
     <Page Include="Controls\FutabaMediaViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\FutabaCatalogViewer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\FutabaViewer.xaml">
       <SubType>Designer</SubType>
@@ -104,7 +112,7 @@
     <Compile Include="Model\BindableFutaba.cs" />
     <Compile Include="Model\TabItem.cs" />
     <Compile Include="Model\TreeItem.cs" />
-    <Compile Include="ViewModels\FutabaViewerViewModel.cs" />
+    <Compile Include="ViewModels\FutabaCatalogViewerViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

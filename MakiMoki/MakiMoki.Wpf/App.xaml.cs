@@ -60,6 +60,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 
 			ViewModelLocationProvider.Register<Windows.MainWindow, ViewModels.MainWindowViewModel>();
 			ViewModelLocationProvider.Register<Controls.FutabaViewer, ViewModels.FutabaViewerViewModel>();
+			ViewModelLocationProvider.Register<Controls.FutabaCatalogViewer, ViewModels.FutabaCatalogViewerViewModel>();
 			ViewModelLocationProvider.Register<Controls.FutabaMediaViewer, ViewModels.FutabaMediaViewerViewModel>();
 		}
 

@@ -1,0 +1,767 @@
+﻿<UserControl x:Class="Yarukizero.Net.MakiMoki.Wpf.Controls.FutabaCatalogViewer"
+             x:Name="_this"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.NET46"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+             xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+             xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
+             xmlns:behavior="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Behaviors"
+             xmlns:model="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Model"
+             xmlns:data="clr-namespace:Yarukizero.Net.MakiMoki.Data;assembly=MakiMoki.Core"
+             mc:Ignorable="d" 
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <converter:CatalogTextConverter x:Key="CatalogTextConverter"/>
+        <converter:FutabaResItemConverter x:Key="FutabaResItemConverter"/>
+        <converter:FutabaCatalogVisibleConverter x:Key="FutabaCatalogVisibleConverter"/>
+        <converter:FutabaThreadResVisibleConverter x:Key="FutabaThreadResVisibleConverter"/>
+        <converter:FutabaCatalogItemOpenedColorConverter x:Key="FutabaCatalogItemOpenedColorConverter" />
+        <converter:FutabaCatalogItemFilterConverter x:Key="FutabaCatalogItemFilterConverter" />
+        <converter:FutabaNewResCountConverter x:Key="FutabaNewResCountConverter"/>
+        <converter:FutabaNewResVisibilityConverter x:Key="FutabaNewResVisibilityConverter"/>
+        <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
+        <converter:FutabaResItemIdTextConverter x:Key="FutabaResItemIdTextConverter" />
+        <converter:FutabaResItemNowConverter x:Key="FutabaResItemNowConverter"/>
+        <converter:FutabaResItemFooterVisibleConverter x:Key="FutabaResItemFooterVisibleConverter" />
+        <converter:FutabaResItemNextButtonEnabledConverter x:Key="FutabaResItemNextButtonEnabledConverter" />
+        <converter:FutabaResItemOldColorConverter x:Key="FutabaResItemOldColorConverter" />
+        <converter:FutabaResItemResCountColorConverter x:Key="FutabaResItemResCountColorConverter" />
+
+        <Color x:Key="TextColor">Black</Color>
+        <Color x:Key="OldColor">Red</Color>
+
+        <SolidColorBrush x:Key="PrimaryColorBrush" Color="#4FC3F7" />
+
+        <ContextMenu x:Key="CatalogSortContextMenu">
+            <MenuItem Header="カタログ" IsChecked="{Binding CatalogSortCheckedCatalog.Value, Mode=OneWay}" Click="OnCatalogSortItemCatalogClickCommand" />
+            <MenuItem Header="新順" IsChecked="{Binding CatalogSortCheckedNew.Value, Mode=OneWay}" Click="OnCatalogSortItemNewClickCommand" />
+            <MenuItem Header="古順" IsChecked="{Binding CatalogSortCheckedOld.Value, Mode=OneWay}" Click="OnCatalogSortItemOldClickCommand" />
+            <MenuItem Header="多順" IsChecked="{Binding CatalogSortCheckedMany.Value, Mode=OneWay}" Click="OnCatalogSortItemManyClickCommand" />
+            <MenuItem Header="勢順" IsChecked="{Binding CatalogSortCheckedMomentum.Value, Mode=OneWay}" Click="OnCatalogSortItemMomentumClickCommand" />
+            <MenuItem Header="少順" IsChecked="{Binding CatalogSortCheckedFew.Value, Mode=OneWay}" Click="OnCatalogSortItemFewClickCommand" />
+            <MenuItem Header="そ順" IsChecked="{Binding CatalogSortCheckedSoudane.Value, Mode=OneWay}" Click="OnCatalogSortItemSoudaneClickCommand" />
+        </ContextMenu>
+
+        <ContextMenu x:Key="ThreadResHamburgerContextMenu">
+            <MenuItem Header="URLをコピー" Click="OnThreadResHamburgerItemUrlClickCommand" />
+        </ContextMenu>
+    </UserControl.Resources>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="ContentsChanged">
+            <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <!-- DynamicResource取得用のElement -->
+        <FrameworkElement 
+            x:Name="CatalogItemBackgroundColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource CatalogItemBackgroundColor}" />
+        <FrameworkElement 
+            x:Name="CatalogItemOpendBackgroundColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource CatalogItemOpendBackgroundColor}" />
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Margin="0" BorderThickness="0 0 0 1" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                <Border.Background>
+                    <SolidColorBrush Color="#ffffff" />
+                </Border.Background>
+                <Border.BorderBrush>
+                    <SolidColorBrush Color="{DynamicResource ViewerBorderColor}" />
+                </Border.BorderBrush>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" MinWidth="0" />
+                        <ColumnDefinition Width="*" MinWidth="0" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- カタログ -->
+                    <WrapPanel Grid.Column="4" HorizontalAlignment="Right"  Visibility="{Binding Contents.Futaba.Value.Raw, ElementName=_this, Converter={StaticResource FutabaCatalogVisibleConverter}}">
+                        <Grid x:Name="CatalogSearchGrid" Width="200" Margin="2" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                x:Name="CatalogSearchTextBox"
+                                Grid.Column="0"
+                                FontSize="14"
+                                VerticalAlignment="Center"
+                                local:PlaceHolderBehavior.PlaceHolderText="検索テキスト"
+                                >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="TextChanged">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.FilterTextChangedCommand, ElementName=_this}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </TextBox>
+                            <Button Grid.Column="1" VerticalAlignment="Center">
+                                <Button.Content>
+                                    <TextBlock>
+                                     ✖
+                                    </TextBlock>
+                                </Button.Content>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <i:ChangePropertyAction 
+                                            TargetObject="{Binding ElementName=CatalogSearchTextBox}" 
+                                            PropertyName="Text"
+                                            Value="" />
+                                        <i:ChangePropertyAction 
+                                            TargetObject="{Binding ElementName=CatalogSearchGrid}" 
+                                            PropertyName="Visibility"
+                                            Value="Collapsed" />
+                                        <i:ChangePropertyAction 
+                                            TargetObject="{Binding ElementName=CatalogSearchButton}" 
+                                            PropertyName="Visibility"
+                                            Value="Visible" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                        </Grid>
+                        <Button x:Name="CatalogSearchButton" Height="32" Margin="2" Visibility="Visible">
+                            <Button.Content>
+                                <TextBlock>
+                                     検索
+                                </TextBlock>
+                            </Button.Content>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{Binding ElementName=CatalogSearchGrid}" 
+                                        PropertyName="Visibility"
+                                        Value="Visible" />
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{Binding ElementName=CatalogSearchButton}" 
+                                        PropertyName="Visibility"
+                                        Value="Collapsed" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+
+                        <Button Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                            <TextBlock>
+                                更新
+                            </TextBlock>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogUpdateClickCommand, ElementName=_this}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                        <Button Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                            <TextBlock>
+                                ソート
+                            </TextBlock>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{StaticResource CatalogSortContextMenu}" 
+                                        PropertyName="DataContext"
+                                        Value="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"/>
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{StaticResource CatalogSortContextMenu}" 
+                                        PropertyName="IsOpen"
+                                        Value="True"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                        <Button Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                            <TextBlock>
+                                切替
+                            </TextBlock>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogListWrapClickCommand, ElementName=_this}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                        <Button Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                            <TextBlock>
+                                スレ立て
+                            </TextBlock>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <ri:EventToReactiveCommand Command="{Binding DataContext.PostClickCommand, ElementName=_this}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                    </WrapPanel>
+                  </Grid>
+            </Border>
+
+            <ListBox
+                x:Name="CatalogListBox"
+                Grid.Row="1"
+                BorderThickness="0"
+                Visibility="{Binding Contents.Futaba.Value.CatalogWrapVisibility.Value, Mode=OneWay, ElementName=_this}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                ScrollViewer.CanContentScroll="True"
+                VirtualizingPanel.ScrollUnit="Pixel"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.VirtualizationMode="Recycling"
+                >
+                <ListBox.ItemsSource>
+                    <MultiBinding Converter="{StaticResource FutabaCatalogItemFilterConverter}">
+                        <Binding Path="Contents.Futaba.Value.ResItems" Mode="OneWay" ElementName="_this" />
+                        <Binding Path="DataContext.FilterText.Value" Mode="OneWay" ElementName="_this" />
+                    </MultiBinding>
+                </ListBox.ItemsSource>
+                <ListBox.Background>
+                    <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                </ListBox.Background>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <!--
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="ForestGreen"/>
+                            <Setter Property="Foreground" Value="Gold"/>
+                        </Trigger>
+                    </Style.Triggers>
+                    -->
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <vwp:VirtualizingWrapPanel IsItemsHost="True"  HorizontalAlignment="Center"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Button
+                                x:Name="button"
+                                Margin="4" 
+                                BorderThickness="0"
+                                BorderBrush="Transparent"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="del" Click="OnCatalogMenuItemDelClickCommand" />
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                                <Button.Background>
+                                    <SolidColorBrush>
+                                        <SolidColorBrush.Color>
+                                            <MultiBinding  Converter="{StaticResource FutabaCatalogItemOpenedColorConverter}">
+                                                <Binding Mode="OneWay" />
+                                                <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
+                                                <Binding Path="DataContext" ElementName="CatalogItemOpendBackgroundColorGetter" Mode="OneWay" />
+                                            </MultiBinding>
+                                        </SolidColorBrush.Color>
+                                    </SolidColorBrush>
+                                </Button.Background>
+                                <Grid x:Name="CatalogItem">
+                                    <TextBlock.Foreground>
+                                        <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                                    </TextBlock.Foreground>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <!-- スレ画-->
+                                    <Viewbox
+                                        Grid.Row="0"
+                                        Width="{DynamicResource CatalogImageSize}" Height="{DynamicResource CatalogImageSize}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Stretch="Uniform"
+                                        >
+                                        <Image
+                                            Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                            RenderOptions.EdgeMode="Aliased"
+                                            RenderOptions.BitmapScalingMode="Fant">
+                                            <Image.CacheMode>
+                                                <BitmapCache RenderAtScale="1" />
+                                            </Image.CacheMode>
+                                        </Image>
+                                    </Viewbox>
+                                    <!-- 新着レス数-->
+                                    <Viewbox
+                                        Grid.Row="0"
+                                        Margin="2"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Visibility="{Binding Raw.Value, Converter={StaticResource FutabaNewResVisibilityConverter}, Mode=OneWay}"                                        
+                                        Width="{DynamicResource CatalogBadgeSize}"
+                                        Height="{DynamicResource CatalogBadgeSize}"
+                                        >
+                                        <Grid
+                                            Width="16"
+                                            Height="16"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            >
+                                            <Ellipse Width="16" Height="16">
+                                                <Ellipse.Fill>
+                                                    <SolidColorBrush Color="{DynamicResource CatalogBadgeCountBackgroundColor}" />
+                                                </Ellipse.Fill>
+                                            </Ellipse>
+                                            <TextBlock
+                                                Text="{Binding Raw.Value, Converter={StaticResource FutabaNewResCountConverter}, Mode=OneWay}"
+                                                FontFamily="{DynamicResource CatalogBadgeCountFont}"
+                                                FontSize="10"
+                                                FontWeight="Bold"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Padding="0 0 0 1">
+                                                <TextBlock.Foreground>
+                                                    <SolidColorBrush Color="{DynamicResource CatalogBadgeCountForegroundColor}" />
+                                                </TextBlock.Foreground>
+                                            </TextBlock>
+                                        </Grid>
+                                    </Viewbox>
+                                    <!-- レス-->
+                                    <Grid
+                                        Grid.Column="0"
+                                        Grid.Row="1"
+                                        VerticalAlignment="Bottom"
+                                        Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}"
+                                        Height="{DynamicResource CatalogTextSize}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Text="{Binding Raw.Value.ResItem.Res, Converter={StaticResource CatalogTextConverter}, Mode=OneWay}"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Bottom"/>
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Text="{Binding Raw.Value.CounterCurrent, Mode=OneWay}"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Bottom"/>
+                                    </Grid>
+                                </Grid>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseDown">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogItemMouseDownCommand, ElementName=_this}" />
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogItemClickCommand, ElementName=_this}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <ListBox
+                Grid.Row="1"
+                BorderThickness="0"
+                Visibility="{Binding Contents.Futaba.Value.CatalogListVisibility.Value, Mode=OneWay, ElementName=_this}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                ScrollViewer.CanContentScroll="True"
+                VirtualizingPanel.ScrollUnit="Pixel"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.VirtualizationMode="Recycling"
+                >
+                <ListBox.ItemsSource>
+                    <MultiBinding Converter="{StaticResource FutabaCatalogItemFilterConverter}">
+                        <Binding Path="Contents.Futaba.Value.ResItems" Mode="OneWay" ElementName="_this" />
+                        <Binding Path="DataContext.FilterText.Value" Mode="OneWay" ElementName="_this" />
+                    </MultiBinding>
+                </ListBox.ItemsSource>
+                <ListBox.Background>
+                    <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                </ListBox.Background>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel
+                            Orientation="Vertical"
+                            IsItemsHost="True" 
+                            HorizontalAlignment="Stretch"
+                            />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Button
+                                x:Name="button"
+                                Margin="4" 
+                                BorderThickness="0"
+                                BorderBrush="Transparent"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="del" Click="OnCatalogMenuItemDelClickCommand" />
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                                <Button.Background>
+                                    <SolidColorBrush>
+                                        <SolidColorBrush.Color>
+                                            <MultiBinding  Converter="{StaticResource FutabaCatalogItemOpenedColorConverter}">
+                                                <Binding Mode="OneWay" />
+                                                <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
+                                                <Binding Path="DataContext" ElementName="CatalogItemOpendBackgroundColorGetter" Mode="OneWay" />
+                                            </MultiBinding>
+                                        </SolidColorBrush.Color>
+                                    </SolidColorBrush>
+                                </Button.Background>
+                                <Grid Margin="16 4 16 4" Background="Transparent" IsHitTestVisible="False">
+                                    <TextBlock.Foreground>
+                                        <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                                    </TextBlock.Foreground>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid
+                                        x:Name="viewGrid"
+                                        Grid.Column="0" Grid.Row="0"
+                                        MaxWidth="1024"
+                                        Background="Transparent"
+                                        HorizontalAlignment="Left">
+
+                                        <WrapPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" 
+                                           TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
+                                           TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
+                                            <Grid
+                                                Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}"
+                                                TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
+                                                TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
+                                                <Viewbox
+                                                    Grid.Row="1"
+                                                    MaxWidth="96"
+                                                    MaxHeight="96"
+                                                    HorizontalAlignment="Left"
+                                                    StretchDirection="DownOnly">
+                                                    <Image 
+                                                        Source="{Binding ThumbSource.Value}"
+                                                        RenderOptions.EdgeMode="Aliased"
+                                                        RenderOptions.BitmapScalingMode="Fant">
+                                                        <Image.CacheMode>
+                                                            <BitmapCache RenderAtScale="1" />
+                                                        </Image.CacheMode>
+                                                    </Image>
+                                                </Viewbox>
+
+                                                <!-- 新着レス数-->
+                                                <Viewbox
+                                                    Grid.Row="0"
+                                                    Margin="2"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Top"
+                                                    Visibility="{Binding Raw.Value, Converter={StaticResource FutabaNewResVisibilityConverter}, Mode=OneWay}"                                        
+                                                    Width="{DynamicResource CatalogBadgeSize}"
+                                                    Height="{DynamicResource CatalogBadgeSize}"
+                                                    >
+                                                    <Grid
+                                                        Width="16"
+                                                        Height="16"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Top"
+                                                        >
+                                                        <Ellipse Width="16" Height="16">
+                                                            <Ellipse.Fill>
+                                                                <SolidColorBrush Color="{DynamicResource CatalogBadgeCountBackgroundColor}" />
+                                                            </Ellipse.Fill>
+                                                        </Ellipse>
+                                                        <TextBlock
+                                                            Text="{Binding Raw.Value, Converter={StaticResource FutabaNewResCountConverter}, Mode=OneWay}"
+                                                            FontFamily="{DynamicResource CatalogBadgeCountFont}"
+                                                            FontSize="10"
+                                                            FontWeight="Bold"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Padding="0 0 0 1">
+                                                            <TextBlock.Foreground>
+                                                                <SolidColorBrush Color="{DynamicResource CatalogBadgeCountForegroundColor}" />
+                                                            </TextBlock.Foreground>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                </Viewbox>
+                                            </Grid>
+                                            <local:FutabaCommentBlock Text="{Binding CommentHtml.Value, Mode=OneWay}" TextWrapping="Wrap" Margin="4 4 0 4">
+                                                <local:FutabaCommentBlock.Inline>
+                                                    <Binding Path="CommentHtml.Value" Mode="OneWay" />
+                                                </local:FutabaCommentBlock.Inline>
+                                            </local:FutabaCommentBlock>
+                                        </WrapPanel>
+                                    </Grid>
+                                </Grid>
+
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseDown">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogItemMouseDownCommand, ElementName=_this}" />
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogItemClickCommand, ElementName=_this}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!-- 書き込みサブウィンドウ -->
+            <Border
+                x:Name="PostView"
+                Grid.Row="1"
+                MinWidth="360"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                DataContext="{Binding Contents.Futaba.Value, ElementName=_this}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Margin="4"
+                Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=OneWay}">
+                <Border.Background>
+                    <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                </Border.Background>
+                <Border.BorderBrush>
+                    <SolidColorBrush Color="{DynamicResource ViewerBorderColor}" />
+                </Border.BorderBrush>
+               
+                <i:Interaction.Triggers>
+                    <i:DataTrigger Binding="{Binding ActualWidth, ElementName=_this, Mode=OneWay}" Value="360" Comparison="GreaterThan">
+                        <i:ChangePropertyAction TargetName="PostView" PropertyName="MinWidth" Value="360" />
+                        <i:ChangePropertyAction TargetName="PostView" PropertyName="Width">
+                            <i:ChangePropertyAction.Value>
+                                <sys:Double>NaN</sys:Double>
+                            </i:ChangePropertyAction.Value>
+                        </i:ChangePropertyAction>
+                        <i:ChangePropertyAction TargetName="PostView" PropertyName="CornerRadius" Value="6" />
+                        <i:ChangePropertyAction TargetName="PostView" PropertyName="Margin" Value="4" />
+                    </i:DataTrigger>
+                    <i:DataTrigger Binding="{Binding ActualWidth, ElementName=_this, Mode=OneWay}" Value="360" Comparison="LessThanOrEqual">
+                        <i:ChangePropertyAction TargetName="PostView" PropertyName="MinWidth" Value="{Binding ActualWidth, ElementName=_this, Mode=OneWay}" />
+                        <i:ChangePropertyAction TargetName="PostView" PropertyName="Width" Value="{Binding ActualWidth, ElementName=_this, Mode=OneWay}" />
+                        <i:ChangePropertyAction TargetName="PostView" PropertyName="CornerRadius" Value="0" />
+                        <i:ChangePropertyAction TargetName="PostView" PropertyName="Margin" Value="0" />
+                    </i:DataTrigger>
+                    <i:DataTrigger Binding="{Binding Visibility, ElementName=PostView, Mode=OneWay}" Value="Visible" Comparison="Equal">
+                        <i:CallMethodAction TargetObject="{Binding ElementName=PostViewFocusBehavior, Mode=OneWay}" MethodName="Focus" />
+                    </i:DataTrigger>
+                </i:Interaction.Triggers>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="6" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="6" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Border
+                        Grid.Column="0" Grid.ColumnSpan="3"
+                        Grid.Row="0"
+                        Background="{StaticResource PrimaryColorBrush}"
+                        >
+                        <TextBlock FontSize="16" Margin="2" Text="{Binding PostTitle.Value, Mode=OneWay}" />
+                    </Border>
+                    <ScrollViewer Grid.Column="1" Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Orientation="Vertical" TextBlock.FontSize="14">
+                            <TextBox 
+                                x:Name="PostCommentTextBox"
+                                AcceptsReturn="True" 
+                                Margin="0 4 0 4"
+                                Padding="1"
+                                Text="{Binding PostData.Value.Comment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                local:PlaceHolderBehavior.PlaceHolderText="コメント">
+                                <i:Interaction.Behaviors>
+                                    <behavior:FocusBehavior x:Name="PostViewFocusBehavior" />
+                                </i:Interaction.Behaviors>
+                            </TextBox>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <TextBlock Margin="2 2 0 2" Text="{Binding  PostData.Value.CommentBytes.Value, StringFormat='たぶん\{0\}byte', Mode=OneWay}" />
+                                <TextBlock Margin="2 2 0 2" Text="{Binding  PostData.Value.CommentLines.Value, StringFormat='\{0\}行', Mode=OneWay}" />
+                            </StackPanel>
+                            <Grid Visibility="Collapsed">
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                    <TextBlock
+                                        Margin="0 4 0 4"
+                                        Text="{Binding PostData.Value.ImageName.Value, Mode=OneWay}" />
+                                    <Viewbox Width="128" Height="128"  StretchDirection="DownOnly">
+                                        <Image 
+                                            Source="{Binding PostData.Value.ImagePreview.Value, Mode=OneWay}"
+                                            RenderOptions.EdgeMode="Aliased"
+                                            RenderOptions.BitmapScalingMode="Fant">
+                                            <Image.CacheMode>
+                                                <BitmapCache RenderAtScale="1" />
+                                            </Image.CacheMode>
+                                        </Image>
+                                    </Viewbox>
+                                </StackPanel>
+                                <Button
+                                    Margin="4"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top">
+                                    <TextBlock>
+                                        ✖
+                                    </TextBlock>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="PreviewMouseUp">
+                                            <ri:EventToReactiveCommand Command="{Binding DeleteImageCommand, Mode=OneWay}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
+                                <i:Interaction.Triggers>
+                                    <i:DataTrigger Binding="{Binding PostData.Value.ImagePath.Value.Length, Mode=OneWay}" Value="0" Comparison="Equal">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
+                                    </i:DataTrigger>
+                                    <i:DataTrigger Binding="{Binding PostData.Value.ImagePath.Value.Length, Mode=OneWay}" Value="0" Comparison="NotEqual">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
+                                    </i:DataTrigger>
+                                </i:Interaction.Triggers>
+                            </Grid>
+                            <TextBox
+                                Margin="0 4 0 4"
+                                Padding="1"
+                                Visibility="{Binding PostNameVisibility.Value, Mode=OneWay}"
+                                Text="{Binding PostData.Value.Name.Value, Mode=TwoWay}"
+                                local:PlaceHolderBehavior.PlaceHolderText="おなまえ" />
+                            <TextBox 
+                                Margin="0 4 0 4"
+                                Padding="1"
+                                Text="{Binding PostData.Value.Mail.Value, Mode=TwoWay}"
+                                local:PlaceHolderBehavior.PlaceHolderText="メールアドレス" />
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Margin="4 0 0 0" Visibility="{Binding PostIdOptionVisibility.Value, Mode=OneWay}">
+                                    <Button.Content>
+                                        ID表示
+                                    </Button.Content>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <ri:EventToReactiveCommand Command="{Binding MailIdClickCommand, Mode=OneWay}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
+                                <Button Margin="4 0 0 0" Visibility="{Binding PostIpOptionVisibility.Value, Mode=OneWay}">
+                                    <Button.Content>
+                                        IP表示
+                                    </Button.Content>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <ri:EventToReactiveCommand Command="{Binding MailIpClickCommand, Mode=OneWay}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
+                                <Button Margin="4 0 0 0">
+                                    <Button.Content>
+                                        sage
+                                    </Button.Content>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <ri:EventToReactiveCommand Command="{Binding MailSageClickCommand, Mode=OneWay}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
+                            </StackPanel>
+                            <TextBox
+                                Margin="0 4 0 4"
+                                Padding="1"
+                                 Visibility="{Binding PostNameVisibility.Value, Mode=OneWay}"
+                                Text="{Binding PostData.Value.Subject.Value, Mode=TwoWay}"
+                                local:PlaceHolderBehavior.PlaceHolderText="題名" />
+                            <TextBox
+                                Margin="0 4 0 4"
+                                Padding="1"
+                                Text="{Binding PostData.Value.Password.Value, Mode=TwoWay}"
+                                local:PlaceHolderBehavior.PlaceHolderText="パスワード" />
+                        </StackPanel>
+                    </ScrollViewer>
+                    <Border
+                        Grid.Column="0" Grid.ColumnSpan="3"
+                        Grid.Row="2"
+                        Background="{StaticResource PrimaryColorBrush}"
+                        >
+                        <StackPanel Orientation="Horizontal">
+                            <Button Height="24" Margin="2" Command="{Binding PostData.Value.PostButtonCommand}">
+                                <TextBlock>投稿</TextBlock>
+
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.PostViewPostCommand, ElementName=_this, Mode=OneWay}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                            <Button Height="24" Margin="2" AllowDrop="True" Visibility="{Binding PostImageVisibility.Value, Mode=OneWay}">
+                                <TextBlock>画像</TextBlock>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <ri:EventToReactiveCommand Command="{Binding OpenImageCommand}" />
+                                    </i:EventTrigger>
+
+                                    <i:EventTrigger EventName="PreviewDragOver">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ImageDragOverCommand, ElementName=_this, Mode=OneWay}" />
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="Drop">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ImageDropCommand, ElementName=_this, Mode=OneWay}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                            <Button Height="24" Margin="2" AllowDrop="True">
+                                <TextBlock>ロダ</TextBlock>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.OpenUploadCommand, ElementName=_this, Mode=OneWay}" />
+                                    </i:EventTrigger>
+
+                                    <i:EventTrigger EventName="PreviewDragOver">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.UploadDragOverpCommand, ElementName=_this, Mode=OneWay}" />
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="Drop">
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.UploadDroppCommand, ElementName=_this, Mode=OneWay}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                            <Button Height="24" Margin="2">
+                                <TextBlock>破棄</TextBlock>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <ri:EventToReactiveCommand Command="{Binding DeletePostDataCommand}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
