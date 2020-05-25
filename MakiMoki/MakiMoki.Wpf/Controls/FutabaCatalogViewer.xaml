@@ -66,6 +66,65 @@
                                         <MenuItem Header="del" Click="OnCatalogMenuItemDelClickCommand" />
                                     </ContextMenu>
                                 </Button.ContextMenu>
+                                <Button.ToolTip>
+                                    <ToolTip>
+                                        <Grid
+                                    Margin="16 4 16 4" 
+                                    Background="Transparent"
+                                    IsHitTestVisible="False">
+                                            <TextBlock.Foreground>
+                                                <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                                            </TextBlock.Foreground>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" MaxWidth="480" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <WrapPanel
+                                        Grid.Row="0" Orientation="Horizontal" 
+                                        TextBlock.FontSize="12"
+                                        TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
+                                                <Grid Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}">
+                                                    <Viewbox
+                                                MaxWidth="96"
+                                                MaxHeight="96"
+                                                HorizontalAlignment="Left"
+                                                StretchDirection="DownOnly">
+                                                        <Image 
+                                                    Source="{Binding ThumbSource.Value}"
+                                                    RenderOptions.EdgeMode="Aliased"
+                                                    RenderOptions.BitmapScalingMode="Fant">
+                                                            <Image.CacheMode>
+                                                                <BitmapCache RenderAtScale="1" />
+                                                            </Image.CacheMode>
+                                                        </Image>
+                                                    </Viewbox>
+
+                                                </Grid>
+                                                <local:FutabaCommentBlock
+                                            Text="{Binding CommentHtml.Value, Mode=OneWay}"
+                                            TextWrapping="Wrap"
+                                            Margin="4 4 0 4">
+                                                    <local:FutabaCommentBlock.Inline>
+                                                        <Binding Path="CommentHtml.Value" Mode="OneWay" />
+                                                    </local:FutabaCommentBlock.Inline>
+                                                </local:FutabaCommentBlock>
+                                            </WrapPanel>
+                                            <TextBlock
+                                        Grid.Row="1"
+                                        Text="{Binding Raw.Value.CounterCurrent, Mode=OneWay, StringFormat='\{0\}レス'}"
+                                        TextBlock.FontSize="12"
+                                        TextBlock.FontFamily="{DynamicResource ThreadTextFont}"
+                                        HorizontalAlignment="Right"
+                                        Margin="2"/>
+                                        </Grid>
+
+
+                                    </ToolTip>
+                                </Button.ToolTip>
                                 <Button.Background>
                                     <SolidColorBrush>
                                         <SolidColorBrush.Color>

@@ -440,7 +440,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Button
                                     Grid.Column="0" 
-                                    MinWidth="80" Height="28"
+                                    MinWidth="128" Height="40"
                                     IsEnabled="{Binding  Parent.Value, Mode=OneWay, Converter={StaticResource FutabaResItemNextButtonEnabledConverter}}">
                                     <TextBlock>
                                         続きを読む
@@ -475,7 +475,7 @@
                                                 </SolidColorBrush>
                                             </TextBlock.Foreground>
                                         </TextBlock>
-                                        <Button Grid.Column="2">
+                                        <Button Grid.Column="2" Height="32">
                                             <TextBlock>
                                                 保存
                                             </TextBlock>

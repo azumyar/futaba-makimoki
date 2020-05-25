@@ -46,7 +46,6 @@
         <Style x:Key="{x:Type TabControl}" TargetType="TabControl">
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabControl">
@@ -72,6 +71,11 @@
                                     <RowDefinition Height="4" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
+                                <Viewbox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Top">
+                                    <Canvas Width="1024" Height="1024" Opacity="0.6">
+                                        <Path Width="768" Height="512" Canvas.Left="128" Canvas.Top="352" Stretch="Fill" Fill="#FFFFFFFF" Data="F1 M 768,576C 682.866,576 569.422,543.679 528,498.924L 528,864L 496,864L 496,498.924C 454.578,543.679 341.133,576 256,576C 149.961,576 128,525.856 128,464C 128,402.144 149.961,352 256,352C 362.038,352 512,402.144 512,464C 512,402.144 661.961,352 768,352C 874.039,352 896,402.144 896,464C 896,525.856 874.039,576 768,576 Z M 512,464L 511.993,464.75L 512.007,464.75C 512.002,464.5 512,464.25 512,464 Z "/>
+                                    </Canvas>                                </Viewbox>
+
                                 <ScrollViewer
                                     x:Name="scrollViewer"
                                     Grid.Column="1" Grid.Row="1"
@@ -315,7 +319,8 @@
                                     Content="{StaticResource arrowLeft}"
                                     CommandTarget="{Binding ElementName=scrollViewer}"
                                     Command="ScrollBar.LineLeftCommand"
-                                    Visibility="Hidden"/>
+                                    Visibility="Hidden"
+                                    WindowChrome.IsHitTestVisibleInChrome="True"/>
                                 <RepeatButton
                                     x:Name="rightButton" Grid.Column="4"
                                     Width="32" Height="32"
@@ -323,8 +328,9 @@
                                     Content="{StaticResource arrowRight}"
                                     CommandTarget="{Binding ElementName=scrollViewer}"
                                     Command="ScrollBar.LineRightCommand"
-                                    Visibility="Hidden"/>
-                                <StackPanel Grid.Column="6" Orientation="Horizontal">
+                                    Visibility="Hidden"
+                                    WindowChrome.IsHitTestVisibleInChrome="True"/>
+                                <StackPanel Grid.Column="6" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
                                     <Button Content="0" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
                                     <Button Content="1" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MaximizeWindowCommand}">
                                         <i:Interaction.Triggers>
