@@ -125,7 +125,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnUpdateThreadRes(Data.FutabaContext[] threads) {
 			var url = this.TabControlSelectedItem.Value?.Futaba.Value?.Url.BaseUrl ?? "";
 			var it = Update(this.Threads, threads /*.Where(x => x.Url.BaseUrl == url).ToArray() */, true);
-			RaisePropertyChanged("Threads"); // これがないとコンバータが起動しない
+			RaisePropertyChanged(nameof(Threads)); // これがないとコンバータが起動しない
 			if(it != null) {
 				this.ThreadTabSelectedItem.Value = it;
 			}

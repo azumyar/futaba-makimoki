@@ -22,12 +22,25 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				typeof(string),
 				typeof(FutabaCommentBlock),
 				new PropertyMetadata(null, OnInlinePropertyChanged));
+		public static readonly DependencyProperty MaxLinesProperty =
+			DependencyProperty.RegisterAttached(
+				nameof(MaxLines),
+				typeof(int),
+				typeof(FutabaCommentBlock),
+				new PropertyMetadata(int.MaxValue, OnMaxLinesPropertyChanged));
 		public static RoutedEvent LinkClickEvent
 			= EventManager.RegisterRoutedEvent(
 				nameof(LinkClick),
 				RoutingStrategy.Tunnel,
 				typeof(RoutedEventArgs),
 				typeof(FutabaCommentBlock));
+
+		public int MaxLines {
+			get => (int)this.GetValue(MaxLinesProperty);
+			set {
+				this.SetValue(MaxLinesProperty, value);
+			}
+		}
 
 		public event RoutedEventHandler LinkClick {
 			add { AddHandler(LinkClickEvent, value); }
@@ -44,12 +57,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 
 		private static void OnInlinePropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
-			var tb = obj as TextBlock;
-			var msg = e.NewValue as string;
-			if(tb == null || msg == null) {
-				return;
+			if((obj is TextBlock tb) && (e.NewValue is string msg)) {
+				a(tb, msg, (tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue);
 			}
-
+		}
+		private static void OnMaxLinesPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
+			if((obj is TextBlock tb) && (e.NewValue is int maxLines)) {
+				a(tb, GetInline(tb), maxLines);
+			}
+		}
+		
+		private static void a(TextBlock tb, string msg, int maxLines) { 
 			tb.Text = null;
 			tb.Inlines.Clear();
 
@@ -59,7 +77,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			//	RegexOptions.IgnoreCase | RegexOptions.Multiline);
 			//var s3 = System.Net.WebUtility.HtmlDecode(s2);
 			msg = s1;
-			var lines = msg.Replace("\r", "").Split('\n');
+			var lines = msg.Replace("\r", "").Split('\n').Take(maxLines).ToArray();
 			var regexOpt = RegexOptions.IgnoreCase | RegexOptions.Singleline;
 			var regex = new Regex[] {
 				new Regex(@"^(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)", regexOpt),
@@ -200,7 +218,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					EvalEmoji(output.ToString(), null);
 					output.Clear();
 				}
-				if(!object.ReferenceEquals(lines, last)) {
+				if(!object.ReferenceEquals(s, last)) {
 					tb.Inlines.Add(new LineBreak());
 				}
 			}

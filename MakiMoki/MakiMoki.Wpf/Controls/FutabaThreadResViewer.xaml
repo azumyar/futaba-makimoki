@@ -259,6 +259,7 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="24" />
                                 </Grid.RowDefinitions>
                                 <WrapPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal"
                                            TextBlock.FontSize="{DynamicResource ThreadHeaderFontSize}"
