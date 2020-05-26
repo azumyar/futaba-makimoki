@@ -72,4 +72,37 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			throw new NotImplementedException();
 		}
 	}
+
+	class ThreadDieOpacityConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if(values.Length == 2) {
+				if((values[0] is Model.BindableFutaba bf) && (values[1] is double d)) {
+					return bf.IsDie.Value ? d : 1.0;
+				}
+				return 1.0;
+			}
+			throw new ArgumentException("型不正。", "values");
+		}
+
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
+	class ThreadNewResVisibleConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if(values.Length == 2) {
+				if((values[0] is int i1) && (values[1] is int i2) && (0 <= i1)) { // スレ情報取得前のi1の初期値は-1
+					return i1 < i2 ? Visibility.Visible : Visibility.Hidden;
+					//return bf.ResCount.Value < bf.CatalogResCount.Value ? Visibility.Visible : Visibility.Hidden;
+				}
+				return Visibility.Hidden;
+			}
+			throw new ArgumentException("型不正。", "values");
+		}
+
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
 }

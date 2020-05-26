@@ -120,6 +120,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				this.TabControlSelectedItem.Value = it;
 			}
 			this.TabVisibility.Value = this.Catalogs.Count != 0 ? Visibility.Visible : Visibility.Collapsed;
+			foreach(var c in catalog) {
+				var th = this.Threads.Where(x => x.Url.BaseUrl == c.Url.BaseUrl).ToArray();
+				foreach(var t in c.ResItems) {
+					var tt = th.Where(x => x.Futaba.Value.ResItems.FirstOrDefault()?.Raw.Value?.ResItem.No == t.ResItem.No).FirstOrDefault();
+					if(tt != null) {
+						tt.Futaba.Value.CatalogResCount.Value = t.CounterCurrent;
+					}
+				}
+			}
 		}
 
 		private void OnUpdateThreadRes(Data.FutabaContext[] threads) {

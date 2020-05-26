@@ -181,6 +181,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<int> FullScreenSpan { get; }
 		public ReactiveProperty<Visibility> FullScreenVisibility { get; }
 
+		public ReactiveProperty<int> CatalogResCount { get; } = new ReactiveProperty<int>(0);
+
 		public BindableFutaba(Data.FutabaContext futaba, BindableFutaba old = null) {
 			OpenedThreads = Util.Futaba.Threads.Select(x => x.Where(y => y.Url.BaseUrl == futaba.Url.BaseUrl).ToArray()).ToReactiveProperty();
 			CatalogListVisibility = CatalogListMode.Select(x => futaba.Url.IsCatalogUrl ? (x ? Visibility.Visible : Visibility.Hidden) :  Visibility.Hidden).ToReactiveProperty();
@@ -190,6 +192,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			if(old != null) {
 				CatalogSortItem.Value = old.CatalogSortItem.Value;
 				CatalogListMode.Value = old.CatalogListMode.Value;
+				CatalogResCount.Value = old.CatalogResCount.Value;
 			}
 
 

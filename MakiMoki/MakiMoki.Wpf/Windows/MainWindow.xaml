@@ -24,6 +24,8 @@
         <converter:TabItemWidthConverter x:Key="TabItemWidthConverter"/>
         <converter:TabItemCatalogConverter x:Key="TabItemCatalogConverter"/>
         <converter:TabItemThreadConverter x:Key="TabItemThreadConverter"/>
+        <converter:ThreadDieOpacityConverter x:Key="ThreadDieOpacityConverter" />
+        <converter:ThreadNewResVisibleConverter x:Key="ThreadNewResVisibleConverter" />
 
         <system:Double x:Key="WindowCaptionHeight">36</system:Double>
         
@@ -587,6 +589,12 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
+            <!-- DynamicResource取得用のElement -->
+            <FrameworkElement 
+                x:Name="WindowThreadTabDieOpacityGetter"
+                Visibility="Collapsed"
+                DataContext="{DynamicResource WindowThreadTabDieOpacity}" />
+
             <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button Content="0" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
                 <Button Content="1" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MaximizeWindowCommand}">
@@ -781,6 +789,14 @@
                             <TabControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
+                                        <Grid.Opacity>
+                                            <MultiBinding Converter="{StaticResource ThreadDieOpacityConverter}" Mode="OneWay">
+                                                <MultiBinding.Bindings>
+                                                    <Binding Path="Futaba.Value" />
+                                                    <Binding Path="DataContext" ElementName="WindowThreadTabDieOpacityGetter" />
+                                                </MultiBinding.Bindings>
+                                            </MultiBinding>
+                                        </Grid.Opacity>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
@@ -799,6 +815,23 @@
                                                 </Image.CacheMode>
                                             </Image>
                                         </Viewbox>
+                                        <Ellipse
+                                            Width="10" Height="10" Margin="1"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top">
+                                            <Ellipse.Visibility>
+                                                <!-- カタログからの変更通知なので生のプロパティ参照しないと更新が来ない -->
+                                                <MultiBinding Converter="{StaticResource ThreadNewResVisibleConverter}" Mode="OneWay">
+                                                    <MultiBinding.Bindings>
+                                                        <Binding Path="Futaba.Value.ResCount.Value" />
+                                                        <Binding Path="Futaba.Value.CatalogResCount.Value" />
+                                                    </MultiBinding.Bindings>
+                                                </MultiBinding>
+                                            </Ellipse.Visibility>
+                                            <Ellipse.Fill>
+                                                <SolidColorBrush Color="{DynamicResource WindowThreadTabNewColor}" />
+                                            </Ellipse.Fill>
+                                        </Ellipse>
                                         <TextBlock Grid.Column="1" Text="{Binding Name.Value, Mode=OneWay}" VerticalAlignment="Center" Margin="4 0 4 0" />
                                     </Grid>
                                 </DataTemplate>

@@ -5,6 +5,9 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf">
     <Application.Resources>
+        <sys:Double x:Key="WindowThreadTabDieOpacity">0.8</sys:Double>
+        <Color x:Key="WindowThreadTabNewColor">Red</Color>
+
         <!-- LightBlueの300 -->
         <Color x:Key="ViewerPrimaryColor">#4FC3F7</Color>
         <!-- BlueGrayの900 -->
