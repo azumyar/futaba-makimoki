@@ -159,6 +159,12 @@
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                     </Button>
+                                    <Button Width="32" Height="32" Margin="2" Content="設定" IsEnabled="False">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="Click">
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </Button>
                                 </StackPanel>
                             </Grid>
 
@@ -581,7 +587,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right">
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button Content="0" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
                 <Button Content="1" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MaximizeWindowCommand}">
                     <i:Interaction.Triggers>

@@ -137,6 +137,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 #pragma warning restore CS0067
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 		public ReactiveCollection<BindableFutabaResItem> ResItems { get; }
+		public ReactiveProperty<FutabaContext[]> OpenedThreads { get; }
 		public ReactiveProperty<int> ResCount { get; }
 		public ReactiveProperty<string> DieTextLong { get; }
 
@@ -160,13 +161,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveCommand ExportCommand { get; } = new ReactiveCommand();
 
 		public ReactiveProperty<Data.CatalogSortItem> CatalogSortItem { get; } = new ReactiveProperty<Data.CatalogSortItem>(Data.CatalogSort.Catalog);
-		public ReactiveProperty<bool> CatalogSortCheckedCatalog { get; }
-		public ReactiveProperty<bool> CatalogSortCheckedNew { get; }
-		public ReactiveProperty<bool> CatalogSortCheckedOld { get; }
-		public ReactiveProperty<bool> CatalogSortCheckedMany { get; }
-		public ReactiveProperty<bool> CatalogSortCheckedMomentum { get; }
-		public ReactiveProperty<bool> CatalogSortCheckedFew { get; }
-		public ReactiveProperty<bool> CatalogSortCheckedSoudane { get; }
 
 		public ReactiveProperty<bool> CatalogListMode { get; } = new ReactiveProperty<bool>(false);
 		public ReactiveProperty<Visibility> CatalogListVisibility { get; }
@@ -188,17 +182,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Visibility> FullScreenVisibility { get; }
 
 		public BindableFutaba(Data.FutabaContext futaba, BindableFutaba old = null) {
+			OpenedThreads = Util.Futaba.Threads.Select(x => x.Where(y => y.Url.BaseUrl == futaba.Url.BaseUrl).ToArray()).ToReactiveProperty();
 			CatalogListVisibility = CatalogListMode.Select(x => futaba.Url.IsCatalogUrl ? (x ? Visibility.Visible : Visibility.Hidden) :  Visibility.Hidden).ToReactiveProperty();
 			FullScreenVisibility = CatalogListMode.Select(x => futaba.Url.IsCatalogUrl ? (x ? Visibility.Hidden : Visibility.Visible) :  Visibility.Hidden).ToReactiveProperty();
-			FullScreenSpan = IsFullScreenMode.Select(x => x ? 3 : 0).ToReactiveProperty();
+			FullScreenSpan = IsFullScreenMode.Select(x => x ? 3 : 1).ToReactiveProperty();
 			FullScreenVisibility = IsFullScreenMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
-			CatalogSortCheckedCatalog = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Catalog.ApiValue).ToReactiveProperty();
-			CatalogSortCheckedNew = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.New.ApiValue).ToReactiveProperty();
-			CatalogSortCheckedOld = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Old.ApiValue).ToReactiveProperty();
-			CatalogSortCheckedMany = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Many.ApiValue).ToReactiveProperty();
-			CatalogSortCheckedMomentum = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Momentum.ApiValue).ToReactiveProperty();
-			CatalogSortCheckedFew = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Few.ApiValue).ToReactiveProperty();
-			CatalogSortCheckedSoudane = CatalogSortItem.Select(x => x.ApiValue == Data.CatalogSort.Soudane.ApiValue).ToReactiveProperty();
 			if(old != null) {
 				CatalogSortItem.Value = old.CatalogSortItem.Value;
 				CatalogListMode.Value = old.CatalogListMode.Value;

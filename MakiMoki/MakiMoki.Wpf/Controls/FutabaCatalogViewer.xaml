@@ -114,6 +114,9 @@
                                 BorderBrush="Transparent"
                                 HorizontalContentAlignment="Stretch"
                                 VerticalContentAlignment="Stretch"
+                                ToolTipService.InitialShowDelay="1000"
+                                ToolTipService.BetweenShowDelay="0"
+                                ToolTipService.ShowDuration="{x:Static sys:Int32.MaxValue}"
                                 ToolTip="{StaticResource CatalogItemToolTip}">
                                 <Button.ContextMenu>
                                     <ContextMenu>
@@ -125,6 +128,7 @@
                                         <SolidColorBrush.Color>
                                             <MultiBinding  Converter="{StaticResource FutabaCatalogItemOpenedColorConverter}">
                                                 <Binding Mode="OneWay" />
+                                                <Binding Path="Contents.Futaba.Value.OpenedThreads.Value" Mode="OneWay" ElementName="_this" />
                                                 <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
                                                 <Binding Path="DataContext" ElementName="CatalogItemOpendBackgroundColorGetter" Mode="OneWay" />
                                             </MultiBinding>
@@ -257,6 +261,9 @@
                                 BorderBrush="Transparent"
                                 HorizontalContentAlignment="Stretch"
                                 VerticalContentAlignment="Stretch"
+                                ToolTipService.InitialShowDelay="1000"
+                                ToolTipService.BetweenShowDelay="0"
+                                ToolTipService.ShowDuration="{x:Static sys:Int32.MaxValue}"
                                 ToolTip="{StaticResource CatalogItemToolTip}">
                                 <Button.ContextMenu>
                                     <ContextMenu>
@@ -268,6 +275,7 @@
                                         <SolidColorBrush.Color>
                                             <MultiBinding  Converter="{StaticResource FutabaCatalogItemOpenedColorConverter}">
                                                 <Binding Mode="OneWay" />
+                                                <Binding Path="Contents.Futaba.Value.OpenedThreads.Value" Mode="OneWay" ElementName="_this" />
                                                 <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
                                                 <Binding Path="DataContext" ElementName="CatalogItemOpendBackgroundColorGetter" Mode="OneWay" />
                                             </MultiBinding>
@@ -438,153 +446,154 @@
                 </Border.BorderBrush>
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" MinWidth="0" />
                         <ColumnDefinition Width="*" MinWidth="0" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition x:Name="SearchColumn" Width="*" MaxWidth="320" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- カタログ -->
-                    <WrapPanel Grid.Column="4" HorizontalAlignment="Right"  Visibility="{Binding Contents.Futaba.Value.Raw, ElementName=_this, Converter={StaticResource FutabaCatalogVisibleConverter}}">
-                        <Grid x:Name="CatalogSearchGrid" Width="200" Margin="2" Visibility="Collapsed">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBox
+                    <Button Grid.Column="1" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                        <TextBlock>
+                                更新
+                        </TextBlock>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogUpdateClickCommand, ElementName=_this}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                    <Grid x:Name="CatalogSearchGrid" Grid.Column="2" Width="{Binding ActualWidth, Mode=OneWay, ElementName=SearchColumn}" Margin="2" HorizontalAlignment="Stretch"  Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox
                                 x:Name="CatalogSearchTextBox"
                                 Grid.Column="0"
                                 FontSize="14"
                                 VerticalAlignment="Center"
                                 local:PlaceHolderBehavior.PlaceHolderText="検索テキスト"
                                 >
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="TextChanged">
-                                        <ri:EventToReactiveCommand Command="{Binding DataContext.FilterTextChangedCommand, ElementName=_this}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </TextBox>
-                            <Button Grid.Column="1" VerticalAlignment="Center">
-                                <Button.Content>
-                                    <TextBlock>
-                                     ✖
-                                    </TextBlock>
-                                </Button.Content>
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="Click">
-                                        <i:ChangePropertyAction 
-                                            TargetObject="{Binding ElementName=CatalogSearchTextBox}" 
-                                            PropertyName="Text"
-                                            Value="" />
-                                        <i:ChangePropertyAction 
-                                            TargetObject="{Binding ElementName=CatalogSearchGrid}" 
-                                            PropertyName="Visibility"
-                                            Value="Collapsed" />
-                                        <i:ChangePropertyAction 
-                                            TargetObject="{Binding ElementName=CatalogSearchButton}" 
-                                            PropertyName="Visibility"
-                                            Value="Visible" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </Button>
-                        </Grid>
-                        <Button x:Name="CatalogSearchButton" Height="32" Margin="2" Visibility="Visible">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="TextChanged">
+                                    <ri:EventToReactiveCommand Command="{Binding DataContext.FilterTextChangedCommand, ElementName=_this}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </TextBox>
+                        <Button Grid.Column="1" VerticalAlignment="Center">
                             <Button.Content>
                                 <TextBlock>
-                                     検索
+                                     ✖
                                 </TextBlock>
                             </Button.Content>
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <i:ChangePropertyAction 
+                                            TargetObject="{Binding ElementName=CatalogSearchTextBox}" 
+                                            PropertyName="Text"
+                                            Value="" />
+                                    <i:ChangePropertyAction 
+                                            TargetObject="{Binding ElementName=CatalogSearchGrid}" 
+                                            PropertyName="Visibility"
+                                            Value="Collapsed" />
+                                    <i:ChangePropertyAction 
+                                            TargetObject="{Binding ElementName=CatalogSearchButton}" 
+                                            PropertyName="Visibility"
+                                            Value="Visible" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                    </Grid>
+                    <Button x:Name="CatalogSearchButton" Grid.Column="2" Width="32" Height="32" Margin="2" Visibility="Visible">
+                        <Button.Content>
+                            <TextBlock>
+                                     検索
+                            </TextBlock>
+                        </Button.Content>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <i:ChangePropertyAction 
                                         TargetObject="{Binding ElementName=CatalogSearchGrid}" 
                                         PropertyName="Visibility"
                                         Value="Visible" />
-                                    <i:ChangePropertyAction 
+                                <i:ChangePropertyAction 
                                         TargetObject="{Binding ElementName=CatalogSearchButton}" 
                                         PropertyName="Visibility"
                                         Value="Collapsed" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
 
-                        <Button Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
-                            <TextBlock>
-                                更新
-                            </TextBlock>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
-                                    <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogUpdateClickCommand, ElementName=_this}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
-                        <Button Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
-                            <TextBlock>
+                    <Button Grid.Column="3" Width="32" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                        <TextBlock>
                                 ソート
-                            </TextBlock>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
-                                    <i:ChangePropertyAction 
+                        </TextBlock>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <i:ChangePropertyAction 
                                         TargetObject="{StaticResource CatalogSortContextMenu}" 
                                         PropertyName="DataContext"
                                         Value="{Binding DataContext, ElementName=_this, Mode=OneWay}"/>
-                                    <i:ChangePropertyAction 
+                                <i:ChangePropertyAction 
                                         TargetObject="{StaticResource CatalogSortContextMenu}" 
                                         PropertyName="Tag"
                                         Value="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"/>
-                                    <i:ChangePropertyAction 
+                                <i:ChangePropertyAction 
                                         TargetObject="{StaticResource CatalogSortContextMenu}" 
                                         PropertyName="IsOpen"
                                         Value="True"/>
-                                    <i:ChangePropertyAction
+                                <i:ChangePropertyAction
                                         TargetObject="{StaticResource CatalogSortContextMenu}" 
                                         PropertyName="PlacementTarget" 
                                         Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
-                        <Button Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
-                            <TextBlock>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                    <Button Grid.Column="4" Width="32" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                        <TextBlock>
                                 切替
-                            </TextBlock>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
-                                    <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogListWrapClickCommand, ElementName=_this}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
-                        <Button Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
-                            <TextBlock>
+                        </TextBlock>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogListWrapClickCommand, ElementName=_this}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                    <Button Grid.Column="5" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                        <TextBlock>
                                 スレ立て
-                            </TextBlock>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
-                                    <ri:EventToReactiveCommand Command="{Binding DataContext.PostClickCommand, ElementName=_this}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
-                        <Button Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
-                            <TextBlock>
-                                <TextBlock.Text>
-                                    >>                                
-                                </TextBlock.Text>
-                                <TextBlock.LayoutTransform>
-                                    <RotateTransform x:Name="FullScreenRotate" Angle="0" />
-                                </TextBlock.LayoutTransform>
-                            </TextBlock>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
-                                    <ri:EventToReactiveCommand Command="{Binding FullScreenClickCommand}" />
-                                </i:EventTrigger>
-                                <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="Equal">
-                                    <i:ChangePropertyAction TargetName="FullScreenRotate" PropertyName="Angle" Value="180" />
-                                </i:DataTrigger>
-                                <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="NotEqual">
-                                    <i:ChangePropertyAction TargetName="FullScreenRotate" PropertyName="Angle" Value="0" />
-                                </i:DataTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
-                    </WrapPanel>
-                  </Grid>
+                        </TextBlock>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <ri:EventToReactiveCommand Command="{Binding DataContext.PostClickCommand, ElementName=_this}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+
+                    <Button Grid.Column="6" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                        <TextBlock>
+                            <TextBlock.Text>
+                                >>
+                            </TextBlock.Text>
+                            <TextBlock.LayoutTransform>
+                                <RotateTransform x:Name="FullScreenRotate" Angle="0" />
+                            </TextBlock.LayoutTransform>
+                        </TextBlock>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <ri:EventToReactiveCommand Command="{Binding FullScreenClickCommand}" />
+                            </i:EventTrigger>
+                            <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="Equal">
+                                <i:ChangePropertyAction TargetName="FullScreenRotate" PropertyName="Angle" Value="180" />
+                            </i:DataTrigger>
+                            <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="NotEqual">
+                                <i:ChangePropertyAction TargetName="FullScreenRotate" PropertyName="Angle" Value="0" />
+                            </i:DataTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                </Grid>
             </Border>
 
             <ListBox

@@ -359,7 +359,7 @@
                                 </WrapPanel>
                                 <Button 
                                     x:Name="copyButton" 
-                                    Grid.Column="1" Grid.Row="1" 
+                                    Grid.Column="1" Grid.Row="2" 
                                     Width="24" Height="24" Opacity="0.6"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Bottom" Visibility="Hidden">

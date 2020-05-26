@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using Yarukizero.Net.MakiMoki.Data;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class FutabaCatalogVisibleConverter : IValueConverter {
@@ -45,11 +46,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 	class FutabaCatalogItemOpenedColorConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-			if((values.Length == 3) && (values[1] is System.Windows.Media.Color normalColor)) {
-				if((values[0] is Model.BindableFutabaResItem f) && (values[2] is System.Windows.Media.Color opendColor)) {
-					return Util.Futaba.Threads.Value
-						.Where(x => x.Url.IsThreadUrl)
-						.Select(x => x.ResItems.FirstOrDefault()?.ResItem.No)
+			if((values.Length == 4) && (values[2] is System.Windows.Media.Color normalColor)) {
+				if((values[0] is Model.BindableFutabaResItem f) 
+					&& (values[1] is IEnumerable<FutabaContext> threads)
+					&& (values[3] is System.Windows.Media.Color opendColor)) {
+					return threads.Select(x => x.ResItems.FirstOrDefault()?.ResItem.No)
 						.Contains(f.Raw.Value.ResItem.No)
 							? opendColor : normalColor;
 				}
