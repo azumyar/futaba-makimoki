@@ -448,7 +448,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" MinWidth="0" />
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition x:Name="SearchColumn" Width="*" MaxWidth="320" />
+                        <ColumnDefinition x:Name="SearchColumn" Width="Auto" MaxWidth="320" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
@@ -456,7 +456,7 @@
 
                     <Button Grid.Column="1" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <TextBlock>
-                                更新
+                            更新
                         </TextBlock>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
@@ -464,18 +464,18 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Grid x:Name="CatalogSearchGrid" Grid.Column="2" Width="{Binding ActualWidth, Mode=OneWay, ElementName=SearchColumn}" Margin="2" HorizontalAlignment="Stretch"  Visibility="Collapsed">
+                    <Grid x:Name="CatalogSearchGrid" Grid.Column="2" Margin="2" Visibility="Collapsed">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBox
-                                x:Name="CatalogSearchTextBox"
-                                Grid.Column="0"
-                                FontSize="14"
-                                VerticalAlignment="Center"
-                                local:PlaceHolderBehavior.PlaceHolderText="検索テキスト"
-                                >
+                            x:Name="CatalogSearchTextBox"
+                            Grid.Column="0"
+                            FontSize="14"
+                            VerticalAlignment="Center"
+                            local:PlaceHolderBehavior.PlaceHolderText="検索テキスト"
+                            >
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="TextChanged">
                                     <ri:EventToReactiveCommand Command="{Binding DataContext.FilterTextChangedCommand, ElementName=_this}" />
@@ -491,17 +491,21 @@
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <i:ChangePropertyAction 
-                                            TargetObject="{Binding ElementName=CatalogSearchTextBox}" 
-                                            PropertyName="Text"
-                                            Value="" />
+                                        TargetObject="{Binding ElementName=CatalogSearchTextBox}" 
+                                        PropertyName="Text"
+                                        Value="" />
                                     <i:ChangePropertyAction 
-                                            TargetObject="{Binding ElementName=CatalogSearchGrid}" 
-                                            PropertyName="Visibility"
-                                            Value="Collapsed" />
+                                        TargetObject="{Binding ElementName=CatalogSearchGrid}" 
+                                        PropertyName="Visibility"
+                                        Value="Collapsed" />
                                     <i:ChangePropertyAction 
-                                            TargetObject="{Binding ElementName=CatalogSearchButton}" 
-                                            PropertyName="Visibility"
-                                            Value="Visible" />
+                                        TargetObject="{Binding ElementName=CatalogSearchButton}" 
+                                        PropertyName="Visibility"
+                                        Value="Visible" />
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{Binding ElementName=SearchColumn}" 
+                                        PropertyName="Width"
+                                        Value="Auto" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
@@ -509,45 +513,49 @@
                     <Button x:Name="CatalogSearchButton" Grid.Column="2" Width="32" Height="32" Margin="2" Visibility="Visible">
                         <Button.Content>
                             <TextBlock>
-                                     検索
+                                検索
                             </TextBlock>
                         </Button.Content>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
                                 <i:ChangePropertyAction 
-                                        TargetObject="{Binding ElementName=CatalogSearchGrid}" 
-                                        PropertyName="Visibility"
-                                        Value="Visible" />
+                                    TargetObject="{Binding ElementName=CatalogSearchGrid}" 
+                                    PropertyName="Visibility"
+                                    Value="Visible" />
                                 <i:ChangePropertyAction 
-                                        TargetObject="{Binding ElementName=CatalogSearchButton}" 
-                                        PropertyName="Visibility"
-                                        Value="Collapsed" />
+                                    TargetObject="{Binding ElementName=CatalogSearchButton}" 
+                                    PropertyName="Visibility"
+                                    Value="Collapsed" />
+                                <i:ChangePropertyAction 
+                                    TargetObject="{Binding ElementName=SearchColumn}" 
+                                    PropertyName="Width"
+                                    Value="320*" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
                     <Button Grid.Column="3" Width="32" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <TextBlock>
-                                ソート
+                            ソート
                         </TextBlock>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
                                 <i:ChangePropertyAction 
-                                        TargetObject="{StaticResource CatalogSortContextMenu}" 
-                                        PropertyName="DataContext"
-                                        Value="{Binding DataContext, ElementName=_this, Mode=OneWay}"/>
+                                    TargetObject="{StaticResource CatalogSortContextMenu}" 
+                                    PropertyName="DataContext"
+                                    Value="{Binding DataContext, ElementName=_this, Mode=OneWay}"/>
                                 <i:ChangePropertyAction 
-                                        TargetObject="{StaticResource CatalogSortContextMenu}" 
-                                        PropertyName="Tag"
-                                        Value="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"/>
+                                    TargetObject="{StaticResource CatalogSortContextMenu}" 
+                                    PropertyName="Tag"
+                                    Value="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"/>
                                 <i:ChangePropertyAction 
-                                        TargetObject="{StaticResource CatalogSortContextMenu}" 
-                                        PropertyName="IsOpen"
-                                        Value="True"/>
+                                    TargetObject="{StaticResource CatalogSortContextMenu}" 
+                                    PropertyName="IsOpen"
+                                    Value="True"/>
                                 <i:ChangePropertyAction
-                                        TargetObject="{StaticResource CatalogSortContextMenu}" 
-                                        PropertyName="PlacementTarget" 
-                                        Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
+                                    TargetObject="{StaticResource CatalogSortContextMenu}" 
+                                    PropertyName="PlacementTarget" 
+                                    Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
