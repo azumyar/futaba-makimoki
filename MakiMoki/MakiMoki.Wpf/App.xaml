@@ -5,7 +5,7 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf">
     <Application.Resources>
-        <sys:Double x:Key="WindowThreadTabDieOpacity">0.8</sys:Double>
+        <sys:Double x:Key="WindowThreadTabDieOpacity">0.6</sys:Double>
         <Color x:Key="WindowThreadTabNewColor">Red</Color>
 
         <!-- LightBlueの300 -->
