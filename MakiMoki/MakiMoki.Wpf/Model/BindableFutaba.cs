@@ -193,6 +193,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				CatalogSortItem.Value = old.CatalogSortItem.Value;
 				CatalogListMode.Value = old.CatalogListMode.Value;
 				CatalogResCount.Value = old.CatalogResCount.Value;
+				IsFullScreenMode.Value = old.IsFullScreenMode.Value;
 			}
 
 
