@@ -241,8 +241,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnCatalogThreadUpdate(Model.BindableFutaba futaba) {
-			Util.Futaba.UpdateThreadRes(futaba.Raw.Bord, futaba.Raw.Url.ThreadNo)
-				.Subscribe();
+			if(futaba.Url.IsCatalogUrl) {
+				Util.Futaba.UpdateCatalog(futaba.Raw.Bord)
+					.Subscribe();
+			} else {
+				Util.Futaba.UpdateThreadRes(futaba.Raw.Bord, futaba.Raw.Url.ThreadNo)
+					.Subscribe();
+			}
 		}
 
 		private void OnCatalogThreadClose(Model.BindableFutaba futaba) {
@@ -252,7 +257,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnCatalogThreadCloseOther(Model.BindableFutaba futaba) {
 			var a = futaba.Url.IsCatalogUrl ? Util.Futaba.Catalog.Value : Util.Futaba.Threads.Value;
 			foreach(var f in a.Where(x => x.Url.BaseUrl == futaba.Url.BaseUrl)
-				.Where(x => x.Url != futaba.Raw.Url)) {
+				.Where(x => x.Url != futaba.Url)) {
 			
 				Util.Futaba.Remove(f.Url);
 			}
