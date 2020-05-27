@@ -9,19 +9,7 @@ using System.Windows;
 using System.Windows.Data;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
-	class ViewModelConverter : IValueConverter {
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			var vm = Application.Current.MainWindow?.DataContext;
-			if(parameter is string p) {
-				return vm?.GetType().GetProperty(p)?.GetValue(vm);
-			}
-			return vm;
-		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			throw new NotImplementedException();
-		}
-	}
 	class TabItemWidthConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
 			if((values == null) || (values.Length != 2)) {
@@ -64,6 +52,28 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 					return ti.Where(x => x.Futaba.Value.Url.IsThreadUrl && (x.Futaba.Value.Url.BaseUrl == f.Url.BaseUrl));
 				}
 				return ti;
+			}
+			throw new ArgumentException("型不正。", "values");
+		}
+
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
+	class TabLastMenuItemConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if(values.Length == 2) {
+				if((values[0] is IEnumerable<Data.FutabaContext> fc)
+					&& (values[1] is Model.BindableFutaba bf)) {
+
+					if(bf.Url.IsCatalogUrl) {
+						return fc.LastOrDefault()?.Url != bf.Url;
+					} else {
+						return fc.Where(x => x.Url.BaseUrl == bf.Url.BaseUrl).LastOrDefault()?.Url != bf.Url;
+					}
+				}
+				return true;
 			}
 			throw new ArgumentException("型不正。", "values");
 		}

@@ -13,17 +13,17 @@
         xmlns:control="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
         xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
         xmlns:data="clr-namespace:Yarukizero.Net.MakiMoki.Data;assembly=MakiMoki.Core"
-        xmlns:conf="clr-namespace:Yarukizero.Net.MakiMoki.Config;assembly=MakiMoki.Core"
+        xmlns:util="clr-namespace:Yarukizero.Net.MakiMoki.Util;assembly=MakiMoki.Core"
         mc:Ignorable="d"
         prism:ViewModelLocator.AutoWireViewModel="True"
         d:DesignHeight="450" d:DesignWidth="800"
         Title="ふたば@MakiMoki(仮)">
     <Window.Resources>
-        <converter:ViewModelConverter x:Key="ViewModelConverter" />
         <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
         <converter:TabItemWidthConverter x:Key="TabItemWidthConverter"/>
         <converter:TabItemCatalogConverter x:Key="TabItemCatalogConverter"/>
         <converter:TabItemThreadConverter x:Key="TabItemThreadConverter"/>
+        <converter:TabLastMenuItemConverter x:Key="TabLastMenuItemConverter" />
         <converter:ThreadDieOpacityConverter x:Key="ThreadDieOpacityConverter" />
         <converter:ThreadNewResVisibleConverter x:Key="ThreadNewResVisibleConverter" />
 
@@ -117,31 +117,22 @@
                                     Command="ScrollBar.LineDownCommand"
                                     Visibility="Hidden" />
                                 <StackPanel Grid.Column="1" Grid.Row="6" Orientation="Vertical">
-                                    <Button x:Name="bordButton" Width="32" Height="32" Margin="2" Content="＋">
-                                        <!--
+                                    <Button
+                                        x:Name="bordButton"
+                                        Width="32" Height="32" Margin="2"
+                                        Tag="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"
+                                        Content="＋">
                                         <Button.Resources>
-                                            <ContextMenu x:Key="aaaa" ItemsSource="{Binding DataContext, Converter={StaticResource TabItemCatalogConverter}, ElementName=bordButton}">
-                                                <ContextMenu.ItemContainerStyle>
-                                                    <Style TargetType="MenuItem">
-                                                        <Setter Property="Header" Value="{Binding Name}" />
-                                                        <Setter Property="Command" Value="{Binding DataContext.BordOpenCommand, Mode=OneWay, ElementName=bordButton}" />
-                                                    </Style>
-                                                </ContextMenu.ItemContainerStyle>
-                                            </ContextMenu>
-                                        </Button.Resources>
-                                        <!-->
-                                        <Button.Resources>
-                                            <!-- VMとバインドできない？？ -->
                                             <ContextMenu
                                                 x:Key="ContextMenu"
-                                                ItemsSource="{Binding Source={x:Static conf:ConfigLoader.Bord}}"
+                                                ItemsSource="{Binding Tag.Bords.Value, Mode=OneWay, RelativeSource={RelativeSource Self}}"
                                                 Placement="Top"
-                                                VerticalOffset="4" HorizontalOffset="0">
+                                                VerticalOffset="4" HorizontalOffset="0"
+                                                Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                                 <ContextMenu.ItemContainerStyle>
                                                     <Style TargetType="MenuItem">
                                                         <Setter Property="Header" Value="{Binding Name}" />
-                                                        <!-- VMが参照できないので強引に処理 -->
-                                                        <Setter Property="Command" Value="{Binding ConverterParameter=BordOpenCommand, Mode=OneWay, Converter={StaticResource ViewModelConverter}}" />
+                                                        <Setter Property="Command" Value="{Binding Tag.BordOpenCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                                         <Setter Property="CommandParameter" Value="{Binding}" />
                                                     </Style>
                                                 </ContextMenu.ItemContainerStyle>
@@ -233,7 +224,7 @@
                                     Margin="0 4 0 4"
                                     ContentSource="Header" 
                                     HorizontalAlignment="Stretch" 
-                                    VerticalAlignment="Top"
+                                    VerticalAlignment="Stretch"
                                     ClipToBounds="True"/>
                                 <Button
                                     Grid.Row="1"
@@ -749,7 +740,38 @@
                 Padding="0">
                 <TabControl.ItemTemplate>
                     <DataTemplate>
-                        <Grid>
+                        <Grid Tag="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}">
+                            <Grid.ContextMenu>
+                                <ContextMenu Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                                    <MenuItem
+                                        Header="更新"
+                                        Command="{Binding Tag.ThreadUpdateCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                        CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
+                                    <Separator />
+                                    <MenuItem
+                                        Header="閉じる"
+                                        Command="{Binding Tag.ThreadCloseCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                        CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
+                                    <MenuItem
+                                        Header="他のタブをすべて閉じる"
+                                        Command="{Binding Tag.ThreadCloseOtherCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                        CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
+                                    <MenuItem
+                                        Header="下のタブを閉じる"
+                                        Command="{Binding Tag.ThreadCloseRightCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                        CommandParameter="{Binding Futaba.Value,Mode=OneWay}">
+                                        <MenuItem.IsEnabled>
+                                            <MultiBinding Converter="{StaticResource TabLastMenuItemConverter}" Mode="OneWay">
+                                                <MultiBinding.Bindings>
+                                                    <Binding Path="Value" Source="{x:Static util:Futaba.Catalog}" Mode="OneWay" />
+                                                    <Binding Path="Futaba.Value" Mode="OneWay" />
+                                                </MultiBinding.Bindings>
+                                            </MultiBinding>
+                                        </MenuItem.IsEnabled>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </Grid.ContextMenu>
+
                             <TextBlock
                                 Grid.Column="1"
                                 Text="{Binding Name.Value, Mode=OneWay}"
@@ -788,7 +810,7 @@
 
                             <TabControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid>
+                                    <Grid Tag="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}">
                                         <Grid.Opacity>
                                             <MultiBinding Converter="{StaticResource ThreadDieOpacityConverter}" Mode="OneWay">
                                                 <MultiBinding.Bindings>
@@ -797,6 +819,37 @@
                                                 </MultiBinding.Bindings>
                                             </MultiBinding>
                                         </Grid.Opacity>
+                                        <Grid.ContextMenu>
+                                            <ContextMenu Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                                                <MenuItem
+                                                    Header="更新"
+                                                    Command="{Binding Tag.ThreadUpdateCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                    CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
+                                                <Separator />
+                                                <MenuItem
+                                                    Header="閉じる"
+                                                    Command="{Binding Tag.ThreadCloseCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                    CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
+                                                <MenuItem
+                                                    Header="他のタブをすべて閉じる"
+                                                    Command="{Binding Tag.ThreadCloseOtherCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                    CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
+                                                <MenuItem
+                                                    Header="右のタブを閉じる"
+                                                    Command="{Binding Tag.ThreadCloseRightCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                    CommandParameter="{Binding Futaba.Value,Mode=OneWay}">
+                                                    <MenuItem.IsEnabled>
+                                                        <MultiBinding Converter="{StaticResource TabLastMenuItemConverter}" Mode="OneWay">
+                                                            <MultiBinding.Bindings>
+                                                                <Binding Path="Value" Source="{x:Static util:Futaba.Threads}" Mode="OneWay" />
+                                                                <Binding Path="Futaba.Value" Mode="OneWay" />
+                                                            </MultiBinding.Bindings>
+                                                        </MultiBinding>
+                                                    </MenuItem.IsEnabled>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Grid.ContextMenu>
+
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />

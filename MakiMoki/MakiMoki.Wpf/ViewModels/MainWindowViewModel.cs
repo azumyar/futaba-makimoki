@@ -49,6 +49,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Model.TabItem> TabControlSelectedItem { get; } = new ReactiveProperty<Model.TabItem>();
 		public ReactiveProperty<Model.TabItem> ThreadTabSelectedItem { get; } = new ReactiveProperty<Model.TabItem>();
 
+		public ReactiveCommand<Model.BindableFutaba> CatalogUpdateCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> CatalogCloseCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> CatalogCloseOtherCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> CatalogCloseRightCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+
+
+		public ReactiveCommand<Model.BindableFutaba> ThreadUpdateCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> ThreadCloseCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> ThreadCloseOtherCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> ThreadCloseRightCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+
+
 		public MainWindowViewModel() {
 			Bords = new ReactiveProperty<Data.BordConfig[]>(Config.ConfigLoader.Bord);
 			this.TabVisibility = new ReactiveProperty<Visibility>(Visibility.Collapsed);
@@ -64,6 +76,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				.Subscribe(x => OnUpdateThreadRes(x));
 			TabControlSelectedItem.Subscribe(x => OnTabSelectedChanged(x));
 			ThreadTabSelectedItem.Subscribe(x => OnTabSelectedChanged(x));
+
+			CatalogUpdateCommand.Subscribe(x => OnCatalogThreadUpdate(x));
+			CatalogCloseCommand.Subscribe(x => OnCatalogThreadClose(x));
+			CatalogCloseOtherCommand.Subscribe(x => OnCatalogThreadCloseOther(x));
+			CatalogCloseRightCommand.Subscribe(x => OnCatalogThreadCloseRight(x));
+			ThreadUpdateCommand.Subscribe(x => OnCatalogThreadUpdate(x));
+			ThreadCloseCommand.Subscribe(x => OnCatalogThreadClose(x));
+			ThreadCloseOtherCommand.Subscribe(x => OnCatalogThreadCloseOther(x));
+			ThreadCloseRightCommand.Subscribe(x => OnCatalogThreadCloseRight(x));
 		}
 		public void Dispose() {
 			Disposable.Dispose();
@@ -215,6 +236,48 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					this.SelectedTabItem[this.TabControlSelectedItem.Value.Futaba.Value.Url.BaseUrl] = tabItem;
 				} else {
 					this.SelectedTabItem.Add(this.TabControlSelectedItem.Value.Futaba.Value.Url.BaseUrl, tabItem);
+				}
+			}
+		}
+
+		private void OnCatalogThreadUpdate(Model.BindableFutaba futaba) {
+			Util.Futaba.UpdateThreadRes(futaba.Raw.Bord, futaba.Raw.Url.ThreadNo)
+				.Subscribe();
+		}
+
+		private void OnCatalogThreadClose(Model.BindableFutaba futaba) {
+			Util.Futaba.Remove(futaba.Raw.Url);
+		}
+
+		private void OnCatalogThreadCloseOther(Model.BindableFutaba futaba) {
+			var a = futaba.Url.IsCatalogUrl ? Util.Futaba.Catalog.Value : Util.Futaba.Threads.Value;
+			foreach(var f in a.Where(x => x.Url.BaseUrl == futaba.Url.BaseUrl)
+				.Where(x => x.Url != futaba.Raw.Url)) {
+			
+				Util.Futaba.Remove(f.Url);
+			}
+		}
+
+		private void OnCatalogThreadCloseRight(Model.BindableFutaba futaba) {
+			if(futaba.Url.IsCatalogUrl) {
+				int i = Util.Futaba.Catalog.Value
+					.Select(x => x.Url)
+					.ToList()
+					.IndexOf(futaba.Url);
+				if(0 <= i) {
+					foreach(var f in Util.Futaba.Catalog.Value.Skip(i + 1)) {
+						Util.Futaba.Remove(f.Url);
+					}
+				}
+			} else {
+				var l = Util.Futaba.Threads.Value
+					.Where(x => x.Url.BaseUrl == futaba.Url.BaseUrl)
+					.ToList();
+				int i = l.Select(x => x.Url.ThreadNo).ToList().IndexOf(futaba.Url.ThreadNo);
+				if(0 <= i) {
+					foreach(var f in l.Skip(i + 1)) {
+						Util.Futaba.Remove(f.Url);
+					}
 				}
 			}
 		}
