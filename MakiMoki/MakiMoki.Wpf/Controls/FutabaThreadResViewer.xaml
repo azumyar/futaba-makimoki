@@ -26,6 +26,7 @@
         <converter:FutabaCatalogItemFilterConverter x:Key="FutabaCatalogItemFilterConverter" />
         <converter:FutabaNewResCountConverter x:Key="FutabaNewResCountConverter"/>
         <converter:FutabaNewResVisibilityConverter x:Key="FutabaNewResVisibilityConverter"/>
+        <converter:FutabaResItemBackgroundConverter x:Key="FutabaResItemBackgroundConverter" />
         <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
         <converter:FutabaResItemIdTextConverter x:Key="FutabaResItemIdTextConverter" />
         <converter:FutabaResItemNowConverter x:Key="FutabaResItemNowConverter"/>
@@ -68,6 +69,14 @@
             x:Name="CatalogItemOpendBackgroundColorGetter"
             Visibility="Collapsed"
             DataContext="{DynamicResource CatalogItemOpendBackgroundColor}" />
+        <FrameworkElement 
+            x:Name="ThreadBackgroundColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource ThreadBackgroundColor}" />
+        <FrameworkElement 
+            x:Name="ThreadBackgroundSerachHitColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource ThreadBackgroundSerachHitColor}" />
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -80,121 +89,229 @@
                 </Border.BorderBrush>
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" MinWidth="0" />
                         <ColumnDefinition Width="*" MinWidth="0" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition x:Name="SearchColumn" Width="Auto" MaxWidth="320" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <!-- スレッド-->
-                    <WrapPanel Grid.Column="4" HorizontalAlignment="Right" Visibility="{Binding Contents.Futaba.Value.Raw, ElementName=_this, Converter={StaticResource FutabaThreadResVisibleConverter}, Mode=OneWay}">
-                        <WrapPanel.Style>
-                            <Style TargetType="WrapPanel">
+                    <TextBlock 
+                        Grid.Column="1"
+                        FontSize="14"
+                        VerticalAlignment="Center"
+                        Margin="4">
+                        <TextBlock.Foreground>
+                            <SolidColorBrush>
+                                <SolidColorBrush.Color>
+                                    <MultiBinding Converter="{StaticResource FutabaResItemOldColorConverter}">
+                                        <Binding Path="Contents.Futaba.Value" Mode="OneWay" ElementName="_this" />
+                                        <Binding Source="{StaticResource TextColor}" />
+                                        <Binding Source="{StaticResource OldColor}" />
+                                    </MultiBinding>
+                                </SolidColorBrush.Color>
+                            </SolidColorBrush>
+                        </TextBlock.Foreground>
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger  Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="False">
+                                        <Setter Property="Text" Value="{Binding  Contents.Futaba.Value.Raw.Raw.Die, ElementName=_this, StringFormat='消:{0}', Mode=OneWay}"/>
+                                    </DataTrigger>
+                                    <DataTrigger  Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True">
+                                        <Setter Property="Text" Value="消:落ち"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+
+                    </TextBlock>
+                    <TextBlock
+                        Grid.Column="2"
+                        Text="{Binding  Contents.Futaba.Value.ResCount.Value, ElementName=_this, StringFormat='レス:{0}', Mode=OneWay}"
+                        FontSize="14"                            
+                        VerticalAlignment="Center"
+                        Margin="4">
+                        <TextBlock.Foreground>
+                            <SolidColorBrush>
+                                <SolidColorBrush.Color>
+                                    <MultiBinding Converter="{StaticResource FutabaResItemResCountColorConverter}">
+                                        <Binding Path="Contents.Futaba.Value" Mode="OneWay" ElementName="_this" />
+                                        <Binding Source="{StaticResource TextColor}" />
+                                        <Binding Source="{StaticResource OldColor}" />
+                                    </MultiBinding>
+                                </SolidColorBrush.Color>
+                            </SolidColorBrush>
+                        </TextBlock.Foreground>
+                    </TextBlock>
+
+                    <Button Grid.Column="3" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value.Raw, ElementName=_this}">
+                        <Button.Style>
+                            <Style TargetType="Button">
                                 <Style.Triggers>
                                     <DataTrigger  Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True">
                                         <Setter Property="IsEnabled" Value="False"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </WrapPanel.Style>
-                        <TextBlock 
+                        </Button.Style>
+
+                        <TextBlock>
+                        更新
+                        </TextBlock>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadUpdateCommand, ElementName=_this}">
+                                </ri:EventToReactiveCommand>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                    
+                    <Grid x:Name="SearchGrid" Grid.Column="4" Margin="2" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox
+                            x:Name="SearchTextBox"
+                            Grid.Column="0"
+                            Text="{Binding Contents.Futaba.Value.FilterText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ElementName=_this}"
                             FontSize="14"
                             VerticalAlignment="Center"
-                            Margin="4">
-                            <TextBlock.Foreground>
-                                <SolidColorBrush>
-                                    <SolidColorBrush.Color>
-                                        <MultiBinding Converter="{StaticResource FutabaResItemOldColorConverter}">
-                                            <Binding Path="Contents.Futaba.Value" Mode="OneWay" ElementName="_this" />
-                                            <Binding Source="{StaticResource TextColor}" />
-                                            <Binding Source="{StaticResource OldColor}" />
-                                        </MultiBinding>
-                                    </SolidColorBrush.Color>
-                                </SolidColorBrush>
-                            </TextBlock.Foreground>
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Style.Triggers>
-                                        <DataTrigger  Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="False">
-                                            <Setter Property="Text" Value="{Binding  Contents.Futaba.Value.Raw.Raw.Die, ElementName=_this, StringFormat='消:{0}', Mode=OneWay}"/>
-                                        </DataTrigger>
-                                        <DataTrigger  Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True">
-                                            <Setter Property="Text" Value="消:落ち"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-
-                        </TextBlock>
+                            local:PlaceHolderBehavior.PlaceHolderText="検索テキスト"
+                            Tag="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
+                            >
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="TextChanged">
+                                    <!--
+                                    <ri:EventToReactiveCommand Command="{Binding DataContext.FilterTextChangedCommand, ElementName=_this}" />
+                                    -->
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </TextBox>
+                        <Button Grid.Column="1" VerticalAlignment="Center">
+                            <Button.Content>
+                                <TextBlock>
+                                     ✖
+                                </TextBlock>
+                            </Button.Content>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{Binding ElementName=SearchTextBox}" 
+                                        PropertyName="Text"
+                                        Value="" />
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{Binding ElementName=SearchGrid}" 
+                                        PropertyName="Visibility"
+                                        Value="Collapsed" />
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{Binding ElementName=SearchButton}" 
+                                        PropertyName="Visibility"
+                                        Value="Visible" />
+                                    <i:ChangePropertyAction 
+                                        TargetObject="{Binding ElementName=SearchColumn}" 
+                                        PropertyName="Width"
+                                        Value="Auto" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                        <!--
                         <TextBlock
-                            Text="{Binding  Contents.Futaba.Value.ResCount.Value, ElementName=_this, StringFormat='レス:{0}', Mode=OneWay}"
-                            FontSize="14"                            
+                            Grid.Column="2"
+                            Text="0件"
                             VerticalAlignment="Center"
-                            Margin="4">
-                            <TextBlock.Foreground>
-                                <SolidColorBrush>
-                                    <SolidColorBrush.Color>
-                                        <MultiBinding Converter="{StaticResource FutabaResItemResCountColorConverter}">
-                                            <Binding Path="Contents.Futaba.Value" Mode="OneWay" ElementName="_this" />
-                                            <Binding Source="{StaticResource TextColor}" />
-                                            <Binding Source="{StaticResource OldColor}" />
-                                        </MultiBinding>
-                                    </SolidColorBrush.Color>
-                                </SolidColorBrush>
-                            </TextBlock.Foreground>
+                            Margin="2"
+                            />
+                        <Button Grid.Column="3" VerticalAlignment="Center">
+                            <Button.Content>
+                                <TextBlock>
+                                     ↑
+                                </TextBlock>
+                            </Button.Content>
+                        </Button>
+                        <Button Grid.Column="4" VerticalAlignment="Center">
+                            <Button.Content>
+                                <TextBlock>
+                                     ↓
+                                </TextBlock>
+                            </Button.Content>
+                        </Button>
+                        -->
+                    </Grid>
+                    <Button x:Name="SearchButton" Grid.Column="4" Width="32" Height="32" Margin="2" Visibility="Visible">
+                        <Button.Content>
+                            <TextBlock>
+                                検索
+                            </TextBlock>
+                        </Button.Content>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <i:ChangePropertyAction 
+                                    TargetObject="{Binding ElementName=SearchGrid}" 
+                                    PropertyName="Visibility"
+                                    Value="Visible" />
+                                <i:ChangePropertyAction 
+                                    TargetObject="{Binding ElementName=SearchButton}" 
+                                    PropertyName="Visibility"
+                                    Value="Collapsed" />
+                                <i:ChangePropertyAction 
+                                    TargetObject="{Binding ElementName=SearchColumn}" 
+                                    PropertyName="Width"
+                                    Value="320*" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+
+                    <Button Grid.Column="5" Height="32" Margin="2">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger  Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock>
+                        書き込み
                         </TextBlock>
-                        <Button
-                    Height="32"
-                    Margin="2"
-                    DataContext="{Binding Contents.Futaba.Value.Raw, ElementName=_this}"
-                    >
-                            <TextBlock>
-                            更新
-                            </TextBlock>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
-                                    <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadUpdateCommand, ElementName=_this}">
-                                    </ri:EventToReactiveCommand>
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
-                        <Button
-                    Height="32"
-                    Margin="2">
-                            <TextBlock>
-                            書き込み
-                            </TextBlock>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
-                                    <ri:EventToReactiveCommand Command="{Binding DataContext.PostClickCommand, ElementName=_this}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
-                        <Button
-                            Height="32"
-                            Margin="2">
-                            <TextBlock Text=" … " />
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
-                                    <i:ChangePropertyAction 
-                                        TargetObject="{StaticResource ThreadResHamburgerContextMenu}" 
-                                        PropertyName="DataContext"
-                                        Value="{Binding DataContext, ElementName=_this, Mode=OneWay}"/>
-                                    <i:ChangePropertyAction 
-                                        TargetObject="{StaticResource ThreadResHamburgerContextMenu}" 
-                                        PropertyName="IsOpen"
-                                        Value="True"/>
-                                    <i:ChangePropertyAction 
-                                        TargetObject="{StaticResource ThreadResHamburgerContextMenu}" 
-                                        PropertyName="Tag" 
-                                        Value="{Binding Contents, ElementName=_this, Mode=OneWay}"/>
-                                    <i:ChangePropertyAction
-                                        TargetObject="{StaticResource ThreadResHamburgerContextMenu}" 
-                                        PropertyName="PlacementTarget" 
-                                        Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
-                    </WrapPanel>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <ri:EventToReactiveCommand Command="{Binding DataContext.PostClickCommand, ElementName=_this}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                    <Button Grid.Column="6" Height="32" Margin="2">
+                        <TextBlock Text=" … " />
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <i:ChangePropertyAction 
+                                    TargetObject="{StaticResource ThreadResHamburgerContextMenu}" 
+                                    PropertyName="DataContext"
+                                    Value="{Binding DataContext, ElementName=_this, Mode=OneWay}"/>
+                                <i:ChangePropertyAction 
+                                    TargetObject="{StaticResource ThreadResHamburgerContextMenu}" 
+                                    PropertyName="IsOpen"
+                                    Value="True"/>
+                                <i:ChangePropertyAction 
+                                    TargetObject="{StaticResource ThreadResHamburgerContextMenu}" 
+                                    PropertyName="Tag" 
+                                    Value="{Binding Contents, ElementName=_this, Mode=OneWay}"/>
+                                <i:ChangePropertyAction
+                                    TargetObject="{StaticResource ThreadResHamburgerContextMenu}" 
+                                    PropertyName="PlacementTarget" 
+                                    Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
                 </Grid>
             </Border>
 
@@ -237,10 +354,22 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Grid Margin="16 4 16 4" Background="Transparent">
+                        <Grid Margin="16 4 16 4">
                             <TextBlock.Foreground>
                                 <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                             </TextBlock.Foreground>
+                            <Grid.Background>
+                                <SolidColorBrush>
+                                    <SolidColorBrush.Color>
+                                        <MultiBinding Converter="{StaticResource FutabaResItemBackgroundConverter}">
+                                            <Binding Mode="OneWay" />
+                                            <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
+                                            <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadBackgroundColorGetter" />
+                                            <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadBackgroundSerachHitColorGetter" />
+                                        </MultiBinding>
+                                    </SolidColorBrush.Color>
+                                </SolidColorBrush>
+                            </Grid.Background>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -252,6 +381,8 @@
                                 Background="Transparent"
                                 HorizontalAlignment="Left" 
                                 Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}">
+
+                                
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />

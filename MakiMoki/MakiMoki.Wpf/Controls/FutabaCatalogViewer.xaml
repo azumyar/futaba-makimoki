@@ -473,13 +473,17 @@
                         <TextBox
                             x:Name="CatalogSearchTextBox"
                             Grid.Column="0"
+                            Text="{Binding Contents.Futaba.Value.FilterText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ElementName=_this}"
                             FontSize="14"
                             VerticalAlignment="Center"
                             local:PlaceHolderBehavior.PlaceHolderText="検索テキスト"
+                            Tag="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
                             >
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="TextChanged">
+                                    <!--
                                     <ri:EventToReactiveCommand Command="{Binding DataContext.FilterTextChangedCommand, ElementName=_this}" />
+                                    -->
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </TextBox>
@@ -625,7 +629,7 @@
                 <ListBox.ItemsSource>
                     <MultiBinding Converter="{StaticResource FutabaCatalogItemFilterConverter}">
                         <Binding Path="Contents.Futaba.Value.ResItems" Mode="OneWay" ElementName="_this" />
-                        <Binding Path="DataContext.FilterText.Value" Mode="OneWay" ElementName="_this" />
+                        <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
                     </MultiBinding>
                 </ListBox.ItemsSource>
                 <ListBox.Background>

@@ -166,6 +166,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Visibility> CatalogListVisibility { get; }
 		public ReactiveProperty<Visibility> CatalogWrapVisibility { get; }
 
+		public ReactiveProperty<string> FilterText { get; } = new ReactiveProperty<string>("");
+
 		public string Name { get; }
 
 		public Data.UrlContext Url { get; }
@@ -190,6 +192,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			FullScreenSpan = IsFullScreenMode.Select(x => x ? 3 : 1).ToReactiveProperty();
 			FullScreenVisibility = IsFullScreenMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
 			if(old != null) {
+				FilterText.Value = old.FilterText.Value;
 				CatalogSortItem.Value = old.CatalogSortItem.Value;
 				CatalogListMode.Value = old.CatalogListMode.Value;
 				CatalogResCount.Value = old.CatalogResCount.Value;
