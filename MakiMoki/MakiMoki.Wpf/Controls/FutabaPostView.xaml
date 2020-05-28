@@ -144,7 +144,7 @@
                         Text="{Binding PostData.Value.Mail.Value, Mode=TwoWay}"
                         local:PlaceHolderBehavior.PlaceHolderText="メールアドレス" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Margin="4 0 0 0" Visibility="{Binding PostIdOptionVisibility.Value, Mode=OneWay}">
+                        <Button Height="32" Margin="4 0 0 0" Visibility="{Binding PostIdOptionVisibility.Value, Mode=OneWay}">
                             <Button.Content>
                                 ID表示
                             </Button.Content>
@@ -154,7 +154,7 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
-                        <Button Margin="4 0 0 0" Visibility="{Binding PostIpOptionVisibility.Value, Mode=OneWay}">
+                        <Button Height="32" Margin="4 0 0 0" Visibility="{Binding PostIpOptionVisibility.Value, Mode=OneWay}">
                             <Button.Content>
                                 IP表示
                             </Button.Content>
@@ -164,7 +164,7 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
-                        <Button Margin="4 0 0 0">
+                        <Button Height="32" Margin="4 0 0 0">
                             <Button.Content>
                                 sage
                             </Button.Content>
@@ -192,7 +192,7 @@
                 Background="{StaticResource PrimaryColorBrush}"
                 >
                 <StackPanel Orientation="Horizontal">
-                    <Button Height="24" Margin="2" Command="{Binding PostData.Value.PostButtonCommand}">
+                    <Button Width="32"  Height="32" Margin="2" Command="{Binding PostData.Value.PostButtonCommand}">
                         <TextBlock>投稿</TextBlock>
 
                         <i:Interaction.Triggers>
@@ -201,7 +201,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Height="24" Margin="2" AllowDrop="True" Visibility="{Binding PostImageVisibility.Value, Mode=OneWay}">
+                    <Button Width="32"  Height="32" Margin="2" AllowDrop="True" Visibility="{Binding PostImageVisibility.Value, Mode=OneWay}">
                         <TextBlock>画像</TextBlock>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="PreviewMouseUp">
@@ -216,7 +216,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Height="24" Margin="2" AllowDrop="True">
+                    <Button Width="32"  Height="32" Margin="2" AllowDrop="True">
                         <TextBlock>ロダ</TextBlock>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="PreviewMouseUp">
@@ -231,7 +231,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Height="24" Margin="2">
+                    <Button Width="32"  Height="32" Margin="2">
                         <TextBlock>破棄</TextBlock>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="PreviewMouseUp">

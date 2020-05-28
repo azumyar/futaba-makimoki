@@ -360,22 +360,10 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Grid Margin="16 4 16 4">
+                        <Grid Margin="16 4 16 4" Background="Transparent">
                             <TextBlock.Foreground>
                                 <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                             </TextBlock.Foreground>
-                            <Grid.Background>
-                                <SolidColorBrush>
-                                    <SolidColorBrush.Color>
-                                        <MultiBinding Converter="{StaticResource FutabaResItemBackgroundConverter}">
-                                            <Binding Mode="OneWay" />
-                                            <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
-                                            <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadBackgroundColorGetter" />
-                                            <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadBackgroundSerachHitColorGetter" />
-                                        </MultiBinding>
-                                    </SolidColorBrush.Color>
-                                </SolidColorBrush>
-                            </Grid.Background>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -384,11 +372,21 @@
                                 x:Name="viewGrid"
                                 Grid.Column="0" Grid.Row="0"
                                 MaxWidth="1024"
-                                Background="Transparent"
                                 HorizontalAlignment="Left" 
                                 Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}">
+                                <Grid.Background>
+                                    <SolidColorBrush>
+                                        <SolidColorBrush.Color>
+                                            <MultiBinding Converter="{StaticResource FutabaResItemBackgroundConverter}">
+                                                <Binding Mode="OneWay" />
+                                                <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
+                                                <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadBackgroundColorGetter" />
+                                                <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadBackgroundSerachHitColorGetter" />
+                                            </MultiBinding>
+                                        </SolidColorBrush.Color>
+                                    </SolidColorBrush>
+                                </Grid.Background>
 
-                                
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
