@@ -162,7 +162,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				if((values[0] is Model.BindableFutabaResItem f)
 					&& (values[1] is string search)
 					&& (values[3] is System.Windows.Media.Color hitColor)) {
-					return (!string.IsNullOrEmpty(search) && Util.TextUtil.Comment2SearchText(f.Raw.Value.ResItem.Res.Com).Contains(search))
+					return (!string.IsNullOrEmpty(search) && Util.TextUtil.Comment2SearchText(f.Raw.Value.ResItem.Res.Com).Contains(Util.TextUtil.Comment2SearchText(search)))
 							? hitColor : normalColor;
 				}
 				return normalColor; // スレを受信していない場合values[0]が設定されていないのでnormalColorを返す

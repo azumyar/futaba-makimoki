@@ -235,7 +235,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				foreach(var s in c) {
 					sb.Append(">").AppendLine(s);
 				}
-				ri.Parent.Value.PostData.Value.Comment.Value = sb.ToString();
+				FutabaPostViewViewModel.Messenger.Instance.GetEvent<PubSubEvent<FutabaPostViewViewModel.ReplaceTextMessage>>()
+					.Publish(new FutabaPostViewViewModel.ReplaceTextMessage(ri.Parent.Value.Url, sb.ToString()));
 				this.PostViewVisibility.Value = Visibility.Visible;
 			}
 		}

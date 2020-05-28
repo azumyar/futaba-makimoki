@@ -188,6 +188,9 @@
                             local:PlaceHolderBehavior.PlaceHolderText="検索テキスト"
                             Tag="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
                             >
+                            <i:Interaction.Behaviors>
+                                <behavior:FocusBehavior x:Name="SearchFocusBehavior" />
+                            </i:Interaction.Behaviors>
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="TextChanged">
                                     <!--
@@ -266,6 +269,9 @@
                                     TargetObject="{Binding ElementName=SearchColumn}" 
                                     PropertyName="Width"
                                     Value="320*" />
+                                <i:CallMethodAction
+                                    TargetObject="{Binding ElementName=SearchFocusBehavior, Mode=OneWay}"
+                                    MethodName="Focus" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>

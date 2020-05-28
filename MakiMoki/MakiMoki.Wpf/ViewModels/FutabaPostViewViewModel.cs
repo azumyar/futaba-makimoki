@@ -33,16 +33,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				this.Url = url;
 			}
 		}
-		internal class AppendUploadFileMessage {
-			public UrlContext Url { get; }
-			public string FileName { get; }
 
-			public AppendUploadFileMessage(UrlContext url, string fileName) {
+		internal class ReplaceTextMessage {
+			public UrlContext Url { get; }
+			public string Text { get; }
+
+			public ReplaceTextMessage(UrlContext url, string text) {
 				this.Url = url;
-				this.FileName = fileName;
+				this.Text = text;
 			}
 		}
 
+		internal class AppendTextMessage {
+			public UrlContext Url { get; }
+			public string Text { get; }
+
+			public AppendTextMessage(UrlContext url, string text) {
+				this.Url = url;
+				this.Text = text;
+			}
+		}
 
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
@@ -114,8 +124,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 								Util.Futaba.UploadUp2(ofd.FileName, f.PostData.Value.Password.Value)
 									.Subscribe(x => {
 										if(x.Successed) {
-											Messenger.Instance.GetEvent<PubSubEvent<AppendUploadFileMessage>>()
-												.Publish(new AppendUploadFileMessage(f.Url, x.FileNameOrMessage));
+											Messenger.Instance.GetEvent<PubSubEvent<AppendTextMessage>>()
+												.Publish(new AppendTextMessage(f.Url, x.FileNameOrMessage));
 										} else {
 											MessageBox.Show(x.FileNameOrMessage);
 										}
@@ -150,8 +160,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					Util.Futaba.UploadUp2(files[0], f.PostData.Value.Password.Value)
 						.Subscribe(x => {
 							if(x.Successed) {
-								Messenger.Instance.GetEvent<PubSubEvent<AppendUploadFileMessage>>()
-									.Publish(new AppendUploadFileMessage(f.Url, x.FileNameOrMessage));
+								Messenger.Instance.GetEvent<PubSubEvent<AppendTextMessage>>()
+									.Publish(new AppendTextMessage(f.Url, x.FileNameOrMessage));
 							} else {
 								MessageBox.Show(x.FileNameOrMessage);
 							}

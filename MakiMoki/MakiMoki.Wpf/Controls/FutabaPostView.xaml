@@ -87,7 +87,7 @@
                             <behavior:FocusBehavior x:Name="PostViewFocusBehavior" />
                         </i:Interaction.Behaviors>
                         <i:Interaction.Triggers>
-                            <i:DataTrigger Binding="{Binding Visibility, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}" Value="Visible" Comparison="Equal">
+                            <i:DataTrigger Binding="{Binding Visibility, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}, Mode=OneWay}" Value="Visible" Comparison="Equal">
                                 <i:CallMethodAction TargetObject="{Binding ElementName=PostViewFocusBehavior, Mode=OneWay}" MethodName="Focus" />
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
