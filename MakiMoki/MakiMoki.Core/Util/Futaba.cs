@@ -111,7 +111,70 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static IObservable<Data.FutabaContext> UpdateThreadRes(Data.BordConfig bord, string threadNo) {
+		public static IObservable<Data.FutabaContext> UpdateThreadRes(Data.BordConfig bord, string threadNo, bool incremental=false) {
+			var u = new Data.UrlContext(bord.Url, threadNo);
+			Data.FutabaContext parent = null;
+			lock(lockObj) {
+				parent = Threads.Value.Where(x => x.Url == u).FirstOrDefault();
+			}
+			if(!incremental || (parent == null) || (parent.ResItems.Length == 0)) {
+				return UpdateThreadResAll(bord, threadNo);
+			}
+
+			return Observable.Create<Data.FutabaContext>(async o => {
+				var ctx = await Task.Run(() => {
+					Data.FutabaContext result = null;
+					try {
+						var no = "";
+						if(long.TryParse(parent.ResItems.Last().ResItem.No, out var v)) {
+							no = (++v).ToString();
+						} else {
+							goto end;
+						}
+
+						var r = FutabaApi.GetThreadRes(
+							bord.Url,
+							threadNo,
+							no,
+							Config.ConfigLoader.Cookies);
+						Task.WaitAll(r);
+						if(!r.Result.Successed) {
+							// TODO: エラー処理
+							goto end;
+						}
+						Config.ConfigLoader.UpdateCookie(r.Result.cookies);
+						lock(lockObj) {
+							var f = Data.FutabaContext.FromThreadResResponse(parent, r.Result.Response);
+
+							for(var i = 0; i < Threads.Value.Length; i++) {
+								if(Threads.Value[i].Url == f.Url) {
+									Threads.Value[i] = f;
+									Threads.Value = Threads.Value.ToArray();
+
+									result = f;
+									goto end;
+								}
+							}
+							Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] { f }).ToArray();
+
+							result = f;
+							goto end;
+						}
+					}
+					catch(Exception e) {
+						System.Diagnostics.Debug.WriteLine(e.ToString());
+						throw;
+					}
+				end:
+					return result;
+				});
+				o.OnNext(ctx);
+				return System.Reactive.Disposables.Disposable.Empty;
+			});
+		}
+
+
+		public static IObservable<Data.FutabaContext> UpdateThreadResAll(Data.BordConfig bord, string threadNo) {
 			return Observable.Create<Data.FutabaContext>(async o => {
 				var ctx = await Task.Run(() => {
 					Data.FutabaContext result = null;

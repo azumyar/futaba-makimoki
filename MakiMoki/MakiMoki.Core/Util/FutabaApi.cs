@@ -98,7 +98,44 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 						var rc = res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray();
 						if(res.Content.StartsWith("<html>")) {
-							var s = Encoding.GetEncoding("shift_jis").GetString(res.RawBytes);
+							var s = FutabaEncoding.GetString(res.RawBytes);
+							System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+							System.Diagnostics.Debug.WriteLine(s);
+							System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+							return (false, null, rc, s);
+						} else {
+							var s = res.Content;
+							return (true, JsonConvert.DeserializeObject<Data.FutabaResonse>(s), rc, s);
+						}
+					} else {
+						return (false, null, null, null);
+					}
+				}
+				catch(JsonSerializationException ex) {
+					throw;
+				}
+			});
+		}
+
+		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie[] cookies, string Row)> GetThreadRes(string baseUrl, string threadNo, string startRes, Data.Cookie[] cookies) {
+			System.Diagnostics.Debug.Assert(baseUrl != null);
+			System.Diagnostics.Debug.Assert(threadNo != null);
+			System.Diagnostics.Debug.Assert(startRes != null);
+			return await Task.Run(() => {
+				try {
+					var c = new RestClient(baseUrl);
+					var r = new RestRequest(FutabaEndPoint, Method.GET);
+					r.AddParameter("mode", "json");
+					r.AddParameter("res", threadNo);
+					r.AddParameter("start", startRes);
+					foreach(var cookie in cookies) {
+						r.AddCookie(cookie.Name, cookie.Value);
+					}
+					var res = c.Execute(r);
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+						var rc = res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray();
+						if(res.Content.StartsWith("<html>")) {
+							var s = FutabaEncoding.GetString(res.RawBytes);
 							System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 							System.Diagnostics.Debug.WriteLine(s);
 							System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");

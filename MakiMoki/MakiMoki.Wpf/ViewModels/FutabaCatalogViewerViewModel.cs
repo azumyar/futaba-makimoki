@@ -138,7 +138,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					switch(e.ChangedButton) {
 					case MouseButton.Left:
 						if(this.isCatalogItemClicking) {
-							Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value).Subscribe(
+							Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value, true).Subscribe(
 								x => {
 									if(x != null) {
 										MainWindowViewModel.Messenger.Instance.GetEvent<PubSubEvent<MainWindowViewModel.CurrentTabChanged>>()
@@ -152,7 +152,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					case MouseButton.Middle:
 						if(this.isCatalogItemClicking) {
 							// TODO: そのうちこっちは裏で開くように返れたらいいな
-							Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value).Subscribe(
+							Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value, true).Subscribe(
 								x => {
 									/*
 									if(x != null) {

@@ -217,7 +217,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						if(y.Successed) {
 							Messenger.Instance.GetEvent<PubSubEvent<PostEndedMessage>>().Publish(new PostEndedMessage(x.Url));
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
-							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo).Subscribe();
+							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, true).Subscribe();
 						} else {
 							// TODO: あとでいい感じにする
 							MessageBox.Show(y.Message);

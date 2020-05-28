@@ -245,7 +245,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Util.Futaba.UpdateCatalog(futaba.Raw.Bord)
 					.Subscribe();
 			} else {
-				Util.Futaba.UpdateThreadRes(futaba.Raw.Bord, futaba.Raw.Url.ThreadNo)
+				Util.Futaba.UpdateThreadRes(futaba.Raw.Bord, futaba.Raw.Url.ThreadNo, true)
 					.Subscribe();
 			}
 		}

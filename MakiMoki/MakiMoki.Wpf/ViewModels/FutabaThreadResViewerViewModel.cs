@@ -176,9 +176,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnThreadUpdateClick(RoutedEventArgs e) {
 			if(e.Source is FrameworkElement el) {
 				if(el.DataContext is Data.FutabaContext x) {
-					Util.Futaba.UpdateThreadRes(x.Bord, x.Url.ThreadNo).Subscribe();
+					Util.Futaba.UpdateThreadRes(x.Bord, x.Url.ThreadNo, true).Subscribe();
 				} else if(el.DataContext is Model.BindableFutabaResItem y) {
-					Util.Futaba.UpdateThreadRes(y.Bord.Value, y.Parent.Value.Url.ThreadNo).Subscribe();
+					Util.Futaba.UpdateThreadRes(y.Bord.Value, y.Parent.Value.Url.ThreadNo, true).Subscribe();
 				}
 			}
 		}
@@ -250,6 +250,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						if(x.Successed) {
 							if(int.TryParse(x.Message, out var i)) {
 								if(ri.Raw.Value.Soudane != i) {
+									// TODO: そうだねの場合フル更新？考える
 									Util.Futaba.UpdateThreadRes(ri.Bord.Value, ri.Raw.Value.Url.ThreadNo).Subscribe();
 									goto exit;
 								}

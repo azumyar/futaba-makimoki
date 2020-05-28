@@ -359,6 +359,22 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			};
 		}
 
+		public static FutabaContext FromThreadResResponse(FutabaContext parent, FutabaResonse response) {
+			return new FutabaContext() {
+				Name = parent.Name,
+				Bord = parent.Bord,
+				Url = parent.Url,
+				ResItems = parent.ResItems.Concat(response.Res?.Select(x => {
+					var sd = 0;
+					if(response.Sd.TryGetValue(x.No, out var s) && int.TryParse(s, out var v)) {
+						sd = v;
+					}
+					return Item.FromThreadRes(parent.Url, x, sd);
+				}) ?? new Item[0]).ToArray(),
+				Raw = response,
+			};
+		}
+
 		public static FutabaContext FromThreadResResponse(BordConfig bord, string threadNo, FutabaResonse response, Data.NumberedResItem parent, int soudane) {
 			var url = new UrlContext(bord.Url, threadNo);
 			var p = Item.FromThreadRes(url, parent, soudane);
