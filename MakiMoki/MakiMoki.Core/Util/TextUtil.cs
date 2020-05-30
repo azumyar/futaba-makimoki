@@ -26,7 +26,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 		public static string Filter2SearchText(string input) {
-			return CSharp.Japanese.Kanaxs.KanaEx.ToHiragana(CSharp.Japanese.Kanaxs.KanaEx.ToZenkakuKana(input));
+			return CSharp.Japanese.Kanaxs.KanaEx.ToHiragana(CSharp.Japanese.Kanaxs.KanaEx.ToZenkakuKana(input)).ToLower();
 		}
 
 		public static string Comment2SearchText(string input) {
@@ -35,7 +35,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				RegexOptions.IgnoreCase | RegexOptions.Multiline);
 			var t3 = System.Net.WebUtility.HtmlDecode(t2);
 
-			return CSharp.Japanese.Kanaxs.KanaEx.ToHiragana(CSharp.Japanese.Kanaxs.KanaEx.ToZenkakuKana(t3));
+			return CSharp.Japanese.Kanaxs.KanaEx.ToHiragana(CSharp.Japanese.Kanaxs.KanaEx.ToZenkakuKana(t3)).ToLower();
 		}
 	}
 }
