@@ -441,4 +441,12 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			};
 		}
 	}
+
+	public class Information { 
+		public string Message { get; }
+
+		public Information(string message) {
+			this.Message = message;
+		}
+	}
 }

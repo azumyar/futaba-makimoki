@@ -101,7 +101,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				if(IsValidDragFile(e) && e.Data.GetData(DataFormats.FileDrop) is string[] files) {
 					f.PostData.Value.ImagePath.Value = files[0];
 				} else {
-					MessageBox.Show("未対応のファイル"); // TODO: メッセージをいい感じにする
+					Util.Futaba.PutInformation(new Information("未対応のファイル"));
 				}
 			}
 		}
@@ -167,7 +167,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							}
 						});
 				} else {
-					MessageBox.Show("未対応のファイル"); // TODO: メッセージをいい感じにする
+					Util.Futaba.PutInformation(new Information("未対応のファイル"));
 				}
 			}
 		}
@@ -201,16 +201,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									.ObserveOn(UIDispatcherScheduler.Default)
 									.Subscribe(z => {
 										// TODO: utilでやる
-										if((z != null) && (z.ResItems.Length != 0)) {
+										if((z.New != null) && (z.New.ResItems.Length != 0)) {
 											Util.Futaba.PostItems.Value = Util.Futaba.PostItems.Value
-												.Concat(new[] { new Data.PostedResItem(x.Raw.Url.BaseUrl, z.ResItems.FirstOrDefault().ResItem) })
+												.Concat(new[] { new Data.PostedResItem(x.Raw.Url.BaseUrl, z.New.ResItems.FirstOrDefault().ResItem) })
 												.ToArray();
 										}
 									});
 							});
 						} else {
-							// TODO: あとでいい感じにする
-							MessageBox.Show(y.NextOrMessage);
+							Util.Futaba.PutInformation(new Information(y.NextOrMessage));
 						}
 					});
 				} else {
@@ -232,8 +231,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 								.ObserveOn(UIDispatcherScheduler.Default)
 								.Subscribe(z => {
 									// TODO: utilでやる
-									if(z != null) {
-										foreach(var res in z.ResItems.Skip(resCount + 1).Reverse()) {
+									if(z.New != null) {
+										foreach(var res in z.New.ResItems.Skip(resCount + 1).Reverse()) {
 											var regex = new Regex(@"<[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Multiline);
 											var c = com;
 											if(string.IsNullOrEmpty(c)) {
@@ -249,8 +248,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									}
 								});
 						} else {
-							// TODO: あとでいい感じにする
-							MessageBox.Show(y.Message);
+							Util.Futaba.PutInformation(new Information(y.Message));
 						}
 					});
 				}

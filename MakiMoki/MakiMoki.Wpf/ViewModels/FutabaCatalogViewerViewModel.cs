@@ -140,9 +140,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						if(this.isCatalogItemClicking) {
 							Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value, true).Subscribe(
 								x => {
-									if(x != null) {
+									if(x.New != null) {
 										MainWindowViewModel.Messenger.Instance.GetEvent<PubSubEvent<MainWindowViewModel.CurrentTabChanged>>()
-											.Publish(new MainWindowViewModel.CurrentTabChanged(x));
+											.Publish(new MainWindowViewModel.CurrentTabChanged(x.New));
 									}
 								});
 							this.isCatalogItemClicking = false;
@@ -184,11 +184,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Util.Futaba.PostDel(ri.Bord.Value, threadNo, resNo)
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
-						var m = x.Message;
 						if(x.Successed) {
+							Util.Futaba.PutInformation(new Information("del送信"));
+						} else {
+							Util.Futaba.PutInformation(new Information(x.Message));
 						}
-						// TODO: いい感じにする
-						MessageBox.Show(m);
 					});
 			}
 		}

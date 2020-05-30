@@ -19,11 +19,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static ReactiveProperty<Data.FutabaContext[]> Catalog { get; private set; }
 		public static ReactiveProperty<Data.FutabaContext[]> Threads { get; private set; }
 		public static ReactiveProperty<Data.PostedResItem[]> PostItems { get; private set; }
+		public static ReactiveCollection<Data.Information> Informations { get; private set; }
 
 		public static void Initialize() {
 			Catalog = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
 			Threads = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
 			PostItems = new ReactiveProperty<Data.PostedResItem[]>(new Data.PostedResItem[0]);
+			Informations = new ReactiveCollection<Data.Information>();
 		}
 
 		public static IObservable<Data.FutabaContext> UpdateCatalog(Data.BordConfig bord, Data.CatalogSortItem sort = null) {
@@ -107,13 +109,16 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					}
 					return result;
 				});
+				if(f == null) {
+					PutInformation(new Data.Information("カタログ取得エラー"));
+				}
 				o.OnNext(f);
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
 
 
-		public static IObservable<Data.FutabaContext> UpdateThreadRes(Data.BordConfig bord, string threadNo, bool incremental=false) {
+		public static IObservable<(Data.FutabaContext New, Data.FutabaContext Old)> UpdateThreadRes(Data.BordConfig bord, string threadNo, bool incremental=false) {
 			var u = new Data.UrlContext(bord.Url, threadNo);
 			Data.FutabaContext parent = null;
 			lock(lockObj) {
@@ -123,9 +128,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				return UpdateThreadResAll(bord, threadNo);
 			}
 
-			return Observable.Create<Data.FutabaContext>(async o => {
-				var ctx = await Task.Run(() => {
+			return Observable.Create<(Data.FutabaContext New, Data.FutabaContext Old)>(async o => {
+				var ctx = await Task.Run<(Data.FutabaContext New, Data.FutabaContext Old)>(() => {
 					Data.FutabaContext result = null;
+					Data.FutabaContext prev = null;
 					try {
 						var no = "";
 						if(long.TryParse(parent.ResItems.Last().ResItem.No, out var v)) {
@@ -150,10 +156,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 							for(var i = 0; i < Threads.Value.Length; i++) {
 								if(Threads.Value[i].Url == f.Url) {
+									result = f;
+									prev = Threads.Value[i];
 									Threads.Value[i] = f;
 									Threads.Value = Threads.Value.ToArray();
 
-									result = f;
 									goto end;
 								}
 							}
@@ -168,18 +175,20 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						throw;
 					}
 				end:
-					return result;
+					return (result, prev);
 				});
+				PutThreadResResult(ctx.New, ctx.Old);
 				o.OnNext(ctx);
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
 
 
-		public static IObservable<Data.FutabaContext> UpdateThreadResAll(Data.BordConfig bord, string threadNo) {
-			return Observable.Create<Data.FutabaContext>(async o => {
-				var ctx = await Task.Run(() => {
+		public static IObservable<(Data.FutabaContext New, Data.FutabaContext Old)> UpdateThreadResAll(Data.BordConfig bord, string threadNo) {
+			return Observable.Create<(Data.FutabaContext New, Data.FutabaContext Old)>(async o => {
+				var ctx = await Task.Run<(Data.FutabaContext New, Data.FutabaContext Old)>(() => {
 					Data.FutabaContext result = null;
+					Data.FutabaContext prev = null;
 					try {
 						var u = new Data.UrlContext(bord.Url, threadNo);
 						lock(lockObj) {
@@ -221,8 +230,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 											ary[index] = fc2;
 											Threads.Value = ary;
 											result = fc2;
+											prev = fc;
 										} else {
 											result = fc;
+											prev = fc;
 										}
 									}
 								}
@@ -327,10 +338,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							}
 							for(var i = 0; i < Threads.Value.Length; i++) {
 								if(Threads.Value[i].Url == f.Url) {
+									result = f;
+									prev = Threads.Value[i];
 									Threads.Value[i] = f;
 									Threads.Value = Threads.Value.ToArray();
 
-									result = f;
 									goto end;
 								}
 							}
@@ -345,13 +357,31 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						throw;
 					}
 				end:
-					return result;
+					return (result, prev);
 				});
+				PutThreadResResult(ctx.New, ctx.Old);
 				o.OnNext(ctx);
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
 
+		private static void PutThreadResResult(Data.FutabaContext newFutaba, Data.FutabaContext oldFutaba) {
+			if(newFutaba == null) {
+				PutInformation(new Data.Information("スレ取得エラー"));
+			} else {
+				if(oldFutaba == null) {
+					// 何もしない
+				} else {
+					var c = newFutaba.ResItems.Length - oldFutaba.ResItems.Length;
+					if(c <= 0) {
+						PutInformation(new Data.Information("新着レスなし"));
+					} else {
+						PutInformation(new Data.Information($"{c}件の新着レス"));
+					}
+				}
+			}
+		}
+			
 		public static void Open(Data.UrlContext url) {
 			System.Diagnostics.Debug.Assert(url != null);
 
@@ -579,6 +609,15 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				o.OnNext((r.Successed, r.Message));
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
+		}
+
+		public static void PutInformation(Data.Information information) {
+			Observable.Create<Data.Information>(o => {
+				Informations.AddOnScheduler(information);
+				o.OnNext(information);
+				return System.Reactive.Disposables.Disposable.Empty;
+			}).Delay(TimeSpan.FromSeconds(3))
+				.Subscribe(x => Informations.RemoveOnScheduler(x));
 		}
 	}
 }
