@@ -26,6 +26,7 @@
         <converter:TabLastMenuItemConverter x:Key="TabLastMenuItemConverter" />
         <converter:ThreadDieOpacityConverter x:Key="ThreadDieOpacityConverter" />
         <converter:ThreadNewResVisibleConverter x:Key="ThreadNewResVisibleConverter" />
+        <converter:InformationItemConverter x:Key="InformationItemConverter" />
 
         <system:Double x:Key="WindowCaptionHeight">36</system:Double>
         
@@ -913,7 +914,7 @@
 
             <ListBox
                 Grid.Row="1"
-                ItemsSource="{Binding Source={x:Static util:Futaba.Informations}, Mode=OneWay}"
+                ItemsSource="{Binding Source={x:Static util:Futaba.Informations}, Mode=OneWay, Converter={StaticResource InformationItemConverter}}"
                 Background="Transparent"
                 BorderBrush="Transparent"
                 BorderThickness="0"

@@ -25,7 +25,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			Catalog = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
 			Threads = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
 			PostItems = new ReactiveProperty<Data.PostedResItem[]>(new Data.PostedResItem[0]);
-			Informations = new ReactiveCollection<Data.Information>();
+			Informations = new ReactiveCollection<Data.Information>(UIDispatcherScheduler.Default);
 		}
 
 		public static IObservable<Data.FutabaContext> UpdateCatalog(Data.BordConfig bord, Data.CatalogSortItem sort = null) {

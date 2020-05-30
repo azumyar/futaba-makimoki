@@ -115,4 +115,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			throw new NotImplementedException();
 		}
 	}
+
+	class InformationItemConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value is IEnumerable<Data.Information> ti) {
+				// Count() == 0の時ReverseするとAddOnSchedulerが機能しなくなる？
+				return (ti.Count() != 0) ? ti.Reverse() : ti;
+			}
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
 }
