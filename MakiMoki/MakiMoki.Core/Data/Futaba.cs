@@ -273,6 +273,19 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		}
 	}
 
+	public class PostedResItem : JsonObject {
+		[JsonProperty("bord")]
+		public string BordUrl { get; private set; }
+
+		[JsonProperty("res")]
+		public NumberedResItem Res { get; private set; }
+
+		public PostedResItem(string bordUrl, NumberedResItem res) {
+			this.BordUrl = bordUrl;
+			this.Res = res;
+		}
+	}
+
 	public class FutabaContext {
 		// TODO: 名前後で変える
 		public class Item {

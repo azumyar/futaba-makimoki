@@ -14,6 +14,7 @@
              xmlns:behavior="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Behaviors"
              xmlns:model="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Model"
              xmlns:data="clr-namespace:Yarukizero.Net.MakiMoki.Data;assembly=MakiMoki.Core"
+             xmlns:util="clr-namespace:Yarukizero.Net.MakiMoki.Util;assembly=MakiMoki.Core"
              mc:Ignorable="d" 
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -27,6 +28,7 @@
         <converter:FutabaNewResCountConverter x:Key="FutabaNewResCountConverter"/>
         <converter:FutabaNewResVisibilityConverter x:Key="FutabaNewResVisibilityConverter"/>
         <converter:FutabaResItemBackgroundConverter x:Key="FutabaResItemBackgroundConverter" />
+        <converter:FutabaResItemIndexConverter x:Key="FutabaResItemIndexConverter" />
         <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
         <converter:FutabaResItemIdTextConverter x:Key="FutabaResItemIdTextConverter" />
         <converter:FutabaResItemNowConverter x:Key="FutabaResItemNowConverter"/>
@@ -39,6 +41,17 @@
         <Color x:Key="OldColor">Red</Color>
 
         <SolidColorBrush x:Key="PrimaryColorBrush" Color="#4FC3F7" />
+
+        <Style x:Key="ResIndexStyle" TargetType="TextBlock">
+        </Style>
+        <Style x:Key="PostedResIndexStyle" TargetType="TextBlock">
+            <Setter Property="Foreground">
+                <Setter.Value>
+                    <SolidColorBrush Color="{DynamicResource ThreadHeaderPostedColor}" />
+                </Setter.Value>
+            </Setter>
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
 
         <ContextMenu
             x:Key="ThreadResHamburgerContextMenu"
@@ -83,7 +96,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Margin="0" BorderThickness="0 0 0 1" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+            <Border Grid.Row="0" Margin="0" BorderThickness="0 0 0 1">
                 <Border.BorderBrush>
                     <SolidColorBrush Color="{DynamicResource ViewerBorderColor}" />
                 </Border.BorderBrush>
@@ -149,7 +162,9 @@
                         </TextBlock.Foreground>
                     </TextBlock>
 
-                    <Button Grid.Column="3" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value.Raw, ElementName=_this}">
+                    <Button Grid.Column="3" Height="32" Margin="2"
+                            DataContext="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
+                            Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Style.Triggers>
@@ -159,6 +174,17 @@
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
+                        <Button.ContextMenu>
+                            <ContextMenu
+                                Placement="Bottom" VerticalOffset="4" HorizontalOffset="0"
+                                DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}, Mode=OneWay}"
+                                Tag="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}, Mode=OneWay}">
+                                <MenuItem
+                                    Header="全更新"
+                                    Command="{Binding Tag.MenuItemFullUpdateClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                    CommandParameter="{Binding Mode=OneWay}"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
 
                         <TextBlock>
                         更新
@@ -276,7 +302,7 @@
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Grid.Column="5" Height="32" Margin="2">
+                    <Button Grid.Column="5" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Style.Triggers>
@@ -368,13 +394,14 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <Grid
+                            <Border 
                                 x:Name="viewGrid"
                                 Grid.Column="0" Grid.Row="0"
                                 MaxWidth="1024"
                                 HorizontalAlignment="Left" 
-                                Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}">
-                                <Grid.Background>
+                                Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}"                                
+                                Padding="4">
+                                <Border.Background>
                                     <SolidColorBrush>
                                         <SolidColorBrush.Color>
                                             <MultiBinding Converter="{StaticResource FutabaResItemBackgroundConverter}">
@@ -385,146 +412,155 @@
                                             </MultiBinding>
                                         </SolidColorBrush.Color>
                                     </SolidColorBrush>
-                                </Grid.Background>
-
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="24" />
-                                </Grid.RowDefinitions>
-                                <WrapPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal"
-                                           TextBlock.FontSize="{DynamicResource ThreadHeaderFontSize}"
-                                           TextBlock.FontFamily="{DynamicResource ThreadHeaderFont}">
-                                    <!-- AlternationCount/AlternationIndexではアイテム追加時に追従してくれない -->
-                                    <TextBlock>
-                                        <Run Text="{Binding Index.Value, StringFormat='\{0\} ', Mode=OneWay}" />
-                                    </TextBlock>
-                                    <TextBlock Visibility="{Binding NameVisibility.Value, Mode=OneWay}">
-                                        <TextBlock.Foreground>
-                                            <SolidColorBrush Color="{DynamicResource ThreadHeaderSubjectColor}" />
-                                        </TextBlock.Foreground>
-                                        <Run Text="{Binding Raw.Value.ResItem.Res.Sub, StringFormat='\{0\}', Mode=OneWay}" FontWeight="Bold" />
-                                        <Run Text=" " />
-                                    </TextBlock>
-                                    <TextBlock Visibility="{Binding NameVisibility.Value, Mode=OneWay}">
-                                        <TextBlock.Foreground>
-                                            <SolidColorBrush Color="{DynamicResource ThreadHeaderNameColor}" />
-                                        </TextBlock.Foreground>
-                                        <Run Text="{Binding Raw.Value.ResItem.Res.Name, StringFormat='\{0\}', Mode=OneWay}" FontWeight="Bold" />
-                                        <Run Text=" " />
-                                    </TextBlock>
-                                    <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Email, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
-                                        <TextBlock.Foreground>
-                                            <SolidColorBrush Color="{DynamicResource ThreadHeaderMailColor}" />
-                                        </TextBlock.Foreground>
-                                        <!-- メールは文字の太さを変えないのでRunはひとつでいい -->
-                                        <Run Text="{Binding Raw.Value.ResItem.Res.Email,  StringFormat='[\{0\}] ', Mode=OneWay}" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="{Binding Raw.Value.ResItem.Res.Now, StringFormat='\{0\} ', Converter={StaticResource FutabaResItemNowConverter}, Mode=OneWay}" />
-                                    </TextBlock>
-                                    <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Id, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
-                                        <Run Text="{Binding Converter={StaticResource FutabaResItemIdTextConverter}, Mode=OneWay}" />
-                                        <Run Text=" " />
-                                    </TextBlock>
-                                    <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
-                                        <TextBlock.Foreground>
-                                            <SolidColorBrush Color="{DynamicResource ThreadHeaderSoudaneColor}" />
-                                        </TextBlock.Foreground>
-                                        <!-- そうだねは文字の太さを変えないのでRunはひとつでいい -->
-                                        <Run Text="{Binding Raw.Value.Soudane, Mode=OneWay, StringFormat='そうだね×\{0\} '}" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="{Binding Raw.Value.ResItem.No,  StringFormat='No.\{0\} ', Mode=OneWay}" />
-                                    </TextBlock>
-                                </WrapPanel>
-                                <WrapPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" 
-                                           TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
-                                           TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
-                                    <Grid  Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}"
-                                           TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
-                                           TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="*" />
-                                        </Grid.RowDefinitions>
-                                        <TextBlock
-                                            Grid.Row="0"
-                                            FontSize="14"
-                                            Text="{Binding ImageName.Value}" 
-                                            HorizontalAlignment="Left" />
-                                        <Viewbox
-                                            Grid.Row="1"
-                                            HorizontalAlignment="Left"
-                                            StretchDirection="DownOnly">
-                                            <Button BorderThickness="0" BorderBrush="Transparent" Margin="0 0 4 0">
-                                                <Image 
-                                                    Source="{Binding ThumbSource.Value}"
-                                                    RenderOptions.EdgeMode="Aliased"
-                                                    RenderOptions.BitmapScalingMode="Fant">
-                                                    <Image.CacheMode>
-                                                        <BitmapCache RenderAtScale="1" />
-                                                    </Image.CacheMode>
-                                                </Image>
-                                                <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="PreviewMouseDown">
-                                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadImageMouseDownCommand, ElementName=_this}" />
-                                                    </i:EventTrigger>
-                                                    <i:EventTrigger EventName="PreviewMouseUp">
-                                                        <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadImageClickCommand, ElementName=_this}" />
-                                                    </i:EventTrigger>
-                                                </i:Interaction.Triggers>
-                                            </Button>
-                                        </Viewbox>
-                                    </Grid>
-                                    <local:FutabaCommentBlock Text="{Binding CommentHtml.Value, Mode=OneWay}" TextWrapping="Wrap" Margin="4 4 0 4">
-                                        <local:FutabaCommentBlock.Inline>
-                                            <Binding Path="CommentHtml.Value" Mode="OneWay" />
-                                        </local:FutabaCommentBlock.Inline>
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="LinkClick">
-                                                <ri:EventToReactiveCommand Command="{Binding DataContext.LinkClickCommand, ElementName=_this}" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </local:FutabaCommentBlock>
-                                </WrapPanel>
-                                <Button 
-                                    x:Name="copyButton" 
-                                    Grid.Column="1" Grid.Row="2" 
-                                    Width="24" Height="24" Opacity="0.6"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Bottom" Visibility="Hidden">
-                                    <TextBlock>マ</TextBlock>
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="Click">
-                                            <i:CallMethodAction
-                                                MethodName="StartCopyMode"
-                                                TargetObject="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" />
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
-                                </Button>
-                                <Grid.ContextMenu>
-                                    <ContextMenu>
-                                        <!-- Interaction.Triggers使えない？ -->
-                                        <MenuItem Header="レスをコピー" Click="OnMenuItemCopyClickCommand" />
-                                        <MenuItem Header="返信" Click="OnMenuItemReplyClickCommand">
-                                            <!--
+                                </Border.Background>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="24" />
+                                    </Grid.RowDefinitions>
+                                    <WrapPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal"
+                                               TextBlock.FontSize="{DynamicResource ThreadHeaderFontSize}"
+                                               TextBlock.FontFamily="{DynamicResource ThreadHeaderFont}">
+                                        <!-- AlternationCount/AlternationIndexではアイテム追加時に追従してくれない -->
+                                        <TextBlock>
+                                            <TextBlock.Style>
+                                                <MultiBinding Converter="{StaticResource FutabaResItemIndexConverter}">
+                                                    <Binding Mode="OneWay" />
+                                                    <Binding Path="Value" Mode="OneWay" Source="{x:Static util:Futaba.PostItems}" />
+                                                    <Binding Source="{StaticResource ResIndexStyle}" />
+                                                    <Binding Source="{StaticResource PostedResIndexStyle}"  />
+                                                </MultiBinding>
+                                            </TextBlock.Style>
+                                            <Run Text="{Binding Index.Value, StringFormat='\{0\} ', Mode=OneWay}" />
+                                        </TextBlock>
+                                        <TextBlock Visibility="{Binding NameVisibility.Value, Mode=OneWay}">
+                                            <TextBlock.Foreground>
+                                                <SolidColorBrush Color="{DynamicResource ThreadHeaderSubjectColor}" />
+                                            </TextBlock.Foreground>
+                                            <Run Text="{Binding Raw.Value.ResItem.Res.Sub, StringFormat='\{0\}', Mode=OneWay}" FontWeight="Bold" />
+                                            <Run Text=" " />
+                                        </TextBlock>
+                                        <TextBlock Visibility="{Binding NameVisibility.Value, Mode=OneWay}">
+                                            <TextBlock.Foreground>
+                                                <SolidColorBrush Color="{DynamicResource ThreadHeaderNameColor}" />
+                                            </TextBlock.Foreground>
+                                            <Run Text="{Binding Raw.Value.ResItem.Res.Name, StringFormat='\{0\}', Mode=OneWay}" FontWeight="Bold" />
+                                            <Run Text=" " />
+                                        </TextBlock>
+                                        <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Email, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                                            <TextBlock.Foreground>
+                                                <SolidColorBrush Color="{DynamicResource ThreadHeaderMailColor}" />
+                                            </TextBlock.Foreground>
+                                            <!-- メールは文字の太さを変えないのでRunはひとつでいい -->
+                                            <Run Text="{Binding Raw.Value.ResItem.Res.Email,  StringFormat='[\{0\}] ', Mode=OneWay}" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="{Binding Raw.Value.ResItem.Res.Now, StringFormat='\{0\} ', Converter={StaticResource FutabaResItemNowConverter}, Mode=OneWay}" />
+                                        </TextBlock>
+                                        <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Id, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                                            <Run Text="{Binding Converter={StaticResource FutabaResItemIdTextConverter}, Mode=OneWay}" />
+                                            <Run Text=" " />
+                                        </TextBlock>
+                                        <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                                            <TextBlock.Foreground>
+                                                <SolidColorBrush Color="{DynamicResource ThreadHeaderSoudaneColor}" />
+                                            </TextBlock.Foreground>
+                                            <!-- そうだねは文字の太さを変えないのでRunはひとつでいい -->
+                                            <Run Text="{Binding Raw.Value.Soudane, Mode=OneWay, StringFormat='そうだね×\{0\} '}" />
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run Text="{Binding Raw.Value.ResItem.No,  StringFormat='No.\{0\} ', Mode=OneWay}" />
+                                        </TextBlock>
+                                    </WrapPanel>
+                                    <WrapPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" 
+                                               TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
+                                               TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
+                                        <Grid  Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}"
+                                               TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
+                                               TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="*" />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock
+                                                Grid.Row="0"
+                                                FontSize="14"
+                                                Text="{Binding ImageName.Value}" 
+                                                HorizontalAlignment="Left" />
+                                            <Viewbox
+                                                Grid.Row="1"
+                                                HorizontalAlignment="Left"
+                                                StretchDirection="DownOnly">
+                                                <Button BorderThickness="0" BorderBrush="Transparent" Margin="0 0 4 0">
+                                                    <Image 
+                                                        Source="{Binding ThumbSource.Value}"
+                                                        RenderOptions.EdgeMode="Aliased"
+                                                        RenderOptions.BitmapScalingMode="Fant">
+                                                        <Image.CacheMode>
+                                                            <BitmapCache RenderAtScale="1" />
+                                                        </Image.CacheMode>
+                                                    </Image>
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="PreviewMouseDown">
+                                                            <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadImageMouseDownCommand, ElementName=_this}" />
+                                                        </i:EventTrigger>
+                                                        <i:EventTrigger EventName="PreviewMouseUp">
+                                                            <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadImageClickCommand, ElementName=_this}" />
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                </Button>
+                                            </Viewbox>
+                                        </Grid>
+                                        <local:FutabaCommentBlock Text="{Binding CommentHtml.Value, Mode=OneWay}" TextWrapping="Wrap" Margin="4 4 0 4">
+                                            <local:FutabaCommentBlock.Inline>
+                                                <Binding Path="CommentHtml.Value" Mode="OneWay" />
+                                            </local:FutabaCommentBlock.Inline>
                                             <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="Click">
-                                                    <ri:EventToReactiveCommand Command="{Binding DataContext.MenuItemReplyClickCommand, ElementName=_this}" />
+                                                <i:EventTrigger EventName="LinkClick">
+                                                    <ri:EventToReactiveCommand Command="{Binding DataContext.LinkClickCommand, ElementName=_this}" />
                                                 </i:EventTrigger>
                                             </i:Interaction.Triggers>
-                                            -->
-                                        </MenuItem>
-                                        <MenuItem Header="そうだね" Click="OnMenuItemSoudaneClickCommand" />
-                                        <MenuItem Header="del" Click="OnMenuItemDelClickCommand" />
-                                        <MenuItem Header="削除" Click="OnMenuItemDeleteClickCommand" />
-                                    </ContextMenu>
-                                </Grid.ContextMenu>
+                                        </local:FutabaCommentBlock>
+                                    </WrapPanel>
+                                    <Button 
+                                        x:Name="copyButton" 
+                                        Grid.Column="1" Grid.Row="2" 
+                                        Width="24" Height="24" Opacity="0.6"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Bottom" Visibility="Hidden">
+                                        <TextBlock>マ</TextBlock>
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="Click">
+                                                <i:CallMethodAction
+                                                    MethodName="StartCopyMode"
+                                                    TargetObject="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </Button>
+                                    <Grid.ContextMenu>
+                                        <ContextMenu>
+                                            <!-- Interaction.Triggers使えない？ -->
+                                            <MenuItem Header="レスをコピー" Click="OnMenuItemCopyClickCommand" />
+                                            <MenuItem Header="返信" Click="OnMenuItemReplyClickCommand">
+                                                <!--
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="Click">
+                                                        <ri:EventToReactiveCommand Command="{Binding DataContext.MenuItemReplyClickCommand, ElementName=_this}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                                -->
+                                            </MenuItem>
+                                            <MenuItem Header="そうだね" Click="OnMenuItemSoudaneClickCommand" />
+                                            <MenuItem Header="del" Click="OnMenuItemDelClickCommand" />
+                                            <MenuItem Header="削除" Click="OnMenuItemDeleteClickCommand" />
+                                        </ContextMenu>
+                                    </Grid.ContextMenu>
+                                </Grid>
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseEnter">
                                         <i:ChangePropertyAction PropertyName="Visibility" TargetName="copyButton" Value="Visible" />
@@ -536,7 +572,7 @@
                                         <ri:EventToReactiveCommand Command="{Binding DataContext.FutabaTextBlockMouseDownCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
-                            </Grid>
+                            </Border>
                             <Grid
                                 x:Name="copywGrid"
                                 Grid.Column="0" Grid.Row="0"
@@ -576,7 +612,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Button
                                     Grid.Column="0" 
-                                    MinWidth="128" Height="40"
+                                    MinWidth="160" Height="40"
                                     IsEnabled="{Binding  Parent.Value, Mode=OneWay, Converter={StaticResource FutabaResItemNextButtonEnabledConverter}}">
                                     <TextBlock>
                                         続きを読む

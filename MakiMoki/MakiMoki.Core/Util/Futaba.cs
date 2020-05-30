@@ -18,10 +18,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 		public static ReactiveProperty<Data.FutabaContext[]> Catalog { get; private set; }
 		public static ReactiveProperty<Data.FutabaContext[]> Threads { get; private set; }
+		public static ReactiveProperty<Data.PostedResItem[]> PostItems { get; private set; }
 
 		public static void Initialize() {
 			Catalog = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
 			Threads = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
+			PostItems = new ReactiveProperty<Data.PostedResItem[]>(new Data.PostedResItem[0]);
 		}
 
 		public static IObservable<Data.FutabaContext> UpdateCatalog(Data.BordConfig bord, Data.CatalogSortItem sort = null) {

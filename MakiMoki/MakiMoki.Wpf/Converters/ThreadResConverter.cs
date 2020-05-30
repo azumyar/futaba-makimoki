@@ -175,6 +175,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 	}
 
+	class FutabaResItemIndexConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if(values.Length == 4) {
+				if((values[0] is Model.BindableFutabaResItem f)
+					&& (values[1] is IEnumerable<Data.PostedResItem> res)) {
+
+					return (res.Where(x => x.BordUrl == f.Parent.Value.Url.BaseUrl)
+						.Where(x => x.Res.No == f.ThreadResNo.Value)
+						.FirstOrDefault() != null)
+							? values[3] : values[2];
+				}
+				return values[2];
+			}
+
+			throw new ArgumentException("型不正。", "value");
+		}
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
 
 	class FutabaResItemIdTextConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {

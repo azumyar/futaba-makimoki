@@ -22,13 +22,15 @@
         <Color x:Key="CatalogBadgeCountForegroundColor">White</Color>
         <FontFamily x:Key="CatalogBadgeCountFont">Segoe UI</FontFamily>
         <Color x:Key="CatalogItemBackgroundColor">#ffffff</Color>
-        <!-- DeepOrangeの300-->
-        <Color x:Key="CatalogItemOpendBackgroundColor">#FF8A65</Color>
+        <!-- DeepOrangeの100-->
+        <Color x:Key="CatalogItemOpendBackgroundColor">#FFE0B2</Color>
 
 
         <Color x:Key="ThreadBackgroundColor">#00000000</Color>
-        <!-- LightGreenの300 -->
-        <Color x:Key="ThreadBackgroundSerachHitColor">#AED581</Color>
+        <!-- LightGreenの100 -->
+        <Color x:Key="ThreadBackgroundSerachHitColor">#C8E6C9</Color>
+        <!-- Blueの800 -->
+        <Color x:Key="ThreadHeaderPostedColor">#1565C0</Color>
         <!-- Greenの800 -->
         <Color x:Key="ThreadHeaderSubjectColor">#2E7D32</Color>
         <!-- Redの800 -->

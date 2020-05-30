@@ -61,6 +61,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<RoutedEventArgs> ThreadResHamburgerItemUrlClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
+		public ReactiveCommand<BindableFutaba> MenuItemFullUpdateClickCommand { get; } = new ReactiveCommand<BindableFutaba>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemCopyClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemReplyClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemSoudaneClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
@@ -81,6 +82,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			LinkClickCommand.Subscribe(x => OnLinkClick(x));
 
 			ThreadResHamburgerItemUrlClickCommand.Subscribe(x => OnThreadResHamburgerItemUrlClick(x));
+			MenuItemFullUpdateClickCommand.Subscribe(x => OnMenuItemFullUpdateClick(x));
 			MenuItemCopyClickCommand.Subscribe(x => OnMenuItemCopyClickCommand(x));
 			MenuItemReplyClickCommand.Subscribe(x => OnMenuItemReplyClickCommand(x));
 			MenuItemSoudaneClickCommand.Subscribe(x => OnMenuItemSoudaneClickCommand(x));
@@ -175,8 +177,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnThreadUpdateClick(RoutedEventArgs e) {
 			if(e.Source is FrameworkElement el) {
-				if(el.DataContext is Data.FutabaContext x) {
-					Util.Futaba.UpdateThreadRes(x.Bord, x.Url.ThreadNo, true).Subscribe();
+				if(el.DataContext is BindableFutaba x) {
+					Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, true).Subscribe();
 				} else if(el.DataContext is Model.BindableFutabaResItem y) {
 					Util.Futaba.UpdateThreadRes(y.Bord.Value, y.Parent.Value.Url.ThreadNo, true).Subscribe();
 				}
@@ -196,6 +198,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					Clipboard.SetText($"{ u.BaseUrl }res/{ u.ThreadNo }.htm");
 				}
 			}
+		}
+
+		private void OnMenuItemFullUpdateClick(BindableFutaba futaba) {
+			Util.Futaba.UpdateThreadRes(futaba.Raw.Bord, futaba.Url.ThreadNo)
+				.Subscribe();
 		}
 
 		private void OnMenuItemCopyClickCommand(RoutedEventArgs e) {

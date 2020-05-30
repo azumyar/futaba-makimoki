@@ -197,7 +197,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
 							Task.Run(async () => {
 								await Task.Delay(1000); // すぐにスレが作られないので1秒くらい待つ
-								Util.Futaba.UpdateThreadRes(x.Raw.Bord, y.NextOrMessage).Subscribe();
+								Util.Futaba.UpdateThreadRes(x.Raw.Bord, y.NextOrMessage)
+									.ObserveOn(UIDispatcherScheduler.Default)
+									.Subscribe(z => {
+										// TODO: utilでやる
+										if((z != null) && (z.ResItems.Length != 0)) {
+											Util.Futaba.PostItems.Value = Util.Futaba.PostItems.Value
+												.Concat(new[] { new Data.PostedResItem(x.Raw.Url.BaseUrl, z.ResItems.FirstOrDefault().ResItem) })
+												.ToArray();
+										}
+									});
 							});
 						} else {
 							// TODO: あとでいい感じにする
@@ -205,6 +214,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						}
 					});
 				} else {
+					var resCount = x.ResCount.Value;
 					Util.Futaba.PostRes(x.Raw.Bord, x.Url.ThreadNo,
 						x.PostData.Value.Name.Value,
 						x.PostData.Value.Mail.Value,
@@ -215,9 +225,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(y => {
 						if(y.Successed) {
+							var com = x.PostData.Value.CommentEncoded.Value;
 							Messenger.Instance.GetEvent<PubSubEvent<PostEndedMessage>>().Publish(new PostEndedMessage(x.Url));
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
-							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, true).Subscribe();
+							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, true)
+								.ObserveOn(UIDispatcherScheduler.Default)
+								.Subscribe(z => {
+									// TODO: utilでやる
+									if(z != null) {
+										foreach(var res in z.ResItems.Skip(resCount + 1).Reverse()) {
+											var regex = new Regex(@"<[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+											var c = com;
+											if(string.IsNullOrEmpty(c)) {
+												// TODO: cに板のデフォルトテキストを
+											}
+											if(regex.Replace(res.ResItem.Res.Com, "") == c) {
+												Util.Futaba.PostItems.Value = Util.Futaba.PostItems.Value
+													.Concat(new[] { new Data.PostedResItem(x.Raw.Url.BaseUrl, res.ResItem) })
+													.ToArray();
+												break;
+											}
+										}
+									}
+								});
 						} else {
 							// TODO: あとでいい感じにする
 							MessageBox.Show(y.Message);
