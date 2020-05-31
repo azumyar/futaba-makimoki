@@ -225,6 +225,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.Subscribe(y => {
 						if(y.Successed) {
 							var com = x.PostData.Value.CommentEncoded.Value;
+							/*
+							if(string.IsNullOrEmpty(com)) {
+								// TODO: cに板のデフォルトテキストを
+							}
+							*/
 							Messenger.Instance.GetEvent<PubSubEvent<PostEndedMessage>>().Publish(new PostEndedMessage(x.Url));
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
 							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, true)
@@ -233,16 +238,42 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									// TODO: utilでやる
 									if(z.New != null) {
 										foreach(var res in z.New.ResItems.Skip(resCount + 1).Reverse()) {
-											var regex = new Regex(@"<[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Multiline);
-											var c = com;
-											if(string.IsNullOrEmpty(c)) {
-												// TODO: cに板のデフォルトテキストを
-											}
-											if(regex.Replace(res.ResItem.Res.Com, "") == c) {
-												Util.Futaba.PostItems.Value = Util.Futaba.PostItems.Value
-													.Concat(new[] { new Data.PostedResItem(x.Raw.Url.BaseUrl, res.ResItem) })
-													.ToArray();
-												break;
+											var cLine = com.Replace("\r", "").Split('\n');
+											var rLine = Regex.Split(res.ResItem.Res.Com, "<br>");
+											if(cLine.Length == rLine.Length) {
+												var success = 0;
+												bool dice = false;
+												for(var i = 0; i < cLine.Length; i++) {
+													var c = cLine[i];
+													var r = rLine[i];
+
+													// ダイス判定(ダイスは1レスに1回だけ)
+													if(!dice) {
+														var m1 = Regex.Match(c, @"^dice(10|\d)d(10000|\d{1,4})([+-]\d+)?=");
+														if(m1.Success) {
+															dice = true;
+															var m2 = Regex.Match(r, @"<font[^>]*>[^<]+</font>");
+															if(m2.Success) {
+																// ダイスの領域を削る
+																c = c.Substring(m1.Length);
+																r = r.Substring(m1.Length + m2.Length);
+															}
+														}
+													}
+
+													if(Regex.Replace(r, @"<[^>]*>", "") == c) {
+														success++;
+													} else {
+														break;
+													}
+												}
+
+												if(cLine.Length == success) {
+													Util.Futaba.PostItems.Value = Util.Futaba.PostItems.Value
+														.Concat(new[] { new Data.PostedResItem(x.Raw.Url.BaseUrl, res.ResItem) })
+														.ToArray();
+													break;
+												}
 											}
 										}
 									}
