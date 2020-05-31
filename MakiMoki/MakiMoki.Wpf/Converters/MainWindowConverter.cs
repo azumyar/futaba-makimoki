@@ -48,7 +48,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if((values.Length == 2)
 				&& values[1] is IEnumerable<Model.TabItem> ti) {
 				//return ti;
-				if(values[0] is Model.BindableFutaba f) {
+				if((values[0] is Model.BindableFutaba f) && (ti.Count() != 0)) {
 					return ti.Where(x => x.Futaba.Value.Url.IsThreadUrl && (x.Futaba.Value.Url.BaseUrl == f.Url.BaseUrl));
 				}
 				return ti;

@@ -794,20 +794,12 @@
                             x:Name="container"
                             Style="{StaticResource FutabaTabControl}"
                             ItemContainerStyle="{StaticResource FutabaTabItem}"
+                            ItemsSource="{Binding DataContext.Threads.Value, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"
                             SelectedItem="{Binding DataContext.ThreadTabSelectedItem.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}, UpdateSourceTrigger=PropertyChanged,Mode=Twoway}"
                             Padding="0">
                             <TabControl.Background>
                                 <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
                             </TabControl.Background>
-
-                            <TabControl.ItemsSource>
-                                <MultiBinding Converter="{StaticResource TabItemThreadConverter}" Mode="OneWay">
-                                    <MultiBinding.Bindings>
-                                        <Binding Path="DataContext.Futaba.Value" ElementName="container" />
-                                        <Binding Path="DataContext.Threads" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:MainWindow}" />
-                                    </MultiBinding.Bindings>
-                                </MultiBinding>
-                            </TabControl.ItemsSource>
 
                             <TabControl.ItemTemplate>
                                 <DataTemplate>

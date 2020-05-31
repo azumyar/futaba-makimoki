@@ -603,8 +603,13 @@
                             <!-- リストビューアイテムフッタ テンプレートで何とかしたいけど無理だったよ… -->
                             <Grid 
                                 Grid.Column="0" Grid.Row="1"
-                                Margin="0 4 0 4"
-                                Visibility="{Binding Converter={StaticResource FutabaResItemFooterVisibleConverter}}">
+                                Margin="0 4 0 4">
+                                <Grid.Visibility>
+                                    <MultiBinding Converter="{StaticResource FutabaResItemFooterVisibleConverter}">
+                                        <Binding Mode="OneWay" />
+                                        <Binding Path="Parent.Value" Mode="OneWay" />
+                                    </MultiBinding>
+                                </Grid.Visibility>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="4" />

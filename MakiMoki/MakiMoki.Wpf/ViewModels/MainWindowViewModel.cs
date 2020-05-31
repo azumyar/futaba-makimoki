@@ -35,7 +35,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<Data.BordConfig[]> Bords { get; }
 		public ReactiveCollection<Model.TabItem> Catalogs { get; } = new ReactiveCollection<TabItem>();
-		public ReactiveCollection<Model.TabItem> Threads { get; } = new ReactiveCollection<TabItem>();
+		private Dictionary<string, ReactiveCollection<Model.TabItem>> ThreadsDic { get; } = new Dictionary<string, ReactiveCollection<TabItem>>();
+		public ReactiveProperty<ReactiveCollection<Model.TabItem>> Threads { get; }
 
 		public ReactiveProperty<Visibility> TabVisibility { get; }
 
@@ -63,6 +64,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public MainWindowViewModel() {
 			Bords = new ReactiveProperty<Data.BordConfig[]>(Config.ConfigLoader.Bord);
+			Threads = TabControlSelectedItem.Select(x => {
+				var u = x?.Futaba.Value?.Url.BaseUrl;
+				if(u != null) {
+					if(ThreadsDic.TryGetValue(u, out var v)) {
+						return v;
+					} else {
+						var r = new ReactiveCollection<Model.TabItem>();
+						ThreadsDic.Add(u, r);
+						return r;
+					}
+				} else {
+					return new ReactiveCollection<Model.TabItem>();
+				}
+			}).ToReactiveProperty();
 			this.TabVisibility = new ReactiveProperty<Visibility>(Visibility.Collapsed);
 			BordListClickCommand.Subscribe(x => OnBordListClick(x));
 			BordOpenCommand.Subscribe(x => OnBordOpen(x));
@@ -142,7 +157,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 			this.TabVisibility.Value = this.Catalogs.Count != 0 ? Visibility.Visible : Visibility.Collapsed;
 			foreach(var c in catalog) {
-				var th = this.Threads.Where(x => x.Url.BaseUrl == c.Url.BaseUrl).ToArray();
+				var th = this.Threads.Value.Where(x => x.Url.BaseUrl == c.Url.BaseUrl).ToArray();
 				foreach(var t in c.ResItems) {
 					var tt = th.Where(x => x.Futaba.Value.ResItems.FirstOrDefault()?.Raw.Value?.ResItem.No == t.ResItem.No).FirstOrDefault();
 					if(tt != null) {
@@ -154,8 +169,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnUpdateThreadRes(Data.FutabaContext[] threads) {
 			var url = this.TabControlSelectedItem.Value?.Futaba.Value?.Url.BaseUrl ?? "";
-			var it = Update(this.Threads, threads /*.Where(x => x.Url.BaseUrl == url).ToArray() */, true);
-			RaisePropertyChanged(nameof(Threads)); // これがないとコンバータが起動しない
+			var it = Update(this.Threads.Value, threads.Where(x => x.Url.BaseUrl == url).ToArray(), true);
+			//RaisePropertyChanged(nameof(Threads)); // これがないとコンバータが起動しない
 			if(it != null) {
 				this.ThreadTabSelectedItem.Value = it;
 			}

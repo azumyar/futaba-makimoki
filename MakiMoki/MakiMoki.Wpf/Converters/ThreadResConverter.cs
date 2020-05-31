@@ -244,19 +244,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 	}
 
-	class FutabaResItemFooterVisibleConverter : IValueConverter {
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			if(value == null) {
+	class FutabaResItemFooterVisibleConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if(values.Length == 2) {
+				// BindableFutabaResItemは使いまわされるので更新時検知されない親のBindableFutabaもパラメータにもってくる
+				if((values[0] is Model.BindableFutabaResItem r)
+					&& (values[1] is Model.BindableFutaba f)) {
+
+					return r.Index.Value == f.ResCount.Value ? Visibility.Visible : Visibility.Collapsed;
+				}
 				return Visibility.Collapsed;
 			}
 
-			if(value is Model.BindableFutabaResItem v) {
-				return v.Index.Value == v.Parent.Value.ResCount.Value ? Visibility.Visible : Visibility.Collapsed;
-			}
 			throw new ArgumentException("型不正。", "value");
 		}
-
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
 			throw new NotImplementedException();
 		}
 	}
