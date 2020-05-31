@@ -397,7 +397,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					if(r == null) {
 						UpdateThreadRes(
 							Config.ConfigLoader.Bord.Where(x => x.Url == url.BaseUrl).First(),
-							url.ThreadNo);
+							url.ThreadNo)
+								.Subscribe();
 					}
 				}
 			}

@@ -212,6 +212,8 @@
                                     <MultiBinding.Bindings>
                                         <Binding Path="ItemsSource" RelativeSource="{RelativeSource FindAncestor, AncestorType=TabControl}" />
                                         <Binding Path="ActualHeight" RelativeSource="{RelativeSource FindAncestor, AncestorType=ScrollViewer}" />
+                                        <!-- コンバータを動かすためにBindする -->
+                                        <Binding Path="DataContext.CatalogToken.Value" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:MainWindow}" />
                                     </MultiBinding.Bindings>
                                 </MultiBinding>
                             </Border.Height>
@@ -426,6 +428,8 @@
                                     <MultiBinding.Bindings>
                                         <Binding Path="ItemsSource" RelativeSource="{RelativeSource FindAncestor, AncestorType=TabControl}" />
                                         <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType=ScrollViewer}" />
+                                        <!-- コンバータを動かすためにBindする -->
+                                        <Binding Path="DataContext.ThreadToken.Value" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:MainWindow}" />
                                     </MultiBinding.Bindings>
                                 </MultiBinding>
                             </Border.Width>

@@ -35,8 +35,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<Data.BordConfig[]> Bords { get; }
 		public ReactiveCollection<Model.TabItem> Catalogs { get; } = new ReactiveCollection<TabItem>();
+		public ReactiveProperty<object> CatalogToken { get; } = new ReactiveProperty<object>(DateTime.Now.Ticks);
 		private Dictionary<string, ReactiveCollection<Model.TabItem>> ThreadsDic { get; } = new Dictionary<string, ReactiveCollection<TabItem>>();
 		public ReactiveProperty<ReactiveCollection<Model.TabItem>> Threads { get; }
+		public ReactiveProperty<object> ThreadToken { get; } = new ReactiveProperty<object>(DateTime.Now.Ticks);
 
 		public ReactiveProperty<Visibility> TabVisibility { get; }
 
@@ -155,6 +157,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if(it != null) {
 				this.TabControlSelectedItem.Value = it;
 			}
+			this.CatalogToken.Value = DateTime.Now.Ticks;
 			this.TabVisibility.Value = this.Catalogs.Count != 0 ? Visibility.Visible : Visibility.Collapsed;
 			foreach(var c in catalog) {
 				var th = this.Threads.Value.Where(x => x.Url.BaseUrl == c.Url.BaseUrl).ToArray();
@@ -174,6 +177,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if(it != null) {
 				this.ThreadTabSelectedItem.Value = it;
 			}
+			this.ThreadToken.Value = DateTime.Now.Ticks;
 		}
 
 		private Model.TabItem Update(ReactiveCollection<Model.TabItem> collection, Data.FutabaContext[] catalog, bool isThreadUpdated) {
