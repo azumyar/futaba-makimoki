@@ -18,6 +18,10 @@
       "mime": "image/gif"
     },
     {
+      "ext": ".webp",
+      "mime": "image/webp"
+    },
+    {
       "ext": ".mp4",
       "mime": "video/mp4"
     },
