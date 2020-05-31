@@ -161,6 +161,11 @@
                                             <Image.CacheMode>
                                                 <BitmapCache RenderAtScale="1" />
                                             </Image.CacheMode>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Loaded">
+                                                    <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
                                         </Image>
                                     </Viewbox>
                                     <!-- 新着レス数-->
@@ -297,7 +302,7 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="52" />
                                     </Grid.RowDefinitions>
 
                                     <Grid Grid.Column="0" Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}">
@@ -313,6 +318,11 @@
                                                 <Image.CacheMode>
                                                     <BitmapCache RenderAtScale="1" />
                                                 </Image.CacheMode>
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="Loaded">
+                                                        <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
                                             </Image>
                                         </Viewbox>
 
@@ -623,7 +633,7 @@
                 ScrollViewer.CanContentScroll="True"
                 VirtualizingPanel.ScrollUnit="Pixel"
                 VirtualizingPanel.IsVirtualizing="True"
-                VirtualizingPanel.VirtualizationMode="Recycling"
+                VirtualizingPanel.VirtualizationMode="Standard"
                 >
                 <ListBox.Style>
                     <MultiBinding Converter="{StaticResource FutabaCatalogStyleConverter}">

@@ -494,6 +494,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public ReactiveCommand<MouseButtonEventArgs> FutabaTextBlockMouseDownCommand { get; }
 			= new ReactiveCommand<MouseButtonEventArgs>();
+		public ReactiveCommand ThumbLoadCommand { get; }
+			= new ReactiveCommand();
 
 		public BindableFutabaResItem(int index, Data.FutabaContext.Item item, string baseUrl, BindableFutaba parent) {
 			System.Diagnostics.Debug.Assert(item != null);
@@ -559,7 +561,38 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}
 
 			if(item.ResItem.Res.Fsize != 0) {
-				Util.Futaba.GetThumbImage(item.Url, item.ResItem.Res)
+				this.ImageName = new ReactiveProperty<string>(Regex.Replace(
+					item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$", "$1"));
+			} else {
+				this.ImageName = new ReactiveProperty<string>("");
+			}
+			this.FutabaTextBlockVisibility = this.IsCopyMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
+			this.CopyBlockVisibility = this.IsCopyMode.Select(x => x ? Visibility.Visible : Visibility.Hidden).ToReactiveProperty();
+			this.FutabaTextBlockMouseDownCommand.Subscribe(x => OnFutabaTextBlockMouseDown(x));
+			this.ThumbLoadCommand.Subscribe(_ => OnThumbLoad());
+		}
+
+		public void Dispose() {
+			Disposable.Dispose();
+		}
+
+		public void StartCopyMode() {
+			this.IsCopyMode.Value = true;
+		}
+
+		public void EndCopyMode() {
+			this.IsCopyMode.Value = false;
+		}
+
+		private void OnFutabaTextBlockMouseDown(MouseButtonEventArgs e) {
+			if((e.ClickCount == 2) && (e.ChangedButton == MouseButton.Left)) {
+				this.StartCopyMode();
+			}
+		}
+
+		private void OnThumbLoad() {
+			if((Raw.Value.ResItem.Res.Fsize != 0) && (ThumbSource.Value == null)) {
+				Util.Futaba.GetThumbImage(Raw.Value.Url, Raw.Value.ResItem.Res)
 					.Select(x => {
 						if(x.Successed) {
 							if(x.FileBytes != null) {
@@ -579,31 +612,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 							// TODO: エラー画像表示
 						}
 					});
-				this.ImageName = new ReactiveProperty<string>(Regex.Replace(
-					item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$", "$1"));
-			} else {
-				this.ImageName = new ReactiveProperty<string>("");
-			}
-			this.FutabaTextBlockVisibility = this.IsCopyMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
-			this.CopyBlockVisibility = this.IsCopyMode.Select(x => x ? Visibility.Visible : Visibility.Hidden).ToReactiveProperty();
-			this.FutabaTextBlockMouseDownCommand.Subscribe(x => OnFutabaTextBlockMouseDown(x));
-		}
-
-		public void Dispose() {
-			Disposable.Dispose();
-		}
-
-		public void StartCopyMode() {
-			this.IsCopyMode.Value = true;
-		}
-
-		public void EndCopyMode() {
-			this.IsCopyMode.Value = false;
-		}
-
-		private void OnFutabaTextBlockMouseDown(MouseButtonEventArgs e) {
-			if((e.ClickCount == 2) && (e.ChangedButton == MouseButton.Left)) {
-				this.StartCopyMode();
 			}
 		}
 	}
