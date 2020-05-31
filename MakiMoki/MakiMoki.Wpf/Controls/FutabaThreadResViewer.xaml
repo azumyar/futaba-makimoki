@@ -36,6 +36,7 @@
         <converter:FutabaResItemNextButtonEnabledConverter x:Key="FutabaResItemNextButtonEnabledConverter" />
         <converter:FutabaResItemOldColorConverter x:Key="FutabaResItemOldColorConverter" />
         <converter:FutabaResItemResCountColorConverter x:Key="FutabaResItemResCountColorConverter" />
+        <converter:FutabaResItemCopyTextBoxEventConverter x:Key="FutabaResItemCopyTextBoxEventConverter" />
 
         <Color x:Key="TextColor">Black</Color>
         <Color x:Key="OldColor">Red</Color>
@@ -413,6 +414,25 @@
                                         </SolidColorBrush.Color>
                                     </SolidColorBrush>
                                 </Border.Background>
+                                <Border.ContextMenu>
+                                    <ContextMenu>
+                                        <!-- Interaction.Triggers使えない？ -->
+                                        <MenuItem Header="レスをコピー" Click="OnMenuItemCopyClickCommand" />
+                                        <MenuItem Header="返信" Click="OnMenuItemReplyClickCommand">
+                                            <!--
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="Click">
+                                                        <ri:EventToReactiveCommand Command="{Binding DataContext.MenuItemReplyClickCommand, ElementName=_this}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                                -->
+                                        </MenuItem>
+                                        <MenuItem Header="そうだね" Click="OnMenuItemSoudaneClickCommand" />
+                                        <MenuItem Header="del" Click="OnMenuItemDelClickCommand" />
+                                        <MenuItem Header="削除" Click="OnMenuItemDeleteClickCommand" />
+                                    </ContextMenu>
+                                </Border.ContextMenu>
+
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
@@ -542,24 +562,6 @@
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                     </Button>
-                                    <Grid.ContextMenu>
-                                        <ContextMenu>
-                                            <!-- Interaction.Triggers使えない？ -->
-                                            <MenuItem Header="レスをコピー" Click="OnMenuItemCopyClickCommand" />
-                                            <MenuItem Header="返信" Click="OnMenuItemReplyClickCommand">
-                                                <!--
-                                                <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="Click">
-                                                        <ri:EventToReactiveCommand Command="{Binding DataContext.MenuItemReplyClickCommand, ElementName=_this}" />
-                                                    </i:EventTrigger>
-                                                </i:Interaction.Triggers>
-                                                -->
-                                            </MenuItem>
-                                            <MenuItem Header="そうだね" Click="OnMenuItemSoudaneClickCommand" />
-                                            <MenuItem Header="del" Click="OnMenuItemDelClickCommand" />
-                                            <MenuItem Header="削除" Click="OnMenuItemDeleteClickCommand" />
-                                        </ContextMenu>
-                                    </Grid.ContextMenu>
                                 </Grid>
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseEnter">
@@ -581,10 +583,70 @@
                                 HorizontalAlignment="Left"
                                 Visibility="{Binding CopyBlockVisibility.Value, Mode=OneWay}">
                                 <TextBox
-                                    Text="{Binding CommentCopy.Value, Mode=OneWay}"
+                                    Text="{Binding DataContext.CommentCopy.Value, Mode=OneWay, ElementName=copywGrid}"
                                     TextWrapping="Wrap" Margin="4"
-                                    FontSize="16"
-                                    IsReadOnly="True">
+                                    FontFamily="{DynamicResource ThreadTextFont}"
+                                    FontSize="{DynamicResource ThreadTextFontSize}"
+                                    IsReadOnly="True"
+                                    DataContext="{Binding DataContext, Mode=OneWay, ElementName=_this}"
+                                    Tag="{Binding Contents, Mode=OneWay, ElementName=_this}"
+                                    SelectionChanged="OnCopyTextboxSelectionChanged">
+                                    <TextBox.Resources>
+                                        <ContextMenu
+                                            x:Key="ContextMenu">
+                                            <MenuItem
+                                                Header="引用"
+                                                Command="{Binding CopyTextboxQuotCommand, Mode=OneWay}">
+                                                <MenuItem.CommandParameter>
+                                                    <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
+                                                        <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                        <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                    </MultiBinding>
+                                                </MenuItem.CommandParameter>
+                                            </MenuItem>
+                                            <MenuItem
+                                                Header="スレ内検索"
+                                                Command="{Binding CopyTextboxSearchCommand, Mode=OneWay}">
+                                                <MenuItem.CommandParameter>
+                                                    <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
+                                                        <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                        <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                    </MultiBinding>
+                                                </MenuItem.CommandParameter>
+                                            </MenuItem>
+                                            <MenuItem
+                                                Header="NGワード追加" IsEnabled="False"
+                                                Command="{Binding CopyTextboxNgCommand, Mode=OneWay}">
+                                                <MenuItem.CommandParameter>
+                                                    <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
+                                                        <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                        <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                    </MultiBinding>
+                                                </MenuItem.CommandParameter>
+                                            </MenuItem>
+                                            <Separator />
+                                            <MenuItem
+                                                Header="コピー"
+                                                Command="{Binding CopyTextboxCopyCommand, Mode=OneWay}">
+                                                <MenuItem.CommandParameter>
+                                                    <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
+                                                        <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                        <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                    </MultiBinding>
+                                                </MenuItem.CommandParameter>
+                                            </MenuItem>
+                                            <MenuItem
+                                                Header="Google検索"
+                                                Command="{Binding CopyTextboxGoogleCommand, Mode=OneWay}">
+                                                <MenuItem.CommandParameter>
+                                                    <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
+                                                        <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                        <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                    </MultiBinding>
+                                                </MenuItem.CommandParameter>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </TextBox.Resources>
                                     <i:Interaction.Behaviors>
                                         <behavior:FocusBehavior x:Name="copyTextBox" />
                                     </i:Interaction.Behaviors>

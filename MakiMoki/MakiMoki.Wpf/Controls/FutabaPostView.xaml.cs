@@ -70,8 +70,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			ViewModels.FutabaPostViewViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.AppendTextMessage>>()
 				.Subscribe(x => {
-					if(x.Url == this.Contents?.Url) {
-						var s = x.Text + Environment.NewLine;
+					if((x.Url == this.Contents?.Url) && !string.IsNullOrEmpty(x.Text)) {
+						var s = x.Text + ((x.Text.Last() == '\n') ? "" : Environment.NewLine);
 						var ss = this.PostCommentTextBox.SelectionStart;
 						var sb = new StringBuilder(this.PostCommentTextBox.Text);
 						sb.Insert(ss, s);

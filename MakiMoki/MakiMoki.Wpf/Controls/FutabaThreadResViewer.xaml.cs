@@ -134,6 +134,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			}
 		}
 
+		private void OnCopyTextboxSelectionChanged(object sender, RoutedEventArgs e) {
+			// この処理XAMLだけでやりたいけどよくわからん…
+			if(e.Source is TextBox tb) {
+				if(tb.SelectionLength == 0) {
+					tb.ContextMenu = null;
+				} else {
+					tb.ContextMenu = tb.FindResource("ContextMenu") as ContextMenu;
+					tb.ContextMenu.PlacementTarget = tb;
+				}
+			}
+		}
+
 		private ViewModels.FutabaThreadResViewerViewModel GetViewModel() => this.DataContext as ViewModels.FutabaThreadResViewerViewModel;
 
 		private void OnThreadResHamburgerItemUrlClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.ThreadResHamburgerItemUrlClickCommand.Execute(e);

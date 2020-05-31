@@ -313,4 +313,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			throw new NotImplementedException();
 		}
 	}
+
+	class FutabaResItemCopyTextBoxEventConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if((values.Length == 2) && (values[1] is System.Windows.Controls.TextBox t)) {
+				if(values[0] is Model.BindableFutaba f) {
+					return (f, t);
+				} else {
+					return (default(Model.BindableFutaba), t);
+				}
+			}
+
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
 }

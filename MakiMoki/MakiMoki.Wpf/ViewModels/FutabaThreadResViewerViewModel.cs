@@ -68,6 +68,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<RoutedEventArgs> MenuItemDelClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemDeleteClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
+		public ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxQuotCommand { get; } = new ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)>();
+		public ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxSearchCommand { get; } = new ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)>();
+		public ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxNgCommand { get; } = new ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)>();
+		public ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxCopyCommand { get; } = new ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)>();
+		public ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxGoogleCommand { get; } = new ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)>();
+
 		private bool isThreadImageClicking = false;
 
 		public FutabaThreadResViewerViewModel() {
@@ -88,6 +94,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			MenuItemSoudaneClickCommand.Subscribe(x => OnMenuItemSoudaneClickCommand(x));
 			MenuItemDelClickCommand.Subscribe(x => OnMenuItemDelClickCommand(x));
 			MenuItemDeleteClickCommand.Subscribe(x => OnMenuItemDeleteClickCommand(x));
+
+			CopyTextboxQuotCommand.Subscribe(x => OnCopyTextboxQuot(x));
+			CopyTextboxSearchCommand.Subscribe(x => OnCopyTextboxSearch(x));
+			CopyTextboxNgCommand.Subscribe(x => OnCopyTextboxNg(x));
+			CopyTextboxCopyCommand.Subscribe(x => OnCopyTextboxCopy(x));
+			CopyTextboxGoogleCommand.Subscribe(x => OnCopyTextboxGoogle(x));
 		}
 
 		public void Dispose() {
@@ -301,6 +313,46 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							Util.Futaba.PutInformation(new Information(x.Message));
 						}
 					});
+			}
+		}
+
+		private void OnCopyTextboxQuot((BindableFutaba Futaba, TextBox TextBox) e) {
+			var sb = new StringBuilder();
+			foreach(var s in e.TextBox.SelectedText.Replace("\r", "").Split('\n')) {
+				sb.Append(">").AppendLine(s);
+			}
+			FutabaPostViewViewModel.Messenger.Instance.GetEvent<PubSubEvent<FutabaPostViewViewModel.AppendTextMessage>>()
+				.Publish(new FutabaPostViewViewModel.AppendTextMessage(e.Futaba.Url, sb.ToString()));
+			this.PostViewVisibility.Value = Visibility.Visible;
+		}
+
+		private void OnCopyTextboxSearch((BindableFutaba Futaba, TextBox TextBox) e) {
+			var s = e.TextBox.SelectedText
+				.Replace("\r", "")
+				.Split('\n')
+				.Where(x => !string.IsNullOrWhiteSpace(x))
+				.FirstOrDefault();
+			if(s != null) {
+				e.Futaba.FilterText.Value = s;
+
+				// TODO: 検索ボックス展開処理
+			}
+		}
+
+		private void OnCopyTextboxNg((BindableFutaba Futaba, TextBox TextBox) e) {}
+
+		private void OnCopyTextboxCopy((BindableFutaba Futaba, TextBox TextBox) e) {
+			e.TextBox.Copy();
+		}
+
+		private void OnCopyTextboxGoogle((BindableFutaba Futaba, TextBox TextBox) e) {
+			var s = e.TextBox.SelectedText
+				.Replace("\r", "")
+				.Split('\n')
+				.Where(x => !string.IsNullOrWhiteSpace(x))
+				.FirstOrDefault();
+			if(s != null) {
+				this.StartBrowser($"https://www.google.com/search?q={ System.Web.HttpUtility.UrlEncode(s) }");
 			}
 		}
 
