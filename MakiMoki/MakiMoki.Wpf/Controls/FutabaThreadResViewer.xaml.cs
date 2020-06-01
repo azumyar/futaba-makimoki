@@ -64,8 +64,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				if((this.scrollViewerThreadRes = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.ThreadResListBox)) != null) {
 					this.scrollViewerThreadRes.ScrollChanged += async (ss, arg) => {
 						if((this.Contents != null) && this.Contents.Futaba.Value.Url.IsThreadUrl) {
-							this.Contents.ScrollVerticalOffset.Value = this.scrollViewerThreadRes.VerticalOffset;
-							this.Contents.ScrollHorizontalOffset.Value = this.scrollViewerThreadRes.HorizontalOffset;
 							var p = WpfUtil.WpfHelper.FindFirstChild<VirtualizingStackPanel>(this.ThreadResListBox);
 							if(p != null) {
 								await Task.Delay(1); // スクロール直後はまだコンテンツが切り替わっていないので一度UIスレッドを進める
@@ -73,8 +71,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 									p, p,
 									new Point(0, 1)); // (0, 0)だとギリギリ見えない場合でも見えると判定されるので1px下に
 								if(cp != null) {
+									if(this.Contents.LastVisibleItem.Value == null) {
+										scrollViewerThreadRes?.ScrollToTop();
+										scrollViewerThreadRes?.ScrollToLeftEnd();
+									}
 									this.Contents.LastVisibleItem.Value = cp.DataContext;
 								}
+							}
+							if(this.Contents.LastVisibleItem.Value != null) {
+								this.Contents.ScrollVerticalOffset.Value = this.scrollViewerThreadRes.VerticalOffset;
+								this.Contents.ScrollHorizontalOffset.Value = this.scrollViewerThreadRes.HorizontalOffset;
 							}
 						}
 					};
@@ -124,11 +130,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 							// コンテンツ切り替えがまだListBoxに伝搬していないので一度UIスレッドを進める
 							await Task.Delay(1);
 							fv.ThreadResListBox.ScrollIntoView(c.LastVisibleItem.Value);
-						} else {
-							// nullの場合初期位置に
-							await Task.Delay(1);
-							fv.scrollViewerThreadRes?.ScrollToHorizontalOffset(0);
-							fv.scrollViewerThreadRes?.ScrollToVerticalOffset(0);
 						}
 					}
 				}
