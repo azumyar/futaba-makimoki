@@ -126,6 +126,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 							fv.ThreadResListBox.ScrollIntoView(c.LastVisibleItem.Value);
 						} else {
 							// nullの場合初期位置に
+							await Task.Delay(1);
 							fv.scrollViewerThreadRes?.ScrollToHorizontalOffset(0);
 							fv.scrollViewerThreadRes?.ScrollToVerticalOffset(0);
 						}
