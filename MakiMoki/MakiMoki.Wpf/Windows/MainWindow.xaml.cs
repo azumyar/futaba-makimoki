@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Yarukizero.Net.MakiMoki.Wpf.ViewModels;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 	/// <summary>
@@ -28,13 +29,25 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 			InitializeComponent();
 
 			ViewModels.MainWindowViewModel.Messenger.Instance
-				.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.CurrentTabChanged>>()
+				.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.CurrentCatalogChanged>>()
 				.Subscribe(x => {
+					/*
 					foreach(var it in this.TabContainer.Items) {
 						if(it is Model.TabItem ti) {
 							if(ti.Url == x.FutabaContext?.Url) {
 								this.TabContainer.SelectedItem = ti;
 							}
+						}
+					}
+					*/
+				});
+			ViewModels.MainWindowViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.CurrentThreadChanged>>()
+				.Subscribe(x => {
+					if(this.DataContext is MainWindowViewModel vm) {
+						var t = vm.Threads.Value.Where(y => y.Url == x.FutabaContext?.Url).FirstOrDefault();
+						if(t != null) {
+							vm.ThreadTabSelectedItem.Value = t;
 						}
 					}
 				});

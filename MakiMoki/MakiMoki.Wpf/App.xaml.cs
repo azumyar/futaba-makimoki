@@ -28,17 +28,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			this.LibVLC = new LibVLCSharp.Shared.LibVLC();
 
 			AppSettingRootDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MakiMoki");
-			var userRoot = Path.Combine(AppSettingRootDirectory, "User");
 			AppWorkDirectory = Directory.CreateDirectory(Path.Combine(AppSettingRootDirectory, "Work")).FullName;
 			AppCacheDirectory = Directory.CreateDirectory(Path.Combine(AppSettingRootDirectory, "Work", "Cache")).FullName;
-			//var userConfig = Directory.CreateDirectory(Path.Combine(userRoot, "Config.d")).FullName;
+			var userRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "MakiMoki");
+			var userConfig = default(string);
+			if(Directory.Exists(userRoot)) {
+				userConfig = Directory.CreateDirectory(Path.Combine(userRoot, "Config.d")).FullName;
+			}
 
 			try {
 				Config.ConfigLoader.Initialize(new Config.ConfigLoader.Setting() {
 					SystemDirectory = Path.Combine(
 						Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
 						"Config.d"),
-					UserDirectory = null,
+					UserDirectory = userConfig,
 					CacheDirectory = AppCacheDirectory,
 					WorkDirectory = AppWorkDirectory,
 				});

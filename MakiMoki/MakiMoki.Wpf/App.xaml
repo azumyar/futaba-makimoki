@@ -44,6 +44,8 @@
         <sys:Double x:Key="ThreadTextFontSize">16</sys:Double>
         <FontFamily x:Key="ThreadTextFont">メイリオ</FontFamily>
 
+        <sys:Double x:Key="PostFontSize">16</sys:Double>
+        <FontFamily x:Key="PostFont">メイリオ</FontFamily>
 
     </Application.Resources>
 </prism:PrismApplication>

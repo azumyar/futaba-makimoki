@@ -44,6 +44,7 @@
 
         <ToolTip x:Key="CatalogItemToolTip">
             <Grid
+                MaxWidth="480"
                 Margin="16 4 16 4" 
                 Background="Transparent"
                 IsHitTestVisible="False"
@@ -53,32 +54,42 @@
                     <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                 </TextBlock.Foreground>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" MaxWidth="480" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <WrapPanel Grid.Row="0" Orientation="Horizontal" >
-                    <Grid Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}">
-                        <Viewbox
-                            MaxWidth="96"
-                            MaxHeight="96"
-                            HorizontalAlignment="Left"
-                            StretchDirection="DownOnly">
-                            <Image 
-                                Source="{Binding ThumbSource.Value}"
-                                RenderOptions.EdgeMode="Aliased"
-                                RenderOptions.BitmapScalingMode="Fant">
-                                <Image.CacheMode>
-                                    <BitmapCache RenderAtScale="1" />
-                                </Image.CacheMode>
-                            </Image>
-                        </Viewbox>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Viewbox
+                        Grid.Column="0"
+                        MaxWidth="96"
+                        MaxHeight="96"
+                        HorizontalAlignment="Left"
+                        StretchDirection="DownOnly"
+                        Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}">
+                        <Image 
+                            Source="{Binding ThumbSource.Value}"
+                            RenderOptions.EdgeMode="Aliased"
+                            RenderOptions.BitmapScalingMode="Fant">
+                            <Image.CacheMode>
+                                <BitmapCache RenderAtScale="1" />
+                            </Image.CacheMode>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Loaded">
+                                    <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Image>
+                    </Viewbox>
 
-                    </Grid>
                     <local:FutabaCommentBlock
+                        Grid.Column="1"
                         Text="{Binding CommentHtml.Value, Mode=OneWay}"
                         TextWrapping="Wrap"
                         Margin="4 4 0 4">
@@ -86,7 +97,7 @@
                             <Binding Path="CommentHtml.Value" Mode="OneWay" />
                         </local:FutabaCommentBlock.Inline>
                     </local:FutabaCommentBlock>
-                </WrapPanel>
+                </Grid>
                 <TextBlock
                     Grid.Row="1"
                     Text="{Binding Raw.Value.CounterCurrent, Mode=OneWay, StringFormat='\{0\}レス'}"

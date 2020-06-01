@@ -232,7 +232,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							*/
 							Messenger.Instance.GetEvent<PubSubEvent<PostEndedMessage>>().Publish(new PostEndedMessage(x.Url));
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
-							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, true)
+							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
 								.ObserveOn(UIDispatcherScheduler.Default)
 								.Subscribe(z => {
 									// TODO: utilでやる

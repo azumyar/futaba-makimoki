@@ -75,7 +75,10 @@
                 <TextBlock FontSize="16" Margin="2" Text="{Binding PostTitle.Value, Mode=OneWay}" />
             </Border>
             <ScrollViewer Grid.Column="1" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                <StackPanel Orientation="Vertical" TextBlock.FontSize="14">
+                <StackPanel
+                    Orientation="Vertical"
+                    TextBlock.FontFamily="{DynamicResource PostFont}"
+                    TextBlock.FontSize="{DynamicResource PostFontSize}">
                     <TextBox 
                         x:Name="PostCommentTextBox"
                         AcceptsReturn="True" 

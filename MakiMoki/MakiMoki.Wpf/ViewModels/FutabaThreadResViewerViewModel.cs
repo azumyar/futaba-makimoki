@@ -190,9 +190,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnThreadUpdateClick(RoutedEventArgs e) {
 			if(e.Source is FrameworkElement el) {
 				if(el.DataContext is BindableFutaba x) {
-					Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, true).Subscribe();
+					Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe();
 				} else if(el.DataContext is Model.BindableFutabaResItem y) {
-					Util.Futaba.UpdateThreadRes(y.Bord.Value, y.Parent.Value.Url.ThreadNo, true).Subscribe();
+					Util.Futaba.UpdateThreadRes(y.Bord.Value, y.Parent.Value.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe();
 				}
 			}
 		}

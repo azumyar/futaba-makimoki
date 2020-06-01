@@ -22,14 +22,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			public static Messenger Instance { get; } = new Messenger();
 		}
 
-		internal class CurrentTabChanged {
+		internal class CurrentCatalogChanged {
 			public FutabaContext FutabaContext { get; }
 
-			public CurrentTabChanged(FutabaContext futaba) {
+			public CurrentCatalogChanged(FutabaContext futaba) {
 				this.FutabaContext = futaba;
 			}
 		}
 
+		internal class CurrentThreadChanged {
+			public FutabaContext FutabaContext { get; }
+
+			public CurrentThreadChanged(FutabaContext futaba) {
+				this.FutabaContext = futaba;
+			}
+		}
 
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
@@ -124,7 +131,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 		
 		private void OnBordOpen(BordConfig bc) {
-			Util.Futaba.UpdateCatalog(bc).Subscribe();
+			var t = this.Catalogs.Where(x => x.Url.BaseUrl == bc.Url).FirstOrDefault();
+			if(t != null) {
+				this.TabControlSelectedItem.Value = t;
+			} else {
+				Util.Futaba.UpdateCatalog(bc).Subscribe();
+			}
 		}
 		private void OnTabClick(MouseButtonEventArgs e) {
 			if((e.Source is FrameworkElement o) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
@@ -264,7 +276,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Util.Futaba.UpdateCatalog(futaba.Raw.Bord)
 					.Subscribe();
 			} else {
-				Util.Futaba.UpdateThreadRes(futaba.Raw.Bord, futaba.Raw.Url.ThreadNo, true)
+				Util.Futaba.UpdateThreadRes(futaba.Raw.Bord, futaba.Raw.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
 					.Subscribe();
 			}
 		}

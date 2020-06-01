@@ -224,7 +224,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 									}
 
 									if(fc != null) {
-										var fc2 = Data.FutabaContext.FromThreadResResponse404(fc, r.Result.Response);
+										var fc2 = Data.FutabaContext.FromThreadResResponse404(
+											Catalog.Value.Where(x => x.Bord.Url == bord.Url).FirstOrDefault(),
+											fc, r.Result.Response);
 										if(fc2 != null) {
 											var ary = Threads.Value.ToArray();
 											ary[index] = fc2;
@@ -374,9 +376,16 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				} else {
 					var c = newFutaba.ResItems.Length - oldFutaba.ResItems.Length;
 					if(c <= 0) {
-						PutInformation(new Data.Information("新着レスなし"));
+						if(newFutaba.Raw.IsDie) {
+							PutInformation(new Data.Information("スレッドは落ちています"));
+						} else {
+							PutInformation(new Data.Information("新着レスなし"));
+						}
 					} else {
 						PutInformation(new Data.Information($"{c}件の新着レス"));
+						if(newFutaba.Raw.IsDie) {
+							PutInformation(new Data.Information("スレッドは落ちています"));
+						}
 					}
 				}
 			}

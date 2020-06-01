@@ -81,10 +81,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			var regexOpt = RegexOptions.IgnoreCase | RegexOptions.Singleline;
 			var regex = new Regex[] {
 				new Regex(@"^(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)", regexOpt),
-				new Regex(@"^su[0-9]+\.[a-z]+", regexOpt),
-				new Regex(@"^ss[0-9]+\.[a-z]+", regexOpt),
-				new Regex(@"^f[0-9]+\.[a-z]+", regexOpt),
-				new Regex(@"^fu[0-9]+\.[a-z]+", regexOpt),
+				new Regex(@"^su[0-9]+\.[a-z0-9]+", regexOpt),
+				new Regex(@"^ss[0-9]+\.[a-z0-9]+", regexOpt),
+				new Regex(@"^f[0-9]+\.[a-z0-9]+", regexOpt),
+				new Regex(@"^fu[0-9]+\.[a-z0-9]+", regexOpt),
 			};
 			var regexFontStart = new Regex("^<font\\s+color=[\"']#([0-9a-fA-F]+)[\"'][^>]*>", regexOpt);
 			var regexFontEnd = new Regex("</font>", regexOpt);

@@ -4,6 +4,11 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace Yarukizero.Net.MakiMoki.Data {
+	public class MakiMokiConfig : ConfigObject {
+		[JsonProperty("futaba-thread-get-incremental", Required = Required.DisallowNull)]
+		public bool FutabaThreadGetIncremental { get; private set; }
+	}
+
 	public class BordConfig : JsonObject {
 		[JsonProperty("name")]
 		public string Name { get; set; }

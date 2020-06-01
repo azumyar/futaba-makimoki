@@ -8,6 +8,7 @@ using System.Linq;
 
 namespace Yarukizero.Net.MakiMoki.Config {
 	public static class ConfigLoader {
+		private static readonly string MakiMokiConfigFile = "makimoki.json";
 		private static readonly string BordConfigFile = "bord.json";
 		private static readonly string MimeConfigFile = "mime.json";
 		private static readonly string PtuaConfigFile = "ptua.json";
@@ -27,6 +28,15 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			System.Diagnostics.Debug.Assert(setting != null);
 			System.Diagnostics.Debug.Assert(setting.WorkDirectory != null);
 			InitializedSetting = setting;
+
+			T get<T>(string path, T defaultValue) {
+				if(File.Exists(path)) {
+					using(var fs = new FileStream(path, FileMode.Open)) {
+						return JsonConvert.DeserializeObject<T>(loadFile(fs));
+					}
+				}
+				return defaultValue;
+			}
 
 			string loadFile(Stream s) {
 				using(var sr = new StreamReader(s, Encoding.UTF8)) {
@@ -59,11 +69,15 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			addDic(bordDic, JsonConvert.DeserializeObject<Data.BordConfig[]>(
 				loadFile(CoreAssembly.GetManifestResourceStream(
 					typeof(ConfigLoader).Namespace + "." + BordConfigFile))));
+			MakiMoki = JsonConvert.DeserializeObject<Data.MakiMokiConfig>(
+				loadFile(CoreAssembly.GetManifestResourceStream(
+					typeof(ConfigLoader).Namespace + "." + MakiMokiConfigFile)));
 			Mime = JsonConvert.DeserializeObject<Data.MimeConfig>(
 				loadFile(CoreAssembly.GetManifestResourceStream(
 					typeof(ConfigLoader).Namespace + "." + MimeConfigFile)));
 			try {
 				if(setting.SystemDirectory != null) {
+					MakiMoki = get(Path.Combine(setting.SystemDirectory, MakiMokiConfigFile), MakiMoki);
 					var bord = Path.Combine(setting.SystemDirectory, BordConfigFile);
 					if(File.Exists(bord)) {
 						using(var fs = new FileStream(bord, FileMode.Open)) {
@@ -73,6 +87,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 				}
 
 				if(setting.UserDirectory != null) {
+					MakiMoki = get(Path.Combine(setting.UserDirectory, MakiMokiConfigFile), MakiMoki);
 					var bord = Path.Combine(setting.UserDirectory, BordConfigFile);
 					if(File.Exists(bord)) {
 						using(var fs = new FileStream(bord, FileMode.Open)) {
@@ -120,6 +135,13 @@ namespace Yarukizero.Net.MakiMoki.Config {
 					Password = new Data.Password();
 				}
 			}
+			catch(JsonReaderException e) {
+				throw new Exceptions.InitializeFailedException(
+					string.Format(
+						"JSONファイルが不正な形式です{0}{0}{1}",
+						Environment.NewLine,
+						e.Message));
+			}
 			catch(JsonSerializationException e) {
 				throw new Exceptions.InitializeFailedException(
 					string.Format(
@@ -143,6 +165,8 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		}
 
 		public static Setting InitializedSetting { get; private set; }
+
+		public static Data.MakiMokiConfig MakiMoki { get; private set; }
 
 		public static Data.BordConfig[] Bord { get; private set; }
 

@@ -37,10 +37,18 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					}
 					var res = c.Execute(r);
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-						var s = res.Content;
-						Console.WriteLine(s);
 						var rc = res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray();
-						return (JsonConvert.DeserializeObject<Data.FutabaResonse>(s), rc, s);
+						if(res.Content.StartsWith("<html>")) {
+							var s = FutabaEncoding.GetString(res.RawBytes);
+							System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+							System.Diagnostics.Debug.WriteLine(s);
+							System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+							return (null, rc, s);
+						} else {
+							var s = res.Content;
+							System.Diagnostics.Debug.WriteLine(s);
+							return (JsonConvert.DeserializeObject<Data.FutabaResonse>(s), rc, s);
+						}
 					} else {
 						return (null, null, null);
 					}
