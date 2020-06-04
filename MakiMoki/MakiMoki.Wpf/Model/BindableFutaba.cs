@@ -242,10 +242,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					if(a.Raw.Value.HashText != b.HashText) {
 						// 画面から参照されているので this の初期化が終わっていないこのタイミングで書き換えてはいけない
 						//this.ResItems[i] = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
-						updateItems.Add((i, new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this)));
+						var bf = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
+						bf.ThumbSource.Value = a.ThumbSource.Value;
+						updateItems.Add((i, bf));
 					}
 					i++;
-				}
+				} 
 
 				if(i < futaba.ResItems.Length) {
 					foreach(var it in futaba.ResItems
