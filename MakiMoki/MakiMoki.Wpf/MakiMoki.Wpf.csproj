@@ -195,6 +195,9 @@
     <Resource Include="App.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Lib\libwebp.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="MakiMoki.VisualElementsManifest.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

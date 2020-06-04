@@ -17,6 +17,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 	/// App.xaml の相互作用ロジック
 	/// </summary>
 	public partial class App : PrismApplication {
+		[System.Runtime.InteropServices.DllImport("kernel32.dll")]
+		private static extern bool SetDllDirectory(string lpPathName);
+
 		public string AppSettingRootDirectory { get; private set; }
 		public string AppWorkDirectory { get; private set; }
 		public string AppCacheDirectory { get; private set; }
@@ -24,6 +27,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 		public LibVLCSharp.Shared.LibVLC LibVLC { get; private set; }
 
 		protected override Window CreateShell() {
+			SetDllDirectory(Path.Combine(
+				Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
+				"Lib"));
+
 			LibVLCSharp.Shared.Core.Initialize();
 			this.LibVLC = new LibVLCSharp.Shared.LibVLC();
 
