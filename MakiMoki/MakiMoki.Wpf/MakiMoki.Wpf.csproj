@@ -70,6 +70,9 @@
     <Compile Include="Controls\FutabaCatalogViewer.xaml.cs">
       <DependentUpon>FutabaCatalogViewer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\FutabaResBlock.xaml.cs">
+      <DependentUpon>FutabaResBlock.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\PlaceHolderBehavior.cs" />
     <Compile Include="Converters\MainWindowConverter.cs" />
     <Compile Include="Converters\FutabaNewResVisibilityConverter.cs" />
@@ -97,6 +100,10 @@
     <Page Include="Controls\FutabaCatalogViewer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\FutabaResBlock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\FutabaThreadResViewer.xaml">
       <SubType>Designer</SubType>

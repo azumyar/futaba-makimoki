@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Yarukizero.Net.MakiMoki.Util;
+using System.Text.RegularExpressions;
+using System.IO;
 
 namespace Yarukizero.Net.MakiMoki.Data {
 	public class FutabaResonse : JsonObject {
@@ -296,6 +299,8 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 			public int Soudane { get; private set; } = 0;
 
+			public Quot[] QuotLines { get; private set; } = new Quot[0];
+
 			public Item(UrlContext url, NumberedResItem item) {
 				this.Url = url;
 				this.ResItem = item;
@@ -308,9 +313,53 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				};
 			}
 
-			public static Item FromThreadRes(UrlContext url, NumberedResItem item, int soudane) {
+			public static Item FromThreadRes(int soudane, Item old) {
+				return new Item(old.Url, old.ResItem) {
+					Soudane = soudane,
+					QuotLines = old.QuotLines,
+				};
+			}
+
+			public static Item FromThreadRes(UrlContext url, NumberedResItem item, int soudane, List<NumberedResItem> resItems) {
+				// 引用解析
+				var com = TextUtil.RowComment2Text(item.Res.Com).Replace("\r", "").Split('\n');
+				var q = new Quot[com.Length];
+				for(var i = 0; i < com.Length; i++) {
+					var c = com[i];
+					if(!string.IsNullOrEmpty(c) && (c[0] == '>')) {
+						if(Regex.Match(c, @"^>No.\d+$").Success) {
+							var no = c.Substring(4);
+							var it = resItems.Where(x => x.No == no).FirstOrDefault();
+							if(it != null) {
+								q[i] = new Quot(true, true, it.No);
+								goto end;
+							}
+						}
+						if(Regex.Match(c, @"^>\d+\.[a-zA-Z0-9]+$").Success) {
+							var f = c.Substring(1);
+							var it = resItems.Where(x => x.Res.Src.EndsWith(f)).FirstOrDefault();
+							if(it != null) {
+								q[i] = new Quot(true, true, it.No);
+								goto end;
+							}
+						}
+						foreach(var it in resItems.Reverse<NumberedResItem>()) {
+							if(TextUtil.RowComment2Text(it.Res.Com).Contains(c.Substring(1))) {
+								q[i] = new Quot(true, true, it.No);
+								goto end;
+							}
+						}
+
+						q[i] = new Quot(true, false, "");
+					end:;
+					} else {
+						q[i] = new Quot();
+					}
+				}
+
 				return new Item(url, item) {
 					Soudane = soudane,
+					QuotLines = q,
 				};
 			}
 
@@ -320,6 +369,20 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				+ ResItem.Res.Com
 				+ ResItem.Res.Thumb
 				+ Soudane;
+		}
+
+		public class Quot {
+			public bool IsQuot { get; } = false;
+			public bool IsHit { get; } = false;
+			public string ResNo { get; } = "";
+
+			public Quot() { }
+
+			public Quot(bool isQuot, bool isHit, string resNo) {
+				this.IsQuot = isQuot;
+				this.IsHit = isHit;
+				this.ResNo = resNo;
+			}
 		}
 
 		public string Name { get; set; }
@@ -379,19 +442,13 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				var k = response.Sd.Keys.Where(x => x == list[i].ResItem.No).FirstOrDefault();
 				if((k != null) && int.TryParse(response.Sd[k], out var v)) {
 					if(list[i].Soudane != v) {
-						list[i] = Item.FromThreadRes(parent.Url, list[i].ResItem, v);
+						list[i] = Item.FromThreadRes(v, list[i]);
 					}
 				}
 			}
 			// レスの追加
 			if(response.Res != null) {
-				list.AddRange(response.Res.Select(x => {
-					var sd = 0;
-					if(response.Sd.TryGetValue(x.No, out var s) && int.TryParse(s, out var v)) {
-						sd = v;
-					}
-					return Item.FromThreadRes(parent.Url, x, sd);
-				}));
+				a(list, parent.Url, response.Res, response.Sd);
 			}
 			return new FutabaContext() {
 				Name = parent.Name,
@@ -404,21 +461,18 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 		public static FutabaContext FromThreadResResponse(BordConfig bord, string threadNo, FutabaResonse response, Data.NumberedResItem parent, int soudane) {
 			var url = new UrlContext(bord.Url, threadNo);
-			var p = Item.FromThreadRes(url, parent, soudane);
+			var list = new List<Item>() { Item.FromThreadRes(url, parent, soudane, new List<NumberedResItem>()) };
+			if(response.Res != null) {
+				a(list, url, response.Res, response.Sd);
+			}
 			return new FutabaContext() {
 				Name = Util.TextUtil.SafeSubstring(
 					Util.TextUtil.RemoveCrLf(
-						Util.TextUtil.RowComment2Text(p.ResItem.Res.Com)
+						Util.TextUtil.RowComment2Text(parent.Res.Com)
 					), 8),
 				Bord = bord,
 				Url = url,
-				ResItems = new Item[] { p }.Concat(response.Res?.Select(x => {
-					var sd = 0;
-					if(response.Sd.TryGetValue(x.No, out var s) && int.TryParse(s, out var v)) {
-						sd = v;
-					}
-					return Item.FromThreadRes(url, x, sd);
-				}) ?? new Item[0]).ToArray(),
+				ResItems = list.ToArray(),
 				Raw = response,
 			};
 		}
@@ -444,8 +498,8 @@ namespace Yarukizero.Net.MakiMoki.Data {
 						sub, name, "", com,
 						"", "", "", "", "", "", 0, 0, 0, now, tim, 0));
 				}
-				var ad = new List<NumberedResItem>() { c };
-				if(0 < response.Res.Length) {
+				var ad = new List<Item>() { Item.FromThreadRes(thread.Url, c, 0, new List<NumberedResItem>()) };
+				if((response.Res != null) && (0 < response.Res.Length)) {
 					/* これはレスが消えたらf.Res.Rscも更新されてできなかったのでお蔵入り
 					var i = 1;
 					var f = response.Res.First();
@@ -456,24 +510,19 @@ namespace Yarukizero.Net.MakiMoki.Data {
 						i++;
 					}
 					*/
-					ad.AddRange(response.Res);
+					a(ad, thread.Url, response.Res, response.Sd);
 				}
 				return new FutabaContext() {
 					Name = thread.Name,
 					Bord = thread.Bord,
 					Url = thread.Url,
-					ResItems = ad.Select(x => {
-						var sd = 0;
-						if(response.Sd.TryGetValue(x.No, out var s) && int.TryParse(s, out var v)) {
-							sd = v;
-						}
-						return Item.FromThreadRes(thread.Url, x, sd);
-					}).ToArray(),
+					ResItems = ad.ToArray(),
 					Raw = response,
 				};
 			} else {
 				// 足りないレスを抜き出す
 				var ad = new List<NumberedResItem>();
+				var list = new List<Item>();
 				if(response.Res != null) {
 					foreach(var r in response.Res.Reverse()) {
 						if(thread.ResItems.Select(x => x.ResItem.No).Contains(r.No)) {
@@ -482,21 +531,28 @@ namespace Yarukizero.Net.MakiMoki.Data {
 							ad.Insert(0, r);
 						}
 					}
+					a(list, thread.Url, ad, response.Sd);
 				}
 
 				return new FutabaContext() {
 					Name = thread.Name,
 					Bord = thread.Bord,
 					Url = thread.Url,
-					ResItems = thread.ResItems.Concat(ad.Select(x => {
-						var sd = 0;
-						if(response.Sd.TryGetValue(x.No, out var s) && int.TryParse(s, out var v)) {
-							sd = v;
-						}
-						return Item.FromThreadRes(thread.Url, x, sd);
-					}) ?? new Item[0]).ToArray(),
+					ResItems = thread.ResItems.Concat(list).ToArray(),
 					Raw = response,
 				};
+			}
+		}
+
+		private static void a(List<Item> list, UrlContext url, IEnumerable<NumberedResItem> res, Dictionary<string, string> soudane) {
+			var q = list.Select(x => x.ResItem).ToList();
+			foreach(var it in res) {
+				var sd = 0;
+				if(soudane.TryGetValue(it.No, out var s) && int.TryParse(s, out var v)) {
+					sd = v;
+				}
+				list.Add(Item.FromThreadRes(url, it, sd, q));
+				q.Add(it);
 			}
 		}
 	}

@@ -97,7 +97,7 @@
                         TextWrapping="Wrap"
                         Margin="4 4 0 4">
                         <local:FutabaCommentBlock.Inline>
-                            <Binding Path="CommentHtml.Value" Mode="OneWay" />
+                            <Binding Mode="OneWay" />
                         </local:FutabaCommentBlock.Inline>
                     </local:FutabaCommentBlock>
                 </Grid>
@@ -486,7 +486,7 @@
                                         VerticalAlignment="Center"
                                         Margin="4 4 0 4">
                                         <local:FutabaCommentBlock.Inline>
-                                            <Binding Path="CommentHtml.Value" Mode="OneWay" />
+                                            <Binding Mode="OneWay" />
                                         </local:FutabaCommentBlock.Inline>
                                     </local:FutabaCommentBlock>
                                     <TextBlock

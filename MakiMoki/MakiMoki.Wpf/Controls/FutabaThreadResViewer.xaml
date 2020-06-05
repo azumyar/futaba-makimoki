@@ -543,7 +543,7 @@
                                         </Grid>
                                         <local:FutabaCommentBlock Text="{Binding CommentHtml.Value, Mode=OneWay}" TextWrapping="Wrap" Margin="4 4 0 4">
                                             <local:FutabaCommentBlock.Inline>
-                                                <Binding Path="CommentHtml.Value" Mode="OneWay" />
+                                                <Binding Mode="OneWay" />
                                             </local:FutabaCommentBlock.Inline>
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="LinkClick">

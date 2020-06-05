@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Yarukizero.Net.MakiMoki.Util {
 	public static class TextUtil {
 		public static string RowComment2Text(string com) {
-			var s1 = Regex.Replace(com, "@<br>", Environment.NewLine,
+			var s1 = Regex.Replace(com, @"<br>", Environment.NewLine,
 				RegexOptions.IgnoreCase | RegexOptions.Multiline);
 			var s2 = Regex.Replace(s1, @"<[^>]*>", "",
 				RegexOptions.IgnoreCase | RegexOptions.Multiline);

@@ -19,7 +19,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		public static readonly DependencyProperty ArticleContentProperty =
 			DependencyProperty.RegisterAttached(
 				"Inline",
-				typeof(string),
+				typeof(Model.BindableFutabaResItem),
 				typeof(FutabaCommentBlock),
 				new PropertyMetadata(null, OnInlinePropertyChanged));
 		public static readonly DependencyProperty MaxLinesProperty =
@@ -47,18 +47,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			remove { RemoveHandler(LinkClickEvent, value); }
 		}
 
-		public static string GetInline(TextBlock element) {
-			return (element != null) ? element.GetValue(ArticleContentProperty) as string : string.Empty;
+		public static Model.BindableFutabaResItem GetInline(TextBlock element) {
+			return (element != null) ? element.GetValue(ArticleContentProperty) as Model.BindableFutabaResItem : null;
 		}
 
-		public static void SetInline(TextBlock element, string value) {
-			if(element != null)
+		public static void SetInline(TextBlock element, Model.BindableFutabaResItem value) {
+			if(element != null) {
 				element.SetValue(ArticleContentProperty, value);
+			}
 		}
 
 		private static void OnInlinePropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
-			if((obj is TextBlock tb) && (e.NewValue is string msg)) {
-				a(tb, msg, (tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue);
+			if((obj is TextBlock tb) && (e.NewValue is Model.BindableFutabaResItem item)) {
+				a(tb, item, (tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue);
 			}
 		}
 		private static void OnMaxLinesPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
@@ -66,11 +67,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				a(tb, GetInline(tb), maxLines);
 			}
 		}
-		
-		private static void a(TextBlock tb, string msg, int maxLines) { 
+
+		private static void a(TextBlock tb, Model.BindableFutabaResItem item, int maxLines) {
 			tb.Text = null;
 			tb.Inlines.Clear();
 
+			var msg = item?.CommentHtml.Value ?? "";
 			var s1 = Regex.Replace(msg, @"<br>", Environment.NewLine,
 				RegexOptions.IgnoreCase | RegexOptions.Multiline);
 			//var s2 = Regex.Replace(s1, @"<[^>]*>", "",
@@ -89,31 +91,35 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			var regexFontStart = new Regex("^<font\\s+color=[\"']#([0-9a-fA-F]+)[\"'][^>]*>", regexOpt);
 			var regexFontEnd = new Regex("</font>", regexOpt);
 			var last = lines.LastOrDefault();
-			foreach(var s in lines) {
+			for(var i = 0; i < lines.Length; i++) {
+				var s = lines[i];
 				var input = new StringBuilder(s);
 				var output = new StringBuilder();
 
-				void EvalEmoji(string text, Color? color) {
+				void EvalEmoji(string text, Color? color, ToolTip toolTip = null) {
 					var fb = (color.HasValue) ? new SolidColorBrush(color.Value) : tb.Foreground;
 					var pos = 0;
 					foreach(Match m in Emoji.Wpf.EmojiData.MatchMultiple.Matches(text)) {
 						tb.Inlines.Add(new Run(text.Substring(pos, m.Index - pos)) {
 							Foreground = fb,
+							ToolTip = toolTip,
 						});
 						tb.Inlines.Add(new Emoji.Wpf.EmojiInline() {
 							FallbackBrush = tb.Foreground,
 							Text = text.Substring(m.Index, m.Length),
 							FontSize = tb.FontSize,
+							ToolTip = toolTip,
 						});
 
 						pos = m.Index + m.Length;
 					}
 					tb.Inlines.Add(new Run(text.Substring(pos)) {
 						Foreground = fb,
+						ToolTip = toolTip,
 					});
 				}
 
-				void EvalFont(StringBuilder inputVal, StringBuilder outputVal) {
+				void EvalFont(StringBuilder inputVal, StringBuilder outputVal, ToolTip toolTip = null) {
 					var fm = regexFontStart.Match(inputVal.ToString());
 					if(fm.Success) {
 						var rgb = fm.Groups[1].Value;
@@ -127,8 +133,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 								color = Color.FromRgb((byte)r, (byte)g, (byte)b);
 							}
 						} else {
-							if(uint.TryParse(rgb, ns, fp, out var i)) {
-								color = Color.FromRgb((byte)(i >> 16 & 0xff), (byte)(i >> 8 & 0xff), (byte)(i & 0xff));
+							if(uint.TryParse(rgb, ns, fp, out var v)) {
+								color = Color.FromRgb((byte)(v >> 16 & 0xff), (byte)(v >> 8 & 0xff), (byte)(v & 0xff));
 							}
 						}
 						inputVal.Remove(0, fm.Length);
@@ -140,7 +146,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 							var t2 = Regex.Replace(text, @"<[^>]*>", "",
 								RegexOptions.IgnoreCase | RegexOptions.Multiline);
 							var t3 = System.Net.WebUtility.HtmlDecode(t2);
-							EvalEmoji(t3, color);
+							EvalEmoji(t3, color, toolTip);
 							inputVal.Remove(0, fm2.Index + fm2.Length);
 						}
 					}
@@ -194,7 +200,35 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						EvalLink(input, output);
 					}
 				} else if(fontPos == 0) {
-					EvalFont(input, output);
+					ToolTip toolTip = null;
+					if(i < item.Raw.Value.QuotLines.Length) {
+						var q = item.Raw.Value.QuotLines[i];
+						if(q.IsQuot) {
+							if(q.IsHit) {
+								var it = item.Parent.Value.ResItems
+									.Where(x => x.Raw.Value.ResItem.No == q.ResNo)
+									.FirstOrDefault();
+								if(it != null) {
+									toolTip = new ToolTip() {
+										Content = new FutabaResBlock() {
+											IsHitTestVisible = false,
+											DataContext = it,
+										}
+									};
+								}
+							}
+							if(toolTip == null) {
+								toolTip = new ToolTip() {
+									Content = new TextBlock() {
+										Text = "見つかりませんでした",
+										FontFamily = tb.FontFamily,
+										FontSize = tb.FontSize,
+									}
+								};
+							}
+						}
+					}
+					EvalFont(input, output, toolTip);
 					goto start;
 				} else {
 					var text = input.ToString().Substring(0, fontPos);
