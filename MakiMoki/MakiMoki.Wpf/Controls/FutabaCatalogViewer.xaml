@@ -29,6 +29,9 @@
         <converter:FutabaCatalogItemFilterConverter x:Key="FutabaCatalogItemFilterConverter" />
         <converter:FutabaNewResCountConverter x:Key="FutabaNewResCountConverter"/>
         <converter:FutabaNewResVisibilityConverter x:Key="FutabaNewResVisibilityConverter"/>
+        <converter:FutabaOldResVisibilityConverter x:Key="FutabaOldResVisibilityConverter"/>
+        <converter:FutabaIdResVisibilityConverter x:Key="FutabaIdResVisibilityConverter"/>
+        <converter:FutabaMovieResVisibilityConverter x:Key="FutabaMovieResVisibilityConverter"/>
         <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
         <converter:FutabaResItemIdTextConverter x:Key="FutabaResItemIdTextConverter" />
         <converter:FutabaResItemNowConverter x:Key="FutabaResItemNowConverter"/>
@@ -202,7 +205,7 @@
                                             </Ellipse>
                                             <TextBlock
                                                 Text="{Binding Raw.Value, Converter={StaticResource FutabaNewResCountConverter}, Mode=OneWay}"
-                                                FontFamily="{DynamicResource CatalogBadgeCountFont}"
+                                                FontFamily="{DynamicResource CatalogBadgeFont}"
                                                 FontSize="10"
                                                 FontWeight="Bold"
                                                 HorizontalAlignment="Center"
@@ -214,6 +217,109 @@
                                             </TextBlock>
                                         </Grid>
                                     </Viewbox>
+
+                                    <!-- 落、ID -->
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                        <Viewbox
+                                            Margin="2 2 0 2"
+                                            Visibility="{Binding Raw.Value, Converter={StaticResource FutabaOldResVisibilityConverter}, Mode=OneWay}"                                        
+                                            Width="{DynamicResource CatalogBadgeSize}"
+                                            Height="{DynamicResource CatalogBadgeSize}"
+                                            >
+                                            <Grid
+                                                Width="16" Height="16"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                >
+                                                <Ellipse Width="16" Height="16">
+                                                    <Ellipse.Fill>
+                                                        <SolidColorBrush Color="{DynamicResource CatalogBadgeOldBackgroundColor}" />
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
+                                                <TextBlock
+                                                    Text="落"
+                                                    FontFamily="{DynamicResource CatalogBadgeFont}"
+                                                    FontSize="10"
+                                                    FontWeight="Bold"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Padding="0 0 0 1">
+                                                    <TextBlock.Foreground>
+                                                        <SolidColorBrush Color="{DynamicResource CatalogBadgeOldForegroundColor}" />
+                                                    </TextBlock.Foreground>
+                                                </TextBlock>
+                                            </Grid>
+                                        </Viewbox>
+                                        
+                                        <!-- カタログJSONのidは常に空なのでできない
+                                        <Viewbox
+                                            Margin="2 2 0 2"
+                                            Visibility="{Binding Raw.Value, Converter={StaticResource FutabaIdResVisibilityConverter}, Mode=OneWay}"                                        
+                                            Width="{DynamicResource CatalogBadgeSize}"
+                                            Height="{DynamicResource CatalogBadgeSize}"
+                                            >
+                                            <Grid
+                                                Width="16" Height="16"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                >
+                                                <Ellipse Width="16" Height="16">
+                                                    <Ellipse.Fill>
+                                                        <SolidColorBrush Color="{DynamicResource CatalogBadgeIdBackgroundColor}" />
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
+                            
+                                                <TextBlock
+                                                    Text="ID"
+                                                    FontFamily="{DynamicResource CatalogBadgeFont}"
+                                                    FontSize="10"
+                                                    FontWeight="Bold"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Padding="0 0 0 1">
+                                                    <TextBlock.Foreground>
+                                                        <SolidColorBrush Color="{DynamicResource CatalogBadgeIdForegroundColor}" />
+                                                    </TextBlock.Foreground>
+                                                </TextBlock>
+                                            </Grid>
+                                        </Viewbox>
+                                        -->
+                                    </StackPanel>
+
+                                    <!-- 動画マーカー -->
+                                    <Viewbox
+                                        Margin="2"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Bottom"
+                                        Visibility="{Binding Raw.Value, Converter={StaticResource FutabaMovieResVisibilityConverter}, Mode=OneWay}"                                        
+                                        Width="{DynamicResource CatalogBadgeSize}"
+                                        Height="{DynamicResource CatalogBadgeSize}"
+                                        >
+                                        <Grid
+                                            Width="16" Height="16"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            >
+                                            <Ellipse Width="16" Height="16">
+                                                <Ellipse.Fill>
+                                                    <SolidColorBrush Color="{DynamicResource CatalogBadgeMovieBackgroundColor}" />
+                                                </Ellipse.Fill>
+                                            </Ellipse>
+                                            <TextBlock
+                                                    Text="▶"
+                                                    FontFamily="{DynamicResource CatalogBadgeFont}"
+                                                    FontSize="10"
+                                                    FontWeight="Bold"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Padding="0 0 0 1">
+                                                <TextBlock.Foreground>
+                                                    <SolidColorBrush Color="{DynamicResource CatalogBadgeMovieForegroundColor}" />
+                                                </TextBlock.Foreground>
+                                            </TextBlock>
+                                        </Grid>
+                                    </Viewbox>
+
                                     <!-- レス-->
                                     <Grid
                                         Grid.Column="0"
@@ -357,13 +463,13 @@
                                                     </Ellipse.Fill>
                                                 </Ellipse>
                                                 <TextBlock
-                                                        Text="{Binding Raw.Value, Converter={StaticResource FutabaNewResCountConverter}, Mode=OneWay}"
-                                                        FontFamily="{DynamicResource CatalogBadgeCountFont}"
-                                                        FontSize="10"
-                                                        FontWeight="Bold"
-                                                        HorizontalAlignment="Center"
-                                                        VerticalAlignment="Center"
-                                                        Padding="0 0 0 1">
+                                                    Text="{Binding Raw.Value, Converter={StaticResource FutabaNewResCountConverter}, Mode=OneWay}"
+                                                    FontFamily="{DynamicResource CatalogBadgeFont}"
+                                                    FontSize="10"
+                                                    FontWeight="Bold"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Padding="0 0 0 1">
                                                     <TextBlock.Foreground>
                                                         <SolidColorBrush Color="{DynamicResource CatalogBadgeCountForegroundColor}" />
                                                     </TextBlock.Foreground>

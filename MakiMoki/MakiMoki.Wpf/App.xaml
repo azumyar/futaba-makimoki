@@ -18,9 +18,15 @@
         <sys:Double x:Key="CatalogImageSize">80</sys:Double>
         <sys:Double x:Key="CatalogTextSize">16</sys:Double>
         <sys:Double x:Key="CatalogBadgeSize">20</sys:Double>
+        <FontFamily x:Key="CatalogBadgeFont">Segoe UI</FontFamily>
         <Color x:Key="CatalogBadgeCountBackgroundColor">Red</Color>
         <Color x:Key="CatalogBadgeCountForegroundColor">White</Color>
-        <FontFamily x:Key="CatalogBadgeCountFont">Segoe UI</FontFamily>
+        <Color x:Key="CatalogBadgeOldBackgroundColor">#990000ff</Color>
+        <Color x:Key="CatalogBadgeOldForegroundColor">#ffffff</Color>
+        <Color x:Key="CatalogBadgeIdBackgroundColor">#99ff0000</Color>
+        <Color x:Key="CatalogBadgeIdForegroundColor">#ffffff</Color>
+        <Color x:Key="CatalogBadgeMovieBackgroundColor">#99000000</Color>
+        <Color x:Key="CatalogBadgeMovieForegroundColor">#ffffff</Color>
         <Color x:Key="CatalogItemBackgroundColor">#ffffff</Color>
         <!-- DeepOrangeの100-->
         <Color x:Key="CatalogItemOpendBackgroundColor">#FFE0B2</Color>

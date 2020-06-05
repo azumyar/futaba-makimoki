@@ -64,6 +64,59 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 	}
 
+	class FutabaOldResVisibilityConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value == null) {
+				return null;
+			}
+
+			if(value is Data.FutabaContext.Item it) {
+				// 未実装
+				return Visibility.Collapsed;
+			}
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
+	class FutabaIdResVisibilityConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value == null) {
+				return null;
+			}
+
+			if(value is Data.FutabaContext.Item it) {
+				return !string.IsNullOrEmpty(it.ResItem.Res.Id) ? Visibility.Visible : Visibility.Collapsed;
+			}
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
+	class FutabaMovieResVisibilityConverter : IValueConverter {
+		static string[] ext = new string[] { ".mp4", ".webm" };
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value == null) {
+				return null;
+			}
+
+			if(value is Data.FutabaContext.Item it) {
+				return ext.Contains(it.ResItem.Res.Ext.ToLower()) ? Visibility.Visible : Visibility.Collapsed;
+			}
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
 	class FutabaCatalogStyleConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
 			if(values.Length == 3) {
