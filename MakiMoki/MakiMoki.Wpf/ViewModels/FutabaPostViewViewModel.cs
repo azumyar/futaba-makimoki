@@ -249,14 +249,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 													// ダイス判定(ダイスは1レスに1回だけ)
 													if(!dice) {
-														var m1 = Regex.Match(c, @"^dice(10|\d)d(10000|\d{1,4})([+-]\d+)?=");
+														var m1 = Regex.Match(
+															c,
+															@"^dice(10|\d)d(10000|\d{1,4})([+-]\d+)?=?",
+															RegexOptions.IgnoreCase);
 														if(m1.Success) {
 															dice = true;
 															var m2 = Regex.Match(r, @"<font[^>]*>[^<]+</font>");
 															if(m2.Success) {
 																// ダイスの領域を削る
 																c = c.Substring(m1.Length);
-																r = r.Substring(m1.Length + m2.Length);
+																r = r.Substring(
+																	m1.Length + m2.Length
+																		+ ((m1.Groups[0].Value.Last() == '=') ? 0 : 1));
 															}
 														}
 													}
