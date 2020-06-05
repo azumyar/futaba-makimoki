@@ -134,6 +134,7 @@
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </Image>
+                            <!--
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="PreviewMouseDown">
                                     <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadImageMouseDownCommand, ElementName=_this}" />
@@ -142,6 +143,7 @@
                                     <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadImageClickCommand, ElementName=_this}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
+                            -->
                         </Button>
                     </Viewbox>
                 </Grid>
