@@ -327,26 +327,43 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				for(var i = 0; i < com.Length; i++) {
 					var c = com[i];
 					if(!string.IsNullOrEmpty(c) && (c[0] == '>')) {
-						if(Regex.Match(c, @"^>No.\d+$").Success) {
-							var no = c.Substring(4);
+						c = c.Substring(1);
+						if(Regex.IsMatch(c, @"^No.\d+$")) {
+							var no = c.Substring(3);
 							var it = resItems.Where(x => x.No == no).FirstOrDefault();
 							if(it != null) {
 								q[i] = new Quot(true, true, it.No);
 								goto end;
 							}
 						}
-						if(Regex.Match(c, @"^>\d+\.[a-zA-Z0-9]+$").Success) {
-							var f = c.Substring(1);
-							var it = resItems.Where(x => x.Res.Src.EndsWith(f)).FirstOrDefault();
+						if(Regex.IsMatch(c, @"^\d+\.[a-zA-Z0-9]+$")) {
+							var it = resItems.Where(x => x.Res.Src.EndsWith(c)).FirstOrDefault();
 							if(it != null) {
 								q[i] = new Quot(true, true, it.No);
 								goto end;
 							}
 						}
-						foreach(var it in resItems.Reverse<NumberedResItem>()) {
-							if(TextUtil.RowComment2Text(it.Res.Com).Contains(c.Substring(1))) {
-								q[i] = new Quot(true, true, it.No);
-								goto end;
+						if(Regex.IsMatch(c, @"^>.*$")) {
+							// 二重引用以上は完全一致
+							foreach(var it in resItems.Reverse<NumberedResItem>()) {
+								foreach(var c2 in TextUtil.RowComment2Text(it.Res.Com).Replace("\r", "").Split('\n')) {
+									if(c2 == c) {
+										q[i] = new Quot(true, true, it.No);
+										goto end;
+									}
+								}
+							}
+						} else {
+							foreach(var it in resItems.Reverse<NumberedResItem>()) {
+								foreach(var c2 in TextUtil.RowComment2Text(it.Res.Com).Replace("\r", "").Split('\n')) {
+									// 引用は捨てる
+									if(!Regex.IsMatch(c2, @"^>.*$")) {
+										if(c2.Contains(c)) {
+											q[i] = new Quot(true, true, it.No);
+											goto end;
+										}
+									}
+								}
 							}
 						}
 
