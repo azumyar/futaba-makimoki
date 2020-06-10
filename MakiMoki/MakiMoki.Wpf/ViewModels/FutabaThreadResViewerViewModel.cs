@@ -108,12 +108,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnLinkClick(RoutedEventArgs e) {
 			if(e.Source is Hyperlink link) {
-				// TODO: ロダのリンクこの辺定数定義設定に移動させる
 				var u = link.NavigateUri.AbsoluteUri;
-				if(u.StartsWith("http://www.nijibox5.com/futabafiles/tubu/src/")
-					|| u.StartsWith("http://www.nijibox5.com/futabafiles/kobin/src/")
-					|| u.StartsWith("https://dec.2chan.net/up2/src/")
-					|| u.StartsWith("https://dec.2chan.net/up/src/")) {
+				if(Config.ConfigLoader.Uploder.Uploders
+					.Where(x => u.StartsWith(x.Root))
+					.FirstOrDefault() != null) {
+
 					var ext = Regex.Match(u, @"\.[a-zA-Z0-9]+$");
 					if(ext.Success) {
 						if(Config.ConfigLoader.Mime.Types.Select(x => x.Ext).Contains(ext.Value.ToLower())) {

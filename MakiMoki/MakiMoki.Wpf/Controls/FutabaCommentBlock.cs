@@ -83,11 +83,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			var regexOpt = RegexOptions.IgnoreCase | RegexOptions.Singleline;
 			var regex = new Regex[] {
 				new Regex(@"^(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)", regexOpt),
-				new Regex(@"^su[0-9]+\.[a-z0-9]+", regexOpt),
-				new Regex(@"^ss[0-9]+\.[a-z0-9]+", regexOpt),
-				new Regex(@"^f[0-9]+\.[a-z0-9]+", regexOpt),
-				new Regex(@"^fu[0-9]+\.[a-z0-9]+", regexOpt),
-			};
+			}.Concat(Config.ConfigLoader.Uploder.Uploders.Select(x => new Regex(x.File, regexOpt))).ToArray();
 			var regexFontStart = new Regex("^<font\\s+color=[\"']#([0-9a-fA-F]+)[\"'][^>]*>", regexOpt);
 			var regexFontEnd = new Regex("</font>", regexOpt);
 			var last = lines.LastOrDefault();
@@ -259,15 +255,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 
 		private static string ToUrl(string s) {
-			// TODO: 設定に定義
-			if(s.StartsWith("su")) {
-				return "http://www.nijibox5.com/futabafiles/tubu/src/" + s;
-			} else if(s.StartsWith("ss")) {
-				return "http://www.nijibox5.com/futabafiles/kobin/src/" + s;
-			} else if(s.StartsWith("fu")) {
-				return "https://dec.2chan.net/up2/src/" + s;
-			} else if(s.StartsWith("f")) {
-				return "https://dec.2chan.net/up/src/" + s;
+			var ul = Config.ConfigLoader.Uploder.Uploders
+				.Where(x => Regex.IsMatch(s, x.File, RegexOptions.IgnoreCase | RegexOptions.Singleline))
+				.FirstOrDefault();
+			if(ul != null) {
+				return ul.Root + s;
 			}
 			return s;
 		}

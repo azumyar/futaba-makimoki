@@ -11,6 +11,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		private static readonly string MakiMokiConfigFile = "makimoki.json";
 		private static readonly string BordConfigFile = "bord.json";
 		private static readonly string MimeConfigFile = "mime.json";
+		private static readonly string UploderConfigFile = "uploder.json";
 		private static readonly string PtuaConfigFile = "ptua.json";
 		private static readonly string CookieConfigFile = "cookie.json";
 		private static readonly string PasswordConfigFile = "passwd.json";
@@ -75,6 +76,9 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			Mime = JsonConvert.DeserializeObject<Data.MimeConfig>(
 				loadFile(CoreAssembly.GetManifestResourceStream(
 					typeof(ConfigLoader).Namespace + "." + MimeConfigFile)));
+			Uploder = JsonConvert.DeserializeObject<Data.UploderConfig>(
+				loadFile(CoreAssembly.GetManifestResourceStream(
+					typeof(ConfigLoader).Namespace + "." + UploderConfigFile)));
 			try {
 				if(setting.SystemDirectory != null) {
 					MakiMoki = get(Path.Combine(setting.SystemDirectory, MakiMokiConfigFile), MakiMoki);
@@ -171,6 +175,8 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		public static Data.BordConfig[] Bord { get; private set; }
 
 		public static Data.MimeConfig Mime { get; private set; }
+
+		public static Data.UploderConfig Uploder { get; private set; }
 
 		public static Data.Ptua Ptua { get; private set; }
 

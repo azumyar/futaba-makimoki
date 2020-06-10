@@ -1,0 +1,34 @@
+﻿{
+  "version": -1,
+
+  "uploders": [
+    {
+      "root": "https://dec.2chan.net/up/src/",
+      "file": "^f\\d+\\.[a-zA-Z0-9]+"
+    },
+    {
+      "root": "https://dec.2chan.net/up2/src/",
+      "file": "^fu\\d+\\.[a-zA-Z0-9]+"
+    },
+    {
+      "root": "http://www.nijibox6.com/futabafiles/001/src/",
+      "file": "^sa\\d+\\.[a-zA-Z0-9]+"
+    },
+    {
+      "root": "http://www.nijibox2.com/futabafiles/003/src/",
+      "file": "^sp\\d+\\.[a-zA-Z0-9]+"
+    },
+    {
+      "root": "http://www.nijibox6.com/futabafiles/mid/src/",
+      "file": "^sq\\d+\\.[a-zA-Z0-9]+"
+    },
+    {
+      "root": "http://www.nijibox5.com/futabafiles/kobin/src/",
+      "file": "^ss\\d+\\.[a-zA-Z0-9]+"
+    },
+    {
+      "root": "http://www.nijibox5.com/futabafiles/tubu/src/",
+      "file": "^su\\d+\\.[a-zA-Z0-9]+"
+    }
+  ]
+}

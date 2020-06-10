@@ -100,13 +100,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	}
 
 	class FutabaMovieResVisibilityConverter : IValueConverter {
-		static string[] ext = new string[] { ".mp4", ".webm" };
+		static string[] ext = null;
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			if(value == null) {
 				return null;
 			}
 
 			if(value is Data.FutabaContext.Item it) {
+				if(ext == null) {
+					ext = Config.ConfigLoader.Mime.Types
+						.Where(x => x.MimeContents == MimeContents.Video)
+						.Select(x => x.Ext)
+						.ToArray();
+				}
 				return ext.Contains(it.ResItem.Res.Ext.ToLower()) ? Visibility.Visible : Visibility.Collapsed;
 			}
 			throw new ArgumentException("型不正。", "value");

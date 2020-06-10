@@ -92,5 +92,28 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 		[JsonProperty("mime", Required = Required.DisallowNull)]
 		public string MimeType { get; private set; }
+
+		[JsonProperty("contents", Required = Required.DisallowNull)]
+		public MimeContents MimeContents { get; private set; }
 	}
+
+	public enum MimeContents {
+		None,
+		Image,
+		Video
+	}
+
+	public class UploderConfig : ConfigObject {
+		[JsonProperty("uploders", Required = Required.DisallowNull)]
+		public UploderData[] Uploders { get; private set; }
+	}
+
+	public class UploderData : JsonObject {
+		[JsonProperty("root", Required = Required.DisallowNull)]
+		public string Root { get; private set; }
+
+		[JsonProperty("file", Required = Required.DisallowNull)]
+		public string File { get; private set; }
+	}
+
 }

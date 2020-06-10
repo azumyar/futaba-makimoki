@@ -3,31 +3,38 @@
   "support-types": [
     {
       "ext": ".jpg",
-      "mime": "image/jpeg"
+      "mime": "image/jpeg",
+      "contents": "Image"
     },
     {
       "ext": ".jpeg",
-      "mime": "image/jpeg"
+      "mime": "image/jpeg",
+      "contents": "Image"
     },
     {
       "ext": ".png",
-      "mime": "image/png"
+      "mime": "image/png",
+      "type": "Image"
     },
     {
       "ext": ".gif",
-      "mime": "image/gif"
+      "mime": "image/gif",
+      "contents": "Image"
     },
     {
       "ext": ".webp",
-      "mime": "image/webp"
+      "mime": "image/webp",
+      "contents": "Image"
     },
     {
       "ext": ".mp4",
-      "mime": "video/mp4"
+      "mime": "video/mp4",
+      "contents": "Video"
     },
     {
       "ext": ".webm",
-      "mime": "video/webm"
+      "mime": "video/webm",
+      "contents": "Video"
     }
   ]
 }

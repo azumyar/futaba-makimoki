@@ -62,19 +62,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				}).ToReactiveProperty("");
 				this.ImagePreview = this.ImagePath.Select<string, ImageSource>(x => {
 					if(File.Exists(x)) {
-						// TODO: この辺拡張子設定ファイルに移動
 						var ext = Path.GetExtension(x).ToLower();
-						var imageExt = new string[] {
-							".jpg",
-							".jpeg",
-							".png",
-							".gif",
-							".webp",
-						};
-						var movieExt = new string[] {
-							".mp4",
-							".webm",
-						};
+						var imageExt = Config.ConfigLoader.Mime.Types
+							.Where(y => y.MimeContents == MimeContents.Image)
+							.Select(y => y.Ext)
+							.ToArray();
+						var movieExt = Config.ConfigLoader.Mime.Types
+							.Where(y => y.MimeContents == MimeContents.Video)
+							.Select(y => y.Ext)
+							.ToArray();
 						if(imageExt.Contains(ext)) {
 							return WpfUtil.ImageUtil.LoadImage(x);
 						} else if(movieExt.Contains(ext)) {
