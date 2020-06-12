@@ -203,8 +203,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnCatalogMenuItemNgImage(Model.BindableFutabaResItem x) {
-			if(x.ThumbHash.Value.HasValue) {
-				var v = x.ThumbHash.Value.Value;
+			if(x.OriginSource.Value != null) {
+				var v = x.ThumbHash.Value ?? WpfUtil.ImageUtil.CalculatePerceptualHash(x.OriginSource.Value);
 				var ng = Ng.NgConfig.NgConfigLoder.NgImageConfig.Images
 					.Where(y => y.Hash == v.ToString())
 					.FirstOrDefault();
@@ -214,7 +214,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					// TODO: コメント入力ダイアログを出す
 					Ng.NgConfig.NgConfigLoder.AddNgImage(
 						Ng.NgData.NgImageData.FromPerceptualHash(
-							x.ThumbHash.Value.Value, "カタログから登録"));
+							v, "カタログから登録"));
 				}
 			}
 		}

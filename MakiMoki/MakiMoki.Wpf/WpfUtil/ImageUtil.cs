@@ -302,5 +302,27 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				.ToReactiveProperty();
 			*/
 		}
+
+		public static ulong CalculatePerceptualHash(BitmapSource bitmapImage) {
+#if true
+			var fcb = new FormatConvertedBitmap(bitmapImage, PixelFormats.Bgr32, null, 0);
+			var bytes = new byte[bitmapImage.PixelWidth * bitmapImage.PixelHeight * 4];
+			var stride = (bitmapImage.PixelWidth * bitmapImage.Format.BitsPerPixel + 7) / 8;
+			fcb.CopyPixels(bytes, stride, 0);
+			return Ng.NgUtil.PerceptualHash.CalculateHash(bytes, bitmapImage.PixelWidth, bitmapImage.PixelHeight, 32);
+#else
+			var fcb = new FormatConvertedBitmap(bitmapImage, PixelFormats.Gray8, null, 0);
+			var bytes = new byte[bitmapImage.PixelWidth * bitmapImage.PixelHeight];
+			var stride = (bitmapImage.PixelWidth * bitmapImage.Format.BitsPerPixel + 7) / 8;
+			var tmp = new byte[bitmapImage.PixelHeight * stride];
+			fcb.CopyPixels(tmp, stride, 0);
+			for(var yy = 0; yy < bitmapImage.PixelHeight; yy++) {
+				for(var xx = 0; xx < bitmapImage.PixelWidth; xx++) {
+					bytes[yy * bitmapImage.PixelWidth + xx] = tmp[yy * stride + xx];
+				}
+			}
+			return Ng.NgUtil.PerceptualHash.CalculateHash(bytes, bitmapImage.PixelWidth, bitmapImage.PixelHeight, 8);
+#endif
+		}
 	}
 }

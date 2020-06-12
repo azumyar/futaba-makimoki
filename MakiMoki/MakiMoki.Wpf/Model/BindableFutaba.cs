@@ -480,8 +480,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<int> Index { get; }
 		public ReactiveProperty<string> ImageName { get; }
 
-		public ReactiveProperty<ImageSource> ThumbSource { get; }
-		public ReactiveProperty<ImageSource> OriginSource { get; }
+		public ReactiveProperty<BitmapSource> ThumbSource { get; }
+		public ReactiveProperty<BitmapSource> OriginSource { get; }
 		public ReactiveProperty<ulong?> ThumbHash { get; }
 
 		public ReactiveProperty<Visibility> NameVisibility { get; }
@@ -536,8 +536,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.Raw = new ReactiveProperty<Data.FutabaContext.Item>(item);
 			this.NameVisibility = new ReactiveProperty<Visibility>(
 				(bord.Extra ?? new Data.BordConfigExtra()).NameValue ? Visibility.Visible : Visibility.Collapsed);
-			this.ThumbSource = new ReactiveProperty<ImageSource>();
-			this.OriginSource = new ReactiveProperty<ImageSource>();
+			this.ThumbSource = new ReactiveProperty<BitmapSource>();
+			this.OriginSource = new ReactiveProperty<BitmapSource>();
 			this.ThumbHash = new ReactiveProperty<ulong?>();
 			//this.ThumbSource = WpfUtil.ImageUtil.ToThumbProperty(this.Row);
 			this.ResImageVisibility = this.ThumbSource
@@ -685,31 +685,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
 						if(x != null) {
-							var bitmapImage = x;
-#if true
-							var fcb = new FormatConvertedBitmap(bitmapImage, PixelFormats.Bgr32, null, 0);
-							var bytes = new byte[bitmapImage.PixelWidth * bitmapImage.PixelHeight * 4];
-							var stride = (bitmapImage.PixelWidth * bitmapImage.Format.BitsPerPixel + 7) / 8;
-							fcb.CopyPixels(bytes, stride, 0);
-							var h = Ng.NgUtil.PerceptualHash.CalculateHash(bytes, bitmapImage.PixelWidth, bitmapImage.PixelHeight, 32);
-#else
-							var fcb = new FormatConvertedBitmap(bitmapImage, PixelFormats.Gray8, null, 0);
-							var bytes = new byte[bitmapImage.PixelWidth * bitmapImage.PixelHeight];
-							var stride = (bitmapImage.PixelWidth * bitmapImage.Format.BitsPerPixel + 7) / 8;
-							var tmp = new byte[bitmapImage.PixelHeight * stride];
-							fcb.CopyPixels(tmp, stride, 0);
-							for(var yy = 0; yy < bitmapImage.PixelHeight; yy++) {
-								for(var xx = 0; xx < bitmapImage.PixelWidth; xx++) {
-									bytes[yy * bitmapImage.PixelWidth + xx] = tmp[yy * stride + xx];
-								}
-							}
-							var h = Ng.NgUtil.PerceptualHash.CalculateHash(bytes, bitmapImage.PixelWidth, bitmapImage.PixelHeight, 8);
-#endif
-
+							var h = Ng.NgUtil.NgHelper.IsEnabledNgImage()
+								? WpfUtil.ImageUtil.CalculatePerceptualHash(x) : default(ulong?);
 							this.ThumbHash.Value = h;
 							this.OriginSource.Value = x;
-							if(Ng.NgConfig.NgConfigLoder.NgImageConfig.Images.Any(
-								y => Ng.NgUtil.PerceptualHash.GetHammingDistance(h, y) <= Ng.NgConfig.NgConfigLoder.NgImageConfig.Threshold)) {
+							if(h.HasValue && Ng.NgConfig.NgConfigLoder.NgImageConfig.Images.Any(
+								y => Ng.NgUtil.PerceptualHash.GetHammingDistance(h.Value, y) <= Ng.NgConfig.NgConfigLoder.NgImageConfig.Threshold)) {
 
 								// NG画像
 							} else {
@@ -741,6 +722,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		// TODO: 名前変える
 		private void b() {
+			if(OriginSource.Value == null) {
+				return;
+			}
+
+			if(!Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
+				return;
+			}
+
+			if(!ThumbHash.Value.HasValue) {
+				ThumbHash.Value = WpfUtil.ImageUtil.CalculatePerceptualHash(OriginSource.Value);
+			}
+
 			if(ThumbHash.Value.HasValue) {
 				if(Ng.NgConfig.NgConfigLoder.NgImageConfig.Images.Any(
 					x => Ng.NgUtil.PerceptualHash.GetHammingDistance(ThumbHash.Value.Value, x) <= Ng.NgConfig.NgConfigLoder.NgImageConfig.Threshold)) {

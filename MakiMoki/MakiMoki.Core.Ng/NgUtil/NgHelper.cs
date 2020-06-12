@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Yarukizero.Net.MakiMoki.Ng.NgConfig;
 
 namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 	public static partial class NgHelper {
@@ -54,6 +55,10 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 				NgConfig.NgConfigLoder.NgConfig.EnableIdNg,
 				NgConfig.NgConfigLoder.NgConfig.ThreadWords,
 				NgConfig.NgConfigLoder.NgConfig.ThreadRegex);
+		}
+
+		public static bool IsEnabledNgImage() {
+			return NgConfigLoder.NgImageConfig.Images.Length != 0;
 		}
 	}
 }
