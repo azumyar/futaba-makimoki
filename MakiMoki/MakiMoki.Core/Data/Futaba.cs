@@ -133,6 +133,10 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonProperty("res")]
 		public ResItem Res { get; private set; }
 
+		/// <summary>JSONシリアライザ用</summary>
+		private NumberedResItem() { }
+
+
 		internal NumberedResItem(string no, ResItem res) {
 			this.No = no;
 			this.Res = res;
@@ -178,6 +182,16 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 		[JsonIgnore]
 		public bool IsDel2 => (Del == "del2");
+
+		[JsonIgnore]
+		public DateTime NowDateTime {
+			get {
+				if(long.TryParse(Now, out var v)) {
+					return DateTimeOffset.FromUnixTimeMilliseconds(v).LocalDateTime;
+				}
+				return DateTime.MinValue;
+			}
+		}
 
 		internal static ResItem From(
 			string sub, string name,

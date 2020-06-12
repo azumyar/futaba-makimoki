@@ -13,17 +13,17 @@ using System.Windows.Media;
 using System.Windows.Navigation;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
-	public class FutabaCommentBlock : TextBlock {
+	class FutabaCommentBlock : TextBlock {
 		//private static Encoding m_Enc = Encoding.GetEncoding("Shift_JIS");
 
 		public static readonly DependencyProperty ArticleContentProperty =
-			DependencyProperty.RegisterAttached(
+			DependencyProperty.Register(
 				"Inline",
 				typeof(Model.BindableFutabaResItem),
 				typeof(FutabaCommentBlock),
 				new PropertyMetadata(null, OnInlinePropertyChanged));
 		public static readonly DependencyProperty MaxLinesProperty =
-			DependencyProperty.RegisterAttached(
+			DependencyProperty.Register(
 				nameof(MaxLines),
 				typeof(int),
 				typeof(FutabaCommentBlock),
@@ -32,7 +32,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			= EventManager.RegisterRoutedEvent(
 				nameof(LinkClick),
 				RoutingStrategy.Tunnel,
-				typeof(RoutedEventArgs),
+				typeof(PlatformData.HyperLinkEventHandler),
 				typeof(FutabaCommentBlock));
 
 		public int MaxLines {
@@ -42,7 +42,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			}
 		}
 
-		public event RoutedEventHandler LinkClick {
+		public event PlatformData.HyperLinkEventHandler LinkClick {
 			add { AddHandler(LinkClickEvent, value); }
 			remove { RemoveHandler(LinkClickEvent, value); }
 		}
@@ -57,9 +57,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			}
 		}
 
+
 		private static void OnInlinePropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
 			if((obj is TextBlock tb) && (e.NewValue is Model.BindableFutabaResItem item)) {
 				a(tb, item, (tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue);
+				// メモリリークする気がする
+				item?.DisplayHtml.Subscribe(x => a(
+					tb,
+					item,
+					(tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue));
 			}
 		}
 		private static void OnMaxLinesPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
@@ -72,7 +78,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			tb.Text = null;
 			tb.Inlines.Clear();
 
-			var msg = item?.CommentHtml.Value ?? "";
+			var msg = item?.DisplayHtml.Value ?? "";
 			var s1 = Regex.Replace(msg, @"<br>", Environment.NewLine,
 				RegexOptions.IgnoreCase | RegexOptions.Multiline);
 			//var s2 = Regex.Replace(s1, @"<[^>]*>", "",
@@ -276,7 +282,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						}
 						cl = cl.Parent as FrameworkContentElement;
 					}
-					el?.RaiseEvent(new RoutedEventArgs(LinkClickEvent, e.Source));
+					el?.RaiseEvent(new PlatformData.HyperLinkEventArgs(LinkClickEvent, e.Source, hl.NavigateUri));
 				}
 			}
 			catch {

@@ -33,7 +33,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
 
-		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; } 
+		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; }
 			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>>();
 
 		public ReactiveCommand<RoutedEventArgs> CatalogUpdateClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
@@ -56,6 +56,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<(Data.CatalogSortItem Item, Model.BindableFutaba Futaba)> CatalogSortItemClickCommand { get; } = new ReactiveCommand<(Data.CatalogSortItem Item, Model.BindableFutaba Futaba)>();
 
 		public ReactiveCommand<RoutedEventArgs> CatalogMenuItemDelClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<Model.BindableFutabaResItem> CatalogMenuItemThreadHiddenCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
+		public ReactiveCommand<Model.BindableFutabaResItem> CatalogMenuItemNgImageCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 
 		private bool isCatalogItemClicking = false;
 
@@ -72,6 +74,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			PostClickCommand.Subscribe(x => OnPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
 
 			CatalogMenuItemDelClickCommand.Subscribe(x => OnCatalogMenuItemDelClickCommand(x));
+			CatalogMenuItemThreadHiddenCommand.Subscribe(x => OnCatalogMenuItemThreadHidden(x));
+			CatalogMenuItemNgImageCommand.Subscribe(x => OnCatalogMenuItemNgImage(x));
 		}
 
 		public void Dispose() {
@@ -190,6 +194,28 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							Util.Futaba.PutInformation(new Information(x.Message));
 						}
 					});
+			}
+		}
+
+		private void OnCatalogMenuItemThreadHidden(Model.BindableFutabaResItem x) {
+			Ng.NgConfig.NgConfigLoder.AddHiddenRes(Ng.NgData.HiddenData.FromResItem(
+				x.Raw.Value.Url.BaseUrl, x.Raw.Value.ResItem));
+		}
+
+		private void OnCatalogMenuItemNgImage(Model.BindableFutabaResItem x) {
+			if(x.ThumbHash.Value.HasValue) {
+				var v = x.ThumbHash.Value.Value;
+				var ng = Ng.NgConfig.NgConfigLoder.NgImageConfig.Images
+					.Where(y => y.Hash == v.ToString())
+					.FirstOrDefault();
+				if(ng != null) {
+					Ng.NgConfig.NgConfigLoder.RemoveNgImage(ng);
+				} else {
+					// TODO: コメント入力ダイアログを出す
+					Ng.NgConfig.NgConfigLoder.AddNgImage(
+						Ng.NgData.NgImageData.FromPerceptualHash(
+							x.ThumbHash.Value.Value, "カタログから登録"));
+				}
 			}
 		}
 	}

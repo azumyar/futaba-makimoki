@@ -395,14 +395,14 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <Border 
+                            <Grid
                                 x:Name="viewGrid"
                                 Grid.Column="0" Grid.Row="0"
-                                MaxWidth="1024"
                                 HorizontalAlignment="Left" 
-                                Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}"                                
-                                Padding="4">
-                                <Border.Background>
+                                Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}"
+                                Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}"
+                                >
+                                <Grid.Background>
                                     <SolidColorBrush>
                                         <SolidColorBrush.Color>
                                             <MultiBinding Converter="{StaticResource FutabaResItemBackgroundConverter}">
@@ -413,12 +413,13 @@
                                             </MultiBinding>
                                         </SolidColorBrush.Color>
                                     </SolidColorBrush>
-                                </Border.Background>
-                                <Border.ContextMenu>
-                                    <ContextMenu>
+                                </Grid.Background>
+                                <Grid.ContextMenu>
+                                    <ContextMenu
+                                        DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                        Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                         <!-- Interaction.Triggers使えない？ -->
-                                        <MenuItem Header="レスをコピー" Click="OnMenuItemCopyClickCommand" />
-                                        <MenuItem Header="返信" Click="OnMenuItemReplyClickCommand">
+                                        <MenuItem Header="返信" Click="OnMenuItemReplyClickCommand" IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}">
                                             <!--
                                                 <i:Interaction.Triggers>
                                                     <i:EventTrigger EventName="Click">
@@ -427,12 +428,99 @@
                                                 </i:Interaction.Triggers>
                                                 -->
                                         </MenuItem>
+                                        <MenuItem Header="レスをコピー" Click="OnMenuItemCopyClickCommand" IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}" />
+                                        <Separator />
                                         <MenuItem Header="そうだね" Click="OnMenuItemSoudaneClickCommand" />
+                                        <Separator />
                                         <MenuItem Header="del" Click="OnMenuItemDelClickCommand" />
                                         <MenuItem Header="削除" Click="OnMenuItemDeleteClickCommand" />
+                                        <Separator />
+                                        <MenuItem
+                                            Header="NG画像に登録"
+                                            Command="{Binding Tag.MenuItemNgImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                            CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                        <MenuItem
+                                            Header="非表示"
+                                            Command="{Binding Tag.MenuItemResHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                            CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                     </ContextMenu>
-                                </Border.ContextMenu>
+                                </Grid.ContextMenu>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="24" />
+                                </Grid.RowDefinitions>
 
+                                <local:FutabaResBlock
+                                    Grid.Column="0" Grid.Row="0"
+                                    MaxWidth="1024"
+                                    >
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="ImageClick">
+                                            <ri:EventToReactiveCommand Command="{Binding DataContext.ImageClickCommand, ElementName=_this}" />
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="LinkClick">
+                                            <ri:EventToReactiveCommand Command="{Binding DataContext.LinkClickCommand, ElementName=_this}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </local:FutabaResBlock>
+                                <StackPanel
+                                    x:Name="copyButton" 
+                                    Grid.Column="0" Grid.ColumnSpan="2"
+                                    Grid.Row="1"
+                                    Opacity="0.6"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Visibility="Hidden"
+                                    >
+                                    <Button 
+                                        Width="96" Height="24"
+                                        Margin="2 0 0 0"
+                                        VerticalAlignment="Bottom"
+                                        Visibility="{Binding ReleaseHiddenResBuutonVisibility.Value, Mode=OneWay}">
+                                        <TextBlock>非表示を解除</TextBlock>
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="Click">
+                                                <i:CallMethodAction
+                                                    MethodName="ReleaseHiddenRes"
+                                                    TargetObject="{Binding }" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </Button>
+                                    <Button 
+                                        Width="96" Height="24"
+                                        Margin="2 0 0 0"
+                                        VerticalAlignment="Bottom"
+                                        Visibility="{Binding ShowNgResButtonVisibility.Value, Mode=OneWay}">
+                                        <TextBlock Text="{Binding ShowNgResButtonText.Value, Mode=OneWay}" />
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="Click">
+                                                <i:CallMethodAction
+                                                    MethodName="ToggleDisplayNgRes"
+                                                    TargetObject="{Binding }" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </Button>
+
+                                    <Button 
+                                        Grid.Column="1" Grid.Row="1" 
+                                        Width="24" Height="24"
+                                        VerticalAlignment="Bottom"
+                                        Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
+                                        <TextBlock>マ</TextBlock>
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="Click">
+                                                <i:CallMethodAction
+                                                    MethodName="StartCopyMode"
+                                                    TargetObject="{Binding }" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </Button>
+                                </StackPanel>
+                                <!--
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
@@ -446,7 +534,6 @@
                                     <WrapPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal"
                                                TextBlock.FontSize="{DynamicResource ThreadHeaderFontSize}"
                                                TextBlock.FontFamily="{DynamicResource ThreadHeaderFont}">
-                                        <!-- AlternationCount/AlternationIndexではアイテム追加時に追従してくれない -->
                                         <TextBlock>
                                             <TextBlock.Style>
                                                 <MultiBinding Converter="{StaticResource FutabaResItemIndexConverter}">
@@ -476,7 +563,6 @@
                                             <TextBlock.Foreground>
                                                 <SolidColorBrush Color="{DynamicResource ThreadHeaderMailColor}" />
                                             </TextBlock.Foreground>
-                                            <!-- メールは文字の太さを変えないのでRunはひとつでいい -->
                                             <Run Text="{Binding Raw.Value.ResItem.Res.Email,  StringFormat='[\{0\}] ', Mode=OneWay}" />
                                         </TextBlock>
                                         <TextBlock>
@@ -490,7 +576,6 @@
                                             <TextBlock.Foreground>
                                                 <SolidColorBrush Color="{DynamicResource ThreadHeaderSoudaneColor}" />
                                             </TextBlock.Foreground>
-                                            <!-- そうだねは文字の太さを変えないのでRunはひとつでいい -->
                                             <Run Text="{Binding Raw.Value.Soudane, Mode=OneWay, StringFormat='そうだね×\{0\} '}" />
                                         </TextBlock>
                                         <TextBlock>
@@ -568,6 +653,7 @@
                                         </i:Interaction.Triggers>
                                     </Button>
                                 </Grid>
+                                -->
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseEnter">
                                         <i:ChangePropertyAction PropertyName="Visibility" TargetName="copyButton" Value="Visible" />
@@ -579,7 +665,7 @@
                                         <ri:EventToReactiveCommand Command="{Binding DataContext.FutabaTextBlockMouseDownCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
-                            </Border>
+                            </Grid>
                             <Grid
                                 x:Name="copywGrid"
                                 Grid.Column="0" Grid.Row="0"
@@ -620,7 +706,7 @@
                                                 </MenuItem.CommandParameter>
                                             </MenuItem>
                                             <MenuItem
-                                                Header="NGワード追加" IsEnabled="False"
+                                                Header="NGワード追加"
                                                 Command="{Binding CopyTextboxNgCommand, Mode=OneWay}">
                                                 <MenuItem.CommandParameter>
                                                     <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">

@@ -52,6 +52,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					CacheDirectory = AppCacheDirectory,
 					WorkDirectory = AppWorkDirectory,
 				});
+				Ng.NgConfig.NgConfigLoder.Initialize(new Ng.NgConfig.NgConfigLoder.Setting() {
+					UserDirectory = userConfig,
+				});
 			}
 			catch(Exceptions.InitializeFailedException ex) {
 				MessageBox.Show(ex.Message, "初期化エラー", MessageBoxButton.OK, MessageBoxImage.Error);

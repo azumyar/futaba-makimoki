@@ -50,7 +50,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 					try {
 						try {
 							var decoder = new Imazen.WebP.SimpleDecoder();
-							using(var fs = new FileStream(path, FileMode.Open, FileAccess.Read)) {
+							using(var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
 								var l = new List<byte>();
 								while(fs.CanRead) {
 									var bb = new byte[1024];
@@ -97,7 +97,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						//var bitmapImage = new BitmapImage(new Uri(path));
 						//bitmapImage.Freeze();
 						var bitmapImage = new BitmapImage();
-						stream = stream ?? new FileStream(path, FileMode.Open, FileAccess.Read);
+						stream = stream ?? new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
 						bitmapImage.BeginInit();
 						bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
 						bitmapImage.StreamSource = stream;
@@ -188,7 +188,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		private static Stream LoadPng(string path, byte[] imageBytes) {
 			var list = new List<byte>();
 			if(imageBytes == null) {
-				using(var fs = new FileStream(path, FileMode.Open, FileAccess.Read)) {
+				using(var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
 					while(fs.CanRead) {
 						var bb = new byte[1024];
 						var c = fs.Read(bb, 0, bb.Length);

@@ -143,7 +143,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						if(this.IsImageFile(res.Src)) {
 							this.ImageViewVisibility.Value = Visibility.Visible;
 							this.ImageSource.Value = WpfUtil.ImageUtil.LoadImage(x.LocalPath);
-							this.ImageViewVisibility.Value = Visibility.Visible;
 						} else if(this.IsMovieFile(res.Src)) {
 							this.VideoViewVisibility.Value = Visibility.Visible;
 							Messenger.Instance.GetEvent<PubSubEvent<VideoLoadMessage>>()

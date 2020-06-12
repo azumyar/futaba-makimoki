@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Yarukizero.Net.MakiMoki.Wpf.Controls.FutabaResBlock"
+﻿<UserControl x:Class="Yarukizero.Net.MakiMoki.Wpf.Controls.FutabaResBlock" x:ClassModifier="internal"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -26,7 +26,8 @@
                 </Setter.Value>
             </Setter>
             <Setter Property="FontWeight" Value="Bold" />
-        </Style>    </UserControl.Resources>
+        </Style>
+    </UserControl.Resources>
     <Border 
         x:Name="viewGrid"
         MaxWidth="1024"
@@ -120,7 +121,11 @@
                         Grid.Row="1"
                         HorizontalAlignment="Left"
                         StretchDirection="DownOnly">
-                        <Button BorderThickness="0" BorderBrush="Transparent" Margin="0 0 4 0">
+                        <Button
+                            x:Name="ImageButton"
+                            BorderThickness="0"
+                            BorderBrush="Transparent"
+                            Margin="0 0 4 0">
                             <Image 
                                 Source="{Binding ThumbSource.Value}"
                                 RenderOptions.EdgeMode="Aliased"
@@ -147,7 +152,10 @@
                         </Button>
                     </Viewbox>
                 </Grid>
-                <local:FutabaCommentBlock Text="{Binding CommentHtml.Value, Mode=OneWay}" TextWrapping="Wrap" Margin="4 4 0 4">
+                <local:FutabaCommentBlock
+                    x:Name="FutabaCommentBlock"
+                    Text="{Binding CommentHtml.Value, Mode=OneWay}"
+                    TextWrapping="Wrap" Margin="4 4 0 4">
                     <local:FutabaCommentBlock.Inline>
                         <Binding Mode="OneWay" />
                     </local:FutabaCommentBlock.Inline>

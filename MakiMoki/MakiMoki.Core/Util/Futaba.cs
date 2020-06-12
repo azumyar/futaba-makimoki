@@ -247,6 +247,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							var name = "";
 							var email = "";
 							var id = "";
+							var ip = "";
 							var soudane = 0;
 							var host = "";
 							var thumb = "";
@@ -270,7 +271,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							if(timeEl != null) {
 								time = timeEl.Text();
 								var t = Regex.Split(time, @"\s+");
-								var ip = "";
 								if(1 < t.Length) {
 									time = t[0];
 									for(var i = 1; i < t.Length; i++) {
@@ -330,7 +330,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								new Data.NumberedResItem(threadNo,
 									Data.ResItem.From(
 										sub, name, email, com,
-										id, host, "",
+										id + ip, // IDとIPは同時に付与されない？
+										host, "",
 										src, thumb, ext, fsize, w, h,
 										time, utc.ToString(),
 										0)), soudane);

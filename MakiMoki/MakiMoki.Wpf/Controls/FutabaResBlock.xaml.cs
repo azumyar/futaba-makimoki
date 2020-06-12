@@ -17,9 +17,35 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	/// <summary>
 	/// FutabaResBlock.xaml の相互作用ロジック
 	/// </summary>
-	public partial class FutabaResBlock : UserControl {
+	partial class FutabaResBlock : UserControl {
+		public static RoutedEvent ImageClickEvent
+			= EventManager.RegisterRoutedEvent(
+				nameof(ImageClick),
+				RoutingStrategy.Tunnel,
+				typeof(RoutedEventHandler),
+				typeof(FutabaResBlock));
+		public static RoutedEvent LinkClickEvent
+			= EventManager.RegisterRoutedEvent(
+				nameof(LinkClick),
+				RoutingStrategy.Tunnel,
+				typeof(PlatformData.HyperLinkEventHandler),
+				typeof(FutabaResBlock));
+
+		public event RoutedEventHandler ImageClick {
+			add { AddHandler(ImageClickEvent, value); }
+			remove { RemoveHandler(ImageClickEvent, value); }
+		}
+
+		public event PlatformData.HyperLinkEventHandler LinkClick {
+			add { AddHandler(LinkClickEvent, value); }
+			remove { RemoveHandler(LinkClickEvent, value); }
+		}
+
 		public FutabaResBlock() {
 			InitializeComponent();
+
+			this.ImageButton.Click += (s, e) => this.RaiseEvent(new RoutedEventArgs(ImageClickEvent, e.Source));
+			this.FutabaCommentBlock.LinkClick += (s, e) => this.RaiseEvent(new PlatformData.HyperLinkEventArgs(LinkClickEvent, e.Source, e.NavigateUri));
 		}
 	}
 }

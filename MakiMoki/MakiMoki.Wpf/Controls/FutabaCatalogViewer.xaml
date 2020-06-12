@@ -131,10 +131,22 @@
                                 ToolTipService.InitialShowDelay="1000"
                                 ToolTipService.BetweenShowDelay="0"
                                 ToolTipService.ShowDuration="{x:Static sys:Int32.MaxValue}"
-                                ToolTip="{StaticResource CatalogItemToolTip}">
+                                ToolTip="{StaticResource CatalogItemToolTip}"
+                                Tag="{Binding DataContext,Mode=OneWay, ElementName=_this}">
                                 <Button.ContextMenu>
-                                    <ContextMenu>
+                                    <ContextMenu
+                                        DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                        Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                         <MenuItem Header="del" Click="OnCatalogMenuItemDelClickCommand" />
+                                        <Separator />
+                                        <MenuItem
+                                            Header="NG画像登録"
+                                            Command="{Binding Tag.CatalogMenuItemNgImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                            CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                        <MenuItem
+                                            Header="非表示スレッド"
+                                            Command="{Binding Tag.CatalogMenuItemThreadHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                            CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                     </ContextMenu>
                                 </Button.ContextMenu>
                                 <Button.Background>
@@ -388,8 +400,19 @@
                                 ToolTipService.ShowDuration="{x:Static sys:Int32.MaxValue}"
                                 ToolTip="{StaticResource CatalogItemToolTip}">
                                 <Button.ContextMenu>
-                                    <ContextMenu>
+                                    <ContextMenu
+                                        DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                        Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                         <MenuItem Header="del" Click="OnCatalogMenuItemDelClickCommand" />
+                                        <Separator />
+                                        <MenuItem
+                                            Header="NG画像登録"
+                                            Command="{Binding Tag.CatalogMenuItemNgImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                            CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                        <MenuItem
+                                            Header="非表示スレッド"
+                                            Command="{Binding Tag.CatalogMenuItemThreadHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                            CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                     </ContextMenu>
                                 </Button.ContextMenu>
                                 <Button.Background>
@@ -573,6 +596,7 @@
                 </Border.BorderBrush>
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" MinWidth="0" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition x:Name="SearchColumn" Width="Auto" MaxWidth="320" />
@@ -582,7 +606,15 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Button Grid.Column="1" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="0" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}" Visibility="Collapsed">
+                        <TextBlock Text="&lt;&lt;" />
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <ri:EventToReactiveCommand Command="{Binding FullScreenClickCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                    <Button Grid.Column="2" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <TextBlock>
                             更新
                         </TextBlock>
@@ -592,7 +624,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Grid x:Name="CatalogSearchGrid" Grid.Column="2" Margin="2" Visibility="Collapsed">
+                    <Grid x:Name="CatalogSearchGrid" Grid.Column="3" Margin="2" Visibility="Collapsed">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -645,7 +677,7 @@
                             </i:Interaction.Triggers>
                         </Button>
                     </Grid>
-                    <Button x:Name="CatalogSearchButton" Grid.Column="2" Width="32" Height="32" Margin="2" Visibility="Visible">
+                    <Button x:Name="CatalogSearchButton" Grid.Column="3" Width="32" Height="32" Margin="2" Visibility="Visible">
                         <Button.Content>
                             <TextBlock>
                                 検索
@@ -672,7 +704,7 @@
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Grid.Column="3" Width="32" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="4" Width="32" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <TextBlock>
                             ソート
                         </TextBlock>
@@ -697,7 +729,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="4" Width="32" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="5" Width="32" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <TextBlock>
                                 切替
                         </TextBlock>
@@ -707,7 +739,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="5" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="6" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <TextBlock>
                                 スレ立て
                         </TextBlock>
@@ -718,7 +750,7 @@
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Grid.Column="6" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="7" Height="32" Margin="2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <TextBlock>
                             <TextBlock.Text>
                                 >>
@@ -762,6 +794,7 @@
                 <ListBox.ItemsSource>
                     <MultiBinding Converter="{StaticResource FutabaCatalogItemFilterConverter}">
                         <Binding Path="Contents.Futaba.Value.ResItems" Mode="OneWay" ElementName="_this" />
+                        <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
                         <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
                     </MultiBinding>
                 </ListBox.ItemsSource>

@@ -7,7 +7,7 @@ using System.Text;
 namespace Yarukizero.Net.MakiMoki.Util {
 	public static class FileUtil {
 		public static string LoadFileString(string path) {
-			using(var fs = new FileStream(path, FileMode.Open)) {
+			using(var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
 				return LoadFileString(fs);
 			}
 		}

@@ -180,6 +180,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Visibility> FullScreenVisibility { get; }
 
 		public ReactiveProperty<int> CatalogResCount { get; } = new ReactiveProperty<int>(0);
+		public ReactiveProperty<object> UpdateToken { get; } = new ReactiveProperty<object>(DateTime.Now);
+
+
+		private Action<Ng.NgData.HiddenConfig> hiddenUpdateAction;
 
 		public BindableFutaba(Data.FutabaContext futaba, BindableFutaba old = null) {
 			OpenedThreads = Util.Futaba.Threads.Select(x => x.Where(y => y.Url.BaseUrl == futaba.Url.BaseUrl).ToArray()).ToReactiveProperty();
@@ -187,6 +191,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			FullScreenVisibility = CatalogListMode.Select(x => futaba.Url.IsCatalogUrl ? (x ? Visibility.Hidden : Visibility.Visible) :  Visibility.Hidden).ToReactiveProperty();
 			FullScreenSpan = IsFullScreenMode.Select(x => x ? 3 : 1).ToReactiveProperty();
 			FullScreenVisibility = IsFullScreenMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
+			hiddenUpdateAction = (_) => {
+				UpdateToken.Value = DateTime.Now;
+			};
+			Ng.NgConfig.NgConfigLoder.AddHiddenUpdateNotifyer(hiddenUpdateAction);
 			if(old != null) {
 				FilterText.Value = old.FilterText.Value;
 				CatalogSortItem.Value = old.CatalogSortItem.Value;
@@ -240,6 +248,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						//this.ResItems[i] = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
 						var bf = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
 						bf.ThumbSource.Value = a.ThumbSource.Value;
+						bf.ThumbHash.Value = a.ThumbHash.Value;
+						bf.OriginSource.Value = a.OriginSource.Value;
 						updateItems.Add((i, bf));
 					}
 					i++;
@@ -414,7 +424,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						.Select(x => {
 							if(x.Successed) {
 								if(Config.ConfigLoader.Mime.MimeTypes.TryGetValue(Path.GetExtension(x.LocalPath).ToLower(), out var mime)) {
-									using(var stream = new FileStream(x.LocalPath, FileMode.Open)) {
+									using(var stream = new FileStream(x.LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
 										var list = new List<byte>();
 										var b = new byte[1024];
 										var r = 0;
@@ -441,7 +451,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 									Subject = x.Raw.Value.ResItem.Res.Sub,
 									Name = x.Raw.Value.ResItem.Res.Name,
 									Email = x.Raw.Value.ResItem.Res.Email,
-									Comment = x.CommentHtml.Value,
+									Comment = x.OriginHtml.Value,
 									No = x.Raw.Value.ResItem.No,
 									Date = string.Format("{0}{1}", x.Raw.Value.ResItem.Res.Now, string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Id) ? "" : (" " + x.Raw.Value.ResItem.Res.Id)),
 									Soudane = x.Raw.Value.Soudane,
@@ -471,6 +481,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> ImageName { get; }
 
 		public ReactiveProperty<ImageSource> ThumbSource { get; }
+		public ReactiveProperty<ImageSource> OriginSource { get; }
+		public ReactiveProperty<ulong?> ThumbHash { get; }
 
 		public ReactiveProperty<Visibility> NameVisibility { get; }
 		public ReactiveProperty<Visibility> ResImageVisibility { get; }
@@ -479,8 +491,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> ThreadResNo { get; }
 		public ReactiveProperty<Data.FutabaContext.Item> Raw { get; }
 
+		public ReactiveProperty<string> DisplayHtml { get; }
 		public ReactiveProperty<string> CommentHtml { get; }
+		public ReactiveProperty<string> OriginHtml { get; }
+		public ReactiveProperty<bool> IsNg { get; }
+		public ReactiveProperty<bool> IsHidden { get; }
+		public ReactiveProperty<bool> IsVisibleOriginComment { get; }
+
 		public ReactiveProperty<string> CommentCopy { get; }
+
+
+		public ReactiveProperty<Visibility> ReleaseHiddenResBuutonVisibility { get; }
+		public ReactiveProperty<Visibility> ShowNgResButtonVisibility { get; }
+		public ReactiveProperty<Visibility> CopyModeButtonVisibility { get; }
+		public ReactiveProperty<string> ShowNgResButtonText { get; }
 
 		public ReactiveProperty<bool> IsCopyMode { get; } = new ReactiveProperty<bool>(false);
 
@@ -494,6 +518,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			= new ReactiveCommand<MouseButtonEventArgs>();
 		public ReactiveCommand ThumbLoadCommand { get; }
 			= new ReactiveCommand();
+
+		private Action<Ng.NgData.NgConfig> ngUpdateAction;
+		private Action<Ng.NgData.HiddenConfig> hiddenUpdateAction;
+		private Action<Ng.NgData.NgImageConfig> imageUpdateAction;
 
 		public BindableFutabaResItem(int index, Data.FutabaContext.Item item, string baseUrl, BindableFutaba parent) {
 			System.Diagnostics.Debug.Assert(item != null);
@@ -509,6 +537,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.NameVisibility = new ReactiveProperty<Visibility>(
 				(bord.Extra ?? new Data.BordConfigExtra()).NameValue ? Visibility.Visible : Visibility.Collapsed);
 			this.ThumbSource = new ReactiveProperty<ImageSource>();
+			this.OriginSource = new ReactiveProperty<ImageSource>();
+			this.ThumbHash = new ReactiveProperty<ulong?>();
 			//this.ThumbSource = WpfUtil.ImageUtil.ToThumbProperty(this.Row);
 			this.ResImageVisibility = this.ThumbSource
 				.Select(x => (x != null) ? Visibility.Visible : Visibility.Collapsed)
@@ -526,7 +556,42 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					com.AppendFormat("[<font color=\"#ff0000\">{0}</font>]<br>", Raw.Value.ResItem.Res.Host);
 				}
 				com.Append(Raw.Value.ResItem.Res.Com);
-				this.CommentHtml = new ReactiveProperty<string>(com.ToString());
+				this.IsNg = new ReactiveProperty<bool>(
+					parent.Url.IsCatalogUrl ? Ng.NgUtil.NgHelper.CheckCatalogNg(parent.Raw, item)
+						: Ng.NgUtil.NgHelper.CheckThreadNg(parent.Raw, item));
+				this.IsHidden = new ReactiveProperty<bool>(Ng.NgUtil.NgHelper.CheckHidden(parent.Raw, item));
+				if(this.IsNg.Value) {
+					this.CommentHtml = new ReactiveProperty<string>("<font color=\"#ff0000\">NG設定に抵触しています</font>");
+				} else if(this.IsHidden.Value) {
+					this.CommentHtml = new ReactiveProperty<string>("<font color=\"#ff0000\">非表示に設定されています</font>");
+				} else {
+					this.CommentHtml = new ReactiveProperty<string>(com.ToString());
+				}
+				this.OriginHtml = new ReactiveProperty<string>(com.ToString());
+				this.IsVisibleOriginComment = new ReactiveProperty<bool>((this.IsHidden.Value || this.IsNg.Value) ? false : true);
+				this.DisplayHtml = IsVisibleOriginComment
+					.Select(x => x ? this.OriginHtml.Value : this.CommentHtml.Value)
+					.ToReactiveProperty();
+				this.ReleaseHiddenResBuutonVisibility = this.IsHidden
+					.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
+					.ToReactiveProperty();
+				this.ShowNgResButtonVisibility = this.IsNg
+					.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
+					.ToReactiveProperty();
+				this.CopyModeButtonVisibility = new[] { this.IsHidden, this.IsNg }
+					.CombineLatest(x => x.All(y => !y))
+					.CombineLatest(this.IsVisibleOriginComment, (x, y) => (x | y) ? Visibility.Visible : Visibility.Collapsed)
+					.ToReactiveProperty();
+				this.ShowNgResButtonText = this.IsVisibleOriginComment
+						.Select(x => x ? "レスを非表示" : "レスを表示")
+						.ToReactiveProperty();
+
+				ngUpdateAction = (x) => a();
+				hiddenUpdateAction = (x) => a();
+				imageUpdateAction = (x) => b();
+				Ng.NgConfig.NgConfigLoder.AddNgUpdateNotifyer(ngUpdateAction);
+				Ng.NgConfig.NgConfigLoder.AddHiddenUpdateNotifyer(hiddenUpdateAction);
+				Ng.NgConfig.NgConfigLoder.AddImageUpdateNotifyer(imageUpdateAction);
 			}
 
 			// コピー用コメント生成
@@ -574,6 +639,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			Disposable.Dispose();
 		}
 
+		public void ReleaseHiddenRes() {
+			Ng.NgConfig.NgConfigLoder.RemoveHiddenRes(
+				Ng.NgData.HiddenData.FromResItem(this.Raw.Value.Url.BaseUrl, this.Raw.Value.ResItem));
+		}
+
+		public void ToggleDisplayNgRes() {
+			if(this.IsHidden.Value || this.IsNg.Value) {
+				this.IsVisibleOriginComment.Value = !this.IsVisibleOriginComment.Value;
+			}
+		}
+
 		public void StartCopyMode() {
 			this.IsCopyMode.Value = true;
 		}
@@ -584,7 +660,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		private void OnFutabaTextBlockMouseDown(MouseButtonEventArgs e) {
 			if((e.ClickCount == 2) && (e.ChangedButton == MouseButton.Left)) {
-				this.StartCopyMode();
+				var b1 = (this.IsHidden.Value || this.IsNg.Value) && this.IsVisibleOriginComment.Value;
+				var b2 = !this.IsHidden.Value && !this.IsNg.Value;
+				if(b1 || b2) {
+					this.StartCopyMode();
+				}
 			}
 		}
 
@@ -605,11 +685,73 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
 						if(x != null) {
-							ThumbSource.Value = x;
+							var bitmapImage = x;
+#if true
+							var fcb = new FormatConvertedBitmap(bitmapImage, PixelFormats.Bgr32, null, 0);
+							var bytes = new byte[bitmapImage.PixelWidth * bitmapImage.PixelHeight * 4];
+							var stride = (bitmapImage.PixelWidth * bitmapImage.Format.BitsPerPixel + 7) / 8;
+							fcb.CopyPixels(bytes, stride, 0);
+							var h = Ng.NgUtil.PerceptualHash.CalculateHash(bytes, bitmapImage.PixelWidth, bitmapImage.PixelHeight, 32);
+#else
+							var fcb = new FormatConvertedBitmap(bitmapImage, PixelFormats.Gray8, null, 0);
+							var bytes = new byte[bitmapImage.PixelWidth * bitmapImage.PixelHeight];
+							var stride = (bitmapImage.PixelWidth * bitmapImage.Format.BitsPerPixel + 7) / 8;
+							var tmp = new byte[bitmapImage.PixelHeight * stride];
+							fcb.CopyPixels(tmp, stride, 0);
+							for(var yy = 0; yy < bitmapImage.PixelHeight; yy++) {
+								for(var xx = 0; xx < bitmapImage.PixelWidth; xx++) {
+									bytes[yy * bitmapImage.PixelWidth + xx] = tmp[yy * stride + xx];
+								}
+							}
+							var h = Ng.NgUtil.PerceptualHash.CalculateHash(bytes, bitmapImage.PixelWidth, bitmapImage.PixelHeight, 8);
+#endif
+
+							this.ThumbHash.Value = h;
+							this.OriginSource.Value = x;
+							if(Ng.NgConfig.NgConfigLoder.NgImageConfig.Images.Any(
+								y => Ng.NgUtil.PerceptualHash.GetHammingDistance(h, y) <= Ng.NgConfig.NgConfigLoder.NgImageConfig.Threshold)) {
+
+								// NG画像
+							} else {
+								ThumbSource.Value = x;
+							}
 						} else {
 							// TODO: エラー画像表示
 						}
 					});
+			}
+		}
+
+		// TODO: 名前変える
+		private void a() {
+			this.IsNg.Value = this.Raw.Value.Url.IsCatalogUrl
+				? Ng.NgUtil.NgHelper.CheckCatalogNg(this.Parent.Value.Raw, this.Raw.Value)
+					: Ng.NgUtil.NgHelper.CheckThreadNg(this.Parent.Value.Raw, this.Raw.Value);
+			this.IsHidden.Value = Ng.NgUtil.NgHelper.CheckHidden(this.Parent.Value.Raw, this.Raw.Value);
+			if(this.IsNg.Value) {
+				this.CommentHtml.Value = "<font color=\"#ff0000\">NG設定に抵触しています</font>";
+			} else if(this.IsHidden.Value) {
+				this.CommentHtml.Value = "<font color=\"#ff0000\">非表示に設定されています</font>";
+			} else {
+				this.CommentHtml.Value = this.OriginHtml.Value;
+			}
+			this.IsCopyMode.Value = false;
+			this.IsVisibleOriginComment.Value = (this.IsHidden.Value || this.IsNg.Value) ? false : true;
+		}
+
+		// TODO: 名前変える
+		private void b() {
+			if(ThumbHash.Value.HasValue) {
+				if(Ng.NgConfig.NgConfigLoder.NgImageConfig.Images.Any(
+					x => Ng.NgUtil.PerceptualHash.GetHammingDistance(ThumbHash.Value.Value, x) <= Ng.NgConfig.NgConfigLoder.NgImageConfig.Threshold)) {
+
+					// NG画像
+					if(object.ReferenceEquals(ThumbSource.Value, OriginSource.Value)) {
+						ThumbSource.Value = null;
+					}
+				} else {
+					ThumbSource.Value = OriginSource.Value;
+				}
 			}
 		}
 	}

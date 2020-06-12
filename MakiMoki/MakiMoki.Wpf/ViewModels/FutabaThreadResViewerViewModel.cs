@@ -45,7 +45,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<RoutedEventArgs> ThreadUpdateCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
-		public ReactiveCommand<RoutedEventArgs> LinkClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<RoutedEventArgs> ImageClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<PlatformData.HyperLinkEventArgs> LinkClickCommand { get; } = new ReactiveCommand<PlatformData.HyperLinkEventArgs>();
 
 		public ReactiveCommand<MouseButtonEventArgs> ThreadImageMouseDownCommand { get; }
 			= new ReactiveCommand<MouseButtonEventArgs>();
@@ -67,6 +68,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<RoutedEventArgs> MenuItemSoudaneClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemDelClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemDeleteClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemNgImageCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
+		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemResHiddenCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 
 		public ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxQuotCommand { get; } = new ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)>();
 		public ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxSearchCommand { get; } = new ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)>();
@@ -85,6 +88,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			ThreadImageClickCommand.Subscribe(x => OnThreadImageClick(x));
 			ThreadUpdateCommand.Subscribe(x => OnThreadUpdateClick(x));
 			PostClickCommand.Subscribe(x => OnPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
+			ImageClickCommand.Subscribe(x => OnImageClick(x));
 			LinkClickCommand.Subscribe(x => OnLinkClick(x));
 
 			ThreadResHamburgerItemUrlClickCommand.Subscribe(x => OnThreadResHamburgerItemUrlClick(x));
@@ -94,6 +98,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			MenuItemSoudaneClickCommand.Subscribe(x => OnMenuItemSoudaneClickCommand(x));
 			MenuItemDelClickCommand.Subscribe(x => OnMenuItemDelClickCommand(x));
 			MenuItemDeleteClickCommand.Subscribe(x => OnMenuItemDeleteClickCommand(x));
+			MenuItemResHiddenCommand.Subscribe(x => OnMenuItemResHidden(x));
+			MenuItemNgImageCommand.Subscribe(x => OnMenuItemNgImage(x));
 
 			CopyTextboxQuotCommand.Subscribe(x => OnCopyTextboxQuot(x));
 			CopyTextboxSearchCommand.Subscribe(x => OnCopyTextboxSearch(x));
@@ -106,37 +112,45 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Disposable.Dispose();
 		}
 
-		private void OnLinkClick(RoutedEventArgs e) {
-			if(e.Source is Hyperlink link) {
-				var u = link.NavigateUri.AbsoluteUri;
-				if(Config.ConfigLoader.Uploder.Uploders
-					.Where(x => u.StartsWith(x.Root))
-					.FirstOrDefault() != null) {
-
-					var ext = Regex.Match(u, @"\.[a-zA-Z0-9]+$");
-					if(ext.Success) {
-						if(Config.ConfigLoader.Mime.Types.Select(x => x.Ext).Contains(ext.Value.ToLower())) {
-							Messenger.Instance.GetEvent<PubSubEvent<MediaViewerOpenMessage>>()
-								.Publish(new MediaViewerOpenMessage(
-									PlatformData.FutabaMedia.FromExternalUrl(u)));
-							goto end;
-						}
-					}
-				}
-				// ふたばのリンク
-				foreach(var b in Config.ConfigLoader.Bord) {
-					var uu = new Uri(b.Url);
-					if(uu.Authority == link.NavigateUri.Authority) {
-						var m = Regex.Match(link.NavigateUri.LocalPath, @"^/[^/]+/res/([0-9]+)\.htm$");
-						if(link.NavigateUri.LocalPath.StartsWith(uu.LocalPath) && m.Success) {
-							Util.Futaba.Open(new Data.UrlContext(b.Url, m.Groups[1].Value));
-							goto end;
-						}
-					}
-				}
-
-				this.StartBrowser(u);
+		private void OnImageClick(RoutedEventArgs e) {
+			if((e.Source is FrameworkElement o) && (o.DataContext is Model.BindableFutabaResItem it)) {
+				Messenger.Instance.GetEvent<PubSubEvent<MediaViewerOpenMessage>>()
+					.Publish(new MediaViewerOpenMessage(
+						PlatformData.FutabaMedia.FromFutabaUrl(
+							it.Raw.Value.Url, it.Raw.Value.ResItem.Res)));
+				e.Handled = true;
 			}
+		}
+
+		private void OnLinkClick(PlatformData.HyperLinkEventArgs e) {
+			var u = e.NavigateUri.AbsoluteUri;
+			if(Config.ConfigLoader.Uploder.Uploders
+				.Where(x => u.StartsWith(x.Root))
+				.FirstOrDefault() != null) {
+
+				var ext = Regex.Match(u, @"\.[a-zA-Z0-9]+$");
+				if(ext.Success) {
+					if(Config.ConfigLoader.Mime.Types.Select(x => x.Ext).Contains(ext.Value.ToLower())) {
+						Messenger.Instance.GetEvent<PubSubEvent<MediaViewerOpenMessage>>()
+							.Publish(new MediaViewerOpenMessage(
+								PlatformData.FutabaMedia.FromExternalUrl(u)));
+						goto end;
+					}
+				}
+			}
+			// ふたばのリンク
+			foreach(var b in Config.ConfigLoader.Bord) {
+				var uu = new Uri(b.Url);
+				if(uu.Authority == e.NavigateUri.Authority) {
+					var m = Regex.Match(e.NavigateUri.LocalPath, @"^/[^/]+/res/([0-9]+)\.htm$");
+					if(e.NavigateUri.LocalPath.StartsWith(uu.LocalPath) && m.Success) {
+						Util.Futaba.Open(new Data.UrlContext(b.Url, m.Groups[1].Value));
+						goto end;
+					}
+				}
+			}
+
+			this.StartBrowser(u);
 		end:;
 			System.Diagnostics.Debug.WriteLine(e);
 		}
@@ -315,6 +329,31 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
+		private void OnMenuItemResHidden(Model.BindableFutabaResItem x) {
+			var ng = Ng.NgData.HiddenData.FromResItem(x.Raw.Value.Url.BaseUrl, x.Raw.Value.ResItem);
+			if(Ng.NgUtil.NgHelper.CheckHidden(x.Parent.Value.Raw, x.Raw.Value)) {
+				Ng.NgConfig.NgConfigLoder.RemoveHiddenRes(ng);
+			} else {
+				Ng.NgConfig.NgConfigLoder.AddHiddenRes(ng);
+			}
+		}
+
+		private void OnMenuItemNgImage(Model.BindableFutabaResItem x) {
+			if(x.ThumbHash.Value.HasValue) {
+				var v = x.ThumbHash.Value.Value;
+				var ng = Ng.NgConfig.NgConfigLoder.NgImageConfig.Images
+					.Where(y => y.Hash == v.ToString())
+					.FirstOrDefault();
+				if(ng != null) {
+					Ng.NgConfig.NgConfigLoder.RemoveNgImage(ng);
+				} else {
+					// TODO: コメント入力ダイアログを出す
+					Ng.NgConfig.NgConfigLoder.AddNgImage(
+						Ng.NgData.NgImageData.FromPerceptualHash(
+							x.ThumbHash.Value.Value, "スレッドから登録"));
+				}
+			}
+		}
 		private void OnCopyTextboxQuot((BindableFutaba Futaba, TextBox TextBox) e) {
 			var sb = new StringBuilder();
 			foreach(var s in e.TextBox.SelectedText.Replace("\r", "").Split('\n')) {
@@ -338,7 +377,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private void OnCopyTextboxNg((BindableFutaba Futaba, TextBox TextBox) e) {}
+		private void OnCopyTextboxNg((BindableFutaba Futaba, TextBox TextBox) e) {
+			if(!string.IsNullOrEmpty(e.TextBox.SelectedText)) {
+				Ng.NgConfig.NgConfigLoder.AddThreadNgWord(e.TextBox.SelectedText);
+			}
+		}
 
 		private void OnCopyTextboxCopy((BindableFutaba Futaba, TextBox TextBox) e) {
 			e.TextBox.Copy();

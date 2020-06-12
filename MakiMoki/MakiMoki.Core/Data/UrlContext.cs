@@ -15,6 +15,9 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonIgnore]
 		public bool IsThreadUrl => !string.IsNullOrWhiteSpace(this.ThreadNo);
 
+		/// <summary>JSONシリアライザ用</summary>
+		private UrlContext() { }
+
 		public UrlContext(string baseUrl) : this(baseUrl, "") { }
 
 		public UrlContext(string baseUrl, string threadNo) {

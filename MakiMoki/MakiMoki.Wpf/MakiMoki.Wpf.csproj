@@ -81,6 +81,7 @@
     <Compile Include="Converters\ThreadResConverter.cs" />
     <Compile Include="Model\Interface.cs" />
     <Compile Include="PlatformData\Config.cs" />
+    <Compile Include="PlatformData\Event.cs" />
     <Compile Include="PlatformData\FutabaMedia.cs" />
     <Compile Include="ViewModels\FutabaPostViewViewModel.cs" />
     <Compile Include="ViewModels\FutabaMediaViewerViewModel.cs" />
@@ -167,6 +168,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MakiMoki.Core.Ng\MakiMoki.Core.Ng.csproj">
+      <Project>{2e7e97a0-5ac2-441e-8eeb-07135359830f}</Project>
+      <Name>MakiMoki.Core.Ng</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MakiMoki.Core\MakiMoki.Core.csproj">
       <Project>{5ba0bf4b-823d-413a-86d9-eb5b3d719b22}</Project>
       <Name>MakiMoki.Core</Name>
