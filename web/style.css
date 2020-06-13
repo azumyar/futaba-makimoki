@@ -1,0 +1,90 @@
+
+:root {
+    /* マテリアルカラーの500をベース */
+    --primary-color: #03A9F4;
+    --secondary-color: #E91E63;
+    --secondary-color-active: #d32f2f;
+    --quot-color: #4CAF50;
+
+    --foreground-color: #263238;
+    --background-color: #F5F5F5;
+
+    --font-size-large-x: 24px;
+    --font-size-large: 18px;
+    --font-size-normal: 14px;
+
+    --base-margin: 32px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --secondary-color-active: #FF8A65;
+        
+        --foreground-color: #F5F5F5;
+        --background-color: #212121;
+    }
+}
+
+
+body {
+    color: var(--foreground-color);
+    background-color: var(--background-color);
+    font-size: var(--font-size-normal);
+}
+
+body > ul, body > p {
+    margin: 0;
+    padding: 0;
+    margin-left: var(--base-margin);
+}
+
+body > ul li {
+    list-style-type: none;
+}
+
+body > ul li::before {
+    content: "☐";
+    color: var(--primary-color);
+    margin-right: 4px;
+}
+
+body > ul li.checked::before {
+    content: "☑";
+}
+
+h1 {
+    font-weight: bold;
+    font-size: var(--font-size-large-x);
+}
+
+h2 {
+    color: var(--primary-color);
+    font-weight: bold;
+    font-size: var(--font-size-large);
+    margin-top: 32px;
+    margin-left: 8px;
+}
+
+h3 {
+    font-weight: bold;
+    margin-left: var(--base-margin);
+    font-size: var(--font-size-large);
+}
+
+a {
+    color: var(--secondary-color);
+    text-decoration: none;;
+}
+
+a:hover, a:active {
+    color: var(--secondary-color-active);
+    text-decoration: underline;
+}
+
+q, blockquote {
+    color: var(--quot-color);
+}
+
+q::before, q::after {
+    content: "";
+}

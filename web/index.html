@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="format-detection" content="telephone=no">
+    <title>MakiMoki</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- <link rel="icon" href="favicon.ico"> -->
+</head>
+<body>
+    <h1>ふたば@MakiMoki(仮)</h1>
+    <p>
+        某掲示板ブラウザです。開発中。
+    </p>
+    <ul>
+        <li><del>実行ファイル</del></li>
+        <li class="checked"><a href="https://github.com/azumyar/futaba-makimoki">ソースコード</a></li>
+    </ul>
+
+    <h2>動作環境</h2>
+    <ul>
+        <li class="checked">Windows 10(x86/x64)ARMは知りません</li>
+        <li class="checked">.NET Framework 4.7.2以上</li>
+    </ul>
+
+    <h2>リリースに向けて</h2>
+    <h3>未実装機能</h3>
+    <ul>
+        <li class="checked">ID NG機能</li>
+        <li class="checked">NGコメント機能</li>
+        <li class="checked">コメント非表示機能</li>
+        <li class="checked">NG画像機能→精度に難がある気がするけどこんなものなのかな？あとちょう重い</li>
+        <li>アニメーションGIFの再生</li>
+        <li>設定画面</li>
+        <li>ショートカットキー</li>
+        <li>画像の保存</li>
+        <li>スレ内検索を途中で放置しているのでちゃんと実装</li>
+        <li>現在の状態の保存</li>
+    </ul>
+
+    <h3>既知の問題点</h3>
+    <ul>
+        <li>DPI付きJPEG画像が小さく表示される(PNGは対応済み、WebPは知らない)</li>
+        <li>動画再生中にメディア画面を閉じようとすると高確率でフリーズする</li>
+        <li>画像キャッシュ読み込み時に別プロセスが握っているとクラッシュする→数回試行するように修正したい</li>
+    </ul>
+
+    <h3>やれたらいいな</h3>
+    <ul>
+        <li>ホイールスクロールで更新</li>
+        <li>もうすぐ落ちるスレをカタログに表示</li>
+        <li>多重通信を行わないようにブロックしたほうがいいかな…</li>
+        <li>起動時の画面をちゃんと整理したい</li>
+        <li>トースト機能の強化</li>
+    </ul>
+
+    <h3>やるきぜろ</h3>
+    <ul>
+        <li>手書き</li>
+    </ul>
+
+    <h2>バックログ</h2>
+    <ul>
+        <li>カタログ強調ワード/画像機能</li>
+        <li>カラー・フォント設定ファイル外だし</li>
+        <li>音声読み上げ</li>
+        <li>自動更新関係</li>
+        <li>ListBoxのスクロール量を変更(できるのか？)</li>
+        <li>ListBoxのホイールクリックでオートスクロールモードに(できるのか？)</li>
+    </ul>
+
+    <h2>連絡先</h2>
+    <ul>
+        <li class="checked"><a href="https://marshmallow-qa.com/yarukizero_dev">マシュマロ</a></li>
+    </ul>
+
+    <h3>返信</h3>
+    <p>
+        <q>&gt;スレ画だけの問題なのかわからないけど画像表示がやけに小さくなって拡大するとガビガビになります</q><br />
+        多分DPI付きのJEPG画像じゃないでしょうか？DPIが解釈されていまい原寸で表示される問題があります。
+    </p>
+</body>
+</html>
