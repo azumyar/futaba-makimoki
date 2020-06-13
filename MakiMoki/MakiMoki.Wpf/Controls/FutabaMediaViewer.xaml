@@ -64,6 +64,8 @@
                 <Image
                     x:Name="image"
                     Source="{Binding ImageSource.Value, Mode=OneWay}"
+                    Width="{Binding RelativeSource={RelativeSource Self}, Path=Source.PixelWidth}"
+                    Height="{Binding RelativeSource={RelativeSource Self}, Path=Source.PixelHeight}"
                     IsHitTestVisible="False"
                     RenderOptions.EdgeMode="Aliased"
                     RenderOptions.BitmapScalingMode="Fant"

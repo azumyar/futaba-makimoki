@@ -108,9 +108,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				} else {
 					Stream stream = null;
 					try {
+						/*
 						if(Path.GetExtension(path).ToLower() == ".png") {
 							stream = LoadPng(path, null);
 						}
+						*/
 						//var bitmapImage = new BitmapImage(new Uri(path));
 						//bitmapImage.Freeze();
 						var bitmapImage = new BitmapImage();
@@ -171,10 +173,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				} else {
 					Stream stream = null;
 					try {
+						/*
 						if(Path.GetExtension(path).ToLower() == ".png") {
 							stream = LoadPng(path, imageBytes);
 						}
-
+						*/
 						if(stream == null) {
 							stream = new MemoryStream(imageBytes);
 						}
