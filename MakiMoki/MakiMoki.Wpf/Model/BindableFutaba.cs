@@ -511,6 +511,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Visibility> FutabaTextBlockVisibility { get; }
 		public ReactiveProperty<Visibility> CopyBlockVisibility { get; }
 
+		public ReactiveProperty<Visibility> IsVisibleMenuItemNgImage { get; }
+		public ReactiveProperty<string> MenuItemTextHidden { get; }
 
 		public ReactiveProperty<BindableFutaba> Parent { get; }
 
@@ -632,6 +634,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ResImageVisibility = this.ThumbSource
 				.CombineLatest(IsVisibleOriginComment, (x, y) => ((x != null) && y) ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
+			this.IsVisibleMenuItemNgImage = this.ImageName.Select(x => !string.IsNullOrEmpty(x))
+				.CombineLatest(this.OriginSource, this.ThumbSource, (x, y, z) => x && (y == null || object.ReferenceEquals(y, z)))
+				.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
+				.ToReactiveProperty();
+			this.MenuItemTextHidden = this.IsHidden.Select(x => x ? "非表示を解除" : "非表示").ToReactiveProperty();
 			this.FutabaTextBlockMouseDownCommand.Subscribe(x => OnFutabaTextBlockMouseDown(x));
 			this.ThumbLoadCommand.Subscribe(_ => OnThumbLoad());
 		}

@@ -141,10 +141,11 @@
                                         <Separator />
                                         <MenuItem
                                             Header="NG画像登録"
+                                            Visibility="{Binding IsVisibleMenuItemNgImage.Value, Mode=OneWay}"
                                             Command="{Binding Tag.CatalogMenuItemNgImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                             CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                         <MenuItem
-                                            Header="非表示スレッド"
+                                            Header="{Binding MenuItemTextHidden.Value, Mode=OneWay}"
                                             Command="{Binding Tag.CatalogMenuItemThreadHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                             CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                     </ContextMenu>
@@ -407,10 +408,11 @@
                                         <Separator />
                                         <MenuItem
                                             Header="NG画像登録"
+                                            Visibility="{Binding IsVisibleMenuItemNgImage.Value, Mode=OneWay}"
                                             Command="{Binding Tag.CatalogMenuItemNgImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                             CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                         <MenuItem
-                                            Header="非表示スレッド"
+                                            Header="{Binding MenuItemTextHidden.Value, Mode=OneWay}"
                                             Command="{Binding Tag.CatalogMenuItemThreadHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                             CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                     </ContextMenu>

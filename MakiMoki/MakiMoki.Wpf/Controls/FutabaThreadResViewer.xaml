@@ -436,11 +436,12 @@
                                         <MenuItem Header="削除" Click="OnMenuItemDeleteClickCommand" />
                                         <Separator />
                                         <MenuItem
-                                            Header="NG画像に登録"
+                                            Header="NG画像登録"
+                                            Visibility="{Binding IsVisibleMenuItemNgImage.Value, Mode=OneWay}"
                                             Command="{Binding Tag.MenuItemNgImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                             CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                         <MenuItem
-                                            Header="非表示"
+                                            Header="{Binding MenuItemTextHidden.Value, Mode=OneWay}"
                                             Command="{Binding Tag.MenuItemResHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                             CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                     </ContextMenu>

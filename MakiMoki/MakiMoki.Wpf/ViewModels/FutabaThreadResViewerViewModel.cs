@@ -114,10 +114,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnImageClick(RoutedEventArgs e) {
 			if((e.Source is FrameworkElement o) && (o.DataContext is Model.BindableFutabaResItem it)) {
-				Messenger.Instance.GetEvent<PubSubEvent<MediaViewerOpenMessage>>()
-					.Publish(new MediaViewerOpenMessage(
-						PlatformData.FutabaMedia.FromFutabaUrl(
-							it.Raw.Value.Url, it.Raw.Value.ResItem.Res)));
+				if(object.ReferenceEquals(it.ThumbSource.Value, it.OriginSource.Value)) {
+					Messenger.Instance.GetEvent<PubSubEvent<MediaViewerOpenMessage>>()
+						.Publish(new MediaViewerOpenMessage(
+							PlatformData.FutabaMedia.FromFutabaUrl(
+								it.Raw.Value.Url, it.Raw.Value.ResItem.Res)));
+				}
 				e.Handled = true;
 			}
 		}
