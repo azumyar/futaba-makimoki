@@ -32,23 +32,23 @@ body {
     font-size: var(--font-size-normal);
 }
 
-body > ul, body > p {
+ul, p {
     margin: 0;
     padding: 0;
     margin-left: var(--base-margin);
 }
 
-body > ul li {
+ul li {
     list-style-type: none;
 }
 
-body > ul li::before {
+ul li::before {
     content: "☐";
     color: var(--primary-color);
     margin-right: 4px;
 }
 
-body > ul li.checked::before {
+ul li.checked::before {
     content: "☑";
 }
 
@@ -87,4 +87,8 @@ q, blockquote {
 
 q::before, q::after {
     content: "";
+}
+
+#contact-section p {
+    margin-bottom: var(--font-size-normal);
 }
