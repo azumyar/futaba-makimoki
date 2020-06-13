@@ -539,10 +539,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ThumbSource = new ReactiveProperty<BitmapSource>();
 			this.OriginSource = new ReactiveProperty<BitmapSource>();
 			this.ThumbHash = new ReactiveProperty<ulong?>();
-			//this.ThumbSource = WpfUtil.ImageUtil.ToThumbProperty(this.Row);
-			this.ResImageVisibility = this.ThumbSource
-				.Select(x => (x != null) ? Visibility.Visible : Visibility.Collapsed)
-				.ToReactiveProperty();
 
 			// delとhostの処理
 			{
@@ -630,7 +626,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.ImageName = new ReactiveProperty<string>("");
 			}
 			this.FutabaTextBlockVisibility = this.IsCopyMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
-			this.CopyBlockVisibility = this.IsCopyMode.Select(x => x ? Visibility.Visible : Visibility.Hidden).ToReactiveProperty();
+			this.CopyBlockVisibility = this.IsCopyMode
+				.CombineLatest(IsVisibleOriginComment, (x, y) => x ? Visibility.Visible : (y ? Visibility.Hidden : Visibility.Collapsed))
+				.ToReactiveProperty();
+			this.ResImageVisibility = this.ThumbSource
+				.CombineLatest(IsVisibleOriginComment, (x, y) => ((x != null) && y) ? Visibility.Visible : Visibility.Collapsed)
+				.ToReactiveProperty();
 			this.FutabaTextBlockMouseDownCommand.Subscribe(x => OnFutabaTextBlockMouseDown(x));
 			this.ThumbLoadCommand.Subscribe(_ => OnThumbLoad());
 		}
