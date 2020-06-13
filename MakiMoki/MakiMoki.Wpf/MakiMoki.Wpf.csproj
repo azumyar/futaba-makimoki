@@ -213,10 +213,9 @@
     <Content Include="MakiMoki.VisualElementsManifest.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="Resources\Images\NgImage.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Assets\icon-150x150.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

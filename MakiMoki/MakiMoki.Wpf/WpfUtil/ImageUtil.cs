@@ -14,6 +14,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 	static class ImageUtil {
 		private volatile static Dictionary<string, WeakReference<BitmapImage>> bitmapDic
 			= new Dictionary<string, WeakReference<BitmapImage>>();
+		private static BitmapImage NgImage { get; set; } = null;
 
 		private static bool TryGetImage(string file, out BitmapImage image) {
 			lock(bitmapDic) {
@@ -37,6 +38,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 					bitmapDic.Add(file, r);
 				}
 			}
+		}
+
+		public static BitmapImage GetNgImage() {
+			if(NgImage == null) {
+				var asm = typeof(App).Assembly;
+				var bitmapImage = new BitmapImage();
+				bitmapImage.BeginInit();
+				bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+				bitmapImage.StreamSource = asm.GetManifestResourceStream(
+					$"{ typeof(App).Namespace }.Resources.Images.NgImage.png");
+				bitmapImage.EndInit();
+				bitmapImage.Freeze();
+
+				NgImage = bitmapImage;
+			}
+			return NgImage;
 		}
 
 		public static BitmapImage LoadImage(string path) {

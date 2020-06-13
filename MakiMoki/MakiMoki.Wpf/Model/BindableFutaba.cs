@@ -693,7 +693,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 							if(h.HasValue && Ng.NgConfig.NgConfigLoder.NgImageConfig.Images.Any(
 								y => Ng.NgUtil.PerceptualHash.GetHammingDistance(h.Value, y) <= Ng.NgConfig.NgConfigLoder.NgImageConfig.Threshold)) {
 
-								// NG画像
+								ThumbSource.Value = WpfUtil.ImageUtil.GetNgImage();
 							} else {
 								ThumbSource.Value = x;
 							}
@@ -741,7 +741,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 					// NG画像
 					if(object.ReferenceEquals(ThumbSource.Value, OriginSource.Value)) {
-						ThumbSource.Value = null;
+						ThumbSource.Value = WpfUtil.ImageUtil.GetNgImage();
 					}
 				} else {
 					ThumbSource.Value = OriginSource.Value;
