@@ -71,7 +71,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				AppSettingRootDirectory = AppSettingRootDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MakiMoki");
 				AppWorkDirectory = Directory.CreateDirectory(Path.Combine(AppSettingRootDirectory, "Work")).FullName;
 				AppCacheDirectory = Directory.CreateDirectory(Path.Combine(AppSettingRootDirectory, "Work", "Cache")).FullName;
-				UserRootDirectory = UserRootDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "MakiMoki");
+				UserRootDirectory = UserRootDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "MakiMoki");
 				var userConfig = default(string);
 				if(Directory.Exists(UserRootDirectory)) {
 					userConfig = Directory.CreateDirectory(Path.Combine(UserRootDirectory, "Config.d")).FullName;
