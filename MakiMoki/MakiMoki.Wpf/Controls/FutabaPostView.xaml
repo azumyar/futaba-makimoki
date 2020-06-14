@@ -140,11 +140,11 @@
                     <TextBox
                         Margin="0 4 0 4" Padding="1"
                         Visibility="{Binding PostNameVisibility.Value, Mode=OneWay}"
-                        Text="{Binding PostData.Value.Name.Value, Mode=TwoWay}"
+                        Text="{Binding PostData.Value.Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         local:PlaceHolderBehavior.PlaceHolderText="おなまえ" />
                     <TextBox 
                         Margin="0 4 0 4" Padding="1"
-                        Text="{Binding PostData.Value.Mail.Value, Mode=TwoWay}"
+                        Text="{Binding PostData.Value.Mail.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         local:PlaceHolderBehavior.PlaceHolderText="メールアドレス" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Height="32" Margin="4 0 0 0" Visibility="{Binding PostIdOptionVisibility.Value, Mode=OneWay}">
@@ -181,11 +181,11 @@
                     <TextBox
                         Margin="0 4 0 4" Padding="1"
                         Visibility="{Binding PostNameVisibility.Value, Mode=OneWay}"
-                        Text="{Binding PostData.Value.Subject.Value, Mode=TwoWay}"
+                        Text="{Binding PostData.Value.Subject.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         local:PlaceHolderBehavior.PlaceHolderText="題名" />
                     <TextBox
                         Margin="0 4 0 4" Padding="1"
-                        Text="{Binding PostData.Value.Password.Value, Mode=TwoWay}"
+                        Text="{Binding PostData.Value.Password.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         local:PlaceHolderBehavior.PlaceHolderText="パスワード" />
                 </StackPanel>
             </ScrollViewer>
