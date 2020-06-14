@@ -43,7 +43,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<RoutedEventArgs> OkButtonClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> CancelButtonClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
-		public ReactiveCommand<string> LinkClickCommand { get; } = new ReactiveCommand<string>();
+		public ReactiveCommand<Uri> LinkClickCommand { get; } = new ReactiveCommand<Uri>();
 
 
 		public ConfigWindowViewModel() {
@@ -127,9 +127,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				.Publish(new DialogCloseMessage());
 		}
 
-		private void OnLinkClick(string e) {
+		private void OnLinkClick(Uri e) {
 			try {
-				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(e));
+				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(e.AbsoluteUri));
 			}
 			catch(System.ComponentModel.Win32Exception) {
 				// 関連付け実行に失敗
