@@ -1,3 +1,3 @@
-# ふたば@MakiMoki(仮)
+# ふたマキ
 
 https://dev.yarukizero.net/
