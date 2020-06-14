@@ -88,7 +88,7 @@
                             </StackPanel>
 
                             <StackPanel Margin="0 8 0 8">
-                                <TextBlock>カタログNGワード(正規表現)</TextBlock>
+                                <TextBlock>スレッドNGワード(正規表現)</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文を含むレスコメントにこの正規表現がマッチする場合非表示にします。1行1正規表現として処理します。大文字小文字は区別されません。マルチラインモードで処理します。</TextBlock>
                                 <TextBox
                                     Width="320"
