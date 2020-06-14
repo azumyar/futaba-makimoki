@@ -11,6 +11,7 @@ using System.Windows.Navigation;
 using Prism.Mvvm;
 using Prism.Ioc;
 using Prism.Unity;
+using Newtonsoft.Json;
 
 namespace Yarukizero.Net.MakiMoki.Wpf {
 	/// <summary>
@@ -20,9 +21,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 		[System.Runtime.InteropServices.DllImport("kernel32.dll")]
 		private static extern bool SetDllDirectory(string lpPathName);
 
+		private static readonly string ExeConfig = "makimoki.exe.json";
+
 		public string AppSettingRootDirectory { get; private set; }
 		public string AppWorkDirectory { get; private set; }
 		public string AppCacheDirectory { get; private set; }
+		public string UserRootDirectory { get; private set; }
+		public string SystemDirectory { get; private set; }
 
 		public LibVLCSharp.Shared.LibVLC LibVLC { get; private set; }
 
@@ -34,16 +39,44 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			LibVLCSharp.Shared.Core.Initialize();
 			this.LibVLC = new LibVLCSharp.Shared.LibVLC();
 
-			AppSettingRootDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MakiMoki");
-			AppWorkDirectory = Directory.CreateDirectory(Path.Combine(AppSettingRootDirectory, "Work")).FullName;
-			AppCacheDirectory = Directory.CreateDirectory(Path.Combine(AppSettingRootDirectory, "Work", "Cache")).FullName;
-			var userRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "MakiMoki");
-			var userConfig = default(string);
-			if(Directory.Exists(userRoot)) {
-				userConfig = Directory.CreateDirectory(Path.Combine(userRoot, "Config.d")).FullName;
-			}
-
 			try {
+				SystemDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Config.d");
+				var exeConf = Path.Combine(SystemDirectory, ExeConfig);
+				if(File.Exists(exeConf)) {
+					Util.FileUtil.LoadConfigHelper(exeConf,
+						(json) => {
+							if (PlatformData.MakiMokiExeConfig.CurrentVersion != JsonConvert.DeserializeObject<Data.ConfigObject>(json).Version) {
+								throw new Exceptions.InitializeFailedException($"{ exeConf }のバージョンが不正です");
+							}
+							var conf = JsonConvert.DeserializeObject<PlatformData.MakiMokiExeConfig>(json);
+							string get(bool? enable, string exePath, string customPath) {
+								if(enable ?? false) {
+									if(customPath != null) {
+										if(!Directory.Exists(conf.CustomDataPathRoot)) {
+											throw new Exceptions.InitializeFailedException($"設定ディレクトリ{ customPath }が見つかりません");
+										}
+										return customPath;
+									}
+									return exePath;
+								}
+								return null;
+							}
+							var exeConfPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "SingleUser"); ;
+							AppSettingRootDirectory = get(conf.IsSingleUserData, exeConfPath, conf.CustomDataPathRoot);
+							UserRootDirectory = get(conf.IsSingleUserConfig, exeConfPath, conf.CustomConfigPathRoot);
+						},
+						(e, m) => throw new Exceptions.InitializeFailedException(m, e));
+				}
+
+				AppSettingRootDirectory = AppSettingRootDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MakiMoki");
+				AppWorkDirectory = Directory.CreateDirectory(Path.Combine(AppSettingRootDirectory, "Work")).FullName;
+				AppCacheDirectory = Directory.CreateDirectory(Path.Combine(AppSettingRootDirectory, "Work", "Cache")).FullName;
+				UserRootDirectory = UserRootDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "MakiMoki");
+				var userConfig = default(string);
+				if(Directory.Exists(UserRootDirectory)) {
+					userConfig = Directory.CreateDirectory(Path.Combine(UserRootDirectory, "Config.d")).FullName;
+				}
+
 				Config.ConfigLoader.Initialize(new Config.ConfigLoader.Setting() {
 					SystemDirectory = Path.Combine(
 						Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),

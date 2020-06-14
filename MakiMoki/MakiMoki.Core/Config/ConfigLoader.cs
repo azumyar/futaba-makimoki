@@ -144,21 +144,21 @@ namespace Yarukizero.Net.MakiMoki.Config {
 					string.Format(
 						"JSONファイルが不正な形式です{0}{0}{1}",
 						Environment.NewLine,
-						e.Message));
+						e.Message), e);
 			}
 			catch(JsonSerializationException e) {
 				throw new Exceptions.InitializeFailedException(
 					string.Format(
 						"JSONファイルが不正な形式です{0}{0}{1}",
 						Environment.NewLine,
-						e.Message));
+						e.Message), e);
 			}
 			catch(IOException e) {
 				throw new Exceptions.InitializeFailedException(
 					string.Format(
 						"ファイルの読み込みに失敗しました{0}{0}{1}",
 						Environment.NewLine,
-						e.Message));
+						e.Message), e);
 			}
 
 			var bordList = new List<Data.BordConfig>();

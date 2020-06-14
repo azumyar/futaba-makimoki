@@ -39,5 +39,35 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static T LoadJson<T>(string path) {
 			return JsonConvert.DeserializeObject<T>(LoadFileString(path));
 		}
+
+		public static void LoadConfigHelper(string configFile, Action<string> loadAction, Action<Exception, string> errorAction) {
+			System.Diagnostics.Debug.Assert(configFile != null);
+			System.Diagnostics.Debug.Assert(loadAction != null);
+			System.Diagnostics.Debug.Assert(errorAction != null);
+			try {
+				loadAction(LoadFileString(configFile));
+			}
+			catch(JsonReaderException e) {
+				errorAction(e, string.Format(
+					"JSONファイル[{1}]が不正な形式です{0}{0}{2}",
+					Environment.NewLine,
+					configFile,
+					e.Message));
+			}
+			catch(JsonSerializationException e) {
+				errorAction(e, string.Format(
+					"JSONファイル[{1}]が不正な形式です{0}{0}{2}",
+					Environment.NewLine,
+					configFile,
+					e.Message));
+			}
+			catch(IOException e) {
+				errorAction(e, string.Format(
+					"ファイル[{1}]の読み込みに失敗しました{0}{0}{2}",
+					Environment.NewLine,
+					configFile,
+					e.Message));
+			}
+		}
 	}
 }
