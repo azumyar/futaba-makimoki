@@ -153,9 +153,10 @@
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                     </Button>
-                                    <Button Width="32" Height="32" Margin="2" Content="設定" IsEnabled="False">
+                                    <Button Width="32" Height="32" Margin="2" Content="設定">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="Click">
+                                                <ri:EventToReactiveCommand Command="{Binding ConfigButtonClickCommand, Mode=OneWay}" />
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                     </Button>

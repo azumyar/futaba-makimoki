@@ -83,10 +83,14 @@
     <Compile Include="PlatformData\Config.cs" />
     <Compile Include="PlatformData\Event.cs" />
     <Compile Include="PlatformData\FutabaMedia.cs" />
+    <Compile Include="ViewModels\ConfigWindowViewModel.cs" />
     <Compile Include="ViewModels\FutabaPostViewViewModel.cs" />
     <Compile Include="ViewModels\FutabaMediaViewerViewModel.cs" />
     <Compile Include="ViewModels\FutabaThreadResViewerViewModel.cs" />
     <Compile Include="WinApi\Win32.cs" />
+    <Compile Include="Windows\ConfigWindow.xaml.cs">
+      <DependentUpon>ConfigWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="WpfUtil\ImageUtil.cs" />
     <Compile Include="WpfUtil\TextUtil.cs" />
     <Compile Include="WpfUtil\WpfHelper.cs" />
@@ -107,6 +111,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\FutabaThreadResViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\ConfigWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

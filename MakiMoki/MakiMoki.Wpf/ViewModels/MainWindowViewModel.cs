@@ -51,6 +51,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<MouseButtonEventArgs> BordListClickCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
 		public ReactiveCommand<BordConfig> BordOpenCommand { get; } = new ReactiveCommand<BordConfig>();
+		public ReactiveCommand<RoutedEventArgs> ConfigButtonClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
 		public ReactiveCommand<MouseButtonEventArgs> TabClickCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
 		public ReactiveCommand<MouseButtonEventArgs> TabCloseButtonCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
@@ -89,6 +90,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}).ToReactiveProperty();
 			this.TabVisibility = new ReactiveProperty<Visibility>(Visibility.Collapsed);
 			BordListClickCommand.Subscribe(x => OnBordListClick(x));
+			ConfigButtonClickCommand.Subscribe(x => OnConfigButtonClick(x));
 			BordOpenCommand.Subscribe(x => OnBordOpen(x));
 			TabClickCommand.Subscribe(x => OnTabClick(x));
 			TabCloseButtonCommand.Subscribe(x => OnTabClose(x));
@@ -128,6 +130,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					}
 				}
 			}
+		}
+
+		private void OnConfigButtonClick(RoutedEventArgs e) {
+			new Windows.ConfigWindow().ShowDialog();
 		}
 		
 		private void OnBordOpen(BordConfig bc) {

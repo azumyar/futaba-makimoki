@@ -1,0 +1,231 @@
+﻿<Window x:Class="Yarukizero.Net.MakiMoki.Wpf.Windows.ConfigWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.NET46"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows"
+        mc:Ignorable="d"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        Title="設定" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TabControl Grid.Row="0">
+            <TabItem Header="設定">
+                <Grid>
+                    <ScrollViewer
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Visible"
+                        >
+                        <StackPanel
+                            Margin="4"
+                            TextBlock.FontFamily="メイリオ"
+                            TextBlock.FontSize="14"
+                            >
+                            <TextBlock TextBlock.FontSize="18" TextBlock.FontWeight="Bold">コア設定</TextBlock>
+                            <StackPanel Margin="0 8 0 8">
+                                <TextBlock>スレッド取得</TextBlock>
+                                <ComboBox SelectedIndex="1" Width="320" IsEnabled="False" HorizontalAlignment="Left">
+                                    <ComboBoxItem>フル取得</ComboBoxItem>
+                                    <ComboBoxItem>差分取得</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <TextBlock TextBlock.FontSize="18" TextBlock.FontWeight="Bold" Margin="0 8 0 0">NG設定</TextBlock>
+                            <StackPanel Margin="0 8 0 8">
+                                <TextBlock>IDをNG</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">IDが出たレスをコメント文に関わらずNG扱いとします。ただしスレッドがid表示で立てられている場合この設定は無視されます。</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding NgConfigIdNg.Value, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <StackPanel Margin="0 8 0 8">
+                                <TextBlock>カタログNGワード</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文にこのワードが含まれる場合カタログから除外します。1行1ワードとして処理します。大文字小文字は区別されます。</TextBlock>
+                                <TextBox
+                                    Width="320"
+                                    Height="128"
+                                    AcceptsReturn="True"
+                                    HorizontalAlignment="Left"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Text="{Binding NgConfigCatalogNgWord.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    />
+                            </StackPanel>
+
+                            <StackPanel Margin="0 8 0 8">
+                                <TextBlock>カタログNGワード(正規表現)</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文にこの正規表現がマッチする場合カタログから除外します。1行1正規表現として処理します。大文字小文字は区別されません。マルチラインモードで処理します。</TextBlock>
+                                <TextBox
+                                    Width="320"
+                                    Height="128"
+                                    AcceptsReturn="True"
+                                    HorizontalAlignment="Left"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Text="{Binding NgConfigCatalogNgWordRegex.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
+                                    />
+                                <TextBlock Foreground="Red" Visibility="{Binding NgConfigCatalogNgWordRegexVisibility.Value, Mode=OneWay}">正規表現に問題があります</TextBlock>
+                            </StackPanel>
+
+                            <StackPanel Margin="0 8 0 8">
+                                <TextBlock>スレッドNGワード</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文を含むレスコメントにこのワードが含まれる場合非表示にします。1行1ワードとして処理します。大文字小文字は区別されます。</TextBlock>
+                                <TextBox
+                                    Width="320"
+                                    Height="128"
+                                    AcceptsReturn="True"
+                                    HorizontalAlignment="Left"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Text="{Binding NgConfigThreadNgWord.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    />
+                            </StackPanel>
+
+                            <StackPanel Margin="0 8 0 8">
+                                <TextBlock>カタログNGワード(正規表現)</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文を含むレスコメントにこの正規表現がマッチする場合非表示にします。1行1正規表現として処理します。大文字小文字は区別されません。マルチラインモードで処理します。</TextBlock>
+                                <TextBox
+                                    Width="320"
+                                    Height="128"
+                                    AcceptsReturn="True"
+                                    HorizontalAlignment="Left"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Text="{Binding NgConfigThreadNgWordRegex.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
+                                    />
+                                <TextBlock Foreground="Red" Visibility="{Binding NgConfigThreadNgWordRegexVisibility.Value, Mode=OneWay}">正規表現に問題があります</TextBlock>
+                            </StackPanel>
+
+                            <StackPanel Margin="0 8 0 8">
+                                <TextBlock>NG画像処理方法</TextBlock>
+                                <ComboBox SelectedIndex="{Binding NgConfigImageMethod.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>非表示</ComboBoxItem>
+                                    <ComboBoxItem>ダミー画像</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel Margin="0 8 0 8">
+                                <TextBlock>NG画像判定閾値</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">サムネイルのハッシュのハミング距離が設定された値以下の場合同一画像としてNG処理します。</TextBlock>
+                                <ComboBox SelectedIndex="{Binding NgConfigImageThreshold.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>0</ComboBoxItem>
+                                    <ComboBoxItem>1</ComboBoxItem>
+                                    <ComboBoxItem>2</ComboBoxItem>
+                                    <ComboBoxItem>3</ComboBoxItem>
+                                    <ComboBoxItem>4</ComboBoxItem>
+                                    <ComboBoxItem>5</ComboBoxItem>
+                                    <ComboBoxItem>6</ComboBoxItem>
+                                    <ComboBoxItem>7</ComboBoxItem>
+                                    <ComboBoxItem>8</ComboBoxItem>
+                                    <ComboBoxItem>9</ComboBoxItem>
+                                    <ComboBoxItem>10</ComboBoxItem>
+                                </ComboBox>
+
+                                <StackPanel Margin="0 8 0 8">
+                                    <TextBlock>非表示レス設定保存日数</TextBlock>
+                                    <TextBlock Foreground="Gray" TextWrapping="Wrap">非表示に設定したレスを記憶する期間(日)を指定します。削除処理は起動時に行われます。</TextBlock>
+                                    <TextBox Text="30" Width="320" HorizontalAlignment="Left" IsEnabled="False" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <TextBlock TextBlock.FontSize="18" TextBlock.FontWeight="Bold">画像設定</TextBlock>
+                            <StackPanel Margin="0 8 0 8">
+                                <TextBlock>クイック保存</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">保存先のディレクトリをフルパスで指定します。1行1ディレクトリして処理されます。</TextBlock>
+                                <TextBox
+                                    Width="320"
+                                    Height="128"
+                                    AcceptsReturn="True"
+                                    HorizontalAlignment="Left"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto"
+                                    IsEnabled="False"
+                                    />
+                            </StackPanel>
+                            <StackPanel Margin="0 8 0 8">
+                                <TextBlock>画像キャッシュ保存日数</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">キャッシュした画像/動画を保存する期間(日)を指定します。削除処理は起動時に行われます。</TextBlock>
+                                <TextBox Text="3" Width="320" HorizontalAlignment="Left" IsEnabled="False" />
+                            </StackPanel>
+
+                            <TextBlock TextBlock.FontSize="18" TextBlock.FontWeight="Bold">保存設定</TextBlock>
+                            <StackPanel Margin="0 8 0 8">
+                                <TextBlock>NGレス</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">出力HTMLにNGレスを含めるか設定します。</TextBlock>
+                                <ComboBox SelectedIndex="0" Width="320" IsEnabled="False" HorizontalAlignment="Left">
+                                    <ComboBoxItem>出力</ComboBoxItem>
+                                    <ComboBoxItem>マスク化</ComboBoxItem>
+                                    <ComboBoxItem>非表示</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Margin="0 8 0 8">
+                                <TextBlock>NG画像</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">出力HTMLにNG画像を含めるか設定します。</TextBlock>
+                                <ComboBox SelectedIndex="0" Width="320" IsEnabled="False" HorizontalAlignment="Left">
+                                    <ComboBoxItem>出力</ComboBoxItem>
+                                    <ComboBoxItem>ダミー画像</ComboBoxItem>
+                                    <ComboBoxItem>非表示</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <TextBlock TextBlock.FontSize="18" TextBlock.FontWeight="Bold">そのほか</TextBlock>
+                            <StackPanel Margin="0 8 0 8">
+                                <TextBlock>カタログ(Wrap表示)に動画マーカーを表示</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド画像が.mp4/.webmの場合サムネイルにマーカーを表示します。</TextBlock>
+                                <CheckBox Content="有効" IsChecked="True" IsEnabled="False" />
+                            </StackPanel>
+
+                            <StackPanel Margin="0 8 0 8">
+                                <TextBlock>自レス判定保存日数</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">自分が投稿したレスを記憶する期間(日)を指定します。削除処理は起動時に行われます。</TextBlock>
+                                <TextBox Text="30" Width="320" HorizontalAlignment="Left" IsEnabled="False" />
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="情報">
+                <Grid
+                    TextBlock.FontFamily="メイリオ"
+                    TextBlock.FontSize="14"
+                    >
+                    <StackPanel Margin="4">
+                        <TextBlock TextBlock.FontSize="18" TextBlock.FontWeight="Bold">ふたば@MakiMoki(仮)β</TextBlock>
+                        <TextBlock>
+                            <Hyperlink
+                                NavigateUri="https://dev.yarukizero.net/"
+                                Command="{Binding LinkClickCommand, Mode=OneWay}"
+                                CommandParameter="{Binding NavigateUri, RelativeSource={RelativeSource self}}">
+                                https://dev.yarukizero.net/
+                            </Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+            <Button Width="64" Height="32" Margin="4" Content="保存" IsEnabled="{Binding IsEnabledOkButton.Value, Mode=OneWay}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <ri:EventToReactiveCommand Command="{Binding OkButtonClickCommand, Mode=OneWay}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+            <Button Width="64" Height="32" Margin="4" Content="キャンセル">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <ri:EventToReactiveCommand Command="{Binding CancelButtonClickCommand, Mode=OneWay}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -44,13 +44,22 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgData {
 		[JsonProperty("ng-images", Required = Required.DisallowNull)]
 		public NgImageData[] Images { get; internal set; }
 
+		[JsonProperty("ng-method", Required = Required.DisallowNull)]
+		public ImageNgMethod NgMethod { get; internal set; }
+
 		internal static NgImageConfig CreateDefault() {
 			return new NgImageConfig() {
 				Version = CurrentVersion,
 				Threshold = DefaultThreshold,
 				Images = new NgImageData[0],
+				NgMethod = ImageNgMethod.DummyImage,
 			};
 		}
+	}
+
+	public enum ImageNgMethod {
+		Hidden,
+		DummyImage,
 	}
 
 	public class NgImageData : Data.JsonObject {

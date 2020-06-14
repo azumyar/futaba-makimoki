@@ -99,6 +99,14 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 
 		public static NgData.HiddenConfig HiddenConfig { get; private set; }
 
+		public static void UpdateIdNg(bool ng) {
+			if(NgConfig.EnableIdNg != ng) {
+				NgConfig.EnableIdNg = ng;
+				SaveConfig(NgConfigFile, NgConfig);
+				ngUpdateNotifyer = Notify(ngUpdateNotifyer, NgConfig);
+			}
+		}
+
 		public static void AddCatalogNgWord(string word) {
 			System.Diagnostics.Debug.Assert(word != null);
 			if(!string.IsNullOrWhiteSpace(word)) {
@@ -254,6 +262,22 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 			var c = NgImageConfig.Images.Length;
 			NgImageConfig.Images = NgImageConfig.Images.Where(x => x.Hash != data.Hash).ToArray();
 			if(c != NgImageConfig.Images.Length) {
+				SaveConfig(NgImageConfigFile, NgImageConfig);
+				imageUpdateNotifyer = Notify(imageUpdateNotifyer, NgImageConfig);
+			}
+		}
+
+		public static void UpdateNgImageMethod(ImageNgMethod m) {
+			if(NgImageConfig.NgMethod != m) {
+				NgImageConfig.NgMethod = m;
+				SaveConfig(NgImageConfigFile, NgImageConfig);
+				imageUpdateNotifyer = Notify(imageUpdateNotifyer, NgImageConfig);
+			}
+		}
+
+		public static void UpdateNgImageThreshold(int t) {
+			if(NgImageConfig.Threshold != t) {
+				NgImageConfig.Threshold = t;
 				SaveConfig(NgImageConfigFile, NgImageConfig);
 				imageUpdateNotifyer = Notify(imageUpdateNotifyer, NgImageConfig);
 			}

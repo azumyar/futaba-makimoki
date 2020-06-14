@@ -16,6 +16,7 @@ using System.Reactive.Disposables;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Concurrency;
 using Yarukizero.Net.MakiMoki.Data;
+using Yarukizero.Net.MakiMoki.Ng.NgData;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	public class BindableFutaba : INotifyPropertyChanged, IDisposable {
@@ -183,7 +184,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<object> UpdateToken { get; } = new ReactiveProperty<object>(DateTime.Now);
 
 
+		private Action<Ng.NgData.NgConfig> ngUpdateAction;
 		private Action<Ng.NgData.HiddenConfig> hiddenUpdateAction;
+		//private Action<Ng.NgData.NgImageConfig> imageUpdateAction;
 
 		public BindableFutaba(Data.FutabaContext futaba, BindableFutaba old = null) {
 			OpenedThreads = Util.Futaba.Threads.Select(x => x.Where(y => y.Url.BaseUrl == futaba.Url.BaseUrl).ToArray()).ToReactiveProperty();
@@ -191,9 +194,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			FullScreenVisibility = CatalogListMode.Select(x => futaba.Url.IsCatalogUrl ? (x ? Visibility.Hidden : Visibility.Visible) :  Visibility.Hidden).ToReactiveProperty();
 			FullScreenSpan = IsFullScreenMode.Select(x => x ? 3 : 1).ToReactiveProperty();
 			FullScreenVisibility = IsFullScreenMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
-			hiddenUpdateAction = (_) => {
-				UpdateToken.Value = DateTime.Now;
-			};
+			ngUpdateAction = (_) => UpdateToken.Value = DateTime.Now;
+			hiddenUpdateAction = (_) => UpdateToken.Value = DateTime.Now;
+			Ng.NgConfig.NgConfigLoder.AddNgUpdateNotifyer(ngUpdateAction);
 			Ng.NgConfig.NgConfigLoder.AddHiddenUpdateNotifyer(hiddenUpdateAction);
 			if(old != null) {
 				FilterText.Value = old.FilterText.Value;
@@ -700,7 +703,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 							if(h.HasValue && Ng.NgConfig.NgConfigLoder.NgImageConfig.Images.Any(
 								y => Ng.NgUtil.PerceptualHash.GetHammingDistance(h.Value, y) <= Ng.NgConfig.NgConfigLoder.NgImageConfig.Threshold)) {
 
-								ThumbSource.Value = WpfUtil.ImageUtil.GetNgImage();
+								ThumbSource.Value = (Ng.NgConfig.NgConfigLoder.NgImageConfig.NgMethod == ImageNgMethod.Hidden)
+									? null : WpfUtil.ImageUtil.GetNgImage();
 							} else {
 								ThumbSource.Value = x;
 							}
@@ -747,9 +751,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					x => Ng.NgUtil.PerceptualHash.GetHammingDistance(ThumbHash.Value.Value, x) <= Ng.NgConfig.NgConfigLoder.NgImageConfig.Threshold)) {
 
 					// NG画像
-					if(object.ReferenceEquals(ThumbSource.Value, OriginSource.Value)) {
-						ThumbSource.Value = WpfUtil.ImageUtil.GetNgImage();
-					}
+					ThumbSource.Value = (Ng.NgConfig.NgConfigLoder.NgImageConfig.NgMethod == ImageNgMethod.Hidden) 
+						? null :  WpfUtil.ImageUtil.GetNgImage();
 				} else {
 					ThumbSource.Value = OriginSource.Value;
 				}
