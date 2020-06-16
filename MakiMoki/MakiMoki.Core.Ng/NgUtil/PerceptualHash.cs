@@ -181,7 +181,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 			}
 		}
 
-		static Random rnd = new Random();
+		//static Random rnd = new Random();
 
 		public static ulong CalculateHash(byte[] image, int width, int height, int bit) {
 			int size = 32;
