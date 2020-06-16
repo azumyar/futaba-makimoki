@@ -36,7 +36,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgData {
 
 	public class NgImageConfig : Data.ConfigObject {
 		public static readonly int CurrentVersion = -1;
-		private static readonly int DefaultThreshold = 2;
+		private static readonly int DefaultThreshold = 5;
 
 		[JsonProperty("ng-hamming-threshold-value", Required = Required.DisallowNull)]
 		public int Threshold { get; internal set; }

@@ -173,10 +173,11 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 		}
 
 		private static double Median(double[] d) {
-			if(d.Length % 2 == 0) {
-				return (d[d.Length / 2] + d[d.Length / 2 + 1]) / 2;
+			var d2 = d.OrderBy(x => x).ToArray();
+			if(d2.Length % 2 == 0) {
+				return (d2[d2.Length / 2] + d2[d2.Length / 2 + 1]) / 2;
 			} else {
-				return d[d.Length / 2];
+				return d2[d2.Length / 2];
 			}
 		}
 
