@@ -344,5 +344,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			return Ng.NgUtil.PerceptualHash.CalculateHash(bytes, bitmapImage.PixelWidth, bitmapImage.PixelHeight, 8);
 #endif
 		}
+
+		public static void SaveJpeg(string path, int quality) {
+			var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders()
+				.Where(x => x.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid)
+				.FirstOrDefault();
+			if(jpegEncoder != null) {
+				var encParam = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, quality);
+				var encParams = new System.Drawing.Imaging.EncoderParameters(1);
+				encParams.Param[0] = encParam;
+				//image.Save(path, jpegEncoder, encParams);
+			}
+		}
 	}
 }

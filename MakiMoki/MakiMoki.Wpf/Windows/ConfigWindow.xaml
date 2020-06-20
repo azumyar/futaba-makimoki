@@ -11,6 +11,16 @@
         mc:Ignorable="d"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Title="設定" Height="450" Width="800">
+    <Window.Resources>
+        <Style x:Key="ConfigHeaderText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
+        <Style x:Key="ConfigContents" TargetType="StackPanel">
+            <Setter Property="Margin" Value="0 8 0 8" />
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -28,8 +38,8 @@
                             TextBlock.FontFamily="メイリオ"
                             TextBlock.FontSize="14"
                             >
-                            <TextBlock TextBlock.FontSize="18" TextBlock.FontWeight="Bold">コア設定</TextBlock>
-                            <StackPanel Margin="0 8 0 8">
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">コア設定</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>スレッド取得</TextBlock>
                                 <ComboBox SelectedIndex="1" Width="320" IsEnabled="False" HorizontalAlignment="Left">
                                     <ComboBoxItem>フル取得</ComboBoxItem>
@@ -37,14 +47,14 @@
                                 </ComboBox>
                             </StackPanel>
 
-                            <TextBlock TextBlock.FontSize="18" TextBlock.FontWeight="Bold" Margin="0 8 0 0">NG設定</TextBlock>
-                            <StackPanel Margin="0 8 0 8">
+                            <TextBlock Style="{StaticResource ConfigHeaderText}" Margin="0 8 0 0">NG設定</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>IDをNG</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">IDが出たレスをコメント文に関わらずNG扱いとします。ただしスレッドがid表示で立てられている場合この設定は無視されます。</TextBlock>
                                 <CheckBox Content="有効" IsChecked="{Binding NgConfigIdNg.Value, Mode=TwoWay}" />
                             </StackPanel>
 
-                            <StackPanel Margin="0 8 0 8">
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>カタログNGワード</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文にこのワードが含まれる場合カタログから除外します。1行1ワードとして処理します。大文字小文字は区別されます。</TextBlock>
                                 <TextBox
@@ -58,7 +68,7 @@
                                     />
                             </StackPanel>
 
-                            <StackPanel Margin="0 8 0 8">
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>カタログNGワード(正規表現)</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文にこの正規表現がマッチする場合カタログから除外します。1行1正規表現として処理します。大文字小文字は区別されません。マルチラインモードで処理します。</TextBlock>
                                 <TextBox
@@ -73,7 +83,7 @@
                                 <TextBlock Foreground="Red" Visibility="{Binding NgConfigCatalogNgWordRegexVisibility.Value, Mode=OneWay}">正規表現に問題があります</TextBlock>
                             </StackPanel>
 
-                            <StackPanel Margin="0 8 0 8">
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>スレッドNGワード</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文を含むレスコメントにこのワードが含まれる場合非表示にします。1行1ワードとして処理します。大文字小文字は区別されます。</TextBlock>
                                 <TextBox
@@ -87,7 +97,7 @@
                                     />
                             </StackPanel>
 
-                            <StackPanel Margin="0 8 0 8">
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>スレッドNGワード(正規表現)</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文を含むレスコメントにこの正規表現がマッチする場合非表示にします。1行1正規表現として処理します。大文字小文字は区別されません。マルチラインモードで処理します。</TextBlock>
                                 <TextBox
@@ -102,7 +112,7 @@
                                 <TextBlock Foreground="Red" Visibility="{Binding NgConfigThreadNgWordRegexVisibility.Value, Mode=OneWay}">正規表現に問題があります</TextBlock>
                             </StackPanel>
 
-                            <StackPanel Margin="0 8 0 8">
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>NG画像処理方法</TextBlock>
                                 <ComboBox SelectedIndex="{Binding NgConfigImageMethod.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
                                     <ComboBoxItem>非表示</ComboBoxItem>
@@ -110,7 +120,7 @@
                                 </ComboBox>
                             </StackPanel>
 
-                            <StackPanel Margin="0 8 0 8">
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>NG画像判定閾値</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">サムネイルのハッシュのハミング距離が設定された値以下の場合同一画像としてNG処理します。</TextBlock>
                                 <ComboBox SelectedIndex="{Binding NgConfigImageThreshold.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
@@ -134,8 +144,8 @@
                                 </StackPanel>
                             </StackPanel>
 
-                            <TextBlock TextBlock.FontSize="18" TextBlock.FontWeight="Bold">画像設定</TextBlock>
-                            <StackPanel Margin="0 8 0 8">
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">画像設定</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>クイック保存</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">保存先のディレクトリをフルパスで指定します。1行1ディレクトリして処理されます。</TextBlock>
                                 <TextBox
@@ -148,14 +158,14 @@
                                     IsEnabled="False"
                                     />
                             </StackPanel>
-                            <StackPanel Margin="0 8 0 8">
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>画像キャッシュ保存日数</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">キャッシュした画像/動画を保存する期間(日)を指定します。削除処理は起動時に行われます。</TextBlock>
                                 <TextBox Text="3" Width="320" HorizontalAlignment="Left" IsEnabled="False" />
                             </StackPanel>
 
-                            <TextBlock TextBlock.FontSize="18" TextBlock.FontWeight="Bold">保存設定</TextBlock>
-                            <StackPanel Margin="0 8 0 8">
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">保存設定</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>NGレス</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">出力HTMLにNGレスを含めるか設定します。</TextBlock>
                                 <ComboBox SelectedIndex="0" Width="320" IsEnabled="False" HorizontalAlignment="Left">
@@ -164,7 +174,7 @@
                                     <ComboBoxItem>非表示</ComboBoxItem>
                                 </ComboBox>
                             </StackPanel>
-                            <StackPanel Margin="0 8 0 8">
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>NG画像</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">出力HTMLにNG画像を含めるか設定します。</TextBlock>
                                 <ComboBox SelectedIndex="0" Width="320" IsEnabled="False" HorizontalAlignment="Left">
@@ -174,17 +184,56 @@
                                 </ComboBox>
                             </StackPanel>
 
-                            <TextBlock TextBlock.FontSize="18" TextBlock.FontWeight="Bold">そのほか</TextBlock>
-                            <StackPanel Margin="0 8 0 8">
-                                <TextBlock>カタログ(Wrap表示)に動画マーカーを表示</TextBlock>
-                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド画像が.mp4/.webmの場合サムネイルにマーカーを表示します。</TextBlock>
-                                <CheckBox Content="有効" IsChecked="True" IsEnabled="False" />
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">そのほか</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}" IsEnabled="False">
+                                <TextBlock>Webブラウザ</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">http/httpsのリンクを開くブラウザのexeファイルを指定します。何も設定されていない場合Windowsに関連付けられているブラウザが起動します。</TextBlock>
+                                <TextBox Text="" Width="320" HorizontalAlignment="Left" />
                             </StackPanel>
 
-                            <StackPanel Margin="0 8 0 8">
+                            <StackPanel Style="{StaticResource ConfigContents}" IsEnabled="False">
                                 <TextBlock>自レス判定保存日数</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">自分が投稿したレスを記憶する期間(日)を指定します。削除処理は起動時に行われます。</TextBlock>
-                                <TextBox Text="30" Width="320" HorizontalAlignment="Left" IsEnabled="False" />
+                                <TextBox Text="30" Width="320" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="画面" Visibility="Collapsed">
+                <Grid>
+                    <ScrollViewer
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Visible"
+                        >
+                        <StackPanel
+                            Margin="4"
+                            TextBlock.FontFamily="メイリオ"
+                            TextBlock.FontSize="14"
+                            >
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">カタログ</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>カタログ(Wrap表示)に動画マーカーを表示</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド画像が.mp4/.webmの場合サムネイルにマーカーを表示します。</TextBlock>
+                                <CheckBox Content="有効" IsChecked="True" />
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">スレッド</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>削除されたレス</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッドを建てた人に削除されたレスとユーザが隔離したレスの初期表示を設定します。</TextBlock>
+                                <ComboBox SelectedIndex="0" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>表示</ComboBoxItem>
+                                    <ComboBoxItem>隠す</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">投稿画面</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>クリップボードビットマップの品質</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">クリップボードからビットマップ画像を投稿した場合のJPEG保存品質を設定します。(0-100)</TextBlock>
+                                <TextBox Text="80" Width="320" HorizontalAlignment="Left" />
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
@@ -197,7 +246,7 @@
                     TextBlock.FontSize="14"
                     >
                     <StackPanel Margin="4">
-                        <TextBlock TextBlock.FontSize="18" TextBlock.FontWeight="Bold">ふたば@MakiMoki(仮)β</TextBlock>
+                        <TextBlock TextBlock.FontSize="18" TextBlock.FontWeight="Bold">ふたマキ</TextBlock>
                         <TextBlock>
                             <Hyperlink
                                 NavigateUri="https://dev.yarukizero.net/"
