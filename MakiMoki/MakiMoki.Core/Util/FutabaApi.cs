@@ -313,7 +313,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				var r = new RestRequest(FutabaEndPoint, Method.POST);
 				r.AddHeader("Content-Type", "multipart/form-data");
 				//r.AddHeader("origin", "https://img.2chan.net");
-				//r.AddHeader("referer", string.Format("{0}res/{1}.htm", baseUrl, threadNo));
+				r.AddHeader("referer", string.Format("{0}res/{1}.htm", bord.Url, threadNo));
 				r.AddParameter("guid", "on", ParameterType.QueryString);
 
 				r.AlwaysMultipartFormData = true;
