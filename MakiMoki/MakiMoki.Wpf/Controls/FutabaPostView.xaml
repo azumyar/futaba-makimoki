@@ -22,6 +22,33 @@
         <SolidColorBrush x:Key="PrimaryColorBrush" Color="#4FC3F7" />
         <SolidColorBrush x:Key="PrimaryDarkColorBrush" Color="#03A9F4" />
     </UserControl.Resources>
+    <UserControl.InputBindings>
+        <KeyBinding
+            Gesture="Ctrl+Enter"
+            Command="{Binding KeyBindingPostCommand, Mode=OneWay}"
+            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+P"
+            Command="{Binding KeyBindingOpenImageCommand, Mode=OneWay}"
+            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+L"
+            Command="{Binding KeyBindingOpenUploadCommand, Mode=OneWay}"
+            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+D"
+            Command="{Binding KeyBindingDeleteCommand, Mode=OneWay}"
+            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
+            />
+        <KeyBinding
+            Gesture="Esc"
+            Command="{Binding KeyBindingCloseCommand, Mode=OneWay}"
+            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
+            />
+    </UserControl.InputBindings>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="ContentsChanged">
             <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />

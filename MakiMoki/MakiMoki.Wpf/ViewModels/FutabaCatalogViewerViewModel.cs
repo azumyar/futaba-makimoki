@@ -59,6 +59,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<Model.BindableFutabaResItem> CatalogMenuItemThreadHiddenCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> CatalogMenuItemNgImageCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 
+
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingUpdateCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingSearchCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingSortCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingModeCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new ReactiveCommand<BindableFutaba>();
+
 		private bool isCatalogItemClicking = false;
 
 		public FutabaCatalogViewerViewModel() {
@@ -76,6 +83,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			CatalogMenuItemDelClickCommand.Subscribe(x => OnCatalogMenuItemDelClickCommand(x));
 			CatalogMenuItemThreadHiddenCommand.Subscribe(x => OnCatalogMenuItemThreadHidden(x));
 			CatalogMenuItemNgImageCommand.Subscribe(x => OnCatalogMenuItemNgImage(x));
+
+			KeyBindingUpdateCommand.Subscribe(x => UpdateCatalog(x));
+			//KeyBindingSearchCommand.Subscribe(x => x);
+			//KeyBindingSortCommand.Subscribe(x => x);
+			KeyBindingModeCommand.Subscribe(x => UpdateCatalogListWrap(x));
+			KeyBindingPostCommand.Subscribe(x => OnPostClick(x));
 		}
 
 		public void Dispose() {
@@ -93,6 +106,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				});
 		}
 
+		private void UpdateCatalogListWrap(BindableFutaba bf) {
+			bf.CatalogListMode.Value = !bf.CatalogListMode.Value;
+		}
+
 		private void OnCatalogUpdateClick(RoutedEventArgs e) {
 			if((e.Source is FrameworkElement el) && (el.DataContext is BindableFutaba bf)) {
 				this.UpdateCatalog(bf);
@@ -101,7 +118,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnCatalogListWrapClick(RoutedEventArgs e) {
 			if(e.Source is FrameworkElement el && el.DataContext is BindableFutaba bf) {
-				bf.CatalogListMode.Value = !bf.CatalogListMode.Value;
+				this.UpdateCatalogListWrap(bf);
 			}
 		}
 

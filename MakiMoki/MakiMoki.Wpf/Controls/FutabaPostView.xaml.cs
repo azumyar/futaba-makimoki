@@ -51,7 +51,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			InitializeComponent();
 
 			ViewModels.FutabaPostViewViewModel.Messenger.Instance
-				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.PostEndedMessage>>()
+				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.PostCloseMessage>>()
 				.Subscribe(x => {
 					if(x.Url == this.Contents?.Url) {
 						this.Visibility = Visibility.Hidden;

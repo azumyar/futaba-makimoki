@@ -77,6 +77,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxCopyCommand { get; } = new ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)>();
 		public ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxGoogleCommand { get; } = new ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)>();
 
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingUpdateCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingSearchCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingCloseCommand { get; } = new ReactiveCommand<BindableFutaba>();
+
+
+
 		private bool isThreadImageClicking = false;
 
 		public FutabaThreadResViewerViewModel() {
@@ -106,10 +113,23 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			CopyTextboxNgCommand.Subscribe(x => OnCopyTextboxNg(x));
 			CopyTextboxCopyCommand.Subscribe(x => OnCopyTextboxCopy(x));
 			CopyTextboxGoogleCommand.Subscribe(x => OnCopyTextboxGoogle(x));
+
+			KeyBindingUpdateCommand.Subscribe(x => UpdateThread(x));
+			//KeyBindingSearchCommand.Subscribe(x => x);
+			KeyBindingPostCommand.Subscribe(x => UpdatePost(x));
+			//KeyBindingCloseCommand.Subscribe(x => x);
 		}
 
 		public void Dispose() {
 			Disposable.Dispose();
+		}
+
+		private void UpdateThread(Model.BindableFutaba x) {
+			Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe();
+		}
+
+		private void UpdatePost(Model.BindableFutaba x) {
+			this.PostViewVisibility.Value = (this.PostViewVisibility.Value == Visibility.Hidden) ? Visibility.Visible : Visibility.Hidden;
 		}
 
 		private void OnImageClick(RoutedEventArgs e) {
@@ -205,7 +225,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnThreadUpdateClick(RoutedEventArgs e) {
 			if(e.Source is FrameworkElement el) {
 				if(el.DataContext is BindableFutaba x) {
-					Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe();
+					UpdateThread(x);
 				} else if(el.DataContext is Model.BindableFutabaResItem y) {
 					Util.Futaba.UpdateThreadRes(y.Bord.Value, y.Parent.Value.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe();
 				}
@@ -214,7 +234,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnPostClick(Model.BindableFutaba x) {
 			if(x != null) {
-				this.PostViewVisibility.Value = (this.PostViewVisibility.Value == Visibility.Hidden) ? Visibility.Visible : Visibility.Hidden;
+				UpdatePost(x);
 			}
 		}
 

@@ -17,7 +17,7 @@
         mc:Ignorable="d"
         prism:ViewModelLocator.AutoWireViewModel="True"
         d:DesignHeight="450" d:DesignWidth="800"
-        Title="ふたば@MakiMoki(仮)">
+        Title="ふたマキ">
     <Window.Resources>
         <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
         <converter:TabItemWidthConverter x:Key="TabItemWidthConverter"/>
@@ -554,6 +554,75 @@
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         </Style>
     </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding
+            Gesture="Ctrl+U"
+            Command="{Binding KeyBindingCurrentThreadTabUpdateCommand, Mode=OneWay}"
+            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+F"
+            Command="{Binding KeyBindingCurrentThreadTabSearchCommand, Mode=OneWay}"
+            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+Enter"
+            Command="{Binding KeyBindingCurrentThreadTabPostCommand, Mode=OneWay}"
+            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+Alt+U"
+            Command="{Binding KeyBindingCurrentCatalogTabUpdateCommand, Mode=OneWay}"
+            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+Alt+F"
+            Command="{Binding KeyBindingCurrentCatalogTabSearchCommand, Mode=OneWay}"
+            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+Alt+S"
+            Command="{Binding KeyBindingCurrentCatalogTabSortCommand, Mode=OneWay}"
+            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+Alt+M"
+            Command="{Binding KeyBindingCurrentCatalogTabModeCommand, Mode=OneWay}"
+            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+Alt+Enter"
+            Command="{Binding KeyBindingCurrentCatalogTabPostCommand, Mode=OneWay}"
+            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
+            />        
+        
+        
+        <KeyBinding
+            Gesture="F5"
+            Command="{Binding KeyBindingCurrentThreadTabUpdateCommand, Mode=OneWay}"
+            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+F5"
+            Command="{Binding KeyBindingCurrentThreadTabUpdateCommand, Mode=OneWay}"
+            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+Alt+F5"
+            Command="{Binding KeyBindingCurrentCatalogTabUpdateCommand, Mode=OneWay}"
+            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+W"
+            Command="{Binding KeyBindingCurrentThreadTabCloseCommand, Mode=OneWay}"
+            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+F4"
+            Command="{Binding KeyBindingCurrentThreadTabCloseCommand, Mode=OneWay}"
+            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
+            />
+    </Window.InputBindings>
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static SystemCommands.MinimizeWindowCommand}" CanExecute="SystemCommandsCanExecute" Executed="CommandBindingMinimizeWindowCommand" />
         <CommandBinding Command="{x:Static SystemCommands.RestoreWindowCommand}" CanExecute="SystemCommandsCanExecute" Executed="CommandBindingRestoreWindowCommand" />
@@ -829,8 +898,16 @@
                                                     Command="{Binding Tag.ThreadCloseCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                     CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
                                                 <MenuItem
+                                                    Header="全てのタブを閉じる"
+                                                    Command="{Binding Tag.ThreadCloseAllCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                    CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
+                                                <MenuItem
                                                     Header="他のタブをすべて閉じる"
                                                     Command="{Binding Tag.ThreadCloseOtherCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                    CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
+                                                <MenuItem
+                                                    Header="落ちたタブを閉じる"
+                                                    Command="{Binding Tag.ThreadCloseDieCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                     CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
                                                 <MenuItem
                                                     Header="右のタブを閉じる"

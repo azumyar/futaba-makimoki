@@ -26,10 +26,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		internal class Messenger : EventAggregator {
 			public static Messenger Instance { get; } = new Messenger();
 		}
-		internal class PostEndedMessage {
+		internal class PostCloseMessage {
 			public UrlContext Url { get; }
 
-			public PostEndedMessage(UrlContext url) {
+			public PostCloseMessage(UrlContext url) {
 				this.Url = url;
 			}
 		}
@@ -57,7 +57,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
 
-		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>> ContentsChangedCommand { get; } 
+		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>> ContentsChangedCommand { get; }
 			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>>();
 
 		public ReactiveCommand<DragEventArgs> ImageDragOverCommand { get; } = new ReactiveCommand<DragEventArgs>();
@@ -69,6 +69,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<RoutedEventArgs> PostViewPostCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
 
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingOpenImageCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingOpenUploadCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingDeleteCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingCloseCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+
+
 		public FutabaPostViewViewModel() {
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
 
@@ -78,10 +85,45 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			UploadDragOverpCommand.Subscribe(x => OnUploadDragOver(x));
 			UploadDroppCommand.Subscribe(x => OnUploadDrop(x));
 			PostViewPostCommand.Subscribe(x => OnPostViewPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
+
+			KeyBindingPostCommand.Subscribe(x => OnKeyBindingPost(x));
+			KeyBindingOpenImageCommand.Subscribe(x => OnKeyBindingOpenImage(x));
+			KeyBindingOpenUploadCommand.Subscribe(x => OnKeyBindingOpenUpload(x));
+			KeyBindingDeleteCommand.Subscribe(x => OnKeyBindingDelete(x));
+			KeyBindingCloseCommand.Subscribe(x => OnKeyBindingClose(x));
 		}
 
 		public void Dispose() {
 			Disposable.Dispose();
+		}
+
+		private async Task OpenUpload(Model.BindableFutaba f) {
+			try {
+				Application.Current.MainWindow.IsEnabled = false;
+				var ext = Config.ConfigLoader.Mime.Types.Select(x => x.Ext);
+				var ofd = new Microsoft.Win32.OpenFileDialog() {
+					Filter = "ふたば画像ファイル|"
+						+ string.Join(";", ext.Select(x => "*" + x).ToArray())
+						+ "|すべてのファイル|*.*"
+				};
+				if(ofd.ShowDialog() ?? false) {
+					Util.Futaba.UploadUp2(ofd.FileName, f.PostData.Value.Password.Value)
+						.Subscribe(x => {
+							if(x.Successed) {
+								Messenger.Instance.GetEvent<PubSubEvent<AppendTextMessage>>()
+									.Publish(new AppendTextMessage(f.Url, x.FileNameOrMessage));
+							} else {
+								MessageBox.Show(x.FileNameOrMessage);
+							}
+						});
+					// ダイアログをダブルクリックで選択するとウィンドウに当たり判定がいくので
+					// 一度待つ
+					await Task.Delay(1);
+				}
+			}
+			finally {
+				Application.Current.MainWindow.IsEnabled = true;
+			}
 		}
 
 		private void OnContentsChanged(RoutedPropertyChangedEventArgs<Model.BindableFutaba> e) { }
@@ -111,36 +153,32 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				if((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
 					switch(e.ChangedButton) {
 					case MouseButton.Left:
-						try {
-							Application.Current.MainWindow.IsEnabled = false;
-							var ext = Config.ConfigLoader.Mime.Types.Select(x => x.Ext);
-							var ofd = new Microsoft.Win32.OpenFileDialog() {
-								Filter = "ふたば画像ファイル|"
-									+ string.Join(";", ext.Select(x => "*" + x).ToArray())
-									+ "|すべてのファイル|*.*"
-							};
-							e.Handled = true;
-							if(ofd.ShowDialog() ?? false) {
-								Util.Futaba.UploadUp2(ofd.FileName, f.PostData.Value.Password.Value)
-									.Subscribe(x => {
-										if(x.Successed) {
-											Messenger.Instance.GetEvent<PubSubEvent<AppendTextMessage>>()
-												.Publish(new AppendTextMessage(f.Url, x.FileNameOrMessage));
-										} else {
-											MessageBox.Show(x.FileNameOrMessage);
-										}
-									});
-								// ダイアログをダブルクリックで選択するとウィンドウに当たり判定がいくので
-								// 一度待つ
-								await Task.Delay(1);
-							}
-						}
-						finally {
-							Application.Current.MainWindow.IsEnabled = true;
-						}
+						e.Handled = true;
+						await OpenUpload(f);
 						break;
 					}
 				}
+			}
+		}
+
+		private async Task OpenImage(Model.BindableFutaba f) {
+			try {
+				Application.Current.MainWindow.IsEnabled = false;
+				var ext = Config.ConfigLoader.Mime.Types.Select(x => x.Ext);
+				var ofd = new Microsoft.Win32.OpenFileDialog() {
+					Filter = "ふたば画像ファイル|"
+						+ string.Join(";", ext.Select(x => "*" + x).ToArray())
+						+ "|すべてのファイル|*.*"
+				};
+				if(ofd.ShowDialog() ?? false) {
+					f.PostData.Value.ImagePath.Value = ofd.FileName;
+					// ダイアログをダブルクリックで選択するとウィンドウに当たり判定がいくので
+					// 一度待つ
+					await Task.Delay(1);
+				}
+			}
+			finally {
+				Application.Current.MainWindow.IsEnabled = true;
 			}
 		}
 
@@ -182,6 +220,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnPostViewPostClick(Model.BindableFutaba x) {
 			if(x != null) {
+				if(!x.PostData.Value.PostButtonCommand.CanExecute()) {
+					return;
+				}
+
 				if(x.Url.IsCatalogUrl) {
 					Util.Futaba.PostThread(x.Raw.Bord,
 						x.PostData.Value.Name.Value,
@@ -193,7 +235,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(y => {
 						if(y.Successed) {
-							Messenger.Instance.GetEvent<PubSubEvent<PostEndedMessage>>().Publish(new PostEndedMessage(x.Url));
+							Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(x.Url));
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
 							Task.Run(async () => {
 								await Task.Delay(1000); // すぐにスレが作られないので1秒くらい待つ
@@ -230,7 +272,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 								// TODO: cに板のデフォルトテキストを
 							}
 							*/
-							Messenger.Instance.GetEvent<PubSubEvent<PostEndedMessage>>().Publish(new PostEndedMessage(x.Url));
+							Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(x.Url));
 							x.PostData.Value = new Model.BindableFutaba.PostHolder();
 							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
 								.ObserveOn(UIDispatcherScheduler.Default)
@@ -289,6 +331,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					});
 				}
 			}
+		}
+
+		private void OnKeyBindingPost(Model.BindableFutaba f) {
+			this.OnPostViewPostClick(f);
+		}
+
+		private async void OnKeyBindingOpenImage(Model.BindableFutaba f) {
+			await this.OpenImage(f);
+		}
+
+		private async void OnKeyBindingOpenUpload(Model.BindableFutaba f) {
+			await this.OpenUpload(f);
+		}
+
+		private async void OnKeyBindingDelete(Model.BindableFutaba f) {
+			f.PostData.Value = new BindableFutaba.PostHolder();
+		}
+
+		private void OnKeyBindingClose(Model.BindableFutaba f) {
+			Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(f.Url));
 		}
 	}
 }
