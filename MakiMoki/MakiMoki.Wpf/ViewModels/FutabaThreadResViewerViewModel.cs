@@ -65,6 +65,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<BindableFutaba> MenuItemFullUpdateClickCommand { get; } = new ReactiveCommand<BindableFutaba>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemCopyClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemReplyClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemReplyResNoClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
+		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemReplyImageNameoClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemSoudaneClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemDelClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemDeleteClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
@@ -102,6 +104,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			MenuItemFullUpdateClickCommand.Subscribe(x => OnMenuItemFullUpdateClick(x));
 			MenuItemCopyClickCommand.Subscribe(x => OnMenuItemCopyClickCommand(x));
 			MenuItemReplyClickCommand.Subscribe(x => OnMenuItemReplyClickCommand(x));
+			MenuItemReplyResNoClickCommand.Subscribe(x => OnMenuItemReplyResNoClick(x));
+			MenuItemReplyImageNameoClickCommand.Subscribe(x => OnMenuItemReplyImageNameoClick(x));
 			MenuItemSoudaneClickCommand.Subscribe(x => OnMenuItemSoudaneClickCommand(x));
 			MenuItemDelClickCommand.Subscribe(x => OnMenuItemDelClickCommand(x));
 			MenuItemDeleteClickCommand.Subscribe(x => OnMenuItemDeleteClickCommand(x));
@@ -293,6 +297,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.Publish(new FutabaPostViewViewModel.ReplaceTextMessage(ri.Parent.Value.Url, sb.ToString()));
 				this.PostViewVisibility.Value = Visibility.Visible;
 			}
+		}
+
+		private void OnMenuItemReplyResNoClick(Model.BindableFutabaResItem item) {
+			FutabaPostViewViewModel.Messenger.Instance.GetEvent<PubSubEvent<FutabaPostViewViewModel.AppendTextMessage>>()
+				.Publish(new FutabaPostViewViewModel.AppendTextMessage(item.Parent.Value.Url, $">No.{ item.Raw.Value.ResItem.No }"));
+			this.PostViewVisibility.Value = Visibility.Visible;
+		}
+
+		private void OnMenuItemReplyImageNameoClick(Model.BindableFutabaResItem item) {
+			FutabaPostViewViewModel.Messenger.Instance.GetEvent<PubSubEvent<FutabaPostViewViewModel.AppendTextMessage>>()
+				.Publish(new FutabaPostViewViewModel.AppendTextMessage(item.Parent.Value.Url, $">{ item.ImageName.Value }"));
+			this.PostViewVisibility.Value = Visibility.Visible;
 		}
 
 		private void OnMenuItemSoudaneClickCommand(RoutedEventArgs e) {

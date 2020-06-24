@@ -419,7 +419,7 @@
                                         DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
                                         Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                         <!-- Interaction.Triggers使えない？ -->
-                                        <MenuItem Header="返信" Click="OnMenuItemReplyClickCommand" IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}">
+                                        <MenuItem Header="引用" IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}">
                                             <!--
                                                 <i:Interaction.Triggers>
                                                     <i:EventTrigger EventName="Click">
@@ -427,6 +427,21 @@
                                                     </i:EventTrigger>
                                                 </i:Interaction.Triggers>
                                                 -->
+                                            <MenuItem
+                                                Header="本文"
+                                                Click="OnMenuItemReplyClickCommand"
+                                                />
+                                            <MenuItem
+                                                Header="発言No"
+                                                Command="{Binding Tag.MenuItemReplyResNoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding Mode=OneWay}"
+                                                />
+                                            <MenuItem
+                                                Header="画像ファイル名"
+                                                Visibility="{Binding DataContext.ImageName.Value, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                Command="{Binding Tag.MenuItemReplyImageNameoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding Mode=OneWay}"
+                                                />
                                         </MenuItem>
                                         <MenuItem Header="レスをコピー" Click="OnMenuItemCopyClickCommand" IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}" />
                                         <Separator />
