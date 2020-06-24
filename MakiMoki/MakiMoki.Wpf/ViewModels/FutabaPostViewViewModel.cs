@@ -74,7 +74,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingOpenUploadCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingDeleteCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingCloseCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
-
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingClipbordCommand { get; } = new ReactiveCommand<BindableFutaba>();
 
 		public FutabaPostViewViewModel() {
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
@@ -91,6 +91,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			KeyBindingOpenUploadCommand.Subscribe(x => OnKeyBindingOpenUpload(x));
 			KeyBindingDeleteCommand.Subscribe(x => OnKeyBindingDelete(x));
 			KeyBindingCloseCommand.Subscribe(x => OnKeyBindingClose(x));
+			KeyBindingClipbordCommand.Subscribe(x => OnKeyBindingClipbord(x));
 		}
 
 		public void Dispose() {
@@ -345,12 +346,62 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			await this.OpenUpload(f);
 		}
 
-		private async void OnKeyBindingDelete(Model.BindableFutaba f) {
+		private void OnKeyBindingDelete(Model.BindableFutaba f) {
 			f.PostData.Value = new BindableFutaba.PostHolder();
 		}
 
 		private void OnKeyBindingClose(Model.BindableFutaba f) {
 			Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(f.Url));
+		}
+
+		private async void OnKeyBindingClipbord(Model.BindableFutaba f) {
+			var path = "";
+			var fileName = new DateTimeOffset(DateTime.Now, new TimeSpan(+09, 00, 00)).ToUnixTimeMilliseconds().ToString();
+			if(Clipboard.ContainsImage()) {
+				path = Path.Combine(
+					Config.ConfigLoader.InitializedSetting.CacheDirectory,
+					$"{ fileName }.jpeg");
+				WpfUtil.ImageUtil.SaveJpeg(
+					path,
+					Clipboard.GetImage(),
+					WpfConfig.WpfConfigLoader.SystemConfig.ClipbordJpegQuality);
+			} else if(Clipboard.ContainsText() && WpfConfig.WpfConfigLoader.SystemConfig.ClipbordIsEnabledUrl) {
+				if(Uri.TryCreate(Clipboard.GetText(), UriKind.Absolute, out var uri)) {
+					using(var client = new System.Net.Http.HttpClient() {
+						Timeout = TimeSpan.FromMilliseconds(5000),
+					}) {
+						var ret1 = await client.SendAsync(new System.Net.Http.HttpRequestMessage(
+							System.Net.Http.HttpMethod.Head, uri));
+						if((ret1.StatusCode == System.Net.HttpStatusCode.OK) && (ret1.Content.Headers.ContentLength <= 3072000)) { // TODO: 設定ファイルに移動
+							var mime = Config.ConfigLoader.Mime.Types
+								.Where(x => x.MimeType == ret1.Content.Headers.ContentType.MediaType)
+								.FirstOrDefault();
+							if(mime != null) {
+								path = Path.Combine(
+									Config.ConfigLoader.InitializedSetting.CacheDirectory,
+									$"{ fileName }{ mime.Ext }");
+								var ret2 = await client.SendAsync(new System.Net.Http.HttpRequestMessage(
+									System.Net.Http.HttpMethod.Get, uri));
+								if(ret2.StatusCode == System.Net.HttpStatusCode.OK) {
+									using(var fs = new FileStream(path, FileMode.OpenOrCreate)) {
+										await ret2.Content.CopyToAsync(fs);
+									}
+									goto end;
+								} else {
+									Util.Futaba.PutInformation(new Information("URLの画像取得に失敗"));
+								}
+							}
+						} else {
+							Util.Futaba.PutInformation(new Information("URLの情報取得に失敗"));
+						}
+					}
+				end:;
+				}
+			}
+
+			if(!string.IsNullOrEmpty(path) && File.Exists(path)) {
+				f.PostData.Value.ImagePath.Value = path;
+			}
 		}
 	}
 }

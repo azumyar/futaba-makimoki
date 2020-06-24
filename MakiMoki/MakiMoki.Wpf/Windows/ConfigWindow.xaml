@@ -254,7 +254,7 @@
                             <TextBlock Style="{StaticResource ConfigHeaderText}">投稿画面</TextBlock>
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>クリップボードビットマップの品質</TextBlock>
-                                <TextBlock Foreground="Gray" TextWrapping="Wrap">クリップボードからビットマップ画像を投稿した場合のJPEG保存品質を設定します。(0-100)</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">クリップボードからビットマップ画像を投稿した場合のJPEG保存品質を設定します。(1-100)</TextBlock>
                                 <TextBox Text="{Binding ClipbordJpegQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
                             </StackPanel>
                         </StackPanel>

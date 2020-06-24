@@ -370,5 +370,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				image.Save(path, jpegEncoder, encParams);
 			}
 		}
+
+		public static void SaveJpeg(string path, BitmapSource image, int quality) {
+			var jpegEncoder = new JpegBitmapEncoder() {
+				QualityLevel = quality,
+			};
+			jpegEncoder.Frames.Add(BitmapFrame.Create(image));
+			var fm = File.Exists(path) ? FileMode.Truncate : FileMode.OpenOrCreate;
+			using(FileStream fs = new FileStream(path, fm)) {
+				jpegEncoder.Save(fs);
+			}
+		}
 	}
 }

@@ -121,7 +121,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			ClipbordJpegQuality = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.ClipbordJpegQuality.ToString());
 			ClipbordJpegQualityValid = ClipbordJpegQuality.Select(x => {
 				if(int.TryParse(x, out var v)) {
-					return (0 <= v) && (v <= 100);
+					return (1 <= v) && (v <= 100);
 				} else {
 					return false;
 				}

@@ -48,6 +48,11 @@
             Command="{Binding KeyBindingCloseCommand, Mode=OneWay}"
             CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
             />
+        <KeyBinding
+            Gesture="Ctrl+Shift+V"
+            Command="{Binding KeyBindingClipbordCommand,Mode=OneWay}"
+            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
+            />
     </UserControl.InputBindings>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="ContentsChanged">
