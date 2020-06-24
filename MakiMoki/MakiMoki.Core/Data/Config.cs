@@ -14,11 +14,15 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonProperty("futaba-response-data-save", Required = Required.Always)]
 		public bool FutabaResponseSave { get; private set; }
 
-		public static MakiMokiConfig From(bool threadGetIncremental, bool responseSave) {
+		[JsonProperty("futaba-post-data-expire-day", Required = Required.Always)]
+		public int FutabaPostDataExpireDay { get; private set; }
+
+		public static MakiMokiConfig From(bool threadGetIncremental, bool responseSave, int postDataExpireDay) {
 			return new MakiMokiConfig() {
 				Version = CurrentVersion,
 				FutabaThreadGetIncremental = threadGetIncremental,
 				FutabaResponseSave = responseSave,
+				FutabaPostDataExpireDay = postDataExpireDay,
 			};
 		}
 	}
@@ -214,6 +218,27 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			} else {
 				return null;
 			}
+		}
+	}
+
+	public class FutabaPostItemConfig : ConfigObject {
+		public static int CurrentVersion = -1;
+
+		[JsonProperty("res", Required = Required.Always)]
+		public PostedResItem[] Items { get; private set; }
+
+		public static FutabaPostItemConfig CreateDefault() {
+			return new FutabaPostItemConfig() {
+				Version = CurrentVersion,
+				Items = new PostedResItem[0],
+			};
+		}
+
+		public static FutabaPostItemConfig From(PostedResItem[] items) {
+			return new FutabaPostItemConfig() {
+				Version = CurrentVersion,
+				Items = items,
+			};
 		}
 	}
 }

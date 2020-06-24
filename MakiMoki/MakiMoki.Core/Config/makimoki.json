@@ -2,5 +2,6 @@
   "version": -1,
 
   "futaba-thread-get-incremental": true,
-  "futaba-response-data-save":  true
+  "futaba-response-data-save": true,
+  "futaba-post-data-expire-day": 30
 }

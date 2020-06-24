@@ -63,6 +63,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				$"{ typeof(App).Namespace }.Resources.Images.NgImage.png"));
 		}
 
+		public static BitmapImage GetImageCache(string path) {
+			if(TryGetImage(path, out var b)) {
+				return b;
+			}
+			return null;
+		}
+
 		public static BitmapImage LoadImage(string path) {
 			if(TryGetImage(path, out var b)) {
 				return b;
@@ -352,7 +359,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 #endif
 		}
 
-		public static void SaveJpeg(string path, int quality) {
+		public static void SaveJpeg(string path, System.Drawing.Image image, int quality) {
 			var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders()
 				.Where(x => x.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid)
 				.FirstOrDefault();
@@ -360,7 +367,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				var encParam = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, quality);
 				var encParams = new System.Drawing.Imaging.EncoderParameters(1);
 				encParams.Param[0] = encParam;
-				//image.Save(path, jpegEncoder, encParams);
+				image.Save(path, jpegEncoder, encParams);
 			}
 		}
 	}

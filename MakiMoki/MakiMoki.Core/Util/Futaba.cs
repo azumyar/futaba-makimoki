@@ -48,11 +48,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				Catalog = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
 				Threads = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
 			}
-			PostItems = new ReactiveProperty<Data.PostedResItem[]>(new Data.PostedResItem[0]);
+			PostItems = new ReactiveProperty<Data.PostedResItem[]>(Config.ConfigLoader.PostedItem.Items.ToArray());
 			Informations = new ReactiveCollection<Data.Information>(UIDispatcherScheduler.Default);
 
 			Catalog.Subscribe(x => Config.ConfigLoader.SaveFutabaResponse(Catalog.Value.ToArray(), Threads.Value.ToArray()));
 			Threads.Subscribe(x => Config.ConfigLoader.SaveFutabaResponse(Catalog.Value.ToArray(), Threads.Value.ToArray()));
+			PostItems.Subscribe(x => Config.ConfigLoader.SavePostItems(PostItems.Value.ToArray()));
 		}
 
 		public static void Load(Data.FutabaContext[] catalogs, Data.FutabaContext[] threads, Data.PostedResItem[] postItems) {
@@ -587,13 +588,29 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
+		public static string GetThreadResImageLocalFilePath(Data.UrlContext url, Data.ResItem item) {
+			System.Diagnostics.Debug.Assert(url != null);
+			System.Diagnostics.Debug.Assert(item != null);
+
+			return Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, 
+				CreateLocalFileName(url.BaseUrl, item.Src));
+		}
+
+		public static string GetThumbImageLocalFilePath(Data.UrlContext url, Data.ResItem item) {
+			System.Diagnostics.Debug.Assert(url != null);
+			System.Diagnostics.Debug.Assert(item != null);
+
+			return Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, 
+				CreateLocalFileName(url.BaseUrl, item.Thumb));
+		}
+
 		private static string CreateLocalFileName(string baseUrl, string targetUrl) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(targetUrl != null);
 
 			var url = new Uri(baseUrl);
 			var h = Regex.Replace(url.Authority, @"^([^\.]+)\..*$", "$1");
-			return string.Format("{0}{1}", h, targetUrl.Replace('/', '_'));
+			return $"{ h }{ targetUrl.Replace('/', '_') }";
 		}
 
 		private static string CreateLocalFileNameFromUploader(string url) {

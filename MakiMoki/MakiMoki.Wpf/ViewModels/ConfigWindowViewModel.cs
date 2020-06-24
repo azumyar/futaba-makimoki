@@ -41,8 +41,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<int> NgConfigImageMethod { get; }
 		public ReactiveProperty<int> NgConfigImageThreshold { get; }
 
-		public ReactiveProperty<string> MyReplyExpireDay { get; }
-		public ReactiveProperty<bool> MyReplyExpireDayValid { get; }
+		public ReactiveProperty<string> PostItemExpireDay { get; }
+		public ReactiveProperty<bool> PostItemExpireDayValid { get; }
 
 		public ReactiveProperty<bool> WindowIsEnabledSavedState { get; }
 		public ReactiveProperty<bool> CatalogIsEnabledMovieMarker { get; }
@@ -104,8 +104,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			NgConfigImageMethod = new ReactiveProperty<int>((int)Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod);
 			NgConfigImageThreshold = new ReactiveProperty<int>(Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold);
 
-			MyReplyExpireDay = new ReactiveProperty<string>("3");
-			MyReplyExpireDayValid = MyReplyExpireDay.Select(x => {
+			PostItemExpireDay = new ReactiveProperty<string>("3");
+			PostItemExpireDayValid = PostItemExpireDay.Select(x => {
 				if(int.TryParse(x, out var v)) {
 					return 0 <= v;
 				} else {
@@ -143,7 +143,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			IsEnabledOkButton = new[] {
 				NgConfigCatalogNgWordRegexValid,
 				NgConfigThreadNgWordRegexValid,
-				MyReplyExpireDayValid,
+				PostItemExpireDayValid,
 				ClipbordJpegQualityValid,
 				MediaCacheExpireDayValid,
 			}.CombineLatest(x => x.All(y => y)).ToReactiveProperty();
@@ -159,7 +159,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnOkButtonClick(RoutedEventArgs e) {
 			Config.ConfigLoader.UpdateMakiMokiConfig(
 				threadGetIncremental: CoreConfigThreadDataIncremental.Value,
-				responseSave: CoreConfigSavedResponse.Value);
+				responseSave: CoreConfigSavedResponse.Value,
+				postDataExpireDay: int.Parse(PostItemExpireDay.Value));
 			if(!CoreConfigSavedResponse.Value) {
 				Config.ConfigLoader.RemoveSaveFutabaResponseFile();
 			}

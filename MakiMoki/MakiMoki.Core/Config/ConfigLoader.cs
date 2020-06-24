@@ -17,6 +17,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		private static readonly string CookieConfigFile = "cookie.json";
 		private static readonly string PasswordConfigFile = "passwd.json";
 		private static readonly string FutabaSavedFile = "makimoki.futaba.json";
+		private static readonly string FutabaPostedFile = "makimoki.post.json";
 		internal static readonly Assembly CoreAssembly = typeof(ConfigLoader).Assembly;
 
 		private static volatile object lockObj = new object();
@@ -62,13 +63,6 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			string loadFile(Stream s) {
 				using(var sr = new StreamReader(s, Encoding.UTF8)) {
 					return sr.ReadToEnd();
-				}
-			}
-			void saveFile(string path, string s) {
-				using(var fs = new FileStream(path, FileMode.OpenOrCreate)) {
-					var b = Encoding.UTF8.GetBytes(s);
-					fs.Write(b, 0, b.Length);
-					fs.Flush();
 				}
 			}
 			void addDic(Dictionary<string, Data.BordConfig> dic, Data.BordConfig[] item) {
@@ -150,7 +144,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 
 				if(Ptua == null) {
 					Ptua = CreatePtua();
-					saveFile(ptua, Ptua.ToString());
+					Util.FileUtil.SaveJson(ptua, Ptua);
 				}
 				if(Cookies == null) {
 					Cookies = new Data.Cookie[0];
@@ -184,6 +178,16 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			SavedFutaba = getPath(
 				Path.Combine(InitializedSetting.WorkDirectory, FutabaSavedFile),
 				Data.FutabaSavedConfig.CreateDefault());
+			PostedItem = getPath(
+				Path.Combine(InitializedSetting.WorkDirectory, FutabaPostedFile),
+				Data.FutabaPostItemConfig.CreateDefault());
+			if(0 < PostedItem.Items.Length) {
+				var time = DateTime.Now.AddDays(-MakiMoki.FutabaPostDataExpireDay);
+				var t = PostedItem.Items.Where(x => time <= x.Res.Res.NowDateTime).ToArray();
+				if(t.Length != PostedItem.Items.Length) {
+					PostedItem = Data.FutabaPostItemConfig.From(t);
+				}
+			}
 
 			var bordList = new List<Data.BordConfig>();
 			foreach(var k in bordDic.Keys.OrderBy(x => x)) {
@@ -210,27 +214,22 @@ namespace Yarukizero.Net.MakiMoki.Config {
 
 		public static Data.FutabaSavedConfig SavedFutaba { get; private set; }
 
-		private static void SaveFile(string path, string s) {
-			var m = File.Exists(path) ? FileMode.Truncate : FileMode.OpenOrCreate;
-			using(var fs = new FileStream(path, m)) {
-				var b = Encoding.UTF8.GetBytes(s);
-				fs.Write(b, 0, b.Length);
-				fs.Flush();
-				fs.Close();
-			}
-		}
+		public static Data.FutabaPostItemConfig PostedItem { get; private set; }
 
 		internal static void UpdateCookie(Data.Cookie[] cookies) {
 			Cookies = cookies;
-			var s = JsonConvert.SerializeObject(cookies);
 			lock(lockObj) {
-				SaveFile(Path.Combine(InitializedSetting.WorkDirectory, CookieConfigFile), s);
+				Util.FileUtil.SaveJson(
+					Path.Combine(InitializedSetting.WorkDirectory, CookieConfigFile),
+					Cookies);
 			}
 		}
 
 		internal static void UpdateFutabaPassword(string password) {
 			Password = Data.Password.FromFutaba(password);
-			SaveFile(Path.Combine(InitializedSetting.WorkDirectory, PasswordConfigFile), Password.ToString());
+			Util.FileUtil.SaveJson(
+				Path.Combine(InitializedSetting.WorkDirectory, PasswordConfigFile),
+				Password);
 		}
 
 		private static Data.Ptua CreatePtua() {
@@ -242,10 +241,11 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			return new Data.Ptua(t.ToString());
 		}
 
-		public static void UpdateMakiMokiConfig(bool threadGetIncremental, bool responseSave) {
+		public static void UpdateMakiMokiConfig(bool threadGetIncremental, bool responseSave, int postDataExpireDay) {
 			MakiMoki = MakiMokiConfig.From(
 				threadGetIncremental: threadGetIncremental,
-				responseSave: responseSave);
+				responseSave: responseSave,
+				postDataExpireDay: postDataExpireDay);
 			lock(lockObj) {
 				if(Directory.Exists(InitializedSetting.UserDirectory)) {
 					Util.FileUtil.SaveJson(
@@ -274,6 +274,15 @@ namespace Yarukizero.Net.MakiMoki.Config {
 					File.Delete(f);
 				}
 				catch(IOException) { /* TODO: どうする？ */}
+			}
+		}
+
+		public static void SavePostItems(Data.PostedResItem[] items) {
+			lock(lockObj) {
+				PostedItem = Data.FutabaPostItemConfig.From(items);
+				Util.FileUtil.SaveJson(
+					Path.Combine(InitializedSetting.WorkDirectory, FutabaPostedFile),
+					PostedItem);
 			}
 		}
 	}

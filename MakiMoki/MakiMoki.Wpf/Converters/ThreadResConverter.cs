@@ -143,7 +143,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class FutabaCatalogItemFilterConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
 			if((values.Length == 3) && (values[0] is IEnumerable<Model.BindableFutabaResItem> en)) {
-				var en2 = en.Where(x => !x.IsNg.Value && !x.IsHidden.Value).ToArray();
+				var en2 = en.Where(x => !x.IsNg.Value && !x.IsHidden.Value && !x.IsNgImageHidden.Value).ToArray();
 				if(values[2] is string filter && !string.IsNullOrEmpty(filter)) {
 					var f = Util.TextUtil.Filter2SearchText(filter);
 					return en2.Select<Model.BindableFutabaResItem, (string Text, Model.BindableFutabaResItem Raw)>(

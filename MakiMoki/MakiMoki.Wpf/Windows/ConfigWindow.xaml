@@ -207,7 +207,7 @@
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>自レス判定保存日数</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">自分が投稿したレスを記憶する期間(日)を指定します。削除処理は起動時に行われます。</TextBlock>
-                                <TextBox Text="{Binding MediaCacheExpireDay.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
+                                <TextBox Text="{Binding PostItemExpireDay.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>

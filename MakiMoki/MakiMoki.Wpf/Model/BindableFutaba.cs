@@ -516,6 +516,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<bool> IsHidden { get; }
 		public ReactiveProperty<bool> IsDel { get; }
 		public ReactiveProperty<bool> IsVisibleOriginComment { get; }
+		public ReactiveProperty<bool> IsNgImageHidden { get; }
 
 		public ReactiveProperty<string> CommentCopy { get; }
 
@@ -581,6 +582,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.IsDel = new ReactiveProperty<bool>(
 					(item.ResItem.Res.IsDel || item.ResItem.Res.IsDel2)
 						&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden));
+				this.IsNgImageHidden = new ReactiveProperty<bool>(false);
 				this.CommentHtml = new ReactiveProperty<string>("");
 				this.OriginHtml = new ReactiveProperty<string>(com.ToString());
 				this.SetCommentHtml();
@@ -645,6 +647,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			if(item.ResItem.Res.Fsize != 0) {
 				this.ImageName = new ReactiveProperty<string>(Regex.Replace(
 					item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$", "$1"));
+				var bmp = WpfUtil.ImageUtil.GetImageCache(
+					Util.Futaba.GetThumbImageLocalFilePath(item.Url, item.ResItem.Res));
+				if(bmp != null) {
+					this.SetThumbSource(bmp);
+					if(this.Raw.Value.Url.IsCatalogUrl
+						&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
+						&& !object.ReferenceEquals(this.ThumbSource.Value, this.OriginSource.Value)) {
+
+						this.IsNgImageHidden.Value = true;
+					}
+				}
 			} else {
 				this.ImageName = new ReactiveProperty<string>("");
 			}
@@ -714,22 +727,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
 						if(x != null) {
-							var h = Ng.NgUtil.NgHelper.IsEnabledNgImage()
-								? WpfUtil.ImageUtil.CalculatePerceptualHash(x) : default(ulong?);
-							this.ThumbHash.Value = h;
-							this.OriginSource.Value = x;
-							if(h.HasValue && Ng.NgConfig.NgConfigLoader.NgImageConfig.Images.Any(
-								y => Ng.NgUtil.PerceptualHash.GetHammingDistance(h.Value, y) <= Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold)) {
-
-								ThumbSource.Value = (Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod == ImageNgMethod.Hidden)
-									? null : WpfUtil.ImageUtil.GetNgImage();
-							} else {
-								ThumbSource.Value = x;
-							}
+							SetThumbSource(x);
 						} else {
 							// TODO: エラー画像表示
 						}
 					});
+			}
+		}
+
+		private void SetThumbSource(BitmapImage bmp) {
+			var h = Ng.NgUtil.NgHelper.IsEnabledNgImage()
+				? WpfUtil.ImageUtil.CalculatePerceptualHash(bmp) : default(ulong?);
+			this.ThumbHash.Value = h;
+			this.OriginSource.Value = bmp;
+			if(h.HasValue && Ng.NgConfig.NgConfigLoader.NgImageConfig.Images.Any(
+				y => Ng.NgUtil.PerceptualHash.GetHammingDistance(h.Value, y) <= Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold)) {
+
+				ThumbSource.Value = (Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod == ImageNgMethod.Hidden)
+					? null : WpfUtil.ImageUtil.GetNgImage();
+			} else {
+				ThumbSource.Value = bmp;
 			}
 		}
 

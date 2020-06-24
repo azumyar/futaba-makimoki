@@ -285,8 +285,10 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 
 	public class CatalogSortItem {
-		public string Name { get; }
-		public string ApiValue { get; }
+		[JsonProperty("name", Required = Required.Always)]
+		public string Name { get; private set; }
+		[JsonProperty("value", Required = Required.Always)]
+		public string ApiValue { get; private set; }
 
 		// JSONシリアライザ用
 		private CatalogSortItem() { }
@@ -298,10 +300,10 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class PostedResItem : JsonObject {
-		[JsonProperty("bord")]
+		[JsonProperty("bord", Required=Required.Always)]
 		public string BordUrl { get; private set; }
 
-		[JsonProperty("res")]
+		[JsonProperty("res", Required = Required.Always)]
 		public NumberedResItem Res { get; private set; }
 
 		// JSONシリアライザ用
