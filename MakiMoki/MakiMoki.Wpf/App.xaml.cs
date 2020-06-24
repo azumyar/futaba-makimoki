@@ -85,16 +85,23 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					CacheDirectory = AppCacheDirectory,
 					WorkDirectory = AppWorkDirectory,
 				});
-				Ng.NgConfig.NgConfigLoder.Initialize(new Ng.NgConfig.NgConfigLoder.Setting() {
+				Util.Futaba.Initialize();
+				Ng.NgConfig.NgConfigLoader.Initialize(new Ng.NgConfig.NgConfigLoader.Setting() {
 					UserDirectory = userConfig,
+				});
+				WpfConfig.WpfConfigLoader.Initialize(new WpfConfig.WpfConfigLoader.Setting() {
+					SystemDirectory = Path.Combine(
+						Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
+						"Config.d"),
+					UserDirectory = userConfig,
+					WorkDirectory = AppWorkDirectory,
 				});
 			}
 			catch(Exceptions.InitializeFailedException ex) {
 				MessageBox.Show(ex.Message, "初期化エラー", MessageBoxButton.OK, MessageBoxImage.Error);
 				Environment.Exit(1);
 			}
-			Util.TaskUtil.Initialize();
-			Util.Futaba.Initialize();
+			//Util.TaskUtil.Initialize();
 			Reactive.Bindings.UIDispatcherScheduler.Initialize();
 			RemoveOldCache(AppCacheDirectory);
 
@@ -127,8 +134,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 		}
 
 		private void RemoveOldCache(string cacheDir) {
-			var now = DateTime.Now;
-			var confSec = 3 * 24 * 60 * 60; // 3日以前のファイルは削除 TODO: 設定ファイルに移動
+			var time = DateTime.Now.AddDays(-WpfConfig.WpfConfigLoader.SystemConfig.CacheExpireDay);
 #if DEBUG
 			var sw = new System.Diagnostics.Stopwatch();
 			sw.Start();
@@ -136,20 +142,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			var f = Directory.EnumerateFiles(cacheDir)
 				.Where(x => {
 					try {
-						return (now - File.GetLastWriteTime(x)).TotalSeconds > confSec;
+						return File.GetLastWriteTime(x) < time;
 					}
 					catch(IOException) {
 						return false;
 					}
 				});
 			// TODO: ファイルがたくさんあると無視できないくらい重い、非同期化したほうがいいかも
-			foreach(var it in f) {
+			// Parallel.ForEachにしてみた
+			Parallel.ForEach(f, it => {
 				//System.Diagnostics.Debug.WriteLine(it);
 				try {
 					File.Delete(it);
 				}
 				catch(IOException) { /* 削除できないファイルは無視する */}
-			}
+			});
 #if DEBUG
 			sw.Stop();
 			Console.WriteLine("初期削除処理{0}ミリ秒", sw.ElapsedMilliseconds);

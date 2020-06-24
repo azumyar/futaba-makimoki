@@ -172,7 +172,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				}
 			}
 
-			this.StartBrowser(u);
+			WpfUtil.PlatformUtil.StartBrowser(e.NavigateUri);
 		end:;
 			System.Diagnostics.Debug.WriteLine(e);
 		}
@@ -354,23 +354,23 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnMenuItemResHidden(Model.BindableFutabaResItem x) {
 			var ng = Ng.NgData.HiddenData.FromResItem(x.Raw.Value.Url.BaseUrl, x.Raw.Value.ResItem);
 			if(Ng.NgUtil.NgHelper.CheckHidden(x.Parent.Value.Raw, x.Raw.Value)) {
-				Ng.NgConfig.NgConfigLoder.RemoveHiddenRes(ng);
+				Ng.NgConfig.NgConfigLoader.RemoveHiddenRes(ng);
 			} else {
-				Ng.NgConfig.NgConfigLoder.AddHiddenRes(ng);
+				Ng.NgConfig.NgConfigLoader.AddHiddenRes(ng);
 			}
 		}
 
 		private void OnMenuItemNgImage(Model.BindableFutabaResItem x) {
 			if(x.OriginSource.Value != null) {
 				var v = x.ThumbHash.Value ?? WpfUtil.ImageUtil.CalculatePerceptualHash(x.OriginSource.Value);
-				var ng = Ng.NgConfig.NgConfigLoder.NgImageConfig.Images
+				var ng = Ng.NgConfig.NgConfigLoader.NgImageConfig.Images
 					.Where(y => y.Hash == v.ToString())
 					.FirstOrDefault();
 				if(ng != null) {
-					Ng.NgConfig.NgConfigLoder.RemoveNgImage(ng);
+					Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
 				} else {
 					// TODO: コメント入力ダイアログを出す
-					Ng.NgConfig.NgConfigLoder.AddNgImage(
+					Ng.NgConfig.NgConfigLoader.AddNgImage(
 						Ng.NgData.NgImageData.FromPerceptualHash(
 							v, "スレッドから登録"));
 				}
@@ -401,7 +401,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnCopyTextboxNg((BindableFutaba Futaba, TextBox TextBox) e) {
 			if(!string.IsNullOrEmpty(e.TextBox.SelectedText)) {
-				Ng.NgConfig.NgConfigLoder.AddThreadNgWord(e.TextBox.SelectedText);
+				Ng.NgConfig.NgConfigLoader.AddThreadNgWord(e.TextBox.SelectedText);
 			}
 		}
 
@@ -416,16 +416,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				.Where(x => !string.IsNullOrWhiteSpace(x))
 				.FirstOrDefault();
 			if(s != null) {
-				this.StartBrowser($"https://www.google.com/search?q={ System.Web.HttpUtility.UrlEncode(s) }");
-			}
-		}
-
-		private void StartBrowser(string u) {
-			try {
-				Process.Start(new ProcessStartInfo(u));
-			}
-			catch(System.ComponentModel.Win32Exception) {
-				// 関連付け実行に失敗
+				WpfUtil.PlatformUtil.StartBrowser(new Uri(
+					$"https://www.google.com/search?q={ System.Web.HttpUtility.UrlEncode(s) }"));
 			}
 		}
 	}

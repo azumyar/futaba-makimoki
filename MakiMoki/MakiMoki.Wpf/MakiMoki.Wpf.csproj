@@ -91,7 +91,9 @@
     <Compile Include="Windows\ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WpfConfig\WpfConfigLoader.cs" />
     <Compile Include="WpfUtil\ImageUtil.cs" />
+    <Compile Include="WpfUtil\PlatformUtil.cs" />
     <Compile Include="WpfUtil\TextUtil.cs" />
     <Compile Include="WpfUtil\WpfHelper.cs" />
     <Page Include="Controls\FutabaPostView.xaml">
@@ -174,6 +176,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <EmbeddedResource Include="WpfConfig\windows.makimoki.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

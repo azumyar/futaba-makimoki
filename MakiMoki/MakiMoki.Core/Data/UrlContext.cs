@@ -5,10 +5,10 @@ using System.Text;
 
 namespace Yarukizero.Net.MakiMoki.Data {
 	public class UrlContext : JsonObject {
-		[JsonProperty("base-url")]
-		public string BaseUrl { get; }
-		[JsonProperty("thread-no")]
-		public string ThreadNo { get; }
+		[JsonProperty("base-url", Required = Required.Always)]
+		public string BaseUrl { get; private set; }
+		[JsonProperty("thread-no", Required = Required.Always)]
+		public string ThreadNo { get; private set; }
 
 		[JsonIgnore]
 		public bool IsCatalogUrl => string.IsNullOrWhiteSpace(this.ThreadNo);

@@ -37,7 +37,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 		}
 
 		public static bool CheckHidden(Data.FutabaContext futaba, Data.FutabaContext.Item item) {
-			return NgConfig.NgConfigLoder.HiddenConfig.Res
+			return NgConfig.NgConfigLoader.HiddenConfig.Res
 				.Where(x => (x.BaseUrl == futaba.Url.BaseUrl) && (x.Res.No == item.ResItem.No))
 				.FirstOrDefault() != null;
 		}
@@ -45,20 +45,20 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 
 		public static bool CheckCatalogNg(Data.FutabaContext futaba, Data.FutabaContext.Item item) {
 			return CheckNg(futaba, item,
-				NgConfig.NgConfigLoder.NgConfig.EnableIdNg,
-				NgConfig.NgConfigLoder.NgConfig.CatalogWords,
-				NgConfig.NgConfigLoder.NgConfig.CatalogRegex);
+				NgConfig.NgConfigLoader.NgConfig.EnableIdNg,
+				NgConfig.NgConfigLoader.NgConfig.CatalogWords,
+				NgConfig.NgConfigLoader.NgConfig.CatalogRegex);
 		}
 
 		public static bool CheckThreadNg(Data.FutabaContext futaba, Data.FutabaContext.Item item) {
 			return CheckNg(futaba, item,
-				NgConfig.NgConfigLoder.NgConfig.EnableIdNg,
-				NgConfig.NgConfigLoder.NgConfig.ThreadWords,
-				NgConfig.NgConfigLoder.NgConfig.ThreadRegex);
+				NgConfig.NgConfigLoader.NgConfig.EnableIdNg,
+				NgConfig.NgConfigLoader.NgConfig.ThreadWords,
+				NgConfig.NgConfigLoader.NgConfig.ThreadRegex);
 		}
 
 		public static bool IsEnabledNgImage() {
-			return NgConfigLoder.NgImageConfig.Images.Length != 0;
+			return NgConfigLoader.NgImageConfig.Images.Length != 0;
 		}
 	}
 }

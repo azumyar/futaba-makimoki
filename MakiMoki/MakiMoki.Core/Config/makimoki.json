@@ -1,5 +1,6 @@
 ﻿{
   "version": -1,
 
-  "futaba-thread-get-incremental":  true
+  "futaba-thread-get-incremental": true,
+  "futaba-response-data-save":  true
 }

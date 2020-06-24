@@ -17,6 +17,7 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Concurrency;
 using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Ng.NgData;
+using Yarukizero.Net.MakiMoki.Util;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	public class BindableFutaba : INotifyPropertyChanged, IDisposable {
@@ -196,8 +197,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			FullScreenVisibility = IsFullScreenMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
 			ngUpdateAction = (_) => UpdateToken.Value = DateTime.Now;
 			hiddenUpdateAction = (_) => UpdateToken.Value = DateTime.Now;
-			Ng.NgConfig.NgConfigLoder.AddNgUpdateNotifyer(ngUpdateAction);
-			Ng.NgConfig.NgConfigLoder.AddHiddenUpdateNotifyer(hiddenUpdateAction);
+			Ng.NgConfig.NgConfigLoader.AddNgUpdateNotifyer(ngUpdateAction);
+			Ng.NgConfig.NgConfigLoader.AddHiddenUpdateNotifyer(hiddenUpdateAction);
 			if(old != null) {
 				FilterText.Value = old.FilterText.Value;
 				CatalogSortItem.Value = old.CatalogSortItem.Value;
@@ -417,26 +418,31 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				Filter = "HTML5ファイル|*.html;*.htm", 
 			};
 			if(sfd.ShowDialog() ?? false) {
-				string getImageBase64(Data.UrlContext url, Data.ResItem item) {
+				string getImageBase64(BindableFutabaResItem bfi) {
+					var url = bfi.Raw.Value.Url;
+					var item = bfi.Raw.Value.ResItem.Res;
 					if(item.Fsize == 0) {
 						return "";
 					}
 
-					// 基本的にキャッシュされているはずだけど良くないのでメソッドの変更を考える
+					var ngImage = !object.ReferenceEquals(bfi.ThumbSource.Value, bfi.OriginSource.Value);
+					if(ngImage && WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Hidden) {
+						return "";
+					} else if(ngImage && WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Dummy) {
+						if(Config.ConfigLoader.Mime.MimeTypes.TryGetValue(".png", out var mime)) {
+							return "data:" + mime + ";base64," + WpfUtil.ImageUtil.GetNgImageBase64();
+						} else {
+							return "";
+						}
+					}
+
+					// TODO: 基本的にキャッシュされているはずだけど良くないのでメソッドの変更を考える
 					return Util.Futaba.GetThumbImage(url, item)
 						.Select(x => {
 							if(x.Successed) {
 								if(Config.ConfigLoader.Mime.MimeTypes.TryGetValue(Path.GetExtension(x.LocalPath).ToLower(), out var mime)) {
 									using(var stream = new FileStream(x.LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-										var list = new List<byte>();
-										var b = new byte[1024];
-										var r = 0;
-										while(0 < (r = stream.Read(b, 0, b.Length))) {
-											for(var i = 0; i < r; i++) {
-												list.Add(b[i]);
-											}
-										}
-										return "data:" + mime + ";base64," + Convert.ToBase64String(list.ToArray(), Base64FormattingOptions.None);
+										return "data:" + mime + ";base64," + FileUtil.ToBase64(stream);
 									}
 								}
 							}
@@ -450,17 +456,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						Util.ExportUtil.ExportHtml(sf,
 							new Data.ExportHolder(
 								this.Raw.Bord.Name, this.Raw.Bord.Extra.NameValue,
-								this.ResItems.Select(x => new Data.ExportData() {
-									Subject = x.Raw.Value.ResItem.Res.Sub,
-									Name = x.Raw.Value.ResItem.Res.Name,
-									Email = x.Raw.Value.ResItem.Res.Email,
-									Comment = x.OriginHtml.Value,
-									No = x.Raw.Value.ResItem.No,
-									Date = string.Format("{0}{1}", x.Raw.Value.ResItem.Res.Now, string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Id) ? "" : (" " + x.Raw.Value.ResItem.Res.Id)),
-									Soudane = x.Raw.Value.Soudane,
-									OriginalImageName = x.ImageName.Value,
-									ThumbnailImageData = getImageBase64(x.Raw.Value.Url, x.Raw.Value.ResItem.Res),
-								}).ToArray()
+								this.ResItems.Select(x => {
+									var ngRes = x.IsHidden.Value || x.IsNg.Value;
+									var ngImage = !object.ReferenceEquals(x.ThumbSource.Value, x.OriginSource.Value)
+										&& (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Hidden);
+									if(ngRes && (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes == PlatformData.ExportNgRes.Hidden)) {
+										return null;
+									}
+									return new Data.ExportData() {
+										Subject = x.Raw.Value.ResItem.Res.Sub,
+										Name = x.Raw.Value.ResItem.Res.Name,
+										Email = x.Raw.Value.ResItem.Res.Email,
+										Comment = (ngRes && (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes == PlatformData.ExportNgRes.Mask))
+											? x.CommentHtml.Value : x.OriginHtml.Value,
+										No = x.Raw.Value.ResItem.No,
+										Date = string.Format("{0}{1}", x.Raw.Value.ResItem.Res.Now, string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Id) ? "" : (" " + x.Raw.Value.ResItem.Res.Id)),
+										Soudane = x.Raw.Value.Soudane,
+										OriginalImageName = ngImage ? "" : x.ImageName.Value,
+										ThumbnailImageData = getImageBase64(x),
+									};
+								}).Where(x => x != null).ToArray()
 							));
 						sf.Flush();
 					}
@@ -499,6 +514,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> OriginHtml { get; }
 		public ReactiveProperty<bool> IsNg { get; }
 		public ReactiveProperty<bool> IsHidden { get; }
+		public ReactiveProperty<bool> IsDel { get; }
 		public ReactiveProperty<bool> IsVisibleOriginComment { get; }
 
 		public ReactiveProperty<string> CommentCopy { get; }
@@ -527,6 +543,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		private Action<Ng.NgData.NgConfig> ngUpdateAction;
 		private Action<Ng.NgData.HiddenConfig> hiddenUpdateAction;
 		private Action<Ng.NgData.NgImageConfig> imageUpdateAction;
+		private Action<PlatformData.WpfConfig> systemUpdateAction;
 
 		public BindableFutabaResItem(int index, Data.FutabaContext.Item item, string baseUrl, BindableFutaba parent) {
 			System.Diagnostics.Debug.Assert(item != null);
@@ -561,25 +578,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					parent.Url.IsCatalogUrl ? Ng.NgUtil.NgHelper.CheckCatalogNg(parent.Raw, item)
 						: Ng.NgUtil.NgHelper.CheckThreadNg(parent.Raw, item));
 				this.IsHidden = new ReactiveProperty<bool>(Ng.NgUtil.NgHelper.CheckHidden(parent.Raw, item));
-				if(this.IsNg.Value) {
-					this.CommentHtml = new ReactiveProperty<string>("<font color=\"#ff0000\">NG設定に抵触しています</font>");
-				} else if(this.IsHidden.Value) {
-					this.CommentHtml = new ReactiveProperty<string>("<font color=\"#ff0000\">非表示に設定されています</font>");
-				} else {
-					this.CommentHtml = new ReactiveProperty<string>(com.ToString());
-				}
+				this.IsDel = new ReactiveProperty<bool>(
+					(item.ResItem.Res.IsDel || item.ResItem.Res.IsDel2)
+						&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden));
+				this.CommentHtml = new ReactiveProperty<string>("");
 				this.OriginHtml = new ReactiveProperty<string>(com.ToString());
-				this.IsVisibleOriginComment = new ReactiveProperty<bool>((this.IsHidden.Value || this.IsNg.Value) ? false : true);
+				this.SetCommentHtml();
+				this.IsVisibleOriginComment = new ReactiveProperty<bool>((this.IsHidden.Value || this.IsNg.Value || this.IsDel.Value) ? false : true);
 				this.DisplayHtml = IsVisibleOriginComment
 					.Select(x => x ? this.OriginHtml.Value : this.CommentHtml.Value)
 					.ToReactiveProperty();
 				this.ReleaseHiddenResBuutonVisibility = this.IsHidden
 					.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
 					.ToReactiveProperty();
-				this.ShowNgResButtonVisibility = this.IsNg
+				this.ShowNgResButtonVisibility = new[] { this.IsNg, this.IsDel }
+					.CombineLatest(x => x.Any(y => y))
 					.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
 					.ToReactiveProperty();
-				this.CopyModeButtonVisibility = new[] { this.IsHidden, this.IsNg }
+				this.CopyModeButtonVisibility = new[] { this.IsHidden, this.IsNg, this.IsDel }
 					.CombineLatest(x => x.All(y => !y))
 					.CombineLatest(this.IsVisibleOriginComment, (x, y) => (x | y) ? Visibility.Visible : Visibility.Collapsed)
 					.ToReactiveProperty();
@@ -590,9 +606,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				ngUpdateAction = (x) => a();
 				hiddenUpdateAction = (x) => a();
 				imageUpdateAction = (x) => b();
-				Ng.NgConfig.NgConfigLoder.AddNgUpdateNotifyer(ngUpdateAction);
-				Ng.NgConfig.NgConfigLoder.AddHiddenUpdateNotifyer(hiddenUpdateAction);
-				Ng.NgConfig.NgConfigLoder.AddImageUpdateNotifyer(imageUpdateAction);
+				systemUpdateAction = (x) => c();
+				Ng.NgConfig.NgConfigLoader.AddNgUpdateNotifyer(ngUpdateAction);
+				Ng.NgConfig.NgConfigLoader.AddHiddenUpdateNotifyer(hiddenUpdateAction);
+				Ng.NgConfig.NgConfigLoader.AddImageUpdateNotifyer(imageUpdateAction);
+				WpfConfig.WpfConfigLoader.AddSystemConfigUpdateNotifyer(systemUpdateAction);
 			}
 
 			// コピー用コメント生成
@@ -651,12 +669,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		public void ReleaseHiddenRes() {
-			Ng.NgConfig.NgConfigLoder.RemoveHiddenRes(
+			Ng.NgConfig.NgConfigLoader.RemoveHiddenRes(
 				Ng.NgData.HiddenData.FromResItem(this.Raw.Value.Url.BaseUrl, this.Raw.Value.ResItem));
 		}
 
 		public void ToggleDisplayNgRes() {
-			if(this.IsHidden.Value || this.IsNg.Value) {
+			if(this.IsHidden.Value || this.IsNg.Value || this.IsDel.Value) {
 				this.IsVisibleOriginComment.Value = !this.IsVisibleOriginComment.Value;
 			}
 		}
@@ -700,10 +718,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 								? WpfUtil.ImageUtil.CalculatePerceptualHash(x) : default(ulong?);
 							this.ThumbHash.Value = h;
 							this.OriginSource.Value = x;
-							if(h.HasValue && Ng.NgConfig.NgConfigLoder.NgImageConfig.Images.Any(
-								y => Ng.NgUtil.PerceptualHash.GetHammingDistance(h.Value, y) <= Ng.NgConfig.NgConfigLoder.NgImageConfig.Threshold)) {
+							if(h.HasValue && Ng.NgConfig.NgConfigLoader.NgImageConfig.Images.Any(
+								y => Ng.NgUtil.PerceptualHash.GetHammingDistance(h.Value, y) <= Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold)) {
 
-								ThumbSource.Value = (Ng.NgConfig.NgConfigLoder.NgImageConfig.NgMethod == ImageNgMethod.Hidden)
+								ThumbSource.Value = (Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod == ImageNgMethod.Hidden)
 									? null : WpfUtil.ImageUtil.GetNgImage();
 							} else {
 								ThumbSource.Value = x;
@@ -715,21 +733,31 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}
 		}
 
+		private void SetCommentHtml() {
+			var del = WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden;
+			if(this.IsNg.Value) {
+				this.CommentHtml.Value = "<font color=\"#ff0000\">NG設定に抵触しています</font>";
+			} else if(this.IsHidden.Value) {
+				this.CommentHtml.Value = "<font color=\"#ff0000\">非表示に設定されています</font>";
+			} else if(this.Raw.Value.ResItem.Res.IsDel && del) {
+				this.CommentHtml.Value = "<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font>";
+			} else if(this.Raw.Value.ResItem.Res.IsDel2 && del) {
+				this.CommentHtml.Value = "<font color=\"#ff0000\">削除依頼によって隔離されました</font>";
+			} else {
+				this.CommentHtml.Value = this.OriginHtml.Value;
+			}
+
+		}
+
 		// TODO: 名前変える
 		private void a() {
 			this.IsNg.Value = this.Raw.Value.Url.IsCatalogUrl
 				? Ng.NgUtil.NgHelper.CheckCatalogNg(this.Parent.Value.Raw, this.Raw.Value)
 					: Ng.NgUtil.NgHelper.CheckThreadNg(this.Parent.Value.Raw, this.Raw.Value);
 			this.IsHidden.Value = Ng.NgUtil.NgHelper.CheckHidden(this.Parent.Value.Raw, this.Raw.Value);
-			if(this.IsNg.Value) {
-				this.CommentHtml.Value = "<font color=\"#ff0000\">NG設定に抵触しています</font>";
-			} else if(this.IsHidden.Value) {
-				this.CommentHtml.Value = "<font color=\"#ff0000\">非表示に設定されています</font>";
-			} else {
-				this.CommentHtml.Value = this.OriginHtml.Value;
-			}
 			this.IsCopyMode.Value = false;
-			this.IsVisibleOriginComment.Value = (this.IsHidden.Value || this.IsNg.Value) ? false : true;
+			this.SetCommentHtml();
+			this.IsVisibleOriginComment.Value = (this.IsHidden.Value || this.IsNg.Value || this.IsDel.Value) ? false : true;
 		}
 
 		// TODO: 名前変える
@@ -747,16 +775,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}
 
 			if(ThumbHash.Value.HasValue) {
-				if(Ng.NgConfig.NgConfigLoder.NgImageConfig.Images.Any(
-					x => Ng.NgUtil.PerceptualHash.GetHammingDistance(ThumbHash.Value.Value, x) <= Ng.NgConfig.NgConfigLoder.NgImageConfig.Threshold)) {
+				if(Ng.NgConfig.NgConfigLoader.NgImageConfig.Images.Any(
+					x => Ng.NgUtil.PerceptualHash.GetHammingDistance(ThumbHash.Value.Value, x) <= Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold)) {
 
 					// NG画像
-					ThumbSource.Value = (Ng.NgConfig.NgConfigLoder.NgImageConfig.NgMethod == ImageNgMethod.Hidden) 
+					ThumbSource.Value = (Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod == ImageNgMethod.Hidden) 
 						? null :  WpfUtil.ImageUtil.GetNgImage();
 				} else {
 					ThumbSource.Value = OriginSource.Value;
 				}
 			}
+		}
+
+		// TODO:名前考える
+		private void c() {
+			this.IsDel.Value = (this.Raw.Value.ResItem.Res.IsDel || this.Raw.Value.ResItem.Res.IsDel2)
+				&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden);
+			this.SetCommentHtml();
+			this.IsVisibleOriginComment.Value =(this.IsHidden.Value || this.IsNg.Value || this.IsDel.Value) ? false : true;
 		}
 	}
 }

@@ -215,21 +215,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnCatalogMenuItemThreadHidden(Model.BindableFutabaResItem x) {
-			Ng.NgConfig.NgConfigLoder.AddHiddenRes(Ng.NgData.HiddenData.FromResItem(
+			Ng.NgConfig.NgConfigLoader.AddHiddenRes(Ng.NgData.HiddenData.FromResItem(
 				x.Raw.Value.Url.BaseUrl, x.Raw.Value.ResItem));
 		}
 
 		private void OnCatalogMenuItemNgImage(Model.BindableFutabaResItem x) {
 			if(x.OriginSource.Value != null) {
 				var v = x.ThumbHash.Value ?? WpfUtil.ImageUtil.CalculatePerceptualHash(x.OriginSource.Value);
-				var ng = Ng.NgConfig.NgConfigLoder.NgImageConfig.Images
+				var ng = Ng.NgConfig.NgConfigLoader.NgImageConfig.Images
 					.Where(y => y.Hash == v.ToString())
 					.FirstOrDefault();
 				if(ng != null) {
-					Ng.NgConfig.NgConfigLoder.RemoveNgImage(ng);
+					Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
 				} else {
 					// TODO: コメント入力ダイアログを出す
-					Ng.NgConfig.NgConfigLoder.AddNgImage(
+					Ng.NgConfig.NgConfigLoader.AddNgImage(
 						Ng.NgData.NgImageData.FromPerceptualHash(
 							v, "カタログから登録"));
 				}

@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Linq;
+using Yarukizero.Net.MakiMoki.Data;
 
 namespace Yarukizero.Net.MakiMoki.Config {
 	public static class ConfigLoader {
@@ -15,7 +16,10 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		private static readonly string PtuaConfigFile = "ptua.json";
 		private static readonly string CookieConfigFile = "cookie.json";
 		private static readonly string PasswordConfigFile = "passwd.json";
+		private static readonly string FutabaSavedFile = "makimoki.futaba.json";
 		internal static readonly Assembly CoreAssembly = typeof(ConfigLoader).Assembly;
+
+		private static volatile object lockObj = new object();
 
 		public class Setting {
 			public string SystemDirectory { get; set; } = null;
@@ -37,6 +41,22 @@ namespace Yarukizero.Net.MakiMoki.Config {
 					}
 				}
 				return defaultValue;
+			}
+			T getPath<T>(string path, T defaultValue) {
+				var r = defaultValue;
+				if(File.Exists(path)) {
+					Util.FileUtil.LoadConfigHelper(path,
+						(json) => r = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json),
+						(e, m) => throw new Exceptions.InitializeFailedException(m, e));
+				}
+				return r;
+			}
+			T getStream<T>(Stream path, T defaultValue) {
+				var r = defaultValue;
+				Util.FileUtil.LoadConfigHelper(path,
+					(json) => r = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json),
+					(e, m) => throw new Exceptions.InitializeFailedException(m, e));
+				return r;
 			}
 
 			string loadFile(Stream s) {
@@ -161,6 +181,10 @@ namespace Yarukizero.Net.MakiMoki.Config {
 						e.Message), e);
 			}
 
+			SavedFutaba = getPath(
+				Path.Combine(InitializedSetting.WorkDirectory, FutabaSavedFile),
+				Data.FutabaSavedConfig.CreateDefault());
+
 			var bordList = new List<Data.BordConfig>();
 			foreach(var k in bordDic.Keys.OrderBy(x => x)) {
 				bordList.Add(bordDic[k]);
@@ -184,6 +208,8 @@ namespace Yarukizero.Net.MakiMoki.Config {
 
 		public static Data.Password Password { get; private set; }
 
+		public static Data.FutabaSavedConfig SavedFutaba { get; private set; }
+
 		private static void SaveFile(string path, string s) {
 			var m = File.Exists(path) ? FileMode.Truncate : FileMode.OpenOrCreate;
 			using(var fs = new FileStream(path, m)) {
@@ -197,7 +223,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		internal static void UpdateCookie(Data.Cookie[] cookies) {
 			Cookies = cookies;
 			var s = JsonConvert.SerializeObject(cookies);
-			lock(CoreAssembly) {
+			lock(lockObj) {
 				SaveFile(Path.Combine(InitializedSetting.WorkDirectory, CookieConfigFile), s);
 			}
 		}
@@ -214,6 +240,41 @@ namespace Yarukizero.Net.MakiMoki.Config {
 				t |= ((long)rnd.Next() % 2) << i;
 			}
 			return new Data.Ptua(t.ToString());
+		}
+
+		public static void UpdateMakiMokiConfig(bool threadGetIncremental, bool responseSave) {
+			MakiMoki = MakiMokiConfig.From(
+				threadGetIncremental: threadGetIncremental,
+				responseSave: responseSave);
+			lock(lockObj) {
+				if(Directory.Exists(InitializedSetting.UserDirectory)) {
+					Util.FileUtil.SaveJson(
+						Path.Combine(InitializedSetting.UserDirectory, MakiMokiConfigFile),
+						MakiMoki);
+				}
+			}
+
+			// notifyerいる？
+		}
+
+		public static void SaveFutabaResponse(Data.FutabaContext[] catalogs, Data.FutabaContext[] threads) {
+			if(MakiMoki.FutabaResponseSave) {
+				lock(lockObj) {
+					SavedFutaba = Data.FutabaSavedConfig.From(catalogs, threads);
+					Util.FileUtil.SaveJson(
+						Path.Combine(InitializedSetting.WorkDirectory, FutabaSavedFile),
+						SavedFutaba);
+				}
+			}
+		}
+		public static void RemoveSaveFutabaResponseFile() {
+			var f = Path.Combine(InitializedSetting.WorkDirectory, FutabaSavedFile);
+			if(File.Exists(f)) {
+				try {
+					File.Delete(f);
+				}
+				catch(IOException) { /* TODO: どうする？ */}
+			}
 		}
 	}
 }

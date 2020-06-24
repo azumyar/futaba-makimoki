@@ -97,9 +97,10 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgData {
 
 	public class HiddenConfig : Data.ConfigObject {
 		public static int CurrentVersion = -1;
+		private static int DefaultExpireDay = 30;
 
-		[JsonProperty("refresh-day", Required = Required.DisallowNull)]
-		public int RefreshDay { get; internal set; }
+		[JsonProperty("expire-day", Required = Required.DisallowNull)]
+		public int ExpireDay { get; internal set; }
 
 		[JsonProperty("res", Required = Required.DisallowNull)]
 		public HiddenData[] Res { get; internal set; }
@@ -107,7 +108,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgData {
 		internal static HiddenConfig CreateDefault() {
 			return new HiddenConfig() {
 				Version = CurrentVersion,
-				RefreshDay = 30,
+				ExpireDay = DefaultExpireDay,
 				Res = new HiddenData[0],
 			};
 		}

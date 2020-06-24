@@ -69,5 +69,47 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					e.Message));
 			}
 		}
+
+		public static void LoadConfigHelper(Stream configFile, Action<string> loadAction, Action<Exception, string> errorAction) {
+			System.Diagnostics.Debug.Assert(configFile != null);
+			System.Diagnostics.Debug.Assert(loadAction != null);
+			System.Diagnostics.Debug.Assert(errorAction != null);
+			try {
+				loadAction(LoadFileString(configFile));
+			}
+			catch(JsonReaderException e) {
+				errorAction(e, string.Format(
+					"JSONファイル[{1}]が不正な形式です{0}{0}{2}",
+					Environment.NewLine,
+					configFile,
+					e.Message));
+			}
+			catch(JsonSerializationException e) {
+				errorAction(e, string.Format(
+					"JSONファイル[{1}]が不正な形式です{0}{0}{2}",
+					Environment.NewLine,
+					configFile,
+					e.Message));
+			}
+			catch(IOException e) {
+				errorAction(e, string.Format(
+					"ファイル[{1}]の読み込みに失敗しました{0}{0}{2}",
+					Environment.NewLine,
+					configFile,
+					e.Message));
+			}
+		}
+
+		public static string ToBase64(Stream stream) {
+			var list = new List<byte>();
+			var b = new byte[1024];
+			var r = 0;
+			while(0 < (r = stream.Read(b, 0, b.Length))) {
+				for(var i = 0; i < r; i++) {
+					list.Add(b[i]);
+				}
+			}
+			return Convert.ToBase64String(list.ToArray(), Base64FormattingOptions.None);
+		}
 	}
 }

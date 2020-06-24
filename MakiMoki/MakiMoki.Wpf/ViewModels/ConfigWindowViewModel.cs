@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.UI.WebControls;
 using System.Windows;
+using Yarukizero.Net.MakiMoki.Wpf.PlatformData;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class ConfigWindowViewModel : BindableBase, IDisposable {
@@ -23,6 +24,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
+
+		public ReactiveProperty<bool> CoreConfigThreadDataIncremental { get; }
+		public ReactiveProperty<bool> CoreConfigSavedResponse { get; }
 
 
 		public ReactiveProperty<bool> NgConfigIdNg { get; }
@@ -37,6 +41,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<int> NgConfigImageMethod { get; }
 		public ReactiveProperty<int> NgConfigImageThreshold { get; }
 
+		public ReactiveProperty<string> MyReplyExpireDay { get; }
+		public ReactiveProperty<bool> MyReplyExpireDayValid { get; }
+
+		public ReactiveProperty<bool> WindowIsEnabledSavedState { get; }
+		public ReactiveProperty<bool> CatalogIsEnabledMovieMarker { get; }
+		public ReactiveProperty<bool> CatalogIsEnabledOldMarker { get; }
+		public ReactiveProperty<int> CatalogNgImageAction { get; }
+		public ReactiveProperty<int> ThreadDelResVisibility { get; }
+		public ReactiveProperty<string> ClipbordJpegQuality { get; }
+		public ReactiveProperty<bool> ClipbordJpegQualityValid { get; }
+		public ReactiveProperty<bool> ClipbordIsEnabledUrl { get; }
+		public ReactiveProperty<string> MediaExportPath { get; }
+		public ReactiveProperty<string> MediaCacheExpireDay { get; }
+		public ReactiveProperty<bool> MediaCacheExpireDayValid { get; }
+		public ReactiveProperty<int> ExportOutputNgRes { get; }
+		public ReactiveProperty<int> ExportOutputNgImage { get; }
+		public ReactiveProperty<string> BrowserPath { get; }
+
 
 		public ReactiveProperty<bool> IsEnabledOkButton { get; }
 
@@ -47,9 +69,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 
 		public ConfigWindowViewModel() {
-			NgConfigIdNg = new ReactiveProperty<bool>(Ng.NgConfig.NgConfigLoder.NgConfig.EnableIdNg);
-			NgConfigCatalogNgWord = new ReactiveProperty<string>(string.Join(Environment.NewLine, Ng.NgConfig.NgConfigLoder.NgConfig.CatalogWords));
-			NgConfigCatalogNgWordRegex = new ReactiveProperty<string>(string.Join(Environment.NewLine, Ng.NgConfig.NgConfigLoder.NgConfig.CatalogRegex));
+			CoreConfigThreadDataIncremental = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental);
+			CoreConfigSavedResponse = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaResponseSave);
+
+			NgConfigIdNg = new ReactiveProperty<bool>(Ng.NgConfig.NgConfigLoader.NgConfig.EnableIdNg);
+			NgConfigCatalogNgWord = new ReactiveProperty<string>(string.Join(Environment.NewLine, Ng.NgConfig.NgConfigLoader.NgConfig.CatalogWords));
+			NgConfigCatalogNgWordRegex = new ReactiveProperty<string>(string.Join(Environment.NewLine, Ng.NgConfig.NgConfigLoader.NgConfig.CatalogRegex));
 			NgConfigCatalogNgWordRegexValid = NgConfigCatalogNgWordRegex.Select(x => {
 				foreach(var r in x.Replace("\r", "").Split('\n')) {
 					try {
@@ -62,8 +87,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				return true;
 			}).ToReactiveProperty();
 			NgConfigCatalogNgWordRegexVisibility = NgConfigCatalogNgWordRegexValid.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
-			NgConfigThreadNgWord = new ReactiveProperty<string>(string.Join(Environment.NewLine, Ng.NgConfig.NgConfigLoder.NgConfig.ThreadWords));
-			NgConfigThreadNgWordRegex = new ReactiveProperty<string>(string.Join(Environment.NewLine, Ng.NgConfig.NgConfigLoder.NgConfig.ThreadRegex));
+			NgConfigThreadNgWord = new ReactiveProperty<string>(string.Join(Environment.NewLine, Ng.NgConfig.NgConfigLoader.NgConfig.ThreadWords));
+			NgConfigThreadNgWordRegex = new ReactiveProperty<string>(string.Join(Environment.NewLine, Ng.NgConfig.NgConfigLoader.NgConfig.ThreadRegex));
 			NgConfigThreadNgWordRegexValid = NgConfigThreadNgWordRegex.Select(x => {
 				foreach(var r in x.Replace("\r", "").Split('\n')) {
 					try {
@@ -76,10 +101,52 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				return true;
 			}).ToReactiveProperty();
 			NgConfigThreadNgWordRegexVisibility = NgConfigThreadNgWordRegexValid.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
-			NgConfigImageMethod = new ReactiveProperty<int>((int)Ng.NgConfig.NgConfigLoder.NgImageConfig.NgMethod);
-			NgConfigImageThreshold = new ReactiveProperty<int>(Ng.NgConfig.NgConfigLoder.NgImageConfig.Threshold);
+			NgConfigImageMethod = new ReactiveProperty<int>((int)Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod);
+			NgConfigImageThreshold = new ReactiveProperty<int>(Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold);
 
-			IsEnabledOkButton = new[] { NgConfigCatalogNgWordRegexValid, NgConfigThreadNgWordRegexValid }.CombineLatest(x => x.All(y => y)).ToReactiveProperty();
+			MyReplyExpireDay = new ReactiveProperty<string>("3");
+			MyReplyExpireDayValid = MyReplyExpireDay.Select(x => {
+				if(int.TryParse(x, out var v)) {
+					return 0 <= v;
+				} else {
+					return false;
+				}
+			}).ToReactiveProperty();
+
+			WindowIsEnabledSavedState = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.StateSave);
+			CatalogIsEnabledMovieMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledMovieMarker);
+			CatalogIsEnabledOldMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledOldMarker);
+			CatalogNgImageAction = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage);
+			ThreadDelResVisibility = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility);
+			ClipbordJpegQuality = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.ClipbordJpegQuality.ToString());
+			ClipbordJpegQualityValid = ClipbordJpegQuality.Select(x => {
+				if(int.TryParse(x, out var v)) {
+					return (0 <= v) && (v <= 100);
+				} else {
+					return false;
+				}
+			}).ToReactiveProperty();
+			ClipbordIsEnabledUrl = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.ClipbordIsEnabledUrl);
+			MediaExportPath = new ReactiveProperty<string>(string.Join(Environment.NewLine, WpfConfig.WpfConfigLoader.SystemConfig.MediaExportPath));
+			MediaCacheExpireDay = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.CacheExpireDay.ToString());
+			MediaCacheExpireDayValid = MediaCacheExpireDay.Select(x => {
+				if(int.TryParse(x, out var v)) {
+					return 0 <= v;
+				} else {
+					return false;
+				}
+			}).ToReactiveProperty();
+			ExportOutputNgRes = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes);
+			ExportOutputNgImage = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage);
+			BrowserPath = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.BrowserPath);
+
+			IsEnabledOkButton = new[] {
+				NgConfigCatalogNgWordRegexValid,
+				NgConfigThreadNgWordRegexValid,
+				MyReplyExpireDayValid,
+				ClipbordJpegQualityValid,
+				MediaCacheExpireDayValid,
+			}.CombineLatest(x => x.All(y => y)).ToReactiveProperty();
 			OkButtonClickCommand.Subscribe(x => OnOkButtonClick(x));
 			CancelButtonClickCommand.Subscribe(x => OnCancelButtonClick(x));
 			LinkClickCommand.Subscribe(x => OnLinkClick(x));
@@ -90,33 +157,59 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnOkButtonClick(RoutedEventArgs e) {
-			Ng.NgConfig.NgConfigLoder.UpdateIdNg(NgConfigIdNg.Value);
-			Ng.NgConfig.NgConfigLoder.ReplaceCatalogNgWord(
+			Config.ConfigLoader.UpdateMakiMokiConfig(
+				threadGetIncremental: CoreConfigThreadDataIncremental.Value,
+				responseSave: CoreConfigSavedResponse.Value);
+			if(!CoreConfigSavedResponse.Value) {
+				Config.ConfigLoader.RemoveSaveFutabaResponseFile();
+			}
+
+			Ng.NgConfig.NgConfigLoader.UpdateIdNg(NgConfigIdNg.Value);
+			Ng.NgConfig.NgConfigLoader.ReplaceCatalogNgWord(
 				NgConfigCatalogNgWord.Value
 					.Replace("\r", "")
 					.Split('\n')
 					.Where(x => !string.IsNullOrEmpty(x))
 					.ToArray());
-			Ng.NgConfig.NgConfigLoder.ReplaceCatalogNgRegex(
+			Ng.NgConfig.NgConfigLoader.ReplaceCatalogNgRegex(
 				NgConfigCatalogNgWordRegex.Value
 					.Replace("\r", "")
 					.Split('\n')
 					.Where(x => !string.IsNullOrEmpty(x))
 					.ToArray());
-			Ng.NgConfig.NgConfigLoder.ReplaceThreadNgWord(
+			Ng.NgConfig.NgConfigLoader.ReplaceThreadNgWord(
 				NgConfigThreadNgWord.Value
 					.Replace("\r", "")
 					.Split('\n')
 					.Where(x => !string.IsNullOrEmpty(x))
 					.ToArray());
-			Ng.NgConfig.NgConfigLoder.ReplaceThreadNgRegex(
+			Ng.NgConfig.NgConfigLoader.ReplaceThreadNgRegex(
 				NgConfigThreadNgWordRegex.Value
 					.Replace("\r", "")
 					.Split('\n')
 					.Where(x => !string.IsNullOrEmpty(x))
 					.ToArray());
-			Ng.NgConfig.NgConfigLoder.UpdateNgImageMethod((Ng.NgData.ImageNgMethod)NgConfigImageMethod.Value);
-			Ng.NgConfig.NgConfigLoder.UpdateNgImageThreshold(NgConfigImageThreshold.Value);
+			Ng.NgConfig.NgConfigLoader.UpdateNgImageMethod((Ng.NgData.ImageNgMethod)NgConfigImageMethod.Value);
+			Ng.NgConfig.NgConfigLoader.UpdateNgImageThreshold(NgConfigImageThreshold.Value);
+
+			var s = PlatformData.WpfConfig.Create(
+				stateSave: WindowIsEnabledSavedState.Value,
+				isEnabledMovieMarker: CatalogIsEnabledMovieMarker.Value,
+				isEnabledOldMarker: CatalogIsEnabledOldMarker.Value,
+				catalogNgImage: (PlatformData.CatalogNgImage)CatalogNgImageAction.Value,
+				threadDelResVisibility: (PlatformData.ThreadDelResVisibility)ThreadDelResVisibility.Value,
+				clipbordJpegQuality: int.Parse(ClipbordJpegQuality.Value),
+				clipbordIsEnabledUrl: ClipbordIsEnabledUrl.Value,
+				mediaExportPath: MediaExportPath.Value
+					.Replace("\r", "")
+					.Split('\n')
+					.Where(x => !string.IsNullOrEmpty(x))
+					.ToArray(),
+				cacheExpireDay: int.Parse(MediaCacheExpireDay.Value),
+				exportNgRes: (PlatformData.ExportNgRes)ExportOutputNgRes.Value,
+				exportNgImage: (PlatformData.ExportNgImage)ExportOutputNgImage.Value,
+				browserPath: BrowserPath.Value);
+			WpfConfig.WpfConfigLoader.UpdateSystemConfig(s);
 
 			Messenger.Instance.GetEvent<PubSubEvent<DialogCloseMessage>>()
 				.Publish(new DialogCloseMessage());
@@ -128,13 +221,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnLinkClick(Uri e) {
-			try {
-				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(e.AbsoluteUri));
-			}
-			catch(System.ComponentModel.Win32Exception) {
-				// 関連付け実行に失敗
-			}
+			WpfUtil.PlatformUtil.StartBrowser(e);
 		}
-
 	}
 }

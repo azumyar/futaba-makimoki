@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using System.IO;
+using Yarukizero.Net.MakiMoki.Data;
 
 namespace Yarukizero.Net.MakiMoki.Util {
 	public static class Futaba {
@@ -22,10 +23,42 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static ReactiveCollection<Data.Information> Informations { get; private set; }
 
 		public static void Initialize() {
-			Catalog = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
-			Threads = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
+			if(Config.ConfigLoader.MakiMoki.FutabaResponseSave) {
+				Catalog = new ReactiveProperty<Data.FutabaContext[]>(
+					Config.ConfigLoader.SavedFutaba.Catalogs.Select(x => {
+						var b = Config.ConfigLoader.Bord.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
+						if(b != null) {
+							return FutabaContext.FromCatalog_(b, x.Catalog, x.CatalogSortRes, x.CatalogResCounter);
+						} else {
+							return null;
+						}
+					}).Where(x => x != null).ToArray());
+				Threads = new ReactiveProperty<Data.FutabaContext[]>(
+					Config.ConfigLoader.SavedFutaba.Threads.Select(x => {
+						var b = Config.ConfigLoader.Bord.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
+						if(b != null) {
+							return FutabaContext.FromThreadResResponse(
+								FutabaContext.FromThreadEmpty(b, x.Url.ThreadNo),
+								x.Thread);
+						} else {
+							return null;
+						}
+					}).Where(x => x != null).ToArray());
+			} else {
+				Catalog = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
+				Threads = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
+			}
 			PostItems = new ReactiveProperty<Data.PostedResItem[]>(new Data.PostedResItem[0]);
 			Informations = new ReactiveCollection<Data.Information>(UIDispatcherScheduler.Default);
+
+			Catalog.Subscribe(x => Config.ConfigLoader.SaveFutabaResponse(Catalog.Value.ToArray(), Threads.Value.ToArray()));
+			Threads.Subscribe(x => Config.ConfigLoader.SaveFutabaResponse(Catalog.Value.ToArray(), Threads.Value.ToArray()));
+		}
+
+		public static void Load(Data.FutabaContext[] catalogs, Data.FutabaContext[] threads, Data.PostedResItem[] postItems) {
+			Catalog.Value = catalogs;
+			Threads.Value = threads;
+			PostItems.Value = postItems;
 		}
 
 		public static IObservable<Data.FutabaContext> UpdateCatalog(Data.BordConfig bord, Data.CatalogSortItem sort = null) {

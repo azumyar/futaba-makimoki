@@ -64,7 +64,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				// メモリリークする気がする
 				item?.DisplayHtml.Subscribe(x => a(
 					tb,
-					item,
+					GetInline(tb),
 					(tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue));
 			}
 		}

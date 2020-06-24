@@ -56,6 +56,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			return NgImage;
 		}
 
+		public static string GetNgImageBase64() {
+			var asm = typeof(App).Assembly;
+
+			return Util.FileUtil.ToBase64(asm.GetManifestResourceStream(
+				$"{ typeof(App).Namespace }.Resources.Images.NgImage.png"));
+		}
+
 		public static BitmapImage LoadImage(string path) {
 			if(TryGetImage(path, out var b)) {
 				return b;

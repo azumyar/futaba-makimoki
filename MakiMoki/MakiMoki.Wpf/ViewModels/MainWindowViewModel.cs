@@ -87,6 +87,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public MainWindowViewModel() {
 			Bords = new ReactiveProperty<Data.BordConfig[]>(Config.ConfigLoader.Bord);
+			/*
+			var savedState = WpfConfig.WpfConfigLoader.CreateInitializeTabItem();
+			foreach(var c in savedState.Catalogs) {
+				Catalogs.Add(c);
+			}
+			foreach(var k in savedState.Threads.Keys) {
+				var r = new ReactiveCollection<Model.TabItem>();
+				foreach(var t in savedState.Threads[k]) {
+					r.Add(t);
+				}
+				ThreadsDic.Add(k, r);
+			}
+			*/
+			foreach(var c in Util.Futaba.Catalog.Value) {
+				Catalogs.Add(new TabItem(c));
+				ThreadsDic.Add(c.Url.BaseUrl, new ReactiveCollection<TabItem>());
+			}
+			foreach(var t in Util.Futaba.Threads.Value) {
+				if(ThreadsDic.TryGetValue(t.Url.BaseUrl, out var r)) {
+					r.Add(new TabItem(t));
+				}
+			}
+
 			Threads = TabControlSelectedItem.Select(x => {
 				var u = x?.Futaba.Value?.Url.BaseUrl;
 				if(u != null) {
@@ -101,7 +124,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					return new ReactiveCollection<Model.TabItem>();
 				}
 			}).ToReactiveProperty();
-			this.TabVisibility = new ReactiveProperty<Visibility>(Visibility.Collapsed);
+			this.TabVisibility = new ReactiveProperty<Visibility>((Catalogs.Count == 0) ? Visibility.Collapsed : Visibility.Visible);
 			BordListClickCommand.Subscribe(x => OnBordListClick(x));
 			ConfigButtonClickCommand.Subscribe(x => OnConfigButtonClick(x));
 			BordOpenCommand.Subscribe(x => OnBordOpen(x));

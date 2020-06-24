@@ -40,11 +40,14 @@
                             >
                             <TextBlock Style="{StaticResource ConfigHeaderText}">コア設定</TextBlock>
                             <StackPanel Style="{StaticResource ConfigContents}">
-                                <TextBlock>スレッド取得</TextBlock>
-                                <ComboBox SelectedIndex="1" Width="320" IsEnabled="False" HorizontalAlignment="Left">
-                                    <ComboBoxItem>フル取得</ComboBoxItem>
-                                    <ComboBoxItem>差分取得</ComboBoxItem>
-                                </ComboBox>
+                                <TextBlock>スレッドデータを差分取得する</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding CoreConfigThreadDataIncremental.Value, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>現在のふたばレスポンスデータを保存</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">現在取得しているレスポンスデータ(テキスト)を保存し次回起動時に復元します。</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding CoreConfigSavedResponse.Value, Mode=TwoWay}" />
                             </StackPanel>
 
                             <TextBlock Style="{StaticResource ConfigHeaderText}" Margin="0 8 0 0">NG設定</TextBlock>
@@ -135,12 +138,22 @@
                                     <ComboBoxItem>8</ComboBoxItem>
                                     <ComboBoxItem>9</ComboBoxItem>
                                     <ComboBoxItem>10</ComboBoxItem>
+                                    <ComboBoxItem>11</ComboBoxItem>
+                                    <ComboBoxItem>12</ComboBoxItem>
+                                    <ComboBoxItem>13</ComboBoxItem>
+                                    <ComboBoxItem>14</ComboBoxItem>
+                                    <ComboBoxItem>15</ComboBoxItem>
+                                    <ComboBoxItem>16</ComboBoxItem>
+                                    <ComboBoxItem>17</ComboBoxItem>
+                                    <ComboBoxItem>18</ComboBoxItem>
+                                    <ComboBoxItem>19</ComboBoxItem>
+                                    <ComboBoxItem>20</ComboBoxItem>
                                 </ComboBox>
 
-                                <StackPanel Margin="0 8 0 8">
+                                <StackPanel Style="{StaticResource ConfigContents}">
                                     <TextBlock>非表示レス設定保存日数</TextBlock>
                                     <TextBlock Foreground="Gray" TextWrapping="Wrap">非表示に設定したレスを記憶する期間(日)を指定します。削除処理は起動時に行われます。</TextBlock>
-                                    <TextBox Text="30" Width="320" HorizontalAlignment="Left" IsEnabled="False" />
+                                    <TextBox Text="30" Width="320" HorizontalAlignment="Left" />
                                 </StackPanel>
                             </StackPanel>
 
@@ -155,20 +168,20 @@
                                     HorizontalAlignment="Left"
                                     HorizontalScrollBarVisibility="Auto"
                                     VerticalScrollBarVisibility="Auto"
-                                    IsEnabled="False"
+                                    Text="{Binding MediaExportPath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
                                     />
                             </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>画像キャッシュ保存日数</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">キャッシュした画像/動画を保存する期間(日)を指定します。削除処理は起動時に行われます。</TextBlock>
-                                <TextBox Text="3" Width="320" HorizontalAlignment="Left" IsEnabled="False" />
+                                <TextBox Width="320" HorizontalAlignment="Left" Text="{Binding MediaCacheExpireDay.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" />
                             </StackPanel>
 
                             <TextBlock Style="{StaticResource ConfigHeaderText}">保存設定</TextBlock>
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>NGレス</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">出力HTMLにNGレスを含めるか設定します。</TextBlock>
-                                <ComboBox SelectedIndex="0" Width="320" IsEnabled="False" HorizontalAlignment="Left">
+                                <ComboBox SelectedIndex="{Binding ExportOutputNgRes.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
                                     <ComboBoxItem>出力</ComboBoxItem>
                                     <ComboBoxItem>マスク化</ComboBoxItem>
                                     <ComboBoxItem>非表示</ComboBoxItem>
@@ -177,7 +190,7 @@
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>NG画像</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">出力HTMLにNG画像を含めるか設定します。</TextBlock>
-                                <ComboBox SelectedIndex="0" Width="320" IsEnabled="False" HorizontalAlignment="Left">
+                                <ComboBox SelectedIndex="{Binding ExportOutputNgImage.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
                                     <ComboBoxItem>出力</ComboBoxItem>
                                     <ComboBoxItem>ダミー画像</ComboBoxItem>
                                     <ComboBoxItem>非表示</ComboBoxItem>
@@ -185,23 +198,23 @@
                             </StackPanel>
 
                             <TextBlock Style="{StaticResource ConfigHeaderText}">そのほか</TextBlock>
-                            <StackPanel Style="{StaticResource ConfigContents}" IsEnabled="False">
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>Webブラウザ</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">http/httpsのリンクを開くブラウザのexeファイルを指定します。何も設定されていない場合Windowsに関連付けられているブラウザが起動します。</TextBlock>
-                                <TextBox Text="" Width="320" HorizontalAlignment="Left" />
+                                <TextBox Text="{Binding BrowserPath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="320" HorizontalAlignment="Left" />
                             </StackPanel>
 
-                            <StackPanel Style="{StaticResource ConfigContents}" IsEnabled="False">
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>自レス判定保存日数</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">自分が投稿したレスを記憶する期間(日)を指定します。削除処理は起動時に行われます。</TextBlock>
-                                <TextBox Text="30" Width="320" HorizontalAlignment="Left" />
+                                <TextBox Text="{Binding MediaCacheExpireDay.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
             </TabItem>
 
-            <TabItem Header="画面" Visibility="Collapsed">
+            <TabItem Header="画面">
                 <Grid>
                     <ScrollViewer
                         HorizontalScrollBarVisibility="Disabled"
@@ -216,14 +229,23 @@
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>カタログ(Wrap表示)に動画マーカーを表示</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド画像が.mp4/.webmの場合サムネイルにマーカーを表示します。</TextBlock>
-                                <CheckBox Content="有効" IsChecked="True" />
+                                <CheckBox Content="有効" IsChecked="{Binding CatalogIsEnabledMovieMarker.Value, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>キャッシュされているNG画像スレッド設定</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド画像がNGに登録されている場合かつキャッシュに存在する場合カタログから除外します。この設定は新規にダウンロードしてきたNG画像スレッドには適用されません。</TextBlock>
+                                <ComboBox SelectedIndex="{Binding CatalogNgImageAction.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>何もしない</ComboBoxItem>
+                                    <ComboBoxItem>除外</ComboBoxItem>
+                                </ComboBox>
                             </StackPanel>
 
                             <TextBlock Style="{StaticResource ConfigHeaderText}">スレッド</TextBlock>
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>削除されたレス</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッドを建てた人に削除されたレスとユーザが隔離したレスの初期表示を設定します。</TextBlock>
-                                <ComboBox SelectedIndex="0" Width="320" HorizontalAlignment="Left">
+                                <ComboBox SelectedIndex="{Binding ThreadDelResVisibility.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
                                     <ComboBoxItem>表示</ComboBoxItem>
                                     <ComboBoxItem>隠す</ComboBoxItem>
                                 </ComboBox>
@@ -233,7 +255,7 @@
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>クリップボードビットマップの品質</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">クリップボードからビットマップ画像を投稿した場合のJPEG保存品質を設定します。(0-100)</TextBlock>
-                                <TextBox Text="80" Width="320" HorizontalAlignment="Left" />
+                                <TextBox Text="{Binding ClipbordJpegQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>

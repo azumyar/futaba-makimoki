@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 using Yarukizero.Net.MakiMoki.Ng.NgData;
 
 namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
-	public static class NgConfigLoder {
+	public static class NgConfigLoader {
 		private static readonly string NgConfigFile = "ng.json";
 		private static readonly string NgImageConfigFile = "ng.image.json";
 		private static readonly string HiddenConfigFile = "ng.hidden.json";
@@ -52,7 +52,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 					// 古い非表示レス設定を削除する
 					var hiddenCount = HiddenConfig.Res.Length;
 					if(0 < hiddenCount) {
-						var d = DateTime.Now.AddDays(-HiddenConfig.RefreshDay);
+						var d = DateTime.Now.AddDays(-HiddenConfig.ExpireDay);
 						var t = HiddenConfig.Res.Where(x => d <= x.Res.Res.NowDateTime).ToArray();
 						if(hiddenCount != t.Length) {
 							HiddenConfig.Res = t;

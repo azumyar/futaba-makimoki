@@ -17,18 +17,21 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
 				var dic = new Dictionary<string, ResItem>();
 				var keys = new List<string>();
-				while(reader.Read()) {
-					switch(reader.TokenType) {
-					case JsonToken.EndObject:
-					case JsonToken.EndArray:
-						goto end;
-					case JsonToken.PropertyName:
-						var prop = reader.Value?.ToString();
-						reader.Read();
+				if(reader.TokenType == JsonToken.StartObject) {
+					while(reader.Read()) {
+						switch(reader.TokenType) {
+						case JsonToken.Null:
+						case JsonToken.EndObject:
+						case JsonToken.EndArray:
+							goto end;
+						case JsonToken.PropertyName:
+							var prop = reader.Value?.ToString();
+							reader.Read();
 
-						keys.Add(prop);
-						dic.Add(prop, serializer.Deserialize<ResItem>(reader));
-						break;
+							keys.Add(prop);
+							dic.Add(prop, serializer.Deserialize<ResItem>(reader));
+							break;
+						}
 					}
 				}
 			end:
@@ -37,11 +40,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 			public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
 				if(value is NumberedResItem[] nri) {
-					var dic = new Dictionary<string, ResItem>();
-					foreach(var i in nri) {
-						dic.Add(i.No, i.Res);
-					}
-					serializer.Serialize(writer, dic);
+					serializer.Serialize(writer, nri.ToDictionary(x => x.No, x => x.Res));
 				} else {
 					serializer.Serialize(writer, value);
 				}
@@ -72,27 +71,32 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			}
 
 			public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
-				serializer.Serialize(writer, value);
+				if((value is Dictionary<string, string> d) && (d.Count == 0)) {
+					// 0件の場合ふたば定義に合わせて配列にする
+					serializer.Serialize(writer, new object[0]);
+				} else {
+					serializer.Serialize(writer, value);
+				}
 			}
 		}
 
 		[JsonProperty("die")]
-		public string Die { get; private set; }
+		public string Die { get; internal set; }
 		[JsonProperty("dielong")]
-		public string DieLong { get; private set; }
+		public string DieLong { get; internal set; }
 		[JsonProperty("dispname")]
-		public int Dispname { get; private set; }
+		public int Dispname { get; internal set; }
 		[JsonProperty("dispsod")]
-		public int Dispsod { get; private set; }
+		public int Dispsod { get; internal set; }
 		[JsonProperty("maxres")]
-		public string MaxRes { get; private set; }
+		public string MaxRes { get; internal set; }
 		[JsonProperty("nowtime")]
-		public long NowTime { get; private set; }
+		public long NowTime { get; internal set; }
 		[JsonProperty("old")]
-		public long Old { get; private set; }
+		public long Old { get; internal set; }
 		[JsonProperty("res")]
 		[JsonConverter(typeof(ResConverter))]
-		public NumberedResItem[] Res { get; private set; }
+		public NumberedResItem[] Res { get; internal set; }
 
 		// そうだね
 		// 2019/12/13現在
@@ -101,7 +105,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		// という形式で帰ってくるため大変めどい
 		[JsonProperty("sd")]
 		[JsonConverter(typeof(SoudaneConverter))]
-		public Dictionary<string, string> Sd { get; private set; }
+		public Dictionary<string, string> Sd { get; internal set; }
 
 		[JsonIgnore]
 		public bool IsDisplayName => (Dispname != 0);
@@ -186,7 +190,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonIgnore]
 		public DateTime NowDateTime {
 			get {
-				if(long.TryParse(Now, out var v)) {
+				if(long.TryParse(Tim, out var v)) {
 					return DateTimeOffset.FromUnixTimeMilliseconds(v).LocalDateTime;
 				}
 				return DateTime.MinValue;
@@ -284,6 +288,9 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public string Name { get; }
 		public string ApiValue { get; }
 
+		// JSONシリアライザ用
+		private CatalogSortItem() { }
+
 		internal CatalogSortItem(string name, string apiValue) {
 			this.Name = name;
 			this.ApiValue = apiValue;
@@ -296,6 +303,9 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 		[JsonProperty("res")]
 		public NumberedResItem Res { get; private set; }
+
+		// JSONシリアライザ用
+		private PostedResItem() { }
 
 		public PostedResItem(string bordUrl, NumberedResItem res) {
 			this.BordUrl = bordUrl;
@@ -585,6 +595,61 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				list.Add(Item.FromThreadRes(url, it, sd, q));
 				q.Add(it);
 			}
+		}
+
+		public static FutabaContext FromCatalog_(BordConfig bord, FutabaResonse response, string[] sortRes, Dictionary<string, int> counter) {
+			var url = new UrlContext(bord.Url);
+			return new FutabaContext() {
+				Name = bord.Name,
+				Bord = bord,
+				Url = url,
+				// ResItems = response.Res.Reverse().Select(x => {
+				ResItems = sortRes.Select(x => {
+					var r = response.Res.Where(y => y.No == x).FirstOrDefault();
+					if(r != null) {
+						var cc = counter.ContainsKey(x) ? counter[x] : 0;
+						return Item.FromCatalog(url, r, cc, 0);
+					} else {
+						return null;
+					}
+				}).Where(x => x != null).ToArray(),
+				Raw = response,
+			};
+		}
+
+		public static FutabaContext FromThread_(BordConfig bord, FutabaResonse response, string[] sortRes, Dictionary<string, int> counter) {
+			var url = new UrlContext(bord.Url);
+			return new FutabaContext() {
+				Name = bord.Name,
+				Bord = bord,
+				Url = url,
+				// ResItems = response.Res.Reverse().Select(x => {
+				ResItems = sortRes.Select(x => {
+					var r = response.Res.Where(y => y.No == x).FirstOrDefault();
+					if(r != null) {
+						var cc = counter.ContainsKey(x) ? counter[x] : 0;
+						return Item.FromCatalog(url, r, cc, 0);
+					} else {
+						return null;
+					}
+				}).Where(x => x != null).ToArray(),
+				Raw = response,
+			};
+		}
+
+		public FutabaResonse GetFullResponse() {
+			if(Raw != null) {
+				try {
+					//var s = JsonConvert.SerializeObject(Raw);
+					var r = JsonConvert.DeserializeObject<FutabaResonse>(Raw.ToString());
+					r.Res = ResItems.Select(x => x.ResItem).ToArray();
+					return r;
+				}
+				catch(JsonSerializationException) {
+					throw;
+				}
+			}
+			return null;
 		}
 	}
 
