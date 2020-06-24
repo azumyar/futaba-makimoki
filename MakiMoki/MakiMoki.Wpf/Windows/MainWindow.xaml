@@ -46,6 +46,49 @@
             </Path.Data>
         </Path>
 
+        <Style TargetType="local:MainWindow">
+            <Setter Property="WindowChrome.WindowChrome">
+                <Setter.Value>
+                    <WindowChrome
+                        CornerRadius="0"
+                        GlassFrameThickness="0"
+                        CaptionHeight="{StaticResource WindowCaptionHeight}"
+                        ResizeBorderThickness="8" />
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="local:MainWindow">
+                        <Border x:Name="border"
+                                BorderBrush="#9E9E9E"
+                                BorderThickness="2 0 2 2"
+                                Background="{StaticResource BackgroundBrush}">
+                            <ContentPresenter
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch" />
+
+                            <i:Interaction.Triggers>
+                                <i:DataTrigger Binding="{Binding Visibility, ElementName=TabContainer}" Value="Visible" Comparison="NotEqual">
+                                    <i:ChangePropertyAction PropertyName="BorderBrush" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Border}}" Value="#9E9E9E" />
+                                </i:DataTrigger>
+                                <i:DataTrigger Binding="{Binding Visibility, ElementName=TabContainer}" Value="Visible" Comparison="Equal">
+                                    <i:ChangePropertyAction PropertyName="BorderBrush" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Border}}" Value="#03A9F4" />
+                                </i:DataTrigger>
+                            </i:Interaction.Triggers>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="WindowState" Value="Maximized">
+                                <Setter TargetName="border" Property="BorderThickness" Value="8" />
+                            </Trigger>
+                            <Trigger Property="WindowState" Value="Normal">
+                                <Setter TargetName="border" Property="BorderThickness" Value="2 0 2 2" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="{x:Type TabControl}" TargetType="TabControl">
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
@@ -630,25 +673,11 @@
         <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="SystemCommandsCanExecute" Executed="CommandBindingCloseWindowCommand" />
     </Window.CommandBindings>
 
-    <WindowChrome.WindowChrome>
-        <WindowChrome
-            CaptionHeight="{StaticResource WindowCaptionHeight}"
-            ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+ 
+    
 
-    </WindowChrome.WindowChrome>
-    <Border
-        BorderBrush="#9E9E9E"
-        BorderThickness="2 0 2 2"
-        Background="{StaticResource BackgroundBrush}"
-        >
-        <i:Interaction.Triggers>
-            <i:DataTrigger Binding="{Binding Visibility, ElementName=TabContainer}" Value="Visible" Comparison="NotEqual">
-                <i:ChangePropertyAction PropertyName="BorderBrush" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Border}}" Value="#9E9E9E" />
-            </i:DataTrigger>
-            <i:DataTrigger Binding="{Binding Visibility, ElementName=TabContainer}" Value="Visible" Comparison="Equal">
-                <i:ChangePropertyAction PropertyName="BorderBrush" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Border}}" Value="#03A9F4" />
-            </i:DataTrigger>
-        </i:Interaction.Triggers>
+    <Window.Content>
+
         <Grid UseLayoutRounding="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="36" />
@@ -1034,5 +1063,5 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </Grid>
-    </Border>
+    </Window.Content>
 </Window>
