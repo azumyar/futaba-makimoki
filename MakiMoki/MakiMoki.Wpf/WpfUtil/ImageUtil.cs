@@ -71,11 +71,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		}
 
 		public static BitmapImage LoadImage(string path) {
-			if(TryGetImage(path, out var b)) {
-				return b;
-			}
-
 			try {
+				if(TryGetImage(path, out var b)) {
+					return b;
+				}
+
 				if(Path.GetExtension(path).ToLower() == ".webp") {
 					System.Drawing.Image bitmap = null;
 					try {
@@ -120,25 +120,38 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						bitmap?.Dispose();
 					}
 				} else {
+					var sucessed = false;
 					Stream stream = null;
-					try {
-						/*
-						if(Path.GetExtension(path).ToLower() == ".png") {
-							stream = LoadPng(path, null);
+					Observable.Create<Stream>(async (o) => {
+						try {
+							var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+							o.OnNext(s);
 						}
-						*/
-						//var bitmapImage = new BitmapImage(new Uri(path));
-						//bitmapImage.Freeze();
-						var bitmapImage = new BitmapImage();
-						stream = stream ?? new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-						bitmapImage.BeginInit();
-						bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-						bitmapImage.StreamSource = stream;
-						bitmapImage.EndInit();
-						bitmapImage.Freeze();
+						catch(IOException e) {
+							System.Diagnostics.Debug.WriteLine("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+							await Task.Delay(500);
+							o.OnError(e);
+						}
+					}).Retry(5)
+					.Subscribe(
+						s => { stream = s; sucessed = true; },
+						ex => { /* TODO: ダミー画像を用意する */ });
 
-						SetImage(path, bitmapImage);
-						return bitmapImage;
+					try {
+						if(sucessed) {
+							var bitmapImage = new BitmapImage();
+							bitmapImage.BeginInit();
+							bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+							bitmapImage.StreamSource = stream;
+							bitmapImage.EndInit();
+							bitmapImage.Freeze();
+
+							SetImage(path, bitmapImage);
+							return bitmapImage;
+						} else {
+							System.Diagnostics.Debug.WriteLine("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+							return null;
+						}
 					}
 					finally {
 						stream?.Dispose();
@@ -155,11 +168,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		}
 
 		public static BitmapImage LoadImage(string path, byte[] imageBytes) {
-			if(TryGetImage(path, out var b)) {
-				return b;
-			}
-
 			try {
+				if(TryGetImage(path, out var b)) {
+					return b;
+				}
+
 				if(Path.GetExtension(path).ToLower() == ".webp") {
 					System.Drawing.Image bitmap = null;
 					try {
@@ -219,6 +232,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 		}
 
+#if false
 		private static Stream LoadPng(string path, byte[] imageBytes) {
 			var list = new List<byte>();
 			if(imageBytes == null) {
@@ -268,6 +282,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 			return new MemoryStream(list.ToArray());
 		}
+#endif
 
 		private static string GetErrorMessage(string path) {
 			return string.Format("{0}の読み込みに失敗しました", Path.GetFileName(path));

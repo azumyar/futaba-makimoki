@@ -56,15 +56,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			PostItems.Subscribe(x => Config.ConfigLoader.SavePostItems(PostItems.Value.ToArray()));
 		}
 
-		public static void Load(Data.FutabaContext[] catalogs, Data.FutabaContext[] threads, Data.PostedResItem[] postItems) {
-			Catalog.Value = catalogs;
-			Threads.Value = threads;
-			PostItems.Value = postItems;
-		}
-
-		public static IObservable<Data.FutabaContext> UpdateCatalog(Data.BordConfig bord, Data.CatalogSortItem sort = null) {
-			return Observable.Create<Data.FutabaContext>(async o => {
-				var f = await Task.Run(async () => {
+		public static IObservable<(bool Successed, Data.FutabaContext, string ErrorMessage)> UpdateCatalog(Data.BordConfig bord, Data.CatalogSortItem sort = null) {
+			return Observable.Create<(bool Successed, Data.FutabaContext, string ErrorMessage)>(async o => {
+				var f = await Task.Run<(bool Successed, Data.FutabaContext, string ErrorMessage)>(async () => {
 					lock(lockObj) {
 						if(!Catalog.Value.Select(x => x.Url.BaseUrl).Contains(bord.Url)) {
 							Catalog.Value = Catalog.Value.Concat(new Data.FutabaContext[] {
@@ -73,14 +67,22 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						}
 					}
 
+					var successed = false;
 					Data.FutabaContext result = null;
+					var error = "";
 					try {
 						var r = await FutabaApi.GetCatalog(
 							bord.Url,
 							Config.ConfigLoader.Cookies,
 							sort);
-						if(r.Raw == null) {
-							// TODO: エラー表示処理
+						if(!r.Successed) {
+							if(!string.IsNullOrEmpty(r.Raw)) {
+								var parser_ = new HtmlParser();
+								var doc_ = parser_.ParseDocument(r.Raw);
+								error = doc_.QuerySelector("body").TextContent; ;
+							} else {
+								error = "カタログの取得に失敗しました";
+							}
 							goto end;
 						}
 						Config.ConfigLoader.UpdateCookie(r.Cookies);
@@ -89,8 +91,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							Config.ConfigLoader.Cookies,
 							r.Response.Res.Length,
 							sort);
-						if(rr.Raw == null) {
-							// TODO: エラー表示処理
+						if(!rr.Successed) {
+							error = "カタログHTMLの取得に失敗しました";
 							goto end;
 						}
 						Config.ConfigLoader.UpdateCookie(rr.Cookies);
@@ -121,6 +123,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						lock(lockObj) {
 							for(var i = 0; i < Catalog.Value.Length; i++) {
 								if(Catalog.Value[i].Bord.Url == bord.Url) {
+									successed = true;
 									result = Data.FutabaContext.FromCatalogResponse(
 										bord,
 										r.Response,
@@ -132,6 +135,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 									goto end;
 								}
 							}
+							successed = true;
 							result = Data.FutabaContext.FromCatalogResponse(
 									bord, r.Response, sortList.ToArray(), dic, null);
 							Catalog.Value = Catalog.Value.Concat(new Data.FutabaContext[] { result }).ToArray();
@@ -141,10 +145,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					catch(Exception e) { // TODO: 適切なエラーに
 						System.Diagnostics.Debug.WriteLine(e.ToString());
 					}
-					return result;
+					return (successed, result, error);
 				});
-				if(f == null) {
-					PutInformation(new Data.Information("カタログ取得エラー"));
+				if(!f.Successed) {
+					PutInformation(new Data.Information(f.ErrorMessage));
 				}
 				o.OnNext(f);
 				return System.Reactive.Disposables.Disposable.Empty;
@@ -152,7 +156,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static IObservable<(Data.FutabaContext New, Data.FutabaContext Old)> UpdateThreadRes(Data.BordConfig bord, string threadNo, bool incremental=false) {
+		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadRes(Data.BordConfig bord, string threadNo, bool incremental=false) {
 			var u = new Data.UrlContext(bord.Url, threadNo);
 			Data.FutabaContext parent = null;
 			lock(lockObj) {
@@ -162,15 +166,19 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				return UpdateThreadResAll(bord, threadNo);
 			}
 
-			return Observable.Create<(Data.FutabaContext New, Data.FutabaContext Old)>(async o => {
-				var ctx = await Task.Run<(Data.FutabaContext New, Data.FutabaContext Old)>(() => {
+			return Observable.Create<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(async o => {
+				var ctx = await Task.Run<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(() => {
+					var successed = false;
 					Data.FutabaContext result = null;
 					Data.FutabaContext prev = null;
+					var error = "";
 					try {
+						var res = parent.ResItems.Last().ResItem.No;
 						var no = "";
-						if(long.TryParse(parent.ResItems.Last().ResItem.No, out var v)) {
+						if(long.TryParse(res, out var v)) {
 							no = (++v).ToString();
 						} else {
+							error = $"レスNo[{ res }]は不正なフォーマットです";
 							goto end;
 						}
 
@@ -181,7 +189,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							Config.ConfigLoader.Cookies);
 						Task.WaitAll(r);
 						if(!r.Result.Successed) {
-							// TODO: エラー処理
+							if(!string.IsNullOrEmpty(r.Result.Raw)) {
+								var parser = new HtmlParser();
+								var doc = parser.ParseDocument(r.Result.Raw);
+								error = doc.QuerySelector("body").TextContent;
+							} else {
+								error = "スレッドの取得に失敗しました";
+							}
 							goto end;
 						}
 						Config.ConfigLoader.UpdateCookie(r.Result.cookies);
@@ -190,6 +204,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 							for(var i = 0; i < Threads.Value.Length; i++) {
 								if(Threads.Value[i].Url == f.Url) {
+									successed = true;
 									result = f;
 									prev = Threads.Value[i];
 									Threads.Value[i] = f;
@@ -200,6 +215,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							}
 							Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] { f }).ToArray();
 
+							successed = true;
 							result = f;
 							goto end;
 						}
@@ -209,20 +225,22 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						throw;
 					}
 				end:
-					return (result, prev);
+					return (successed, result, prev, error);
 				});
-				PutThreadResResult(ctx.New, ctx.Old);
+				PutThreadResResult(ctx.New, ctx.Old, ctx.ErrorMessage);
 				o.OnNext(ctx);
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
 
 
-		public static IObservable<(Data.FutabaContext New, Data.FutabaContext Old)> UpdateThreadResAll(Data.BordConfig bord, string threadNo) {
-			return Observable.Create<(Data.FutabaContext New, Data.FutabaContext Old)>(async o => {
-				var ctx = await Task.Run<(Data.FutabaContext New, Data.FutabaContext Old)>(() => {
+		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadResAll(Data.BordConfig bord, string threadNo) {
+			return Observable.Create<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(async o => {
+				var ctx = await Task.Run<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(() => {
+					var successed = false;
 					Data.FutabaContext result = null;
 					Data.FutabaContext prev = null;
+					var error = "";
 					try {
 						var u = new Data.UrlContext(bord.Url, threadNo);
 						lock(lockObj) {
@@ -272,6 +290,19 @@ namespace Yarukizero.Net.MakiMoki.Util {
 											prev = fc;
 										}
 									}
+								}
+								successed = true;
+							} else {
+								if(!r.Result.Successed) {
+									if(!string.IsNullOrEmpty(r.Result.Raw)) {
+										var parser = new HtmlParser();
+										var doc = parser.ParseDocument(r.Result.Raw);
+										error = doc.QuerySelector("body").TextContent;
+									} else {
+										error = "スレッドの取得に失敗しました";
+									}
+								} else {
+									error = "スレッドHTMLの取得に失敗しました";
 								}
 							}
 							goto end;
@@ -370,11 +401,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 										time, utc.ToString(),
 										0)), soudane);
 							if(f == null) {
-								// TODO: エラー処理
+								error = "Contextの作成に失敗しました";
 								goto end;
 							}
 							for(var i = 0; i < Threads.Value.Length; i++) {
 								if(Threads.Value[i].Url == f.Url) {
+									successed = true;
 									result = f;
 									prev = Threads.Value[i];
 									Threads.Value[i] = f;
@@ -385,6 +417,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							}
 							Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] { f }).ToArray();
 
+							successed = true;
 							result = f;
 							goto end;
 						}
@@ -394,17 +427,17 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						throw;
 					}
 				end:
-					return (result, prev);
+					return (successed, result, prev, error);
 				});
-				PutThreadResResult(ctx.New, ctx.Old);
+				PutThreadResResult(ctx.New, ctx.Old, ctx.ErrorMessage);
 				o.OnNext(ctx);
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
 
-		private static void PutThreadResResult(Data.FutabaContext newFutaba, Data.FutabaContext oldFutaba) {
+		private static void PutThreadResResult(Data.FutabaContext newFutaba, Data.FutabaContext oldFutaba, string error) {
 			if(newFutaba == null) {
-				PutInformation(new Data.Information("スレ取得エラー"));
+				PutInformation(new Data.Information(string.IsNullOrEmpty(error) ? "スレ取得エラー" : error));
 			} else {
 				if(oldFutaba == null) {
 					// 何もしない
@@ -569,15 +602,33 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						var r = new RestSharp.RestRequest(url, RestSharp.Method.GET);
 						var res = c.Execute(r);
 						if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-							if(!File.Exists(localPath)) {
+							Observable.Create<object>(async (oo) => {
 								var b = res.RawBytes;
-								using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
-									fs.Write(b, 0, b.Length);
-									fs.Flush();
+								try {
+									if(!File.Exists(localPath)) {
+										using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
+											fs.Write(b, 0, b.Length);
+											fs.Flush();
+										}
+									}
+									oo.OnNext(null);
+									oo.OnCompleted();
+									return System.Reactive.Disposables.Disposable.Empty;
 								}
-							}
-							o.OnNext((true, localPath, res.RawBytes));
-							o.OnCompleted();
+								catch(IOException e) {
+									await Task.Delay(500);
+									oo.OnError(e);
+									return System.Reactive.Disposables.Disposable.Empty;
+								}
+							}).Retry(5)
+							.Subscribe(
+								s => { 
+									o.OnNext((true, localPath, res.RawBytes));
+									o.OnCompleted();
+								},
+								ex => {
+									o.OnNext((false, null, null));
+								});
 						} else {
 							o.OnNext((false, null, null));
 							// TODO: o.OnError();

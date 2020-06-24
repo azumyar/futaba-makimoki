@@ -21,7 +21,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		private static readonly string FutabaUp2Html = "https://dec.2chan.net/up2/up.htm";
 		private static readonly Encoding FutabaEncoding = Encoding.GetEncoding("Shift_JIS");
 
-		public static async Task<(Data.FutabaResonse Response, Data.Cookie[] Cookies, string Raw)> GetCatalog(string baseUrl, Data.Cookie[] cookies, Data.CatalogSortItem sort = null) {
+		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie[] Cookies, string Raw)> GetCatalog(string baseUrl, Data.Cookie[] cookies, Data.CatalogSortItem sort = null) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			return await Task.Run(() => {
 				try {
@@ -43,14 +43,14 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 							System.Diagnostics.Debug.WriteLine(s);
 							System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-							return (null, rc, s);
+							return (false, null, rc, s);
 						} else {
 							var s = res.Content;
 							System.Diagnostics.Debug.WriteLine(s);
-							return (JsonConvert.DeserializeObject<Data.FutabaResonse>(s), rc, s);
+							return (true, JsonConvert.DeserializeObject<Data.FutabaResonse>(s), rc, s);
 						}
 					} else {
-						return (null, null, null);
+						return (false, null, null, null);
 					}
 				}
 				catch(JsonSerializationException ex) {
@@ -59,7 +59,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(Data.Cookie[] Cookies, string Raw)> GetCatalogHtml(string baseUrl, Data.Cookie[] cookies, int maxThread, Data.CatalogSortItem sort = null) {
+		public static async Task<(bool Successed, Data.Cookie[] Cookies, string Raw)> GetCatalogHtml(string baseUrl, Data.Cookie[] cookies, int maxThread, Data.CatalogSortItem sort = null) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			return await Task.Run(() => {
 				try {
@@ -81,16 +81,16 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 						var s = FutabaEncoding.GetString(res.RawBytes);
 						var rc = res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray();
-						return (rc, s);
+						return (true, rc, s);
 					} else {
-						return (null, null);
+						return (false, null, null);
 					}
 				}
 				finally { }
 			});
 		}
 
-		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie[] cookies, string Row)> GetThreadRes(string baseUrl, string threadNo, Data.Cookie[] cookies) {
+		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie[] cookies, string Raw)> GetThreadRes(string baseUrl, string threadNo, Data.Cookie[] cookies) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(threadNo != null);
 			return await Task.Run(() => {
@@ -125,7 +125,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie[] cookies, string Row)> GetThreadRes(string baseUrl, string threadNo, string startRes, Data.Cookie[] cookies) {
+		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie[] cookies, string Raw)> GetThreadRes(string baseUrl, string threadNo, string startRes, Data.Cookie[] cookies) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(threadNo != null);
 			System.Diagnostics.Debug.Assert(startRes != null);
