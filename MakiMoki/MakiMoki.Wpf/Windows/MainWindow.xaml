@@ -673,11 +673,7 @@
         <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="SystemCommandsCanExecute" Executed="CommandBindingCloseWindowCommand" />
     </Window.CommandBindings>
 
- 
-    
-
     <Window.Content>
-
         <Grid UseLayoutRounding="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="36" />
