@@ -104,7 +104,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			NgConfigImageMethod = new ReactiveProperty<int>((int)Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod);
 			NgConfigImageThreshold = new ReactiveProperty<int>(Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold);
 
-			PostItemExpireDay = new ReactiveProperty<string>("3");
+			PostItemExpireDay = new ReactiveProperty<string>(Config.ConfigLoader.MakiMoki.FutabaPostDataExpireDay.ToString());
 			PostItemExpireDayValid = PostItemExpireDay.Select(x => {
 				if(int.TryParse(x, out var v)) {
 					return 0 <= v;
