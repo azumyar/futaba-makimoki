@@ -30,8 +30,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		internal class CatalogListboxUpdatedMessage { }
 
-		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
-
 
 		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; }
 			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>>();
@@ -92,7 +90,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		public void Dispose() {
-			Disposable.Dispose();
+			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
 		private void UpdateCatalog(BindableFutaba bf) {

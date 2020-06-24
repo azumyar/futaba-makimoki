@@ -35,9 +35,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 
-		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
-
-
 		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; } 
 			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>>();
 
@@ -125,7 +122,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		public void Dispose() {
-			Disposable.Dispose();
+			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
 		private void UpdateThread(Model.BindableFutaba x) {

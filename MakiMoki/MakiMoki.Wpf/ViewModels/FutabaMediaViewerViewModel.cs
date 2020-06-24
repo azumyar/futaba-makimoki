@@ -41,7 +41,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 		public ReactiveCommand<RoutedPropertyChangedEventArgs<PlatformData.FutabaMedia>> ContentsChangedCommand { get; } 
 			= new ReactiveCommand<RoutedPropertyChangedEventArgs<PlatformData.FutabaMedia>>();
 
@@ -113,7 +112,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		public void Dispose() {
-			Disposable.Dispose();
+			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
 		private void OnContentsChanged(RoutedPropertyChangedEventArgs<PlatformData.FutabaMedia> e) {

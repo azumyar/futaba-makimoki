@@ -13,7 +13,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 		private static readonly string StateConfigFile = "windows.state.json";
 		private static volatile object lockObj = new object();
 
-		public static Data.UpdateNotifyer<PlatformData.WpfConfig> SystemConfigUpdateNotifyer { get; } = new Data.UpdateNotifyer<PlatformData.WpfConfig>();
+		public static Helpers.UpdateNotifyer<PlatformData.WpfConfig> SystemConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer<PlatformData.WpfConfig>();
 
 		public class Setting {
 			public string WorkDirectory { get; set; } = null;

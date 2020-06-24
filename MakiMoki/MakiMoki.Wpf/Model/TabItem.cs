@@ -14,7 +14,6 @@ using Reactive.Bindings;
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	class TabItem : IFutabaViewerContents, INotifyPropertyChanged, IDisposable {
 		public event PropertyChangedEventHandler PropertyChanged;
-		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
 
 		public string Id { get; }
 
@@ -49,7 +48,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		public void Dispose() {
-			Disposable.Dispose();
+			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 	}
 }

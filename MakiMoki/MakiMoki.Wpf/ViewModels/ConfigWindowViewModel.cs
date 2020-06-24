@@ -23,8 +23,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			public DialogCloseMessage() {}
 		}
 
-		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
-
 		public ReactiveProperty<bool> CoreConfigThreadDataIncremental { get; }
 		public ReactiveProperty<bool> CoreConfigSavedResponse { get; }
 
@@ -153,7 +151,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		public void Dispose() {
-			Disposable.Dispose();
+			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
 		private void OnOkButtonClick(RoutedEventArgs e) {

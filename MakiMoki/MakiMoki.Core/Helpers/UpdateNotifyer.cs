@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Yarukizero.Net.MakiMoki.Data {
+namespace Yarukizero.Net.MakiMoki.Helpers {
 	public class UpdateNotifyer {
 		private List<WeakReference<Action>> notifyer = new List<WeakReference<Action>>();
 

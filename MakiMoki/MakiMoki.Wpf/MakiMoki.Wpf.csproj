@@ -134,10 +134,8 @@
     </Compile>
     <Compile Include="Converters\FutabaResItemConverter.cs" />
     <Compile Include="Converters\CatalogTextConverter.cs" />
-    <Compile Include="Converters\TreeViewSelectedConverter.cs" />
     <Compile Include="Model\BindableFutaba.cs" />
     <Compile Include="Model\TabItem.cs" />
-    <Compile Include="Model\TreeItem.cs" />
     <Compile Include="ViewModels\FutabaCatalogViewerViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Windows\MainWindow.xaml.cs">

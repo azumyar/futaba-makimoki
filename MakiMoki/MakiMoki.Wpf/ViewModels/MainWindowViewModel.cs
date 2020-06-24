@@ -38,8 +38,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
-
 		public ReactiveProperty<Data.BordConfig[]> Bords { get; }
 		public ReactiveCollection<Model.TabItem> Catalogs { get; } = new ReactiveCollection<TabItem>();
 		public ReactiveProperty<object> CatalogToken { get; } = new ReactiveProperty<object>(DateTime.Now.Ticks);
@@ -87,19 +85,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public MainWindowViewModel() {
 			Bords = new ReactiveProperty<Data.BordConfig[]>(Config.ConfigLoader.Bord);
-			/*
-			var savedState = WpfConfig.WpfConfigLoader.CreateInitializeTabItem();
-			foreach(var c in savedState.Catalogs) {
-				Catalogs.Add(c);
-			}
-			foreach(var k in savedState.Threads.Keys) {
-				var r = new ReactiveCollection<Model.TabItem>();
-				foreach(var t in savedState.Threads[k]) {
-					r.Add(t);
-				}
-				ThreadsDic.Add(k, r);
-			}
-			*/
 			foreach(var c in Util.Futaba.Catalog.Value) {
 				Catalogs.Add(new TabItem(c));
 				ThreadsDic.Add(c.Url.BaseUrl, new ReactiveCollection<TabItem>());
@@ -161,7 +146,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			KeyBindingCurrentThreadTabCloseCommand.Subscribe(x => OnKeyBindingCurrentThreadTabClose(x));
 		}
 		public void Dispose() {
-			Disposable.Dispose();
+			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
 		private void OnBordListClick(MouseButtonEventArgs e) {

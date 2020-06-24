@@ -32,8 +32,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 #pragma warning disable CS0067
 			public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore CS0067
-			private CompositeDisposable Disposable { get; } = new CompositeDisposable();
-
 			public ReactiveProperty<string> Comment { get; } = new ReactiveProperty<string>("");
 			public ReadOnlyReactiveProperty<string> CommentEncoded { get; }
 			public ReadOnlyReactiveProperty<int> CommentBytes { get; }
@@ -49,7 +47,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			public ReactiveProperty<string> ImageName { get; }
 			public ReactiveProperty<ImageSource> ImagePreview { get; }
 
-			public ReactiveProperty<bool> CommentImageValidFlag { get; } = new ReactiveProperty<bool>(false);
+			public ReactiveProperty<bool> CommentValidFlag { get; }
+			public ReactiveProperty<bool> ImageValidFlag { get; }
+			public ReactiveProperty<bool> CommentImageValidFlag { get; }
 			public ReactiveProperty<bool> PasswordValidFlag { get; }
 
 			public ReactiveCommand PostButtonCommand { get; }
@@ -106,20 +106,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.CommentLines = this.Comment
 					.Select(x => (x.Length == 0) ? 0 : (x.Replace(@"\r", "").Where(y => y == '\n').Count() + 1))
 					.ToReadOnlyReactiveProperty();
-				this.Comment.Subscribe(x => {
-					if(x.Length != 0) {
-						this.CommentImageValidFlag.Value = true;
-					} else {
-						this.CommentImageValidFlag.Value = this.ImagePath.Value.Length != 0;
-					}
-				});
-				this.ImagePath.Subscribe(x => {
-					if(x.Length != 0) {
-						this.CommentImageValidFlag.Value = true;
-					} else {
-						this.CommentImageValidFlag.Value = this.Comment.Value.Length != 0;
-					}
-				});
+				this.CommentValidFlag = this.Comment.Select(x => x.Length != 0).ToReactiveProperty();
+				this.ImageValidFlag = this.ImagePath.Select(x => x.Length != 0).ToReactiveProperty();
+				this.CommentImageValidFlag = new[] { this.CommentValidFlag, this.ImageValidFlag }
+					.CombineLatest(x => x.Any(y => y))
+					.ToReactiveProperty();
 				this.PasswordValidFlag = this.Password.Select(x => x.Length != 0).ToReactiveProperty();
 				this.PostButtonCommand = new[] { CommentImageValidFlag, PasswordValidFlag }
 					.CombineLatestValuesAreAllTrue()
@@ -127,13 +118,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}
 
 			public void Dispose() {
-				Disposable.Dispose();
+				Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
+			}
+
+			public void Reset() {
+				Comment.Value = "";
+				Name.Value = "";
+				Mail.Value = "";
+				Subject.Value = "";
+				Password.Value = Config.ConfigLoader.Password.FutabaValue;
+				ImagePath.Value = "";
 			}
 		}
 #pragma warning disable CS0067
 		public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore CS0067
-		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
+		[Helpers.AutoDisposable.IgonoreDispose]
 		public ReactiveCollection<BindableFutabaResItem> ResItems { get; }
 		public ReactiveProperty<FutabaContext[]> OpenedThreads { get; }
 		public ReactiveProperty<int> ResCount { get; }
@@ -343,7 +343,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		public void Dispose() {
-			Disposable.Dispose();
+			if(this.Raw.Url.IsCatalogUrl) {
+				this.ResItems.Dispose();
+			}
+			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
 		private async void OnOpenImage(MouseButtonEventArgs e) {
@@ -492,8 +495,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 #pragma warning disable CS0067
 		public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore CS0067
-		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
-
 		public string Id { get; }
 		public ReactiveProperty<int> Index { get; }
 		public ReactiveProperty<string> ImageName { get; }
@@ -678,7 +679,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		public void Dispose() {
-			Disposable.Dispose();
+			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
 		public void ReleaseHiddenRes() {

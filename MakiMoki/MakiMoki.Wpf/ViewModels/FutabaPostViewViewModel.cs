@@ -54,9 +54,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private CompositeDisposable Disposable { get; } = new CompositeDisposable();
-
-
 		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>> ContentsChangedCommand { get; }
 			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>>();
 
@@ -95,7 +92,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		public void Dispose() {
-			Disposable.Dispose();
+			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
 		private async Task OpenUpload(Model.BindableFutaba f) {
@@ -237,7 +234,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.Subscribe(y => {
 						if(y.Successed) {
 							Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(x.Url));
-							x.PostData.Value = new Model.BindableFutaba.PostHolder();
+							x.PostData.Value.Reset();
 							Task.Run(async () => {
 								await Task.Delay(1000); // すぐにスレが作られないので1秒くらい待つ
 								Util.Futaba.UpdateThreadRes(x.Raw.Bord, y.NextOrMessage)
@@ -274,7 +271,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							}
 							*/
 							Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(x.Url));
-							x.PostData.Value = new Model.BindableFutaba.PostHolder();
+							x.PostData.Value.Reset();
 							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
 								.ObserveOn(UIDispatcherScheduler.Default)
 								.Subscribe(z => {
@@ -347,7 +344,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnKeyBindingDelete(Model.BindableFutaba f) {
-			f.PostData.Value = new BindableFutaba.PostHolder();
+			f.PostData.Value.Reset();
 		}
 
 		private void OnKeyBindingClose(Model.BindableFutaba f) {
