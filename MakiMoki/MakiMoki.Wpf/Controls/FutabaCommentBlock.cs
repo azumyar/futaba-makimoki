@@ -78,7 +78,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			tb.Text = null;
 			tb.Inlines.Clear();
 
-			var msg = item?.DisplayHtml.Value ?? "";
+			if(item == null) {
+				return;
+			}
+
+			var msg = item.DisplayHtml.Value ?? "";
 			var s1 = Regex.Replace(msg, @"<br>", Environment.NewLine,
 				RegexOptions.IgnoreCase | RegexOptions.Multiline);
 			//var s2 = Regex.Replace(s1, @"<[^>]*>", "",
@@ -98,30 +102,43 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				var input = new StringBuilder(s);
 				var output = new StringBuilder();
 
-				void EvalEmoji(string text, Color? color, ToolTip toolTip = null) {
+				void EvalEmoji(string text, Color? color, Model.BindableFutabaResItem quotRes = null, ToolTip toolTip = null) {
 					var fb = (color.HasValue) ? new SolidColorBrush(color.Value) : tb.Foreground;
 					var pos = 0;
 					foreach(Match m in Emoji.Wpf.EmojiData.MatchMultiple.Matches(text)) {
-						tb.Inlines.Add(new Run(text.Substring(pos, m.Index - pos)) {
+						var run1 = new Run(text.Substring(pos, m.Index - pos)) {
 							Foreground = fb,
 							ToolTip = toolTip,
-						});
-						tb.Inlines.Add(new Emoji.Wpf.EmojiInline() {
+							Tag = quotRes,
+						};
+						var run2 = new Emoji.Wpf.EmojiInline() {
 							FallbackBrush = tb.Foreground,
 							Text = text.Substring(m.Index, m.Length),
 							FontSize = tb.FontSize,
 							ToolTip = toolTip,
-						});
+							Tag = quotRes,
+						};
+						if(quotRes != null) {
+							run1.MouseEnter += OnMouseEnterQuot;
+							run2.MouseEnter += OnMouseEnterQuot;
+						}
 
+						tb.Inlines.Add(run1);
+						tb.Inlines.Add(run2);
 						pos = m.Index + m.Length;
 					}
-					tb.Inlines.Add(new Run(text.Substring(pos)) {
+					var run3 = new Run(text.Substring(pos)) {
 						Foreground = fb,
 						ToolTip = toolTip,
-					});
+						Tag = quotRes,
+					};
+					if(quotRes != null) {
+						run3.MouseEnter += OnMouseEnterQuot;
+					}
+					tb.Inlines.Add(run3);
 				}
 
-				void EvalFont(StringBuilder inputVal, StringBuilder outputVal, ToolTip toolTip = null) {
+				void EvalFont(StringBuilder inputVal, StringBuilder outputVal, Model.BindableFutabaResItem quotRes = null, ToolTip toolTip = null) {
 					var fm = regexFontStart.Match(inputVal.ToString());
 					if(fm.Success) {
 						var rgb = fm.Groups[1].Value;
@@ -148,7 +165,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 							var t2 = Regex.Replace(text, @"<[^>]*>", "",
 								RegexOptions.IgnoreCase | RegexOptions.Multiline);
 							var t3 = System.Net.WebUtility.HtmlDecode(t2);
-							EvalEmoji(t3, color, toolTip);
+							EvalEmoji(t3, color, quotRes, toolTip);
 							inputVal.Remove(0, fm2.Index + fm2.Length);
 						}
 					}
@@ -203,23 +220,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					}
 				} else if(fontPos == 0) {
 					ToolTip toolTip = null;
+					Model.BindableFutabaResItem quotRes = null;
 					if(i < item.Raw.Value.QuotLines.Length) {
 						var q = item.Raw.Value.QuotLines[i];
 						if(q.IsQuot) {
 							if(q.IsHit) {
-								var it = item.Parent.Value.ResItems
+								quotRes = item.Parent.Value.ResItems
 									.Where(x => x.Raw.Value.ResItem.No == q.ResNo)
 									.FirstOrDefault();
-								if(it != null) {
-									toolTip = new ToolTip() {
-										Content = new FutabaResBlock() {
-											IsHitTestVisible = false,
-											DataContext = it,
-										}
-									};
-								}
-							}
-							if(toolTip == null) {
+							} else {
 								toolTip = new ToolTip() {
 									Content = new TextBlock() {
 										Text = "見つかりませんでした",
@@ -230,7 +239,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 							}
 						}
 					}
-					EvalFont(input, output, toolTip);
+					EvalFont(input, output, quotRes, toolTip);
 					goto start;
 				} else {
 					var text = input.ToString().Substring(0, fontPos);
@@ -290,6 +299,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			}
 		}
 
+		private static void OnMouseEnterQuot(object sender, MouseEventArgs e) {
+			if((e.Source is Run run) && (run.Tag is Model.BindableFutabaResItem ri)) {
+				if(run.ToolTip == null) {
+					run.ToolTip = new ToolTip() {
+						Content = new FutabaResBlock() {
+							IsHitTestVisible = false,
+							DataContext = ri,
+						}
+					};
+				}
+			}
+		}
+		
 		private static void link_MouseEnter(object sender, MouseEventArgs e) {
 			var link = sender as Hyperlink;
 			if(link == null)
