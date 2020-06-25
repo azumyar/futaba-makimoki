@@ -40,11 +40,6 @@
         <converter:FutabaResItemOldColorConverter x:Key="FutabaResItemOldColorConverter" />
         <converter:FutabaResItemResCountColorConverter x:Key="FutabaResItemResCountColorConverter" />
 
-        <Color x:Key="TextColor">Black</Color>
-        <Color x:Key="OldColor">Red</Color>
-
-        <SolidColorBrush x:Key="PrimaryColorBrush" Color="#4FC3F7" />
-
         <ToolTip x:Key="CatalogItemToolTip">
             <Grid
                 MaxWidth="480"
@@ -52,7 +47,7 @@
                 Background="Transparent"
                 IsHitTestVisible="False"
                 TextBlock.FontSize="12"
-                TextBlock.FontFamily="{DynamicResource ThreadTextFont}" >
+                TextBlock.FontFamily="{DynamicResource CatalogTextFont}" >
                 <TextBlock.Foreground>
                     <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                 </TextBlock.Foreground>
@@ -339,7 +334,8 @@
                                         Grid.Row="1"
                                         VerticalAlignment="Bottom"
                                         Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}"
-                                        Height="{DynamicResource CatalogTextSize}">
+                                        Height="{DynamicResource CatalogTextSize}"
+                                        TextBlock.FontFamily="{DynamicResource CatalogTextFont}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />

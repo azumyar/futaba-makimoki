@@ -179,12 +179,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 								var uri = new Uri(ToUrl(m.Value));
 								var link = new Hyperlink() {
 									TextDecorations = null,
-									Foreground = new SolidColorBrush(Colors.Blue),
+									Foreground = new SolidColorBrush(GetLinkColor()),
 									NavigateUri = uri,
 								};
-								link.RequestNavigate += new RequestNavigateEventHandler(RequestNavigate);
-								link.MouseEnter += new MouseEventHandler(link_MouseEnter);
-								link.MouseLeave += new MouseEventHandler(link_MouseLeave);
+								link.RequestNavigate += new RequestNavigateEventHandler(OnRequestNavigate);
+								link.MouseEnter += new MouseEventHandler(OnMouseEnterLink);
+								link.MouseLeave += new MouseEventHandler(OnMouseLeaveLink);
 								link.Inlines.Add(m.Value);
 								if(0 < outputVal.Length) {
 									EvalEmoji(outputVal.ToString(), null);
@@ -279,7 +279,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			return s;
 		}
 
-		private static void RequestNavigate(object sender, RequestNavigateEventArgs e) {
+		private static void OnRequestNavigate(object sender, RequestNavigateEventArgs e) {
 			try {
 				if(e.Source is Hyperlink hl) {
 					FrameworkContentElement cl = hl;
@@ -312,23 +312,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			}
 		}
 		
-		private static void link_MouseEnter(object sender, MouseEventArgs e) {
+		private static void OnMouseEnterLink(object sender, MouseEventArgs e) {
 			var link = sender as Hyperlink;
 			if(link == null)
 				return;
 
-			// リンクにカーソルを当てたときは文字色を赤くする
-			link.Foreground = Brushes.Red;
+			link.Foreground = new SolidColorBrush(GetLinkActiveColor());
 		}
 
-		private static void link_MouseLeave(object sender, MouseEventArgs e) {
+		private static void OnMouseLeaveLink(object sender, MouseEventArgs e) {
 			var link = sender as Hyperlink;
 			var parent = link.Parent as TextBlock;
 			if(link == null || parent == null)
 				return;
 
-			// リンクからカーソルが離れたときは文字色をデフォルトカラーに戻す
-			link.Foreground = new SolidColorBrush(Colors.Blue);
+			link.Foreground = new SolidColorBrush(GetLinkColor());
+		}
+
+		private static Color GetLinkColor() {
+			return (App.Current.TryFindResource("ViewerSecondaryColor") is Color c) ? c : Colors.Blue;
+		}
+
+		private static Color GetLinkActiveColor() {
+			return (App.Current.TryFindResource("ViewerSecondaryDarkColor") is Color c) ? c : Colors.Red;
 		}
 	}
 }

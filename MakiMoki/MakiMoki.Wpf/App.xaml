@@ -8,18 +8,33 @@
         <sys:Double x:Key="WindowThreadTabDieOpacity">0.4</sys:Double>
         <Color x:Key="WindowThreadTabNewColor">Red</Color>
 
-        <!-- LightBlueの300 -->
-        <Color x:Key="ViewerPrimaryColor">#4FC3F7</Color>
+        <!-- LightBlueの500 -->
+        <Color x:Key="ViewerPrimaryColor">#03A9F4</Color>
+        <!-- LightBlueの700 -->
+        <Color x:Key="ViewerPrimaryDarkColor">#0288D1</Color>
+
+        <!-- Pinkの500 -->
+        <Color x:Key="ViewerSecondaryColor">#E91E63</Color>
+        <!-- Pinkの700 -->
+        <Color x:Key="ViewerSecondaryDarkColor">#C2185B</Color>
+
         <!-- BlueGrayの900 -->
         <Color x:Key="ViewerForegroundColor">#263238</Color>
+        <!-- Grayの100 -->
         <Color x:Key="ViewerBackgroundColor">#F5F5F5</Color>
-        <Color x:Key="ViewerBorderColor">Gray</Color>
+        <!-- Grayの500 -->
+        <Color x:Key="ViewerBorderColor">#9E9E9E</Color>
 
+        <Color x:Key="TabTextColor">Black</Color>
+        <Color x:Key="ToolbarTextColor">Black</Color>
+
+        <FontFamily x:Key="CatalogTextFont">メイリオ</FontFamily>
         <sys:Double x:Key="CatalogImageSize">80</sys:Double>
         <sys:Double x:Key="CatalogTextSize">16</sys:Double>
         <sys:Double x:Key="CatalogBadgeSize">20</sys:Double>
         <FontFamily x:Key="CatalogBadgeFont">Segoe UI</FontFamily>
-        <Color x:Key="CatalogBadgeCountBackgroundColor">Red</Color>
+        <!-- Redの500 -->
+        <Color x:Key="CatalogBadgeCountBackgroundColor">#f44336</Color>
         <Color x:Key="CatalogBadgeCountForegroundColor">White</Color>
         <Color x:Key="CatalogBadgeOldBackgroundColor">#990000ff</Color>
         <Color x:Key="CatalogBadgeOldForegroundColor">#ffffff</Color>
@@ -35,6 +50,8 @@
         <Color x:Key="ThreadBackgroundColor">#00000000</Color>
         <!-- LightGreenの100 -->
         <Color x:Key="ThreadBackgroundSerachHitColor">#C8E6C9</Color>
+        <!-- Redの500 -->
+        <Color x:Key="ThreadTextOldColor">#f44336</Color>
         <!-- Blueの800 -->
         <Color x:Key="ThreadHeaderPostedColor">#1565C0</Color>
         <!-- Greenの800 -->

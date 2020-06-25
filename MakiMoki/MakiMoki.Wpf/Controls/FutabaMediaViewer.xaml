@@ -13,10 +13,6 @@
              d:DesignHeight="450" d:DesignWidth="800"
              Background="#88000000"
              Visibility="{Binding ViewVisibility.Value, Mode=OneWay}">
-    <UserControl.Resources>
-        <SolidColorBrush x:Key="PrimaryColorBrush" Color="#4FC3F7" />
-        <SolidColorBrush x:Key="PrimaryDarkColorBrush" Color="#03A9F4" />
-    </UserControl.Resources>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="ContentsChanged">
             <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
@@ -48,7 +44,6 @@
             <RowDefinition Height="4" />
             <RowDefinition Height="*" />
             <RowDefinition Height="4" />
-            <RowDefinition Height="32" />
         </Grid.RowDefinitions>
 
         <!-- 画像 -->
@@ -189,43 +184,7 @@
 
             </Grid>
         </Grid>
-        
-        <!-- ツールバー -->
-        <Border
-            Grid.Column="0"
-            Grid.ColumnSpan="3"
-            Grid.Row="3"
-            Background="{StaticResource PrimaryColorBrush}"
-            BorderBrush="{StaticResource PrimaryDarkColorBrush}"
-            BorderThickness="0 1 0 0"
-            >
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="4" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="2" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="2" />
-                </Grid.RowDefinitions>
 
-                <Button
-                    Grid.Column="1" Grid.Row="1"
-                    >
-                    <TextBlock>
-                        保存
-                    </TextBlock>
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="Click">
-                            <ri:EventToReactiveCommand Command="{Binding SaveClickCommand}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                </Button>
-            </Grid>
-        </Border>
-        
-        
         <!-- 閉じるボタン -->
         <Button
             Grid.Column="1" Grid.Row="1"

@@ -35,6 +35,9 @@
         Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}"                                
         Padding="4"
         Background="Transparent">
+        <TextBlock.Foreground>
+            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+        </TextBlock.Foreground>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />

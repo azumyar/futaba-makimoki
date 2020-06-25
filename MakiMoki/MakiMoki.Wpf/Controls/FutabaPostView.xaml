@@ -18,10 +18,6 @@
              HorizontalAlignment="Right"
              VerticalAlignment="Top"
              >
-    <UserControl.Resources>
-        <SolidColorBrush x:Key="PrimaryColorBrush" Color="#4FC3F7" />
-        <SolidColorBrush x:Key="PrimaryDarkColorBrush" Color="#03A9F4" />
-    </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding
             Gesture="Ctrl+Enter"
@@ -82,7 +78,11 @@
         CornerRadius="6"
         BorderThickness="1"
         Margin="4"
-        DataContext="{Binding Contents, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}">
+        DataContext="{Binding Contents, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
+        >
+        <TextBlock.Foreground>
+            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+        </TextBlock.Foreground>
         <Border.Background>
             <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
         </Border.Background>
@@ -102,8 +102,10 @@
             </Grid.RowDefinitions>
             <Border
                 Grid.Column="0" Grid.ColumnSpan="3"
-                Grid.Row="0"
-                Background="{StaticResource PrimaryColorBrush}">
+                Grid.Row="0">
+                <Border.Background>
+                    <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
+                </Border.Background>
                 <TextBlock FontSize="16" Margin="2" Text="{Binding PostTitle.Value, Mode=OneWay}" />
             </Border>
             <ScrollViewer Grid.Column="1" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -223,9 +225,10 @@
             </ScrollViewer>
             <Border
                 Grid.Column="0" Grid.ColumnSpan="3"
-                Grid.Row="2"
-                Background="{StaticResource PrimaryColorBrush}"
-                >
+                Grid.Row="2">
+                <Border.Background>
+                    <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
+                </Border.Background>
                 <StackPanel Orientation="Horizontal">
                     <Button Width="32"  Height="32" Margin="2" Command="{Binding PostData.Value.PostButtonCommand}">
                         <TextBlock>投稿</TextBlock>

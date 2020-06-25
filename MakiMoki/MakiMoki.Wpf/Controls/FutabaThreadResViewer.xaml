@@ -41,8 +41,6 @@
         <Color x:Key="TextColor">Black</Color>
         <Color x:Key="OldColor">Red</Color>
 
-        <SolidColorBrush x:Key="PrimaryColorBrush" Color="#4FC3F7" />
-
         <Style x:Key="ResIndexStyle" TargetType="TextBlock">
         </Style>
         <Style x:Key="PostedResIndexStyle" TargetType="TextBlock">
@@ -91,6 +89,18 @@
             x:Name="ThreadBackgroundSerachHitColorGetter"
             Visibility="Collapsed"
             DataContext="{DynamicResource ThreadBackgroundSerachHitColor}" />
+        <FrameworkElement 
+            x:Name="ToolbarTextColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource ToolbarTextColor}" />
+        <FrameworkElement 
+            x:Name="ThreadTextOldColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource ThreadTextOldColor}" />
+        <FrameworkElement 
+            x:Name="ViewerForegroundColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource ViewerForegroundColor}" />
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -124,8 +134,8 @@
                                 <SolidColorBrush.Color>
                                     <MultiBinding Converter="{StaticResource FutabaResItemOldColorConverter}">
                                         <Binding Path="Contents.Futaba.Value" Mode="OneWay" ElementName="_this" />
-                                        <Binding Source="{StaticResource TextColor}" />
-                                        <Binding Source="{StaticResource OldColor}" />
+                                        <Binding Path="DataContext" Mode="OneWay" ElementName="ToolbarTextColorGetter" />
+                                        <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadTextOldColorGetter" />
                                     </MultiBinding>
                                 </SolidColorBrush.Color>
                             </SolidColorBrush>
@@ -155,8 +165,8 @@
                                 <SolidColorBrush.Color>
                                     <MultiBinding Converter="{StaticResource FutabaResItemResCountColorConverter}">
                                         <Binding Path="Contents.Futaba.Value" Mode="OneWay" ElementName="_this" />
-                                        <Binding Source="{StaticResource TextColor}" />
-                                        <Binding Source="{StaticResource OldColor}" />
+                                        <Binding Path="DataContext" Mode="OneWay" ElementName="ToolbarTextColorGetter" />
+                                        <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadTextOldColorGetter" />
                                     </MultiBinding>
                                 </SolidColorBrush.Color>
                             </SolidColorBrush>
@@ -814,8 +824,8 @@
                                                     <SolidColorBrush.Color>
                                                         <MultiBinding Converter="{StaticResource FutabaResItemOldColorConverter}">
                                                             <Binding Path="Parent.Value" Mode="OneWay" />
-                                                            <Binding Source="{StaticResource TextColor}" />
-                                                            <Binding Source="{StaticResource OldColor}" />
+                                                            <Binding Path="DataContext" Mode="OneWay" ElementName="ViewerForegroundColorGetter" />
+                                                            <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadTextOldColorGetter" />
                                                         </MultiBinding>
                                                     </SolidColorBrush.Color>
                                                 </SolidColorBrush>

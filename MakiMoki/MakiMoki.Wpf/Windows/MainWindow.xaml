@@ -29,9 +29,7 @@
         <converter:InformationItemConverter x:Key="InformationItemConverter" />
 
         <system:Double x:Key="WindowCaptionHeight">36</system:Double>
-        
-        <Color x:Key="_Color">#4FC3F7</Color>
-        <SolidColorBrush x:Key="PrimaryColorBrush" Color="{StaticResource _Color}" />
+
         <SolidColorBrush x:Key="BackgroundBrush" Color="#F5F5F5" />
         <SolidColorBrush x:Key="DockBorderBrush" Color="Gray" />
 
@@ -72,7 +70,7 @@
                                     <i:ChangePropertyAction PropertyName="BorderBrush" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Border}}" Value="#9E9E9E" />
                                 </i:DataTrigger>
                                 <i:DataTrigger Binding="{Binding Visibility, ElementName=TabContainer}" Value="Visible" Comparison="Equal">
-                                    <i:ChangePropertyAction PropertyName="BorderBrush" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Border}}" Value="#03A9F4" />
+                                    <i:ChangePropertyAction PropertyName="BorderBrush" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Border}}" Value="{DynamicResource ViewerPrimaryDarkColor}" />
                                 </i:DataTrigger>
                             </i:Interaction.Triggers>
                         </Border>
@@ -101,9 +99,10 @@
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
 
-                            <Grid 
-                                Grid.Column="0"
-                                Background="{StaticResource PrimaryColorBrush}"> <!-- LightBlue 300-->
+                            <Grid  Grid.Column="0">
+                                <Grid.Background>
+                                    <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
+                                </Grid.Background>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="4" />
                                     <ColumnDefinition />
@@ -331,9 +330,10 @@
                             <Grid 
                                 Grid.Row="0"
                                 Height="{StaticResource WindowCaptionHeight}"
-                                MinHeight="{x:Static SystemParameters.CaptionHeight}"
-                                Background="{StaticResource PrimaryColorBrush}">
-                                <!-- LightBlue 300-->
+                                MinHeight="{x:Static SystemParameters.CaptionHeight}">
+                                <Grid.Background>
+                                    <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
+                                </Grid.Background>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="8" />
                                     <ColumnDefinition Width="*" />
@@ -419,8 +419,11 @@
                                     <GridSplitter
                                         Grid.Column="1" Width="5"
                                         HorizontalAlignment="Stretch"
-                                        Visibility="{Binding DataContext.Futaba.Value.FullScreenVisibility.Value, RelativeSource={RelativeSource Self}}"
-                                        Background="{StaticResource PrimaryColorBrush}" />
+                                        Visibility="{Binding DataContext.Futaba.Value.FullScreenVisibility.Value, RelativeSource={RelativeSource Self}}">
+                                        <GridSplitter.Background>
+                                            <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
+                                        </GridSplitter.Background>
+                                    </GridSplitter>
 
                                     <control:FutabaCatalogViewer
                                         x:Name="FutabaCatalogViewer"
