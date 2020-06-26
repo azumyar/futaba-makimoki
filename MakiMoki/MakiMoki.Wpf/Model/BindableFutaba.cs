@@ -300,7 +300,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}
 
 			var bord = Config.ConfigLoader.Bord.Where(x => x.Url == futaba.Url.BaseUrl).FirstOrDefault();
-			this.PostTitle = new ReactiveProperty<string>(futaba.Url.IsCatalogUrl ? "スレ立て" : "レス");
+			this.PostTitle = new ReactiveProperty<string>(futaba.Url.IsCatalogUrl ? "スレッド作成" : "レス投稿");
 			if(bord == null) {
 				this.PostNameVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
 				this.PostImageVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);

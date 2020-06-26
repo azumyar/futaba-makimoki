@@ -18,6 +18,13 @@
              HorizontalAlignment="Right"
              VerticalAlignment="Top"
              >
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding
             Gesture="Ctrl+Enter"
@@ -106,7 +113,11 @@
                 <Border.Background>
                     <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
                 </Border.Background>
-                <TextBlock FontSize="16" Margin="2" Text="{Binding PostTitle.Value, Mode=OneWay}" />
+                <TextBlock FontSize="16" Margin="2" Text="{Binding PostTitle.Value, Mode=OneWay}">
+                    <TextBlock.Foreground>
+                        <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                    </TextBlock.Foreground>
+                </TextBlock>
             </Border>
             <ScrollViewer Grid.Column="1" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                 <StackPanel
@@ -220,7 +231,7 @@
                     <TextBox
                         Margin="0 4 0 4" Padding="1"
                         Text="{Binding PostData.Value.Password.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        local:PlaceHolderBehavior.PlaceHolderText="パスワード" />
+                        local:PlaceHolderBehavior.PlaceHolderText="削除キー" />
                 </StackPanel>
             </ScrollViewer>
             <Border
@@ -230,17 +241,20 @@
                     <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
                 </Border.Background>
                 <StackPanel Orientation="Horizontal">
-                    <Button Width="32"  Height="32" Margin="2" Command="{Binding PostData.Value.PostButtonCommand}">
-                        <TextBlock>投稿</TextBlock>
-
+                    <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconPostSend}" Command="{Binding PostData.Value.PostButtonCommand}">
+                        <Button.ToolTip>
+                            <ToolTip Content="投稿" />
+                        </Button.ToolTip>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="PreviewMouseUp">
                                 <ri:EventToReactiveCommand Command="{Binding DataContext.PostViewPostCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}, Mode=OneWay}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Width="32"  Height="32" Margin="2" AllowDrop="True" Visibility="{Binding PostImageVisibility.Value, Mode=OneWay}">
-                        <TextBlock>画像</TextBlock>
+                    <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconPostImage}" AllowDrop="True" Visibility="{Binding PostImageVisibility.Value, Mode=OneWay}">
+                        <Button.ToolTip>
+                            <ToolTip Content="ふたば画像" />
+                        </Button.ToolTip>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="PreviewMouseUp">
                                 <ri:EventToReactiveCommand Command="{Binding OpenImageCommand}" />
@@ -254,8 +268,10 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Width="32"  Height="32" Margin="2" AllowDrop="True">
-                        <TextBlock>ロダ</TextBlock>
+                    <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconPostUpload}" AllowDrop="True">
+                        <Button.ToolTip>
+                            <ToolTip Content="あぷ小" />
+                        </Button.ToolTip>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="PreviewMouseUp">
                                 <ri:EventToReactiveCommand Command="{Binding DataContext.OpenUploadCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}, Mode=OneWay}" />
@@ -269,8 +285,10 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Width="32"  Height="32" Margin="2">
-                        <TextBlock>破棄</TextBlock>
+                    <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconPostDelete}">
+                        <Button.ToolTip>
+                            <ToolTip Content="破棄" />
+                        </Button.ToolTip>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="PreviewMouseUp">
                                 <ri:EventToReactiveCommand Command="{Binding DeletePostDataCommand}" />
