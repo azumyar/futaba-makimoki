@@ -610,11 +610,22 @@
                     </Grid.ColumnDefinitions>
 
                     <Button Grid.Column="0" Style="{StaticResource ToolbarButtonHarf}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}" Visibility="Collapsed">
-                        <TextBlock Text="&lt;&lt;" />
+                        <Button.LayoutTransform>
+                            <RotateTransform x:Name="ContractRotate" Angle="180" />
+                        </Button.LayoutTransform>
+                        <Button.ToolTip>
+                            <ToolTip Content="スレッド画面最大化" />
+                        </Button.ToolTip>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
                                 <ri:EventToReactiveCommand Command="{Binding FullScreenClickCommand}" />
                             </i:EventTrigger>
+                            <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="Equal">
+                                <i:ChangePropertyAction TargetName="ContractRotate" PropertyName="Angle" Value="0" />
+                            </i:DataTrigger>
+                            <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="NotEqual">
+                                <i:ChangePropertyAction TargetName="ContractRotate" PropertyName="Angle" Value="180" />
+                            </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>
                     <Button Grid.Column="2" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerUpdate}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
@@ -751,15 +762,10 @@
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Grid.Column="7" Style="{StaticResource ToolbarButtonHarf}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
-                        <TextBlock>
-                            <TextBlock.Text>
-                                >>
-                            </TextBlock.Text>
-                            <TextBlock.LayoutTransform>
-                                <RotateTransform x:Name="FullScreenRotate" Angle="0" />
-                            </TextBlock.LayoutTransform>
-                        </TextBlock>
+                    <Button Grid.Column="7" Style="{StaticResource ToolbarButtonHarf}" Content="{DynamicResource ButtonIconCatalogExpand}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                        <Button.LayoutTransform>
+                            <RotateTransform x:Name="FullScreenRotate" Angle="0" />
+                        </Button.LayoutTransform>
                         <Button.ToolTip>
                             <ToolTip Content="スレッド画面最大化" />
                         </Button.ToolTip>

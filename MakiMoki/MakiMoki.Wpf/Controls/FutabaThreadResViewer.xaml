@@ -358,8 +358,7 @@
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="6" Style="{StaticResource ToolbarButtonHarf}">
-                        <TextBlock Text=" … " />
+                    <Button Grid.Column="6" Style="{StaticResource ToolbarButtonHarf}" Content="{DynamicResource ButtonIconThreadMouseHamburger}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
                                 <i:ChangePropertyAction 
