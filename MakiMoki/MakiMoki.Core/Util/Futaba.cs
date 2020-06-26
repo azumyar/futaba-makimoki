@@ -37,9 +37,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					Config.ConfigLoader.SavedFutaba.Threads.Select(x => {
 						var b = Config.ConfigLoader.Bord.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
 						if(b != null) {
-							return FutabaContext.FromThreadResResponse(
-								FutabaContext.FromThreadEmpty(b, x.Url.ThreadNo),
-								x.Thread);
+							return FutabaContext.FromThread_(b, x.Url, x.Thread);
 						} else {
 							return null;
 						}

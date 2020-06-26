@@ -619,24 +619,30 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			};
 		}
 
-		public static FutabaContext FromThread_(BordConfig bord, FutabaResonse response, string[] sortRes, Dictionary<string, int> counter) {
-			var url = new UrlContext(bord.Url);
-			return new FutabaContext() {
-				Name = bord.Name,
-				Bord = bord,
-				Url = url,
-				// ResItems = response.Res.Reverse().Select(x => {
-				ResItems = sortRes.Select(x => {
-					var r = response.Res.Where(y => y.No == x).FirstOrDefault();
-					if(r != null) {
-						var cc = counter.ContainsKey(x) ? counter[x] : 0;
-						return Item.FromCatalog(url, r, cc, 0);
-					} else {
-						return null;
-					}
-				}).Where(x => x != null).ToArray(),
-				Raw = response,
-			};
+		public static FutabaContext FromThread_(BordConfig bord, UrlContext url, FutabaResonse response) {
+			var res = response.Res.FirstOrDefault();
+			if(res == null) {
+				return FromThreadEmpty(bord, url.ThreadNo);
+			} else {
+				return new FutabaContext() {
+					Name = Util.TextUtil.SafeSubstring(
+						Util.TextUtil.RemoveCrLf(
+							Util.TextUtil.RowComment2Text(res.Res.Com)
+						), 8),
+					Bord = bord,
+					Url = url,
+					// ResItems = response.Res.Reverse().Select(x => {
+					ResItems = response.Res.Select(x => {
+						var soudane = 0;
+						if(response.Sd.TryGetValue(x.No, out var sd) && int.TryParse(sd, out soudane)) {
+							// なにもすることがない
+						}
+
+						return Item.FromThreadRes(url, x, soudane, response.Res.ToList());
+					}).Where(x => x != null).ToArray(),
+					Raw = response,
+				};
+			}
 		}
 
 		public FutabaResonse GetFullResponse() {

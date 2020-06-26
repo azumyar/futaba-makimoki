@@ -99,26 +99,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 	}
 
-	class FutabaMovieResVisibilityConverter : IValueConverter {
+	class FutabaMovieResVisibilityConverter : IMultiValueConverter {
 		static string[] ext = null;
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			if(value == null) {
-				return null;
-			}
-
-			if(value is Data.FutabaContext.Item it) {
-				if(ext == null) {
-					ext = Config.ConfigLoader.Mime.Types
-						.Where(x => x.MimeContents == MimeContents.Video)
-						.Select(x => x.Ext)
-						.ToArray();
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if((values.Length == 2) && (values[0] is Data.FutabaContext.Item it)) {
+				if(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledMovieMarker) {
+					if(ext == null) {
+						ext = Config.ConfigLoader.Mime.Types
+							.Where(x => x.MimeContents == MimeContents.Video)
+							.Select(x => x.Ext)
+							.ToArray();
+					}
+					return ext.Contains(it.ResItem.Res.Ext.ToLower()) ? Visibility.Visible : Visibility.Collapsed;
+				} else {
+					return Visibility.Collapsed;
 				}
-				return ext.Contains(it.ResItem.Res.Ext.ToLower()) ? Visibility.Visible : Visibility.Collapsed;
 			}
 			throw new ArgumentException("型不正。", "value");
 		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
 			throw new NotImplementedException();
 		}
 	}

@@ -303,10 +303,15 @@
                                             Margin="2"
                                             HorizontalAlignment="Left"
                                             VerticalAlignment="Bottom"
-                                            Visibility="{Binding Raw.Value, Converter={StaticResource FutabaMovieResVisibilityConverter}, Mode=OneWay}"                                        
                                             Width="{DynamicResource CatalogBadgeSize}"
                                             Height="{DynamicResource CatalogBadgeSize}"
                                             >
+                                            <Viewbox.Visibility>
+                                                <MultiBinding Converter="{StaticResource FutabaMovieResVisibilityConverter}">
+                                                    <Binding Path="Raw.Value" Mode="OneWay" />
+                                                    <Binding Path="UpdateToken.Value" Mode="OneWay" />
+                                                </MultiBinding>
+                                            </Viewbox.Visibility>
                                             <Grid
                                                 Width="16" Height="16"
                                                 HorizontalAlignment="Right"

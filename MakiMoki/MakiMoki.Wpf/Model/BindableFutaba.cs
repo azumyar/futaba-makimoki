@@ -188,6 +188,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		private Action<Ng.NgData.NgConfig> ngUpdateAction;
 		private Action<Ng.NgData.HiddenConfig> hiddenUpdateAction;
 		//private Action<Ng.NgData.NgImageConfig> imageUpdateAction;
+		private Action<PlatformData.WpfConfig> systemUpdateAction;
 
 		public BindableFutaba(Data.FutabaContext futaba, BindableFutaba old = null) {
 			OpenedThreads = Util.Futaba.Threads.Select(x => x.Where(y => y.Url.BaseUrl == futaba.Url.BaseUrl).ToArray()).ToReactiveProperty();
@@ -197,8 +198,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			FullScreenVisibility = IsFullScreenMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
 			ngUpdateAction = (_) => UpdateToken.Value = DateTime.Now;
 			hiddenUpdateAction = (_) => UpdateToken.Value = DateTime.Now;
+			systemUpdateAction = (_) => UpdateToken.Value = DateTime.Now;
 			Ng.NgConfig.NgConfigLoader.AddNgUpdateNotifyer(ngUpdateAction);
 			Ng.NgConfig.NgConfigLoader.AddHiddenUpdateNotifyer(hiddenUpdateAction);
+			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(systemUpdateAction);
 			if(old != null) {
 				FilterText.Value = old.FilterText.Value;
 				CatalogSortItem.Value = old.CatalogSortItem.Value;
