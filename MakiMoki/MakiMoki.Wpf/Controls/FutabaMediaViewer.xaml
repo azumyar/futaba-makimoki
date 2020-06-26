@@ -7,12 +7,18 @@
              xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.NET46"
              xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
              mc:Ignorable="d" 
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DesignHeight="450" d:DesignWidth="800"
              Background="#88000000"
              Visibility="{Binding ViewVisibility.Value, Mode=OneWay}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <converter:MediaEnumQuickSaveItemConverter x:Key="MediaEnumQuickSaveItemConverter" />
+        </ResourceDictionary>
+    </UserControl.Resources>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="ContentsChanged">
             <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
@@ -52,7 +58,8 @@
             Visibility="{Binding ImageViewVisibility.Value, Mode=OneWay}"
             HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled"
             ClipToBounds="True"
-            IsManipulationEnabled="True">
+            IsManipulationEnabled="True"
+            Tag="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}">
             <Viewbox 
                 StretchDirection="DownOnly"
                 RenderTransform="{Binding ImageMatrix.Value, Mode=TwoWay}">
@@ -63,13 +70,53 @@
                     Height="{Binding RelativeSource={RelativeSource Self}, Path=Source.PixelHeight}"
                     IsHitTestVisible="False"
                     RenderOptions.EdgeMode="Aliased"
-                    RenderOptions.BitmapScalingMode="Fant"
-                    >
+                    RenderOptions.BitmapScalingMode="Fant">
                     <Image.CacheMode>
                         <BitmapCache RenderAtScale="1" />
                     </Image.CacheMode>
                 </Image>
             </Viewbox>
+            <ScrollViewer.ContextMenu>
+                <ContextMenu
+                    DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                    Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                    <MenuItem
+                        Header="保存"
+                        Command="{Binding MenuItemClickSaveCommand, Mode=OneWay}"
+                        CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                    <MenuItem Header="クイック保存">
+                        <MenuItem.ItemsSource>
+                            <!-- UpdateTokenいらないかも -->
+                            <MultiBinding Converter="{StaticResource MediaEnumQuickSaveItemConverter}">
+                                <Binding Path="Tag.Contents" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                <Binding Path="UpdateToken.Value" Mode="OneWay" />
+                            </MultiBinding>
+                        </MenuItem.ItemsSource>
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="MenuItem">
+                                <Setter Property="Header" Value="{Binding Name.Value}" />
+                                <Setter Property="IsEnabled" Value="{Binding IsEnabled.Value}" />
+                                <Setter Property="Command" Value="{Binding DataContext.MenuItemClickQuickSaveCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                <Setter Property="CommandParameter" Value="{Binding}" />
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem
+                        Header="google画像検索"
+                        Command="{Binding MenuItemClickImageSearchGoogleCommand,Mode=OneWay}"
+                        CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                    <MenuItem
+                        Header="二次元画像詳細検索"
+                        Command="{Binding MenuItemClickImageSearchAscii2dCommand,Mode=OneWay}"
+                        CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                    <Separator />
+                    <MenuItem
+                        Header="ブラウザで開く"
+                        Command="{Binding MenuItemClickQuickOpenBrowserCommand,Mode=OneWay}"
+                        CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                </ContextMenu>
+            </ScrollViewer.ContextMenu>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="ManipulationDelta">
                 </i:EventTrigger>
@@ -100,7 +147,43 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="32" />
             </Grid.RowDefinitions>
-            <vlc:VideoView x:Name="VideoView" Grid.Row="0" />
+            <vlc:VideoView x:Name="VideoView" Grid.Row="0">
+                <!-- これはContextMenuでるけどうーん…
+                <Grid Background="#01FFFFFF">
+                    <Grid.ContextMenu>
+                        <ContextMenu
+                        DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                        Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                            <MenuItem
+                            Header="保存"
+                            Command="{Binding MenuItemClickSaveCommand, Mode=OneWay}"
+                        CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                            <MenuItem Header="クイック保存">
+                                <MenuItem.ItemsSource>
+                                    <MultiBinding Converter="{StaticResource MediaEnumQuickSaveItemConverter}">
+                                        <Binding Path="Tag.Contents" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                        <Binding Path="UpdateToken.Value" Mode="OneWay" />
+                                    </MultiBinding>
+                                </MenuItem.ItemsSource>
+                                <MenuItem.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Header" Value="{Binding Name.Value}" />
+                                        <Setter Property="IsEnabled" Value="{Binding IsEnabled.Value}" />
+                                        <Setter Property="Command" Value="{Binding MenuItemClickQuickSaveCommand, Mode=OneWay}" />
+                                        <Setter Property="CommandParameter" Value="{Binding}" />
+                                    </Style>
+                                </MenuItem.ItemContainerStyle>
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem
+                            Header="ブラウザで開く"
+                            Command="{Binding MenuItemClickQuickOpenBrowserCommand,Mode=OneWay}"
+                            CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                        </ContextMenu>
+                    </Grid.ContextMenu>
+                </Grid>
+                -->
+            </vlc:VideoView>
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="32" />

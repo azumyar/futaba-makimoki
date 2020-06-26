@@ -243,7 +243,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
 				var u = c.Futaba.Value.Raw.Url;
 				if(u.IsThreadUrl) {
-					Clipboard.SetText($"{ u.BaseUrl }res/{ u.ThreadNo }.htm");
+					Clipboard.SetText(Util.Futaba.GetFutabaThreadUrl(u));
 				}
 			}
 		}

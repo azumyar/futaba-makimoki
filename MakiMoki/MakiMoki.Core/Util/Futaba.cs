@@ -156,7 +156,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadRes(Data.BordConfig bord, string threadNo, bool incremental=false) {
+		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadRes(Data.BordConfig bord, string threadNo, bool incremental = false) {
 			var u = new Data.UrlContext(bord.Url, threadNo);
 			Data.FutabaContext parent = null;
 			lock(lockObj) {
@@ -458,7 +458,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				}
 			}
 		}
-			
+
 		public static void Open(Data.UrlContext url) {
 			System.Diagnostics.Debug.Assert(url != null);
 
@@ -598,7 +598,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						o.OnNext((true, localPath, null));
 						o.OnCompleted();
 					} else {
-						var c= new RestSharp.RestClient();
+						var c = new RestSharp.RestClient();
 						var r = new RestSharp.RestRequest(url, RestSharp.Method.GET);
 						var res = c.Execute(r);
 						if(res.StatusCode == System.Net.HttpStatusCode.OK) {
@@ -622,7 +622,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								}
 							}).Retry(5)
 							.Subscribe(
-								s => { 
+								s => {
 									o.OnNext((true, localPath, res.RawBytes));
 									o.OnCompleted();
 								},
@@ -643,7 +643,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(url != null);
 			System.Diagnostics.Debug.Assert(item != null);
 
-			return Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, 
+			return Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory,
 				CreateLocalFileName(url.BaseUrl, item.Src));
 		}
 
@@ -651,8 +651,15 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(url != null);
 			System.Diagnostics.Debug.Assert(item != null);
 
-			return Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, 
+			return Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory,
 				CreateLocalFileName(url.BaseUrl, item.Thumb));
+		}
+
+		public static string GetUploderLocalFilePath(string url) {
+			System.Diagnostics.Debug.Assert(url != null);
+
+			return Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory,
+				CreateLocalFileNameFromUploader(url));
 		}
 
 		private static string CreateLocalFileName(string baseUrl, string targetUrl) {
@@ -730,6 +737,33 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				return System.Reactive.Disposables.Disposable.Empty;
 			}).Delay(TimeSpan.FromSeconds(3))
 				.Subscribe(x => Informations.RemoveOnScheduler(x));
+		}
+
+
+		public static string GetFutabaThreadUrl(UrlContext url) {
+			if(url.IsCatalogUrl) {
+				return $"{ url.BaseUrl }futaba.php?mode=cat";
+			} else {
+				return $"{ url.BaseUrl }res/{ url.ThreadNo }.htm";
+			}
+		}
+
+		public static string GetFutabaThreadImageUrl(UrlContext url, Data.ResItem item) {
+			var uri = new Uri(url.BaseUrl);
+			return $"{  uri.Scheme }://{ uri.Authority }{ item.Src }";
+		}
+
+		public static string GetFutabaThumbImageUrl(UrlContext url, Data.ResItem item) {
+			var uri = new Uri(url.BaseUrl);
+			return $"{  uri.Scheme }://{ uri.Authority }{ item.Thumb }";
+		}
+
+		public static string GetGoogleImageSearchdUrl(string url) {
+			return $"https://www.google.com/searchbyimage?image_url={ System.Web.HttpUtility.UrlEncode(url) }";
+		}
+
+		public static string GetAscii2dImageSearchUrl(string url) {
+			return $"https://ascii2d.net/search/url/{ System.Web.HttpUtility.UrlEncode(url) }";
 		}
 	}
 }
