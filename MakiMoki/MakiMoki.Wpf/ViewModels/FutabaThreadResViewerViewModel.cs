@@ -357,6 +357,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.Subscribe(x => {
 						if(x.Successed) {
 							Util.Futaba.PutInformation(new Information("削除しました"));
+							Util.Futaba.UpdateThreadRes(ri.Bord.Value, ri.Raw.Value.Url.ThreadNo).Subscribe();
 						} else {
 							Util.Futaba.PutInformation(new Information(x.Message));
 						}
