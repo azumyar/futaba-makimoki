@@ -248,6 +248,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				var r = new RestRequest(FutabaEndPoint, Method.POST);
 				c.Encoding = FutabaEncoding;
 				r.AddHeader("Content-Type", "multipart/form-data");
+				r.AddHeader("referer", string.Format("{0}futaba.htm", bord.Url));
 				r.AddParameter("guid", "on", ParameterType.QueryString);
 
 				r.AlwaysMultipartFormData = true;
