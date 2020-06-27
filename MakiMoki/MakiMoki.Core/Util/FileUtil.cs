@@ -70,6 +70,30 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
+		public static void LoadJsonHelper(string json, Action<string> loadAction, Action<Exception, string> errorAction) {
+			System.Diagnostics.Debug.Assert(json != null);
+			System.Diagnostics.Debug.Assert(loadAction != null);
+			System.Diagnostics.Debug.Assert(errorAction != null);
+			try {
+				loadAction(json);
+			}
+			catch(JsonReaderException e) {
+				errorAction(e, string.Format(
+					"JSONファイル[{1}]が不正な形式です{0}{0}{2}",
+					Environment.NewLine,
+					json,
+					e.Message));
+			}
+			catch(JsonSerializationException e) {
+				errorAction(e, string.Format(
+					"JSONファイル[{1}]が不正な形式です{0}{0}{2}",
+					Environment.NewLine,
+					json,
+					e.Message));
+			}
+		}
+
+
 		public static void LoadConfigHelper(Stream configFile, Action<string> loadAction, Action<Exception, string> errorAction) {
 			System.Diagnostics.Debug.Assert(configFile != null);
 			System.Diagnostics.Debug.Assert(loadAction != null);

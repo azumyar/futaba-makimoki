@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Linq;
 using Yarukizero.Net.MakiMoki.Data;
+using Yarukizero.Net.MakiMoki.Util;
 
 namespace Yarukizero.Net.MakiMoki.Config {
 	public static class ConfigLoader {
@@ -21,6 +22,28 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		internal static readonly Assembly CoreAssembly = typeof(ConfigLoader).Assembly;
 
 		private static volatile object lockObj = new object();
+
+		public class Compat {
+			public static bool IsValid(ConfigObject obj, int currentVersion) {
+				if(obj == null) {
+					return false;
+				}
+
+				return obj.Version == currentVersion;
+			}
+
+			public static T Migrate<T>(string path, ConfigObject obj, Func<int, string, T> migrate) where T : ConfigObject {
+				var r = default(T);
+				Util.FileUtil.LoadConfigHelper(path,
+					(json) => r = migrate(obj.Version, json),
+					(e, m) => throw new Exceptions.InitializeFailedException(m, e));
+				if(r == null) {
+					throw new Exceptions.InitializeFailedException($"ファイル[{ path }]のVersion[{ obj.Version }]は不正な設定です。");
+				}
+
+				return r;
+			}
+		}
 
 		public class Setting {
 			public string SystemDirectory { get; set; } = null;
@@ -59,13 +82,14 @@ namespace Yarukizero.Net.MakiMoki.Config {
 					(e, m) => throw new Exceptions.InitializeFailedException(m, e));
 				return r;
 			}
+			string getResPath(string name) => $"{ typeof(ConfigLoader).Namespace }.{ name }";
 
 			string loadFile(Stream s) {
 				using(var sr = new StreamReader(s, Encoding.UTF8)) {
 					return sr.ReadToEnd();
 				}
 			}
-			void addDic(Dictionary<string, Data.BordConfig> dic, Data.BordConfig[] item) {
+			void addDic(Dictionary<string, Data.BordData> dic, Data.BordData[] item) {
 				foreach(var b in item) {
 					if(string.IsNullOrWhiteSpace(b.Name)) {
 						throw new Exceptions.InitializeFailedException(
@@ -80,10 +104,11 @@ namespace Yarukizero.Net.MakiMoki.Config {
 				}
 			}
 
-			var bordDic = new Dictionary<string, Data.BordConfig>();
-			addDic(bordDic, JsonConvert.DeserializeObject<Data.BordConfig[]>(
-				loadFile(CoreAssembly.GetManifestResourceStream(
-					typeof(ConfigLoader).Namespace + "." + BordConfigFile))));
+			var bord = getStream(
+				CoreAssembly.GetManifestResourceStream(getResPath(BordConfigFile)),
+				CoreBordConfig.CreateDefault());
+			var bordDic = new Dictionary<string, Data.BordData>();
+			addDic(bordDic, bord.Bords);
 			MakiMoki = JsonConvert.DeserializeObject<Data.MakiMokiConfig>(
 				loadFile(CoreAssembly.GetManifestResourceStream(
 					typeof(ConfigLoader).Namespace + "." + MakiMokiConfigFile)));
@@ -94,22 +119,25 @@ namespace Yarukizero.Net.MakiMoki.Config {
 				loadFile(CoreAssembly.GetManifestResourceStream(
 					typeof(ConfigLoader).Namespace + "." + UploderConfigFile)));
 			try {
-				if(setting.SystemDirectory != null) {
-					MakiMoki = get(Path.Combine(setting.SystemDirectory, MakiMokiConfigFile), MakiMoki);
-					var bord = Path.Combine(setting.SystemDirectory, BordConfigFile);
-					if(File.Exists(bord)) {
-						using(var fs = new FileStream(bord, FileMode.Open)) {
-							addDic(bordDic, JsonConvert.DeserializeObject<Data.BordConfig[]>(loadFile(fs)));
-						}
-					}
-				}
-
-				if(setting.UserDirectory != null) {
-					MakiMoki = get(Path.Combine(setting.UserDirectory, MakiMokiConfigFile), MakiMoki);
-					var bord = Path.Combine(setting.UserDirectory, BordConfigFile);
-					if(File.Exists(bord)) {
-						using(var fs = new FileStream(bord, FileMode.Open)) {
-							addDic(bordDic, JsonConvert.DeserializeObject<Data.BordConfig[]>(loadFile(fs)));
+				foreach(var confDir in new string[] { setting.SystemDirectory, setting.UserDirectory }) {
+					if(confDir != null) {
+						MakiMoki = get(Path.Combine(confDir, MakiMokiConfigFile), MakiMoki);
+						var b = Path.Combine(confDir, BordConfigFile);
+						if(File.Exists(b)) {
+							var j = string.Empty;
+							var o = default(BordConfig);
+							var co = default(ConfigObject);
+							Util.FileUtil.LoadConfigHelper(b,
+								(json) => { j = json; co = JsonConvert.DeserializeObject<ConfigObject>(json); },
+								(e, m) => throw new Exceptions.InitializeFailedException(m, e));
+							if(Compat.IsValid(co, BordConfig.CurrentVersion)) {
+								Util.FileUtil.LoadJsonHelper(j,
+									(json) => o = JsonConvert.DeserializeObject<BordConfig>(json),
+									(e, m) => throw new Exceptions.InitializeFailedException(m, e));
+							} else {
+								o = Compat.Migrate<BordConfig>(b, co, (version, json) => null);
+							}
+							addDic(bordDic, o.Bords);
 						}
 					}
 				}
@@ -189,18 +217,18 @@ namespace Yarukizero.Net.MakiMoki.Config {
 				}
 			}
 
-			var bordList = new List<Data.BordConfig>();
+			var bordList = new List<Data.BordData>();
 			foreach(var k in bordDic.Keys.OrderBy(x => x)) {
 				bordList.Add(bordDic[k]);
 			}
-			Bord = bordList.Where(x => x.DisplayValue).OrderBy(x => x.SortIndexValue).ToArray();
+			Bord = CoreBordConfig.CreateAppInstance(bord, bordList.Where(x => x.DisplayValue).OrderBy(x => x.SortIndexValue).ToArray());
 		}
 
 		public static Setting InitializedSetting { get; private set; }
 
 		public static Data.MakiMokiConfig MakiMoki { get; private set; }
 
-		public static Data.BordConfig[] Bord { get; private set; }
+		public static Data.CoreBordConfig Bord { get; private set; }
 
 		public static Data.MimeConfig Mime { get; private set; }
 

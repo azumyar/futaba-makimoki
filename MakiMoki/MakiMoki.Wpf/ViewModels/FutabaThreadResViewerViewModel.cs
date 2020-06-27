@@ -162,7 +162,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				}
 			}
 			// ふたばのリンク
-			foreach(var b in Config.ConfigLoader.Bord) {
+			foreach(var b in Config.ConfigLoader.Bord.Bords) {
 				var uu = new Uri(b.Url);
 				if(uu.Authority == e.NavigateUri.Authority) {
 					var m = Regex.Match(e.NavigateUri.LocalPath, @"^/[^/]+/res/([0-9]+)\.htm$");

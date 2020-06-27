@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Yarukizero.Net.MakiMoki.Data {
 	public class MakiMokiConfig : ConfigObject {
-		public static int CurrentVersion = -1;
+		public static int CurrentVersion = 2020062900;
 
 		[JsonProperty("futaba-thread-get-incremental", Required = Required.Always)]
 		public bool FutabaThreadGetIncremental { get; private set; }
@@ -27,17 +27,46 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		}
 	}
 
-	public class BordConfig : JsonObject {
-		[JsonProperty("name")]
+	public class BordConfig : ConfigObject {
+		public static int CurrentVersion = 2020062900;
+
+		[JsonProperty("bords", Required = Required.Always)]
+		public BordData[] Bords { get; protected set; }
+
+		internal static BordConfig CreateDefault() {
+			return new BordConfig() {
+				Version = CurrentVersion,
+				Bords = new BordData[0],
+			};
+		}
+	}
+
+	public class CoreBordConfig : BordConfig {
+		[JsonProperty("max-file-size", Required = Required.Always)]
+		public int MaxFileSize { get; private set; }
+
+		internal new static CoreBordConfig CreateDefault() {
+			return new CoreBordConfig() {
+				Version = CurrentVersion,
+				Bords = new BordData[0],
+			};
+		}
+
+		internal static CoreBordConfig CreateAppInstance(CoreBordConfig config, BordData[] margeData) {
+			return new CoreBordConfig() {
+				Version = CurrentVersion,
+				MaxFileSize = config.MaxFileSize,
+				Bords = margeData,
+			};
+		}
+	}
+
+	public class BordData : JsonObject {
+		[JsonProperty("name", Required = Required.Always)]
 		public string Name { get; set; }
 
-		[JsonProperty("url")]
+		[JsonProperty("url", Required = Required.Always)]
 		public string Url { get; set; }
-
-		// intにして必須項目にするべきか
-		[JsonProperty("max-file-size")]
-		public int? MaxFileSize { get; set; }
-
 
 		[JsonProperty("sort-index")]
 		public int? SortIndex { get; set; }
@@ -45,11 +74,8 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonProperty("display")]
 		public bool? Display { get; set; }
 
-		[JsonProperty("extra", Required = Required.DisallowNull)]
-		public BordConfigExtra Extra { get; set; }
-
-		[JsonIgnore]
-		public string MaxFileSzieValue => MaxFileSize?.ToString() ?? "";
+		[JsonProperty("extra", Required = Required.Always)]
+		public BordDataExtra Extra { get; set; }
 
 		[JsonIgnore]
 		public bool DisplayValue => (Display ?? true);
@@ -58,7 +84,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public int SortIndexValue => (SortIndex ?? int.MaxValue);
 	}
 
-	public class BordConfigExtra : JsonObject {
+	public class BordDataExtra : JsonObject {
 		[JsonProperty("name")]
 		public bool? Name { get; set; }
 
@@ -85,7 +111,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class MimeConfig : ConfigObject {
-		public static int CurrentVersion = -1;
+		public static int CurrentVersion = 2020062900;
 		private Dictionary<string, string> mimeDic = null;
 
 		[JsonProperty("support-types", Required = Required.DisallowNull)]
@@ -123,7 +149,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class UploderConfig : ConfigObject {
-		public static int CurrentVersion = -1;
+		public static int CurrentVersion = 2020062900;
 
 		[JsonProperty("uploders", Required = Required.Always)]
 		public UploderData[] Uploders { get; private set; }
@@ -138,7 +164,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class FutabaSavedConfig : ConfigObject {
-		public static int CurrentVersion = -1;
+		public static int CurrentVersion = 2020062900;
 
 		[JsonProperty("time", Required = Required.Always)]
 		public long Time { get; private set; }
@@ -222,7 +248,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class FutabaPostItemConfig : ConfigObject {
-		public static int CurrentVersion = -1;
+		public static int CurrentVersion = 2020062900;
 
 		[JsonProperty("res", Required = Required.Always)]
 		public PostedResItem[] Items { get; private set; }

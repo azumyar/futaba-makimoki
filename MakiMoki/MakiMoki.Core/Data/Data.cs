@@ -11,7 +11,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class ConfigObject : JsonObject {
-		[JsonProperty("version")]
+		[JsonProperty("version", Required = Required.Always)]
 		public int Version { get; protected set; }
 	}
 
