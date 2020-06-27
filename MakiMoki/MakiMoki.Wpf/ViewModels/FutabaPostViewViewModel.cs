@@ -352,7 +352,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private async void OnKeyBindingClipbord(Model.BindableFutaba f) {
-			if(!f.Raw.Bord.Extra.ResImageValue) {
+			if(f.Raw.Url.IsThreadUrl && !f.Raw.Bord.Extra.ResImageValue) {
 				return;
 			}
 
