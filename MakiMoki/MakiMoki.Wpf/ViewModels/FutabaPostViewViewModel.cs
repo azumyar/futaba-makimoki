@@ -352,6 +352,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private async void OnKeyBindingClipbord(Model.BindableFutaba f) {
+			if(!f.Raw.Bord.Extra.ResImageValue) {
+				return;
+			}
+
 			var path = "";
 			var fileName = new DateTimeOffset(DateTime.Now, new TimeSpan(+09, 00, 00)).ToUnixTimeMilliseconds().ToString();
 			if(Clipboard.ContainsImage()) {
