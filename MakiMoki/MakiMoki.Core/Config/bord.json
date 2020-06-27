@@ -6,7 +6,9 @@
     {
       "name": "ねこ",
       "url": "https://may.2chan.net/27/",
-      "extra": {}
+      "extra": {
+        "always-ip": true
+      }
     }
   ]
 }

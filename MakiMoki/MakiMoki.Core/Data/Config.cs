@@ -97,6 +97,12 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonProperty("enable-mail-id")]
 		public bool? MailId { get; set; }
 
+		[JsonProperty("always-ip")]
+		public bool? AlwaysIp { get; set; }
+
+		[JsonProperty("always-id")]
+		public bool? AlwaysId { get; set; }
+
 		[JsonIgnore]
 		public bool NameValue => Name ?? true;
 
@@ -108,6 +114,12 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 		[JsonIgnore]
 		public bool MailIdValue => MailId ?? false;
+
+		[JsonIgnore]
+		public bool AlwaysIpValue => AlwaysIp ?? false;
+
+		[JsonIgnore]
+		public bool AlwaysIdValue => AlwaysId ?? false;
 	}
 
 	public class MimeConfig : ConfigObject {
