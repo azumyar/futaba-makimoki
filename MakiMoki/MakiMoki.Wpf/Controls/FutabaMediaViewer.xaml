@@ -188,10 +188,61 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="32" />
                     <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="32" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="32" />
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Visibility="{Binding VideoPlayButtonVisibility.Value, Mode=OneWay}">
+                <Button Grid.Column="0" Tag="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}">
+                    <Button.Resources>
+                        <ContextMenu
+                            x:Key="ContextMenu"
+                            Placement="Top"
+                            DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                            Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                            <MenuItem
+                                Header="保存"
+                                Command="{Binding MenuItemClickSaveCommand, Mode=OneWay}"
+                                CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                            <MenuItem Header="クイック保存">
+                                <MenuItem.ItemsSource>
+                                    <MultiBinding Converter="{StaticResource MediaEnumQuickSaveItemConverter}">
+                                        <Binding Path="Tag.Contents" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                        <Binding Path="UpdateToken.Value" Mode="OneWay" />
+                                    </MultiBinding>
+                                </MenuItem.ItemsSource>
+                                <MenuItem.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Header" Value="{Binding Name.Value}" />
+                                        <Setter Property="IsEnabled" Value="{Binding IsEnabled.Value}" />
+                                        <Setter Property="Command" Value="{Binding DataContext.MenuItemClickQuickSaveCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                        <Setter Property="CommandParameter" Value="{Binding}" />
+                                    </Style>
+                                </MenuItem.ItemContainerStyle>
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem
+                                Header="ブラウザで開く"
+                                Command="{Binding MenuItemClickQuickOpenBrowserCommand,Mode=OneWay}"
+                                CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                        </ContextMenu>
+                    </Button.Resources>
+                    <Button.Content>
+                        <TextBlock>保存</TextBlock>
+                    </Button.Content>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <i:ChangePropertyAction 
+                                TargetObject="{StaticResource ContextMenu}" 
+                                PropertyName="IsOpen"
+                                Value="True"/>
+                            <i:ChangePropertyAction
+                                TargetObject="{StaticResource ContextMenu}" 
+                                PropertyName="PlacementTarget" 
+                                Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button Grid.Column="1" Visibility="{Binding VideoPlayButtonVisibility.Value, Mode=OneWay}">
                     <Button.Content>
                         <TextBlock>再生</TextBlock>
                     </Button.Content>
@@ -202,7 +253,7 @@
                     </i:Interaction.Triggers>
                 </Button>
 
-                <Button Grid.Column="0" Visibility="{Binding VideoPauseButtonVisibility.Value, Mode=OneWay}">
+                <Button Grid.Column="1" Visibility="{Binding VideoPauseButtonVisibility.Value, Mode=OneWay}">
                     <Button.Content>
                         <TextBlock>一停</TextBlock>
                     </Button.Content>
@@ -213,7 +264,7 @@
                     </i:Interaction.Triggers>
                 </Button>
 
-                <Button Grid.Column="1">
+                <Button Grid.Column="2">
                     <Button.Content>
                         <TextBlock>停止</TextBlock>
                     </Button.Content>
@@ -225,7 +276,7 @@
                 </Button>
 
                 <Slider
-                    Grid.Column="2"
+                    Grid.Column="3"
                     Margin="4 0 4 0"
                     VerticalAlignment="Center"
                     IsMoveToPointEnabled ="True"
@@ -241,7 +292,7 @@
                 </Slider>
 
                 <Button
-                    Grid.Column="3"
+                    Grid.Column="4"
                     Width="32" Height="32"
                     Foreground="White"
                     Background="Transparent"

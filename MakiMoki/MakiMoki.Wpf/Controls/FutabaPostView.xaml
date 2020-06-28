@@ -251,10 +251,24 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconPostImage}" AllowDrop="True" Visibility="{Binding PostImageVisibility.Value, Mode=OneWay}">
+                    <Button
+                        Style="{StaticResource PrimaryColorButton}"
+                        Content="{StaticResource ButtonIconPostImage}" AllowDrop="True" 
+                        Visibility="{Binding PostImageVisibility.Value, Mode=OneWay}"
+                        Tag="{Binding DataContext, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}">
                         <Button.ToolTip>
                             <ToolTip Content="ふたば画像" />
                         </Button.ToolTip>
+                        <Button.ContextMenu>
+                            <ContextMenu
+                                DataContext="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                Tag="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                                <MenuItem
+                                    Header="クリップボードから貼り付け"
+                                    Command="{Binding MenuItemClickPastePostImageCommand, Mode=OneWay}"
+                                    CommandParameter="{Binding Tag,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                            </ContextMenu>
+                        </Button.ContextMenu>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="PreviewMouseUp">
                                 <ri:EventToReactiveCommand Command="{Binding OpenImageCommand}" />

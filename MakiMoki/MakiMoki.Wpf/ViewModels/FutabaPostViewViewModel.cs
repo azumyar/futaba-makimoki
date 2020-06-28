@@ -65,6 +65,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<RoutedEventArgs> PostViewPostCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
+		public ReactiveCommand<BindableFutaba> MenuItemClickPastePostImageCommand { get; } = new ReactiveCommand<BindableFutaba>();
 
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingOpenImageCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
@@ -82,6 +83,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			UploadDragOverpCommand.Subscribe(x => OnUploadDragOver(x));
 			UploadDroppCommand.Subscribe(x => OnUploadDrop(x));
 			PostViewPostCommand.Subscribe(x => OnPostViewPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
+
+			MenuItemClickPastePostImageCommand.Subscribe(x => OnMenuItemClickPastePostImage(x));
 
 			KeyBindingPostCommand.Subscribe(x => OnKeyBindingPost(x));
 			KeyBindingOpenImageCommand.Subscribe(x => OnKeyBindingOpenImage(x));
@@ -331,27 +334,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private void OnKeyBindingPost(Model.BindableFutaba f) {
-			this.OnPostViewPostClick(f);
-		}
-
-		private async void OnKeyBindingOpenImage(Model.BindableFutaba f) {
-			await this.OpenImage(f);
-		}
-
-		private async void OnKeyBindingOpenUpload(Model.BindableFutaba f) {
-			await this.OpenUpload(f);
-		}
-
-		private void OnKeyBindingDelete(Model.BindableFutaba f) {
-			f.PostData.Value.Reset();
-		}
-
-		private void OnKeyBindingClose(Model.BindableFutaba f) {
-			Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(f.Url));
-		}
-
-		private async void OnKeyBindingClipbord(Model.BindableFutaba f) {
+		private async void OnMenuItemClickPastePostImage(Model.BindableFutaba f) {
 			if(f.Raw.Url.IsThreadUrl && !f.Raw.Bord.Extra.ResImageValue) {
 				return;
 			}
@@ -403,6 +386,30 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if(!string.IsNullOrEmpty(path) && File.Exists(path)) {
 				f.PostData.Value.ImagePath.Value = path;
 			}
+		}
+
+		private void OnKeyBindingPost(Model.BindableFutaba f) {
+			this.OnPostViewPostClick(f);
+		}
+
+		private async void OnKeyBindingOpenImage(Model.BindableFutaba f) {
+			await this.OpenImage(f);
+		}
+
+		private async void OnKeyBindingOpenUpload(Model.BindableFutaba f) {
+			await this.OpenUpload(f);
+		}
+
+		private void OnKeyBindingDelete(Model.BindableFutaba f) {
+			f.PostData.Value.Reset();
+		}
+
+		private void OnKeyBindingClose(Model.BindableFutaba f) {
+			Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(f.Url));
+		}
+
+		private void OnKeyBindingClipbord(Model.BindableFutaba f) {
+			OnMenuItemClickPastePostImage(f);
 		}
 	}
 }

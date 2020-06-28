@@ -344,7 +344,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			var m = Regex.Match(u, "/([^/]+)$");
 			var ext = m.Success ? Path.GetExtension(m.Groups[1].Value) : null;
 			var fileName = m.Success ? m.Groups[1].Value : "";
-			var filter = m.Success ? $"ふたば画像ファイル|{ ext }" : "すべてのファイル|*.*";
+			var filter = m.Success ? $"ふたば画像ファイル|*.{ ext }" : "すべてのファイル|*.*";
 
 			var sfd = new Microsoft.Win32.SaveFileDialog() {
 				FileName = fileName,
