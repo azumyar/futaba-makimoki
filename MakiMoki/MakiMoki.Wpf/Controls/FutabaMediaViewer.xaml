@@ -1,0 +1,348 @@
+﻿<UserControl x:Class="Yarukizero.Net.MakiMoki.Wpf.Controls.FutabaMediaViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.NET46"
+             xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
+             xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+             mc:Ignorable="d" 
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="450" d:DesignWidth="800"
+             Background="#88000000"
+             Visibility="{Binding ViewVisibility.Value, Mode=OneWay}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <converter:MediaEnumQuickSaveItemConverter x:Key="MediaEnumQuickSaveItemConverter" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="ContentsChanged">
+            <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
+        </i:EventTrigger>
+
+        <i:EventTrigger EventName="VideoViewPlaying">
+            <ri:EventToReactiveCommand Command="{Binding VideoViewPlayingCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="VideoViewPaused">
+            <ri:EventToReactiveCommand Command="{Binding VideoViewPausedCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="VideoViewStopped">
+            <ri:EventToReactiveCommand Command="{Binding VideoViewStoppedCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="VideoViewEndReached">
+            <ri:EventToReactiveCommand Command="{Binding VideoViewEndReachedCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="VideoViewPositionChanged">
+            <ri:EventToReactiveCommand Command="{Binding VideoViewPositionChangedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="4" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="4" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="4" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="4" />
+        </Grid.RowDefinitions>
+
+        <!-- 画像 -->
+        <ScrollViewer
+            Grid.Row="1" Grid.Column="1"
+            Visibility="{Binding ImageViewVisibility.Value, Mode=OneWay}"
+            HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled"
+            ClipToBounds="True"
+            IsManipulationEnabled="True"
+            Tag="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}">
+            <Viewbox 
+                StretchDirection="DownOnly"
+                RenderTransform="{Binding ImageMatrix.Value, Mode=TwoWay}">
+                <Image
+                    x:Name="image"
+                    Source="{Binding ImageSource.Value, Mode=OneWay}"
+                    Width="{Binding RelativeSource={RelativeSource Self}, Path=Source.PixelWidth}"
+                    Height="{Binding RelativeSource={RelativeSource Self}, Path=Source.PixelHeight}"
+                    IsHitTestVisible="False"
+                    RenderOptions.EdgeMode="Aliased"
+                    RenderOptions.BitmapScalingMode="Fant">
+                    <Image.CacheMode>
+                        <BitmapCache RenderAtScale="1" />
+                    </Image.CacheMode>
+                </Image>
+            </Viewbox>
+            <ScrollViewer.ContextMenu>
+                <ContextMenu
+                    DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                    Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                    <MenuItem
+                        Header="保存"
+                        Command="{Binding MenuItemClickSaveCommand, Mode=OneWay}"
+                        CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                    <MenuItem Header="クイック保存">
+                        <MenuItem.ItemsSource>
+                            <!-- UpdateTokenいらないかも -->
+                            <MultiBinding Converter="{StaticResource MediaEnumQuickSaveItemConverter}">
+                                <Binding Path="Tag.Contents" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                <Binding Path="UpdateToken.Value" Mode="OneWay" />
+                            </MultiBinding>
+                        </MenuItem.ItemsSource>
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="MenuItem">
+                                <Setter Property="Header" Value="{Binding Name.Value}" />
+                                <Setter Property="IsEnabled" Value="{Binding IsEnabled.Value}" />
+                                <Setter Property="Command" Value="{Binding DataContext.MenuItemClickQuickSaveCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                <Setter Property="CommandParameter" Value="{Binding}" />
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem
+                        Header="google画像検索"
+                        Command="{Binding MenuItemClickImageSearchGoogleCommand,Mode=OneWay}"
+                        CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                    <MenuItem
+                        Header="二次元画像詳細検索"
+                        Command="{Binding MenuItemClickImageSearchAscii2dCommand,Mode=OneWay}"
+                        CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                    <Separator />
+                    <MenuItem
+                        Header="ブラウザで開く"
+                        Command="{Binding MenuItemClickQuickOpenBrowserCommand,Mode=OneWay}"
+                        CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                </ContextMenu>
+            </ScrollViewer.ContextMenu>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="ManipulationDelta">
+                </i:EventTrigger>
+                <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                    <ri:EventToReactiveCommand Command="{Binding MouseLeftButtonDownCommand}" />
+                </i:EventTrigger>
+                <i:EventTrigger EventName="MouseLeftButtonUp">
+                    <ri:EventToReactiveCommand Command="{Binding MouseLeftButtonUpCommand}" />
+                </i:EventTrigger>
+                <i:EventTrigger EventName="MouseMove">
+                    <ri:EventToReactiveCommand Command="{Binding MouseMoveCommand}" />
+                </i:EventTrigger>
+                <i:EventTrigger EventName="MouseLeave">
+                    <ri:EventToReactiveCommand Command="{Binding MouseLeaveCommand}" />
+                </i:EventTrigger>
+                <i:EventTrigger EventName="PreviewMouseWheel">
+                    <ri:EventToReactiveCommand Command="{Binding MouseWheelCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </ScrollViewer>
+
+        <Grid
+            Grid.Row="1" Grid.Column="1"
+            Visibility="{Binding VideoViewVisibility.Value, Mode=OneWay}"
+            Background="Black"
+            >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="32" />
+            </Grid.RowDefinitions>
+            <vlc:VideoView x:Name="VideoView" Grid.Row="0">
+                <!-- これはContextMenuでるけどうーん…
+                <Grid Background="#01FFFFFF">
+                    <Grid.ContextMenu>
+                        <ContextMenu
+                        DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                        Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                            <MenuItem
+                            Header="保存"
+                            Command="{Binding MenuItemClickSaveCommand, Mode=OneWay}"
+                        CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                            <MenuItem Header="クイック保存">
+                                <MenuItem.ItemsSource>
+                                    <MultiBinding Converter="{StaticResource MediaEnumQuickSaveItemConverter}">
+                                        <Binding Path="Tag.Contents" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                        <Binding Path="UpdateToken.Value" Mode="OneWay" />
+                                    </MultiBinding>
+                                </MenuItem.ItemsSource>
+                                <MenuItem.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Header" Value="{Binding Name.Value}" />
+                                        <Setter Property="IsEnabled" Value="{Binding IsEnabled.Value}" />
+                                        <Setter Property="Command" Value="{Binding MenuItemClickQuickSaveCommand, Mode=OneWay}" />
+                                        <Setter Property="CommandParameter" Value="{Binding}" />
+                                    </Style>
+                                </MenuItem.ItemContainerStyle>
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem
+                            Header="ブラウザで開く"
+                            Command="{Binding MenuItemClickQuickOpenBrowserCommand,Mode=OneWay}"
+                            CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                        </ContextMenu>
+                    </Grid.ContextMenu>
+                </Grid>
+                -->
+            </vlc:VideoView>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="32" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Tag="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}">
+                    <Button.Resources>
+                        <ContextMenu
+                            x:Key="ContextMenu"
+                            Placement="Top"
+                            DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                            Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                            <MenuItem
+                                Header="保存"
+                                Command="{Binding MenuItemClickSaveCommand, Mode=OneWay}"
+                                CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                            <MenuItem Header="クイック保存">
+                                <MenuItem.ItemsSource>
+                                    <MultiBinding Converter="{StaticResource MediaEnumQuickSaveItemConverter}">
+                                        <Binding Path="Tag.Contents" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                        <Binding Path="UpdateToken.Value" Mode="OneWay" />
+                                    </MultiBinding>
+                                </MenuItem.ItemsSource>
+                                <MenuItem.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Header" Value="{Binding Name.Value}" />
+                                        <Setter Property="IsEnabled" Value="{Binding IsEnabled.Value}" />
+                                        <Setter Property="Command" Value="{Binding DataContext.MenuItemClickQuickSaveCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                        <Setter Property="CommandParameter" Value="{Binding}" />
+                                    </Style>
+                                </MenuItem.ItemContainerStyle>
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem
+                                Header="ブラウザで開く"
+                                Command="{Binding MenuItemClickQuickOpenBrowserCommand,Mode=OneWay}"
+                                CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                        </ContextMenu>
+                    </Button.Resources>
+                    <Button.Content>
+                        <TextBlock>保存</TextBlock>
+                    </Button.Content>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <i:ChangePropertyAction 
+                                TargetObject="{StaticResource ContextMenu}" 
+                                PropertyName="IsOpen"
+                                Value="True"/>
+                            <i:ChangePropertyAction
+                                TargetObject="{StaticResource ContextMenu}" 
+                                PropertyName="PlacementTarget" 
+                                Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button Grid.Column="1" Visibility="{Binding VideoPlayButtonVisibility.Value, Mode=OneWay}">
+                    <Button.Content>
+                        <TextBlock>再生</TextBlock>
+                    </Button.Content>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <ri:EventToReactiveCommand Command="{Binding VideoPlayCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+
+                <Button Grid.Column="1" Visibility="{Binding VideoPauseButtonVisibility.Value, Mode=OneWay}">
+                    <Button.Content>
+                        <TextBlock>一停</TextBlock>
+                    </Button.Content>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <ri:EventToReactiveCommand Command="{Binding VideoPauseCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+
+                <Button Grid.Column="2">
+                    <Button.Content>
+                        <TextBlock>停止</TextBlock>
+                    </Button.Content>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <ri:EventToReactiveCommand Command="{Binding VideoStopCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+
+                <Slider
+                    Grid.Column="3"
+                    Margin="4 0 4 0"
+                    VerticalAlignment="Center"
+                    IsMoveToPointEnabled ="True"
+                    Minimum="0"
+                    Maximum="1.0"
+                    Value="{Binding VideoSliderValue.Value, Mode=OneWay}"
+                    >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="ValueChanged">
+                            <ri:EventToReactiveCommand Command="{Binding VideoSliderValueChangedCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Slider>
+
+                <Button
+                    Grid.Column="4"
+                    Width="32" Height="32"
+                    Foreground="White"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    >
+                    <Button.Content>
+                        <TextBlock>
+                            ✖
+                        </TextBlock>
+                    </Button.Content>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <i:ChangePropertyAction
+                                PropertyName="Contents"
+                                TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}"
+                                Value="{x:Null}"
+                                />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+
+            </Grid>
+        </Grid>
+
+        <!-- 閉じるボタン -->
+        <Button
+            Grid.Column="1" Grid.Row="1"
+            Width="32" Height="32"
+            Foreground="White"
+            Background="Transparent"
+            BorderBrush="Transparent"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            >
+            <Button.Content>
+                <TextBlock>
+                    ✖
+                </TextBlock>
+            </Button.Content>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Click">
+                    <i:ChangePropertyAction
+                        PropertyName="Contents"
+                        TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}"
+                        Value="{x:Null}"
+                        />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </Button>
+    </Grid>
+</UserControl>

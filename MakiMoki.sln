@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.87
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{29E060A0-1293-480F-B9B9-AC015E8DD64F}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MakiMoki.Droid", "MakiMoki\MakiMoki.Droid\MakiMoki.Droid.csproj", "{D706AD32-07A7-4616-973D-5A5F2545535A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakiMoki.Core", "MakiMoki\MakiMoki.Core\MakiMoki.Core.csproj", "{5BA0BF4B-823D-413A-86D9-EB5B3D719B22}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MakiMoki.Wpf", "MakiMoki\MakiMoki.Wpf\MakiMoki.Wpf.csproj", "{E637E7F7-50C9-41C6-B82D-FE6AC7A5CB30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MakiMoki.Core.Ng", "MakiMoki\MakiMoki.Core.Ng\MakiMoki.Core.Ng.csproj", "{2E7E97A0-5AC2-441E-8EEB-07135359830F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D706AD32-07A7-4616-973D-5A5F2545535A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D706AD32-07A7-4616-973D-5A5F2545535A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D706AD32-07A7-4616-973D-5A5F2545535A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{D706AD32-07A7-4616-973D-5A5F2545535A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D706AD32-07A7-4616-973D-5A5F2545535A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D706AD32-07A7-4616-973D-5A5F2545535A}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{5BA0BF4B-823D-413A-86D9-EB5B3D719B22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BA0BF4B-823D-413A-86D9-EB5B3D719B22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BA0BF4B-823D-413A-86D9-EB5B3D719B22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BA0BF4B-823D-413A-86D9-EB5B3D719B22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E637E7F7-50C9-41C6-B82D-FE6AC7A5CB30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E637E7F7-50C9-41C6-B82D-FE6AC7A5CB30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E637E7F7-50C9-41C6-B82D-FE6AC7A5CB30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E637E7F7-50C9-41C6-B82D-FE6AC7A5CB30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E7E97A0-5AC2-441E-8EEB-07135359830F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E7E97A0-5AC2-441E-8EEB-07135359830F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E7E97A0-5AC2-441E-8EEB-07135359830F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E7E97A0-5AC2-441E-8EEB-07135359830F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {09DD425B-7B31-45D5-83FD-0F8CA1AF9E75}
+	EndGlobalSection
+EndGlobal

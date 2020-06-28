@@ -1,0 +1,20 @@
+﻿{
+  "version": -1,
+
+  "catalog-enable-movie-marker": true,
+  "catalog-enable-old-marker": true,
+  "catalog-ng-image-hidden": 0,
+
+  "thread-visible-del-res": 1,
+
+  "post-clipbord-jpeg-quality": 85,
+  "post-clipbord-enable-url": true,
+
+  "media-export-path": [],
+  "media-cache-expire-day": 3,
+
+  "export-output-ng-image": 0,
+  "export-output-ng-res": 0,
+
+  "platform-browser-path": ""
+}
