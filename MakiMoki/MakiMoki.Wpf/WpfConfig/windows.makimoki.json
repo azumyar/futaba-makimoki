@@ -1,13 +1,11 @@
 ﻿{
   "version": -1,
 
-  "window-state-save": false,
-
   "catalog-enable-movie-marker": true,
   "catalog-enable-old-marker": true,
   "catalog-ng-image-hidden": 0,
 
-  "thread-visible-ng-res": 0,
+  "thread-visible-del-res": 1,
 
   "post-clipbord-jpeg-quality": 85,
   "post-clipbord-enable-url": true,

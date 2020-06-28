@@ -17,14 +17,13 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Yarukizero.Net.MakiMoki.Wpf.ViewModels;
+using Yarukizero.Net.MakiMoki.Wpf.WpfConfig;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 	/// <summary>
 	/// MainWindow.xaml の相互作用ロジック
 	/// </summary>
 	public partial class MainWindow : Window {
-		private static readonly string PlacementJsonFile = "windows.placement.json";
-
 		public MainWindow() {
 			InitializeComponent();
 
@@ -72,20 +71,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 		protected override void OnSourceInitialized(EventArgs e) {
 			base.OnSourceInitialized(e);
 
-			if(Application.Current is App app) {
-				try {
-					var path = System.IO.Path.Combine(app.AppWorkDirectory, PlacementJsonFile);
-					if(File.Exists(path)) {
-						var hwnd = new WindowInteropHelper(this).Handle;
-						var placement = Util.FileUtil.LoadJson<WinApi.WINDOWPLACEMENT>(path);
-						placement.flags = 0;
-						placement.showCmd = (placement.showCmd == WinApi.Win32.SW_SHOWMINIMIZED)
-							? WinApi.Win32.SW_SHOWNORMAL : placement.showCmd;
-						WinApi.Win32.SetWindowPlacement(hwnd, ref placement);
-					}
-				}
-				catch(IOException) {  /* 何もしない */ }
-				catch(Newtonsoft.Json.JsonSerializationException) { /* 何もしない */ }
+			var placement = WpfConfigLoader.Placement.WindowPlacement;
+			if(placement.length != 0) { // 何も設定されていない場合初期値0が入っているのでそれで判定
+				var hwnd = new WindowInteropHelper(this).Handle;
+				placement.flags = 0;
+				placement.showCmd = (placement.showCmd == WinApi.Win32.SW_SHOWMINIMIZED)
+					? WinApi.Win32.SW_SHOWNORMAL : placement.showCmd;
+				WinApi.Win32.SetWindowPlacement(hwnd, ref placement);
 			}
 		}
 
@@ -93,18 +85,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 			base.OnClosing(e);
 
 			if(!e.Cancel) {
-				if(Application.Current is App app) {
-					try {
-						var hwnd = new WindowInteropHelper(this).Handle;
-						var placement = new WinApi.WINDOWPLACEMENT();
-						placement.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(WinApi.WINDOWPLACEMENT));
-						WinApi.Win32.GetWindowPlacement(hwnd, ref placement);
-
-						var path = System.IO.Path.Combine(app.AppWorkDirectory, PlacementJsonFile);
-						Util.FileUtil.SaveJson(path, placement);
-					}
-					catch(IOException) {  /* 何もしない */ }
-				}
+				WpfConfig.WpfConfigLoader.UpdatePlacementByWindowClosing(this);
 			}
 		}
 	}

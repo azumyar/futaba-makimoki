@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 
 	class MakiMokiExeConfig : Data.ConfigObject {
-		public static int CurrentVersion = -1;
+		public static int CurrentVersion = 2020062900;
 
 		[JsonProperty("single-user-data", Required = Required.AllowNull)]
 		public bool? IsSingleUserData { get; private set; }
@@ -24,10 +24,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	}
 
 	class WpfConfig : Data.ConfigObject {
-		public static int CurrentVersion = -1;
-
-		[JsonProperty("window-state-save", Required = Required.Always)]
-		public bool StateSave { get; private set; }
+		public static int CurrentVersion = 2020062900;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
 		public bool IsEnabledMovieMarker { get; private set; }
@@ -38,7 +35,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("catalog-ng-image-hidden", Required = Required.Always)]
 		public CatalogNgImage CatalogNgImage { get; private set; }
 
-		[JsonProperty("thread-visible-ng-res", Required = Required.Always)]
+		[JsonProperty("thread-visible-del-res", Required = Required.Always)]
 		public ThreadDelResVisibility ThreadDelResVisibility { get; private set; }
 
 		[JsonProperty("post-clipbord-jpeg-quality", Required = Required.Always)]
@@ -70,7 +67,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		}
 
 		public static WpfConfig Create(
-			bool stateSave,
 			bool isEnabledMovieMarker, bool isEnabledOldMarker,
 			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility,
 			int clipbordJpegQuality, bool clipbordIsEnabledUrl,
@@ -86,7 +82,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 
 			return new WpfConfig() {
 				Version = CurrentVersion,
-				StateSave = stateSave,
 				IsEnabledMovieMarker = isEnabledMovieMarker,
 				IsEnabledOldMarker = isEnabledOldMarker,
 				CatalogNgImage = catalogNgImage,
@@ -126,17 +121,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		Hidden,
 	}
 
+	class PlacementConfig : Data.ConfigObject {
+		public static int CurrentVersion = 2020062900;
 
-	class StateConfig : Data.ConfigObject {
-		public static int CurrentVersion = -1;
+		[JsonProperty("window-placement", Required = Required.Always)]
+		public WinApi.WINDOWPLACEMENT WindowPlacement { get; internal set; }
 
-		[JsonProperty("time", Required = Required.Always)]
-		public long Time { get; set; }
-
-		public static StateConfig CreateDefault() {
-			return new StateConfig() {
+		public static PlacementConfig CreateDefault() {
+			return new PlacementConfig() {
 				Version = CurrentVersion,
-				Time = new DateTimeOffset(DateTime.Now, new TimeSpan(+09, 00, 00)).ToUnixTimeMilliseconds(),
+				WindowPlacement = default,
 			};
 		}
 	}

@@ -5,12 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Interop;
 using Yarukizero.Net.MakiMoki.Wpf.PlatformData;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 	static class WpfConfigLoader {
 		private static readonly string SystemConfigFile = "windows.makimoki.json";
-		private static readonly string StateConfigFile = "windows.state.json";
+		private static readonly string PlacementConfigFile = "windows.placement.json";
 		private static volatile object lockObj = new object();
 
 		public static Helpers.UpdateNotifyer<PlatformData.WpfConfig> SystemConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer<PlatformData.WpfConfig>();
@@ -46,9 +48,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 			SystemConfig = getStream(
 				asm.GetManifestResourceStream(getResPath(SystemConfigFile)),
 				PlatformData.WpfConfig.CreateDefault());
-			State = getPath(
-				Path.Combine(InitializedSetting.WorkDirectory, StateConfigFile),
-				PlatformData.StateConfig.CreateDefault());
+			Placement = getPath(
+				Path.Combine(InitializedSetting.WorkDirectory, PlacementConfigFile),
+				PlatformData.PlacementConfig.CreateDefault());
 			if(Directory.Exists(InitializedSetting.UserDirectory)) {
 				SystemConfig = getPath(
 					Path.Combine(InitializedSetting.UserDirectory, SystemConfigFile),
@@ -57,9 +59,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 		}
 
 		public static Setting InitializedSetting { get; private set; }
-		public static PlatformData.WpfConfig SystemConfig { get; set; }
+		public static PlatformData.WpfConfig SystemConfig { get; private set; }
 		
-		private static PlatformData.StateConfig State { get; set; }
+		public static PlatformData.PlacementConfig Placement { get; private set; }
 
 		public static void AddSystemConfigUpdateNotifyer(Action<PlatformData.WpfConfig> action) {
 			SystemConfigUpdateNotifyer.AddHandler(action);
@@ -75,6 +77,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 					Path.Combine(InitializedSetting.UserDirectory, SystemConfigFile),
 					conf);
 			}
+		}
+
+		public static void UpdatePlacementByWindowClosing(Window window) {
+			var hwnd = new WindowInteropHelper(window).Handle;
+			var placement = new WinApi.WINDOWPLACEMENT();
+			placement.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(WinApi.WINDOWPLACEMENT));
+			WinApi.Win32.GetWindowPlacement(hwnd, ref placement);
+			Placement.WindowPlacement = placement;
+
+			Util.FileUtil.SaveJson(
+				Path.Combine(InitializedSetting.WorkDirectory, PlacementConfigFile),
+				Placement);
+
 		}
 	}
 }

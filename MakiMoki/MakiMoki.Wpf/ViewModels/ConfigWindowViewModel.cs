@@ -42,7 +42,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<string> PostItemExpireDay { get; }
 		public ReactiveProperty<bool> PostItemExpireDayValid { get; }
 
-		public ReactiveProperty<bool> WindowIsEnabledSavedState { get; }
 		public ReactiveProperty<bool> CatalogIsEnabledMovieMarker { get; }
 		public ReactiveProperty<bool> CatalogIsEnabledOldMarker { get; }
 		public ReactiveProperty<int> CatalogNgImageAction { get; }
@@ -111,7 +110,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				}
 			}).ToReactiveProperty();
 
-			WindowIsEnabledSavedState = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.StateSave);
 			CatalogIsEnabledMovieMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledMovieMarker);
 			CatalogIsEnabledOldMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledOldMarker);
 			CatalogNgImageAction = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage);
@@ -192,7 +190,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Ng.NgConfig.NgConfigLoader.UpdateNgImageThreshold(NgConfigImageThreshold.Value);
 
 			var s = PlatformData.WpfConfig.Create(
-				stateSave: WindowIsEnabledSavedState.Value,
 				isEnabledMovieMarker: CatalogIsEnabledMovieMarker.Value,
 				isEnabledOldMarker: CatalogIsEnabledOldMarker.Value,
 				catalogNgImage: (PlatformData.CatalogNgImage)CatalogNgImageAction.Value,

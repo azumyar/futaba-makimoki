@@ -166,7 +166,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Config.d\makimoki.exe.json.sample">
+    <None Include="Config.d\windows.exe.json.sample">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Config.d\windows.design.json">
