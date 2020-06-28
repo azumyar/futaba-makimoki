@@ -37,6 +37,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 		public LibVLCSharp.Shared.LibVLC LibVLC { get; private set; }
 
 		protected override Window CreateShell() {
+			AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs e) {
+				if((e.ExceptionObject is Exception ex) && !string.IsNullOrEmpty(UserLogDirectory) && Directory.Exists(UserLogDirectory)) {
+					var pid = System.Diagnostics.Process.GetCurrentProcess().Id;
+					var tid = System.Threading.Thread.CurrentThread.ManagedThreadId;
+					var d = DateTime.Now;
+
+					File.AppendAllText(
+						Path.Combine(UserLogDirectory, $"crash-{ d.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) }.txt"),
+						$"[{ d.ToString("yyyy/MM/dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture) }][{ pid }][{ tid }]{ Environment.NewLine }"
+							+ $"{ ex.ToString() }{ Environment.NewLine }",
+						System.Text.Encoding.UTF8);
+				}
+			};
 			SetDllDirectory(Path.Combine(
 				Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
 				"Lib"));
@@ -120,7 +133,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 							MessageBoxImage.Information);
 					}
 				});
-				
+			
 			return Container.Resolve<Windows.MainWindow>();
 		}
 
