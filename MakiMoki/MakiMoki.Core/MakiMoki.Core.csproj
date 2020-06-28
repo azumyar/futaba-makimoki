@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Config\bord.json" />
+    <None Remove="Config\makimoki.bord.json" />
     <None Remove="Config\makimoki.json" />
     <None Remove="Config\mime.json" />
     <None Remove="Config\uploder.json" />
@@ -22,7 +22,7 @@
     <EmbeddedResource Include="Config\uploder.json" />
     <EmbeddedResource Include="Config\makimoki.json" />
     <EmbeddedResource Include="Config\mime.json" />
-    <EmbeddedResource Include="Config\bord.json" />
+    <EmbeddedResource Include="Config\makimoki.bord.json" />
   </ItemGroup>
 
   <ItemGroup>

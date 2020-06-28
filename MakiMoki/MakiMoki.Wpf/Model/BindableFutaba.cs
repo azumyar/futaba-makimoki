@@ -41,7 +41,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			public ReactiveProperty<string> Mail { get; } = new ReactiveProperty<string>("");
 			public ReactiveProperty<string> Subject { get; } = new ReactiveProperty<string>("");
 			public ReactiveProperty<string> Password { get; } = new ReactiveProperty<string>(
-				Config.ConfigLoader.Password.FutabaValue);
+				Config.ConfigLoader.FutabaApi.SavedPassword);
 			public ReactiveProperty<string> ImagePath { get; } = new ReactiveProperty<string>("");
 
 			public ReactiveProperty<string> ImageName { get; }
@@ -126,7 +126,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				Name.Value = "";
 				Mail.Value = "";
 				Subject.Value = "";
-				Password.Value = Config.ConfigLoader.Password.FutabaValue;
+				Password.Value = Config.ConfigLoader.FutabaApi.SavedPassword;
 				ImagePath.Value = "";
 			}
 		}

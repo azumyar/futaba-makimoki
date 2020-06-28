@@ -175,6 +175,40 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public string File { get; private set; }
 	}
 
+	public class FutabaApiConfig : ConfigObject {
+		public static int CurrentVersion = 2020062900;
+
+		[JsonProperty("ptua", Required = Required.Always)]
+		public string Ptua { get; internal set; }
+
+		[JsonProperty("cookies", Required = Required.Always)]
+		public Cookie[] Cookies { get; internal set; }
+
+		[JsonProperty("subject", Required = Required.Always)]
+		public string SavedSubject { get; internal set; }
+
+		[JsonProperty("name", Required = Required.Always)]
+		public string SavedName { get; internal set; }
+
+		[JsonProperty("mail", Required = Required.Always)]
+		public string SavedMail { get; internal set; }
+
+		[JsonProperty("password", Required = Required.Always)]
+		public string SavedPassword { get; internal set; }
+
+		public static FutabaApiConfig CreateDefault() {
+			return new FutabaApiConfig() {
+				Version = CurrentVersion,
+				Ptua = "",
+				Cookies = new Cookie[0],
+				SavedSubject = "",
+				SavedName = "",
+				SavedMail = "",
+				SavedPassword = "",
+			};
+		}
+	}
+
 	public class FutabaSavedConfig : ConfigObject {
 		public static int CurrentVersion = 2020062900;
 

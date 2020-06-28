@@ -11,13 +11,11 @@ using Yarukizero.Net.MakiMoki.Util;
 namespace Yarukizero.Net.MakiMoki.Config {
 	public static class ConfigLoader {
 		private static readonly string MakiMokiConfigFile = "makimoki.json";
-		private static readonly string BordConfigFile = "bord.json";
+		private static readonly string BordConfigFile = "makimoki.bord.json";
 		private static readonly string MimeConfigFile = "mime.json";
 		private static readonly string UploderConfigFile = "uploder.json";
-		private static readonly string PtuaConfigFile = "ptua.json";
-		private static readonly string CookieConfigFile = "cookie.json";
-		private static readonly string PasswordConfigFile = "passwd.json";
-		private static readonly string FutabaSavedFile = "makimoki.futaba.json";
+		private static readonly string FutabaApiFile = "makimoki.futaba.json";
+		private static readonly string FutabaSavedFile = "makimoki.response.json";
 		private static readonly string FutabaPostedFile = "makimoki.post.json";
 		internal static readonly Assembly CoreAssembly = typeof(ConfigLoader).Assembly;
 
@@ -118,6 +116,31 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			Uploder = JsonConvert.DeserializeObject<Data.UploderConfig>(
 				loadFile(CoreAssembly.GetManifestResourceStream(
 					typeof(ConfigLoader).Namespace + "." + UploderConfigFile)));
+			{
+				var path = Path.Combine(setting.WorkDirectory, FutabaApiFile);
+				var j = string.Empty;
+				var o = default(FutabaApiConfig);
+				if(File.Exists(path)) {
+					var co = default(ConfigObject);
+					Util.FileUtil.LoadConfigHelper(path,
+						(json) => { j = json; co = JsonConvert.DeserializeObject<ConfigObject>(json); },
+						(e, m) => throw new Exceptions.InitializeFailedException(m, e));
+					if(Compat.IsValid(co, BordConfig.CurrentVersion)) {
+						Util.FileUtil.LoadJsonHelper(j,
+							(json) => o = JsonConvert.DeserializeObject<FutabaApiConfig>(json),
+							(e, m) => throw new Exceptions.InitializeFailedException(m, e));
+					} else {
+						o = Compat.Migrate<FutabaApiConfig>(path, co, (version, json) => null);
+					}
+				} else {
+					o = FutabaApiConfig.CreateDefault();
+				}
+				FutabaApi = o;
+				if(string.IsNullOrEmpty(FutabaApi.Ptua)) {
+					FutabaApi.Ptua = CreatePtua();
+				}
+			}
+
 			try {
 				foreach(var confDir in new string[] { setting.SystemDirectory, setting.UserDirectory }) {
 					if(confDir != null) {
@@ -140,45 +163,6 @@ namespace Yarukizero.Net.MakiMoki.Config {
 							addDic(bordDic, o.Bords);
 						}
 					}
-				}
-
-				var ptua = Path.Combine(setting.WorkDirectory, PtuaConfigFile);
-				if(File.Exists(ptua)) {
-					using(var fs = new FileStream(ptua, FileMode.Open)) {
-						var p = loadFile(fs);
-						if(Data.Ptua.CurrentVersion == JsonConvert.DeserializeObject<Data.ConfigObject>(p).Version) {
-							Ptua = JsonConvert.DeserializeObject<Data.Ptua>(p);
-						}
-					}
-				}
-				var cookie = Path.Combine(setting.WorkDirectory, CookieConfigFile);
-				if(File.Exists(cookie)) {
-					using(var fs = new FileStream(cookie, FileMode.Open)) {
-						var c = loadFile(fs);
-						//if (Data.Ptua.CurrentVersion == JsonConvert.DeserializeObject<Data.ConfigObject>(p).Version) {
-						Cookies = JsonConvert.DeserializeObject<Data.Cookie[]>(c);
-						//}
-					}
-				}
-				var password = Path.Combine(setting.WorkDirectory, PasswordConfigFile);
-				if(File.Exists(password)) {
-					using(var fs = new FileStream(password, FileMode.Open)) {
-						var p = loadFile(fs);
-						if(Data.Password.CurrentVersion == JsonConvert.DeserializeObject<Data.ConfigObject>(p).Version) {
-							Password = JsonConvert.DeserializeObject<Data.Password>(p);
-						}
-					}
-				}
-
-				if(Ptua == null) {
-					Ptua = CreatePtua();
-					Util.FileUtil.SaveJson(ptua, Ptua);
-				}
-				if(Cookies == null) {
-					Cookies = new Data.Cookie[0];
-				}
-				if(Password == null) {
-					Password = new Data.Password();
 				}
 			}
 			catch(JsonReaderException e) {
@@ -234,39 +218,35 @@ namespace Yarukizero.Net.MakiMoki.Config {
 
 		public static Data.UploderConfig Uploder { get; private set; }
 
-		public static Data.Ptua Ptua { get; private set; }
-
-		public static Data.Cookie[] Cookies { get; private set; }
-
-		public static Data.Password Password { get; private set; }
+		public static Data.FutabaApiConfig FutabaApi { get; private set; }
 
 		public static Data.FutabaSavedConfig SavedFutaba { get; private set; }
 
 		public static Data.FutabaPostItemConfig PostedItem { get; private set; }
 
 		internal static void UpdateCookie(Data.Cookie[] cookies) {
-			Cookies = cookies;
+			FutabaApi.Cookies = cookies;
 			lock(lockObj) {
 				Util.FileUtil.SaveJson(
-					Path.Combine(InitializedSetting.WorkDirectory, CookieConfigFile),
-					Cookies);
+					Path.Combine(InitializedSetting.WorkDirectory, FutabaApiFile),
+					FutabaApi);
 			}
 		}
 
 		internal static void UpdateFutabaPassword(string password) {
-			Password = Data.Password.FromFutaba(password);
+			FutabaApi.SavedPassword = password;
 			Util.FileUtil.SaveJson(
-				Path.Combine(InitializedSetting.WorkDirectory, PasswordConfigFile),
-				Password);
+				Path.Combine(InitializedSetting.WorkDirectory, FutabaApiFile),
+				FutabaApi);
 		}
 
-		private static Data.Ptua CreatePtua() {
+		private static string CreatePtua() {
 			var rnd = new Random();
 			long t = 0;
 			for(var i = 0; i < 33; i++) {
 				t |= ((long)rnd.Next() % 2) << i;
 			}
-			return new Data.Ptua(t.ToString());
+			return t.ToString();
 		}
 
 		public static void UpdateMakiMokiConfig(bool threadGetIncremental, bool responseSave, int postDataExpireDay) {

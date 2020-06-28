@@ -71,7 +71,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					try {
 						var r = await FutabaApi.GetCatalog(
 							bord.Url,
-							Config.ConfigLoader.Cookies,
+							Config.ConfigLoader.FutabaApi.Cookies,
 							sort);
 						if(!r.Successed) {
 							if(!string.IsNullOrEmpty(r.Raw)) {
@@ -86,7 +86,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						Config.ConfigLoader.UpdateCookie(r.Cookies);
 						var rr = await FutabaApi.GetCatalogHtml(
 							bord.Url,
-							Config.ConfigLoader.Cookies,
+							Config.ConfigLoader.FutabaApi.Cookies,
 							r.Response.Res.Length,
 							sort);
 						if(!rr.Successed) {
@@ -184,7 +184,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							bord.Url,
 							threadNo,
 							no,
-							Config.ConfigLoader.Cookies);
+							Config.ConfigLoader.FutabaApi.Cookies);
 						Task.WaitAll(r);
 						if(!r.Result.Successed) {
 							if(!string.IsNullOrEmpty(r.Result.Raw)) {
@@ -252,11 +252,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						var r = FutabaApi.GetThreadRes(
 							bord.Url,
 							threadNo,
-							Config.ConfigLoader.Cookies);
+							Config.ConfigLoader.FutabaApi.Cookies);
 						var rr = FutabaApi.GetThreadResHtml(
 							bord.Url,
 							threadNo,
-							Config.ConfigLoader.Cookies);
+							Config.ConfigLoader.FutabaApi.Cookies);
 						Task.WaitAll(r, rr);
 						if(!r.Result.Successed || !rr.Result.Successed) {
 							// 404の場脚の処理を行う
@@ -553,7 +553,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			string comment, string filePath, string passwd) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
 				var r = await FutabaApi.PostThread(bord,
-					Config.ConfigLoader.Cookies, Config.ConfigLoader.Ptua.Value,
+					Config.ConfigLoader.FutabaApi.Cookies, Config.ConfigLoader.FutabaApi.Ptua,
 					name, email, subject, comment, filePath, passwd);
 				if(r.Raw == null) {
 					o.OnNext((false, "不明なエラー"));
@@ -571,7 +571,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			string comment, string filePath, string passwd) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
 				var r = await FutabaApi.PostRes(bord, threadNo,
-					Config.ConfigLoader.Cookies, Config.ConfigLoader.Ptua.Value,
+					Config.ConfigLoader.FutabaApi.Cookies, Config.ConfigLoader.FutabaApi.Ptua,
 					name, email, subject, comment, filePath, passwd);
 				if(r.Raw == null) {
 					o.OnNext((false, "不明なエラー"));
@@ -687,7 +687,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 		public static IObservable<(bool Successed, string Message)> PostDeleteThreadRes(Data.BordData bord, string threadNo, bool imageOnlyDel, string passwd) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
-				var r = await FutabaApi.PostDeleteThreadRes(bord.Url, threadNo, Config.ConfigLoader.Cookies, imageOnlyDel, passwd);
+				var r = await FutabaApi.PostDeleteThreadRes(bord.Url, threadNo, Config.ConfigLoader.FutabaApi.Cookies, imageOnlyDel, passwd);
 				if(r.Raw == null) {
 					o.OnNext((false, "不明なエラー"));
 				} else {
@@ -712,7 +712,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 		public static IObservable<(bool Successed, string Message)> PostDel(Data.BordData bord, string threadNo, string resNo) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
-				var r = await FutabaApi.PostDel(bord.Url, threadNo, resNo, Config.ConfigLoader.Cookies);
+				var r = await FutabaApi.PostDel(bord.Url, threadNo, resNo, Config.ConfigLoader.FutabaApi.Cookies);
 				if(r.Raw == null) {
 					o.OnNext((false, "不明なエラー"));
 				} else {

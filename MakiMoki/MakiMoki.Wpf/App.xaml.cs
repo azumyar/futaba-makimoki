@@ -21,12 +21,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 		[System.Runtime.InteropServices.DllImport("kernel32.dll")]
 		private static extern bool SetDllDirectory(string lpPathName);
 
-		private static readonly string ExeConfig = "makimoki.exe.json";
+		private static readonly string ExeConfig = "windows.exe.json";
 
 		public string AppSettingRootDirectory { get; private set; }
 		public string AppWorkDirectory { get; private set; }
 		public string AppCacheDirectory { get; private set; }
 		public string UserRootDirectory { get; private set; }
+		public string UserConfigDirectory { get; private set; }
+		public string UserLogDirectory { get; private set; }
 		public string SystemDirectory { get; private set; }
 
 		public LibVLCSharp.Shared.LibVLC LibVLC { get; private set; }
@@ -68,32 +70,30 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 						(e, m) => throw new Exceptions.InitializeFailedException(m, e));
 				}
 
-				AppSettingRootDirectory = AppSettingRootDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MakiMoki");
+				AppSettingRootDirectory = AppSettingRootDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FutaMaki");
 				AppWorkDirectory = Directory.CreateDirectory(Path.Combine(AppSettingRootDirectory, "Work")).FullName;
 				AppCacheDirectory = Directory.CreateDirectory(Path.Combine(AppSettingRootDirectory, "Work", "Cache")).FullName;
-				UserRootDirectory = UserRootDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "MakiMoki");
-				var userConfig = default(string);
-				if(Directory.Exists(UserRootDirectory)) {
-					userConfig = Directory.CreateDirectory(Path.Combine(UserRootDirectory, "Config.d")).FullName;
-				}
+				UserRootDirectory = UserRootDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "FutaMaki");
+				UserConfigDirectory = Directory.CreateDirectory(Path.Combine(UserRootDirectory, "Config.d")).FullName;
+				UserLogDirectory = Directory.CreateDirectory(Path.Combine(UserRootDirectory, "Log")).FullName;
 
 				Config.ConfigLoader.Initialize(new Config.ConfigLoader.Setting() {
 					SystemDirectory = Path.Combine(
 						Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
 						"Config.d"),
-					UserDirectory = userConfig,
+					UserDirectory = UserConfigDirectory,
 					CacheDirectory = AppCacheDirectory,
 					WorkDirectory = AppWorkDirectory,
 				});
 				Util.Futaba.Initialize();
 				Ng.NgConfig.NgConfigLoader.Initialize(new Ng.NgConfig.NgConfigLoader.Setting() {
-					UserDirectory = userConfig,
+					UserDirectory = UserConfigDirectory,
 				});
 				WpfConfig.WpfConfigLoader.Initialize(new WpfConfig.WpfConfigLoader.Setting() {
 					SystemDirectory = Path.Combine(
 						Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
 						"Config.d"),
-					UserDirectory = userConfig,
+					UserDirectory = UserConfigDirectory,
 					WorkDirectory = AppWorkDirectory,
 				});
 			}

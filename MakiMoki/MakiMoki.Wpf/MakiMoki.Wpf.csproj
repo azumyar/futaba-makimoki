@@ -172,7 +172,7 @@
     <None Include="Config.d\windows.design.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Config.d\bord.json">
+    <None Include="Config.d\makimoki.bord.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Properties\Settings.settings">
