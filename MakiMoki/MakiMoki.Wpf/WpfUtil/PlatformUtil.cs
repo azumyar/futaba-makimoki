@@ -40,13 +40,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						try {
 							var b = await ret.Content.ReadAsByteArrayAsync();
 							var r = JsonConvert.DeserializeObject<PlatformData.VersionCheckResponse>(Encoding.UTF8.GetString(b));
-							if(!string.IsNullOrEmpty(r.FileName)) {
+							if(r.Period.HasValue) {
 								var exe = System.Reflection.Assembly.GetExecutingAssembly().Location;
 								var ver = System.Diagnostics.FileVersionInfo.GetVersionInfo(exe);
-								var m = Regex.Match(r.FileName, $"^{ Path.GetFileNameWithoutExtension(exe) }-[^0]*(\\d+)\\.zip$");
-								if(m.Success && int.TryParse(m.Groups[1].Value, out var v)) {
-									return ver.FileMinorPart < v;
-								}
+								return ver.FileMinorPart < r.Period.Value;
 							}
 						}
 						catch(JsonReaderException) { /* 無視する */ }
