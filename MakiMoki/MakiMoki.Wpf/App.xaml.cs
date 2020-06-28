@@ -118,13 +118,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			ViewModelLocationProvider.Register<Controls.FutabaCatalogViewer, ViewModels.FutabaCatalogViewerViewModel>();
 			ViewModelLocationProvider.Register<Controls.FutabaMediaViewer, ViewModels.FutabaMediaViewerViewModel>();
 			*/
+			var windowType = typeof(Windows.MainWindow);
 			var controlType = typeof(Controls.FutabaCatalogViewer);
-			var vmType = typeof(ViewModels.FutabaCatalogViewerViewModel);
-			var ca = controlType.Assembly.GetTypes().Where(x => x.Namespace == controlType.Namespace).ToArray();
+			var vmType = typeof(ViewModels.MainWindowViewModel);
 			var va = vmType.Assembly.GetTypes().Where(x => x.Namespace == vmType.Namespace).ToArray();
 			var m = typeof(ViewModelLocationProvider).GetMethod("Register", new Type[0]);
 			System.Diagnostics.Debug.Assert(m != null);
-			foreach(var t in ca) {
+			foreach(var t in controlType.Assembly.GetTypes().Where(x => (x.Namespace == windowType.Namespace) || (x.Namespace == controlType.Namespace))) {
 				var vm = va.Where(x => x.FullName == $"{ x.Namespace }.{ t.Name }ViewModel").FirstOrDefault();
 				if(vm != null) {
 					System.Diagnostics.Debug.WriteLine($"Register: { vm.Name }");

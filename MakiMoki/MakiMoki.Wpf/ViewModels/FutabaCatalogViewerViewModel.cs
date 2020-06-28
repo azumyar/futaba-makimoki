@@ -224,12 +224,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.Where(y => y.Hash == v.ToString())
 					.FirstOrDefault();
 				if(ng != null) {
-					Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
+					// Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
 				} else {
-					// TODO: コメント入力ダイアログを出す
-					Ng.NgConfig.NgConfigLoader.AddNgImage(
-						Ng.NgData.NgImageData.FromPerceptualHash(
-							v, "カタログから登録"));
+					var w = new Windows.NgImageReasonWindow() {
+						Owner = App.Current.MainWindow,
+					};
+					if(w.ShowDialog() ?? false) {
+						Ng.NgConfig.NgConfigLoader.AddNgImage(
+							Ng.NgData.NgImageData.FromPerceptualHash(
+								v, w.ReasonText));
+					}
 				}
 			}
 		}

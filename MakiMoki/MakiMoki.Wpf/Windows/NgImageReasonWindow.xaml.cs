@@ -15,19 +15,25 @@ using System.Windows.Shapes;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 	/// <summary>
-	/// ConfigWindow.xaml の相互作用ロジック
+	/// NgReasonWindow.xaml の相互作用ロジック
 	/// </summary>
-	public partial class ConfigWindow : Window {
+	public partial class NgImageReasonWindow : Window {
 		private Helpers.AutoDisposable disposable;
+		public string ReasonText { get; private set; } = "";
 
-		public ConfigWindow() {
+		public NgImageReasonWindow() {
 			InitializeComponent();
 
 			disposable = new Helpers.AutoDisposable()
-				.Add(ViewModels.ConfigWindowViewModel.Messenger.Instance
-					.GetEvent<PubSubEvent<ViewModels.ConfigWindowViewModel.DialogCloseMessage>>()
+				.Add(ViewModels.NgImageReasonWindowViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<ViewModels.NgImageReasonWindowViewModel.DialogOkCloseMessage>>()
 					.Subscribe(x => {
-						Close();
+						ReasonText = x.ReasonText;
+						DialogResult = true;
+				})).Add(ViewModels.NgImageReasonWindowViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<ViewModels.NgImageReasonWindowViewModel.DialogCancelCloseMessage>>()
+					.Subscribe(x => {
+						DialogResult = false;
 					}));
 		}
 

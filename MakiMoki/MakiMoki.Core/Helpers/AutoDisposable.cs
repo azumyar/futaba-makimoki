@@ -11,6 +11,10 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 
 		private CompositeDisposable disposables;
 
+		public AutoDisposable() {
+			disposables = new CompositeDisposable();
+		}
+	
 		public AutoDisposable(object target) {
 			System.Diagnostics.Debug.Assert(target != null);
 
