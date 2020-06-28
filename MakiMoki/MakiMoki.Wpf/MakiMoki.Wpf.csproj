@@ -82,6 +82,7 @@
     <Compile Include="Converters\ThreadResConverter.cs" />
     <Compile Include="Model\Interface.cs" />
     <Compile Include="PlatformData\Config.cs" />
+    <Compile Include="PlatformData\Data.cs" />
     <Compile Include="PlatformData\Event.cs" />
     <Compile Include="PlatformData\FutabaMedia.cs" />
     <Compile Include="ViewModels\ConfigWindowViewModel.cs" />

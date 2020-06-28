@@ -12,6 +12,9 @@ using Prism.Mvvm;
 using Prism.Ioc;
 using Prism.Unity;
 using Newtonsoft.Json;
+using System.Reactive.Linq;
+using Yarukizero.Net.MakiMoki.Wpf.WpfUtil;
+using Reactive.Bindings;
 
 namespace Yarukizero.Net.MakiMoki.Wpf {
 	/// <summary>
@@ -102,18 +105,31 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				Environment.Exit(1);
 			}
 			//Util.TaskUtil.Initialize();
-			Reactive.Bindings.UIDispatcherScheduler.Initialize();
+			UIDispatcherScheduler.Initialize();
 			RemoveOldCache(AppCacheDirectory);
-
+			Observable.Create<bool>(async o => {
+				o.OnNext(await PlatformUtil.CheckNewVersion());
+				return System.Reactive.Disposables.Disposable.Empty;
+			}).ObserveOn(UIDispatcherScheduler.Default)
+				.Subscribe(x => {
+					if(x) {
+						MessageBox.Show(
+							"新しいバージョンが公開されています",
+							"バージョンチェック通知",
+							MessageBoxButton.OK,
+							MessageBoxImage.Information);
+					}
+				});
+				
 			return Container.Resolve<Windows.MainWindow>();
 		}
 
 		protected override void RegisterTypes(IContainerRegistry containerRegistry) {
 			base.ConfigureViewModelLocator();
 
+			/*
 			ViewModelLocationProvider.Register<Windows.MainWindow, ViewModels.MainWindowViewModel>();
 			ViewModelLocationProvider.Register<Windows.ConfigWindow, ViewModels.ConfigWindowViewModel>();
-			/*
 			ViewModelLocationProvider.Register<Controls.FutabaViewer, ViewModels.FutabaViewerViewModel>();
 			ViewModelLocationProvider.Register<Controls.FutabaCatalogViewer, ViewModels.FutabaCatalogViewerViewModel>();
 			ViewModelLocationProvider.Register<Controls.FutabaMediaViewer, ViewModels.FutabaMediaViewerViewModel>();
