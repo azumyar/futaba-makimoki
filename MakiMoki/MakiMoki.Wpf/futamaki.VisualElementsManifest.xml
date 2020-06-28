@@ -1,7 +1,7 @@
 ﻿<Application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <VisualElements
         BackgroundColor="#ffffff"
-        ShowNameOnSquare150x150Logo="on"
+        ShowNameOnSquare150x150Logo="off"
         ForegroundText="dark"
         Square150x150Logo="Assets\icon-150x150.png"
         Square70x70Logo="Assets\icon-70x70.png"
