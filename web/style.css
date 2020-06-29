@@ -3,7 +3,7 @@
     /* マテリアルカラーの500をベース */
     --primary-color: #03A9F4;
     --secondary-color: #E91E63;
-    --secondary-color-active: #d32f2f;
+    --secondary-color-active: #C2185B;
     --quot-color: #4CAF50;
 
     --foreground-color: #263238;
@@ -32,10 +32,14 @@ body {
     font-size: var(--font-size-normal);
 }
 
-ul, p {
+ul, p, table {
     margin: 0;
     padding: 0;
     margin-left: var(--base-margin);
+}
+
+p {
+    max-width: 1024px;
 }
 
 ul li {
@@ -87,6 +91,20 @@ q, blockquote {
 
 q::before, q::after {
     content: "";
+}
+
+table {
+    border-collapse: collapse;
+}
+
+table th, table td {
+    border: solid 1px var(--foreground-color);
+    padding: 4px;
+}
+
+
+#qa-section p, #qa-section table {
+    margin-bottom: var(--font-size-normal);
 }
 
 #contact-section p {

@@ -12,10 +12,10 @@
     <h1>ふたマキ</h1>
     <div>
         <p>
-            某掲示板ブラウザです。開発中。
+            某掲示板ブラウザです。
         </p>
         <ul>
-            <li class="checked"><a href="/futamaki/">実行ファイル</a></li>
+            <li class="checked" id="futamaki-bin-link"><a href="/futamaki/">実行ファイル</a></li>
             <li class="checked"><a href="https://github.com/azumyar/futaba-makimoki">ソースコード</a></li>
         </ul>
 
@@ -23,16 +23,28 @@
         <ul>
             <li class="checked">Windows 10(x86/x64)ARMは知りません</li>
             <li class="checked">.NET Framework 4.7.2以上</li>
+            <li class="checked"><a href="https://www.microsoft.com/ja-jp/download/details.aspx?id=48145">Visual C++ Redistributable for Visual Studio 2015</a></li>
         </ul>
+
+        <h3>インストールについて</h3>
+        <p>
+            ダウンロードしたZIPを適当なディレクトリに展開してください。futamaki.exeが実行ファイルです。
+        </p>
+
+        <h3>アンインストールについて</h3>
+        <p>
+            ふたマキは標準で%userprofile%\Documents\FutaMakiと%appdata%\FutaMakiにファイルを生成します。アンインストール時はこれらのフォルダも削除してください。レジストリは使用していません。
+        </p>
     </div>
 
     <div id="task-section">
         <h2>リリースに向けて</h2>
-        <h3>未実装機能</h3>
+        <h3>優先実装機能</h3>
         <ul>
             <li>アニメーションGIFの再生</li>
             <li>スレ内検索を途中で放置しているのでちゃんと実装</li>
             <li>設定画面に板追加機能を追加</li>
+            <li><del>WebPのライブラリがx86オンリーになってるので自前で再実装する</del>勘違い.NET 4.5のビルドオプションが原因</li>
         </ul>
 
         <h3>既知の問題点</h3>
@@ -48,6 +60,8 @@
             <li>多重通信を行わないようにブロックしたほうがいいかな…</li>
             <li>起動時の画面をちゃんと整理したい</li>
             <li>トースト機能の強化</li>
+            <li>カタログ部分を非表示にしてスレッドが面を全体化するレイアウト</li>
+            <li>メディアビュー@画像で右上の✖ボタンは遠いのでクリックとかで閉じたい</li>
         </ul>
 
         <h3>やるきぜろ</h3>
@@ -66,7 +80,7 @@
                     <li class="checked">NG画像機能→精度に難がある気がするけどこんなものなのかな？あとちょう重い</li>
                     <li class="checked">設定画面</li>
                     <li class="checked">ショートカットキー</li>
-                    <li>
+                    <li class="checked">
                         画像の保存
                         <ul>
                             <li class="checked">静止画の保存</li>
@@ -101,7 +115,6 @@
             <li>ListBoxのスクロール量を変更(できるのか？)</li>
             <li>ListBoxのホイールクリックでオートスクロールモードに(できるのか？)</li>
             <li>タスクバーを隠す設定にしてウィンドウを最大化するとタスクバーが出てこない(SourceTreeも出てこないしWindowChromeの問題？)</li>
-            <li>WebPのライブラリがx86オンリーになってるので自前で再実装する</li>
             <li>引用ポップアップをツールチップじゃなくてウィンドウにしたい、引用の引用が表示できるように</li>
             <li>レスの引用カウント表示と引用先レスのポップアップ表示</li>
             <li>カタログのタイトル文字数を設定できる機能</li>
@@ -113,6 +126,136 @@
             <li>なーされたスレをキャッシュしている場合以前の書き込みを表示できる機能</li>
             <li>スレの一番上や一番下に行ける何か</li>
         </ul>
+    </div>
+
+    <div id="qa-section">
+        <h2>QA</h2>
+
+        <h3>削除キーの平文保存</h3>
+        <p>平文で保存しています。重要なパスワードを設定することはないとは思いますが、取り扱いには注意していください。イタチごっこになるため暗号化する予定はありません。</p>
+
+        <h3>設定ファイル(など)の保存場所変更について</h3>
+        <p>ポータブル化したい等の要望に対応するためふたマキは出力ファイル場所の制御が可能です。</p>
+        <p>Conf.d\windows.exe.json.sampleをConf.d\windows.exe.jsonにリネームしてテキストエディタ(など)で編集します。UTF-8で保存してください。中身のJSONフォーマットが何かについてはここでは説明しません。</p>
+        <table>
+            <tr>
+                <td>version</td>
+                <td>固定値</td>
+            </tr>
+            <tr>
+                <td>single-user-data</td>
+                <td>true/false，trueにすると%appdata%配下ではなくexeファイル階層にSingleUserディレクトリを作りその配下にファイルを出力します</td>
+            </tr>
+            <tr>
+                <td>single-user-config</td>
+                <td>true/false，trueにすると%userprofile%\Documents配下ではなくexeファイル階層にSingleUserディレクトリを作りその配下にファイルを出力します</td>
+            </tr>
+            <tr>
+                <td>custom-data-path</td>
+                <td>ディレクトリパスを指定。%appdata%配下ではなく指定したパスにファイルを出力します。(single-user-dataがtrueの場合有効)</td>
+            </tr>
+            <tr>
+                <td>custom-config-path</td>
+                <td>ディレクトリパスを指定。%userprofile%\Documents配下ではなく指定したパスにファイルを出力します。(single-user-configがtrueの場合有効)</td>
+            </tr>
+        </table>
+
+        <h3>ショートカットキー</h3>
+        <p>メインウィンドウ</p>
+        <table>
+            <tr>
+                <td>Ctrl+U</td>
+                <td>スレッド更新</td>
+            </tr>
+            <tr style="display: none;">
+                <td>Ctrl+F</td>
+                <td>スレッド検索</td>
+            </tr>
+            <tr>
+                <td>Ctrl+Enter</td>
+                <td>レス投稿ビュー表示</td>
+            </tr>
+            <tr>
+                <td>Ctrl+Alt+U</td>
+                <td>カタログ更新</td>
+            </tr>
+            <tr style="display: none;"></tr>
+                <td>Ctrl+Alt+F</td>
+                <td>カタログ検索</td>
+            </tr>
+            <tr style="display: none;">
+                <td>Ctrl+Alt+S</td>
+                <td>カタログソートメニュー展開</td>
+            </tr>
+
+            <tr>
+                <td>Ctrl+Alt+M</td>
+                <td>カタログビューWrap/Listモード切替</td>
+            </tr>
+            <tr>
+                <td>Ctrl+Alt+Enter</td>
+                <td>新規スレッド投稿ビュー表示</td>
+            </tr>
+            <tr>
+                <td>F5</td>
+                <td>スレッド更新</td>
+            </tr>
+
+            <tr>
+                <td>Ctrl+F5</td>
+                <td>スレッド更新</td>
+            </tr>
+            <tr>
+                <td>Ctrl+Alt+F5</td>
+                <td>カタログ更新</td>
+            </tr>
+            <tr>
+                <td>Ctrl+W</td>
+                <td>今見ているスレッドを閉じる</td>
+            </tr>
+
+            <tr>
+                <td>Ctrl+F4</td>
+                <td>今見ているスレッドを閉じる</td>
+            </tr>
+        </table>
+
+        <p>投稿ビュー</p>
+        <table>
+            <tr>
+                <td>Ctrl+Ente</td>
+                <td>スレッド作成/レス投稿</td>
+            </tr>
+            <tr>
+                <td>Ctrl+P</td>
+                <td>スレ/レス画像選択ダイアログ</td>
+            </tr>
+
+            <tr>
+                <td>Ctrl+L</td>
+                <td>あぷ小アップロード選択ダイアログ</td>
+            </tr>
+            <tr>
+                <td>Ctrl+D</td>
+                <td>今書いている内容を削除</td>
+            </tr>
+            <tr>
+                <td>Ctr+Shift+V</td>
+                <td>クリップボードのURL，画像データから投稿ビューに添付</td>
+            </tr>
+
+            <tr>
+                <td>Esc</td>
+                <td>閉じる</td>
+            </tr>
+        </table>
+
+        <h3>クリップボードからの投稿ビュー添付機能について</h3>
+        <p>クリップボードに画像データが添付されている場合JPEG形式で添付します。JPEGの圧縮品質は設定画面で編集可能です。</p>
+        <p>クリップボードのテキストがURLかつサイズが3M以下かつMIMEタイプがサポート対象の場合ダウンロードして添付します。画像フォーマットの変更は行いません。</p>
+
+        <h3>画像NG機能について注意</h3>
+        <p>画像のNG判定はpHashでハッシュ化しハッシュ値の比較結果が閾値(閾値は設定画面で変更可能)をした回った場合類似画像としてNG処理を行います。これにより同じ画像を再圧縮した、サイズ変更したので見た目が同じでもファイルハッシュが違うケースにも対応可能ですが、pHashのハッシュ化処理はそこそこ重たいためNG画像を登録していない場合動作しないようになっています。NG画像を登録して動作が重たくなった場合PCがスペック不足の可能性があります。</p>
     </div>
 
     <div id="contact-section">
@@ -164,5 +307,22 @@
               多分DPI付きのJEPG画像じゃないでしょうか？DPIが解釈されていまい原寸で表示される問題があります。
         </p>
     </div>
+<script>
+// 最新版のリンクを張る
+// IEは面倒見なくていいよね…
+if(fetch && String.prototype.padStart) {
+    fetch("https://dev.yarukizero.net/futamaki-version-v1.py")
+        .then((response) => {
+            return response.json();
+        })
+        .then((json) => {
+            const target = document.getElementById("futamaki-bin-link");
+             const a = document.createElement("a");
+            a.setAttribute("href", json.url);
+            a.textContent = "period." + json.period.toString().padStart(2, 0);
+            target.append("(最新:", a, ")");
+        });
+}
+</script>
 </body>
 </html>
