@@ -21,11 +21,17 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		private static readonly string FutabaUp2Html = "https://dec.2chan.net/up2/up.htm";
 		private static readonly Encoding FutabaEncoding = Encoding.GetEncoding("Shift_JIS");
 
+		private static RestClient CreateRestClient(string baseUrl) {
+			return new RestClient(baseUrl) {
+				UserAgent = Config.ConfigLoader.InitializedSetting.RestUserAgent,
+			};
+		}
+
 		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie[] Cookies, string Raw)> GetCatalog(string baseUrl, Data.Cookie[] cookies, Data.CatalogSortItem sort = null) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			return await Task.Run(() => {
 				try {
-					var c = new RestClient(baseUrl);
+					var c = CreateRestClient(baseUrl);
 					var r = new RestRequest(FutabaEndPoint, Method.GET);
 					r.AddParameter("mode", "cat");
 					r.AddParameter("mode", "json");
@@ -63,7 +69,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			return await Task.Run(() => {
 				try {
-					var c = new RestClient(baseUrl);
+					var c = CreateRestClient(baseUrl);
 					var r = new RestRequest(FutabaEndPoint, Method.GET);
 					r.AddParameter("mode", "cat");
 					if(sort != null) {
@@ -95,7 +101,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(threadNo != null);
 			return await Task.Run(() => {
 				try {
-					var c = new RestClient(baseUrl);
+					var c = CreateRestClient(baseUrl);
 					var r = new RestRequest(FutabaEndPoint, Method.GET);
 					r.AddParameter("mode", "json");
 					r.AddParameter("res", threadNo);
@@ -131,7 +137,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(startRes != null);
 			return await Task.Run(() => {
 				try {
-					var c = new RestClient(baseUrl);
+					var c = CreateRestClient(baseUrl);
 					var r = new RestRequest(FutabaEndPoint, Method.GET);
 					r.AddParameter("mode", "json");
 					r.AddParameter("res", threadNo);
@@ -166,7 +172,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			return await Task.Run(() => {
 				try {
-					var c = new RestClient(baseUrl);
+					var c = CreateRestClient(baseUrl);
 					var r = new RestRequest(string.Format("res/{0}.htm", threadNo), Method.GET);
 					foreach(var cookie in cookies) {
 						r.AddCookie(cookie.Name, cookie.Value);
@@ -190,7 +196,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					var url = new Uri(baseUrl);
 					var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
 
-					var c = new RestClient(u);
+					var c = CreateRestClient(u);
 					var r = new RestRequest(resItem.Src, Method.GET);
 					var res = c.Execute(r);
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
@@ -212,7 +218,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					var url = new Uri(baseUrl);
 					var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
 
-					var c = new RestClient(u);
+					var c = CreateRestClient(u);
 					var r = new RestRequest(resItem.Thumb, Method.GET);
 					var res = c.Execute(r);
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
@@ -244,7 +250,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return await Task.Run(() => {
 				// nc -vv -k -l 127.0.0.1 8080;
 				//var c = new RestClient("http://127.0.0.1:8080/");
-				var c = new RestClient(bord.Url);
+				var c = CreateRestClient(bord.Url);
 				var r = new RestRequest(FutabaEndPoint, Method.POST);
 				c.Encoding = FutabaEncoding;
 				r.AddHeader("Content-Type", "multipart/form-data");
@@ -308,7 +314,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return await Task.Run(() => {
 				// nc -vv -k -l 127.0.0.1 8080;
 				//var c = new RestClient("http://127.0.0.1:8080/");
-				var c = new RestClient(bord.Url);
+				var c = CreateRestClient(bord.Url);
 				//c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
 				//c.Encoding = Encoding.GetEncoding("Shift_JIS");
 				var r = new RestRequest(FutabaEndPoint, Method.POST);
@@ -387,7 +393,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(threadResNo != null);
 			System.Diagnostics.Debug.Assert(passwd != null);
 			return await Task.Run(() => {
-				var c = new RestClient(baseUrl);
+				var c = CreateRestClient(baseUrl);
 				var r = new RestRequest(FutabaEndPoint, Method.POST);
 				r.AddParameter("guid", "on", ParameterType.QueryString);
 				r.AddParameter("responsemode", "ajax", ParameterType.GetOrPost);
@@ -419,7 +425,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
 				var q = string.Format("{0}.{1}", url.AbsolutePath.Replace("/", ""), threadResNo);
 
-				var c = new RestClient(u);
+				var c = CreateRestClient(u);
 				var r = new RestRequest(FutabaSoudaneEndPoint, Method.GET);
 				r.AddParameter(q, null);
 				var res = c.Execute(r);
@@ -442,7 +448,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
 				var b = url.AbsolutePath.Replace("/", "");
 
-				var c = new RestClient(u);
+				var c = CreateRestClient(u);
 				var r = new RestRequest(FutabaDelEndPoint, Method.POST);
 				r.AddHeader("referer", string.Format("{0}res/{1}.htm", baseUrl, threadNo)); // delはリファラが必要
 				r.AddParameter("mode", "post", ParameterType.GetOrPost);
@@ -470,7 +476,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
 				var b = url.AbsolutePath.Replace("/", "");
 
-				var c = new RestClient(u);
+				var c = CreateRestClient(u);
 				var r = new RestRequest(FutabaDelEndPoint, Method.POST);
 				r.AddParameter("mode", "post", ParameterType.GetOrPost);
 				r.AddParameter("responsemode", "ajax", ParameterType.GetOrPost);
@@ -515,9 +521,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					}
 
 					// アップロード
-					var c = new RestClient(FutabaUp2Url) {
-						Encoding = FutabaEncoding,
-					};
+					var c = CreateRestClient(FutabaUp2Url);
+					c.Encoding = FutabaEncoding;
 					var r = new RestRequest(FutabaUp2Endpoint, Method.POST);
 					r.AddHeader("Content-Type", "multipart/form-data");
 					r.AddParameter("MAX_FILE_SIZE", "3000000", ParameterType.GetOrPost);
@@ -528,9 +533,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					var res = c.Execute(r);
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 						// HTMLファイルから目的のファイルを見つける
-						var cc = new RestClient(FutabaUp2Html) {
-							Encoding = FutabaEncoding,
-						};
+						var cc = CreateRestClient(FutabaUp2Html);
+						cc.Encoding = FutabaEncoding;
 						var html = cc.Execute(new RestRequest(Method.GET));
 						if(html.StatusCode == System.Net.HttpStatusCode.OK) {
 							var parser = new HtmlParser();
@@ -567,7 +571,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
 			var b = url.AbsolutePath.Replace("/", "");
 
-			var c = new RestClient(u);
+			var c = CreateRestClient(u);
 			var r = new RestRequest(FutabaCachemt, Method.GET);
 			var res = c.Execute(r);
 			if(res.StatusCode == System.Net.HttpStatusCode.OK) {
