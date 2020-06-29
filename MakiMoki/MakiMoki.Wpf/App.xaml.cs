@@ -52,7 +52,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			};
 			SetDllDirectory(Path.Combine(
 				Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
-				"Lib"));
+				"Lib",
+				Environment.Is64BitProcess ? "x64" : "x86"));
 
 			LibVLCSharp.Shared.Core.Initialize();
 			this.LibVLC = new LibVLCSharp.Shared.LibVLC();
