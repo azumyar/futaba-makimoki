@@ -24,6 +24,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			public static Messenger Instance { get; } = new Messenger();
 		}
 
+		internal class ViewerCloseMessage {
+			public ViewerCloseMessage() { }
+		}
+
 		internal class VideoLoadMessage {
 			public string Path { get; }
 
@@ -90,6 +94,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<object> UpdateToken { get; } = new ReactiveProperty<object>(DateTime.Now);
 
 		private bool isMouseLeftButtonDown = false;
+		private bool isMouseLeftClick = false;
+		private Point clickDonwStartPoint = new Point(0, 0);
 		private Point mouseDonwStartPoint = new Point(0, 0);
 		private Point mouseCurrentPoint = new Point(0, 0);
 		private FrameworkElement inputElement = null;
@@ -239,7 +245,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
 			if(e.Source is FrameworkElement el) {
 				this.inputElement = el;
-				this.mouseDonwStartPoint = e.GetPosition(this.inputElement);
+				this.clickDonwStartPoint
+					= this.mouseDonwStartPoint
+					= e.GetPosition(this.inputElement);
+				this.isMouseLeftClick = true;
 				this.isMouseLeftButtonDown = true;
 			}
 		}
@@ -247,6 +256,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
 			this.inputElement = null;
 			this.isMouseLeftButtonDown = false;
+			if(this.isMouseLeftClick) {
+				this.isMouseLeftClick = false;
+				Messenger.Instance.GetEvent<PubSubEvent<ViewerCloseMessage>>()
+					.Publish(new ViewerCloseMessage());
+			}
 		}
 
 		private void OnMouseLeave(MouseEventArgs e) {
@@ -264,6 +278,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				matrix.Translate(offsetX, offsetY);
 				this.ImageMatrix.Value = new MatrixTransform(matrix);
 				this.mouseDonwStartPoint = this.mouseCurrentPoint;
+
+				// ドラッグ距離判定
+				// SystemParametersInfo()をSPI_SETDRAGWIDTHとSPI_SETDRAGHEIGHT付きで呼び出すとシステム設定が取れるけど必要…？
+				if(this.isMouseLeftClick){
+					var dragLength = 4;
+					var x = this.clickDonwStartPoint.X - this.mouseCurrentPoint.X;
+					var y = this.clickDonwStartPoint.X - this.mouseCurrentPoint.X;
+					this.isMouseLeftClick = (x * x + y * y) < (dragLength * dragLength);
+				}
 			}
 		}
 
