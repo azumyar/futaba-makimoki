@@ -154,7 +154,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						}
 					}
 					finally {
-						stream?.Dispose();
+						// AnimationGifで再利用されるのでDisposeしてはいけない
+						// stream?.Dispose();
 					}
 				}
 			}
@@ -219,7 +220,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						return bitmapImage;
 					}
 					finally {
-						stream?.Dispose();
+						// AnimationGifで再利用されるのでDisposeしてはいけない
+						// stream?.Dispose();
 					}
 				}
 			}

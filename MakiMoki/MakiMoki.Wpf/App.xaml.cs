@@ -52,7 +52,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			};
 			SetDllDirectory(Path.Combine(
 				Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
-				"Lib"));
+				"Lib",
+				Environment.Is64BitProcess ? "x64" : "x86"));
 
 			LibVLCSharp.Shared.Core.Initialize();
 			this.LibVLC = new LibVLCSharp.Shared.LibVLC();
@@ -94,6 +95,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				UserLogDirectory = Directory.CreateDirectory(Path.Combine(UserRootDirectory, "Log")).FullName;
 
 				Config.ConfigLoader.Initialize(new Config.ConfigLoader.Setting() {
+					RestUserAgent = WpfUtil.PlatformUtil.GetContentType(),
 					SystemDirectory = Path.Combine(
 						Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
 						"Config.d"),

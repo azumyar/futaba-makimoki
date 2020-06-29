@@ -34,6 +34,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				using(var client = new System.Net.Http.HttpClient() {
 					Timeout = TimeSpan.FromMilliseconds(5000),
 				}) {
+					client.DefaultRequestHeaders.Add("User-Agent", GetContentType());
 					var ret = await client.SendAsync(new System.Net.Http.HttpRequestMessage(
 						System.Net.Http.HttpMethod.Get, uri));
 					if(ret.StatusCode == System.Net.HttpStatusCode.OK) {
@@ -52,6 +53,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				}
 			}
 			return false;
+		}
+
+		public static string GetContentType() {
+			var exe = System.Reflection.Assembly.GetExecutingAssembly().Location;
+			var ver = System.Diagnostics.FileVersionInfo.GetVersionInfo(exe);
+			return string.Format("FutaMaki/period.{0:00}", ver.FileMinorPart);
+
 		}
 
 		public static string GetArchiveFileName() {

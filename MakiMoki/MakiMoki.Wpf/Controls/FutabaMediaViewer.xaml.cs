@@ -1,4 +1,5 @@
 ﻿using Prism.Events;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -118,59 +119,67 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			remove { RemoveHandler(VideoViewPositionChangedEvent, value); }
 		}
 
+		private Helpers.AutoDisposable disposable;
 		private volatile bool isDisposed = false;
 
 		public FutabaMediaViewer() {
 			InitializeComponent();
 
-			ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
-				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoLoadMessage>>()
-				.Subscribe(x => {
-					lock(this.VideoView) {
-						if(!this.isDisposed) {
-							this.VideoView.MediaPlayer.Play(new LibVLCSharp.Shared.Media(
-									(Application.Current as App).LibVLC,
-									x.Path,
-									LibVLCSharp.Shared.FromType.FromPath));
+			disposable = new Helpers.AutoDisposable()
+				.Add(ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.ViewerCloseMessage>>()
+					.Subscribe(x => {
+						this.Contents = null;
+					})
+				).Add(ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoLoadMessage>>()
+					.Subscribe(x => {
+						lock(this.VideoView) {
+							if(!this.isDisposed) {
+								this.VideoView.MediaPlayer.Play(new LibVLCSharp.Shared.Media(
+										(Application.Current as App).LibVLC,
+										x.Path,
+										LibVLCSharp.Shared.FromType.FromPath));
+							}
 						}
-					}
-				});
-			ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
-				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPlayMessage>>()
-				.Subscribe(_ => {
-					lock(this.VideoView) {
-						if(!this.isDisposed) {
-							this.VideoView.MediaPlayer?.Play();
+					})
+				).Add(ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPlayMessage>>()
+					.Subscribe(_ => {
+						lock(this.VideoView) {
+							if(!this.isDisposed) {
+								this.VideoView.MediaPlayer?.Play();
+							}
 						}
-					}
-				});
-			ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
-				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPauseMessage>>()
-				.Subscribe(_ => {
-					lock(this.VideoView) {
-						if(!this.isDisposed) {
-							this.VideoView.MediaPlayer.Pause();
+					})
+				).Add(ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPauseMessage>>()
+					.Subscribe(_ => {
+						lock(this.VideoView) {
+							if(!this.isDisposed) {
+								this.VideoView.MediaPlayer.Pause();
+							}
 						}
-					}
-				});
-			ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
-				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoStopMessage>>()
-				.Subscribe(_ => {
-					lock(this.VideoView) {
-						if(!this.isDisposed) {
-							this.VideoView.MediaPlayer.Stop();
+					})
+				).Add(ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoStopMessage>>()
+					.Subscribe(_ => {
+						lock(this.VideoView) {
+							if(!this.isDisposed) {
+								this.VideoView.MediaPlayer.Stop();
+							}
 						}
-					}
-				});
-			ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
-				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPositionMessage>>()
-				.Subscribe(x => {
-					lock(this.VideoView) {
-						if(!this.isDisposed) {
-							this.VideoView.MediaPlayer.Position = x.Position;
+					})
+				).Add(ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPositionMessage>>()
+					.Subscribe(x => {
+						lock(this.VideoView) {
+							if(!this.isDisposed) {
+								this.VideoView.MediaPlayer.Position = x.Position;
+							}
 						}
-					}
-				});
+					})
+				);
 
 			this.Loaded += (sender, ev) => {
 				this.VideoView.MediaPlayer = new LibVLCSharp.Shared.MediaPlayer((Application.Current as App).LibVLC);
@@ -196,6 +205,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					if(!isDisposed) {
 						// this.VideoView.MediaPlayer.Dispose();
 						this.VideoView.Dispose();
+						disposable.Dispose();
 						this.isDisposed = true;
 					}
 				}

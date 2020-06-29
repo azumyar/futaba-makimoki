@@ -70,8 +70,8 @@
                         </Grid.ColumnDefinitions>
                         <Viewbox
                             Grid.Column="0"
-                            MaxWidth="96"
-                            MaxHeight="96"
+                            MaxWidth="128"
+                            MaxHeight="128"
                             HorizontalAlignment="Left"
                             StretchDirection="DownOnly"
                             Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}">
@@ -309,7 +309,7 @@
                                             <Viewbox.Visibility>
                                                 <MultiBinding Converter="{StaticResource FutabaMovieResVisibilityConverter}">
                                                     <Binding Path="Raw.Value" Mode="OneWay" />
-                                                    <Binding Path="UpdateToken.Value" Mode="OneWay" />
+                                                    <Binding Path="Parent.Value.UpdateToken.Value" Mode="OneWay" />
                                                 </MultiBinding>
                                             </Viewbox.Visibility>
                                             <Grid

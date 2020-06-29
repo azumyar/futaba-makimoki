@@ -44,6 +44,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		}
 
 		public class Setting {
+			public string RestUserAgent { get; set; } = "MakiMoki/Core";
 			public string SystemDirectory { get; set; } = null;
 			public string UserDirectory { get; set; } = null;
 
@@ -53,6 +54,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 
 		public static void Initialize(Setting setting) {
 			System.Diagnostics.Debug.Assert(setting != null);
+			System.Diagnostics.Debug.Assert(setting.RestUserAgent != null);
 			System.Diagnostics.Debug.Assert(setting.WorkDirectory != null);
 			InitializedSetting = setting;
 

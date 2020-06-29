@@ -109,11 +109,12 @@
             </Grid.RowDefinitions>
             <Border
                 Grid.Column="0" Grid.ColumnSpan="3"
-                Grid.Row="0">
+                Grid.Row="0"
+                Height="36">
                 <Border.Background>
                     <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
                 </Border.Background>
-                <TextBlock FontSize="16" Margin="2" Text="{Binding PostTitle.Value, Mode=OneWay}">
+                <TextBlock FontSize="16" Margin="2" Text="{Binding PostTitle.Value, Mode=OneWay}" VerticalAlignment="Center">
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
                     </TextBlock.Foreground>
