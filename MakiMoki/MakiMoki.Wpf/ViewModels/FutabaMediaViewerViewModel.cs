@@ -91,6 +91,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<PlatformData.FutabaMedia> MenuItemClickImageSearchAscii2dCommand { get; } = new ReactiveCommand<PlatformData.FutabaMedia>();
 		public ReactiveCommand<PlatformData.FutabaMedia> MenuItemClickQuickOpenBrowserCommand { get; } = new ReactiveCommand<PlatformData.FutabaMedia>();
 
+		public ReactiveProperty<bool> ImageContextMenuOpened { get; } = new ReactiveProperty<bool>(false);
+
 		public ReactiveProperty<object> UpdateToken { get; } = new ReactiveProperty<object>(DateTime.Now);
 
 		private bool isMouseLeftButtonDown = false;
@@ -248,8 +250,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				this.clickDonwStartPoint
 					= this.mouseDonwStartPoint
 					= e.GetPosition(this.inputElement);
-				this.isMouseLeftClick = true;
 				this.isMouseLeftButtonDown = true;
+				if(!this.ImageContextMenuOpened.Value) {
+					this.isMouseLeftClick = true;
+				}
 			}
 		}
 
