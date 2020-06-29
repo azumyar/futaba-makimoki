@@ -47,9 +47,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<RoutedPropertyChangedEventArgs<PlatformData.FutabaMedia>> ContentsChangedCommand { get; } 
 			= new ReactiveCommand<RoutedPropertyChangedEventArgs<PlatformData.FutabaMedia>>();
 
-		public ReactiveCommand SaveClickCommand { get; }
-			= new ReactiveCommand();
-
 		public ReactiveCommand<MouseButtonEventArgs> MouseLeftButtonDownCommand { get; }
 			= new ReactiveCommand<MouseButtonEventArgs>();
 		public ReactiveCommand<MouseButtonEventArgs> MouseLeftButtonUpCommand { get; }
@@ -64,6 +61,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Visibility> ViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Hidden);
 
 		public ReactiveProperty<ImageSource> ImageSource { get; } = new ReactiveProperty<ImageSource>();
+		public ReactiveProperty<ImageSource> AnimationGifImageSource { get; } = new ReactiveProperty<ImageSource>();
 		public ReactiveProperty<Visibility> ImageViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Collapsed);
 		public ReactiveProperty<MatrixTransform> ImageMatrix { get; }
 			= new ReactiveProperty<MatrixTransform>(new MatrixTransform(Matrix.Identity));
@@ -101,8 +99,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public FutabaMediaViewerViewModel() {
 			this.ContentsChangedCommand.Subscribe(x => this.OnContentsChanged(x));
-
-			this.SaveClickCommand.Subscribe(x => this.OnSaveClick());
 
 			this.MouseLeftButtonDownCommand.Subscribe(x => this.OnMouseLeftButtonDown(x));
 			this.MouseLeftButtonUpCommand.Subscribe(x => this.OnMouseLeftButtonUp(x));
@@ -143,6 +139,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				this.ImageViewVisibility.Value = Visibility.Hidden;
 				this.VideoViewVisibility.Value = Visibility.Hidden;
 				this.ImageSource.Value = null;
+				this.AnimationGifImageSource.Value = null;
 				Messenger.Instance.GetEvent<PubSubEvent<VideoStopMessage>>()
 					.Publish(new VideoStopMessage());
 			} else {
@@ -163,7 +160,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					if(x.Successed) {
 						if(this.IsImageFile(res.Src)) {
 							this.ImageViewVisibility.Value = Visibility.Visible;
-							this.ImageSource.Value = WpfUtil.ImageUtil.LoadImage(x.LocalPath);
+							this.ImageSource.Value = (x.FileBytes != null)
+								? WpfUtil.ImageUtil.LoadImage(x.LocalPath, x.FileBytes)
+									: WpfUtil.ImageUtil.LoadImage(x.LocalPath);
 						} else if(this.IsMovieFile(res.Src)) {
 							this.VideoViewVisibility.Value = Visibility.Visible;
 							Messenger.Instance.GetEvent<PubSubEvent<VideoLoadMessage>>()
@@ -184,8 +183,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					if(x.Successed) {
 						if(this.IsImageFile(u)) {
 							this.ImageViewVisibility.Value = Visibility.Visible;
-							this.ImageSource.Value = WpfUtil.ImageUtil.LoadImage(x.LocalPath);
-							this.ImageViewVisibility.Value = Visibility.Visible;
+							this.ImageSource.Value = (x.FileBytes != null) 
+								? WpfUtil.ImageUtil.LoadImage(x.LocalPath, x.FileBytes)
+									: WpfUtil.ImageUtil.LoadImage(x.LocalPath);
 						} else if(this.IsMovieFile(u)) {
 							this.VideoViewVisibility.Value = Visibility.Visible;
 							Messenger.Instance.GetEvent<PubSubEvent<VideoLoadMessage>>()
@@ -201,7 +201,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private bool IsImageFile(string url) {
 			var ext = Regex.Match(url, @"\.[a-zA-Z0-9]+$");
 			if(ext.Success) {
-				if(new string[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" }.Contains(ext.Value.ToLower())) {
+				if(Config.ConfigLoader.Mime.Types
+					.Where(x => x.MimeContents == Data.MimeContents.Image)
+					.Select(x => x.Ext).Contains(ext.Value.ToLower())) {
+					
 					return true;
 				}
 			}
@@ -211,17 +214,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private bool IsMovieFile(string url) {
 			var ext = Regex.Match(url, @"\.[a-zA-Z0-9]+$");
 			if(ext.Success) {
-				if(new string[] { ".mp4", ".webm" }.Contains(ext.Value.ToLower())) {
+				if(Config.ConfigLoader.Mime.Types
+					.Where(x => x.MimeContents == Data.MimeContents.Video)
+					.Select(x => x.Ext).Contains(ext.Value.ToLower())) {
+
 					return true;
 				}
 			}
 			return false;
 		}
-
-		private void OnSaveClick() {
-			MessageBox.Show("未実装！画像はキャッシュフォルダにあるよ！"); //TODO: 実装する
-		}
-
 
 		private void OnManipulationDelta(ManipulationDeltaEventArgs e) {
 			var delta = e.DeltaManipulation;

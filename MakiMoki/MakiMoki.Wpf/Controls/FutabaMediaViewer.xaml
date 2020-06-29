@@ -6,6 +6,7 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.NET46"
              xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
+             xmlns:gif="http://wpfanimatedgif.codeplex.com"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
@@ -65,9 +66,10 @@
                 RenderTransform="{Binding ImageMatrix.Value, Mode=TwoWay}">
                 <Image
                     x:Name="image"
-                    Source="{Binding ImageSource.Value, Mode=OneWay}"
-                    Width="{Binding RelativeSource={RelativeSource Self}, Path=Source.PixelWidth}"
-                    Height="{Binding RelativeSource={RelativeSource Self}, Path=Source.PixelHeight}"
+                    gif:ImageBehavior.RepeatBehavior="Forever"
+                    gif:ImageBehavior.AnimatedSource="{Binding ImageSource.Value, Mode=OneWay}"
+                    Width="{Binding DataContext.ImageSource.Value.PixelWidth, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}"
+                    Height="{Binding DataContext.ImageSource.Value.PixelHeight, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}"
                     IsHitTestVisible="False"
                     RenderOptions.EdgeMode="Aliased"
                     RenderOptions.BitmapScalingMode="Fant">
