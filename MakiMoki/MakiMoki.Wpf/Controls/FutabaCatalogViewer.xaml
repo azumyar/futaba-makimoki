@@ -70,8 +70,8 @@
                         </Grid.ColumnDefinitions>
                         <Viewbox
                             Grid.Column="0"
-                            MaxWidth="96"
-                            MaxHeight="96"
+                            MaxWidth="128"
+                            MaxHeight="128"
                             HorizontalAlignment="Left"
                             StretchDirection="DownOnly"
                             Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}">
