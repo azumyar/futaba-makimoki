@@ -126,6 +126,8 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <!-- スレッド-->
@@ -329,8 +331,30 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-
-                    <Button Grid.Column="5" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="5" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerArrow}">
+                        <Button.ToolTip>
+                            <ToolTip Content="一番上に移動" />
+                        </Button.ToolTip>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <i:CallMethodAction TargetObject="{Binding ElementName=ListBoxScrollBehavior, Mode=OneWay}" MethodName="ScrollToTop" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                    <Button Grid.Column="6" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerArrow}">
+                        <Button.ToolTip>
+                            <ToolTip Content="一番下に移動" />
+                        </Button.ToolTip>
+                        <Button.LayoutTransform>
+                            <RotateTransform Angle="180"/>
+                        </Button.LayoutTransform>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <i:CallMethodAction TargetObject="{Binding ElementName=ListBoxScrollBehavior, Mode=OneWay}" MethodName="ScrollToBottom" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                    <Button Grid.Column="7" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <!--
                         <Button.Style>
                             <Style TargetType="Button">
@@ -358,7 +382,7 @@
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="6" Style="{StaticResource ToolbarButtonHarf}" Content="{DynamicResource ButtonIconThreadMouseHamburger}">
+                    <Button Grid.Column="8" Style="{StaticResource ToolbarButtonHarf}" Content="{DynamicResource ButtonIconThreadMouseHamburger}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
                                 <i:ChangePropertyAction 
@@ -873,6 +897,7 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
                 <i:Interaction.Behaviors>
+                    <behavior:ScrollBehavior x:Name="ListBoxScrollBehavior" />
                     <behavior:WheelUpdateBehavior
                         Command="{Binding WheelUpdateCommand, Mode=OneWay}"
                         CommandParameter="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"
