@@ -827,6 +827,12 @@
                         </Setter>
                     </Style>
                 </ListBox.ItemContainerStyle>
+                <i:Interaction.Behaviors>
+                    <behavior:WheelUpdateBehavior
+                        Command="{Binding WheelUpdateCommand, Mode=OneWay}"
+                        CommandParameter="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"
+                        />
+                </i:Interaction.Behaviors>
             </ListBox>
 
             <!-- 書き込みサブウィンドウ -->

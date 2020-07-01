@@ -53,6 +53,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Data.CatalogSortItem[]> CatalogSortItem { get; } = new ReactiveProperty<CatalogSortItem[]>(Data.CatalogSort.Items);
 		public ReactiveCommand<(Data.CatalogSortItem Item, Model.BindableFutaba Futaba)> CatalogSortItemClickCommand { get; } = new ReactiveCommand<(Data.CatalogSortItem Item, Model.BindableFutaba Futaba)>();
 
+		public ReactiveCommand<Model.BindableFutaba> WheelUpdateCommand { get; } = new ReactiveCommand<BindableFutaba>();
+
 		public ReactiveCommand<RoutedEventArgs> CatalogMenuItemDelClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<Model.BindableFutabaResItem> CatalogMenuItemThreadHiddenCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> CatalogMenuItemNgImageCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
@@ -70,6 +72,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
 
 			FilterTextChangedCommand.Subscribe(x => OnFilterTextChanged(x));
+			WheelUpdateCommand.Subscribe(x => OnWheelUpdate(x));
 
 			CatalogUpdateClickCommand.Subscribe(x => OnCatalogUpdateClick(x));
 			CatalogListWrapClickCommand.Subscribe(x => OnCatalogListWrapClick(x));
@@ -137,6 +140,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					bf.FilterText.Value = s;
 				}
 			}
+		}
+
+		private void OnWheelUpdate(Model.BindableFutaba f) {
+			this.UpdateCatalog(f);
 		}
 
 		private void OnCatalogItemMouseDown(MouseButtonEventArgs e) {

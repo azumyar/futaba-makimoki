@@ -59,6 +59,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<RoutedEventArgs> ThreadResHamburgerItemUrlClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
+		public ReactiveCommand<Model.BindableFutaba> WheelUpdateCommand { get; } = new ReactiveCommand<BindableFutaba>();
+
+
 		public ReactiveCommand<BindableFutaba> MenuItemFullUpdateClickCommand { get; } = new ReactiveCommand<BindableFutaba>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemCopyClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemReplyClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
@@ -96,6 +99,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			PostClickCommand.Subscribe(x => OnPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
 			ImageClickCommand.Subscribe(x => OnImageClick(x));
 			LinkClickCommand.Subscribe(x => OnLinkClick(x));
+			WheelUpdateCommand.Subscribe(x => OnWheelUpdate(x));
 
 			ThreadResHamburgerItemUrlClickCommand.Subscribe(x => OnThreadResHamburgerItemUrlClick(x));
 			MenuItemFullUpdateClickCommand.Subscribe(x => OnMenuItemFullUpdateClick(x));
@@ -176,6 +180,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			WpfUtil.PlatformUtil.StartBrowser(e.NavigateUri);
 		end:;
 			System.Diagnostics.Debug.WriteLine(e);
+		}
+
+		private void OnWheelUpdate(Model.BindableFutaba f) {
+			this.UpdateThread(f);
 		}
 
 		private void OnContentsChanged(RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents> e) {

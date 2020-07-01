@@ -93,6 +93,11 @@
             </Canvas>
         </Viewbox>
 
+        <Viewbox x:Key="ButtonIconViewerArrow" x:Shared="False">
+            <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
+                <Path Width="512" Height="672" Canvas.Left="256" Canvas.Top="176" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="F1 M 512,176L 768,416L 608,416L 608,848L 416,848L 416,416L 256,416L 512,176 Z "/>
+            </Canvas>        </Viewbox>
+
         <Viewbox x:Key="ButtonIconViewerThreadRes" x:Shared="False">
             <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
                 <Path Width="735.134" Height="737.648" Canvas.Left="161.366" Canvas.Top="158.852" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="F1 M 330.315,838.174L 161.866,896L 217.177,725.037L 692.353,249.861L 805.49,362.999L 330.315,838.174 Z M 782.863,159.352L 896,272.489L 828.118,340.371L 714.981,227.234L 782.863,159.352 Z M 217.178,860.802L 319.001,826.86L 228.491,736.351L 194.55,838.174L 217.178,860.802 Z "/>
