@@ -19,38 +19,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 			DependencyProperty.Register(
 				nameof(WheelCount),
 				typeof(int),
-				typeof(Behavior<Control>),
+				typeof(WheelUpdateBehavior),
 				new PropertyMetadata(DefaultWheelCount));
 		public static readonly DependencyProperty CommandProperty =
 			DependencyProperty.RegisterAttached(
 				nameof(Command), 
 				typeof(ICommand), 
-				typeof(Behavior<Control>), 
+				typeof(WheelUpdateBehavior), 
 				new PropertyMetadata(null));
 
 		public static readonly DependencyProperty CommandParameterProperty =
 			DependencyProperty.RegisterAttached(
 				nameof(CommandParameter), 
 				typeof(object),
-				typeof(Behavior<Control>),
+				typeof(WheelUpdateBehavior),
 				new PropertyMetadata(null));
-
-		public static ICommand GetCommand(DependencyObject obj) {
-			return (ICommand)obj.GetValue(CommandProperty);
-		}
-		public static void SetCommand(DependencyObject obj, ICommand value) {
-			obj.SetValue(CommandProperty, value);
-		}
-
-
-		public static object GetCommandParameter(DependencyObject obj) {
-			return (object)obj.GetValue(CommandParameterProperty);
-		}
-		public static void SetCommandParameter(DependencyObject obj, object value) {
-			obj.SetValue(CommandParameterProperty, value);
-		}
-
-
 
 		public int WheelCount {
 			get => (int)this.GetValue(WheelCountProperty);
