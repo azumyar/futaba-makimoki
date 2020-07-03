@@ -227,11 +227,24 @@
                             >
                             <TextBlock Style="{StaticResource ConfigHeaderText}">カタログ</TextBlock>
                             <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>検索結果表示形式</TextBlock>
+                                <ComboBox SelectedIndex="{Binding CatalogSearchResult.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>ふたば☆ちゃんねる</ComboBoxItem>
+                                    <ComboBoxItem>虹覧</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>カタログ(Wrap表示)に動画マーカーを表示</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド画像が.mp4/.webmの場合サムネイルにマーカーを表示します。</TextBlock>
                                 <CheckBox Content="有効" IsChecked="{Binding CatalogIsEnabledMovieMarker.Value, Mode=TwoWay}" />
                             </StackPanel>
-
+                            
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>隔離されたスレッドを表示</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">隔離されたスレッドをカタログに表示します。スレッドはまとめてカタログの末尾に追加されます。レス数は取得されません。</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding CatalogIsVisibleIsolateThread.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>キャッシュされているNG画像スレッド設定</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド画像がNGに登録されている場合かつキャッシュに存在する場合カタログから除外します。この設定は新規にダウンロードしてきたNG画像スレッドには適用されません。</TextBlock>
@@ -252,6 +265,20 @@
                             </StackPanel>
 
                             <TextBlock Style="{StaticResource ConfigHeaderText}">投稿画面</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>投稿画面最低表示幅</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">投稿画面の最低表示幅を設定します。(320～)この設定よりも親ビューの表示領域が狭い場合そちらが優先されます。</TextBlock>
+                                <TextBox Text="{Binding PostViewMinWidth.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>投稿画面最大表示幅</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">投稿画面の最大表示幅を設定します。(320～)この設定よりも親ビューの表示領域が狭い場合そちらが優先されます。</TextBlock>
+                                <TextBox Text="{Binding PostViewMaxWidth.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>投稿画面からカーソルが離れた場合半透明にする</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding PostViewIsEnabledOpacity.Value, Mode=TwoWay}" />
+                            </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>クリップボードビットマップの品質</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">クリップボードからビットマップ画像を投稿した場合のJPEG保存品質を設定します。(1-100)</TextBlock>
@@ -287,6 +314,10 @@
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
                         <ri:EventToReactiveCommand Command="{Binding OkButtonClickCommand, Mode=OneWay}" />
+                        <i:ChangePropertyAction
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:ConfigWindow}}" 
+                            PropertyName="DialogResult"
+                            Value="False" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </Button>
@@ -294,6 +325,10 @@
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
                         <ri:EventToReactiveCommand Command="{Binding CancelButtonClickCommand, Mode=OneWay}" />
+                        <i:ChangePropertyAction
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:ConfigWindow}}" 
+                            PropertyName="DialogResult"
+                            Value="False" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </Button>

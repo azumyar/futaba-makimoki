@@ -18,23 +18,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 	/// ConfigWindow.xaml の相互作用ロジック
 	/// </summary>
 	public partial class ConfigWindow : Window {
-		private Helpers.AutoDisposable disposable;
 
 		public ConfigWindow() {
 			InitializeComponent();
-
-			disposable = new Helpers.AutoDisposable()
-				.Add(ViewModels.ConfigWindowViewModel.Messenger.Instance
-					.GetEvent<PubSubEvent<ViewModels.ConfigWindowViewModel.DialogCloseMessage>>()
-					.Subscribe(x => {
-						Close();
-					}));
-		}
-
-		protected override void OnClosed(EventArgs e) {
-			base.OnClosed(e);
-
-			disposable.Dispose();
 		}
 	}
 }

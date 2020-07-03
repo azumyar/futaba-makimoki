@@ -15,14 +15,6 @@ using Yarukizero.Net.MakiMoki.Wpf.PlatformData;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class ConfigWindowViewModel : BindableBase, IDisposable {
-		internal class Messenger : EventAggregator {
-			public static Messenger Instance { get; } = new Messenger();
-		}
-
-		internal class DialogCloseMessage {
-			public DialogCloseMessage() {}
-		}
-
 		public ReactiveProperty<bool> CoreConfigThreadDataIncremental { get; }
 		public ReactiveProperty<bool> CoreConfigSavedResponse { get; }
 
@@ -51,12 +43,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<string> ClipbordJpegQuality { get; }
 		public ReactiveProperty<bool> ClipbordJpegQualityValid { get; }
 		public ReactiveProperty<bool> ClipbordIsEnabledUrl { get; }
-		public ReactiveProperty<int> PostViewMinWidth { get; }
+		public ReactiveProperty<string> PostViewMinWidth { get; }
 		public ReactiveProperty<bool> PostViewMinWidthValid { get; }
-		public ReactiveProperty<int> PostViewMaxWidth { get; }
+		public ReactiveProperty<string> PostViewMaxWidth { get; }
 		public ReactiveProperty<bool> PostViewMaxWidthValid { get; }
 		public ReactiveProperty<bool> PostViewIsEnabledOpacity { get; }
-		public ReactiveProperty<int> PostViewOpacity { get; }
+		public ReactiveProperty<string> PostViewOpacity { get; }
 		public ReactiveProperty<bool> PostViewOpacityValid { get; }
 		public ReactiveProperty<string> MediaExportPath { get; }
 		public ReactiveProperty<string> MediaCacheExpireDay { get; }
@@ -134,34 +126,33 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				}
 			}).ToReactiveProperty();
 			ClipbordIsEnabledUrl = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.ClipbordIsEnabledUrl);
-			PostViewMinWidth = new ReactiveProperty<int>(WpfConfig.WpfConfigLoader.SystemConfig.MinWidthPostView);
+			PostViewMinWidth = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.MinWidthPostView.ToString());
 			PostViewMinWidthValid = PostViewMinWidth.Select(x => {
-				if(x == 0) {
-					return true;
-				} else if(320 <= x) {
-					return true;
-				} else {
-					return false;
+				if(int.TryParse(x, out var v)) {
+					if((v == 0) || (320 <= v)) {
+						return true;
+					}
 				}
+				return false;
 			}).ToReactiveProperty();
-			PostViewMaxWidth = new ReactiveProperty<int>(WpfConfig.WpfConfigLoader.SystemConfig.MinWidthPostView);
+			PostViewMaxWidth = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.MinWidthPostView.ToString());
 			PostViewMaxWidthValid = PostViewMaxWidth.Select(x => {
-				if(x == 0) {
-					return true;
-				} else if(320 <= x) {
-					return true;
-				} else {
-					return false;
+				if(int.TryParse(x, out var v)) {
+					if((v == 0) || (320 <= v)) {
+						return true;
+					}
 				}
+				return false;
 			}).ToReactiveProperty();
 			PostViewIsEnabledOpacity = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledOpacityPostView);
-			PostViewOpacity = new ReactiveProperty<int>(WpfConfig.WpfConfigLoader.SystemConfig.OpacityPostView);
+			PostViewOpacity = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.OpacityPostView.ToString());
 			PostViewOpacityValid = PostViewOpacity.Select(x => {
-				if((0 <= x) && (x <= 100)) {
-					return true;
-				} else {
-					return false;
+				if(int.TryParse(x, out var v)) {
+					if((0 <= v) && (v <= 100)) {
+						return true;
+					}
 				}
+				return false;
 			}).ToReactiveProperty();
 			MediaExportPath = new ReactiveProperty<string>(string.Join(Environment.NewLine, WpfConfig.WpfConfigLoader.SystemConfig.MediaExportPath));
 			MediaCacheExpireDay = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.CacheExpireDay.ToString());
@@ -251,21 +242,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				// 2020070500
 				catalogSearchResult: (PlatformData.CatalogSearchResult)CatalogSearchResult.Value,
 				isVisibleCatalogIsolateThread: CatalogIsVisibleIsolateThread.Value,
-				minWidthPostView: PostViewMinWidth.Value,
-				maxWidthPostView: PostViewMaxWidth.Value,
+				minWidthPostView: int.Parse(PostViewMinWidth.Value),
+				maxWidthPostView: int.Parse(PostViewMaxWidth.Value),
 				isEnabledOpacityPostView: PostViewIsEnabledOpacity.Value,
-				opacityPostView: PostViewOpacity.Value
+				opacityPostView: int.Parse(PostViewOpacity.Value)
 			);
 			WpfConfig.WpfConfigLoader.UpdateSystemConfig(s);
-
-			Messenger.Instance.GetEvent<PubSubEvent<DialogCloseMessage>>()
-				.Publish(new DialogCloseMessage());
 		}
 
-		private void OnCancelButtonClick(RoutedEventArgs e) {
-			Messenger.Instance.GetEvent<PubSubEvent<DialogCloseMessage>>()
-				.Publish(new DialogCloseMessage());
-		}
+		private void OnCancelButtonClick(RoutedEventArgs e) { }
 
 		private void OnLinkClick(Uri e) {
 			WpfUtil.PlatformUtil.StartBrowser(e);
