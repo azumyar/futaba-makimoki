@@ -43,6 +43,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<string> ClipbordJpegQuality { get; }
 		public ReactiveProperty<bool> ClipbordJpegQualityValid { get; }
 		public ReactiveProperty<bool> ClipbordIsEnabledUrl { get; }
+
+		public ReactiveProperty<bool> PostViewSavedSubject { get; }
+		public ReactiveProperty<bool> PostViewSavedName { get; }
+		public ReactiveProperty<bool> PostViewSavedMail { get; }
 		public ReactiveProperty<string> PostViewMinWidth { get; }
 		public ReactiveProperty<bool> PostViewMinWidthValid { get; }
 		public ReactiveProperty<string> PostViewMaxWidth { get; }
@@ -126,6 +130,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				}
 			}).ToReactiveProperty();
 			ClipbordIsEnabledUrl = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.ClipbordIsEnabledUrl);
+			PostViewSavedSubject = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsSavedPostSubject);
+			PostViewSavedName = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsSavedPostName);
+			PostViewSavedMail = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsSavedPostMail);
 			PostViewMinWidth = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.MinWidthPostView.ToString());
 			PostViewMinWidthValid = PostViewMinWidth.Select(x => {
 				if(int.TryParse(x, out var v)) {
@@ -242,6 +249,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				// 2020070500
 				catalogSearchResult: (PlatformData.CatalogSearchResult)CatalogSearchResult.Value,
 				isVisibleCatalogIsolateThread: CatalogIsVisibleIsolateThread.Value,
+				isSavedPostSubject: PostViewSavedSubject.Value,
+				isSavedPostName: PostViewSavedName.Value,
+				isSavedPostMail: PostViewSavedMail.Value,
 				minWidthPostView: int.Parse(PostViewMinWidth.Value),
 				maxWidthPostView: int.Parse(PostViewMaxWidth.Value),
 				isEnabledOpacityPostView: PostViewIsEnabledOpacity.Value,

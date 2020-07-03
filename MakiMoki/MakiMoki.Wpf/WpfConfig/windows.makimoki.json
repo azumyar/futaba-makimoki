@@ -9,6 +9,9 @@
 
   "thread-visible-del-res": 1,
 
+  "post-save-subject": false,
+  "post-save-name": false,
+  "post-save-mail": false,
   "post-clipbord-jpeg-quality": 85,
   "post-clipbord-enable-url": true,
   "post-view-min-width": 0,

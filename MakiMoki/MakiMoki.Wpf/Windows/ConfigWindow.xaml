@@ -266,6 +266,18 @@
 
                             <TextBlock Style="{StaticResource ConfigHeaderText}">投稿画面</TextBlock>
                             <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>投稿した題名を記憶する</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding PostViewSavedSubject.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>投稿したおなまえを記憶する</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding PostViewSavedName.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>投稿したメールアドレスを記憶する</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding PostViewSavedMail.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>投稿画面最低表示幅</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">投稿画面の最低表示幅を設定します。(320～)この設定よりも親ビューの表示領域が狭い場合そちらが優先されます。</TextBlock>
                                 <TextBox Text="{Binding PostViewMinWidth.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
