@@ -137,13 +137,20 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonProperty("res")]
 		public ResItem Res { get; private set; }
 
+		[JsonProperty("isolate")]
+		public bool? Isolate { get; private set; }
+
+		[JsonIgnore]
+		public bool IsolateValue => Isolate ?? false;
+
 		/// <summary>JSONシリアライザ用</summary>
 		private NumberedResItem() { }
 
 
-		internal NumberedResItem(string no, ResItem res) {
+		internal NumberedResItem(string no, ResItem res, bool? isolate = null) {
 			this.No = no;
 			this.Res = res;
+			this.Isolate = isolate;
 		}
 	}
 
