@@ -94,13 +94,12 @@
     <Compile Include="ViewModels\FutabaPostViewViewModel.cs" />
     <Compile Include="ViewModels\FutabaMediaViewerViewModel.cs" />
     <Compile Include="ViewModels\FutabaThreadResViewerViewModel.cs" />
-    <Compile Include="ViewModels\NgImageReasonWindowViewModel.cs" />
     <Compile Include="WinApi\Win32.cs" />
     <Compile Include="Windows\ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\NgImageReasonWindow.xaml.cs">
-      <DependentUpon>NgImageReasonWindow.xaml</DependentUpon>
+    <Compile Include="Windows\ImageReasonWindow.xaml.cs">
+      <DependentUpon>ImageReasonWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="WpfConfig\WpfConfigLoader.cs" />
     <Compile Include="WpfUtil\ImageUtil.cs" />
@@ -157,7 +156,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Windows\NgImageReasonWindow.xaml">
+    <Page Include="Windows\ImageReasonWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

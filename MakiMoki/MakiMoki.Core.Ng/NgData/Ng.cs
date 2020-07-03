@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Yarukizero.Net.MakiMoki.Ng.NgData {
 	public class NgConfig : Data.ConfigObject {
-		public static int CurrentVersion = 2020062900;
+		public static int CurrentVersion { get; } = 2020062900;
 
 		[JsonProperty("ng-id", Required = Required.DisallowNull)]
 		public bool EnableIdNg { get; internal set; }
@@ -35,7 +35,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgData {
 	}
 
 	public class NgImageConfig : Data.ConfigObject {
-		public static readonly int CurrentVersion = 2020062900;
+		public static int CurrentVersion { get; } = 2020062900;
 		private static readonly int DefaultThreshold = 10;
 
 		[JsonProperty("ng-hamming-threshold-value", Required = Required.DisallowNull)]
@@ -96,7 +96,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgData {
 	}
 
 	public class HiddenConfig : Data.ConfigObject {
-		public static int CurrentVersion = 2020062900;
+		public static int CurrentVersion { get; } = 2020062900;
 		private static int DefaultExpireDay = 30;
 
 		[JsonProperty("expire-day", Required = Required.DisallowNull)]

@@ -391,7 +391,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				if(ng != null) {
 					// Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
 				} else {
-					var w = new Windows.NgImageReasonWindow() {
+					var w = new Windows.ImageReasonWindow() {
 						Owner = App.Current.MainWindow,
 					};
 					if(w.ShowDialog() ?? false) {
