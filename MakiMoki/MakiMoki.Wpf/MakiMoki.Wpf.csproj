@@ -85,6 +85,7 @@
     <Compile Include="Converters\FutabaViewerConverter.cs" />
     <Compile Include="Converters\ThreadResConverter.cs" />
     <Compile Include="Model\Interface.cs" />
+    <Compile Include="PlatformData\Compat\2020070500.cs" />
     <Compile Include="PlatformData\Config.cs" />
     <Compile Include="PlatformData\Data.cs" />
     <Compile Include="PlatformData\Event.cs" />

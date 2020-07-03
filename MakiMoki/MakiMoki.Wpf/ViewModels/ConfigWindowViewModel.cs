@@ -45,10 +45,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> CatalogIsEnabledMovieMarker { get; }
 		public ReactiveProperty<bool> CatalogIsEnabledOldMarker { get; }
 		public ReactiveProperty<int> CatalogNgImageAction { get; }
+		public ReactiveProperty<bool> CatalogIsVisibleIsolateThread { get; }
+		public ReactiveProperty<int> CatalogSearchResult { get; }
 		public ReactiveProperty<int> ThreadDelResVisibility { get; }
 		public ReactiveProperty<string> ClipbordJpegQuality { get; }
 		public ReactiveProperty<bool> ClipbordJpegQualityValid { get; }
 		public ReactiveProperty<bool> ClipbordIsEnabledUrl { get; }
+		public ReactiveProperty<int> PostViewMinWidth { get; }
+		public ReactiveProperty<bool> PostViewMinWidthValid { get; }
+		public ReactiveProperty<int> PostViewMaxWidth { get; }
+		public ReactiveProperty<bool> PostViewMaxWidthValid { get; }
+		public ReactiveProperty<bool> PostViewIsEnabledOpacity { get; }
+		public ReactiveProperty<int> PostViewOpacity { get; }
+		public ReactiveProperty<bool> PostViewOpacityValid { get; }
 		public ReactiveProperty<string> MediaExportPath { get; }
 		public ReactiveProperty<string> MediaCacheExpireDay { get; }
 		public ReactiveProperty<bool> MediaCacheExpireDayValid { get; }
@@ -113,6 +122,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			CatalogIsEnabledMovieMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledMovieMarker);
 			CatalogIsEnabledOldMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledOldMarker);
 			CatalogNgImageAction = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage);
+			CatalogIsVisibleIsolateThread = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleCatalogIsolateThread);
+			CatalogSearchResult = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.CatalogSearchResult);
 			ThreadDelResVisibility = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility);
 			ClipbordJpegQuality = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.ClipbordJpegQuality.ToString());
 			ClipbordJpegQualityValid = ClipbordJpegQuality.Select(x => {
@@ -123,6 +134,35 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				}
 			}).ToReactiveProperty();
 			ClipbordIsEnabledUrl = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.ClipbordIsEnabledUrl);
+			PostViewMinWidth = new ReactiveProperty<int>(WpfConfig.WpfConfigLoader.SystemConfig.MinWidthPostView);
+			PostViewMinWidthValid = PostViewMinWidth.Select(x => {
+				if(x == 0) {
+					return true;
+				} else if(320 <= x) {
+					return true;
+				} else {
+					return false;
+				}
+			}).ToReactiveProperty();
+			PostViewMaxWidth = new ReactiveProperty<int>(WpfConfig.WpfConfigLoader.SystemConfig.MinWidthPostView);
+			PostViewMaxWidthValid = PostViewMaxWidth.Select(x => {
+				if(x == 0) {
+					return true;
+				} else if(320 <= x) {
+					return true;
+				} else {
+					return false;
+				}
+			}).ToReactiveProperty();
+			PostViewIsEnabledOpacity = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledOpacityPostView);
+			PostViewOpacity = new ReactiveProperty<int>(WpfConfig.WpfConfigLoader.SystemConfig.OpacityPostView);
+			PostViewOpacityValid = PostViewOpacity.Select(x => {
+				if((0 <= x) && (x <= 100)) {
+					return true;
+				} else {
+					return false;
+				}
+			}).ToReactiveProperty();
 			MediaExportPath = new ReactiveProperty<string>(string.Join(Environment.NewLine, WpfConfig.WpfConfigLoader.SystemConfig.MediaExportPath));
 			MediaCacheExpireDay = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.CacheExpireDay.ToString());
 			MediaCacheExpireDayValid = MediaCacheExpireDay.Select(x => {
@@ -142,6 +182,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				PostItemExpireDayValid,
 				ClipbordJpegQualityValid,
 				MediaCacheExpireDayValid,
+				PostViewMaxWidthValid,
+				PostViewMinWidthValid,
+				PostViewOpacityValid,
 			}.CombineLatest(x => x.All(y => y)).ToReactiveProperty();
 			OkButtonClickCommand.Subscribe(x => OnOkButtonClick(x));
 			CancelButtonClickCommand.Subscribe(x => OnCancelButtonClick(x));
@@ -204,7 +247,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				cacheExpireDay: int.Parse(MediaCacheExpireDay.Value),
 				exportNgRes: (PlatformData.ExportNgRes)ExportOutputNgRes.Value,
 				exportNgImage: (PlatformData.ExportNgImage)ExportOutputNgImage.Value,
-				browserPath: BrowserPath.Value);
+				browserPath: BrowserPath.Value,
+				// 2020070500
+				catalogSearchResult: (PlatformData.CatalogSearchResult)CatalogSearchResult.Value,
+				isVisibleCatalogIsolateThread: CatalogIsVisibleIsolateThread.Value,
+				minWidthPostView: PostViewMinWidth.Value,
+				maxWidthPostView: PostViewMaxWidth.Value,
+				isEnabledOpacityPostView: PostViewIsEnabledOpacity.Value,
+				opacityPostView: PostViewOpacity.Value
+			);
 			WpfConfig.WpfConfigLoader.UpdateSystemConfig(s);
 
 			Messenger.Instance.GetEvent<PubSubEvent<DialogCloseMessage>>()

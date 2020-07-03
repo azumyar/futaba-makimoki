@@ -119,6 +119,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				MessageBox.Show(ex.Message, "初期化エラー", MessageBoxButton.OK, MessageBoxImage.Error);
 				Environment.Exit(1);
 			}
+			catch(Exceptions.MigrateFailedException ex) {
+				MessageBox.Show(ex.Message, "初期化エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+				Environment.Exit(1);
+			}
 			//Util.TaskUtil.Initialize();
 			UIDispatcherScheduler.Initialize();
 			RemoveOldCache(AppCacheDirectory);

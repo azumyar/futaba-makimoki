@@ -4,27 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Yarukizero.Net.MakiMoki.Data;
 
-namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
-
-	class MakiMokiExeConfig : Data.ConfigObject {
+namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
+	class WpfConfig2020062900 : Data.ConfigObject, Data.IMigrateCompatObject {
 		public static int CurrentVersion { get; } = 2020062900;
-
-		[JsonProperty("single-user-data", Required = Required.AllowNull)]
-		public bool? IsSingleUserData { get; private set; }
-
-		[JsonProperty("single-user-config", Required = Required.AllowNull)]
-		public bool? IsSingleUserConfig { get; private set; }
-
-		[JsonProperty("custom-data-path", Required = Required.AllowNull)]
-		public string CustomDataPathRoot { get; private set; }
-
-		[JsonProperty("custom-config-path", Required =Required.AllowNull)]
-		public string CustomConfigPathRoot { get; private set; }
-	}
-
-	class WpfConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2020070500;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
 		public bool IsEnabledMovieMarker { get; private set; }
@@ -59,26 +43,36 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("platform-browser-path", Required = Required.Always)]
 		public string BrowserPath { get; private set; }
 
+		public ConfigObject Migrate() {
+			var t = typeof(Wpf.WpfConfig.WpfConfigLoader);
+			var conf = JsonConvert.DeserializeObject<WpfConfig>(
+				Util.FileUtil.LoadFileString(t.Assembly.GetManifestResourceStream(
+					$"{ t.Namespace }.{ Wpf.WpfConfig.WpfConfigLoader.SystemConfigFile }")));
 
-		// 2020070500
-		[JsonProperty("catalog-search-result-type", Required = Required.Always)]
-		public CatalogSearchResult CatalogSearchResult { get; private set; }
+			return WpfConfig.Create(
+				isEnabledMovieMarker: IsEnabledMovieMarker,
+				isEnabledOldMarker: IsEnabledOldMarker,
+				catalogNgImage: CatalogNgImage,
+				threadDelResVisibility: ThreadDelResVisibility,
+				clipbordJpegQuality: ClipbordJpegQuality,
+				clipbordIsEnabledUrl: ClipbordIsEnabledUrl,
+				mediaExportPath: MediaExportPath,
+				cacheExpireDay: CacheExpireDay,
+				exportNgRes: ExportNgRes,
+				exportNgImage: ExportNgImage,
+				browserPath: BrowserPath,
 
-		[JsonProperty("catalog-visible-isolate-thread", Required = Required.Always)]
-		public bool IsVisibleCatalogIsolateThread { get; private set; }
+				// 追加
+				catalogSearchResult: conf.CatalogSearchResult,
+				isVisibleCatalogIsolateThread: conf.IsVisibleCatalogIsolateThread,
+				minWidthPostView: conf.MinWidthPostView,
+				maxWidthPostView: conf.MaxWidthPostView,
+				isEnabledOpacityPostView: conf.IsEnabledOpacityPostView,
+				opacityPostView: conf.OpacityPostView
+			);
+		}
 
-		[JsonProperty("post-view-min-width", Required = Required.Always)]
-		public int MinWidthPostView { get; private set; }
-
-		[JsonProperty("post-view-max-width", Required = Required.Always)]
-		public int MaxWidthPostView { get; private set; }
-
-		[JsonProperty("post-view-enable-opacity", Required = Required.Always)]
-		public bool IsEnabledOpacityPostView { get; private set; }
-
-		[JsonProperty("post-view-enable-opacity-value", Required = Required.Always)]
-		public int OpacityPostView { get; private set; }
-
+		/*
 		public static WpfConfig CreateDefault() {
 			// ここは使われない
 			return new WpfConfig() {
@@ -89,9 +83,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public static WpfConfig Create(
 			bool isEnabledMovieMarker, bool isEnabledOldMarker,
 			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility,
-			bool isVisibleCatalogIsolateThread, CatalogSearchResult catalogSearchResult,
 			int clipbordJpegQuality, bool clipbordIsEnabledUrl,
-			int minWidthPostView, int maxWidthPostView, bool isEnabledOpacityPostView, int opacityPostView,
 			string[] mediaExportPath, int cacheExpireDay,
 			ExportNgRes exportNgRes, ExportNgImage exportNgImage,
 			string browserPath) {
@@ -107,15 +99,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				IsEnabledMovieMarker = isEnabledMovieMarker,
 				IsEnabledOldMarker = isEnabledOldMarker,
 				CatalogNgImage = catalogNgImage,
-				IsVisibleCatalogIsolateThread = isVisibleCatalogIsolateThread,
-				CatalogSearchResult = catalogSearchResult,
 				ThreadDelResVisibility = threadDelResVisibility,
 				ClipbordJpegQuality = clipbordJpegQuality,
 				ClipbordIsEnabledUrl = clipbordIsEnabledUrl,
-				MinWidthPostView = minWidthPostView,
-				MaxWidthPostView = maxWidthPostView,
-				IsEnabledOpacityPostView = isEnabledOpacityPostView,
-				OpacityPostView = opacityPostView,
 				MediaExportPath = mediaExportPath,
 				CacheExpireDay = cacheExpireDay,
 				ExportNgRes = exportNgRes,
@@ -123,49 +109,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				BrowserPath = browserPath,
 			};
 		}
+		*/
 	}
 
-	enum CatalogSearchResult {
-		Default,
-		Nijiran,
-		MaxValue = Nijiran,
-	}
-
-	enum CatalogNgImage {
-		Default,
-		Hidden,
-		MaxValue = Hidden,
-	}
-
-	enum ThreadDelResVisibility {
-		Visible,
-		Hidden,
-		MaxValue = Hidden,
-	}
-
-	enum ExportNgRes {
-		Output,
-		Mask,
-		Hidden,
-	}
-
-	enum ExportNgImage {
-		Output,
-		Dummy,
-		Hidden,
-	}
-
-	class PlacementConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2020062900;
-
-		[JsonProperty("window-placement", Required = Required.Always)]
-		public WinApi.WINDOWPLACEMENT WindowPlacement { get; internal set; }
-
-		public static PlacementConfig CreateDefault() {
-			return new PlacementConfig() {
-				Version = CurrentVersion,
-				WindowPlacement = default,
-			};
-		}
-	}
 }
