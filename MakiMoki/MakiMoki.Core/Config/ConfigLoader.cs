@@ -10,13 +10,13 @@ using Yarukizero.Net.MakiMoki.Util;
 
 namespace Yarukizero.Net.MakiMoki.Config {
 	public static class ConfigLoader {
-		private static readonly string MakiMokiConfigFile = "makimoki.json";
-		private static readonly string BordConfigFile = "makimoki.bord.json";
-		private static readonly string MimeConfigFile = "mime.json";
-		private static readonly string UploderConfigFile = "uploder.json";
-		private static readonly string FutabaApiFile = "makimoki.futaba.json";
-		private static readonly string FutabaSavedFile = "makimoki.response.json";
-		private static readonly string FutabaPostedFile = "makimoki.post.json";
+		internal static readonly string MakiMokiConfigFile = "makimoki.json";
+		internal static readonly string BordConfigFile = "makimoki.bord.json";
+		internal static readonly string MimeConfigFile = "mime.json";
+		internal static readonly string UploderConfigFile = "uploder.json";
+		internal static readonly string FutabaApiFile = "makimoki.futaba.json";
+		internal static readonly string FutabaSavedFile = "makimoki.response.json";
+		internal static readonly string FutabaPostedFile = "makimoki.post.json";
 		internal static readonly Assembly CoreAssembly = typeof(ConfigLoader).Assembly;
 
 		private static volatile object lockObj = new object();
@@ -66,11 +66,12 @@ namespace Yarukizero.Net.MakiMoki.Config {
 				}
 				return defaultValue;
 			}
-			T getPath<T>(string path, T defaultValue) {
+			T getPath<T>(string path, T defaultValue, Func<string, T> convFunc = null) {
 				var r = defaultValue;
+				convFunc = convFunc ?? ((j) => Newtonsoft.Json.JsonConvert.DeserializeObject<T>(j));
 				if(File.Exists(path)) {
 					Util.FileUtil.LoadConfigHelper(path,
-						(json) => r = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json),
+						(json) => r = convFunc(json),
 						(e, m) => throw new Exceptions.InitializeFailedException(m, e));
 				}
 				return r;
@@ -146,7 +147,12 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			try {
 				foreach(var confDir in new string[] { setting.SystemDirectory, setting.UserDirectory }) {
 					if(confDir != null) {
-						MakiMoki = get(Path.Combine(confDir, MakiMokiConfigFile), MakiMoki);
+						MakiMoki = getPath(
+							Path.Combine(InitializedSetting.UserDirectory, MakiMokiConfigFile),
+							MakiMoki,
+							(json) => Util.CompatUtil.Migrate<Data.MakiMokiConfig>(json, new Dictionary<int, Type>() {
+								{ Data.Compat.MakiMokiConfig2020062900.CurrentVersion, typeof(Data.Compat.MakiMokiConfig2020062900) },
+							}));
 						var b = Path.Combine(confDir, BordConfigFile);
 						if(File.Exists(b)) {
 							var j = string.Empty;
@@ -235,7 +241,24 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			}
 		}
 
+		internal static void UpdateFutabaInputData(string subject, string name, string mail, string password) {
+			System.Diagnostics.Debug.Assert(subject != null);
+			System.Diagnostics.Debug.Assert(name != null);
+			System.Diagnostics.Debug.Assert(mail != null);
+			System.Diagnostics.Debug.Assert(password != null);
+
+			FutabaApi.SavedSubject = MakiMoki.FutabaPostSavedSubject ?  subject : "";
+			FutabaApi.SavedName = MakiMoki.FutabaPostSavedName ? name : "";
+			FutabaApi.SavedMail = MakiMoki.FutabaPostSavedMail ? mail : "";
+			FutabaApi.SavedPassword = password;
+			Util.FileUtil.SaveJson(
+				Path.Combine(InitializedSetting.WorkDirectory, FutabaApiFile),
+				FutabaApi);
+		}
+
 		internal static void UpdateFutabaPassword(string password) {
+			System.Diagnostics.Debug.Assert(password != null);
+
 			FutabaApi.SavedPassword = password;
 			Util.FileUtil.SaveJson(
 				Path.Combine(InitializedSetting.WorkDirectory, FutabaApiFile),
@@ -251,11 +274,17 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			return t.ToString();
 		}
 
-		public static void UpdateMakiMokiConfig(bool threadGetIncremental, bool responseSave, int postDataExpireDay) {
+		public static void UpdateMakiMokiConfig(
+			bool threadGetIncremental, bool responseSave, int postDataExpireDay,
+			bool isSavedPostSubject, bool isSavedPostName, bool isSavedPostMail) {
+			
 			MakiMoki = MakiMokiConfig.From(
 				threadGetIncremental: threadGetIncremental,
 				responseSave: responseSave,
-				postDataExpireDay: postDataExpireDay);
+				postDataExpireDay: postDataExpireDay,
+				isSavedPostSubject: isSavedPostSubject,
+				isSavedPostName: isSavedPostName,
+				isSavedPostMail: isSavedPostMail);
 			lock(lockObj) {
 				if(Directory.Exists(InitializedSetting.UserDirectory)) {
 					Util.FileUtil.SaveJson(

@@ -65,9 +65,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				// 2020070500
 				catalogSearchResult: conf.CatalogSearchResult,
 				isVisibleCatalogIsolateThread: conf.IsVisibleCatalogIsolateThread,
-				isSavedPostSubject: conf.IsSavedPostSubject,
-				isSavedPostName: conf.IsSavedPostName,
-				isSavedPostMail: conf.IsSavedPostMail,
 				minWidthPostView: conf.MinWidthPostView,
 				maxWidthPostView: conf.MaxWidthPostView,
 				isEnabledOpacityPostView: conf.IsEnabledOpacityPostView,

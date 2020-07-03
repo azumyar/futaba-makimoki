@@ -67,13 +67,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("catalog-visible-isolate-thread", Required = Required.Always)]
 		public bool IsVisibleCatalogIsolateThread { get; private set; }
 
-		[JsonProperty("post-save-subject", Required = Required.Always)]
-		public bool IsSavedPostSubject { get; private set; }
-		[JsonProperty("post-save-name", Required = Required.Always)]
-		public bool IsSavedPostName { get; private set; }
-		[JsonProperty("post-save-mail", Required = Required.Always)]
-		public bool IsSavedPostMail { get; private set; }
-
 		[JsonProperty("post-view-min-width", Required = Required.Always)]
 		public int MinWidthPostView { get; private set; }
 
@@ -97,7 +90,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			bool isEnabledMovieMarker, bool isEnabledOldMarker,
 			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility,
 			bool isVisibleCatalogIsolateThread, CatalogSearchResult catalogSearchResult,
-			bool isSavedPostSubject, bool isSavedPostName, bool isSavedPostMail,
 			int clipbordJpegQuality, bool clipbordIsEnabledUrl,
 			int minWidthPostView, int maxWidthPostView, bool isEnabledOpacityPostView, int opacityPostView,
 			string[] mediaExportPath, int cacheExpireDay,
@@ -120,9 +112,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				ThreadDelResVisibility = threadDelResVisibility,
 				ClipbordJpegQuality = clipbordJpegQuality,
 				ClipbordIsEnabledUrl = clipbordIsEnabledUrl,
-				IsSavedPostSubject = isSavedPostSubject,
-				IsSavedPostName = isSavedPostName,
-				IsSavedPostMail = isSavedPostMail,
 				MinWidthPostView = minWidthPostView,
 				MaxWidthPostView = maxWidthPostView,
 				IsEnabledOpacityPostView = isEnabledOpacityPostView,

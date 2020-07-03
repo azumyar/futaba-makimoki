@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Yarukizero.Net.MakiMoki.Data {
 	public class MakiMokiConfig : ConfigObject {
-		public static int CurrentVersion = 2020062900;
+		public static int CurrentVersion { get; } = 2020070500;
 
 		[JsonProperty("futaba-thread-get-incremental", Required = Required.Always)]
 		public bool FutabaThreadGetIncremental { get; private set; }
@@ -17,18 +17,31 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonProperty("futaba-post-data-expire-day", Required = Required.Always)]
 		public int FutabaPostDataExpireDay { get; private set; }
 
-		public static MakiMokiConfig From(bool threadGetIncremental, bool responseSave, int postDataExpireDay) {
+		[JsonProperty("futaba-post-save-subject", Required = Required.Always)]
+		public bool FutabaPostSavedSubject { get; private set; }
+		[JsonProperty("futaba-post-save-name", Required = Required.Always)]
+		public bool FutabaPostSavedName { get; private set; }
+		[JsonProperty("futaba-post-save-mail", Required = Required.Always)]
+		public bool FutabaPostSavedMail { get; private set; }
+
+		public static MakiMokiConfig From(
+			bool threadGetIncremental, bool responseSave, int postDataExpireDay,
+			bool isSavedPostSubject, bool isSavedPostName, bool isSavedPostMail) {
+			
 			return new MakiMokiConfig() {
 				Version = CurrentVersion,
 				FutabaThreadGetIncremental = threadGetIncremental,
 				FutabaResponseSave = responseSave,
 				FutabaPostDataExpireDay = postDataExpireDay,
+				FutabaPostSavedSubject = isSavedPostSubject,
+				FutabaPostSavedName = isSavedPostName,
+				FutabaPostSavedMail = isSavedPostMail,
 			};
 		}
 	}
 
 	public class BordConfig : ConfigObject {
-		public static int CurrentVersion = 2020062900;
+		public static int CurrentVersion { get; } = 2020062900;
 
 		[JsonProperty("bords", Required = Required.Always)]
 		public BordData[] Bords { get; protected set; }
@@ -123,7 +136,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class MimeConfig : ConfigObject {
-		public static int CurrentVersion = 2020062900;
+		public static int CurrentVersion { get; } = 2020062900;
 		private Dictionary<string, string> mimeDic = null;
 
 		[JsonProperty("support-types", Required = Required.DisallowNull)]
@@ -161,7 +174,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class UploderConfig : ConfigObject {
-		public static int CurrentVersion = 2020062900;
+		public static int CurrentVersion { get; } = 2020062900;
 
 		[JsonProperty("uploders", Required = Required.Always)]
 		public UploderData[] Uploders { get; private set; }
@@ -176,7 +189,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class FutabaApiConfig : ConfigObject {
-		public static int CurrentVersion = 2020062900;
+		public static int CurrentVersion { get; } = 2020062900;
 
 		[JsonProperty("ptua", Required = Required.Always)]
 		public string Ptua { get; internal set; }
@@ -210,7 +223,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class FutabaSavedConfig : ConfigObject {
-		public static int CurrentVersion = 2020062900;
+		public static int CurrentVersion { get; } = 2020062900;
 
 		[JsonProperty("time", Required = Required.Always)]
 		public long Time { get; private set; }
@@ -294,7 +307,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class FutabaPostItemConfig : ConfigObject {
-		public static int CurrentVersion = 2020062900;
+		public static int CurrentVersion { get; } = 2020062900;
 
 		[JsonProperty("res", Required = Required.Always)]
 		public PostedResItem[] Items { get; private set; }

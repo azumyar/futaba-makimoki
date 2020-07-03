@@ -28,6 +28,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				"Shift_JIS",
 				new EncoderReplacementFallback(FallbackUnicodeString),
 				DecoderFallback.ReplacementFallback);
+			private static string GetDefaultSubject() => Config.ConfigLoader.MakiMoki.FutabaPostSavedSubject ? Config.ConfigLoader.FutabaApi.SavedSubject : "";
+			private static string GetDefaultName() => Config.ConfigLoader.MakiMoki.FutabaPostSavedName ? Config.ConfigLoader.FutabaApi.SavedName : "";
+			private static string GetDefaultMail() => Config.ConfigLoader.MakiMoki.FutabaPostSavedMail ? Config.ConfigLoader.FutabaApi.SavedMail : "";
 
 #pragma warning disable CS0067
 			public event PropertyChangedEventHandler PropertyChanged;
@@ -37,9 +40,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			public ReadOnlyReactiveProperty<int> CommentBytes { get; }
 			public ReadOnlyReactiveProperty<int> CommentLines { get; }
 
-			public ReactiveProperty<string> Name { get; } = new ReactiveProperty<string>("");
-			public ReactiveProperty<string> Mail { get; } = new ReactiveProperty<string>("");
-			public ReactiveProperty<string> Subject { get; } = new ReactiveProperty<string>("");
+			public ReactiveProperty<string> Name { get; } = new ReactiveProperty<string>(GetDefaultName());
+			public ReactiveProperty<string> Mail { get; } = new ReactiveProperty<string>(GetDefaultMail());
+			public ReactiveProperty<string> Subject { get; } = new ReactiveProperty<string>(GetDefaultSubject());
 			public ReactiveProperty<string> Password { get; } = new ReactiveProperty<string>(
 				Config.ConfigLoader.FutabaApi.SavedPassword);
 			public ReactiveProperty<string> ImagePath { get; } = new ReactiveProperty<string>("");
@@ -123,9 +126,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 			public void Reset() {
 				Comment.Value = "";
-				Name.Value = "";
-				Mail.Value = "";
-				Subject.Value = "";
+				Name.Value = GetDefaultName();
+				Mail.Value = GetDefaultMail();
+				Subject.Value = GetDefaultSubject();
 				Password.Value = Config.ConfigLoader.FutabaApi.SavedPassword;
 				ImagePath.Value = "";
 			}

@@ -130,9 +130,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				}
 			}).ToReactiveProperty();
 			ClipbordIsEnabledUrl = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.ClipbordIsEnabledUrl);
-			PostViewSavedSubject = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsSavedPostSubject);
-			PostViewSavedName = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsSavedPostName);
-			PostViewSavedMail = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsSavedPostMail);
+			PostViewSavedSubject = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaPostSavedSubject);
+			PostViewSavedName = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaPostSavedName);
+			PostViewSavedMail = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaPostSavedMail);
 			PostViewMinWidth = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.MinWidthPostView.ToString());
 			PostViewMinWidthValid = PostViewMinWidth.Select(x => {
 				if(int.TryParse(x, out var v)) {
@@ -197,7 +197,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Config.ConfigLoader.UpdateMakiMokiConfig(
 				threadGetIncremental: CoreConfigThreadDataIncremental.Value,
 				responseSave: CoreConfigSavedResponse.Value,
-				postDataExpireDay: int.Parse(PostItemExpireDay.Value));
+				postDataExpireDay: int.Parse(PostItemExpireDay.Value),
+				// 2020070500
+				isSavedPostSubject: PostViewSavedSubject.Value,
+				isSavedPostName: PostViewSavedName.Value,
+				isSavedPostMail: PostViewSavedMail.Value
+			);
 			if(!CoreConfigSavedResponse.Value) {
 				Config.ConfigLoader.RemoveSaveFutabaResponseFile();
 			}
@@ -249,9 +254,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				// 2020070500
 				catalogSearchResult: (PlatformData.CatalogSearchResult)CatalogSearchResult.Value,
 				isVisibleCatalogIsolateThread: CatalogIsVisibleIsolateThread.Value,
-				isSavedPostSubject: PostViewSavedSubject.Value,
-				isSavedPostName: PostViewSavedName.Value,
-				isSavedPostMail: PostViewSavedMail.Value,
 				minWidthPostView: int.Parse(PostViewMinWidth.Value),
 				maxWidthPostView: int.Parse(PostViewMaxWidth.Value),
 				isEnabledOpacityPostView: PostViewIsEnabledOpacity.Value,

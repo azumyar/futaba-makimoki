@@ -562,7 +562,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					o.OnNext((false, "不明なエラー"));
 				} else {
 					Config.ConfigLoader.UpdateCookie(r.Cookies);
-					Config.ConfigLoader.UpdateFutabaPassword(passwd);
+					Config.ConfigLoader.UpdateFutabaInputData(subject, name, email, passwd);
 					o.OnNext((r.Successed, r.NextOrMessage));
 				}
 				return System.Reactive.Disposables.Disposable.Empty;
@@ -580,7 +580,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					o.OnNext((false, "不明なエラー"));
 				} else {
 					Config.ConfigLoader.UpdateCookie(r.Cookies);
-					Config.ConfigLoader.UpdateFutabaPassword(passwd);
+					Config.ConfigLoader.UpdateFutabaInputData(subject, name, email, passwd);
 					o.OnNext((r.Successed, r.Raw));
 				}
 				return System.Reactive.Disposables.Disposable.Empty;
