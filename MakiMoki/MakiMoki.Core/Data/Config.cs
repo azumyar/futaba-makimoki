@@ -258,7 +258,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			var c = catalog.GetFullResponse();
 			if(c != null) {
 				var u = catalog.Url;
-				var idx = catalog.ResItems.Select(x => x.ResItem.No).ToArray();
+				var idx = catalog.ResItems.Where(x => !x.ResItem.IsolateValue).Select(x => x.ResItem.No).ToArray();
 				var cnt = catalog.ResItems.ToDictionary(x => x.ResItem.No, x => x.CounterCurrent);
 				return new FutabaSavedCatalogData() {
 					Url = u,

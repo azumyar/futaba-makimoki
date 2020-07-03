@@ -110,14 +110,17 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								}
 							}).ToArray();
 						var dic = new Dictionary<string, int>();
+						var resList = new List<Data.NumberedResItem>(r.Response.Res);
 						var sortList = new List<Data.NumberedResItem>();
 						foreach(var c in counter.Where(x => !string.IsNullOrWhiteSpace(x.No))) {
-							var t = r.Response.Res.Where(x => x.No == c.No).FirstOrDefault();
+							var t = resList.Where(x => x.No == c.No).FirstOrDefault();
 							if(t != null) {
 								sortList.Add(t);
+								resList.Remove(t);
 							}
 							dic.Add(c.No, c.Count);
 						}
+						sortList.AddRange(resList.Select(x => new NumberedResItem(x.No, x.Res, true)));
 						lock(lockObj) {
 							for(var i = 0; i < Catalog.Value.Length; i++) {
 								if(Catalog.Value[i].Bord.Url == bord.Url) {

@@ -36,6 +36,8 @@
             <converter:FutabaOldResVisibilityConverter x:Key="FutabaOldResVisibilityConverter"/>
             <converter:FutabaIdResVisibilityConverter x:Key="FutabaIdResVisibilityConverter"/>
             <converter:FutabaMovieResVisibilityConverter x:Key="FutabaMovieResVisibilityConverter"/>
+            <converter:FutabaIsolateResVisibilityConverter x:Key="FutabaIsolateResVisibilityConverter" />
+            <converter:FutabaIsolateResCountVisibilityConverter x:Key="FutabaIsolateResCountVisibilityConverter" />
             <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
             <converter:FutabaResItemIdTextConverter x:Key="FutabaResItemIdTextConverter" />
             <converter:FutabaResItemNowConverter x:Key="FutabaResItemNowConverter"/>
@@ -229,6 +231,46 @@
                                                 </TextBlock>
                                             </Grid>
                                         </Viewbox>
+                                        <!-- 隔離 -->
+                                        <Viewbox
+                                            Grid.Row="0"
+                                            Margin="2"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            Width="{DynamicResource CatalogBadgeSize}"
+                                            Height="{DynamicResource CatalogBadgeSize}"
+                                            >
+                                            <Viewbox.Visibility>
+                                                <MultiBinding Converter="{StaticResource FutabaIsolateResVisibilityConverter}">
+                                                    <Binding Path="Raw.Value" Mode="OneWay" />
+                                                    <Binding Path="Parent.Value.UpdateToken.Value" Mode="OneWay" />
+                                                </MultiBinding>
+                                            </Viewbox.Visibility>
+                                            <Grid
+                                                Width="16"
+                                                Height="16"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                >
+                                                <Ellipse Width="16" Height="16">
+                                                    <Ellipse.Fill>
+                                                        <SolidColorBrush Color="{DynamicResource CatalogBadgeIsolateBackgroundColor}" />
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
+                                                <TextBlock
+                                                    Text="隔"
+                                                    FontFamily="{DynamicResource CatalogBadgeFont}"
+                                                    FontSize="10"
+                                                    FontWeight="Bold"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Padding="0 0 0 1">
+                                                    <TextBlock.Foreground>
+                                                        <SolidColorBrush Color="{DynamicResource CatalogBadgeIsolateForegroundColor}" />
+                                                    </TextBlock.Foreground>
+                                                </TextBlock>
+                                            </Grid>
+                                        </Viewbox>
 
                                         <!-- 落、ID -->
                                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
@@ -358,6 +400,7 @@
                                             <TextBlock
                                                 Grid.Column="2"
                                                 Text="{Binding Raw.Value.CounterCurrent, Mode=OneWay}"
+                                                Visibility="{Binding Raw.Value, Converter={StaticResource FutabaIsolateResCountVisibilityConverter}, Mode=OneWay}"                                        
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Bottom"/>
                                         </Grid>
@@ -506,6 +549,45 @@
                                                     </TextBlock>
                                                 </Grid>
                                             </Viewbox>
+                                            <!-- 隔離 -->
+                                            <Viewbox
+                                                Margin="2"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                Width="{DynamicResource CatalogBadgeSize}"
+                                                Height="{DynamicResource CatalogBadgeSize}"
+                                                >
+                                                <Viewbox.Visibility>
+                                                    <MultiBinding Converter="{StaticResource FutabaIsolateResVisibilityConverter}">
+                                                        <Binding Path="Raw.Value" Mode="OneWay" />
+                                                        <Binding Path="Parent.Value.UpdateToken.Value" Mode="OneWay" />
+                                                    </MultiBinding>
+                                                </Viewbox.Visibility>
+                                                <Grid
+                                                    Width="16"
+                                                    Height="16"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Top"
+                                                    >
+                                                    <Ellipse Width="16" Height="16">
+                                                        <Ellipse.Fill>
+                                                            <SolidColorBrush Color="{DynamicResource CatalogBadgeIsolateBackgroundColor}" />
+                                                        </Ellipse.Fill>
+                                                    </Ellipse>
+                                                    <TextBlock
+                                                        Text="隔"
+                                                        FontFamily="{DynamicResource CatalogBadgeFont}"
+                                                        FontSize="10"
+                                                        FontWeight="Bold"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        Padding="0 0 0 1">
+                                                        <TextBlock.Foreground>
+                                                            <SolidColorBrush Color="{DynamicResource CatalogBadgeIsolateForegroundColor}" />
+                                                        </TextBlock.Foreground>
+                                                    </TextBlock>
+                                                </Grid>
+                                            </Viewbox>
                                         </Grid>
                                         <local:FutabaCommentBlock
                                             Grid.Column="1"
@@ -524,6 +606,7 @@
                                             Text="{Binding Raw.Value.CounterCurrent, Mode=OneWay, StringFormat='\{0\}レス'}"
                                             TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
                                             TextBlock.FontFamily="{DynamicResource ThreadTextFont}"
+                                            Visibility="{Binding Raw.Value, Converter={StaticResource FutabaIsolateResCountVisibilityConverter}, Mode=OneWay}"                                        
                                             VerticalAlignment="Center"
                                             HorizontalAlignment="Right"
                                             Margin="2"/>

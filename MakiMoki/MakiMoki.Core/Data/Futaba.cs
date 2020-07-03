@@ -608,20 +608,23 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 		public static FutabaContext FromCatalog_(BordData bord, FutabaResonse response, string[] sortRes, Dictionary<string, int> counter) {
 			var url = new UrlContext(bord.Url);
+			var res = new List<NumberedResItem>(response.Res);
+			var resItems = sortRes.Select(x => {
+				var r = res.Where(y => y.No == x).FirstOrDefault();
+				if(r != null) {
+					var cc = counter.ContainsKey(x) ? counter[x] : 0;
+					res.Remove(r);
+					return Item.FromCatalog(url, r, cc, 0);
+				} else {
+					return null;
+				}
+			}).Where(x => x != null).ToList();
+			resItems.AddRange(res.Select(x => Item.FromCatalog(url, new NumberedResItem(x.No, x.Res, true), 0, 0)));
 			return new FutabaContext() {
 				Name = bord.Name,
 				Bord = bord,
 				Url = url,
-				// ResItems = response.Res.Reverse().Select(x => {
-				ResItems = sortRes.Select(x => {
-					var r = response.Res.Where(y => y.No == x).FirstOrDefault();
-					if(r != null) {
-						var cc = counter.ContainsKey(x) ? counter[x] : 0;
-						return Item.FromCatalog(url, r, cc, 0);
-					} else {
-						return null;
-					}
-				}).Where(x => x != null).ToArray(),
+				ResItems = resItems.ToArray(),
 				Raw = response,
 			};
 		}
