@@ -15,7 +15,7 @@
             某掲示板ブラウザです。
         </p>
         <ul>
-            <li class="checked" id="futamaki-bin-link"><a href="/futamaki/">実行ファイル</a></li>
+            <li class="checked" id="futamaki-bin-link"><a href="/futamaki/">ダウンロード</a></li>
             <li class="checked"><a href="https://github.com/azumyar/futaba-makimoki">ソースコード</a></li>
         </ul>
 
@@ -251,7 +251,7 @@
         <p>投稿ビュー</p>
         <table>
             <tr>
-                <td>Ctrl+Ente</td>
+                <td>Ctrl+Enter</td>
                 <td>スレッド作成/レス投稿</td>
             </tr>
             <tr>
@@ -354,7 +354,7 @@ if(fetch && String.prototype.padStart) {
         })
         .then((json) => {
             const target = document.getElementById("futamaki-bin-link");
-             const a = document.createElement("a");
+            const a = document.createElement("a");
             a.setAttribute("href", json.url);
             a.textContent = "period." + json.period.toString().padStart(2, 0);
             target.append("(最新:", a, ")");

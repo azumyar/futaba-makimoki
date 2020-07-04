@@ -1,7 +1,8 @@
 Options Indexes
-HeaderName /futamaki/files/header.html
-ReadmeName /futamaki/files/footer.html
-IndexStyleSheet /futamaki/files/style.css
+HeaderName /futamaki/.files/header.html
+ReadmeName /futamaki/.files/footer.html
+IndexStyleSheet /futamaki/.files/style.css
+IndexHeadInsert "<meta name=\"viewport\" content=\"width=device-width\"><meta name=\"format-detection\" content=\"telephone=no\">"
 IndexOrderDefault Descending Date
 IndexOptions Charset=UTF-8
 IndexOptions FancyIndexing
@@ -9,6 +10,6 @@ IndexOptions FoldersFirst
 IndexOptions SuppressDescription
 IndexOptions SuppressRules
 IndexOptions HTMLTable
-IndexIgnore .. files
+IndexIgnore .. .files
 
 
