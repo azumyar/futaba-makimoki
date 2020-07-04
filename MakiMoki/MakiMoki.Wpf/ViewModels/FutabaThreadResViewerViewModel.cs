@@ -326,10 +326,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							if(int.TryParse(x.Message, out var i)) {
 								Util.Futaba.PutInformation(new Information($"そうだねx{ i }"));
 								if(ri.Raw.Value.Soudane != i) {
-									// TODO: そうだねの場合フル更新？考える
-									Util.Futaba.UpdateThreadRes(ri.Bord.Value, ri.Raw.Value.Url.ThreadNo).Subscribe();
-									goto exit;
+									Util.Futaba.UpdateThreadRes(
+										ri.Bord.Value,
+										ri.Raw.Value.Url.ThreadNo,
+										Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
+										.Subscribe();
 								}
+								goto exit;
 							}
 							m = "不明なエラー";
 						}
