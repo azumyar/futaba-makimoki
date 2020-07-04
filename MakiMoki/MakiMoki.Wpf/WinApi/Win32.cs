@@ -29,6 +29,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WinApi {
 
 		[DllImport("user32.dll")]
 		public static extern bool GetWindowPlacement(IntPtr hwnd, ref WINDOWPLACEMENT lpwndpl);
+
+		[DllImport("kernel32.dll")]
+		public static extern bool SetDllDirectory(string lpPathName);
 	}
 
 	[StructLayout(LayoutKind.Sequential)]

@@ -65,5 +65,34 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			var ver = System.Diagnostics.FileVersionInfo.GetVersionInfo(exe);
 			return string.Format("{0}-{1:000}", Path.GetFileNameWithoutExtension(exe), ver.FileMinorPart);
 		}
+		public static void RemoveOldCache(string cacheDir) {
+			var time = DateTime.Now.AddDays(-WpfConfig.WpfConfigLoader.SystemConfig.CacheExpireDay);
+#if DEBUG
+			var sw = new System.Diagnostics.Stopwatch();
+			sw.Start();
+#endif
+			var f = Directory.EnumerateFiles(cacheDir)
+				.Where(x => {
+					try {
+						return File.GetLastWriteTime(x) < time;
+					}
+					catch(IOException) {
+						return false;
+					}
+				});
+			// TODO: ファイルがたくさんあると無視できないくらい重い、非同期化したほうがいいかも
+			// Parallel.ForEachにしてみた
+			Parallel.ForEach(f, it => {
+				//System.Diagnostics.Debug.WriteLine(it);
+				try {
+					File.Delete(it);
+				}
+				catch(IOException) { /* 削除できないファイルは無視する */}
+			});
+#if DEBUG
+			sw.Stop();
+			Console.WriteLine("初期削除処理{0}ミリ秒", sw.ElapsedMilliseconds);
+#endif
+		}
 	}
 }
