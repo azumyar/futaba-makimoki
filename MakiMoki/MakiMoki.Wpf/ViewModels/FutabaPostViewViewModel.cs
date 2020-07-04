@@ -351,9 +351,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					WpfConfig.WpfConfigLoader.SystemConfig.ClipbordJpegQuality);
 			} else if(Clipboard.ContainsText() && WpfConfig.WpfConfigLoader.SystemConfig.ClipbordIsEnabledUrl) {
 				if(Uri.TryCreate(Clipboard.GetText(), UriKind.Absolute, out var uri)) {
-					if(uri.Scheme == "blob") {
+					if((uri.Scheme != "http") && (uri.Scheme != "https")) {
 						// BLOB URLは読めないのでreturn
 						// 通知したほうがいいのかな…？
+						// file://は読みに行ったほうがいいのか…？
 						return;
 					}
 					using(var client = new System.Net.Http.HttpClient() {

@@ -15,11 +15,23 @@ using System.Windows.Shapes;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 	/// <summary>
-	/// ConfigWindow.xaml の相互作用ロジック
+	/// NgReasonWindow.xaml の相互作用ロジック
 	/// </summary>
-	public partial class ConfigWindow : Window {
+	public partial class ImageReasonWindow : Window {
+		public static readonly DependencyProperty ReasonTextProperty
+			= DependencyProperty.Register(
+				nameof(ReasonText),
+				typeof(string),
+				typeof(ImageReasonWindow),
+				new PropertyMetadata(""));
+		public string ReasonText {
+			get => (string)this.GetValue(ReasonTextProperty);
+			set {
+				this.SetValue(ReasonTextProperty, value);
+			}
+		}
 
-		public ConfigWindow() {
+		public ImageReasonWindow() {
 			InitializeComponent();
 		}
 	}

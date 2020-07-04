@@ -119,6 +119,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				MessageBox.Show(ex.Message, "初期化エラー", MessageBoxButton.OK, MessageBoxImage.Error);
 				Environment.Exit(1);
 			}
+			catch(Exceptions.MigrateFailedException ex) {
+				MessageBox.Show(ex.Message, "初期化エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+				Environment.Exit(1);
+			}
 			//Util.TaskUtil.Initialize();
 			UIDispatcherScheduler.Initialize();
 			RemoveOldCache(AppCacheDirectory);
@@ -128,11 +132,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			}).ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => {
 					if(x) {
-						MessageBox.Show(
-							"新しいバージョンが公開されています",
+						var r = MessageBox.Show(
+							"新しいバージョンが公開されています。\r\n配布サイトをブラウザで表示しますか？",
 							"バージョンチェック通知",
-							MessageBoxButton.OK,
+							MessageBoxButton.YesNo,
 							MessageBoxImage.Information);
+						if(r == MessageBoxResult.Yes) {
+							WpfUtil.PlatformUtil.StartBrowser(new Uri(PlatformConst.WebPageUrl));
+						}
 					}
 				});
 			

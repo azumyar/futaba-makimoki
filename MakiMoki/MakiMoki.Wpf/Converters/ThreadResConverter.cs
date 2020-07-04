@@ -44,15 +44,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 	}
 
-	class FutabaCatalogItemOpenedColorConverter : IMultiValueConverter {
+	class FutabaCatalogItemBackgroundConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-			if((values.Length == 4) && (values[2] is System.Windows.Media.Color normalColor)) {
-				if((values[0] is Model.BindableFutabaResItem f) 
-					&& (values[1] is IEnumerable<FutabaContext> threads)
-					&& (values[3] is System.Windows.Media.Color opendColor)) {
-					return threads.Select(x => x.ResItems.FirstOrDefault()?.ResItem.No)
-						.Contains(f.Raw.Value.ResItem.No)
-							? opendColor : normalColor;
+			if((values.Length == 6) && (values[3] is System.Windows.Media.Color normalColor)) {
+				if((values[0] is Model.BindableFutabaResItem f)
+					&& (values[1] is string search)
+					&& (values[2] is IEnumerable<FutabaContext> threads)
+					&& (values[4] is System.Windows.Media.Color hitColor)
+					&& (values[5] is System.Windows.Media.Color opendColor)) {
+					if(threads.Select(x => x.ResItems.FirstOrDefault()?.ResItem.No)
+						.Contains(f.Raw.Value.ResItem.No)) {
+
+						return opendColor;
+					}
+
+					if(!string.IsNullOrEmpty(search) 
+						&& Util.TextUtil.Comment2SearchText(f.Raw.Value.ResItem.Res.Com)
+							.Contains(Util.TextUtil.Comment2SearchText(search))) {
+
+						return hitColor;
+					}
 				}
 				return normalColor; // スレを受信していない場合values[0]が設定されていないのでnormalColorを返す
 			}
@@ -73,6 +84,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if(value is Data.FutabaContext.Item it) {
 				// 未実装
 				return Visibility.Collapsed;
+			}
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+	class FutabaNewResVisibilityConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value == null) {
+				return null;
+			}
+
+			if(value is Data.FutabaContext.Item it) {
+				return (!it.ResItem.IsolateValue && (0 < (it.CounterCurrent - it.CounterPrev))) ? Visibility.Visible : Visibility.Collapsed;
 			}
 			throw new ArgumentException("型不正。", "value");
 		}
@@ -123,6 +150,40 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 	}
 
+	class FutabaIsolateResVisibilityConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if((values.Length == 2) && (values[0] is Data.FutabaContext.Item it)) {
+				if(WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleCatalogIsolateThread) {
+					return it.ResItem.IsolateValue ? Visibility.Visible : Visibility.Collapsed;
+				} else {
+					return Visibility.Collapsed;
+				}
+			}
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
+	class FutabaIsolateResCountVisibilityConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value == null) {
+				return null;
+			}
+
+			if(value is Data.FutabaContext.Item it) {
+				return it.ResItem.IsolateValue ? Visibility.Hidden : Visibility.Visible;
+			}
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
 	class FutabaCatalogStyleConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
 			if(values.Length == 3) {
@@ -144,13 +205,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
 			if((values.Length == 3) && (values[0] is IEnumerable<Model.BindableFutabaResItem> en)) {
 				var en2 = en.Where(x => !x.IsNg.Value && !x.IsHidden.Value && !x.IsNgImageHidden.Value).ToArray();
-				if(values[2] is string filter && !string.IsNullOrEmpty(filter)) {
+				if(values[1] is string filter && !string.IsNullOrEmpty(filter)) {
 					var f = Util.TextUtil.Filter2SearchText(filter);
-					return en2.Select<Model.BindableFutabaResItem, (string Text, Model.BindableFutabaResItem Raw)>(
+					var sr = en2.Select<Model.BindableFutabaResItem, (string Text, Model.BindableFutabaResItem Raw)>(
 						x => (Util.TextUtil.Comment2SearchText(x.Raw.Value.ResItem.Res.Com), x))
 						.Where(x => x.Text.Contains(f))
 						.Select(x => x.Raw)
 						.ToArray();
+					switch(WpfConfig.WpfConfigLoader.SystemConfig.CatalogSearchResult) {
+					case PlatformData.CatalogSearchResult.Default:
+						return sr;
+					case PlatformData.CatalogSearchResult.Nijiran: {
+							var t = sr.Select(y => y.ThreadResNo.Value).ToArray();
+							return sr.Concat(en2.Where(x => !t.Contains(x.ThreadResNo.Value))).ToArray();
+						}
+					}
+					throw new InvalidOperationException();
 				} else {
 					return en2;
 				}

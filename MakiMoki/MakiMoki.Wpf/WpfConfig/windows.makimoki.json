@@ -1,14 +1,20 @@
 ﻿{
-  "version": -1,
+  "version": 2020070500,
 
   "catalog-enable-movie-marker": true,
   "catalog-enable-old-marker": true,
   "catalog-ng-image-hidden": 0,
+  "catalog-search-result-type": 0,
+  "catalog-visible-isolate-thread": false,
 
   "thread-visible-del-res": 1,
 
   "post-clipbord-jpeg-quality": 85,
   "post-clipbord-enable-url": true,
+  "post-view-min-width": 0,
+  "post-view-max-width": 0,
+  "post-view-enable-opacity": false,
+  "post-view-enable-opacity-value": 50,
 
   "media-export-path": [],
   "media-cache-expire-day": 3,

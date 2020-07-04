@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 	static class PlatformUtil {
-		private static readonly string VersionCheckUrl = "https://dev.yarukizero.net/futamaki-version-v1.py";
-
 		public static void StartBrowser(Uri uri) {
 			var b = WpfConfig.WpfConfigLoader.SystemConfig.BrowserPath;
 			try {
@@ -30,7 +28,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		}
 
 		public static async Task<bool> CheckNewVersion() {
-			if(Uri.TryCreate(VersionCheckUrl, UriKind.Absolute, out var uri)) {
+			if(Uri.TryCreate( PlatformConst.VersionCheckUrl, UriKind.Absolute, out var uri)) {
 				using(var client = new System.Net.Http.HttpClient() {
 					Timeout = TimeSpan.FromMilliseconds(5000),
 				}) {

@@ -7,12 +7,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
+using Yarukizero.Net.MakiMoki.Util;
 using Yarukizero.Net.MakiMoki.Wpf.PlatformData;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 	static class WpfConfigLoader {
-		private static readonly string SystemConfigFile = "windows.makimoki.json";
-		private static readonly string PlacementConfigFile = "windows.placement.json";
+		internal static readonly string SystemConfigFile = "windows.makimoki.json";
+		internal static readonly string PlacementConfigFile = "windows.placement.json";
 		private static volatile object lockObj = new object();
 
 		public static Helpers.UpdateNotifyer<PlatformData.WpfConfig> SystemConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer<PlatformData.WpfConfig>();
@@ -26,11 +27,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 		public static void Initialize(Setting setting) {
 			InitializedSetting = setting;
 
-			T getPath<T>(string path, T defaultValue) {
+			T getPath<T>(string path, T defaultValue, Func<string, T> convFunc = null) {
 				var r = defaultValue;
+				convFunc = convFunc ?? ((j) => Newtonsoft.Json.JsonConvert.DeserializeObject<T>(j));
 				if(File.Exists(path)) {
 					Util.FileUtil.LoadConfigHelper(path,
-						(json) => r = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json),
+						(json) => r = convFunc(json),
 						(e, m) => throw new Exceptions.InitializeFailedException(m, e));
 				}
 				return r;
@@ -54,7 +56,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 			if(Directory.Exists(InitializedSetting.UserDirectory)) {
 				SystemConfig = getPath(
 					Path.Combine(InitializedSetting.UserDirectory, SystemConfigFile),
-					SystemConfig);
+					SystemConfig,
+					(json) => Util.CompatUtil.Migrate<PlatformData.WpfConfig>(json, new Dictionary<int, Type>() {
+						{ PlatformData.Compat.WpfConfig2020062900.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2020062900) },
+					}));
 			}
 		}
 

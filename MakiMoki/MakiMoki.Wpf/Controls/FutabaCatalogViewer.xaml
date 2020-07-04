@@ -29,13 +29,15 @@
             <converter:FutabaCatalogVisibleConverter x:Key="FutabaCatalogVisibleConverter"/>
             <converter:FutabaCatalogStyleConverter x:Key="FutabaCatalogStyleConverter"/>
             <converter:FutabaThreadResVisibleConverter x:Key="FutabaThreadResVisibleConverter"/>
-            <converter:FutabaCatalogItemOpenedColorConverter x:Key="FutabaCatalogItemOpenedColorConverter" />
+            <converter:FutabaCatalogItemBackgroundConverter x:Key="FutabaCatalogItemBackgroundConverter" />
             <converter:FutabaCatalogItemFilterConverter x:Key="FutabaCatalogItemFilterConverter" />
             <converter:FutabaNewResCountConverter x:Key="FutabaNewResCountConverter"/>
             <converter:FutabaNewResVisibilityConverter x:Key="FutabaNewResVisibilityConverter"/>
             <converter:FutabaOldResVisibilityConverter x:Key="FutabaOldResVisibilityConverter"/>
             <converter:FutabaIdResVisibilityConverter x:Key="FutabaIdResVisibilityConverter"/>
             <converter:FutabaMovieResVisibilityConverter x:Key="FutabaMovieResVisibilityConverter"/>
+            <converter:FutabaIsolateResVisibilityConverter x:Key="FutabaIsolateResVisibilityConverter" />
+            <converter:FutabaIsolateResCountVisibilityConverter x:Key="FutabaIsolateResCountVisibilityConverter" />
             <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
             <converter:FutabaResItemIdTextConverter x:Key="FutabaResItemIdTextConverter" />
             <converter:FutabaResItemNowConverter x:Key="FutabaResItemNowConverter"/>
@@ -43,6 +45,9 @@
             <converter:FutabaResItemNextButtonEnabledConverter x:Key="FutabaResItemNextButtonEnabledConverter" />
             <converter:FutabaResItemOldColorConverter x:Key="FutabaResItemOldColorConverter" />
             <converter:FutabaResItemResCountColorConverter x:Key="FutabaResItemResCountColorConverter" />
+            <converter:PostViewOpacityConverter x:Key="PostViewOpacityConverter" />
+            <converter:PostViewMinWidthConverter x:Key="PostViewMinWidthConverter" />
+            <converter:PostViewMaxWidthConverter x:Key="PostViewMaxWidthConverter" />
 
             <ToolTip x:Key="CatalogItemToolTip">
                 <Grid
@@ -152,10 +157,12 @@
                                     <Button.Background>
                                         <SolidColorBrush>
                                             <SolidColorBrush.Color>
-                                                <MultiBinding  Converter="{StaticResource FutabaCatalogItemOpenedColorConverter}">
+                                                <MultiBinding  Converter="{StaticResource FutabaCatalogItemBackgroundConverter}">
                                                     <Binding Mode="OneWay" />
+                                                    <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
                                                     <Binding Path="Contents.Futaba.Value.OpenedThreads.Value" Mode="OneWay" ElementName="_this" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
+                                                    <Binding Path="DataContext" ElementName="CatalogBackgroundSerachHitColorGetter" Mode="OneWay" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemOpendBackgroundColorGetter" Mode="OneWay" />
                                                 </MultiBinding>
                                             </SolidColorBrush.Color>
@@ -225,6 +232,46 @@
                                                     Padding="0 0 0 1">
                                                     <TextBlock.Foreground>
                                                         <SolidColorBrush Color="{DynamicResource CatalogBadgeCountForegroundColor}" />
+                                                    </TextBlock.Foreground>
+                                                </TextBlock>
+                                            </Grid>
+                                        </Viewbox>
+                                        <!-- 隔離 -->
+                                        <Viewbox
+                                            Grid.Row="0"
+                                            Margin="2"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            Width="{DynamicResource CatalogBadgeSize}"
+                                            Height="{DynamicResource CatalogBadgeSize}"
+                                            >
+                                            <Viewbox.Visibility>
+                                                <MultiBinding Converter="{StaticResource FutabaIsolateResVisibilityConverter}">
+                                                    <Binding Path="Raw.Value" Mode="OneWay" />
+                                                    <Binding Path="Parent.Value.UpdateToken.Value" Mode="OneWay" />
+                                                </MultiBinding>
+                                            </Viewbox.Visibility>
+                                            <Grid
+                                                Width="16"
+                                                Height="16"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                >
+                                                <Ellipse Width="16" Height="16">
+                                                    <Ellipse.Fill>
+                                                        <SolidColorBrush Color="{DynamicResource CatalogBadgeIsolateBackgroundColor}" />
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
+                                                <TextBlock
+                                                    Text="隔"
+                                                    FontFamily="{DynamicResource CatalogBadgeFont}"
+                                                    FontSize="10"
+                                                    FontWeight="Bold"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Padding="0 0 0 1">
+                                                    <TextBlock.Foreground>
+                                                        <SolidColorBrush Color="{DynamicResource CatalogBadgeIsolateForegroundColor}" />
                                                     </TextBlock.Foreground>
                                                 </TextBlock>
                                             </Grid>
@@ -358,6 +405,7 @@
                                             <TextBlock
                                                 Grid.Column="2"
                                                 Text="{Binding Raw.Value.CounterCurrent, Mode=OneWay}"
+                                                Visibility="{Binding Raw.Value, Converter={StaticResource FutabaIsolateResCountVisibilityConverter}, Mode=OneWay}"                                        
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Bottom"/>
                                         </Grid>
@@ -425,10 +473,12 @@
                                     <Button.Background>
                                         <SolidColorBrush>
                                             <SolidColorBrush.Color>
-                                                <MultiBinding  Converter="{StaticResource FutabaCatalogItemOpenedColorConverter}">
+                                                <MultiBinding  Converter="{StaticResource FutabaCatalogItemBackgroundConverter}">
                                                     <Binding Mode="OneWay" />
+                                                    <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
                                                     <Binding Path="Contents.Futaba.Value.OpenedThreads.Value" Mode="OneWay" ElementName="_this" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
+                                                    <Binding Path="DataContext" ElementName="CatalogBackgroundSerachHitColorGetter" Mode="OneWay" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemOpendBackgroundColorGetter" Mode="OneWay" />
                                                 </MultiBinding>
                                             </SolidColorBrush.Color>
@@ -506,6 +556,45 @@
                                                     </TextBlock>
                                                 </Grid>
                                             </Viewbox>
+                                            <!-- 隔離 -->
+                                            <Viewbox
+                                                Margin="2"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                Width="{DynamicResource CatalogBadgeSize}"
+                                                Height="{DynamicResource CatalogBadgeSize}"
+                                                >
+                                                <Viewbox.Visibility>
+                                                    <MultiBinding Converter="{StaticResource FutabaIsolateResVisibilityConverter}">
+                                                        <Binding Path="Raw.Value" Mode="OneWay" />
+                                                        <Binding Path="Parent.Value.UpdateToken.Value" Mode="OneWay" />
+                                                    </MultiBinding>
+                                                </Viewbox.Visibility>
+                                                <Grid
+                                                    Width="16"
+                                                    Height="16"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Top"
+                                                    >
+                                                    <Ellipse Width="16" Height="16">
+                                                        <Ellipse.Fill>
+                                                            <SolidColorBrush Color="{DynamicResource CatalogBadgeIsolateBackgroundColor}" />
+                                                        </Ellipse.Fill>
+                                                    </Ellipse>
+                                                    <TextBlock
+                                                        Text="隔"
+                                                        FontFamily="{DynamicResource CatalogBadgeFont}"
+                                                        FontSize="10"
+                                                        FontWeight="Bold"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        Padding="0 0 0 1">
+                                                        <TextBlock.Foreground>
+                                                            <SolidColorBrush Color="{DynamicResource CatalogBadgeIsolateForegroundColor}" />
+                                                        </TextBlock.Foreground>
+                                                    </TextBlock>
+                                                </Grid>
+                                            </Viewbox>
                                         </Grid>
                                         <local:FutabaCommentBlock
                                             Grid.Column="1"
@@ -524,6 +613,7 @@
                                             Text="{Binding Raw.Value.CounterCurrent, Mode=OneWay, StringFormat='\{0\}レス'}"
                                             TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
                                             TextBlock.FontFamily="{DynamicResource ThreadTextFont}"
+                                            Visibility="{Binding Raw.Value, Converter={StaticResource FutabaIsolateResCountVisibilityConverter}, Mode=OneWay}"                                        
                                             VerticalAlignment="Center"
                                             HorizontalAlignment="Right"
                                             Margin="2"/>
@@ -589,6 +679,10 @@
             x:Name="CatalogItemOpendBackgroundColorGetter"
             Visibility="Collapsed"
             DataContext="{DynamicResource CatalogItemOpendBackgroundColor}" />
+        <FrameworkElement 
+            x:Name="CatalogBackgroundSerachHitColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource CatalogBackgroundSerachHitColor}" />
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -809,8 +903,8 @@
                 <ListBox.ItemsSource>
                     <MultiBinding Converter="{StaticResource FutabaCatalogItemFilterConverter}">
                         <Binding Path="Contents.Futaba.Value.ResItems" Mode="OneWay" ElementName="_this" />
-                        <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
                         <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
+                        <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
                     </MultiBinding>
                 </ListBox.ItemsSource>
                 <ListBox.Background>
@@ -838,8 +932,43 @@
             <!-- 書き込みサブウィンドウ -->
             <local:FutabaPostView
                 Grid.Row="1"
+                Opacity="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}"
                 Contents="{Binding Contents.Futaba.Value, ElementName=_this}"
-                Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=TwoWay}" />
+                Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=TwoWay}">
+                <local:FutabaPostView.MinWidth>
+                    <MultiBinding Converter="{StaticResource PostViewMinWidthConverter}">
+                        <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
+                        <Binding Mode="OneWay" Source="{StaticResource DefaultMinWidth}" />
+                        <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
+                    </MultiBinding>
+                </local:FutabaPostView.MinWidth>
+                <local:FutabaPostView.MaxWidth>
+                    <MultiBinding Converter="{StaticResource PostViewMaxWidthConverter}">
+                        <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
+                        <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
+                    </MultiBinding>
+                </local:FutabaPostView.MaxWidth>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseEnter">
+                        <i:ChangePropertyAction
+                            PropertyName="Opacity"
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
+                            Value="1" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseLeave">
+                        <i:ChangePropertyAction
+                            PropertyName="Opacity"
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
+                            Value="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}" />
+                    </i:EventTrigger>
+                    <i:DataStoreChangedTrigger Binding="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this}">
+                        <i:ChangePropertyAction
+                            PropertyName="Opacity"
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
+                            Value="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}" />
+                    </i:DataStoreChangedTrigger>
+                </i:Interaction.Triggers>
+            </local:FutabaPostView>
         </Grid>
     </Grid>
 </UserControl>

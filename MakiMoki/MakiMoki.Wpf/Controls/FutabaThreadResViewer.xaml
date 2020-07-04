@@ -27,7 +27,6 @@
             <converter:FutabaResItemConverter x:Key="FutabaResItemConverter"/>
             <converter:FutabaCatalogVisibleConverter x:Key="FutabaCatalogVisibleConverter"/>
             <converter:FutabaThreadResVisibleConverter x:Key="FutabaThreadResVisibleConverter"/>
-            <converter:FutabaCatalogItemOpenedColorConverter x:Key="FutabaCatalogItemOpenedColorConverter" />
             <converter:FutabaCatalogItemFilterConverter x:Key="FutabaCatalogItemFilterConverter" />
             <converter:FutabaNewResCountConverter x:Key="FutabaNewResCountConverter"/>
             <converter:FutabaNewResVisibilityConverter x:Key="FutabaNewResVisibilityConverter"/>
@@ -41,6 +40,9 @@
             <converter:FutabaResItemOldColorConverter x:Key="FutabaResItemOldColorConverter" />
             <converter:FutabaResItemResCountColorConverter x:Key="FutabaResItemResCountColorConverter" />
             <converter:FutabaResItemCopyTextBoxEventConverter x:Key="FutabaResItemCopyTextBoxEventConverter" />
+            <converter:PostViewOpacityConverter x:Key="PostViewOpacityConverter" />
+            <converter:PostViewMinWidthConverter x:Key="PostViewMinWidthConverter" />
+            <converter:PostViewMaxWidthConverter x:Key="PostViewMaxWidthConverter" />
 
             <Color x:Key="TextColor">Black</Color>
             <Color x:Key="OldColor">Red</Color>
@@ -914,8 +916,43 @@
             <!-- 書き込みサブウィンドウ -->
             <local:FutabaPostView
                 Grid.Row="1"
+                Opacity="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}"
                 Contents="{Binding Contents.Futaba.Value, ElementName=_this}"
-                Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=TwoWay}" />
+                Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=TwoWay}">
+                <local:FutabaPostView.MinWidth>
+                    <MultiBinding Converter="{StaticResource PostViewMinWidthConverter}">
+                        <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
+                        <Binding Mode="OneWay" Source="{StaticResource DefaultMinWidth}" />
+                        <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
+                    </MultiBinding>
+                </local:FutabaPostView.MinWidth>
+                <local:FutabaPostView.MaxWidth>
+                    <MultiBinding Converter="{StaticResource PostViewMaxWidthConverter}">
+                        <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
+                        <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
+                    </MultiBinding>
+                </local:FutabaPostView.MaxWidth>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseEnter">
+                        <i:ChangePropertyAction
+                            PropertyName="Opacity"
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
+                            Value="1" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseLeave">
+                        <i:ChangePropertyAction
+                            PropertyName="Opacity"
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
+                            Value="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}" />
+                    </i:EventTrigger>
+                    <i:DataStoreChangedTrigger Binding="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this}">
+                        <i:ChangePropertyAction
+                            PropertyName="Opacity"
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
+                            Value="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}" />
+                    </i:DataStoreChangedTrigger>
+                </i:Interaction.Triggers>
+            </local:FutabaPostView>
         </Grid>
     </Grid>
 </UserControl>
