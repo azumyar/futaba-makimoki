@@ -95,6 +95,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<object> UpdateToken { get; } = new ReactiveProperty<object>(DateTime.Now);
 
+		private bool isMenuOpend = false;
 		private bool isMouseLeftButtonDown = false;
 		private bool isMouseLeftClick = false;
 		private Point clickDonwStartPoint = new Point(0, 0);
@@ -132,6 +133,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			this.MenuItemClickImageSearchGoogleCommand.Subscribe(x => OnMenuItemClickImageSearchGoogle(x));
 			this.MenuItemClickImageSearchAscii2dCommand.Subscribe(x => OnMenuItemClickImageSearchAscii2d(x));
 			this.MenuItemClickQuickOpenBrowserCommand.Subscribe(x => OnMenuItemClickQuickOpenBrowser(x));
+
+			this.ImageContextMenuOpened.Subscribe(x => {
+				if(x) {
+					this.isMenuOpend = true;
+				} else {
+					Observable.Return(false)
+						.Delay(TimeSpan.FromMilliseconds(250))
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Select(y => y || this.ImageContextMenuOpened.Value)
+						.Subscribe(y => this.isMenuOpend = y);
+				}
+			});
 
 			onSystemConfigUpdateNotifyer = (_) => UpdateToken.Value = DateTime.Now;
 			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(onSystemConfigUpdateNotifyer);
@@ -251,7 +264,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					= this.mouseDonwStartPoint
 					= e.GetPosition(this.inputElement);
 				this.isMouseLeftButtonDown = true;
-				if(!this.ImageContextMenuOpened.Value) {
+				if(!this.isMenuOpend) {
 					this.isMouseLeftClick = true;
 				}
 			}

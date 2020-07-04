@@ -82,7 +82,7 @@
                 <ContextMenu
                     DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
                     Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}"
-                    IsOpen="{Binding PlacementTarget.DataContext.ImageContextMenuOpened.Value, Mode=TwoWay, RelativeSource={RelativeSource Self}, Delay=500}">
+                    IsOpen="{Binding PlacementTarget.DataContext.ImageContextMenuOpened.Value, Mode=TwoWay, RelativeSource={RelativeSource Self}}">
                     <MenuItem
                         Header="保存"
                         Command="{Binding MenuItemClickSaveCommand, Mode=OneWay}"
