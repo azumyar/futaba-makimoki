@@ -229,8 +229,8 @@
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>検索結果表示形式</TextBlock>
                                 <ComboBox SelectedIndex="{Binding CatalogSearchResult.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
-                                    <ComboBoxItem>ふたば☆ちゃんねる</ComboBoxItem>
-                                    <ComboBoxItem>虹覧</ComboBoxItem>
+                                    <ComboBoxItem>検索該当項目のみ</ComboBoxItem>
+                                    <ComboBoxItem>該当項目の後に続けて表示</ComboBoxItem>
                                 </ComboBox>
                             </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}">
