@@ -1,0 +1,53 @@
+@import url("/css/common.css");
+@import url("/css/common-style.css");
+
+h2 {
+    margin-top: 32px;
+    margin-left: 8px;
+}
+
+h3 {
+    margin-left: var(--base-margin);
+}
+
+ul, p, table {
+    margin: 0;
+    padding: 0;
+    margin-left: var(--base-margin);
+}
+
+p {
+    max-width: 1024px;
+}
+
+ul li {
+    list-style-type: none;
+}
+
+ul li::before {
+    content: "☐";
+    color: var(--primary-color);
+    margin-right: 4px;
+}
+
+ul li.checked::before {
+    content: "☑";
+}
+
+table {
+    border-collapse: collapse;
+}
+
+table th, table td {
+    border: solid 1px var(--foreground-color);
+    padding: 4px;
+}
+
+
+#qa-section p, #qa-section table {
+    margin-bottom: var(--font-size-normal);
+}
+
+#contact-section p {
+    margin-bottom: var(--font-size-normal);
+}

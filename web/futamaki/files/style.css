@@ -1,0 +1,37 @@
+@import url("/css/common.css");
+@import url("/css/common-style.css");
+
+th {
+    text-align: left;
+}
+
+td.indexcolsize {
+    text-align: right;
+}
+
+th.indexcolicon, td.indexcolicon {
+    display: none;
+}
+
+th.indexcolname a,
+    th.indexcollastmod a,
+    th.indexcolsize a
+{
+    display: inline-block;
+    font-size: 0px;
+}
+
+th.indexcolname a:after {
+    content: "ファイル名";
+    font-size: var(--font-size-normal);
+}
+
+th.indexcollastmod a:after {
+    content: "更新日時";
+    font-size: var(--font-size-normal);
+}
+
+th.indexcolsize a:after {
+    content: "サイズ";
+    font-size: var(--font-size-normal);
+}

@@ -1,0 +1,26 @@
+
+:root {
+    /* マテリアルカラーの500をベース */
+    --primary-color: #03A9F4;
+    --secondary-color: #E91E63;
+    --secondary-color-active: #C2185B;
+    --quot-color: #4CAF50;
+
+    --foreground-color: #263238;
+    --background-color: #F5F5F5;
+
+    --font-size-large-x: 24px;
+    --font-size-large: 18px;
+    --font-size-normal: 14px;
+
+    --base-margin: 32px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --secondary-color-active: #FF8A65;
+        
+        --foreground-color: #F5F5F5;
+        --background-color: #212121;
+    }
+}

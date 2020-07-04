@@ -1,1 +1,14 @@
 Options Indexes
+HeaderName /futamaki/files/header.html
+ReadmeName /futamaki/files/footer.html
+IndexStyleSheet /futamaki/files/style.css
+IndexOrderDefault Descending Date
+IndexOptions Charset=UTF-8
+IndexOptions FancyIndexing
+IndexOptions FoldersFirst
+IndexOptions SuppressDescription
+IndexOptions SuppressRules
+IndexOptions HTMLTable
+IndexIgnore .. files
+
+
