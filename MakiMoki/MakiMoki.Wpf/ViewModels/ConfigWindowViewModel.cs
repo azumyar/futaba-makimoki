@@ -142,10 +142,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				}
 				return false;
 			}).ToReactiveProperty();
-			PostViewMaxWidth = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.MinWidthPostView.ToString());
+			PostViewMaxWidth = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.MaxWidthPostView.ToString());
 			PostViewMaxWidthValid = PostViewMaxWidth.Select(x => {
-				if(int.TryParse(x, out var v)) {
-					if((v == 0) || (360 <= v)) {
+				if(int.TryParse(x, out var v) && int.TryParse(PostViewMinWidth.Value, out var min)) {
+					if((v == 0) || ((360 <= v)) && (min <= v)) {
 						return true;
 					}
 				}
