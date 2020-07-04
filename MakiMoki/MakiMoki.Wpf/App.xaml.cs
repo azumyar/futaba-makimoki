@@ -132,11 +132,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			}).ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => {
 					if(x) {
-						MessageBox.Show(
-							"新しいバージョンが公開されています",
+						var r = MessageBox.Show(
+							"新しいバージョンが公開されています。\r\n配布サイトをブラウザで表示しますか？",
 							"バージョンチェック通知",
-							MessageBoxButton.OK,
+							MessageBoxButton.YesNo,
 							MessageBoxImage.Information);
+						if(r == MessageBoxResult.Yes) {
+							WpfUtil.PlatformUtil.StartBrowser(new Uri(PlatformConst.WebPageUrl));
+						}
 					}
 				});
 			
