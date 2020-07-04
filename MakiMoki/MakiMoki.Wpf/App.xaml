@@ -35,6 +35,8 @@
         <FontFamily x:Key="CatalogBadgeFont">Segoe UI</FontFamily>
         <!-- Redの500 -->
         <Color x:Key="CatalogBadgeCountBackgroundColor">#f44336</Color>
+        <!-- LightGreenの100 -->
+        <Color x:Key="CatalogBackgroundSerachHitColor">#C8E6C9</Color>
         <Color x:Key="CatalogBadgeCountForegroundColor">White</Color>
         <Color x:Key="CatalogBadgeOldBackgroundColor">#990000ff</Color>
         <Color x:Key="CatalogBadgeOldForegroundColor">#ffffff</Color>

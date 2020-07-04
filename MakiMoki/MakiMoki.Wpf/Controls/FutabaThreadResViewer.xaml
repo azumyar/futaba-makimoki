@@ -27,7 +27,6 @@
             <converter:FutabaResItemConverter x:Key="FutabaResItemConverter"/>
             <converter:FutabaCatalogVisibleConverter x:Key="FutabaCatalogVisibleConverter"/>
             <converter:FutabaThreadResVisibleConverter x:Key="FutabaThreadResVisibleConverter"/>
-            <converter:FutabaCatalogItemOpenedColorConverter x:Key="FutabaCatalogItemOpenedColorConverter" />
             <converter:FutabaCatalogItemFilterConverter x:Key="FutabaCatalogItemFilterConverter" />
             <converter:FutabaNewResCountConverter x:Key="FutabaNewResCountConverter"/>
             <converter:FutabaNewResVisibilityConverter x:Key="FutabaNewResVisibilityConverter"/>

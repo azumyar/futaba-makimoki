@@ -29,7 +29,7 @@
             <converter:FutabaCatalogVisibleConverter x:Key="FutabaCatalogVisibleConverter"/>
             <converter:FutabaCatalogStyleConverter x:Key="FutabaCatalogStyleConverter"/>
             <converter:FutabaThreadResVisibleConverter x:Key="FutabaThreadResVisibleConverter"/>
-            <converter:FutabaCatalogItemOpenedColorConverter x:Key="FutabaCatalogItemOpenedColorConverter" />
+            <converter:FutabaCatalogItemBackgroundConverter x:Key="FutabaCatalogItemBackgroundConverter" />
             <converter:FutabaCatalogItemFilterConverter x:Key="FutabaCatalogItemFilterConverter" />
             <converter:FutabaNewResCountConverter x:Key="FutabaNewResCountConverter"/>
             <converter:FutabaNewResVisibilityConverter x:Key="FutabaNewResVisibilityConverter"/>
@@ -157,10 +157,12 @@
                                     <Button.Background>
                                         <SolidColorBrush>
                                             <SolidColorBrush.Color>
-                                                <MultiBinding  Converter="{StaticResource FutabaCatalogItemOpenedColorConverter}">
+                                                <MultiBinding  Converter="{StaticResource FutabaCatalogItemBackgroundConverter}">
                                                     <Binding Mode="OneWay" />
+                                                    <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
                                                     <Binding Path="Contents.Futaba.Value.OpenedThreads.Value" Mode="OneWay" ElementName="_this" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
+                                                    <Binding Path="DataContext" ElementName="CatalogBackgroundSerachHitColorGetter" Mode="OneWay" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemOpendBackgroundColorGetter" Mode="OneWay" />
                                                 </MultiBinding>
                                             </SolidColorBrush.Color>
@@ -471,10 +473,12 @@
                                     <Button.Background>
                                         <SolidColorBrush>
                                             <SolidColorBrush.Color>
-                                                <MultiBinding  Converter="{StaticResource FutabaCatalogItemOpenedColorConverter}">
+                                                <MultiBinding  Converter="{StaticResource FutabaCatalogItemBackgroundConverter}">
                                                     <Binding Mode="OneWay" />
+                                                    <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
                                                     <Binding Path="Contents.Futaba.Value.OpenedThreads.Value" Mode="OneWay" ElementName="_this" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
+                                                    <Binding Path="DataContext" ElementName="CatalogBackgroundSerachHitColorGetter" Mode="OneWay" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemOpendBackgroundColorGetter" Mode="OneWay" />
                                                 </MultiBinding>
                                             </SolidColorBrush.Color>
@@ -675,6 +679,10 @@
             x:Name="CatalogItemOpendBackgroundColorGetter"
             Visibility="Collapsed"
             DataContext="{DynamicResource CatalogItemOpendBackgroundColor}" />
+        <FrameworkElement 
+            x:Name="CatalogBackgroundSerachHitColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource CatalogBackgroundSerachHitColor}" />
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -895,8 +903,8 @@
                 <ListBox.ItemsSource>
                     <MultiBinding Converter="{StaticResource FutabaCatalogItemFilterConverter}">
                         <Binding Path="Contents.Futaba.Value.ResItems" Mode="OneWay" ElementName="_this" />
-                        <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
                         <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
+                        <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
                     </MultiBinding>
                 </ListBox.ItemsSource>
                 <ListBox.Background>
