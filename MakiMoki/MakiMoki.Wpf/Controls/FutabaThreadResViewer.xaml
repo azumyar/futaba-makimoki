@@ -41,6 +41,7 @@
             <converter:FutabaResItemOldColorConverter x:Key="FutabaResItemOldColorConverter" />
             <converter:FutabaResItemResCountColorConverter x:Key="FutabaResItemResCountColorConverter" />
             <converter:FutabaResItemCopyTextBoxEventConverter x:Key="FutabaResItemCopyTextBoxEventConverter" />
+            <converter:PostViewOpacityConverter x:Key="PostViewOpacityConverter" />
 
             <Color x:Key="TextColor">Black</Color>
             <Color x:Key="OldColor">Red</Color>
@@ -914,8 +915,30 @@
             <!-- 書き込みサブウィンドウ -->
             <local:FutabaPostView
                 Grid.Row="1"
+                Opacity="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}"
                 Contents="{Binding Contents.Futaba.Value, ElementName=_this}"
-                Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=TwoWay}" />
+                Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=TwoWay}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseEnter">
+                        <i:ChangePropertyAction
+                            PropertyName="Opacity"
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
+                            Value="1" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseLeave">
+                        <i:ChangePropertyAction
+                            PropertyName="Opacity"
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
+                            Value="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}" />
+                    </i:EventTrigger>
+                    <i:DataStoreChangedTrigger Binding="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this}">
+                        <i:ChangePropertyAction
+                            PropertyName="Opacity"
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
+                            Value="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}" />
+                    </i:DataStoreChangedTrigger>
+                </i:Interaction.Triggers>
+            </local:FutabaPostView>
         </Grid>
     </Grid>
 </UserControl>
