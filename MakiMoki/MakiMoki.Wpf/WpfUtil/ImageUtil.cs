@@ -79,13 +79,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				if(Path.GetExtension(path).ToLower() == ".webp") {
 					System.Drawing.Image bitmap = null;
 					try {
+						Stream stream = null;
 						try {
 							var decoder = new Imazen.WebP.SimpleDecoder();
-							using(var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+							var s = CreateStream(path);
+							if(s.Sucessed) {
+								stream = s.Stream;
 								var l = new List<byte>();
-								while(fs.CanRead) {
+								while(s.Stream.CanRead) {
 									var bb = new byte[1024];
-									var c = fs.Read(bb, 0, bb.Length);
+									var c = s.Stream.Read(bb, 0, bb.Length);
 									if(c == 0) {
 										break;
 									}
@@ -100,18 +103,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						catch(ArgumentException e) {
 							throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e);
 						}
+						finally {
+							stream?.Dispose();
+						}
 
 						var bitmapImage = new BitmapImage();
-						using(var stream = new MemoryStream()) {
-							bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-							stream.Position = 0;
+						var ms = new MemoryStream();
+						bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+						ms.Position = 0;
 
-							bitmapImage.BeginInit();
-							bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-							bitmapImage.StreamSource = stream;
-							bitmapImage.EndInit();
-							bitmapImage.Freeze();
-						}
+						bitmapImage.BeginInit();
+						bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+						bitmapImage.StreamSource = ms;
+						bitmapImage.EndInit();
+						bitmapImage.Freeze();
 
 						SetImage(path, bitmapImage);
 						return bitmapImage;
@@ -120,29 +125,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						bitmap?.Dispose();
 					}
 				} else {
-					var sucessed = false;
-					Stream stream = null;
-					Observable.Create<Stream>(async (o) => {
-						try {
-							var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-							o.OnNext(s);
-						}
-						catch(IOException e) {
-							System.Diagnostics.Debug.WriteLine("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-							await Task.Delay(500);
-							o.OnError(e);
-						}
-					}).Retry(5)
-					.Subscribe(
-						s => { stream = s; sucessed = true; },
-						ex => { /* TODO: ダミー画像を用意する */ });
-
+					var s = CreateStream(path);
 					try {
-						if(sucessed) {
+						if(s.Sucessed) {
 							var bitmapImage = new BitmapImage();
 							bitmapImage.BeginInit();
 							bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-							bitmapImage.StreamSource = stream;
+							bitmapImage.StreamSource = s.Stream;
 							bitmapImage.EndInit();
 							bitmapImage.Freeze();
 
@@ -150,7 +139,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 							return bitmapImage;
 						} else {
 							System.Diagnostics.Debug.WriteLine("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-							return null;
+							return null; /* TODO: エラー画像を用意する */
 						}
 					}
 					finally {
@@ -181,16 +170,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						bitmap = decoder.DecodeFromBytes(imageBytes, imageBytes.Length);
 
 						var bitmapImage = new BitmapImage();
-						using(var stream = new MemoryStream()) {
-							bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-							stream.Position = 0;
+						var stream = new MemoryStream();
+						bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+						stream.Position = 0;
 
-							bitmapImage.BeginInit();
-							bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-							bitmapImage.StreamSource = stream;
-							bitmapImage.EndInit();
-							bitmapImage.Freeze();
-						}
+						bitmapImage.BeginInit();
+						bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+						bitmapImage.StreamSource = stream;
+						bitmapImage.EndInit();
+						bitmapImage.Freeze();
 
 						SetImage(path, bitmapImage);
 						return bitmapImage;
@@ -232,6 +220,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 					//System.Windows.Threading.Dispatcher.Run();
 				}
 			}
+		}
+
+		private static (bool Sucessed, FileStream Stream) CreateStream(string path) {
+			var sucessed = false;
+			FileStream stream = null;
+			Observable.Create<FileStream>(async (o) => {
+				try {
+					var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+					o.OnNext(s);
+				}
+				catch(IOException e) {
+					System.Diagnostics.Debug.WriteLine("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+					await Task.Delay(500);
+					o.OnError(e);
+				}
+			}).Retry(5)
+			.Subscribe(
+				s => { stream = s; sucessed = true; },
+				ex => { });
+			return (sucessed, stream);
 		}
 
 #if false

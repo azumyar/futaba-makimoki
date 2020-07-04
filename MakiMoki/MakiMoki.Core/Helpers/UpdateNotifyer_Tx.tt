@@ -1,0 +1,41 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+<#
+	var maxParams = 16;
+#>
+
+namespace Yarukizero.Net.MakiMoki.Helpers {
+<# 
+for(var i=1; i<=maxParams; i++) {
+	var generics = string.Join(", ", Enumerable.Range(1, i).Select(x => $"T{x}"));
+	var args = string.Join(", ", Enumerable.Range(1, i).Select(x => $"T{x} arg{x}"));
+	var @params = string.Join(", ", Enumerable.Range(1, i).Select(x => $"arg{x}"));
+#>
+	public class UpdateNotifyer<<#= generics #>> {
+		private List<WeakReference<Action<<#= generics #>>>> notifyer = new List<WeakReference<Action<<#= generics #>>>>();
+
+		public void AddHandler(Action<<#= generics #>> handler) {
+			this.notifyer.Add(new WeakReference<Action<<#= generics #>>>(handler));
+		}
+
+		public void Notify(<#= args #>) {
+			foreach(var a in notifyer) {
+				if(a.TryGetTarget(out var t)) {
+					t(<#= @params #>);
+				}
+			}
+			notifyer = notifyer.Where(x => x.TryGetTarget(out var _)).ToList();
+		}
+	}
+
+<# } #>
+}

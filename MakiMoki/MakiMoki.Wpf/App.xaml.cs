@@ -21,9 +21,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 	/// App.xaml の相互作用ロジック
 	/// </summary>
 	public partial class App : PrismApplication {
-		[System.Runtime.InteropServices.DllImport("kernel32.dll")]
-		private static extern bool SetDllDirectory(string lpPathName);
-
 		private static readonly string ExeConfig = "windows.exe.json";
 
 		public string AppSettingRootDirectory { get; private set; }
@@ -50,11 +47,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 						System.Text.Encoding.UTF8);
 				}
 			};
-			SetDllDirectory(Path.Combine(
+			WinApi.Win32.SetDllDirectory(Path.Combine(
 				Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
 				"Lib",
 				Environment.Is64BitProcess ? "x64" : "x86"));
 
+			UIDispatcherScheduler.Initialize();
 			LibVLCSharp.Shared.Core.Initialize();
 			this.LibVLC = new LibVLCSharp.Shared.LibVLC();
 
@@ -124,8 +122,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				Environment.Exit(1);
 			}
 			//Util.TaskUtil.Initialize();
-			UIDispatcherScheduler.Initialize();
-			RemoveOldCache(AppCacheDirectory);
 			Observable.Create<bool>(async o => {
 				o.OnNext(await PlatformUtil.CheckNewVersion());
 				return System.Reactive.Disposables.Disposable.Empty;
@@ -142,7 +138,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 						}
 					}
 				});
-			
+			PlatformUtil.RemoveOldCache(AppCacheDirectory);
+
 			return Container.Resolve<Windows.MainWindow>();
 		}
 
@@ -169,36 +166,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					m.MakeGenericMethod(t, vm).Invoke(null, new object[0]);
 				}
 			}
-		}
-
-		private void RemoveOldCache(string cacheDir) {
-			var time = DateTime.Now.AddDays(-WpfConfig.WpfConfigLoader.SystemConfig.CacheExpireDay);
-#if DEBUG
-			var sw = new System.Diagnostics.Stopwatch();
-			sw.Start();
-#endif
-			var f = Directory.EnumerateFiles(cacheDir)
-				.Where(x => {
-					try {
-						return File.GetLastWriteTime(x) < time;
-					}
-					catch(IOException) {
-						return false;
-					}
-				});
-			// TODO: ファイルがたくさんあると無視できないくらい重い、非同期化したほうがいいかも
-			// Parallel.ForEachにしてみた
-			Parallel.ForEach(f, it => {
-				//System.Diagnostics.Debug.WriteLine(it);
-				try {
-					File.Delete(it);
-				}
-				catch(IOException) { /* 削除できないファイルは無視する */}
-			});
-#if DEBUG
-			sw.Stop();
-			Console.WriteLine("初期削除処理{0}ミリ秒", sw.ElapsedMilliseconds);
-#endif
 		}
 	}
 }

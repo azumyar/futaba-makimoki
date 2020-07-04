@@ -26,6 +26,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Helpers\UpdateNotifyer_Tx.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UpdateNotifyer_Tx.tt</DependentUpon>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.13.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="ReactiveProperty" Version="6.1.4" />
@@ -38,6 +46,10 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Exceptions.cs</LastGenOutput>
     </None>
+    <None Update="Helpers\UpdateNotifyer_Tx.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>UpdateNotifyer_Tx.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -49,6 +61,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Exceptions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Helpers\UpdateNotifyer_Tx.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UpdateNotifyer_Tx.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>
