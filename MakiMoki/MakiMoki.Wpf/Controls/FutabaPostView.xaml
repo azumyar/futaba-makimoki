@@ -13,16 +13,20 @@
              mc:Ignorable="d" 
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DesignHeight="450" d:DesignWidth="800"
-             MinWidth="360"
-             MaxWidth="{Binding Parent.ActualWidth, RelativeSource={RelativeSource Self}}"
              HorizontalAlignment="Right"
              VerticalAlignment="Top"
              >
+    <!--
+                 MinWidth="360"
+             MaxWidth="{Binding Parent.ActualWidth, RelativeSource={RelativeSource Self}}"
+    -->
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+ 
+            <sys:Double x:Key="DefaultMinWidth">360</sys:Double>
         </ResourceDictionary>
     </UserControl.Resources>
     <UserControl.InputBindings>
