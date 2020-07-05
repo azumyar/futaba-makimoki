@@ -29,6 +29,34 @@
     {
       "root": "http://www.nijibox5.com/futabafiles/tubu/src/",
       "file": "^su\\d+\\.[a-zA-Z0-9]+"
+    },
+    {
+      "root": "x-makimoki-complete-url://up/",
+      "file": "^f\\d+"
+    },
+    {
+      "root": "x-makimoki-complete-url://up/",
+      "file": "^fu\\d+"
+    },
+    {
+      "root": "x-makimoki-complete-url://shiokara/",
+      "file": "^sa\\d+"
+    },
+    {
+      "root": "x-makimoki-complete-url://shiokara/",
+      "file": "^sp\\d+"
+    },
+    {
+      "root": "x-makimoki-complete-url://shiokara/",
+      "file": "^sq\\d+"
+    },
+    {
+      "root": "x-makimoki-complete-url://shiokara/",
+      "file": "^ss\\d+"
+    },
+    {
+      "root": "x-makimoki-complete-url://shiokara/",
+      "file": "^su\\d+"
     }
   ]
 }

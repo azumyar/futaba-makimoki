@@ -11,10 +11,11 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
+using Yarukizero.Net.MakiMoki.Util;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	class FutabaCommentBlock : TextBlock {
-		//private static Encoding m_Enc = Encoding.GetEncoding("Shift_JIS");
+		private static readonly Helpers.WeakCache<Uri, Uri> uriCache = new Helpers.WeakCache<Uri, Uri>();
 
 		public static readonly DependencyProperty ArticleContentProperty =
 			DependencyProperty.Register(
@@ -179,12 +180,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 								var uri = new Uri(ToUrl(m.Value));
 								var link = new Hyperlink() {
 									TextDecorations = null,
-									Foreground = new SolidColorBrush(GetLinkColor()),
+									Foreground = tb.Foreground,
 									NavigateUri = uri,
+									Tag = item,
 								};
-								link.RequestNavigate += new RequestNavigateEventHandler(OnRequestNavigate);
-								link.MouseEnter += new MouseEventHandler(OnMouseEnterLink);
-								link.MouseLeave += new MouseEventHandler(OnMouseLeaveLink);
+								link.Loaded += OnLinkLoaded;
 								link.Inlines.Add(m.Value);
 								if(0 < outputVal.Length) {
 									EvalEmoji(outputVal.ToString(), null);
@@ -276,6 +276,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			if(ul != null) {
 				return ul.Root + s;
 			}
+
 			return s;
 		}
 
@@ -311,7 +312,46 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				}
 			}
 		}
-		
+
+		private static void OnLinkLoaded(object sender, RoutedEventArgs e) {
+			void setLink(Hyperlink targetLink, Uri targetUri = null) {
+				targetLink.NavigateUri = targetUri ?? targetLink.NavigateUri;
+				targetLink.Foreground = new SolidColorBrush(GetLinkColor());
+				targetLink.RequestNavigate += OnRequestNavigate;
+				targetLink.MouseEnter += OnMouseEnterLink;
+				targetLink.MouseLeave += OnMouseLeaveLink;
+			}
+
+			if((e.Source is Hyperlink link) && (link.Tag is Model.BindableFutabaResItem ri)) {
+				if(link.NavigateUri.Scheme == SharadConst.MkiMokiSchemeCompleteUrl) {
+					if(uriCache.TryGetTarget(link.NavigateUri, out var uri1)) {
+						setLink(link, uri1);
+					} else {
+						IObservable<(bool Successed, string UrlOrMessage)> o = null;
+						if(link.NavigateUri.Authority == SharadConst.MkiMokiCompleteUrlAuthorityUp) {
+							o = Futaba.GetCompleteUrlUp(ri.Parent.Value.Url, link.NavigateUri.AbsolutePath.Substring(1));
+						} else if(link.NavigateUri.Authority == SharadConst.MkiMokiCompleteUrlAuthorityShiokara) {
+							o = Futaba.GetCompleteUrlShiokara(ri.Parent.Value.Url, link.NavigateUri.AbsolutePath.Substring(1));
+						} else {
+							Futaba.PutInformation(new Data.Information($"不明なURL{ link.NavigateUri.ToString() }"));
+						}
+						o?.Subscribe(x => {
+							if(x.Successed) {
+								System.Diagnostics.Debug.WriteLine($"{ link.NavigateUri } => { x.UrlOrMessage }");
+								var newUri = new Uri(x.UrlOrMessage);
+								uriCache.Add(link.NavigateUri, newUri);
+								setLink(link, newUri);
+							} else {
+								Futaba.PutInformation(new Data.Information($"アップロードファイル補完エラー:{ x.UrlOrMessage }"));
+							}
+						});
+					}
+				} else {
+					setLink(link);
+				}
+			}
+		}
+
 		private static void OnMouseEnterLink(object sender, MouseEventArgs e) {
 			var link = sender as Hyperlink;
 			if(link == null)

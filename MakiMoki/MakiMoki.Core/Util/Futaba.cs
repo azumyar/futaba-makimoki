@@ -12,6 +12,7 @@ using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using System.IO;
 using Yarukizero.Net.MakiMoki.Data;
+using Newtonsoft.Json;
 
 namespace Yarukizero.Net.MakiMoki.Util {
 	public static class Futaba {
@@ -738,6 +739,62 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
+		public static IObservable<(bool Successed, string UrlOrMessage)> GetCompleteUrlUp(UrlContext threadUrl, string fileNameWitfOutExtension) {
+			return Observable.Create<(bool Successed, string Message)>(async o => {
+				var r = await FutabaApi.GetCompleteUrlUp(GetFutabaThreadUrl(threadUrl), fileNameWitfOutExtension);
+				if(!string.IsNullOrEmpty(r)) {
+					try {
+						var response = JsonConvert.DeserializeObject<Data.AppsweetsThumbnailCompleteResponse>(r);
+						if(!string.IsNullOrEmpty(response.Name)) {
+							var url = Config.ConfigLoader.Uploder.Uploders
+								.Where(x => Regex.IsMatch(response.Name, x.File))
+								.Select(x => x.Root + response.Name)
+								.FirstOrDefault();
+							if(url != null) {
+								o.OnNext((true, url));
+								goto end;
+							}
+						}
+					}
+					catch(JsonSerializationException) {
+						try {
+							var response = JsonConvert.DeserializeObject<Data.AppsweetsThumbnailErrorResponse>(r);
+							o.OnNext((false, response.Error));
+							goto end;
+						}
+						catch(JsonSerializationException) { /* 何もしない */ }
+					}
+					catch(JsonReaderException e) { /* 何もしない */ }
+				}
+				o.OnNext((false, "不明なエラー"));
+			end:
+				return System.Reactive.Disposables.Disposable.Empty;
+			});
+		}
+
+		public static IObservable<(bool Successed, string UrlOrMessage)> GetCompleteUrlShiokara(UrlContext threadUrl, string fileNameWitfOutExtension) {
+			return Observable.Create<(bool Successed, string Message)>(async o => {
+				var r = await FutabaApi.GetCompleteUrlShiokara(GetFutabaThreadUrl(threadUrl), fileNameWitfOutExtension);
+				if(!string.IsNullOrEmpty(r)) {
+					try {
+						var response = JsonConvert.DeserializeObject<Data.ShiokaraCompleteResponse>(r);
+						if(!string.IsNullOrEmpty(response.Url)) {
+							o.OnNext((true, response.Url));
+							goto end;
+						} else if(!string.IsNullOrEmpty(response.Error)) {
+							o.OnNext((false, response.Error));
+							goto end;
+						}
+					}
+					catch(JsonSerializationException) { /* 何もしない */ }
+					catch(JsonReaderException) { /* 何もしない */ }
+				}
+				o.OnNext((false, "不明なエラー"));
+			end:
+				return System.Reactive.Disposables.Disposable.Empty;
+			});
+		}
+			
 		public static void PutInformation(Data.Information information) {
 			Observable.Create<Data.Information>(o => {
 				Informations.AddOnScheduler(information);
