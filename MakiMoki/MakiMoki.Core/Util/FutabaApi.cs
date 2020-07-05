@@ -599,22 +599,47 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
-		public static async Task<string> GetCompleteUrlUp(string threadUrl, string fileNameWitfOutExtension) {
+		public static async Task<(bool Successed, Data.AppsweetsThumbnailCompleteResponse CompleteResponse, Data.AppsweetsThumbnailErrorResponse ErrorResponse, string Raw)> GetCompleteUrlUp(string threadUrl, string fileNameWitfOutExtension) {
 			System.Diagnostics.Debug.Assert(fileNameWitfOutExtension != null);
 			return await Task.Run(() => {
-				return GetCompleteUrl(threadUrl, fileNameWitfOutExtension, FutabaUpCompletMap);
+				var r = GetCompleteUrl(threadUrl, fileNameWitfOutExtension, FutabaUpCompletMap);
+				if(!string.IsNullOrEmpty(r)) {
+					try {
+						var response = JsonConvert.DeserializeObject<Data.AppsweetsThumbnailCompleteResponse>(r);
+						return (false, response, null, r);
+					}
+					catch(JsonSerializationException) {
+						try {
+							var response = JsonConvert.DeserializeObject<Data.AppsweetsThumbnailErrorResponse>(r);
+							return (false, null, response, r);
+						}
+						catch(JsonSerializationException) { /* 何もしない */ }
+					}
+					catch(JsonReaderException e) { /* 何もしない */ }
+				}
+				return (false, default(Data.AppsweetsThumbnailCompleteResponse), default(Data.AppsweetsThumbnailErrorResponse), r);
 			});
 		}
 
-		public static async Task<string> GetCompleteUrlShiokara(string threadUrl, string fileNameWitfOutExtension) {
+		public static async Task<(bool Successed, Data.ShiokaraCompleteResponse Response, string Raw)> GetCompleteUrlShiokara(string threadUrl, string fileNameWitfOutExtension) {
 			System.Diagnostics.Debug.Assert(fileNameWitfOutExtension != null);
 			return await Task.Run(() => {
 				var r = GetCompleteUrl(threadUrl, fileNameWitfOutExtension, ShiokaraCompletMap);
 				if(!string.IsNullOrEmpty(r)) {
 					// 塩はJSONNP形式なので前後の余分なものを除去する
-					return r.Substring(2, r.Length - 4);
+					try {
+						var response = JsonConvert.DeserializeObject<Data.ShiokaraCompleteResponse>(r.Substring(2, r.Length - 4));
+						if(!string.IsNullOrEmpty(response.Url)) {
+							return (true, response, r);
+						} else {
+							return (false, response, r);
+						}
+					}
+					catch(JsonSerializationException) { /* 何もしない */ }
+					catch(JsonReaderException) { /* 何もしない */ }
+
 				}
-				return r;
+				return (false, null, r);
 			});
 		}
 

@@ -11,8 +11,6 @@ using System.Text.RegularExpressions;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using System.IO;
-using Yarukizero.Net.MakiMoki.Data;
-using Newtonsoft.Json;
 
 namespace Yarukizero.Net.MakiMoki.Util {
 	public static class Futaba {
@@ -29,7 +27,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					Config.ConfigLoader.SavedFutaba.Catalogs.Select(x => {
 						var b = Config.ConfigLoader.Bord.Bords.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
 						if(b != null) {
-							return FutabaContext.FromCatalog_(b, x.Catalog, x.CatalogSortRes, x.CatalogResCounter);
+							return Data.FutabaContext.FromCatalog_(b, x.Catalog, x.CatalogSortRes, x.CatalogResCounter);
 						} else {
 							return null;
 						}
@@ -38,7 +36,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					Config.ConfigLoader.SavedFutaba.Threads.Select(x => {
 						var b = Config.ConfigLoader.Bord.Bords.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
 						if(b != null) {
-							return FutabaContext.FromThread_(b, x.Url, x.Thread);
+							return Data.FutabaContext.FromThread_(b, x.Url, x.Thread);
 						} else {
 							return null;
 						}
@@ -121,7 +119,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							}
 							dic.Add(c.No, c.Count);
 						}
-						sortList.AddRange(resList.Select(x => new NumberedResItem(x.No, x.Res, true)));
+						sortList.AddRange(resList.Select(x => new Data.NumberedResItem(x.No, x.Res, true)));
 						lock(lockObj) {
 							for(var i = 0; i < Catalog.Value.Length; i++) {
 								if(Catalog.Value[i].Bord.Url == bord.Url) {
@@ -739,32 +737,24 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string UrlOrMessage)> GetCompleteUrlUp(UrlContext threadUrl, string fileNameWitfOutExtension) {
+		public static IObservable<(bool Successed, string UrlOrMessage)> GetCompleteUrlUp(Data.UrlContext threadUrl, string fileNameWitfOutExtension) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
 				var r = await FutabaApi.GetCompleteUrlUp(GetFutabaThreadUrl(threadUrl), fileNameWitfOutExtension);
-				if(!string.IsNullOrEmpty(r)) {
-					try {
-						var response = JsonConvert.DeserializeObject<Data.AppsweetsThumbnailCompleteResponse>(r);
-						if(!string.IsNullOrEmpty(response.Name)) {
-							var url = Config.ConfigLoader.Uploder.Uploders
-								.Where(x => Regex.IsMatch(response.Name, x.File))
-								.Select(x => x.Root + response.Name)
-								.FirstOrDefault();
-							if(url != null) {
-								o.OnNext((true, url));
-								goto end;
-							}
-						}
-					}
-					catch(JsonSerializationException) {
-						try {
-							var response = JsonConvert.DeserializeObject<Data.AppsweetsThumbnailErrorResponse>(r);
-							o.OnNext((false, response.Error));
+				if(r.Successed) {
+					System.Diagnostics.Debug.Assert(r.CompleteResponse != null);
+					if(!string.IsNullOrEmpty(r.CompleteResponse.Name)) {
+						var url = Config.ConfigLoader.Uploder.Uploders
+							.Where(x => Regex.IsMatch(r.CompleteResponse.Name, x.File))
+							.Select(x => x.Root + r.CompleteResponse.Name)
+							.FirstOrDefault();
+						if(url != null) {
+							o.OnNext((true, url));
 							goto end;
 						}
-						catch(JsonSerializationException) { /* 何もしない */ }
 					}
-					catch(JsonReaderException e) { /* 何もしない */ }
+				} else if(r.ErrorResponse != null) {
+					o.OnNext((false, r.ErrorResponse.Error));
+					goto end;
 				}
 				o.OnNext((false, "不明なエラー"));
 			end:
@@ -772,25 +762,17 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string UrlOrMessage)> GetCompleteUrlShiokara(UrlContext threadUrl, string fileNameWitfOutExtension) {
+		public static IObservable<(bool Successed, string UrlOrMessage)> GetCompleteUrlShiokara(Data.UrlContext threadUrl, string fileNameWitfOutExtension) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
 				var r = await FutabaApi.GetCompleteUrlShiokara(GetFutabaThreadUrl(threadUrl), fileNameWitfOutExtension);
-				if(!string.IsNullOrEmpty(r)) {
-					try {
-						var response = JsonConvert.DeserializeObject<Data.ShiokaraCompleteResponse>(r);
-						if(!string.IsNullOrEmpty(response.Url)) {
-							o.OnNext((true, response.Url));
-							goto end;
-						} else if(!string.IsNullOrEmpty(response.Error)) {
-							o.OnNext((false, response.Error));
-							goto end;
-						}
-					}
-					catch(JsonSerializationException) { /* 何もしない */ }
-					catch(JsonReaderException) { /* 何もしない */ }
+				if(r.Successed) {
+					System.Diagnostics.Debug.Assert(r.Response != null);
+					o.OnNext((true, r.Response.Url));
+				} else if(r.Response != null) {
+					o.OnNext((true, r.Response.Error));
+				} else {
+					o.OnNext((false, "不明なエラー"));
 				}
-				o.OnNext((false, "不明なエラー"));
-			end:
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
@@ -805,7 +787,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static string GetFutabaThreadUrl(UrlContext url) {
+		public static string GetFutabaThreadUrl(Data.UrlContext url) {
 			if(url.IsCatalogUrl) {
 				return $"{ url.BaseUrl }futaba.php?mode=cat";
 			} else {
@@ -813,12 +795,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
-		public static string GetFutabaThreadImageUrl(UrlContext url, Data.ResItem item) {
+		public static string GetFutabaThreadImageUrl(Data.UrlContext url, Data.ResItem item) {
 			var uri = new Uri(url.BaseUrl);
 			return $"{  uri.Scheme }://{ uri.Authority }{ item.Src }";
 		}
 
-		public static string GetFutabaThumbImageUrl(UrlContext url, Data.ResItem item) {
+		public static string GetFutabaThumbImageUrl(Data.UrlContext url, Data.ResItem item) {
 			var uri = new Uri(url.BaseUrl);
 			return $"{  uri.Scheme }://{ uri.Authority }{ item.Thumb }";
 		}
