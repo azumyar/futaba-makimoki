@@ -615,7 +615,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						}
 						catch(JsonSerializationException) { /* 何もしない */ }
 					}
-					catch(JsonReaderException e) { /* 何もしない */ }
+					catch(JsonReaderException) { /* 何もしない */ }
 				}
 				return (false, default(Data.AppsweetsThumbnailCompleteResponse), default(Data.AppsweetsThumbnailErrorResponse), r);
 			});
