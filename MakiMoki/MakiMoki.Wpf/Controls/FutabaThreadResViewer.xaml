@@ -64,6 +64,18 @@
                 VerticalOffset="4" HorizontalOffset="0">
                 <MenuItem Header="URLをコピー" Click="OnThreadResHamburgerItemUrlClickCommand" />
             </ContextMenu>
+
+            <Storyboard x:Key="QuotHitStoryboard">
+                <ColorAnimationUsingKeyFrames
+                    Storyboard.TargetProperty="(Grid.Background).(SolidColorBrush.Color)"
+                    FillBehavior="Stop"
+                    RepeatBehavior="3x">
+
+                    <DiscreteColorKeyFrame KeyTime="0:0:0.5" Value="{DynamicResource ThreadBackgroundQuotHitColor}" />
+                    <DiscreteColorKeyFrame KeyTime="0:0:1.0" Value="{DynamicResource ThreadBackgroundQuotHitColor}" />
+
+                </ColorAnimationUsingKeyFrames>
+            </Storyboard>
         </ResourceDictionary>
     </UserControl.Resources>
     <i:Interaction.Triggers>
@@ -541,6 +553,9 @@
                                         </i:EventTrigger>
                                         <i:EventTrigger EventName="LinkClick">
                                             <ri:EventToReactiveCommand Command="{Binding DataContext.LinkClickCommand, ElementName=_this}" />
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="QuotClick">
+                                            <ri:EventToReactiveCommand Command="{Binding DataContext.QuotClickCommand, ElementName=_this}" />
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </local:FutabaResBlock>

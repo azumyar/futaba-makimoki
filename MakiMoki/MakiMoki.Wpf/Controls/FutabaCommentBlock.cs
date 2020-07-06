@@ -35,6 +35,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				RoutingStrategy.Tunnel,
 				typeof(PlatformData.HyperLinkEventHandler),
 				typeof(FutabaCommentBlock));
+		public static RoutedEvent QuotClickEvent
+			= EventManager.RegisterRoutedEvent(
+				nameof(QuotClick),
+				RoutingStrategy.Tunnel,
+				typeof(PlatformData.QuotClickEventHandler),
+				typeof(FutabaCommentBlock));
 
 		public int MaxLines {
 			get => (int)this.GetValue(MaxLinesProperty);
@@ -46,6 +52,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		public event PlatformData.HyperLinkEventHandler LinkClick {
 			add { AddHandler(LinkClickEvent, value); }
 			remove { RemoveHandler(LinkClickEvent, value); }
+		}
+
+		public event PlatformData.QuotClickEventHandler QuotClick {
+			add { AddHandler(QuotClickEvent, value); }
+			remove { RemoveHandler(QuotClickEvent, value); }
 		}
 
 		public static Model.BindableFutabaResItem GetInline(TextBlock element) {
@@ -120,8 +131,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 							Tag = quotRes,
 						};
 						if(quotRes != null) {
-							run1.MouseEnter += OnMouseEnterQuot;
-							run2.MouseEnter += OnMouseEnterQuot;
+							run1.Loaded += OnLoadedQuot;
+							run2.Loaded += OnLoadedQuot;
 						}
 
 						tb.Inlines.Add(run1);
@@ -134,7 +145,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						Tag = quotRes,
 					};
 					if(quotRes != null) {
-						run3.MouseEnter += OnMouseEnterQuot;
+						run3.Loaded += OnLoadedQuot;
 					}
 					tb.Inlines.Add(run3);
 				}
@@ -184,7 +195,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 									NavigateUri = uri,
 									Tag = item,
 								};
-								link.Loaded += OnLinkLoaded;
+								link.Loaded += OnLoadedLink;
 								link.Inlines.Add(m.Value);
 								if(0 < outputVal.Length) {
 									EvalEmoji(outputVal.ToString(), null);
@@ -280,23 +291,47 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			return s;
 		}
 
+		private static UIElement GetUIElement(Inline span) {
+			FrameworkContentElement cl = span;
+			UIElement el = null;
+			while(el == null && cl != null && cl.Parent != null) {
+				if(cl.Parent is UIElement u) {
+					el = u;
+					break;
+				}
+				cl = cl.Parent as FrameworkContentElement;
+			}
+			return el;
+		}
+
 		private static void OnRequestNavigate(object sender, RequestNavigateEventArgs e) {
 			try {
 				if(e.Source is Hyperlink hl) {
-					FrameworkContentElement cl = hl;
-					UIElement el = null;
-					while(el == null && cl != null && cl.Parent != null) {
-						if(cl.Parent is UIElement u) {
-							el = u;
-							break;
-						}
-						cl = cl.Parent as FrameworkContentElement;
-					}
-					el?.RaiseEvent(new PlatformData.HyperLinkEventArgs(LinkClickEvent, e.Source, hl.NavigateUri));
+					GetUIElement(hl)?.RaiseEvent(
+						new PlatformData.HyperLinkEventArgs(
+							LinkClickEvent, e.Source, hl.NavigateUri));
 				}
 			}
 			catch {
 				// 特に何もしない
+			}
+		}
+
+		private static void OnLoadedQuot(object sender, RoutedEventArgs e) {
+			if((e.Source is Run run) && (run.Tag is Model.BindableFutabaResItem ri)) {
+				run.MouseLeftButtonUp += OnMouseLeftButtonUpQuot;
+				run.MouseEnter += OnMouseEnterQuot;
+				run.MouseLeave += OnMouseLeaveQuot;
+			}
+		}
+		
+		private static void OnMouseLeftButtonUpQuot(object sender, MouseButtonEventArgs e) {
+			if((e.Source is Run run) && (run.Tag is Model.BindableFutabaResItem ri)) {
+				if(e.ClickCount == 1) {
+					GetUIElement(run)?.RaiseEvent(
+						new PlatformData.QuotClickEventArgs(
+							QuotClickEvent, e.Source, ri));
+				}
 			}
 		}
 
@@ -310,10 +345,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						}
 					};
 				}
+
+				run.TextDecorations = System.Windows.TextDecorations.Underline;
 			}
 		}
 
-		private static void OnLinkLoaded(object sender, RoutedEventArgs e) {
+		private static void OnMouseLeaveQuot(object sender, MouseEventArgs e) {
+			if(e.Source is Run run) {
+				run.TextDecorations = null;
+			}
+		}
+		
+		private static void OnLoadedLink(object sender, RoutedEventArgs e) {
 			void setLink(Hyperlink targetLink, Uri targetUri = null) {
 				targetLink.NavigateUri = targetUri ?? targetLink.NavigateUri;
 				targetLink.Foreground = new SolidColorBrush(GetLinkColor());
@@ -357,6 +400,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			if(link == null)
 				return;
 
+			link.TextDecorations = System.Windows.TextDecorations.Underline;
 			link.Foreground = new SolidColorBrush(GetLinkActiveColor());
 		}
 
@@ -366,6 +410,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			if(link == null || parent == null)
 				return;
 
+			link.TextDecorations = null;
 			link.Foreground = new SolidColorBrush(GetLinkColor());
 		}
 

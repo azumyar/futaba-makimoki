@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -18,7 +17,6 @@ using Prism.Events;
 using Prism.Mvvm;
 using Reactive.Bindings;
 using Yarukizero.Net.MakiMoki.Data;
-using Yarukizero.Net.MakiMoki.Wpf.Controls;
 using Yarukizero.Net.MakiMoki.Wpf.Model;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
@@ -33,7 +31,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				this.Media = media;
 			}
 		}
+		internal class ScrollResMessage {
+			public Model.BindableFutabaResItem Res { get; }
 
+			public ScrollResMessage(Model.BindableFutabaResItem res) {
+				this.Res = res;
+			}
+		}
 
 		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; } 
 			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>>();
@@ -44,6 +48,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<RoutedEventArgs> ImageClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<PlatformData.HyperLinkEventArgs> LinkClickCommand { get; } = new ReactiveCommand<PlatformData.HyperLinkEventArgs>();
+		public ReactiveCommand<PlatformData.QuotClickEventArgs> QuotClickCommand { get; } = new ReactiveCommand<PlatformData.QuotClickEventArgs>();
 
 		public ReactiveCommand<MouseButtonEventArgs> ThreadImageMouseDownCommand { get; }
 			= new ReactiveCommand<MouseButtonEventArgs>();
@@ -99,6 +104,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			PostClickCommand.Subscribe(x => OnPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
 			ImageClickCommand.Subscribe(x => OnImageClick(x));
 			LinkClickCommand.Subscribe(x => OnLinkClick(x));
+			QuotClickCommand.Subscribe(x => OnQuotClick(x));
 			WheelUpdateCommand.Subscribe(x => OnWheelUpdate(x));
 
 			ThreadResHamburgerItemUrlClickCommand.Subscribe(x => OnThreadResHamburgerItemUrlClick(x));
@@ -180,6 +186,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			WpfUtil.PlatformUtil.StartBrowser(e.NavigateUri);
 		end:;
 			System.Diagnostics.Debug.WriteLine(e);
+		}
+
+		private void OnQuotClick(PlatformData.QuotClickEventArgs e) {
+			Messenger.Instance.GetEvent<PubSubEvent<ScrollResMessage>>()
+				.Publish(new ScrollResMessage(e.TargetRes));
 		}
 
 		private void OnWheelUpdate(Model.BindableFutaba f) {
