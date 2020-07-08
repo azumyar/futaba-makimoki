@@ -9,6 +9,7 @@
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
              xmlns:util="clr-namespace:Yarukizero.Net.MakiMoki.Util;assembly=MakiMoki.Core"
              xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
+             xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
@@ -16,6 +17,7 @@
         <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
         <converter:FutabaResItemNowConverter x:Key="FutabaResItemNowConverter"/>
         <converter:FutabaResItemIdTextConverter x:Key="FutabaResItemIdTextConverter" />
+        <converter:FutabaResItemHeaderTextConverter x:Key="FutabaResItemHeaderTextConverter" />
 
         <Style x:Key="ResIndexStyle" TargetType="TextBlock">
         </Style>
@@ -63,39 +65,39 @@
                     </TextBlock.Style>
                     <Run Text="{Binding Index.Value, StringFormat='\{0\} ', Mode=OneWay}" />
                 </TextBlock>
-                <TextBlock Visibility="{Binding NameVisibility.Value, Mode=OneWay}">
+                <TextBlock
+                    Visibility="{Binding NameVisibility.Value, Mode=OneWay}"
+                    Text="{Binding Raw.Value.ResItem.Res.Sub, StringFormat='\{0\} ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}"
+                    FontWeight="Bold" >
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderSubjectColor}" />
                     </TextBlock.Foreground>
-                    <Run Text="{Binding Raw.Value.ResItem.Res.Sub, StringFormat='\{0\}', Mode=OneWay}" FontWeight="Bold" />
-                    <Run Text=" " />
                 </TextBlock>
-                <TextBlock Visibility="{Binding NameVisibility.Value, Mode=OneWay}">
+                <TextBlock
+                    Visibility="{Binding NameVisibility.Value, Mode=OneWay}"
+                    Text="{Binding Raw.Value.ResItem.Res.Name, StringFormat='\{0\} ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}"
+                    FontWeight="Bold">
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderNameColor}" />
                     </TextBlock.Foreground>
-                    <Run Text="{Binding Raw.Value.ResItem.Res.Name, StringFormat='\{0\}', Mode=OneWay}" FontWeight="Bold" />
-                    <Run Text=" " />
                 </TextBlock>
-                <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Email, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                <emoji:TextBlock
+                    Visibility="{Binding Raw.Value.ResItem.Res.Email, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}"
+                    Text="{Binding Raw.Value.ResItem.Res.Email,  StringFormat='[\{0\}] ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}">
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderMailColor}" />
                     </TextBlock.Foreground>
-                    <!-- メールは文字の太さを変えないのでRunはひとつでいい -->
-                    <Run Text="{Binding Raw.Value.ResItem.Res.Email,  StringFormat='[\{0\}] ', Mode=OneWay}" />
-                </TextBlock>
+                </emoji:TextBlock>
                 <TextBlock>
                     <Run Text="{Binding Raw.Value.ResItem.Res.Now, StringFormat='\{0\} ', Converter={StaticResource FutabaResItemNowConverter}, Mode=OneWay}" />
                 </TextBlock>
                 <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Id, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
-                    <Run Text="{Binding Converter={StaticResource FutabaResItemIdTextConverter}, Mode=OneWay}" />
-                    <Run Text=" " />
+                    <Run Text="{Binding Converter={StaticResource FutabaResItemIdTextConverter},  StringFormat='\{0\} ', Mode=OneWay}" />
                 </TextBlock>
                 <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderSoudaneColor}" />
                     </TextBlock.Foreground>
-                    <!-- そうだねは文字の太さを変えないのでRunはひとつでいい -->
                     <Run Text="{Binding Raw.Value.Soudane, Mode=OneWay, StringFormat='そうだね×\{0\} '}" />
                 </TextBlock>
                 <TextBlock>

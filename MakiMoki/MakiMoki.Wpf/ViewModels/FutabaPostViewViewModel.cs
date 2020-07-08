@@ -227,9 +227,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 				if(x.Url.IsCatalogUrl) {
 					Util.Futaba.PostThread(x.Raw.Bord,
-						x.PostData.Value.Name.Value,
-						x.PostData.Value.Mail.Value,
-						x.PostData.Value.Subject.Value,
+						x.PostData.Value.NameEncoded.Value,
+						x.PostData.Value.MailEncoded.Value,
+						x.PostData.Value.SubjectEncoded.Value,
 						x.PostData.Value.CommentEncoded.Value,
 						x.PostData.Value.ImagePath.Value,
 						x.PostData.Value.Password.Value)
@@ -258,9 +258,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				} else {
 					var resCount = x.ResCount.Value;
 					Util.Futaba.PostRes(x.Raw.Bord, x.Url.ThreadNo,
-						x.PostData.Value.Name.Value,
-						x.PostData.Value.Mail.Value,
-						x.PostData.Value.Subject.Value,
+						x.PostData.Value.NameEncoded.Value,
+						x.PostData.Value.MailEncoded.Value,
+						x.PostData.Value.SubjectEncoded.Value,
 						x.PostData.Value.CommentEncoded.Value,
 						x.PostData.Value.ImagePath.Value,
 						x.PostData.Value.Password.Value)

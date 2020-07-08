@@ -80,6 +80,7 @@
     <Compile Include="Controls\PlaceHolderBehavior.cs" />
     <Compile Include="Converters\FutabaMediaViewerConverter.cs" />
     <Compile Include="Converters\FutabaPostViewConverter.cs" />
+    <Compile Include="Converters\FutabaResBlockConverter.cs" />
     <Compile Include="Converters\MainWindowConverter.cs" />
     <Compile Include="Converters\FutabaNewResVisibilityConverter.cs" />
     <Compile Include="Converters\FutabaNewResCountConverter.cs" />
