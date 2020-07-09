@@ -196,7 +196,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 									Tag = item,
 								};
 								link.Loaded += OnLoadedLink;
-								link.Inlines.Add(m.Value);
+								link.Inlines.Add(System.Net.WebUtility.HtmlDecode(m.Value));
 								if(0 < outputVal.Length) {
 									EvalEmoji(outputVal.ToString(), null);
 								}
@@ -288,7 +288,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				return ul.Root + s;
 			}
 
-			return s;
+			return System.Net.WebUtility.HtmlDecode(s);
 		}
 
 		private static UIElement GetUIElement(Inline span) {
