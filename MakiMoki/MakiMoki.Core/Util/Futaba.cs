@@ -737,8 +737,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string UrlOrMessage)> GetCompleteUrlUp(Data.UrlContext threadUrl, string fileNameWitfOutExtension) {
-			return Observable.Create<(bool Successed, string Message)>(async o => {
+		public static IObservable<(bool Successed, string UrlOrMessage, object Raw)> GetCompleteUrlUp(Data.UrlContext threadUrl, string fileNameWitfOutExtension) {
+			return Observable.Create<(bool Successed, string Message, object Raw)>(async o => {
 				var r = await FutabaApi.GetCompleteUrlUp(GetFutabaThreadUrl(threadUrl), fileNameWitfOutExtension);
 				if(r.Successed) {
 					System.Diagnostics.Debug.Assert(r.CompleteResponse != null);
@@ -748,30 +748,30 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							.Select(x => x.Root + r.CompleteResponse.Name)
 							.FirstOrDefault();
 						if(url != null) {
-							o.OnNext((true, url));
+							o.OnNext((true, url, r.CompleteResponse));
 							goto end;
 						}
 					}
 				} else if(r.ErrorResponse != null) {
-					o.OnNext((false, r.ErrorResponse.Error));
+					o.OnNext((false, r.ErrorResponse.Error, r.ErrorResponse));
 					goto end;
 				}
-				o.OnNext((false, "不明なエラー"));
+				o.OnNext((false, "不明なエラー", null));
 			end:
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
 
-		public static IObservable<(bool Successed, string UrlOrMessage)> GetCompleteUrlShiokara(Data.UrlContext threadUrl, string fileNameWitfOutExtension) {
-			return Observable.Create<(bool Successed, string Message)>(async o => {
+		public static IObservable<(bool Successed, string UrlOrMessage, object Raw)> GetCompleteUrlShiokara(Data.UrlContext threadUrl, string fileNameWitfOutExtension) {
+			return Observable.Create<(bool Successed, string Message, object Raw)>(async o => {
 				var r = await FutabaApi.GetCompleteUrlShiokara(GetFutabaThreadUrl(threadUrl), fileNameWitfOutExtension);
 				if(r.Successed) {
 					System.Diagnostics.Debug.Assert(r.Response != null);
-					o.OnNext((true, r.Response.Url));
+					o.OnNext((true, r.Response.Url, r.Response));
 				} else if(r.Response != null) {
-					o.OnNext((true, r.Response.Error));
+					o.OnNext((true, r.Response.Error, r.Response));
 				} else {
-					o.OnNext((false, "不明なエラー"));
+					o.OnNext((false, "不明なエラー", null));
 				}
 				return System.Reactive.Disposables.Disposable.Empty;
 			});

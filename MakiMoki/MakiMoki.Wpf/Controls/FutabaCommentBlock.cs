@@ -15,7 +15,7 @@ using Yarukizero.Net.MakiMoki.Util;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	class FutabaCommentBlock : TextBlock {
-		private static readonly Helpers.WeakCache<Uri, Uri> uriCache = new Helpers.WeakCache<Uri, Uri>();
+		private static readonly Helpers.TimerCache<Uri, Uri> uriCache = new Helpers.TimerCache<Uri, Uri>();
 
 		public static readonly DependencyProperty ArticleContentProperty =
 			DependencyProperty.Register(
@@ -102,7 +102,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			//var s3 = System.Net.WebUtility.HtmlDecode(s2);
 			msg = s1;
 			var lines = msg.Replace("\r", "").Split('\n').Take(maxLines).ToArray();
-			var regexOpt = RegexOptions.IgnoreCase | RegexOptions.Singleline;
+			var regexOpt = /* RegexOptions.IgnoreCase | */ RegexOptions.Singleline;
 			var regex = new Regex[] {
 				new Regex(@"^(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)", regexOpt),
 			}.Concat(Config.ConfigLoader.Uploder.Uploders.Select(x => new Regex(x.File, regexOpt))).ToArray();
@@ -368,9 +368,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			if((e.Source is Hyperlink link) && (link.Tag is Model.BindableFutabaResItem ri)) {
 				if(link.NavigateUri.Scheme == SharadConst.MkiMokiSchemeCompleteUrl) {
 					if(uriCache.TryGetTarget(link.NavigateUri, out var uri1)) {
-						setLink(link, uri1);
+						if(uri1.Scheme != SharadConst.MkiMokiSchemeNull) {
+							setLink(link, uri1);
+						}
 					} else {
-						IObservable<(bool Successed, string UrlOrMessage)> o = null;
+						IObservable<(bool Successed, string UrlOrMessage, object Raw)> o = null;
 						if(link.NavigateUri.Authority == SharadConst.MkiMokiCompleteUrlAuthorityUp) {
 							o = Futaba.GetCompleteUrlUp(ri.Parent.Value.Url, link.NavigateUri.AbsolutePath.Substring(1));
 						} else if(link.NavigateUri.Authority == SharadConst.MkiMokiCompleteUrlAuthorityShiokara) {
@@ -385,6 +387,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 								uriCache.Add(link.NavigateUri, newUri);
 								setLink(link, newUri);
 							} else {
+								if(x.Raw != null) {
+									// エラーオブジェクトは返却されているので通信エラーではないと判断する
+									uriCache.Add(link.NavigateUri, new Uri($"{ SharadConst.MkiMokiSchemeNull }://"));
+								}
 								Futaba.PutInformation(new Data.Information($"アップロードファイル補完エラー:{ x.UrlOrMessage }"));
 							}
 						});

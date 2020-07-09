@@ -22,6 +22,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		private static readonly string FutabaUp2Html = "https://dec.2chan.net/up2/up.htm";
 		private static readonly Dictionary<string, string> FutabaUpCompletMap = new Dictionary<string, string>() {
 			{ "f", "https://appsweets.net/thumbnail/up/{0}s.js" },
+			{ "F", "https://appsweets.net/thumbnail/up/{0}s.js" },
 			{ "fu", "https://appsweets.net/thumbnail/up2/{0}s.js" },
 		};
 		private static readonly Dictionary<string, string> ShiokaraCompletMap = new Dictionary<string, string>() {

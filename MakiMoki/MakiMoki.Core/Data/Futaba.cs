@@ -334,78 +334,60 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class AppsweetsThumbnailCompleteResponse : JsonObject {
-		[JsonProperty("content")]
-		public string Content { get; private set; }
+		[JsonProperty("content", Required = Required.Always)]
+		public string Content { get; private set; } // BASE64されたサムネデータが格納される/サムネがない場合は空文字列
 
-		[JsonProperty("width")]
-		public int? Width { get; private set; } // 2020/07/06現在必ず乗っているが今後変更された場合に備えてint?にする
+		[JsonProperty("width", Required = Required.Always)]
+		public int Width { get; private set; }
 
-		[JsonProperty("height")]
-		public int? Height { get; private set; } // 2020/07/06現在必ず乗っているが今後変更された場合に備えてint?にする
+		[JsonProperty("height", Required = Required.Always)]
+		public int Height { get; private set; }
 
-		[JsonProperty("board")]
+		[JsonProperty("board", Required = Required.Always)]
 		public string Board { get; private set; }
 
-		[JsonProperty("name")]
+		[JsonProperty("name", Required = Required.Always)]
 		public string Name { get; private set; }
 
-		[JsonProperty("base")]
+		[JsonProperty("base", Required = Required.Always)]
 		public string Base { get; private set; }
 
-		[JsonProperty("mime")]
+		[JsonProperty("mime", Required = Required.Always)]
 		public string Mime { get; private set; }
 
-		[JsonProperty("size")]
-		public int? Size { get; private set; } // 2020/07/06現在必ず乗っているが今後変更された場合に備えてint?にする
+		[JsonProperty("size", Required = Required.Always)]
+		public int Size { get; private set; }
 
-		[JsonProperty("comment")]
+		[JsonProperty("comment", Required = Required.Always)]
 		public string Comment { get; private set; }
 
-		[JsonProperty("dimensions")]
+		[JsonProperty("dimensions", Required = Required.Always)]
 		public AppsweetsThumbnailDimensionData Dimensions { get; private set; }
-
-		[JsonIgnore]
-		public int WidthValue => Width ?? 0;
-
-		[JsonIgnore]
-		public int HeightValue => Height ?? 0;
-
-		[JsonIgnore]
-		public int SizeValue => Size ?? 0;
 	}
 
 	public class AppsweetsThumbnailDimensionData : JsonObject {
-		[JsonProperty("thumbnail")]
+		[JsonProperty("thumbnail", Required = Required.Always)]
 		public AppsweetsThumbnailDimensionDataItem Thumbnail { get; private set; }
 
 
-		[JsonProperty("original")]
+		[JsonProperty("original", Required = Required.Always)]
 		public AppsweetsThumbnailDimensionDataItem Original { get; private set; }
 	}
 
 	public class AppsweetsThumbnailDimensionDataItem : JsonObject {
-		[JsonProperty("width")]
-		public int? Width { get; private set; } // 2020/07/06現在必ず乗っているが今後変更された場合に備えてint?にする
+		[JsonProperty("width", Required = Required.Always)]
+		public int Width { get; private set; }
 
-		[JsonProperty("height")]
-		public int? Height { get; private set; } // 2020/07/06現在必ず乗っているが今後変更された場合に備えてint?にする
-
-		[JsonIgnore]
-		public int WidthValue => Width ?? 0;
-
-		[JsonIgnore]
-		public int HeightValue => Height ?? 0;
+		[JsonProperty("height", Required = Required.Always)]
+		public int Height { get; private set; }
 	}
 
 	public class AppsweetsThumbnailErrorResponse : JsonObject {
-		[JsonProperty("status")]
-		public int? Status { get; private set; } // 2020/07/06現在必ず乗っているが今後変更された場合に備えてint?にする
+		[JsonProperty("status", Required = Required.Always)]
+		public int Status { get; private set; }
 
-		[JsonProperty("error")]
+		[JsonProperty("error", Required = Required.Always)]
 		public string Error { get; private set; }
-
-		[JsonIgnore]
-		public int StatusValue => Status ?? 0;
 	}
 
 	public class FutabaContext {
