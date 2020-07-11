@@ -701,7 +701,10 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" MinWidth="0" />
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition x:Name="SearchColumn" Width="Auto" MaxWidth="320" />
+                        <ColumnDefinition
+                            x:Name="SearchColumn"
+                            Width="{Binding Contents.SearchColumnWidth.Value, Mode=OneWay, ElementName=_this}"
+                            MaxWidth="320" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
@@ -737,7 +740,11 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Grid x:Name="CatalogSearchGrid" Grid.Column="3" Margin="2" Visibility="Collapsed">
+                    <Grid
+                        x:Name="CatalogSearchGrid"
+                        Grid.Column="3"
+                        Margin="2"
+                        Visibility="{Binding Contents.SearchBoxVisibility.Value, Mode=OneWay, ElementName=_this}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -774,43 +781,32 @@
                                         TargetObject="{Binding ElementName=CatalogSearchTextBox}" 
                                         PropertyName="Text"
                                         Value="" />
-                                    <i:ChangePropertyAction 
-                                        TargetObject="{Binding ElementName=CatalogSearchGrid}" 
-                                        PropertyName="Visibility"
-                                        Value="Collapsed" />
-                                    <i:ChangePropertyAction 
-                                        TargetObject="{Binding ElementName=CatalogSearchButton}" 
-                                        PropertyName="Visibility"
-                                        Value="Visible" />
-                                    <i:ChangePropertyAction 
-                                        TargetObject="{Binding ElementName=SearchColumn}" 
-                                        PropertyName="Width"
-                                        Value="Auto" />
+                                    <i:CallMethodAction
+                                        TargetObject="{Binding Contents, Mode=OneWay, ElementName=_this}"
+                                        MethodName="HideSearchBox"
+                                        />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
                     </Grid>
-                    <Button x:Name="CatalogSearchButton" Grid.Column="3" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerSearch}" Visibility="Visible">
+                    <Button
+                        x:Name="CatalogSearchButton"
+                        Grid.Column="3"
+                        Style="{StaticResource ToolbarButton}"
+                        Content="{StaticResource ButtonIconViewerSearch}"
+                        Visibility="{Binding Contents.SearchButtonVisibility.Value, Mode=OneWay, ElementName=_this}">
                         <Button.ToolTip>
                             <ToolTip Content="検索" />
                         </Button.ToolTip>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
-                                <i:ChangePropertyAction 
-                                    TargetObject="{Binding ElementName=CatalogSearchGrid}" 
-                                    PropertyName="Visibility"
-                                    Value="Visible" />
-                                <i:ChangePropertyAction 
-                                    TargetObject="{Binding ElementName=CatalogSearchButton}" 
-                                    PropertyName="Visibility"
-                                    Value="Collapsed" />
-                                <i:ChangePropertyAction 
-                                    TargetObject="{Binding ElementName=SearchColumn}" 
-                                    PropertyName="Width"
-                                    Value="320*" />
+                                <i:CallMethodAction
+                                    TargetObject="{Binding Contents, Mode=OneWay, ElementName=_this}"
+                                    MethodName="ShowSearchBox"
+                                    />
                                 <i:CallMethodAction
                                     TargetObject="{Binding ElementName=SearchFocusBehavior, Mode=OneWay}"
-                                    MethodName="Focus" />
+                                    MethodName="FocusDelay" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>

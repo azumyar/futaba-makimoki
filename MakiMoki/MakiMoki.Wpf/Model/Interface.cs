@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
@@ -15,5 +16,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		ReactiveProperty<object> LastVisibleItem { get; }
 		ReactiveProperty<double> ScrollVerticalOffset { get; }
 		ReactiveProperty<double> ScrollHorizontalOffset { get; }
+
+		ReactiveProperty<Visibility> SearchBoxVisibility { get; }
+		ReactiveProperty<Visibility> SearchButtonVisibility { get; }
+		ReactiveProperty<GridLength> SearchColumnWidth { get; }
+
+		void ShowSearchBox();
+		void HideSearchBox();
 	}
 }

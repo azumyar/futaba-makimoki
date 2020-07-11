@@ -33,6 +33,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		ReactiveProperty<double> IFutabaViewerContents.ScrollHorizontalOffset { get; }
 			= new ReactiveProperty<double>(0);
 
+		public ReactiveProperty<Visibility> SearchBoxVisibility { get; }
+			= new ReactiveProperty<Visibility>(Visibility.Collapsed);
+		public ReactiveProperty<Visibility> SearchButtonVisibility { get; }
+		public ReactiveProperty<GridLength> SearchColumnWidth { get; }
+
 		public TabItem(Data.FutabaContext f) {
 			this.Url = f.Url;
 			this.Name = new ReactiveProperty<string>(
@@ -45,10 +50,25 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ThumbVisibility = this.ThumbSource
 				.Select(x => (x != null) ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
+
+			SearchButtonVisibility = SearchBoxVisibility
+				.Select(x => (x == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible)
+				.ToReactiveProperty();
+			SearchColumnWidth = SearchBoxVisibility
+				.Select(x => (x == Visibility.Visible) ? new GridLength(320, GridUnitType.Star) : new GridLength(0, GridUnitType.Auto))
+				.ToReactiveProperty();
 		}
 
 		public void Dispose() {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
+		}
+
+		public void ShowSearchBox() {
+			SearchBoxVisibility.Value = Visibility.Visible;
+		}
+
+		public void HideSearchBox() {
+			SearchBoxVisibility.Value = Visibility.Collapsed;
 		}
 	}
 }
