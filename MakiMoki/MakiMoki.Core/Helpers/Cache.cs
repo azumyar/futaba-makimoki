@@ -56,6 +56,7 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 			val = default;
 			if(this.cach.TryGetValue(key, out var v)) {
 				val = v.Value;
+				Add(key, val); // 登録時間を更新する
 				r = true;
 			}
 
