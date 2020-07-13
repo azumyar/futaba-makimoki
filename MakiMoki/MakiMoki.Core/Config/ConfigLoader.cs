@@ -19,7 +19,9 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		internal static readonly string FutabaPostedFile = "makimoki.post.json";
 		internal static readonly Assembly CoreAssembly = typeof(ConfigLoader).Assembly;
 
+#pragma warning disable IDE0044
 		private static volatile object lockObj = new object();
+#pragma warning restore IDE0044
 
 		public class Compat {
 			public static bool IsValid(ConfigObject obj, int currentVersion) {

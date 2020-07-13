@@ -82,7 +82,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					try {
 						new Regex(r);
 					}
-					catch(ArgumentException e) {
+					catch(ArgumentException) {
 						return false;
 					}
 				}
@@ -96,7 +96,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					try {
 						new Regex(r);
 					}
-					catch(ArgumentException e) {
+					catch(ArgumentException) {
 						return false;
 					}
 				}

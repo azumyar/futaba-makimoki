@@ -14,7 +14,9 @@ using System.IO;
 
 namespace Yarukizero.Net.MakiMoki.Util {
 	public static class Futaba {
+#pragma warning disable IDE0044
 		private static volatile object lockObj = new object();
+#pragma warning restore IDE0044
 
 		public static ReactiveProperty<Data.FutabaContext[]> Catalog { get; private set; }
 		public static ReactiveProperty<Data.FutabaContext[]> Threads { get; private set; }
@@ -320,7 +322,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							var h = 0;
 							var fsize = 0;
 							var time = "";
-							var utc = 0l;
+							var utc = 0L;
 							var parser = new HtmlParser();
 							var doc = parser.ParseDocument(rr.Result.Raw);
 							var sub = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > span.csb", threadNo))?.Text() ?? "";
@@ -714,7 +716,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 		public static IObservable<(bool Successed, string Message)> PostDel(Data.BordData bord, string threadNo, string resNo) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
-				var r = await FutabaApi.PostDel(bord.Url, threadNo, resNo, Config.ConfigLoader.FutabaApi.Cookies);
+				var r = await FutabaApi.PostDel(bord.Url, threadNo, resNo /*, Config.ConfigLoader.FutabaApi.Cookies */);
 				if(r.Raw == null) {
 					o.OnNext((false, "不明なエラー"));
 				} else {

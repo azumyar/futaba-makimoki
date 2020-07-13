@@ -13,7 +13,9 @@ using Reactive.Bindings;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	class TabItem : IFutabaViewerContents, INotifyPropertyChanged, IDisposable {
+#pragma warning disable CS0067
 		public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore CS0067
 
 		public string Id { get; }
 

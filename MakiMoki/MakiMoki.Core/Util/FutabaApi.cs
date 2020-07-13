@@ -430,7 +430,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(bool Successed, string Raw)> PostSoudane(string baseUrl, string threadResNo, Data.Cookie[] cookies = null) {
+		public static async Task<(bool Successed, string Raw)> PostSoudane(string baseUrl, string threadResNo /*, Data.Cookie[] cookies = null */) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(threadResNo != null);
 			return await Task.Run(() => {
@@ -451,7 +451,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(bool Successed, string Raw)> PostDel(string baseUrl, string threadNo, string resNo, Data.Cookie[] cookies) {
+		public static async Task<(bool Successed, string Raw)> PostDel(string baseUrl, string threadNo, string resNo /*, Data.Cookie[] cookies */) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(threadNo != null);
 			System.Diagnostics.Debug.Assert(resNo != null);
@@ -582,7 +582,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			var url = new Uri(baseUrl);
 			var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
-			var b = url.AbsolutePath.Replace("/", "");
 
 			var c = CreateRestClient(u);
 			var r = new RestRequest(FutabaCachemt, Method.GET);
