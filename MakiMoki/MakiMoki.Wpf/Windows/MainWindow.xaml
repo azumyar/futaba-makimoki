@@ -17,6 +17,7 @@
         mc:Ignorable="d"
         prism:ViewModelLocator.AutoWireViewModel="True"
         d:DesignHeight="450" d:DesignWidth="800"
+        Topmost="{Binding Topmost.Value, Mode=OneWay}"
         Title="ふたマキ">
     <Window.Resources>
         <ResourceDictionary>

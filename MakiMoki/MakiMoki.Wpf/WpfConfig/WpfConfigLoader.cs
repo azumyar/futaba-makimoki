@@ -59,6 +59,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 					SystemConfig,
 					(json) => Util.CompatUtil.Migrate<PlatformData.WpfConfig>(json, new Dictionary<int, Type>() {
 						{ PlatformData.Compat.WpfConfig2020062900.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2020062900) },
+						{ PlatformData.Compat.WpfConfig2020070500.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2020070500) },
 					}));
 			}
 		}

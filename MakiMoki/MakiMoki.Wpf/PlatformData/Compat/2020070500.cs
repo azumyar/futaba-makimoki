@@ -68,7 +68,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				minWidthPostView: conf.MinWidthPostView,
 				maxWidthPostView: conf.MaxWidthPostView,
 				isEnabledOpacityPostView: conf.IsEnabledOpacityPostView,
-				opacityPostView: conf.OpacityPostView
+				opacityPostView: conf.OpacityPostView,
+
+				// 2020071900
+				isEnabledQuotLink: conf.IsEnabledQuotLink,
+				windowTopmost: conf.IsEnabledWindowTopmost,
+				ngResonInput: conf.IsEnabledNgReasonInput
 			);
 		}
 

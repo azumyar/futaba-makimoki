@@ -328,9 +328,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		private static void OnMouseLeftButtonUpQuot(object sender, MouseButtonEventArgs e) {
 			if((e.Source is Run run) && (run.Tag is Model.BindableFutabaResItem ri)) {
 				if(e.ClickCount == 1) {
-					GetUIElement(run)?.RaiseEvent(
-						new PlatformData.QuotClickEventArgs(
-							QuotClickEvent, e.Source, ri));
+					if(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledQuotLink) {
+						GetUIElement(run)?.RaiseEvent(
+							new PlatformData.QuotClickEventArgs(
+								QuotClickEvent, e.Source, ri));
+					}
 				}
 			}
 		}
@@ -346,7 +348,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					};
 				}
 
-				run.TextDecorations = System.Windows.TextDecorations.Underline;
+				if(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledQuotLink) {
+					run.TextDecorations = System.Windows.TextDecorations.Underline;
+				}
 			}
 		}
 

@@ -405,13 +405,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				if(ng != null) {
 					// Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
 				} else {
-					var w = new Windows.ImageReasonWindow() {
-						Owner = App.Current.MainWindow,
-					};
-					if(w.ShowDialog() ?? false) {
+					string r = null;
+					if(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledNgReasonInput) {
+						var w = new Windows.ImageReasonWindow() {
+							Owner = App.Current.MainWindow,
+						};
+						if(w.ShowDialog() ?? false) {
+							r = w.ReasonText;
+						}
+					} else {
+						r = $"スレッドから登録({ Util.TextUtil.GetStringYyyymmddHhmmss() })";
+					}
+
+					if(r != null) {
 						Ng.NgConfig.NgConfigLoader.AddNgImage(
-							Ng.NgData.NgImageData.FromPerceptualHash(
-								v, w.ReasonText));
+							Ng.NgData.NgImageData.FromPerceptualHash(v, r));
 					}
 				}
 			}

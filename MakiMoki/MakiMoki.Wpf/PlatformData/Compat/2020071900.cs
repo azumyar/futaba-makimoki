@@ -4,27 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Yarukizero.Net.MakiMoki.Data;
 
-namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
+namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 
-	class MakiMokiExeConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2020062900;
-
-		[JsonProperty("single-user-data", Required = Required.AllowNull)]
-		public bool? IsSingleUserData { get; private set; }
-
-		[JsonProperty("single-user-config", Required = Required.AllowNull)]
-		public bool? IsSingleUserConfig { get; private set; }
-
-		[JsonProperty("custom-data-path", Required = Required.AllowNull)]
-		public string CustomDataPathRoot { get; private set; }
-
-		[JsonProperty("custom-config-path", Required =Required.AllowNull)]
-		public string CustomConfigPathRoot { get; private set; }
-	}
-
-	class WpfConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2020071900;
+	class WpfConfig2020070500 : Data.ConfigObject, Data.IMigrateCompatObject {
+		public static int CurrentVersion { get; } = 2020070500;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
 		public bool IsEnabledMovieMarker { get; private set; }
@@ -79,16 +64,38 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("post-view-enable-opacity-value", Required = Required.Always)]
 		public int OpacityPostView { get; private set; }
 
-		// 2020071900
-		[JsonProperty("thread-enable-quot-link", Required = Required.Always)]
-		public bool IsEnabledQuotLink { get; private set; }
+		public ConfigObject Migrate() {
+			var t = typeof(Wpf.WpfConfig.WpfConfigLoader);
+			var conf = JsonConvert.DeserializeObject<WpfConfig>(
+				Util.FileUtil.LoadFileString(t.Assembly.GetManifestResourceStream(
+					$"{ t.Namespace }.{ Wpf.WpfConfig.WpfConfigLoader.SystemConfigFile }")));
 
-		[JsonProperty("platform-window-topmost", Required = Required.Always)]
-		public bool IsEnabledWindowTopmost { get; private set; }
+			return WpfConfig.Create(
+				isEnabledMovieMarker: IsEnabledMovieMarker,
+				isEnabledOldMarker: IsEnabledOldMarker,
+				catalogNgImage: CatalogNgImage,
+				threadDelResVisibility: ThreadDelResVisibility,
+				clipbordJpegQuality: ClipbordJpegQuality,
+				clipbordIsEnabledUrl: ClipbordIsEnabledUrl,
+				mediaExportPath: MediaExportPath,
+				cacheExpireDay: CacheExpireDay,
+				exportNgRes: ExportNgRes,
+				exportNgImage: ExportNgImage,
+				browserPath: BrowserPath,
+				catalogSearchResult: CatalogSearchResult,
+				isVisibleCatalogIsolateThread: IsVisibleCatalogIsolateThread,
+				minWidthPostView: MinWidthPostView,
+				maxWidthPostView: MaxWidthPostView,
+				isEnabledOpacityPostView: IsEnabledOpacityPostView,
+				opacityPostView: OpacityPostView,
 
-		[JsonProperty("platform-ng-reason-input", Required = Required.Always)]
-		public bool IsEnabledNgReasonInput { get; private set; }
-
+				// 2020071900
+				isEnabledQuotLink: conf.IsEnabledQuotLink,
+				windowTopmost: conf.IsEnabledWindowTopmost,
+				ngResonInput: conf.IsEnabledNgReasonInput
+			);
+		}
+		/*
 		public static WpfConfig CreateDefault() {
 			// ここは使われない
 			return new WpfConfig() {
@@ -98,13 +105,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 
 		public static WpfConfig Create(
 			bool isEnabledMovieMarker, bool isEnabledOldMarker,
-			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility, bool isEnabledQuotLink,
+			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility,
 			bool isVisibleCatalogIsolateThread, CatalogSearchResult catalogSearchResult,
 			int clipbordJpegQuality, bool clipbordIsEnabledUrl,
 			int minWidthPostView, int maxWidthPostView, bool isEnabledOpacityPostView, int opacityPostView,
 			string[] mediaExportPath, int cacheExpireDay,
 			ExportNgRes exportNgRes, ExportNgImage exportNgImage,
-			bool windowTopmost, bool ngResonInput, string browserPath) {
+			string browserPath) {
 
 			System.Diagnostics.Debug.Assert(catalogNgImage <= CatalogNgImage.MaxValue);
 			System.Diagnostics.Debug.Assert(threadDelResVisibility <= ThreadDelResVisibility.MaxValue);
@@ -120,7 +127,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				IsVisibleCatalogIsolateThread = isVisibleCatalogIsolateThread,
 				CatalogSearchResult = catalogSearchResult,
 				ThreadDelResVisibility = threadDelResVisibility,
-				IsEnabledQuotLink = isEnabledQuotLink,
 				ClipbordJpegQuality = clipbordJpegQuality,
 				ClipbordIsEnabledUrl = clipbordIsEnabledUrl,
 				MinWidthPostView = minWidthPostView,
@@ -131,54 +137,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				CacheExpireDay = cacheExpireDay,
 				ExportNgRes = exportNgRes,
 				ExportNgImage = exportNgImage,
-				IsEnabledWindowTopmost = windowTopmost,
-				IsEnabledNgReasonInput = ngResonInput,
 				BrowserPath = browserPath,
 			};
 		}
+		*/
 	}
 
-	enum CatalogSearchResult {
-		Default,
-		Nijiran,
-		MaxValue = Nijiran,
-	}
-
-	enum CatalogNgImage {
-		Default,
-		Hidden,
-		MaxValue = Hidden,
-	}
-
-	enum ThreadDelResVisibility {
-		Visible,
-		Hidden,
-		MaxValue = Hidden,
-	}
-
-	enum ExportNgRes {
-		Output,
-		Mask,
-		Hidden,
-	}
-
-	enum ExportNgImage {
-		Output,
-		Dummy,
-		Hidden,
-	}
-
-	class PlacementConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2020062900;
-
-		[JsonProperty("window-placement", Required = Required.Always)]
-		public WinApi.WINDOWPLACEMENT WindowPlacement { get; internal set; }
-
-		public static PlacementConfig CreateDefault() {
-			return new PlacementConfig() {
-				Version = CurrentVersion,
-				WindowPlacement = default,
-			};
-		}
-	}
 }

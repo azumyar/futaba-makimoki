@@ -98,5 +98,15 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 			return $"&#{ c };";
 		}
+
+		public static string GetStringYyyymmdd() => GetStringYyyymmdd(DateTime.Now);
+		public static string GetStringYyyymmdd(DateTime time) {
+			return time.ToString("yyyy/MM/dd", System.Globalization.CultureInfo.InvariantCulture);
+		}
+
+		public static string GetStringYyyymmddHhmmss() => GetStringYyyymmddHhmmss(DateTime.Now);
+		public static string GetStringYyyymmddHhmmss(DateTime time) {
+			return time.ToString("yyyy/MM/dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+		}
 	}
 }
