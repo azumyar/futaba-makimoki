@@ -66,6 +66,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<RoutedEventArgs> PostViewPostCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
 		public ReactiveCommand<BindableFutaba> MenuItemClickPastePostImageCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public ReactiveCommand<BindableFutaba> MenuItemClickPastePostUpCommand { get; } = new ReactiveCommand<BindableFutaba>();
 
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingOpenImageCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
@@ -85,6 +86,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			PostViewPostCommand.Subscribe(x => OnPostViewPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
 
 			MenuItemClickPastePostImageCommand.Subscribe(x => OnMenuItemClickPastePostImage(x));
+			MenuItemClickPastePostUpCommand.Subscribe(x => OnMenuItemClickPastePostUp(x));
 
 			KeyBindingPostCommand.Subscribe(x => OnKeyBindingPost(x));
 			KeyBindingOpenImageCommand.Subscribe(x => OnKeyBindingOpenImage(x));
@@ -98,6 +100,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
+		private void UploadUp2(Model.BindableFutaba f, string path) {
+			Util.Futaba.UploadUp2(path, f.PostData.Value.Password.Value)
+				.Subscribe(x => {
+					if(x.Successed) {
+						Messenger.Instance.GetEvent<PubSubEvent<AppendTextMessage>>()
+							.Publish(new AppendTextMessage(f.Url, x.FileNameOrMessage));
+					} else {
+						Util.Futaba.PutInformation(new Information($"アップロード失敗：{ x.FileNameOrMessage }"));
+					}
+				});
+		}
+
 		private async Task OpenUpload(Model.BindableFutaba f) {
 			try {
 				Application.Current.MainWindow.IsEnabled = false;
@@ -108,15 +122,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						+ "|すべてのファイル|*.*"
 				};
 				if(ofd.ShowDialog() ?? false) {
-					Util.Futaba.UploadUp2(ofd.FileName, f.PostData.Value.Password.Value)
-						.Subscribe(x => {
-							if(x.Successed) {
-								Messenger.Instance.GetEvent<PubSubEvent<AppendTextMessage>>()
-									.Publish(new AppendTextMessage(f.Url, x.FileNameOrMessage));
-							} else {
-								MessageBox.Show(x.FileNameOrMessage);
-							}
-						});
+					this.UploadUp2(f, ofd.FileName);
+
 					// ダイアログをダブルクリックで選択するとウィンドウに当たり判定がいくので
 					// 一度待つ
 					await Task.Delay(1);
@@ -196,15 +203,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnUploadDrop(DragEventArgs e) {
 			if((e.Source as FrameworkElement)?.DataContext is Model.BindableFutaba f) {
 				if(IsValidDragFile(e) && e.Data.GetData(DataFormats.FileDrop) is string[] files) {
-					Util.Futaba.UploadUp2(files[0], f.PostData.Value.Password.Value)
-						.Subscribe(x => {
-							if(x.Successed) {
-								Messenger.Instance.GetEvent<PubSubEvent<AppendTextMessage>>()
-									.Publish(new AppendTextMessage(f.Url, x.FileNameOrMessage));
-							} else {
-								MessageBox.Show(x.FileNameOrMessage);
-							}
-						});
+					this.UploadUp2(f, files[0]);
 				} else {
 					Util.Futaba.PutInformation(new Information("未対応のファイル"));
 				}
@@ -334,28 +333,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private async void OnMenuItemClickPastePostImage(Model.BindableFutaba f) {
-			if(f.Raw.Url.IsThreadUrl && !f.Raw.Bord.Extra.ResImageValue) {
-				return;
-			}
-
-			var path = "";
+		private async Task<string> Paste(Model.BindableFutaba f, int maxFileSize) {
 			var fileName = new DateTimeOffset(DateTime.Now, new TimeSpan(+09, 00, 00)).ToUnixTimeMilliseconds().ToString();
 			if(Clipboard.ContainsImage()) {
-				path = Path.Combine(
+				var path = Path.Combine(
 					Config.ConfigLoader.InitializedSetting.CacheDirectory,
-					$"{ fileName }.jpeg");
+					$"{ fileName }.jpg");
 				WpfUtil.ImageUtil.SaveJpeg(
 					path,
 					Clipboard.GetImage(),
 					WpfConfig.WpfConfigLoader.SystemConfig.ClipbordJpegQuality);
+				return path;
 			} else if(Clipboard.ContainsText() && WpfConfig.WpfConfigLoader.SystemConfig.ClipbordIsEnabledUrl) {
 				if(Uri.TryCreate(Clipboard.GetText(), UriKind.Absolute, out var uri)) {
 					if((uri.Scheme != "http") && (uri.Scheme != "https")) {
 						// BLOB URLは読めないのでreturn
 						// 通知したほうがいいのかな…？
 						// file://は読みに行ったほうがいいのか…？
-						return;
+						return "";
 					}
 					using(var client = new System.Net.Http.HttpClient() {
 						Timeout = TimeSpan.FromMilliseconds(5000),
@@ -363,12 +358,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						client.DefaultRequestHeaders.Add("User-Agent", WpfUtil.PlatformUtil.GetContentType());
 						var ret1 = await client.SendAsync(new System.Net.Http.HttpRequestMessage(
 							System.Net.Http.HttpMethod.Head, uri));
-						if((ret1.StatusCode == System.Net.HttpStatusCode.OK) && (ret1.Content.Headers.ContentLength <= 3072000)) { // TODO: 設定ファイルに移動
+						if((ret1.StatusCode == System.Net.HttpStatusCode.OK) && (ret1.Content.Headers.ContentLength <= maxFileSize)) {
 							var mime = Config.ConfigLoader.Mime.Types
 								.Where(x => x.MimeType == ret1.Content.Headers.ContentType.MediaType)
 								.FirstOrDefault();
 							if(mime != null) {
-								path = Path.Combine(
+								var path = Path.Combine(
 									Config.ConfigLoader.InitializedSetting.CacheDirectory,
 									$"{ fileName }{ mime.Ext }");
 								var ret2 = await client.SendAsync(new System.Net.Http.HttpRequestMessage(
@@ -377,7 +372,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									using(var fs = new FileStream(path, FileMode.OpenOrCreate)) {
 										await ret2.Content.CopyToAsync(fs);
 									}
-									goto end;
+									return path;
 								} else {
 									Util.Futaba.PutInformation(new Information("URLの画像取得に失敗"));
 								}
@@ -386,15 +381,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							Util.Futaba.PutInformation(new Information("URLの情報取得に失敗"));
 						}
 					}
-				end:;
 				}
 			}
+			return "";
+		}
 
+		private async void OnMenuItemClickPastePostImage(Model.BindableFutaba f) {
+			if(f.Raw.Url.IsThreadUrl && !f.Raw.Bord.Extra.ResImageValue) {
+				return;
+			}
+
+			var path = await Paste(f, Config.ConfigLoader.Bord.MaxFileSize);
 			if(!string.IsNullOrEmpty(path) && File.Exists(path)) {
 				f.PostData.Value.ImagePath.Value = path;
 			}
 		}
 
+		private async void OnMenuItemClickPastePostUp(Model.BindableFutaba f) {
+			var path = await Paste(f, 3072000); // TODO: 設定ファイルに移動
+			if(!string.IsNullOrEmpty(path) && File.Exists(path)) {
+				this.UploadUp2(f, path);
+			}
+		}
+		
 		private void OnKeyBindingPost(Model.BindableFutaba f) {
 			this.OnPostViewPostClick(f);
 		}
