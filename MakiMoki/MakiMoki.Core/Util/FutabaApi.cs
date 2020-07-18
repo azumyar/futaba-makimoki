@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using AngleSharp.Html.Parser;
 using AngleSharp.Dom;
+using Yarukizero.Net.MakiMoki.Data;
 
 namespace Yarukizero.Net.MakiMoki.Util {
 	public static class FutabaApi {
@@ -19,6 +20,18 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		private static readonly string FutabaUp2Url = "https://dec.2chan.net/up2/";
 		private static readonly string FutabaUp2Endpoint = "up.php";
 		private static readonly string FutabaUp2Html = "https://dec.2chan.net/up2/up.htm";
+		private static readonly Dictionary<string, string> FutabaUpCompletMap = new Dictionary<string, string>() {
+			{ "f", "https://appsweets.net/thumbnail/up/{0}s.js" },
+			{ "F", "https://appsweets.net/thumbnail/up/{0}s.js" },
+			{ "fu", "https://appsweets.net/thumbnail/up2/{0}s.js" },
+		};
+		private static readonly Dictionary<string, string> ShiokaraCompletMap = new Dictionary<string, string>() {
+			{ "sa", "http://www.nijibox6.com/futabafiles/001/jsonp/_/{0}/complete/{0}" },
+			{ "sp", "http://www.nijibox2.com/futabafiles/003/jsonp/_/{0}/complete/{0}" },
+			{ "sq", "http://www.nijibox6.com/futabafiles/mid/jsonp/_/{0}/complete/{0}" },
+			{ "ss", "http://www.nijibox5.com/futabafiles/kobin/jsonp/_/{0}/complete/{0}" },
+			{ "su", "http://www.nijibox5.com/futabafiles/tubu/jsonp/_/{0}/complete/{0}" },
+		};
 		private static readonly Encoding FutabaEncoding = Encoding.GetEncoding("Shift_JIS");
 
 		private static RestClient CreateRestClient(string baseUrl) {
@@ -417,7 +430,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(bool Successed, string Raw)> PostSoudane(string baseUrl, string threadResNo, Data.Cookie[] cookies = null) {
+		public static async Task<(bool Successed, string Raw)> PostSoudane(string baseUrl, string threadResNo /*, Data.Cookie[] cookies = null */) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(threadResNo != null);
 			return await Task.Run(() => {
@@ -438,7 +451,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(bool Successed, string Raw)> PostDel(string baseUrl, string threadNo, string resNo, Data.Cookie[] cookies) {
+		public static async Task<(bool Successed, string Raw)> PostDel(string baseUrl, string threadNo, string resNo /*, Data.Cookie[] cookies */) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(threadNo != null);
 			System.Diagnostics.Debug.Assert(resNo != null);
@@ -569,7 +582,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			var url = new Uri(baseUrl);
 			var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
-			var b = url.AbsolutePath.Replace("/", "");
 
 			var c = CreateRestClient(u);
 			var r = new RestRequest(FutabaCachemt, Method.GET);
@@ -585,6 +597,68 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			} else {
 				return "";
 			}
+		}
+
+		public static async Task<(bool Successed, Data.AppsweetsThumbnailCompleteResponse CompleteResponse, Data.AppsweetsThumbnailErrorResponse ErrorResponse, string Raw)> GetCompleteUrlUp(string threadUrl, string fileNameWitfOutExtension) {
+			System.Diagnostics.Debug.Assert(fileNameWitfOutExtension != null);
+			return await Task.Run(() => {
+				var r = GetCompleteUrl(threadUrl, fileNameWitfOutExtension, FutabaUpCompletMap);
+				if(!string.IsNullOrEmpty(r)) {
+					try {
+						var response = JsonConvert.DeserializeObject<Data.AppsweetsThumbnailCompleteResponse>(r);
+						return (false, response, null, r);
+					}
+					catch(JsonSerializationException) {
+						try {
+							var response = JsonConvert.DeserializeObject<Data.AppsweetsThumbnailErrorResponse>(r);
+							return (false, null, response, r);
+						}
+						catch(JsonSerializationException) { /* 何もしない */ }
+					}
+					catch(JsonReaderException) { /* 何もしない */ }
+				}
+				return (false, default(Data.AppsweetsThumbnailCompleteResponse), default(Data.AppsweetsThumbnailErrorResponse), r);
+			});
+		}
+
+		public static async Task<(bool Successed, Data.ShiokaraCompleteResponse Response, string Raw)> GetCompleteUrlShiokara(string threadUrl, string fileNameWitfOutExtension) {
+			System.Diagnostics.Debug.Assert(fileNameWitfOutExtension != null);
+			return await Task.Run(() => {
+				var r = GetCompleteUrl(threadUrl, fileNameWitfOutExtension, ShiokaraCompletMap);
+				if(!string.IsNullOrEmpty(r)) {
+					// 塩はJSONNP形式なので前後の余分なものを除去する
+					try {
+						var response = JsonConvert.DeserializeObject<Data.ShiokaraCompleteResponse>(r.Substring(2, r.Length - 4));
+						if(!string.IsNullOrEmpty(response.Url)) {
+							return (true, response, r);
+						} else {
+							return (false, response, r);
+						}
+					}
+					catch(JsonSerializationException) { /* 何もしない */ }
+					catch(JsonReaderException) { /* 何もしない */ }
+
+				}
+				return (false, null, r);
+			});
+		}
+
+		private static string GetCompleteUrl(string threadUrl, string fileNameWitfOutExtension, Dictionary<string, string> map) {
+			var m = Regex.Match(fileNameWitfOutExtension, @"^([a-zA-Z]+)\d+$");
+			if(m.Success && map.TryGetValue(m.Groups[1].Value, out var format)) {
+				var c = CreateRestClient(string.Format(format, fileNameWitfOutExtension));
+				var r = new RestRequest(Method.GET);
+
+				// https://appsweets.net/thumbnail はリファラ設定が必要
+				var u = new Uri(threadUrl);
+				r.AddHeader("referer", threadUrl);
+				r.AddHeader("origin", $"{ u.Scheme }://{ u.Authority }/");
+				var res = c.Execute(r);
+				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+					return res.Content;
+				}
+			}
+			return "";
 		}
 	}
 }

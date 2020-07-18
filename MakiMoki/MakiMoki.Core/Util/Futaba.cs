@@ -11,11 +11,12 @@ using System.Text.RegularExpressions;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using System.IO;
-using Yarukizero.Net.MakiMoki.Data;
 
 namespace Yarukizero.Net.MakiMoki.Util {
 	public static class Futaba {
+#pragma warning disable IDE0044
 		private static volatile object lockObj = new object();
+#pragma warning restore IDE0044
 
 		public static ReactiveProperty<Data.FutabaContext[]> Catalog { get; private set; }
 		public static ReactiveProperty<Data.FutabaContext[]> Threads { get; private set; }
@@ -28,7 +29,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					Config.ConfigLoader.SavedFutaba.Catalogs.Select(x => {
 						var b = Config.ConfigLoader.Bord.Bords.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
 						if(b != null) {
-							return FutabaContext.FromCatalog_(b, x.Catalog, x.CatalogSortRes, x.CatalogResCounter);
+							return Data.FutabaContext.FromCatalog_(b, x.Catalog, x.CatalogSortRes, x.CatalogResCounter);
 						} else {
 							return null;
 						}
@@ -37,7 +38,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					Config.ConfigLoader.SavedFutaba.Threads.Select(x => {
 						var b = Config.ConfigLoader.Bord.Bords.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
 						if(b != null) {
-							return FutabaContext.FromThread_(b, x.Url, x.Thread);
+							return Data.FutabaContext.FromThread_(b, x.Url, x.Thread);
 						} else {
 							return null;
 						}
@@ -120,7 +121,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							}
 							dic.Add(c.No, c.Count);
 						}
-						sortList.AddRange(resList.Select(x => new NumberedResItem(x.No, x.Res, true)));
+						sortList.AddRange(resList.Select(x => new Data.NumberedResItem(x.No, x.Res, true)));
 						lock(lockObj) {
 							for(var i = 0; i < Catalog.Value.Length; i++) {
 								if(Catalog.Value[i].Bord.Url == bord.Url) {
@@ -321,7 +322,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							var h = 0;
 							var fsize = 0;
 							var time = "";
-							var utc = 0l;
+							var utc = 0L;
 							var parser = new HtmlParser();
 							var doc = parser.ParseDocument(rr.Result.Raw);
 							var sub = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > span.csb", threadNo))?.Text() ?? "";
@@ -715,7 +716,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 		public static IObservable<(bool Successed, string Message)> PostDel(Data.BordData bord, string threadNo, string resNo) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
-				var r = await FutabaApi.PostDel(bord.Url, threadNo, resNo, Config.ConfigLoader.FutabaApi.Cookies);
+				var r = await FutabaApi.PostDel(bord.Url, threadNo, resNo /*, Config.ConfigLoader.FutabaApi.Cookies */);
 				if(r.Raw == null) {
 					o.OnNext((false, "不明なエラー"));
 				} else {
@@ -738,6 +739,46 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
+		public static IObservable<(bool Successed, string UrlOrMessage, object Raw)> GetCompleteUrlUp(Data.UrlContext threadUrl, string fileNameWitfOutExtension) {
+			return Observable.Create<(bool Successed, string Message, object Raw)>(async o => {
+				var r = await FutabaApi.GetCompleteUrlUp(GetFutabaThreadUrl(threadUrl), fileNameWitfOutExtension);
+				if(r.Successed) {
+					System.Diagnostics.Debug.Assert(r.CompleteResponse != null);
+					if(!string.IsNullOrEmpty(r.CompleteResponse.Name)) {
+						var url = Config.ConfigLoader.Uploder.Uploders
+							.Where(x => Regex.IsMatch(r.CompleteResponse.Name, x.File))
+							.Select(x => x.Root + r.CompleteResponse.Name)
+							.FirstOrDefault();
+						if(url != null) {
+							o.OnNext((true, url, r.CompleteResponse));
+							goto end;
+						}
+					}
+				} else if(r.ErrorResponse != null) {
+					o.OnNext((false, r.ErrorResponse.Error, r.ErrorResponse));
+					goto end;
+				}
+				o.OnNext((false, "不明なエラー", null));
+			end:
+				return System.Reactive.Disposables.Disposable.Empty;
+			});
+		}
+
+		public static IObservable<(bool Successed, string UrlOrMessage, object Raw)> GetCompleteUrlShiokara(Data.UrlContext threadUrl, string fileNameWitfOutExtension) {
+			return Observable.Create<(bool Successed, string Message, object Raw)>(async o => {
+				var r = await FutabaApi.GetCompleteUrlShiokara(GetFutabaThreadUrl(threadUrl), fileNameWitfOutExtension);
+				if(r.Successed) {
+					System.Diagnostics.Debug.Assert(r.Response != null);
+					o.OnNext((true, r.Response.Url, r.Response));
+				} else if(r.Response != null) {
+					o.OnNext((true, r.Response.Error, r.Response));
+				} else {
+					o.OnNext((false, "不明なエラー", null));
+				}
+				return System.Reactive.Disposables.Disposable.Empty;
+			});
+		}
+			
 		public static void PutInformation(Data.Information information) {
 			Observable.Create<Data.Information>(o => {
 				Informations.AddOnScheduler(information);
@@ -748,7 +789,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static string GetFutabaThreadUrl(UrlContext url) {
+		public static string GetFutabaThreadUrl(Data.UrlContext url) {
 			if(url.IsCatalogUrl) {
 				return $"{ url.BaseUrl }futaba.php?mode=cat";
 			} else {
@@ -756,12 +797,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
-		public static string GetFutabaThreadImageUrl(UrlContext url, Data.ResItem item) {
+		public static string GetFutabaThreadImageUrl(Data.UrlContext url, Data.ResItem item) {
 			var uri = new Uri(url.BaseUrl);
 			return $"{  uri.Scheme }://{ uri.Authority }{ item.Src }";
 		}
 
-		public static string GetFutabaThumbImageUrl(UrlContext url, Data.ResItem item) {
+		public static string GetFutabaThumbImageUrl(Data.UrlContext url, Data.ResItem item) {
 			var uri = new Uri(url.BaseUrl);
 			return $"{  uri.Scheme }://{ uri.Authority }{ item.Thumb }";
 		}

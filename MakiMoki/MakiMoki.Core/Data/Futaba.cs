@@ -206,7 +206,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 		internal static ResItem From(
 			string sub, string name,
-			string email, string com, 
+			string email, string com,
 			string id, string host, string del,
 			string src, string thumb, string ext, int fsize, int w, int h,
 			string now, string tim,
@@ -307,7 +307,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class PostedResItem : JsonObject {
-		[JsonProperty("bord", Required=Required.Always)]
+		[JsonProperty("bord", Required = Required.Always)]
 		public string BordUrl { get; private set; }
 
 		[JsonProperty("res", Required = Required.Always)]
@@ -322,245 +322,313 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		}
 	}
 
+	public class ShiokaraCompleteResponse : JsonObject {
+		[JsonProperty("url")]
+		public string Url { get; private set; }
+
+		[JsonProperty("id")]
+		public string Id { get; private set; }
+
+		[JsonProperty("error")]
+		public string Error { get; private set; }
+	}
+
+	public class AppsweetsThumbnailCompleteResponse : JsonObject {
+		[JsonProperty("content", Required = Required.Always)]
+		public string Content { get; private set; } // BASE64されたサムネデータが格納される/サムネがない場合は空文字列
+
+		[JsonProperty("width", Required = Required.Always)]
+		public int Width { get; private set; }
+
+		[JsonProperty("height", Required = Required.Always)]
+		public int Height { get; private set; }
+
+		[JsonProperty("board", Required = Required.Always)]
+		public string Board { get; private set; }
+
+		[JsonProperty("name", Required = Required.Always)]
+		public string Name { get; private set; }
+
+		[JsonProperty("base", Required = Required.Always)]
+		public string Base { get; private set; }
+
+		[JsonProperty("mime", Required = Required.Always)]
+		public string Mime { get; private set; }
+
+		[JsonProperty("size", Required = Required.Always)]
+		public int Size { get; private set; }
+
+		[JsonProperty("comment", Required = Required.Always)]
+		public string Comment { get; private set; }
+
+		[JsonProperty("dimensions", Required = Required.Always)]
+		public AppsweetsThumbnailDimensionData Dimensions { get; private set; }
+	}
+
+	public class AppsweetsThumbnailDimensionData : JsonObject {
+		[JsonProperty("thumbnail", Required = Required.Always)]
+		public AppsweetsThumbnailDimensionDataItem Thumbnail { get; private set; }
+
+
+		[JsonProperty("original", Required = Required.Always)]
+		public AppsweetsThumbnailDimensionDataItem Original { get; private set; }
+	}
+
+	public class AppsweetsThumbnailDimensionDataItem : JsonObject {
+		[JsonProperty("width", Required = Required.Always)]
+		public int Width { get; private set; }
+
+		[JsonProperty("height", Required = Required.Always)]
+		public int Height { get; private set; }
+	}
+
+	public class AppsweetsThumbnailErrorResponse : JsonObject {
+		[JsonProperty("status", Required = Required.Always)]
+		public int Status { get; private set; }
+
+		[JsonProperty("error", Required = Required.Always)]
+		public string Error { get; private set; }
+	}
+
 	public class FutabaContext {
-		// TODO: 名前後で変える
-		public class Item {
-			public UrlContext Url { get; }
-			public NumberedResItem ResItem { get; }
-			public int CounterCurrent { get; private set; } = 0;
-			public int CounterPrev { get; private set; } = 0;
+			// TODO: 名前後で変える
+			public class Item {
+				public UrlContext Url { get; }
+				public NumberedResItem ResItem { get; }
+				public int CounterCurrent { get; private set; } = 0;
+				public int CounterPrev { get; private set; } = 0;
 
-			public int Soudane { get; private set; } = 0;
+				public int Soudane { get; private set; } = 0;
 
-			public Quot[] QuotLines { get; private set; } = new Quot[0];
+				public Quot[] QuotLines { get; private set; } = new Quot[0];
 
-			public Item(UrlContext url, NumberedResItem item) {
-				this.Url = url;
-				this.ResItem = item;
-			}
+				public Item(UrlContext url, NumberedResItem item) {
+					this.Url = url;
+					this.ResItem = item;
+				}
 
-			public static Item FromCatalog(UrlContext url, NumberedResItem item, int counterCurrent, int counterPrev) {
-				return new Item(url, item) {
-					CounterCurrent = counterCurrent,
-					CounterPrev = counterPrev,
-				};
-			}
+				public static Item FromCatalog(UrlContext url, NumberedResItem item, int counterCurrent, int counterPrev) {
+					return new Item(url, item) {
+						CounterCurrent = counterCurrent,
+						CounterPrev = counterPrev,
+					};
+				}
 
-			public static Item FromThreadRes(int soudane, Item old) {
-				return new Item(old.Url, old.ResItem) {
-					Soudane = soudane,
-					QuotLines = old.QuotLines,
-				};
-			}
+				public static Item FromThreadRes(int soudane, Item old) {
+					return new Item(old.Url, old.ResItem) {
+						Soudane = soudane,
+						QuotLines = old.QuotLines,
+					};
+				}
 
-			public static Item FromThreadRes(UrlContext url, NumberedResItem item, int soudane, List<NumberedResItem> resItems) {
-				// 引用解析
-				var com = TextUtil.RowComment2Text(item.Res.Com).Replace("\r", "").Split('\n');
-				var q = new Quot[com.Length];
-				for(var i = 0; i < com.Length; i++) {
-					var c = com[i];
-					if(!string.IsNullOrEmpty(c) && (c[0] == '>')) {
-						c = c.Substring(1);
-						if(Regex.IsMatch(c, @"^No.\d+$")) {
-							var no = c.Substring(3);
-							var it = resItems.Where(x => x.No == no).FirstOrDefault();
-							if(it != null) {
-								q[i] = new Quot(true, true, it.No);
-								goto end;
-							}
-						}
-						if(Regex.IsMatch(c, @"^\d+\.[a-zA-Z0-9]+$")) {
-							var it = resItems.Where(x => x.Res.Src.EndsWith(c)).FirstOrDefault();
-							if(it != null) {
-								q[i] = new Quot(true, true, it.No);
-								goto end;
-							}
-						}
-						if(Regex.IsMatch(c, @"^>.*$")) {
-							// 二重引用以上は完全一致
-							foreach(var it in resItems.Reverse<NumberedResItem>()) {
-								foreach(var c2 in TextUtil.RowComment2Text(it.Res.Com).Replace("\r", "").Split('\n')) {
-									if(c2 == c) {
-										q[i] = new Quot(true, true, it.No);
-										goto end;
-									}
+				public static Item FromThreadRes(UrlContext url, NumberedResItem item, int soudane, List<NumberedResItem> resItems) {
+					// 引用解析
+					var com = TextUtil.RowComment2Text(item.Res.Com).Replace("\r", "").Split('\n');
+					var q = new Quot[com.Length];
+					for(var i = 0; i < com.Length; i++) {
+						var c = com[i];
+						if(!string.IsNullOrEmpty(c) && (c[0] == '>')) {
+							c = c.Substring(1);
+							if(Regex.IsMatch(c, @"^No.\d+$")) {
+								var no = c.Substring(3);
+								var it = resItems.Where(x => x.No == no).FirstOrDefault();
+								if(it != null) {
+									q[i] = new Quot(true, true, it.No);
+									goto end;
 								}
 							}
-						} else {
-							foreach(var it in resItems.Reverse<NumberedResItem>()) {
-								foreach(var c2 in TextUtil.RowComment2Text(it.Res.Com).Replace("\r", "").Split('\n')) {
-									// 引用は捨てる
-									if(!Regex.IsMatch(c2, @"^>.*$")) {
-										if(c2.Contains(c)) {
+							if(Regex.IsMatch(c, @"^\d+\.[a-zA-Z0-9]+$")) {
+								var it = resItems.Where(x => x.Res.Src.EndsWith(c)).FirstOrDefault();
+								if(it != null) {
+									q[i] = new Quot(true, true, it.No);
+									goto end;
+								}
+							}
+							if(Regex.IsMatch(c, @"^>.*$")) {
+								// 二重引用以上は完全一致
+								foreach(var it in resItems.Reverse<NumberedResItem>()) {
+									foreach(var c2 in TextUtil.RowComment2Text(it.Res.Com).Replace("\r", "").Split('\n')) {
+										if(c2 == c) {
 											q[i] = new Quot(true, true, it.No);
 											goto end;
 										}
 									}
 								}
+							} else {
+								foreach(var it in resItems.Reverse<NumberedResItem>()) {
+									foreach(var c2 in TextUtil.RowComment2Text(it.Res.Com).Replace("\r", "").Split('\n')) {
+										// 引用は捨てる
+										if(!Regex.IsMatch(c2, @"^>.*$")) {
+											if(c2.Contains(c)) {
+												q[i] = new Quot(true, true, it.No);
+												goto end;
+											}
+										}
+									}
+								}
 							}
-						}
 
-						q[i] = new Quot(true, false, "");
-					end:;
-					} else {
-						q[i] = new Quot();
+							q[i] = new Quot(true, false, "");
+						end:;
+						} else {
+							q[i] = new Quot();
+						}
 					}
+
+					return new Item(url, item) {
+						Soudane = soudane,
+						QuotLines = q,
+					};
 				}
 
-				return new Item(url, item) {
-					Soudane = soudane,
-					QuotLines = q,
+				public string HashText => ResItem.Res.Id
+					+ ResItem.Res.Del
+					+ ResItem.Res.Host
+					+ ResItem.Res.Com
+					+ ResItem.Res.Thumb
+					+ Soudane;
+			}
+
+			public class Quot {
+				public bool IsQuot { get; } = false;
+				public bool IsHit { get; } = false;
+				public string ResNo { get; } = "";
+
+				public Quot() { }
+
+				public Quot(bool isQuot, bool isHit, string resNo) {
+					this.IsQuot = isQuot;
+					this.IsHit = isHit;
+					this.ResNo = resNo;
+				}
+			}
+
+			public string Name { get; set; }
+
+			public BordData Bord { get; private set; }
+			public UrlContext Url { get; private set; }
+			public FutabaResonse Raw { get; private set; }
+
+			public Item[] ResItems { get; private set; }
+
+			public long Token { get; private set; }
+
+			private FutabaContext() {
+				this.Token = DateTime.Now.Ticks;
+			}
+
+			public static FutabaContext FromCatalogEmpty(BordData bord) {
+				return new FutabaContext() {
+					Name = bord.Name,
+					Bord = bord,
+					Url = new UrlContext(bord.Url),
+					ResItems = new Item[] { },
+					Raw = null,
 				};
 			}
 
-			public string HashText => ResItem.Res.Id
-				+ ResItem.Res.Del
-				+ ResItem.Res.Host
-				+ ResItem.Res.Com
-				+ ResItem.Res.Thumb
-				+ Soudane;
-		}
-
-		public class Quot {
-			public bool IsQuot { get; } = false;
-			public bool IsHit { get; } = false;
-			public string ResNo { get; } = "";
-
-			public Quot() { }
-
-			public Quot(bool isQuot, bool isHit, string resNo) {
-				this.IsQuot = isQuot;
-				this.IsHit = isHit;
-				this.ResNo = resNo;
+			public static FutabaContext FromCatalogResponse(BordData bord, FutabaResonse response, Data.NumberedResItem[] sortRes, Dictionary<string, int> counter, Data.FutabaContext oldValue) {
+				var url = new UrlContext(bord.Url);
+				return new FutabaContext() {
+					Name = bord.Name,
+					Bord = bord,
+					Url = url,
+					// ResItems = response.Res.Reverse().Select(x => {
+					ResItems = sortRes.Select(x => {
+						var cc = counter.ContainsKey(x.No) ? counter[x.No] : 0;
+						var cp = oldValue?.ResItems.Where(y => y.ResItem.No == x.No).FirstOrDefault()?.CounterCurrent ?? 0;
+						return Item.FromCatalog(url, x, cc, cp);
+					}).ToArray(),
+					Raw = response,
+				};
 			}
-		}
 
-		public string Name { get; set; }
+			public static FutabaContext FromThreadEmpty(BordData bord, string threadNo) {
+				return new FutabaContext() {
+					Name = string.Format("No.{0}", threadNo),
+					Bord = bord,
+					Url = new UrlContext(bord.Url, threadNo),
+					ResItems = new Item[] { },
+					Raw = null,
+				};
+			}
 
-		public BordData Bord { get; private set; }
-		public UrlContext Url { get; private set; }
-		public FutabaResonse Raw { get; private set; }
-
-		public Item[] ResItems { get; private set; }
-
-		public long Token { get; private set; }
-
-		private FutabaContext() {
-			this.Token = DateTime.Now.Ticks;
-		}
-
-		public static FutabaContext FromCatalogEmpty(BordData bord) {
-			return new FutabaContext() {
-				Name = bord.Name,
-				Bord = bord,
-				Url = new UrlContext(bord.Url),
-				ResItems = new Item[] { },
-				Raw = null,
-			};
-		}
-
-		public static FutabaContext FromCatalogResponse(BordData bord, FutabaResonse response, Data.NumberedResItem[] sortRes, Dictionary<string, int> counter, Data.FutabaContext oldValue) {
-			var url = new UrlContext(bord.Url);
-			return new FutabaContext() {
-				Name = bord.Name,
-				Bord = bord,
-				Url = url,
-				// ResItems = response.Res.Reverse().Select(x => {
-				ResItems = sortRes.Select(x => {
-					var cc = counter.ContainsKey(x.No) ? counter[x.No] : 0;
-					var cp = oldValue?.ResItems.Where(y => y.ResItem.No == x.No).FirstOrDefault()?.CounterCurrent ?? 0;
-					return Item.FromCatalog(url, x, cc, cp);
-				}).ToArray(),
-				Raw = response,
-			};
-		}
-
-		public static FutabaContext FromThreadEmpty(BordData bord, string threadNo) {
-			return new FutabaContext() {
-				Name = string.Format("No.{0}", threadNo),
-				Bord = bord,
-				Url = new UrlContext(bord.Url, threadNo),
-				ResItems = new Item[] { },
-				Raw = null,
-			};
-		}
-
-		public static FutabaContext FromThreadResResponse(FutabaContext parent, FutabaResonse response) {
-			var list = parent.ResItems?.ToList() ?? new List<Item>();
-			// そうだねの更新
-			for(var i = 0; i < list.Count; i++) {
-				var k = response.Sd.Keys.Where(x => x == list[i].ResItem.No).FirstOrDefault();
-				if((k != null) && int.TryParse(response.Sd[k], out var v)) {
-					if(list[i].Soudane != v) {
-						list[i] = Item.FromThreadRes(v, list[i]);
+			public static FutabaContext FromThreadResResponse(FutabaContext parent, FutabaResonse response) {
+				var list = parent.ResItems?.ToList() ?? new List<Item>();
+				// そうだねの更新
+				for(var i = 0; i < list.Count; i++) {
+					var k = response.Sd.Keys.Where(x => x == list[i].ResItem.No).FirstOrDefault();
+					if((k != null) && int.TryParse(response.Sd[k], out var v)) {
+						if(list[i].Soudane != v) {
+							list[i] = Item.FromThreadRes(v, list[i]);
+						}
 					}
 				}
-			}
-			// レスの追加
-			if(response.Res != null) {
-				a(list, parent.Url, response.Res, response.Sd);
-			}
-			return new FutabaContext() {
-				Name = parent.Name,
-				Bord = parent.Bord,
-				Url = parent.Url,
-				ResItems = list.ToArray(),
-				Raw = response,
-			};
-		}
-
-		public static FutabaContext FromThreadResResponse(BordData bord, string threadNo, FutabaResonse response, Data.NumberedResItem parent, int soudane) {
-			var url = new UrlContext(bord.Url, threadNo);
-			var list = new List<Item>() { Item.FromThreadRes(url, parent, soudane, new List<NumberedResItem>()) };
-			if(response.Res != null) {
-				a(list, url, response.Res, response.Sd);
-			}
-			return new FutabaContext() {
-				Name = Util.TextUtil.SafeSubstring(
-					Util.TextUtil.RemoveCrLf(
-						Util.TextUtil.RowComment2Text(parent.Res.Com)
-					), 8),
-				Bord = bord,
-				Url = url,
-				ResItems = list.ToArray(),
-				Raw = response,
-			};
-		}
-
-		public static FutabaContext FromThreadResResponse404(FutabaContext catalog, FutabaContext thread, FutabaResonse response) {
-			if(response == null) {
-				return null;
-			}
-
-			if(thread.ResItems.Length == 0) {
-				var c = catalog?.ResItems?.Where(x => x.ResItem.No == thread.Url.ThreadNo).FirstOrDefault()?.ResItem;
-				var sub = "MakiMoki";
-				var name = "MakiMoki";
-				var com = "<font color=\"#ff0000\">取得できませんでした</font>";
-				var date = DateTime.Now;
-				var now = string.Format("{0}({1}){2}",
-					date.ToString("yy/MM/dd", System.Globalization.CultureInfo.InvariantCulture),
-					date.ToString("ddd"),
-					date.ToString("HH:mm:ss"));
-				var tim = new DateTimeOffset(date.Ticks, new TimeSpan(+09, 00, 00)).ToUnixTimeMilliseconds().ToString();
-				if(c == null) {
-					c = new NumberedResItem(thread.Url.ThreadNo, ResItem.From(
-						sub, name, "", com,
-						"", "", "", "", "", "", 0, 0, 0, now, tim, 0));
+				// レスの追加
+				if(response.Res != null) {
+					a(list, parent.Url, response.Res, response.Sd);
 				}
-				var ad = new List<Item>() { Item.FromThreadRes(thread.Url, c, 0, new List<NumberedResItem>()) };
-				if((response.Res != null) && (0 < response.Res.Length)) {
-					/* これはレスが消えたらf.Res.Rscも更新されてできなかったのでお蔵入り
-					var i = 1;
-					var f = response.Res.First();
-					if(i < f.Res.Rsc) {
-						ad.Add(new NumberedResItem(thread.Url.ThreadNo, ResItem.From(
+				return new FutabaContext() {
+					Name = parent.Name,
+					Bord = parent.Bord,
+					Url = parent.Url,
+					ResItems = list.ToArray(),
+					Raw = response,
+				};
+			}
+
+			public static FutabaContext FromThreadResResponse(BordData bord, string threadNo, FutabaResonse response, Data.NumberedResItem parent, int soudane) {
+				var url = new UrlContext(bord.Url, threadNo);
+				var list = new List<Item>() { Item.FromThreadRes(url, parent, soudane, new List<NumberedResItem>()) };
+				if(response.Res != null) {
+					a(list, url, response.Res, response.Sd);
+				}
+				return new FutabaContext() {
+					Name = Util.TextUtil.SafeSubstring(
+						Util.TextUtil.RemoveCrLf(
+							Util.TextUtil.RowComment2Text(parent.Res.Com)
+						), 8),
+					Bord = bord,
+					Url = url,
+					ResItems = list.ToArray(),
+					Raw = response,
+				};
+			}
+
+			public static FutabaContext FromThreadResResponse404(FutabaContext catalog, FutabaContext thread, FutabaResonse response) {
+				if(response == null) {
+					return null;
+				}
+
+				if(thread.ResItems.Length == 0) {
+					var c = catalog?.ResItems?.Where(x => x.ResItem.No == thread.Url.ThreadNo).FirstOrDefault()?.ResItem;
+					var sub = "MakiMoki";
+					var name = "MakiMoki";
+					var com = "<font color=\"#ff0000\">取得できませんでした</font>";
+					var date = DateTime.Now;
+					var now = string.Format("{0}({1}){2}",
+						date.ToString("yy/MM/dd", System.Globalization.CultureInfo.InvariantCulture),
+						date.ToString("ddd"),
+						date.ToString("HH:mm:ss"));
+					var tim = new DateTimeOffset(date.Ticks, new TimeSpan(+09, 00, 00)).ToUnixTimeMilliseconds().ToString();
+					if(c == null) {
+						c = new NumberedResItem(thread.Url.ThreadNo, ResItem.From(
 							sub, name, "", com,
-							"", "", "", "", "", "", 0, 0, 0, now, tim, i)));
-						i++;
+							"", "", "", "", "", "", 0, 0, 0, now, tim, 0));
 					}
-					*/
-					a(ad, thread.Url, response.Res, response.Sd);
+					var ad = new List<Item>() { Item.FromThreadRes(thread.Url, c, 0, new List<NumberedResItem>()) };
+					if((response.Res != null) && (0 < response.Res.Length)) {
+						/* これはレスが消えたらf.Res.Rscも更新されてできなかったのでお蔵入り
+						var i = 1;
+						var f = response.Res.First();
+						if(i < f.Res.Rsc) {
+							ad.Add(new NumberedResItem(thread.Url.ThreadNo, ResItem.From(
+								sub, name, "", com,
+								"", "", "", "", "", "", 0, 0, 0, now, tim, i)));
+							i++;
+						}
+						*/
+	a(ad, thread.Url, response.Res, response.Sd);
 				}
 				return new FutabaContext() {
 					Name = thread.Name,

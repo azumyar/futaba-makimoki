@@ -59,6 +59,37 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						this.Contents.MediaContents.Value = x.Media;
 					}
 				});
+			ViewModels.FutabaThreadResViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.ScrollResMessage>>()
+				.Subscribe(async x => {
+					if(this.Contents != null) {
+						var prev = this.scrollViewerThreadRes.VerticalOffset;
+						this.ThreadResListBox.ScrollIntoView(x.Res);
+						// 呼び出してもメッセージループに落ちるまでスクロールしないのでawaitする
+						await Task.Delay(1);
+						// 移動先が画面内にあるとスクロールしないので移動しなかったら点滅させてアピールしてみる
+						if(prev == this.scrollViewerThreadRes.VerticalOffset) {
+							var sb = this.TryFindResource("QuotHitStoryboard") as System.Windows.Media.Animation.Storyboard;
+							var p = WpfUtil.WpfHelper.FindFirstChild<VirtualizingStackPanel>(this.ThreadResListBox);
+							if((sb != null) && (p != null)) {
+								int c = VisualTreeHelper.GetChildrenCount(p);
+								for(var i = 0; i < c; i++) {
+									var co = VisualTreeHelper.GetChild(p, i);
+									if((co is FrameworkElement fe) && object.ReferenceEquals(fe.DataContext, x.Res)) {
+										var g1 = WpfUtil.WpfHelper.FindFirstChild<Grid>(fe);
+										if(g1 != null) {
+											var g2 = WpfUtil.WpfHelper.FindFirstChild<Grid>(g1);
+											if(g2 != null) {
+												sb.Begin(g2);
+											}
+										}
+										break;
+									}
+								}
+							}
+						}
+					}
+				});
 
 			this.ThreadResListBox.Loaded += (s, e) => {
 				if((this.scrollViewerThreadRes = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.ThreadResListBox)) != null) {

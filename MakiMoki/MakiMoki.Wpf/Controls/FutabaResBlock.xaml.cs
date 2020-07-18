@@ -30,6 +30,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				RoutingStrategy.Tunnel,
 				typeof(PlatformData.HyperLinkEventHandler),
 				typeof(FutabaResBlock));
+		public static RoutedEvent QuotClickEvent
+			= EventManager.RegisterRoutedEvent(
+				nameof(QuotClick),
+				RoutingStrategy.Tunnel,
+				typeof(PlatformData.QuotClickEventHandler),
+				typeof(FutabaResBlock));
 
 		public event RoutedEventHandler ImageClick {
 			add { AddHandler(ImageClickEvent, value); }
@@ -41,11 +47,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			remove { RemoveHandler(LinkClickEvent, value); }
 		}
 
+		public event PlatformData.QuotClickEventHandler QuotClick {
+			add { AddHandler(QuotClickEvent, value); }
+			remove { RemoveHandler(QuotClickEvent, value); }
+		}
+
 		public FutabaResBlock() {
 			InitializeComponent();
 
 			this.ImageButton.Click += (s, e) => this.RaiseEvent(new RoutedEventArgs(ImageClickEvent, e.Source));
 			this.FutabaCommentBlock.LinkClick += (s, e) => this.RaiseEvent(new PlatformData.HyperLinkEventArgs(LinkClickEvent, e.Source, e.NavigateUri));
+			this.FutabaCommentBlock.QuotClick += (s, e) => this.RaiseEvent(new PlatformData.QuotClickEventArgs(QuotClickEvent, e.Source, e.TargetRes));
 		}
 	}
 }

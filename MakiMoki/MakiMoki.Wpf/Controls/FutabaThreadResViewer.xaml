@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.NET46"
+             xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
@@ -64,6 +64,18 @@
                 VerticalOffset="4" HorizontalOffset="0">
                 <MenuItem Header="URLをコピー" Click="OnThreadResHamburgerItemUrlClickCommand" />
             </ContextMenu>
+
+            <Storyboard x:Key="QuotHitStoryboard">
+                <ColorAnimationUsingKeyFrames
+                    Storyboard.TargetProperty="(Grid.Background).(SolidColorBrush.Color)"
+                    FillBehavior="Stop"
+                    RepeatBehavior="3x">
+
+                    <DiscreteColorKeyFrame KeyTime="0:0:0.5" Value="{DynamicResource ThreadBackgroundQuotHitColor}" />
+                    <DiscreteColorKeyFrame KeyTime="0:0:1.0" Value="{DynamicResource ThreadBackgroundQuotHitColor}" />
+
+                </ColorAnimationUsingKeyFrames>
+            </Storyboard>
         </ResourceDictionary>
     </UserControl.Resources>
     <i:Interaction.Triggers>
@@ -124,7 +136,10 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition x:Name="SearchColumn" Width="Auto" MaxWidth="320" />
+                        <ColumnDefinition
+                            x:Name="SearchColumn"
+                            Width="{Binding Contents.SearchColumnWidth.Value, Mode=OneWay, ElementName=_this}"
+                            MaxWidth="320" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
@@ -227,7 +242,11 @@
                         </i:Interaction.Triggers>
                     </Button>
                     
-                    <Grid x:Name="SearchGrid" Grid.Column="4" Margin="2" Visibility="Collapsed">
+                    <Grid
+                        x:Name="SearchGrid"
+                        Grid.Column="4"
+                        Margin="2"
+                        Visibility="{Binding Contents.SearchBoxVisibility.Value, Mode=OneWay, ElementName=_this}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -267,18 +286,10 @@
                                         TargetObject="{Binding ElementName=SearchTextBox}" 
                                         PropertyName="Text"
                                         Value="" />
-                                    <i:ChangePropertyAction 
-                                        TargetObject="{Binding ElementName=SearchGrid}" 
-                                        PropertyName="Visibility"
-                                        Value="Collapsed" />
-                                    <i:ChangePropertyAction 
-                                        TargetObject="{Binding ElementName=SearchButton}" 
-                                        PropertyName="Visibility"
-                                        Value="Visible" />
-                                    <i:ChangePropertyAction 
-                                        TargetObject="{Binding ElementName=SearchColumn}" 
-                                        PropertyName="Width"
-                                        Value="Auto" />
+                                    <i:CallMethodAction
+                                        TargetObject="{Binding Contents, Mode=OneWay, ElementName=_this}"
+                                        MethodName="HideSearchBox"
+                                        />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
@@ -309,27 +320,19 @@
                         x:Name="SearchButton" Grid.Column="4"
                         Style="{StaticResource ToolbarButton}"
                         Content="{StaticResource ButtonIconViewerSearch}"    
-                        Visibility="Visible">
+                        Visibility="{Binding Contents.SearchButtonVisibility.Value, Mode=OneWay, ElementName=_this}">
                         <Button.ToolTip>
                             <ToolTip Content="検索" />
                         </Button.ToolTip>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
-                                <i:ChangePropertyAction 
-                                    TargetObject="{Binding ElementName=SearchGrid}" 
-                                    PropertyName="Visibility"
-                                    Value="Visible" />
-                                <i:ChangePropertyAction 
-                                    TargetObject="{Binding ElementName=SearchButton}" 
-                                    PropertyName="Visibility"
-                                    Value="Collapsed" />
-                                <i:ChangePropertyAction 
-                                    TargetObject="{Binding ElementName=SearchColumn}" 
-                                    PropertyName="Width"
-                                    Value="320*" />
+                                <i:CallMethodAction
+                                    TargetObject="{Binding Contents, Mode=OneWay, ElementName=_this}"
+                                    MethodName="ShowSearchBox"
+                                    />
                                 <i:CallMethodAction
                                     TargetObject="{Binding ElementName=SearchFocusBehavior, Mode=OneWay}"
-                                    MethodName="Focus" />
+                                    MethodName="FocusDelay" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
@@ -541,6 +544,9 @@
                                         </i:EventTrigger>
                                         <i:EventTrigger EventName="LinkClick">
                                             <ri:EventToReactiveCommand Command="{Binding DataContext.LinkClickCommand, ElementName=_this}" />
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="QuotClick">
+                                            <ri:EventToReactiveCommand Command="{Binding DataContext.QuotClickCommand, ElementName=_this}" />
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </local:FutabaResBlock>

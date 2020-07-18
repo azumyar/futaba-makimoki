@@ -45,6 +45,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<ReactiveCollection<Model.TabItem>> Threads { get; }
 		public ReactiveProperty<object> ThreadToken { get; } = new ReactiveProperty<object>(DateTime.Now.Ticks);
 
+		public ReactiveProperty<bool> Topmost { get; }
 		public ReactiveProperty<Visibility> TabVisibility { get; }
 
 		public ReactiveCommand<MouseButtonEventArgs> BordListClickCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
@@ -82,6 +83,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentThreadTabPostCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
 		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentThreadTabCloseCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
 
+		private Action<PlatformData.WpfConfig> onSystemConfigUpdateNotifyer;
 
 		public MainWindowViewModel() {
 			Bords = new ReactiveProperty<Data.BordData[]>(Config.ConfigLoader.Bord.Bords);
@@ -109,6 +111,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					return new ReactiveCollection<Model.TabItem>();
 				}
 			}).ToReactiveProperty();
+			this.Topmost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledWindowTopmost);
 			this.TabVisibility = new ReactiveProperty<Visibility>((Catalogs.Count == 0) ? Visibility.Collapsed : Visibility.Visible);
 			BordListClickCommand.Subscribe(x => OnBordListClick(x));
 			ConfigButtonClickCommand.Subscribe(x => OnConfigButtonClick(x));
@@ -144,6 +147,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			KeyBindingCurrentThreadTabSearchCommand.Subscribe(x => OnKeyBindingCurrentThreadTabSearch(x));
 			KeyBindingCurrentThreadTabPostCommand.Subscribe(x => OnKeyBindingCurrentThreadTabPost(x));
 			KeyBindingCurrentThreadTabCloseCommand.Subscribe(x => OnKeyBindingCurrentThreadTabClose(x));
+
+			onSystemConfigUpdateNotifyer = (_) => {
+				Topmost.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledWindowTopmost;
+			};
+			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(onSystemConfigUpdateNotifyer);
 		}
 		public void Dispose() {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();

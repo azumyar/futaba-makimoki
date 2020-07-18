@@ -30,6 +30,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Visibility> NgConfigThreadNgWordRegexVisibility { get; }
 		public ReactiveProperty<int> NgConfigImageMethod { get; }
 		public ReactiveProperty<int> NgConfigImageThreshold { get; }
+		public ReactiveProperty<bool> NgConfigResonInput { get; }
 
 		public ReactiveProperty<string> PostItemExpireDay { get; }
 		public ReactiveProperty<bool> PostItemExpireDayValid { get; }
@@ -40,6 +41,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> CatalogIsVisibleIsolateThread { get; }
 		public ReactiveProperty<int> CatalogSearchResult { get; }
 		public ReactiveProperty<int> ThreadDelResVisibility { get; }
+		public ReactiveProperty<bool> ThreadIsEnabledQuotLink { get; }
 		public ReactiveProperty<string> ClipbordJpegQuality { get; }
 		public ReactiveProperty<bool> ClipbordJpegQualityValid { get; }
 		public ReactiveProperty<bool> ClipbordIsEnabledUrl { get; }
@@ -59,6 +61,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> MediaCacheExpireDayValid { get; }
 		public ReactiveProperty<int> ExportOutputNgRes { get; }
 		public ReactiveProperty<int> ExportOutputNgImage { get; }
+		public ReactiveProperty<bool> WindowTopmost { get; }
 		public ReactiveProperty<string> BrowserPath { get; }
 
 
@@ -82,7 +85,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					try {
 						new Regex(r);
 					}
-					catch(ArgumentException e) {
+					catch(ArgumentException) {
 						return false;
 					}
 				}
@@ -96,7 +99,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					try {
 						new Regex(r);
 					}
-					catch(ArgumentException e) {
+					catch(ArgumentException) {
 						return false;
 					}
 				}
@@ -105,6 +108,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			NgConfigThreadNgWordRegexVisibility = NgConfigThreadNgWordRegexValid.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
 			NgConfigImageMethod = new ReactiveProperty<int>((int)Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod);
 			NgConfigImageThreshold = new ReactiveProperty<int>(Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold);
+			NgConfigResonInput = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledNgReasonInput);
 
 			PostItemExpireDay = new ReactiveProperty<string>(Config.ConfigLoader.MakiMoki.FutabaPostDataExpireDay.ToString());
 			PostItemExpireDayValid = PostItemExpireDay.Select(x => {
@@ -121,6 +125,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			CatalogIsVisibleIsolateThread = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleCatalogIsolateThread);
 			CatalogSearchResult = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.CatalogSearchResult);
 			ThreadDelResVisibility = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility);
+			ThreadIsEnabledQuotLink = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledQuotLink);
 			ClipbordJpegQuality = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.ClipbordJpegQuality.ToString());
 			ClipbordJpegQualityValid = ClipbordJpegQuality.Select(x => {
 				if(int.TryParse(x, out var v)) {
@@ -172,6 +177,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}).ToReactiveProperty();
 			ExportOutputNgRes = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes);
 			ExportOutputNgImage = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage);
+			WindowTopmost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledWindowTopmost);
 			BrowserPath = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.BrowserPath);
 
 			IsEnabledOkButton = new[] {
@@ -193,7 +199,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
-		private void OnOkButtonClick(RoutedEventArgs e) {
+		private void OnOkButtonClick(RoutedEventArgs _) {
 			Config.ConfigLoader.UpdateMakiMokiConfig(
 				threadGetIncremental: CoreConfigThreadDataIncremental.Value,
 				responseSave: CoreConfigSavedResponse.Value,
@@ -257,12 +263,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				minWidthPostView: int.Parse(PostViewMinWidth.Value),
 				maxWidthPostView: int.Parse(PostViewMaxWidth.Value),
 				isEnabledOpacityPostView: PostViewIsEnabledOpacity.Value,
-				opacityPostView: int.Parse(PostViewOpacity.Value)
+				opacityPostView: int.Parse(PostViewOpacity.Value),
+				// 2020071900
+				isEnabledQuotLink: ThreadIsEnabledQuotLink.Value,
+				windowTopmost: WindowTopmost.Value,
+				ngResonInput: NgConfigResonInput.Value
 			);
 			WpfConfig.WpfConfigLoader.UpdateSystemConfig(s);
 		}
 
-		private void OnCancelButtonClick(RoutedEventArgs e) { }
+		private void OnCancelButtonClick(RoutedEventArgs _) { }
 
 		private void OnLinkClick(Uri e) {
 			WpfUtil.PlatformUtil.StartBrowser(e);

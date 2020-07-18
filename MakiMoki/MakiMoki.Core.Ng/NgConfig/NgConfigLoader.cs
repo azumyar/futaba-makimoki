@@ -15,7 +15,9 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 		private static readonly string NgImageConfigFile = "ng.image.json";
 		private static readonly string HiddenConfigFile = "ng.hidden.json";
 
+#pragma warning disable IDE0044
 		private static volatile object lockObj = new object();
+#pragma warning restore IDE0044
 		private static List<WeakReference<Action<NgData.NgConfig>>> ngUpdateNotifyer = new List<WeakReference<Action<NgData.NgConfig>>>();
 		private static List<WeakReference<Action<NgData.HiddenConfig>>> hiddenUpdateNotifyer = new List<WeakReference<Action<NgData.HiddenConfig>>>();
 		private static List<WeakReference<Action<NgData.NgImageConfig>>> imageUpdateNotifyer = new List<WeakReference<Action<NgData.NgImageConfig>>>();

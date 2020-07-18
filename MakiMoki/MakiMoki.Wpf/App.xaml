@@ -55,6 +55,8 @@
         <Color x:Key="ThreadBackgroundColor">#00000000</Color>
         <!-- LightGreenの100 -->
         <Color x:Key="ThreadBackgroundSerachHitColor">#C8E6C9</Color>
+        <!-- DeepOrangeの100-->
+        <Color x:Key="ThreadBackgroundQuotHitColor">#FFE0B2</Color>
         <!-- Redの500 -->
         <Color x:Key="ThreadTextOldColor">#f44336</Color>
         <!-- Blueの800 -->

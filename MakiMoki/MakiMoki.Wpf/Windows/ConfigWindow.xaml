@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.NET46"
+        xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
         xmlns:prism="http://prismlibrary.com/"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows"
@@ -149,6 +149,11 @@
                                     <ComboBoxItem>19</ComboBoxItem>
                                     <ComboBoxItem>20</ComboBoxItem>
                                 </ComboBox>
+                                <StackPanel Style="{StaticResource ConfigContents}">
+                                    <TextBlock>NG理由を入力する</TextBlock>
+                                    <TextBlock Foreground="Gray" TextWrapping="Wrap">NG画像はハッシュ化されて復元できないためNG理由はNGエントリの識別に使用します。入力しない場合デフォルトのNG理由を設定します。</TextBlock>
+                                    <CheckBox Content="有効" IsChecked="{Binding NgConfigResonInput.Value, Mode=TwoWay}" />
+                                </StackPanel>
 
                                 <StackPanel Style="{StaticResource ConfigContents}">
                                     <TextBlock>非表示レス設定保存日数</TextBlock>
@@ -225,6 +230,12 @@
                             TextBlock.FontFamily="メイリオ"
                             TextBlock.FontSize="14"
                             >
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">ウインドウ</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>常に最前面に表示する</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding WindowTopmost.Value, Mode=TwoWay}" />
+                            </StackPanel>
+
                             <TextBlock Style="{StaticResource ConfigHeaderText}">カタログ</TextBlock>
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>検索結果表示形式</TextBlock>
@@ -255,6 +266,10 @@
                             </StackPanel>
 
                             <TextBlock Style="{StaticResource ConfigHeaderText}">スレッド</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>引用に該当レスへのリンクを張る</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding ThreadIsEnabledQuotLink.Value, Mode=TwoWay}" />
+                            </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>削除されたレス</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッドを建てた人に削除されたレスとユーザが隔離したレスの初期表示を設定します。</TextBlock>

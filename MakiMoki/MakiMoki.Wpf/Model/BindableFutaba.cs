@@ -23,7 +23,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	public class BindableFutaba : INotifyPropertyChanged, IDisposable {
 		public class PostHolder : INotifyPropertyChanged, IDisposable {
 
-			private static readonly string FallbackUnicodeString = "�";
+			private static readonly string FallbackUnicodeString = "\a";
 			private static readonly Encoding FutabaEncoding = Encoding.GetEncoding(
 				"Shift_JIS",
 				new EncoderReplacementFallback(FallbackUnicodeString),
@@ -41,8 +41,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			public ReadOnlyReactiveProperty<int> CommentLines { get; }
 
 			public ReactiveProperty<string> Name { get; } = new ReactiveProperty<string>(GetDefaultName());
+			public ReadOnlyReactiveProperty<string> NameEncoded { get; }
 			public ReactiveProperty<string> Mail { get; } = new ReactiveProperty<string>(GetDefaultMail());
+			public ReadOnlyReactiveProperty<string> MailEncoded { get; }
 			public ReactiveProperty<string> Subject { get; } = new ReactiveProperty<string>(GetDefaultSubject());
+			public ReadOnlyReactiveProperty<string> SubjectEncoded { get; }
 			public ReactiveProperty<string> Password { get; } = new ReactiveProperty<string>(
 				Config.ConfigLoader.FutabaApi.SavedPassword);
 			public ReactiveProperty<string> ImagePath { get; } = new ReactiveProperty<string>("");
@@ -86,29 +89,25 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					return null;
 				}).ToReactiveProperty();
 
-				this.CommentEncoded = this.Comment.Select(x => {
-					// System.Net.WebUtility.HtmlEncode(x) ♡などをスルーするので自前で解析もする
-					var sb = new StringBuilder(System.Net.WebUtility.HtmlEncode(x));
-					for(var i = 0; i < sb.Length; i++) {
-						var c = sb[i];
-
-						var b = FutabaEncoding.GetBytes(c.ToString());
-						var s = FutabaEncoding.GetString(b);
-						if(s == FallbackUnicodeString) {
-							var ss = string.Format("&#{0};", (int)c);
-							sb.Remove(i, 1);
-							sb.Insert(i, ss);
-							i += ss.Length;
-						}
-					}
-					return sb.ToString();
-				}).ToReadOnlyReactiveProperty();
-				this.CommentBytes = this.CommentEncoded.Select(x => {
-					return FutabaEncoding.GetByteCount(x);
-				}).ToReadOnlyReactiveProperty();
-				this.CommentLines = this.Comment
-					.Select(x => (x.Length == 0) ? 0 : (x.Replace(@"\r", "").Where(y => y == '\n').Count() + 1))
+				this.CommentEncoded = this.Comment
+					.Select(x =>Util.TextUtil.ConvertUnicodeTextToFutabaComment(x))
 					.ToReadOnlyReactiveProperty();
+				this.CommentBytes = this.CommentEncoded
+					.Select(x => Util.TextUtil.GetTextFutabaByteCount(x))
+					.ToReadOnlyReactiveProperty();
+				this.CommentLines = this.Comment
+					.Select(x => (x.Length == 0) ? 0 : (x.Where(y => y == '\n').Count() + 1))
+					.ToReadOnlyReactiveProperty();
+				this.NameEncoded = this.Name
+					.Select(x => Util.TextUtil.ConvertUnicodeTextToFutabaComment(x))
+					.ToReadOnlyReactiveProperty();
+				this.MailEncoded = this.Mail
+					.Select(x => Util.TextUtil.ConvertUnicodeTextToFutabaComment(x))
+					.ToReadOnlyReactiveProperty();
+				this.SubjectEncoded = this.Subject
+					.Select(x => Util.TextUtil.ConvertUnicodeTextToFutabaComment(x))
+					.ToReadOnlyReactiveProperty();
+
 				this.CommentValidFlag = this.Comment.Select(x => x.Length != 0).ToReactiveProperty();
 				this.ImageValidFlag = this.ImagePath.Select(x => x.Length != 0).ToReactiveProperty();
 				this.CommentImageValidFlag = new[] { this.CommentValidFlag, this.ImageValidFlag }

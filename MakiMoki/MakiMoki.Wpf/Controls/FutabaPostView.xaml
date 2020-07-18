@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.NET46"
+             xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
@@ -287,10 +287,24 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconPostUpload}" AllowDrop="True">
+                    <Button 
+                        Style="{StaticResource PrimaryColorButton}"
+                        Content="{StaticResource ButtonIconPostUpload}"
+                        AllowDrop="True"
+                        Tag="{Binding DataContext, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}">
                         <Button.ToolTip>
                             <ToolTip Content="あぷ小" />
                         </Button.ToolTip>
+                        <Button.ContextMenu>
+                            <ContextMenu
+                                DataContext="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                Tag="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                                <MenuItem
+                                    Header="クリップボードから貼り付け"
+                                    Command="{Binding MenuItemClickPastePostUpCommand, Mode=OneWay}"
+                                    CommandParameter="{Binding Tag,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                            </ContextMenu>
+                        </Button.ContextMenu>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="PreviewMouseUp">
                                 <ri:EventToReactiveCommand Command="{Binding DataContext.OpenUploadCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}, Mode=OneWay}" />
