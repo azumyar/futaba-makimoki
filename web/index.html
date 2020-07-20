@@ -381,7 +381,7 @@ if(fetch && String.prototype.padStart) {
             const target = document.getElementById("futamaki-bin-link");
             const a = document.createElement("a");
             a.setAttribute("href", json.url);
-            a.textContent = "period." + json.period.toString().padStart(2, 0);
+            a.textContent = "period." + json.period.toString().padStart(2, "0");
             target.append("(最新:", a, ")");
         });
 }
