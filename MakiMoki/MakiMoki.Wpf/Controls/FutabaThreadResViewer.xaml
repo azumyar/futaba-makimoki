@@ -483,7 +483,10 @@
                                         DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
                                         Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                         <!-- Interaction.Triggers使えない？ -->
-                                        <MenuItem Header="引用" IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}">
+                                        <MenuItem
+                                            Header="引用"
+                                            Icon="{StaticResource ButtonIconComment}"
+                                            IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}">
                                             <!--
                                                 <i:Interaction.Triggers>
                                                     <i:EventTrigger EventName="Click">
@@ -508,12 +511,25 @@
                                                 CommandParameter="{Binding Mode=OneWay}"
                                                 />
                                         </MenuItem>
-                                        <MenuItem Header="レスをコピー" Click="OnMenuItemCopyClickCommand" IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}" />
+                                        <MenuItem
+                                            Header="レスをコピー" 
+                                            Icon="{StaticResource ButtonIconCopy}"
+                                            Click="OnMenuItemCopyClickCommand" 
+                                            IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}" />
                                         <Separator />
-                                        <MenuItem Header="そうだね" Click="OnMenuItemSoudaneClickCommand" />
+                                        <MenuItem 
+                                            Header="そうだね"
+                                            Icon="{StaticResource ButtonIconSoudane}"
+                                            Click="OnMenuItemSoudaneClickCommand" />
                                         <Separator />
-                                        <MenuItem Header="del" Click="OnMenuItemDelClickCommand" />
-                                        <MenuItem Header="削除" Click="OnMenuItemDeleteClickCommand" />
+                                        <MenuItem
+                                            Header="del"
+                                            Icon="{StaticResource ButtonIconDel}"
+                                            Click="OnMenuItemDelClickCommand" />
+                                        <MenuItem
+                                            Header="削除"
+                                            Icon="{StaticResource ButtonIconDelete}"
+                                            Click="OnMenuItemDeleteClickCommand" />
                                         <Separator />
                                         <MenuItem
                                             Header="NG画像登録"
@@ -562,9 +578,9 @@
                                     >
                                     <Button 
                                         Grid.Column="1" Grid.Row="1" 
-                                        Width="48" Height="24"
+                                        Width="32" Height="24"
                                         VerticalAlignment="Bottom"
-                                        Content="引用"
+                                        Content="{StaticResource ButtonIconComment}"
                                         Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}"
                                         Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
                                         <Button.Resources>
@@ -609,9 +625,9 @@
                                     </Button>
                                     <Button 
                                         Grid.Column="1" Grid.Row="1" 
-                                        Width="48" Height="24"
+                                        Width="32" Height="24"
                                         VerticalAlignment="Bottom"
-                                        Content="コピー"
+                                        Content="{StaticResource ButtonIconCopy}"
                                         Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
                                         <Button.ToolTip>
                                             <ToolTip Content="コピー" />
@@ -624,10 +640,9 @@
                                     </Button>
                                     <Button 
                                         Grid.Column="1" Grid.Row="1" 
-                                        Width="48" Height="24"
+                                        Width="32" Height="24"
                                         VerticalAlignment="Bottom"
-                                        Content="そうだね"
-                                        Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
+                                        Content="{StaticResource ButtonIconSoudane}">
                                         <Button.ToolTip>
                                             <ToolTip Content="そうだね" />
                                         </Button.ToolTip>
@@ -639,10 +654,9 @@
                                     </Button>
                                     <Button 
                                         Grid.Column="1" Grid.Row="1" 
-                                        Width="48" Height="24"
+                                        Width="32" Height="24"
                                         VerticalAlignment="Bottom"
-                                        Content="del"
-                                        Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
+                                        Content="{StaticResource ButtonIconDel}">
                                         <Button.ToolTip>
                                             <ToolTip Content="del" />
                                         </Button.ToolTip>
@@ -654,10 +668,9 @@
                                     </Button>
                                     <Button 
                                         Grid.Column="1" Grid.Row="1" 
-                                        Width="48" Height="24"
+                                        Width="32" Height="24"
                                         VerticalAlignment="Bottom"
-                                        Content="削除"
-                                        Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
+                                        Content="{StaticResource ButtonIconDelete}">
                                         <Button.ToolTip>
                                             <ToolTip Content="削除" />
                                         </Button.ToolTip>
@@ -668,7 +681,24 @@
                                         </i:Interaction.Triggers>
                                     </Button>
                                     <Button 
-                                        Width="96" Height="24"
+                                        Grid.Column="1" Grid.Row="1" 
+                                        Width="32" Height="24"
+                                        VerticalAlignment="Bottom"
+                                        Content="{StaticResource ButtonIconThreadMouse}"
+                                        Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
+                                        <Button.ToolTip>
+                                            <ToolTip Content="コピーモード" />
+                                        </Button.ToolTip>
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="Click">
+                                                <i:CallMethodAction
+                                                    MethodName="StartCopyMode"
+                                                    TargetObject="{Binding }" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </Button>
+                                    <Button 
+                                        Width="72" Height="24"
                                         Margin="2 0 0 0"
                                         VerticalAlignment="Bottom"
                                         Visibility="{Binding ReleaseHiddenResBuutonVisibility.Value, Mode=OneWay}">
@@ -682,7 +712,7 @@
                                         </i:Interaction.Triggers>
                                     </Button>
                                     <Button 
-                                        Width="96" Height="24"
+                                        Width="72" Height="24"
                                         Margin="2 0 0 0"
                                         VerticalAlignment="Bottom"
                                         Visibility="{Binding ShowNgResButtonVisibility.Value, Mode=OneWay}">
@@ -695,156 +725,8 @@
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                     </Button>
-
-                                    <Button 
-                                        Grid.Column="1" Grid.Row="1" 
-                                        Width="24" Height="24"
-                                        VerticalAlignment="Bottom"
-                                        Content="{StaticResource ButtonIconThreadMouse}"
-                                        Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="Click">
-                                                <i:CallMethodAction
-                                                    MethodName="StartCopyMode"
-                                                    TargetObject="{Binding }" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </Button>
                                 </StackPanel>
-                                <!--
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="24" />
-                                    </Grid.RowDefinitions>
-                                    <WrapPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal"
-                                               TextBlock.FontSize="{DynamicResource ThreadHeaderFontSize}"
-                                               TextBlock.FontFamily="{DynamicResource ThreadHeaderFont}">
-                                        <TextBlock>
-                                            <TextBlock.Style>
-                                                <MultiBinding Converter="{StaticResource FutabaResItemIndexConverter}">
-                                                    <Binding Mode="OneWay" />
-                                                    <Binding Path="Value" Mode="OneWay" Source="{x:Static util:Futaba.PostItems}" />
-                                                    <Binding Source="{StaticResource ResIndexStyle}" />
-                                                    <Binding Source="{StaticResource PostedResIndexStyle}"  />
-                                                </MultiBinding>
-                                            </TextBlock.Style>
-                                            <Run Text="{Binding Index.Value, StringFormat='\{0\} ', Mode=OneWay}" />
-                                        </TextBlock>
-                                        <TextBlock Visibility="{Binding NameVisibility.Value, Mode=OneWay}">
-                                            <TextBlock.Foreground>
-                                                <SolidColorBrush Color="{DynamicResource ThreadHeaderSubjectColor}" />
-                                            </TextBlock.Foreground>
-                                            <Run Text="{Binding Raw.Value.ResItem.Res.Sub, StringFormat='\{0\}', Mode=OneWay}" FontWeight="Bold" />
-                                            <Run Text=" " />
-                                        </TextBlock>
-                                        <TextBlock Visibility="{Binding NameVisibility.Value, Mode=OneWay}">
-                                            <TextBlock.Foreground>
-                                                <SolidColorBrush Color="{DynamicResource ThreadHeaderNameColor}" />
-                                            </TextBlock.Foreground>
-                                            <Run Text="{Binding Raw.Value.ResItem.Res.Name, StringFormat='\{0\}', Mode=OneWay}" FontWeight="Bold" />
-                                            <Run Text=" " />
-                                        </TextBlock>
-                                        <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Email, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
-                                            <TextBlock.Foreground>
-                                                <SolidColorBrush Color="{DynamicResource ThreadHeaderMailColor}" />
-                                            </TextBlock.Foreground>
-                                            <Run Text="{Binding Raw.Value.ResItem.Res.Email,  StringFormat='[\{0\}] ', Mode=OneWay}" />
-                                        </TextBlock>
-                                        <TextBlock>
-                                            <Run Text="{Binding Raw.Value.ResItem.Res.Now, StringFormat='\{0\} ', Converter={StaticResource FutabaResItemNowConverter}, Mode=OneWay}" />
-                                        </TextBlock>
-                                        <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Id, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
-                                            <Run Text="{Binding Converter={StaticResource FutabaResItemIdTextConverter}, Mode=OneWay}" />
-                                            <Run Text=" " />
-                                        </TextBlock>
-                                        <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
-                                            <TextBlock.Foreground>
-                                                <SolidColorBrush Color="{DynamicResource ThreadHeaderSoudaneColor}" />
-                                            </TextBlock.Foreground>
-                                            <Run Text="{Binding Raw.Value.Soudane, Mode=OneWay, StringFormat='そうだね×\{0\} '}" />
-                                        </TextBlock>
-                                        <TextBlock>
-                                            <Run Text="{Binding Raw.Value.ResItem.No,  StringFormat='No.\{0\} ', Mode=OneWay}" />
-                                        </TextBlock>
-                                    </WrapPanel>
-                                    <WrapPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" 
-                                               TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
-                                               TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
-                                        <Grid  Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}"
-                                               TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
-                                               TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto" />
-                                                <RowDefinition Height="*" />
-                                            </Grid.RowDefinitions>
-                                            <TextBlock
-                                                Grid.Row="0"
-                                                FontSize="14"
-                                                Text="{Binding ImageName.Value}" 
-                                                HorizontalAlignment="Left" />
-                                            <Viewbox
-                                                Grid.Row="1"
-                                                HorizontalAlignment="Left"
-                                                StretchDirection="DownOnly">
-                                                <Button BorderThickness="0" BorderBrush="Transparent" Margin="0 0 4 0">
-                                                    <Image 
-                                                        Source="{Binding ThumbSource.Value}"
-                                                        RenderOptions.EdgeMode="Aliased"
-                                                        RenderOptions.BitmapScalingMode="Fant">
-                                                        <Image.CacheMode>
-                                                            <BitmapCache RenderAtScale="1" />
-                                                        </Image.CacheMode>
-                                                        <i:Interaction.Triggers>
-                                                            <i:EventTrigger EventName="Loaded">
-                                                                <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
-                                                            </i:EventTrigger>
-                                                        </i:Interaction.Triggers>
-                                                    </Image>
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="PreviewMouseDown">
-                                                            <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadImageMouseDownCommand, ElementName=_this}" />
-                                                        </i:EventTrigger>
-                                                        <i:EventTrigger EventName="PreviewMouseUp">
-                                                            <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadImageClickCommand, ElementName=_this}" />
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                </Button>
-                                            </Viewbox>
-                                        </Grid>
-                                        <local:FutabaCommentBlock Text="{Binding CommentHtml.Value, Mode=OneWay}" TextWrapping="Wrap" Margin="4 4 0 4">
-                                            <local:FutabaCommentBlock.Inline>
-                                                <Binding Mode="OneWay" />
-                                            </local:FutabaCommentBlock.Inline>
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="LinkClick">
-                                                    <ri:EventToReactiveCommand Command="{Binding DataContext.LinkClickCommand, ElementName=_this}" />
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                        </local:FutabaCommentBlock>
-                                    </WrapPanel>
-                                    <Button 
-                                        x:Name="copyButton" 
-                                        Grid.Column="1" Grid.Row="2" 
-                                        Width="24" Height="24" Opacity="0.6"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Bottom" Visibility="Hidden">
-                                        <TextBlock>マ</TextBlock>
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="Click">
-                                                <i:CallMethodAction
-                                                    MethodName="StartCopyMode"
-                                                    TargetObject="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </Button>
-                                </Grid>
-                                -->
+
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseEnter">
                                         <i:ChangePropertyAction PropertyName="Visibility" TargetName="copyButton" Value="Visible" />

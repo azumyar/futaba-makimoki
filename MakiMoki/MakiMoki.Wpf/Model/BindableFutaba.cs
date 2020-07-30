@@ -608,7 +608,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					.CombineLatest(this.IsVisibleOriginComment, (x, y) => (x | y) ? Visibility.Visible : Visibility.Collapsed)
 					.ToReactiveProperty();
 				this.ShowNgResButtonText = this.IsVisibleOriginComment
-						.Select(x => x ? "レスを非表示" : "レスを表示")
+						.Select(x => x ? "非表示" : "レスを表示")
 						.ToReactiveProperty();
 
 				ngUpdateAction = (x) => a();
