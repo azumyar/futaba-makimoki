@@ -62,7 +62,14 @@
                 x:Key="ThreadResHamburgerContextMenu"
                 Placement="Bottom"
                 VerticalOffset="4" HorizontalOffset="0">
-                <MenuItem Header="URLをコピー" Click="OnThreadResHamburgerItemUrlClickCommand" />
+                <MenuItem 
+                    Header="URLをコピー"
+                    Command="{Binding DataContext.ThreadResHamburgerItemCopyUrlClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                    CommandParameter="{Binding Tag, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"/>
+                <MenuItem 
+                    Header="ブラウザで開く"
+                    Command="{Binding DataContext.ThreadResHamburgerItemOpenUrlClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                    CommandParameter="{Binding Tag, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"/>
             </ContextMenu>
 
             <Storyboard x:Key="QuotHitStoryboard">
@@ -514,22 +521,26 @@
                                         <MenuItem
                                             Header="レスをコピー" 
                                             Icon="{StaticResource ButtonIconCopy}"
-                                            Click="OnMenuItemCopyClickCommand" 
+                                            Command="{Binding Tag.MenuItemCopyClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                            CommandParameter="{Binding Mode=OneWay}"
                                             IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}" />
                                         <Separator />
                                         <MenuItem 
                                             Header="そうだね"
                                             Icon="{StaticResource ButtonIconSoudane}"
-                                            Click="OnMenuItemSoudaneClickCommand" />
+                                            Command="{Binding Tag.MenuItemSoudaneClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                            CommandParameter="{Binding Mode=OneWay}" />
                                         <Separator />
                                         <MenuItem
                                             Header="del"
                                             Icon="{StaticResource ButtonIconDel}"
-                                            Click="OnMenuItemDelClickCommand" />
+                                            Command="{Binding Tag.MenuItemDelClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                            CommandParameter="{Binding Mode=OneWay}" />
                                         <MenuItem
                                             Header="削除"
                                             Icon="{StaticResource ButtonIconDelete}"
-                                            Click="OnMenuItemDeleteClickCommand" />
+                                            Command="{Binding Tag.MenuItemDeleteClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                            CommandParameter="{Binding Mode=OneWay}" />
                                         <Separator />
                                         <MenuItem
                                             Header="NG画像登録"

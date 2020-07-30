@@ -62,7 +62,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<TextChangedEventArgs> FilterTextChangedCommand { get; } = new ReactiveCommand<TextChangedEventArgs>();
 
-		public ReactiveCommand<RoutedEventArgs> ThreadResHamburgerItemUrlClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<Model.IFutabaViewerContents> ThreadResHamburgerItemCopyUrlClickCommand { get; } = new ReactiveCommand<Model.IFutabaViewerContents>();
+		public ReactiveCommand<Model.IFutabaViewerContents> ThreadResHamburgerItemOpenUrlClickCommand { get; } = new ReactiveCommand<Model.IFutabaViewerContents>();
 
 		public ReactiveCommand<Model.BindableFutaba> WheelUpdateCommand { get; } = new ReactiveCommand<BindableFutaba>();
 
@@ -72,13 +73,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<RoutedEventArgs> PaletteButtonDeleteCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
 		public ReactiveCommand<BindableFutaba> MenuItemFullUpdateClickCommand { get; } = new ReactiveCommand<BindableFutaba>();
-		public ReactiveCommand<RoutedEventArgs> MenuItemCopyClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemCopyClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemReplyClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemReplyResNoClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemReplyImageNameoClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
-		public ReactiveCommand<RoutedEventArgs> MenuItemSoudaneClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
-		public ReactiveCommand<RoutedEventArgs> MenuItemDelClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
-		public ReactiveCommand<RoutedEventArgs> MenuItemDeleteClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemSoudaneClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
+		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemDelClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
+		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemDeleteClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemNgImageCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemResHiddenCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 
@@ -111,7 +112,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			QuotClickCommand.Subscribe(x => OnQuotClick(x));
 			WheelUpdateCommand.Subscribe(x => OnWheelUpdate(x));
 
-			ThreadResHamburgerItemUrlClickCommand.Subscribe(x => OnThreadResHamburgerItemUrlClick(x));
+			ThreadResHamburgerItemCopyUrlClickCommand.Subscribe(x => OnThreadResHamburgerItemCopyUrlClick(x));
+			ThreadResHamburgerItemOpenUrlClickCommand.Subscribe(x => OnThreadResHamburgerItemOpenUrlClick(x));
 			MenuItemFullUpdateClickCommand.Subscribe(x => OnMenuItemFullUpdateClick(x));
 			MenuItemCopyClickCommand.Subscribe(x => OnMenuItemCopyClickCommand(x));
 			MenuItemReplyClickCommand.Subscribe(x => OnMenuItemReplyClickCommand(x));
@@ -267,21 +269,39 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private void OnPaletteButtonCopy(RoutedEventArgs e) => OnMenuItemCopyClickCommand(e);
-
-		private void OnPaletteButtonSoudane(RoutedEventArgs e) => OnMenuItemSoudaneClickCommand(e);
-
-		private void OnPaletteButtonDel(RoutedEventArgs e) => OnMenuItemDelClickCommand(e);
-
-		private void OnPaletteButtonDelete(RoutedEventArgs e) => OnMenuItemDeleteClickCommand(e);
-
-		private void OnThreadResHamburgerItemUrlClick(RoutedEventArgs e) {
-			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
-				var u = c.Futaba.Value.Raw.Url;
-				if(u.IsThreadUrl) {
-					Clipboard.SetText(Util.Futaba.GetFutabaThreadUrl(u));
-				}
+		private void OnPaletteButtonCopy(RoutedEventArgs e) {
+			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
+				OnMenuItemCopyClickCommand(ri);
 			}
+		}
+
+		private void OnPaletteButtonSoudane(RoutedEventArgs e) {
+			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
+				OnMenuItemSoudaneClickCommand(ri);
+			}
+		}
+
+		private void OnPaletteButtonDel(RoutedEventArgs e) {
+			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
+				OnMenuItemDelClickCommand(ri);
+			}
+		}
+
+		private void OnPaletteButtonDelete(RoutedEventArgs e) {
+			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
+				OnMenuItemDeleteClickCommand(ri);
+			}
+		}
+
+		private void OnThreadResHamburgerItemCopyUrlClick(Model.IFutabaViewerContents c) {
+			var u = c.Futaba.Value.Raw.Url;
+			if(u.IsThreadUrl) {
+				Clipboard.SetText(Util.Futaba.GetFutabaThreadUrl(u));
+			}
+		}
+
+		private void OnThreadResHamburgerItemOpenUrlClick(Model.IFutabaViewerContents c) {
+			WpfUtil.PlatformUtil.StartBrowser(new Uri(Util.Futaba.GetFutabaThreadUrl(c.Futaba.Value.Raw.Url)));
 		}
 
 		private void OnMenuItemFullUpdateClick(BindableFutaba futaba) {
@@ -289,34 +309,32 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				.Subscribe();
 		}
 
-		private void OnMenuItemCopyClickCommand(RoutedEventArgs e) {
-			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
-				var sb = new StringBuilder()
-					.Append("No.")
-					.Append(ri.Raw.Value.ResItem.No);
-				if(ri.Bord.Value.Extra?.NameValue ?? true) {
-					sb.Append(" ")
-						.Append(ri.Raw.Value.ResItem.Res.Sub)
-						.Append(" ")
-						.Append(ri.Raw.Value.ResItem.Res.Name);
-				}
-				if(!string.IsNullOrWhiteSpace(ri.Raw.Value.ResItem.Res.Email)) {
-					sb.Append(" [").Append(ri.Raw.Value.ResItem.Res.Email).Append("]");
-				}
-				sb.Append(" ").Append(ri.Raw.Value.ResItem.Res.Now);
-				if(!string.IsNullOrWhiteSpace(ri.Raw.Value.ResItem.Res.Host)) {
-					sb.Append(" ").Append(ri.Raw.Value.ResItem.Res.Host);
-				}
-				if(!string.IsNullOrWhiteSpace(ri.Raw.Value.ResItem.Res.Id)) {
-					sb.Append(" ").Append(ri.Raw.Value.ResItem.Res.Id);
-				}
-				if(0 < ri.Raw.Value.Soudane) {
-					sb.Append(" そうだね×").Append(ri.Raw.Value.Soudane);
-				}
-				sb.AppendLine();
-				sb.Append(WpfUtil.TextUtil.RawComment2Text(ri.Raw.Value.ResItem.Res.Com));
-				Clipboard.SetText(sb.ToString());
+		private void OnMenuItemCopyClickCommand(Model.BindableFutabaResItem item) {
+			var sb = new StringBuilder()
+				.Append("No.")
+				.Append(item.Raw.Value.ResItem.No);
+			if(item.Bord.Value.Extra?.NameValue ?? true) {
+				sb.Append(" ")
+					.Append(item.Raw.Value.ResItem.Res.Sub)
+					.Append(" ")
+					.Append(item.Raw.Value.ResItem.Res.Name);
 			}
+			if(!string.IsNullOrWhiteSpace(item.Raw.Value.ResItem.Res.Email)) {
+				sb.Append(" [").Append(item.Raw.Value.ResItem.Res.Email).Append("]");
+			}
+			sb.Append(" ").Append(item.Raw.Value.ResItem.Res.Now);
+			if(!string.IsNullOrWhiteSpace(item.Raw.Value.ResItem.Res.Host)) {
+				sb.Append(" ").Append(item.Raw.Value.ResItem.Res.Host);
+			}
+			if(!string.IsNullOrWhiteSpace(item.Raw.Value.ResItem.Res.Id)) {
+				sb.Append(" ").Append(item.Raw.Value.ResItem.Res.Id);
+			}
+			if(0 < item.Raw.Value.Soudane) {
+				sb.Append(" そうだね×").Append(item.Raw.Value.Soudane);
+			}
+			sb.AppendLine();
+			sb.Append(WpfUtil.TextUtil.RawComment2Text(item.Raw.Value.ResItem.Res.Com));
+			Clipboard.SetText(sb.ToString());
 		}
 
 		private void OnMenuItemReplyClickCommand(Model.BindableFutabaResItem item) {
@@ -342,64 +360,56 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			this.PostViewVisibility.Value = Visibility.Visible;
 		}
 
-		private void OnMenuItemSoudaneClickCommand(RoutedEventArgs e) {
-			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
-				Util.Futaba.PostSoudane(ri.Bord.Value, ri.Raw.Value.ResItem.No)
-					.ObserveOn(UIDispatcherScheduler.Default)
-					.Subscribe(x => {
-						var m = x.Message;
-						if(x.Successed) {
-							if(int.TryParse(x.Message, out var i)) {
-								Util.Futaba.PutInformation(new Information($"そうだねx{ i }"));
-								if(ri.Raw.Value.Soudane != i) {
-									Util.Futaba.UpdateThreadRes(
-										ri.Bord.Value,
-										ri.Raw.Value.Url.ThreadNo,
-										Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
-										.Subscribe();
-								}
-								goto exit;
+		private void OnMenuItemSoudaneClickCommand(Model.BindableFutabaResItem item) {
+			Util.Futaba.PostSoudane(item.Bord.Value, item.Raw.Value.ResItem.No)
+				.ObserveOn(UIDispatcherScheduler.Default)
+				.Subscribe(x => {
+					var m = x.Message;
+					if(x.Successed) {
+						if(int.TryParse(x.Message, out var i)) {
+							Util.Futaba.PutInformation(new Information($"そうだねx{ i }"));
+							if(item.Raw.Value.Soudane != i) {
+								Util.Futaba.UpdateThreadRes(
+									item.Bord.Value,
+									item.Raw.Value.Url.ThreadNo,
+									Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
+									.Subscribe();
 							}
-							m = "不明なエラー";
+							goto exit;
 						}
-						Util.Futaba.PutInformation(new Information(m));
-					exit:;
-					});
-			}
+						m = "不明なエラー";
+					}
+					Util.Futaba.PutInformation(new Information(m));
+				exit:;
+				});
 		}
 
-		private void OnMenuItemDelClickCommand(RoutedEventArgs e) {
-			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
-				// TODO: 確認ダイアログを出す
-				var resNo = ri.Raw.Value.ResItem.No;
-				var threadNo = ri.Parent.Value.Url.IsCatalogUrl ? resNo : ri.Parent.Value.ResItems.First().Raw.Value.ResItem.No;
-				Util.Futaba.PostDel(ri.Bord.Value, threadNo, resNo)
-					.ObserveOn(UIDispatcherScheduler.Default)
-					.Subscribe(x => {
-						if(x.Successed) {
-							Util.Futaba.PutInformation(new Information("del送信"));
-						} else {
-							Util.Futaba.PutInformation(new Information(x.Message));
-						}
-					});
-			}
+		private void OnMenuItemDelClickCommand(Model.BindableFutabaResItem item) {
+			var resNo = item.Raw.Value.ResItem.No;
+			var threadNo = item.Parent.Value.Url.IsCatalogUrl ? resNo : item.Parent.Value.ResItems.First().Raw.Value.ResItem.No;
+			Util.Futaba.PostDel(item.Bord.Value, threadNo, resNo)
+				.ObserveOn(UIDispatcherScheduler.Default)
+				.Subscribe(x => {
+					if(x.Successed) {
+						Util.Futaba.PutInformation(new Information("del送信"));
+					} else {
+						Util.Futaba.PutInformation(new Information(x.Message));
+					}
+				});
 		}
 
-		private void OnMenuItemDeleteClickCommand(RoutedEventArgs e) {
-			System.Diagnostics.Debug.WriteLine(e);
-			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
-				// TODO: 確認ダイアログを出す
-				Util.Futaba.PostDeleteThreadRes(ri.Bord.Value, ri.Raw.Value.ResItem.No, false, Config.ConfigLoader.FutabaApi.SavedPassword)
-					.ObserveOn(UIDispatcherScheduler.Default)
-					.Subscribe(x => {
-						if(x.Successed) {
-							Util.Futaba.PutInformation(new Information("削除しました"));
-							Util.Futaba.UpdateThreadRes(ri.Bord.Value, ri.Raw.Value.Url.ThreadNo).Subscribe();
-						} else {
-							Util.Futaba.PutInformation(new Information(x.Message));
-						}
-					});
-			}
+		private void OnMenuItemDeleteClickCommand(Model.BindableFutabaResItem item) {
+			// TODO: 確認ダイアログを出す
+			Util.Futaba.PostDeleteThreadRes(item.Bord.Value, item.Raw.Value.ResItem.No, false, Config.ConfigLoader.FutabaApi.SavedPassword)
+				.ObserveOn(UIDispatcherScheduler.Default)
+				.Subscribe(x => {
+					if(x.Successed) {
+						Util.Futaba.PutInformation(new Information("削除しました"));
+						Util.Futaba.UpdateThreadRes(item.Bord.Value, item.Raw.Value.Url.ThreadNo).Subscribe();
+					} else {
+						Util.Futaba.PutInformation(new Information(x.Message));
+					}
+				});
 		}
 
 		private void OnMenuItemResHidden(Model.BindableFutabaResItem x) {
