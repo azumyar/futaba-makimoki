@@ -330,6 +330,13 @@
                                 CommandParameter="{Binding NavigateUri, RelativeSource={RelativeSource self}}">
                                 https://dev.yarukizero.net/
                             </Hyperlink>
+                            <LineBreak />
+                            <Hyperlink
+                                NavigateUri="https://marshmallow-qa.com/yarukizero_dev"
+                                Command="{Binding LinkClickCommand, Mode=OneWay}"
+                                CommandParameter="{Binding NavigateUri, RelativeSource={RelativeSource self}}">
+                                マシュマロ(連絡先)
+                            </Hyperlink>
                         </TextBlock>
                     </StackPanel>
                 </Grid>
