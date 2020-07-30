@@ -184,7 +184,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		private void OnThreadResHamburgerItemUrlClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.ThreadResHamburgerItemUrlClickCommand.Execute(e);
 
 		private void OnMenuItemCopyClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.MenuItemCopyClickCommand.Execute(e);
-		private void OnMenuItemReplyClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.MenuItemReplyClickCommand.Execute(e);
+		//private void OnMenuItemReplyClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.MenuItemReplyClickCommand.Execute(e);
 		private void OnMenuItemSoudaneClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.MenuItemSoudaneClickCommand.Execute(e);
 		private void OnMenuItemDelClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.MenuItemDelClickCommand.Execute(e);
 		private void OnMenuItemDeleteClickCommand(object swender, RoutedEventArgs e) => GetViewModel()?.MenuItemDeleteClickCommand.Execute(e);

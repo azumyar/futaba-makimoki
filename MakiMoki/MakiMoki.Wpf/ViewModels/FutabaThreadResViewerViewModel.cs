@@ -66,10 +66,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<Model.BindableFutaba> WheelUpdateCommand { get; } = new ReactiveCommand<BindableFutaba>();
 
+		public ReactiveCommand<RoutedEventArgs> PaletteButtonCopyCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<RoutedEventArgs> PaletteButtonSoudaneCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<RoutedEventArgs> PaletteButtonDelCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<RoutedEventArgs> PaletteButtonDeleteCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
 		public ReactiveCommand<BindableFutaba> MenuItemFullUpdateClickCommand { get; } = new ReactiveCommand<BindableFutaba>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemCopyClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
-		public ReactiveCommand<RoutedEventArgs> MenuItemReplyClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemReplyClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemReplyResNoClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemReplyImageNameoClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<RoutedEventArgs> MenuItemSoudaneClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
@@ -119,6 +123,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			MenuItemResHiddenCommand.Subscribe(x => OnMenuItemResHidden(x));
 			MenuItemNgImageCommand.Subscribe(x => OnMenuItemNgImage(x));
 
+			PaletteButtonCopyCommand.Subscribe(x => OnPaletteButtonCopy(x));
+			PaletteButtonSoudaneCommand.Subscribe(x => OnPaletteButtonSoudane(x));
+			PaletteButtonDelCommand.Subscribe(x => OnPaletteButtonDel(x));
+			PaletteButtonDeleteCommand.Subscribe(x => OnPaletteButtonDelete(x));
+		
 			CopyTextboxQuotCommand.Subscribe(x => OnCopyTextboxQuot(x));
 			CopyTextboxSearchCommand.Subscribe(x => OnCopyTextboxSearch(x));
 			CopyTextboxNgCommand.Subscribe(x => OnCopyTextboxNg(x));
@@ -258,6 +267,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
+		private void OnPaletteButtonCopy(RoutedEventArgs e) => OnMenuItemCopyClickCommand(e);
+
+		private void OnPaletteButtonSoudane(RoutedEventArgs e) => OnMenuItemSoudaneClickCommand(e);
+
+		private void OnPaletteButtonDel(RoutedEventArgs e) => OnMenuItemDelClickCommand(e);
+
+		private void OnPaletteButtonDelete(RoutedEventArgs e) => OnMenuItemDeleteClickCommand(e);
+
 		private void OnThreadResHamburgerItemUrlClick(RoutedEventArgs e) {
 			if(e.Source is MenuItem el && WpfUtil.WpfHelper.FindFirstParent<ContextMenu>(el)?.Tag is Model.IFutabaViewerContents c) {
 				var u = c.Futaba.Value.Raw.Url;
@@ -302,17 +319,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private void OnMenuItemReplyClickCommand(RoutedEventArgs e) {
-			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
-				var sb = new StringBuilder();
-				var c = WpfUtil.TextUtil.RawComment2Text(ri.Raw.Value.ResItem.Res.Com).Replace("\r", "").Split('\n');
-				foreach(var s in c) {
-					sb.Append(">").AppendLine(s);
-				}
-				FutabaPostViewViewModel.Messenger.Instance.GetEvent<PubSubEvent<FutabaPostViewViewModel.ReplaceTextMessage>>()
-					.Publish(new FutabaPostViewViewModel.ReplaceTextMessage(ri.Parent.Value.Url, sb.ToString()));
-				this.PostViewVisibility.Value = Visibility.Visible;
+		private void OnMenuItemReplyClickCommand(Model.BindableFutabaResItem item) {
+			var sb = new StringBuilder();
+			var c = WpfUtil.TextUtil.RawComment2Text(item.Raw.Value.ResItem.Res.Com).Replace("\r", "").Split('\n');
+			foreach(var s in c) {
+				sb.Append(">").AppendLine(s);
 			}
+			FutabaPostViewViewModel.Messenger.Instance.GetEvent<PubSubEvent<FutabaPostViewViewModel.ReplaceTextMessage>>()
+				.Publish(new FutabaPostViewViewModel.ReplaceTextMessage(item.Parent.Value.Url, sb.ToString()));
+			this.PostViewVisibility.Value = Visibility.Visible;
 		}
 
 		private void OnMenuItemReplyResNoClick(Model.BindableFutabaResItem item) {
