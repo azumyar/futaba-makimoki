@@ -515,6 +515,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> ThreadResNo { get; }
 		public ReactiveProperty<Data.FutabaContext.Item> Raw { get; }
 
+		public ReactiveProperty<string> HeadLineHtml { get; }
 		public ReactiveProperty<string> DisplayHtml { get; }
 		public ReactiveProperty<string> CommentHtml { get; }
 		public ReactiveProperty<string> OriginHtml { get; }
@@ -571,16 +572,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 			// delとhostの処理
 			{
-				var com = new StringBuilder();
+				var headLine = new StringBuilder();
 				if(Raw.Value.ResItem.Res.IsDel) {
-					com.Append("<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font><br>");
+					headLine.Append("<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font><br>");
 				} else if(Raw.Value.ResItem.Res.IsDel2) {
-					com.Append("<font color=\"#ff0000\">削除依頼によって隔離されました</font><br>");
+					headLine.Append("<font color=\"#ff0000\">削除依頼によって隔離されました</font><br>");
 				}
 				if(!string.IsNullOrEmpty(Raw.Value.ResItem.Res.Host)) {
-					com.AppendFormat("[<font color=\"#ff0000\">{0}</font>]<br>", Raw.Value.ResItem.Res.Host);
+					headLine.AppendFormat("[<font color=\"#ff0000\">{0}</font>]<br>", Raw.Value.ResItem.Res.Host);
 				}
-				com.Append(Raw.Value.ResItem.Res.Com);
 				this.IsNg = new ReactiveProperty<bool>(
 					parent.Url.IsCatalogUrl ? Ng.NgUtil.NgHelper.CheckCatalogNg(parent.Raw, item)
 						: Ng.NgUtil.NgHelper.CheckThreadNg(parent.Raw, item));
@@ -589,8 +589,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					(item.ResItem.Res.IsDel || item.ResItem.Res.IsDel2)
 						&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden));
 				this.IsNgImageHidden = new ReactiveProperty<bool>(false);
+				this.HeadLineHtml = new ReactiveProperty<string>(headLine.ToString());
 				this.CommentHtml = new ReactiveProperty<string>("");
-				this.OriginHtml = new ReactiveProperty<string>(com.ToString());
+				this.OriginHtml = new ReactiveProperty<string>(Raw.Value.ResItem.Res.Com);
 				this.SetCommentHtml();
 				this.IsVisibleOriginComment = new ReactiveProperty<bool>((this.IsHidden.Value || this.IsNg.Value || this.IsDel.Value) ? false : true);
 				this.DisplayHtml = IsVisibleOriginComment
