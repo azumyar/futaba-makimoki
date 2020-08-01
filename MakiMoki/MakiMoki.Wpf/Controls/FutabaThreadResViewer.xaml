@@ -489,11 +489,16 @@
                                     <ContextMenu
                                         DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
                                         Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                                        <ContextMenu.Foreground>
+                                            <SolidColorBrush Color="{x:Static SystemColors.ControlTextColor}" />
+                                        </ContextMenu.Foreground>
                                         <!-- Interaction.Triggers使えない？ -->
                                         <MenuItem
                                             Header="引用"
-                                            Icon="{StaticResource ButtonIconComment}"
                                             IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}">
+                                            <MenuItem.Icon>
+                                                <ContentControl Content="{StaticResource ButtonIconComment}" />
+                                            </MenuItem.Icon>
                                             <!--
                                                 <i:Interaction.Triggers>
                                                     <i:EventTrigger EventName="Click">
@@ -520,27 +525,44 @@
                                         </MenuItem>
                                         <MenuItem
                                             Header="レスをコピー" 
-                                            Icon="{StaticResource ButtonIconCopy}"
                                             Command="{Binding Tag.MenuItemCopyClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                             CommandParameter="{Binding Mode=OneWay}"
-                                            IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}" />
+                                            IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}">
+                                            <MenuItem.Icon>
+                                                <ContentControl Content="{StaticResource ButtonIconCopy}" />
+                                            </MenuItem.Icon>
+                                        </MenuItem>
                                         <Separator />
                                         <MenuItem 
                                             Header="そうだね"
-                                            Icon="{StaticResource ButtonIconSoudane}"
                                             Command="{Binding Tag.MenuItemSoudaneClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                            CommandParameter="{Binding Mode=OneWay}" />
+                                            CommandParameter="{Binding Mode=OneWay}">
+                                            <MenuItem.Icon>
+                                                <ContentControl Content="{StaticResource ButtonIconSoudane}" />
+                                            </MenuItem.Icon>
+                                        </MenuItem>
                                         <Separator />
                                         <MenuItem
                                             Header="del"
-                                            Icon="{StaticResource ButtonIconDel}"
                                             Command="{Binding Tag.MenuItemDelClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                            CommandParameter="{Binding Mode=OneWay}" />
-                                        <MenuItem
-                                            Header="削除"
-                                            Icon="{StaticResource ButtonIconDelete}"
-                                            Command="{Binding Tag.MenuItemDeleteClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                            CommandParameter="{Binding Mode=OneWay}" />
+                                            CommandParameter="{Binding Mode=OneWay}">
+                                            <MenuItem.Icon>
+                                                <ContentControl Content="{StaticResource ButtonIconDel}" />
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="削除">
+                                            <MenuItem.Icon>
+                                                <ContentControl Content="{StaticResource ButtonIconDelete}" />
+                                            </MenuItem.Icon>
+                                            <MenuItem
+                                                Header="レスを削除"
+                                                Command="{Binding Tag.MenuItemDeleteClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding Mode=OneWay}" />
+                                            <MenuItem
+                                                Header="画像のみ削除"
+                                                Command="{Binding Tag.MenuItemDeleteImageClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding Mode=OneWay}" />
+                                        </MenuItem>
                                         <Separator />
                                         <MenuItem
                                             Header="NG画像登録"
@@ -682,12 +704,35 @@
                                         Width="32" Height="24"
                                         VerticalAlignment="Bottom"
                                         Content="{StaticResource ButtonIconDelete}">
+                                        <Button.Resources>
+                                            <ContextMenu
+                                                x:Key="ContextMenu"
+                                                Placement="Top"
+                                                DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                                Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                                                <MenuItem
+                                                    Header="レスを削除"
+                                                    Command="{Binding Tag.MenuItemDeleteClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                    CommandParameter="{Binding Mode=OneWay}" />
+                                                <MenuItem
+                                                    Header="画像のみ削除"
+                                                    Command="{Binding Tag.MenuItemDeleteImageClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                    CommandParameter="{Binding Mode=OneWay}" />
+                                            </ContextMenu>
+                                        </Button.Resources>
                                         <Button.ToolTip>
                                             <ToolTip Content="削除" />
                                         </Button.ToolTip>
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="Click">
-                                                <ri:EventToReactiveCommand Command="{Binding DataContext.PaletteButtonDeleteCommand, Mode=OneWay, ElementName=_this}" />
+                                                <i:ChangePropertyAction 
+                                                    TargetObject="{StaticResource ContextMenu}" 
+                                                    PropertyName="IsOpen"
+                                                    Value="True"/>
+                                                <i:ChangePropertyAction
+                                                    TargetObject="{StaticResource ContextMenu}" 
+                                                    PropertyName="PlacementTarget" 
+                                                    Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                     </Button>

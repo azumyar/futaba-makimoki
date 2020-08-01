@@ -70,7 +70,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<RoutedEventArgs> PaletteButtonCopyCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> PaletteButtonSoudaneCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> PaletteButtonDelCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
-		public ReactiveCommand<RoutedEventArgs> PaletteButtonDeleteCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
 		public ReactiveCommand<BindableFutaba> MenuItemFullUpdateClickCommand { get; } = new ReactiveCommand<BindableFutaba>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemCopyClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
@@ -80,6 +79,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemSoudaneClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemDelClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemDeleteClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
+		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemDeleteImageClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemNgImageCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemResHiddenCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 
@@ -122,13 +122,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			MenuItemSoudaneClickCommand.Subscribe(x => OnMenuItemSoudaneClickCommand(x));
 			MenuItemDelClickCommand.Subscribe(x => OnMenuItemDelClickCommand(x));
 			MenuItemDeleteClickCommand.Subscribe(x => OnMenuItemDeleteClickCommand(x));
+			MenuItemDeleteImageClickCommand.Subscribe(x => OnMenuItemDeleteImageClickCommand(x));
 			MenuItemResHiddenCommand.Subscribe(x => OnMenuItemResHidden(x));
 			MenuItemNgImageCommand.Subscribe(x => OnMenuItemNgImage(x));
 
 			PaletteButtonCopyCommand.Subscribe(x => OnPaletteButtonCopy(x));
 			PaletteButtonSoudaneCommand.Subscribe(x => OnPaletteButtonSoudane(x));
 			PaletteButtonDelCommand.Subscribe(x => OnPaletteButtonDel(x));
-			PaletteButtonDeleteCommand.Subscribe(x => OnPaletteButtonDelete(x));
 		
 			CopyTextboxQuotCommand.Subscribe(x => OnCopyTextboxQuot(x));
 			CopyTextboxSearchCommand.Subscribe(x => OnCopyTextboxSearch(x));
@@ -287,12 +287,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private void OnPaletteButtonDelete(RoutedEventArgs e) {
-			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
-				OnMenuItemDeleteClickCommand(ri);
-			}
-		}
-
 		private void OnThreadResHamburgerItemCopyUrlClick(Model.IFutabaViewerContents c) {
 			var u = c.Futaba.Value.Raw.Url;
 			if(u.IsThreadUrl) {
@@ -398,9 +392,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				});
 		}
 
-		private void OnMenuItemDeleteClickCommand(Model.BindableFutabaResItem item) {
-			// TODO: 確認ダイアログを出す
-			Util.Futaba.PostDeleteThreadRes(item.Bord.Value, item.Raw.Value.ResItem.No, false, Config.ConfigLoader.FutabaApi.SavedPassword)
+		private void PostItemDelete(Model.BindableFutabaResItem item, bool imageOnlyDel) {
+			Util.Futaba.PostDeleteThreadRes(item.Bord.Value, item.Raw.Value.ResItem.No, imageOnlyDel, Config.ConfigLoader.FutabaApi.SavedPassword)
 				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => {
 					if(x.Successed) {
@@ -410,6 +403,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						Util.Futaba.PutInformation(new Information(x.Message));
 					}
 				});
+		}
+
+		private void OnMenuItemDeleteClickCommand(Model.BindableFutabaResItem item) {
+			PostItemDelete(item, false);
+		}
+
+		private void OnMenuItemDeleteImageClickCommand(Model.BindableFutabaResItem item) {
+			PostItemDelete(item, true);
 		}
 
 		private void OnMenuItemResHidden(Model.BindableFutabaResItem x) {
