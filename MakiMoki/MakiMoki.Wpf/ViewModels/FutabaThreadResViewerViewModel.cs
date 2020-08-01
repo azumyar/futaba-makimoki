@@ -115,14 +115,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			ThreadResHamburgerItemCopyUrlClickCommand.Subscribe(x => OnThreadResHamburgerItemCopyUrlClick(x));
 			ThreadResHamburgerItemOpenUrlClickCommand.Subscribe(x => OnThreadResHamburgerItemOpenUrlClick(x));
 			MenuItemFullUpdateClickCommand.Subscribe(x => OnMenuItemFullUpdateClick(x));
-			MenuItemCopyClickCommand.Subscribe(x => OnMenuItemCopyClickCommand(x));
-			MenuItemReplyClickCommand.Subscribe(x => OnMenuItemReplyClickCommand(x));
+			MenuItemCopyClickCommand.Subscribe(x => OnMenuItemCopyClick(x));
+			MenuItemReplyClickCommand.Subscribe(x => OnMenuItemReplyClick(x));
 			MenuItemReplyResNoClickCommand.Subscribe(x => OnMenuItemReplyResNoClick(x));
 			MenuItemReplyImageNameoClickCommand.Subscribe(x => OnMenuItemReplyImageNameoClick(x));
-			MenuItemSoudaneClickCommand.Subscribe(x => OnMenuItemSoudaneClickCommand(x));
-			MenuItemDelClickCommand.Subscribe(x => OnMenuItemDelClickCommand(x));
-			MenuItemDeleteClickCommand.Subscribe(x => OnMenuItemDeleteClickCommand(x));
-			MenuItemDeleteImageClickCommand.Subscribe(x => OnMenuItemDeleteImageClickCommand(x));
+			MenuItemSoudaneClickCommand.Subscribe(x => OnMenuItemSoudaneClick(x));
+			MenuItemDelClickCommand.Subscribe(x => OnMenuItemDelClick(x));
+			MenuItemDeleteClickCommand.Subscribe(x => OnMenuItemDeleteClick(x));
+			MenuItemDeleteImageClickCommand.Subscribe(x => OnMenuItemDeleteImageClick(x));
 			MenuItemResHiddenCommand.Subscribe(x => OnMenuItemResHidden(x));
 			MenuItemNgImageCommand.Subscribe(x => OnMenuItemNgImage(x));
 
@@ -271,19 +271,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnPaletteButtonCopy(RoutedEventArgs e) {
 			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
-				OnMenuItemCopyClickCommand(ri);
+				OnMenuItemCopyClick(ri);
 			}
 		}
 
 		private void OnPaletteButtonSoudane(RoutedEventArgs e) {
 			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
-				OnMenuItemSoudaneClickCommand(ri);
+				OnMenuItemSoudaneClick(ri);
 			}
 		}
 
 		private void OnPaletteButtonDel(RoutedEventArgs e) {
 			if((e.Source is FrameworkElement el) && (el.DataContext is Model.BindableFutabaResItem ri)) {
-				OnMenuItemDelClickCommand(ri);
+				OnMenuItemDelClick(ri);
 			}
 		}
 
@@ -303,7 +303,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				.Subscribe();
 		}
 
-		private void OnMenuItemCopyClickCommand(Model.BindableFutabaResItem item) {
+		private void OnMenuItemCopyClick(Model.BindableFutabaResItem item) {
 			var sb = new StringBuilder()
 				.Append("No.")
 				.Append(item.Raw.Value.ResItem.No);
@@ -331,7 +331,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Clipboard.SetText(sb.ToString());
 		}
 
-		private void OnMenuItemReplyClickCommand(Model.BindableFutabaResItem item) {
+		private void OnMenuItemReplyClick(Model.BindableFutabaResItem item) {
 			var sb = new StringBuilder();
 			var c = WpfUtil.TextUtil.RawComment2Text(item.Raw.Value.ResItem.Res.Com).Replace("\r", "").Split('\n');
 			foreach(var s in c) {
@@ -354,7 +354,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			this.PostViewVisibility.Value = Visibility.Visible;
 		}
 
-		private void OnMenuItemSoudaneClickCommand(Model.BindableFutabaResItem item) {
+		private void OnMenuItemSoudaneClick(Model.BindableFutabaResItem item) {
 			Util.Futaba.PostSoudane(item.Bord.Value, item.Raw.Value.ResItem.No)
 				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => {
@@ -378,7 +378,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				});
 		}
 
-		private void OnMenuItemDelClickCommand(Model.BindableFutabaResItem item) {
+		private void OnMenuItemDelClick(Model.BindableFutabaResItem item) {
 			var resNo = item.Raw.Value.ResItem.No;
 			var threadNo = item.Parent.Value.Url.IsCatalogUrl ? resNo : item.Parent.Value.ResItems.First().Raw.Value.ResItem.No;
 			Util.Futaba.PostDel(item.Bord.Value, threadNo, resNo)
@@ -405,11 +405,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				});
 		}
 
-		private void OnMenuItemDeleteClickCommand(Model.BindableFutabaResItem item) {
+		private void OnMenuItemDeleteClick(Model.BindableFutabaResItem item) {
 			PostItemDelete(item, false);
 		}
 
-		private void OnMenuItemDeleteImageClickCommand(Model.BindableFutabaResItem item) {
+		private void OnMenuItemDeleteImageClick(Model.BindableFutabaResItem item) {
 			PostItemDelete(item, true);
 		}
 
