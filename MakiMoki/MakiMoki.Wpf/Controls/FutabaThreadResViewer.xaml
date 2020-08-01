@@ -703,7 +703,8 @@
                                         Grid.Column="1" Grid.Row="1" 
                                         Width="32" Height="24"
                                         VerticalAlignment="Bottom"
-                                        Content="{StaticResource ButtonIconDelete}">
+                                        Content="{StaticResource ButtonIconDelete}"
+                                        Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
                                         <Button.Resources>
                                             <ContextMenu
                                                 x:Key="ContextMenu"
