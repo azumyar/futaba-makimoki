@@ -256,9 +256,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						// 画面から参照されているので this の初期化が終わっていないこのタイミングで書き換えてはいけない
 						//this.ResItems[i] = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
 						var bf = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
-						bf.ThumbSource.Value = a.ThumbSource.Value;
-						bf.ThumbHash.Value = a.ThumbHash.Value;
-						bf.OriginSource.Value = a.OriginSource.Value;
+						if(b.ResItem.Res.Fsize != 0) {
+							bf.ThumbSource.Value = a.ThumbSource.Value;
+							bf.ThumbHash.Value = a.ThumbHash.Value;
+							bf.OriginSource.Value = a.OriginSource.Value;
+						}
 						updateItems.Add((i, bf));
 					}
 					i++;
