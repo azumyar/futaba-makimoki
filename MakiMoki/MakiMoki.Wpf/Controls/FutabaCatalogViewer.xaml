@@ -21,6 +21,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converter:CatalogTextConverter x:Key="CatalogTextConverter"/>
             <converter:FutabaResItemConverter x:Key="FutabaResItemConverter"/>
@@ -114,6 +115,15 @@
             </ToolTip>
 
             <Style x:Key="CatalogWrapBox" TargetType="ListBox">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBox">
+                            <ScrollViewer Style="{StaticResource MakiMokiScrollViewerStyle}" Margin="0" Focusable="false">
+                                <ItemsPresenter />
+                            </ScrollViewer>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
                 <Setter Property="ItemsPanel">
                     <Setter.Value>
                         <ItemsPanelTemplate>
@@ -427,6 +437,15 @@
 
 
             <Style x:Key="CatalogListBox" TargetType="ListBox">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBox">
+                            <ScrollViewer Style="{StaticResource MakiMokiScrollViewerStyle}" Margin="0" Focusable="false">
+                                <ItemsPresenter />
+                            </ScrollViewer>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
                 <Setter Property="ItemsPanel">
                     <Setter.Value>
                         <ItemsPanelTemplate>

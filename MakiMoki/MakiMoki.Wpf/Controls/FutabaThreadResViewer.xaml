@@ -22,6 +22,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converter:CatalogTextConverter x:Key="CatalogTextConverter"/>
             <converter:FutabaResItemConverter x:Key="FutabaResItemConverter"/>
@@ -433,6 +434,19 @@
                 VirtualizingPanel.VirtualizationMode="Recycling"
                 HorizontalContentAlignment="Stretch"
                 >
+                <ListBox.Style>
+                    <Style TargetType="ListBox">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBox">
+                                    <ScrollViewer Style="{StaticResource MakiMokiScrollViewerStyle}" Margin="0" Focusable="false">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.Style>
                 <ListBox.Background>
                     <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
                 </ListBox.Background>

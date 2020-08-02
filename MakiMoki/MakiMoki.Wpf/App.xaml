@@ -77,6 +77,29 @@
         <sys:Double x:Key="PostFontSize">16</sys:Double>
         <FontFamily x:Key="PostFont">メイリオ</FontFamily>
 
+        <!-- スクロールバーの色-->
+        <!-- Grayの500 -->
+        <Color x:Key="ViewerScrollBarColor">#9E9E9E</Color>
+        <!-- ボーダーの色 -->
+        <Color x:Key="ViewerScrollBarBorderColor">#9E9E9E</Color>
+        <!-- トラック（レーン）の色 -->
+        <Color x:Key="ViewerScrollBarTrackColor">#F5F5F5</Color>
+        <!-- ボタンを押した時の色 -->
+        <!-- Grayの900 -->
+        <Color x:Key="ViewerScrollBarPressedColor">#212121</Color>
+        <!-- Grayの700 -->
+        <Color x:Key="ViewerScrollBarMouseOverColor">#616161</Color>
+        <!-- スクロールバー三角の色 -->
+        <!-- Grayの500 -->
+        <Color x:Key="ViewerScrollButtonColor">#9E9E9E</Color>
+        <!-- LightBlueの500 -->
+        <Color x:Key="ViewerScrollButtonMouseOverColor">#03A9F4</Color>
+        <!-- LightBlueの700 -->
+        <Color x:Key="ViewerScrollButtonPressedColor">#0288D1</Color>
+        <!-- Grayの300 -->
+        <Color x:Key="ViewerScrollButtonDisabledColor">#E0E0E0</Color>
+
+
         <Viewbox x:Key="ButtonIconWindowBordList" x:Shared="False">
             <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
                 <Path Width="768" Height="512" Canvas.Left="128" Canvas.Top="256" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="F1 M 128,256L 224,256L 224,352L 128,352L 128,256 Z M 320,256L 896,256L 896,352L 320,352L 320,256 Z M 128,464L 224,464L 224,560L 128,560L 128,464 Z M 320,464L 896,464L 896,560L 320,560L 320,464 Z M 128,672L 224,672L 224,768L 128,768L 128,672 Z M 320,672L 896,672L 896,768L 320,768L 320,672 Z "/>
