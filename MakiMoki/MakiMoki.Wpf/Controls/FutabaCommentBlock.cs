@@ -206,16 +206,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			}
 
 
+			var zeroQuot = new Data.FutabaContext.Quot[0];
 			var disp = item.DisplayHtml.Value ?? "";
 			var orig = item.OriginHtml.Value ?? "";
 			var headLine = (disp == orig) ? item.HeadLineHtml.Value : "";
-			var quotLine = (disp == orig) ? item.Raw.Value.QuotLines : new Data.FutabaContext.Quot[0];
+			var quotLine = (disp == orig) ? item.Raw.Value.QuotLines : zeroQuot;
 
-			foreach(var msg in new[] { headLine, disp }) {
-				if(string.IsNullOrEmpty(msg)) {
+			foreach(var m in new (string Msg, Data.FutabaContext.Quot[] Quot)[] { (headLine, zeroQuot), (disp, quotLine) }) {
+				if(string.IsNullOrEmpty(m.Msg)) {
 					continue;
 				}
-				var s1 = Regex.Replace(msg, @"<br>", Environment.NewLine,
+				var s1 = Regex.Replace(m.Msg, @"<br>", Environment.NewLine,
 					RegexOptions.IgnoreCase | RegexOptions.Multiline);
 				var lines = s1.Replace("\r", "").Split('\n').Take(maxLines).ToArray();
 				var last = lines.LastOrDefault();
@@ -238,8 +239,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					} else if(fontPos == 0) {
 						ToolTip toolTip = null;
 						Model.BindableFutabaResItem quotRes = null;
-						if(i < quotLine.Length) {
-							var q = quotLine[i];
+						if(i < m.Quot.Length) {
+							var q = m.Quot[i];
 							if(q.IsQuot) {
 								if(q.IsHit) {
 									quotRes = item.Parent.Value.ResItems
