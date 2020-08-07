@@ -14,6 +14,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 	static class WpfConfigLoader {
 		internal static readonly string SystemConfigFile = "windows.makimoki.json";
 		internal static readonly string PlacementConfigFile = "windows.placement.json";
+		internal static readonly string StyleLightConfigFile = "windows.style.light.json";
+		internal static readonly string StyleDarkConfigFile = "windows.style.dark.json";
+		internal static readonly string StyleUserConfigFile = "windows.style.user.json";
 		private static volatile object lockObj = new object();
 
 		public static Helpers.UpdateNotifyer<PlatformData.WpfConfig> SystemConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer<PlatformData.WpfConfig>();
@@ -50,6 +53,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 			SystemConfig = getStream(
 				asm.GetManifestResourceStream(getResPath(SystemConfigFile)),
 				PlatformData.WpfConfig.CreateDefault());
+			Style = getStream(
+				//asm.GetManifestResourceStream(getResPath(StyleLightConfigFile)),
+				asm.GetManifestResourceStream(getResPath(StyleDarkConfigFile)),
+				PlatformData.StyleConfig.CreateDefault());
 			Placement = getPath(
 				Path.Combine(InitializedSetting.WorkDirectory, PlacementConfigFile),
 				PlatformData.PlacementConfig.CreateDefault());
@@ -61,6 +68,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 						{ PlatformData.Compat.WpfConfig2020062900.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2020062900) },
 						{ PlatformData.Compat.WpfConfig2020070500.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2020070500) },
 					}));
+				if(File.Exists(Path.Combine(InitializedSetting.UserDirectory, StyleUserConfigFile))) {
+					Style = getPath(
+						Path.Combine(InitializedSetting.UserDirectory, StyleUserConfigFile),
+						Style);
+					var r = Style.Validate();
+					if(!r.Successed) {
+						throw new Exceptions.InitializeFailedException(r.ErrorText);
+					}
+				}
 			}
 		}
 
@@ -68,6 +84,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 		public static PlatformData.WpfConfig SystemConfig { get; private set; }
 		
 		public static PlatformData.PlacementConfig Placement { get; private set; }
+
+		public static PlatformData.StyleConfig Style { get; private set; }
 
 		public static void AddSystemConfigUpdateNotifyer(Action<PlatformData.WpfConfig> action) {
 			SystemConfigUpdateNotifyer.AddHandler(action);

@@ -13,22 +13,24 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <converter:FutabaResItemIndexConverter x:Key="FutabaResItemIndexConverter" />
-        <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
-        <converter:FutabaResItemNowConverter x:Key="FutabaResItemNowConverter"/>
-        <converter:FutabaResItemIdTextConverter x:Key="FutabaResItemIdTextConverter" />
-        <converter:FutabaResItemHeaderTextConverter x:Key="FutabaResItemHeaderTextConverter" />
+        <ResourceDictionary>
+            <converter:FutabaResItemIndexConverter x:Key="FutabaResItemIndexConverter" />
+            <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
+            <converter:FutabaResItemNowConverter x:Key="FutabaResItemNowConverter"/>
+            <converter:FutabaResItemIdTextConverter x:Key="FutabaResItemIdTextConverter" />
+            <converter:FutabaResItemHeaderTextConverter x:Key="FutabaResItemHeaderTextConverter" />
 
-        <Style x:Key="ResIndexStyle" TargetType="TextBlock">
-        </Style>
-        <Style x:Key="PostedResIndexStyle" TargetType="TextBlock">
-            <Setter Property="Foreground">
-                <Setter.Value>
-                    <SolidColorBrush Color="{DynamicResource ThreadHeaderPostedColor}" />
-                </Setter.Value>
-            </Setter>
-            <Setter Property="FontWeight" Value="Bold" />
-        </Style>
+            <Style x:Key="ResIndexStyle" TargetType="TextBlock">
+            </Style>
+            <Style x:Key="PostedResIndexStyle" TargetType="TextBlock">
+                <Setter Property="Foreground">
+                    <Setter.Value>
+                        <SolidColorBrush Color="{DynamicResource ThreadHeaderPostedColor}" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="FontWeight" Value="Bold" />
+            </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
     <Border 
         x:Name="viewGrid"
@@ -38,7 +40,7 @@
         Padding="4"
         Background="Transparent">
         <TextBlock.Foreground>
-            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+            <Binding Path="Foreground" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:FutabaResBlock}" Mode="OneWay" />
         </TextBlock.Foreground>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -128,22 +130,26 @@
                         StretchDirection="DownOnly">
                         <Button
                             x:Name="ImageButton"
+                            Background="Transparent"
                             BorderThickness="0"
                             BorderBrush="Transparent"
+                            Padding="0"
                             Margin="0 0 4 0">
-                            <Image 
+                            <Image
                                 Source="{Binding ThumbSource.Value}"
                                 RenderOptions.EdgeMode="Aliased"
                                 RenderOptions.BitmapScalingMode="Fant">
                                 <Image.CacheMode>
                                     <BitmapCache RenderAtScale="1" />
                                 </Image.CacheMode>
+
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="Loaded">
                                         <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </Image>
+
                             <!--
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="PreviewMouseDown">

@@ -3,10 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:pd="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.PlatformData"
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf">
     <Application.Resources>
+        <pd:StyleType x:Key="StyleType">Light</pd:StyleType>
+        
         <sys:Double x:Key="WindowThreadTabDieOpacity">0.6</sys:Double>
-        <Color x:Key="WindowThreadTabNewColor">Red</Color>
+        <!-- Redの500 -->
+        <Color x:Key="WindowThreadTabNewColor">#f44336</Color>
 
         <!-- LightBlueの500 -->
         <Color x:Key="ViewerPrimaryColor">#03A9F4</Color>
@@ -25,10 +29,21 @@
         <!-- Grayの500 -->
         <Color x:Key="ViewerBorderColor">#9E9E9E</Color>
 
+        <!-- LightBlueの500 -->
+        <Color x:Key="WindowFrameColor">#03A9F4</Color>
+        <!-- LightBlueの700 -->
+        <Color x:Key="WindowFrameBorderColor">#0288D1</Color>
+        <Color x:Key="WindowTabBackgroundColor">White</Color>
+        <!-- Grayの100 -->
+        <Color x:Key="WindowTabForegroundColor">#F5F5F5</Color>
+        <!-- BlueGrayの900 -->
+        <Color x:Key="WindowTabSelectedForegroundColor">#263238</Color>
+
         <Color x:Key="TabTextColor">Black</Color>
         <Color x:Key="ToolbarTextColor">Black</Color>
 
         <FontFamily x:Key="CatalogTextFont">メイリオ</FontFamily>
+        <sys:Double x:Key="CatalogTextFontSize">11</sys:Double>
         <sys:Double x:Key="CatalogImageSize">80</sys:Double>
         <sys:Double x:Key="CatalogTextSize">16</sys:Double>
         <sys:Double x:Key="CatalogBadgeSize">20</sys:Double>
@@ -83,6 +98,7 @@
         <!-- ボーダーの色 -->
         <Color x:Key="ViewerScrollBarBorderColor">#9E9E9E</Color>
         <!-- トラック（レーン）の色 -->
+        <!-- Grayの100 -->
         <Color x:Key="ViewerScrollBarTrackColor">#F5F5F5</Color>
         <!-- ボタンを押した時の色 -->
         <!-- Grayの900 -->

@@ -24,6 +24,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
             </ResourceDictionary.MergedDictionaries>
  
             <sys:Double x:Key="DefaultMinWidth">360</sys:Double>
@@ -124,20 +125,29 @@
                     </TextBlock.Foreground>
                 </TextBlock>
             </Border>
-            <ScrollViewer Grid.Column="1" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer
+                Style="{StaticResource MakiMokiScrollViewerStyle}"
+                Grid.Column="1" Grid.Row="1"
+                HorizontalScrollBarVisibility="Disabled"
+                VerticalScrollBarVisibility="Auto">
                 <StackPanel
                     Orientation="Vertical"
                     TextBlock.FontFamily="{DynamicResource PostFont}"
                     TextBlock.FontSize="{DynamicResource PostFontSize}">
                     <TextBox 
                         x:Name="PostCommentTextBox"
-                        AcceptsReturn="True" 
-                        Margin="0 4 0 4" Padding="1"
+                        AcceptsReturn="True"
                         Text="{Binding PostData.Value.Comment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Margin="0 4 0 4" Padding="1"
+                        CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
                         local:PlaceHolderBehavior.PlaceHolderText="コメント">
+                        <TextBox.Foreground>
+                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                        </TextBox.Foreground>
                         <i:Interaction.Behaviors>
                             <behavior:FocusBehavior x:Name="PostViewFocusBehavior" />
+                            <behavior:AttachedScrollBarStyleBehavior Style="{StaticResource MakiMokiScrollBarStyle}" />
                         </i:Interaction.Behaviors>
                         <i:Interaction.Triggers>
                             <i:DataTrigger Binding="{Binding Visibility, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}, Mode=OneWay}" Value="Visible" Comparison="Equal">
@@ -190,12 +200,22 @@
                     <TextBox
                         Margin="0 4 0 4" Padding="1"
                         Visibility="{Binding PostNameVisibility.Value, Mode=OneWay}"
+                        CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
                         Text="{Binding PostData.Value.Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        local:PlaceHolderBehavior.PlaceHolderText="おなまえ" />
+                        local:PlaceHolderBehavior.PlaceHolderText="おなまえ">
+                        <TextBox.Foreground>
+                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                        </TextBox.Foreground>
+                    </TextBox>
                     <TextBox 
                         Margin="0 4 0 4" Padding="1"
+                        CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
                         Text="{Binding PostData.Value.Mail.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        local:PlaceHolderBehavior.PlaceHolderText="メールアドレス" />
+                        local:PlaceHolderBehavior.PlaceHolderText="メールアドレス">
+                        <TextBox.Foreground>
+                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                        </TextBox.Foreground>
+                    </TextBox>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Height="32" Margin="4 0 0 0" Visibility="{Binding PostIdOptionVisibility.Value, Mode=OneWay}">
                             <Button.Content>
@@ -231,12 +251,22 @@
                     <TextBox
                         Margin="0 4 0 4" Padding="1"
                         Visibility="{Binding PostNameVisibility.Value, Mode=OneWay}"
+                        CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
                         Text="{Binding PostData.Value.Subject.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        local:PlaceHolderBehavior.PlaceHolderText="題名" />
+                        local:PlaceHolderBehavior.PlaceHolderText="題名">
+                        <TextBox.Foreground>
+                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                        </TextBox.Foreground>
+                    </TextBox>
                     <TextBox
                         Margin="0 4 0 4" Padding="1"
+                        CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
                         Text="{Binding PostData.Value.Password.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        local:PlaceHolderBehavior.PlaceHolderText="削除キー" />
+                        local:PlaceHolderBehavior.PlaceHolderText="削除キー">
+                        <TextBox.Foreground>
+                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                        </TextBox.Foreground>
+                    </TextBox>
                 </StackPanel>
             </ScrollViewer>
             <Border

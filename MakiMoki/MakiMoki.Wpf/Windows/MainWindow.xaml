@@ -52,10 +52,10 @@
                                 x:Name="border"
                                 BorderThickness="2 0 2 2">
                                 <Border.BorderBrush>
-                                    <SolidColorBrush Color="{DynamicResource ViewerPrimaryDarkColor}" />
+                                    <SolidColorBrush Color="{DynamicResource WindowFrameBorderColor}" />
                                 </Border.BorderBrush>
                                 <Border.Background>
-                                    <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
+                                    <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
                                 </Border.Background>
                                 <ContentPresenter
                                     HorizontalAlignment="Stretch"
@@ -88,7 +88,7 @@
 
                                 <Grid  Grid.Column="0">
                                     <Grid.Background>
-                                        <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
+                                        <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
                                     </Grid.Background>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="4" />
@@ -224,7 +224,7 @@
 
             <Style TargetType="TabItem">
                 <Setter Property="BorderThickness" Value="0 0 0 0"/>
-                <Setter Property="BorderBrush" Value="#03A9F4"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
                 <!-- LightBlue 500 -->
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -301,15 +301,19 @@
                                     <Setter Property="Opacity" Value="0.8" />
                                     <Setter Property="TextBlock.Foreground">
                                         <Setter.Value>
-                                            <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                                            <SolidColorBrush Color="{DynamicResource WindowTabForegroundColor}" />
                                         </Setter.Value>
                                     </Setter>
                                 </Trigger>
-                                <Trigger Property="IsSelected" Value="true">
-                                    <Setter Property="Background" Value="White" />
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                                        </Setter.Value>
+                                    </Setter>
                                     <Setter Property="TextBlock.Foreground">
                                         <Setter.Value>
-                                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                                            <SolidColorBrush Color="{DynamicResource WindowTabSelectedForegroundColor}" />
                                         </Setter.Value>
                                     </Setter>
                                 </Trigger>
@@ -336,7 +340,7 @@
                                     Height="{StaticResource WindowCaptionHeight}"
                                     MinHeight="{x:Static SystemParameters.CaptionHeight}">
                                     <Grid.Background>
-                                        <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
+                                        <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
                                     </Grid.Background>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="8" />
@@ -427,7 +431,7 @@
                                             HorizontalAlignment="Stretch"
                                             Visibility="{Binding DataContext.Futaba.Value.FullScreenVisibility.Value, RelativeSource={RelativeSource Self}}">
                                             <GridSplitter.Background>
-                                                <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
+                                                <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
                                             </GridSplitter.Background>
                                         </GridSplitter>
 
@@ -455,7 +459,7 @@
 
             <Style x:Key="FutabaTabItem" TargetType="TabItem">
                 <Setter Property="BorderThickness" Value="0 0 1 0"/>
-                <Setter Property="BorderBrush" Value="#03A9F4"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
                 <!-- LightBlue 500 -->
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -532,15 +536,19 @@
                                     <Setter Property="Opacity" Value="0.8" />
                                     <Setter Property="TextBlock.Foreground">
                                         <Setter.Value>
-                                            <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                                            <SolidColorBrush Color="{DynamicResource WindowTabForegroundColor}" />
                                         </Setter.Value>
                                     </Setter>
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="White" />
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                                        </Setter.Value>
+                                    </Setter>
                                     <Setter Property="TextBlock.Foreground">
                                         <Setter.Value>
-                                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                                            <SolidColorBrush Color="{DynamicResource WindowTabSelectedForegroundColor}" />
                                         </Setter.Value>
                                     </Setter>
                                 </Trigger>
@@ -554,7 +562,7 @@
                 <Setter Property="OverridesDefaultStyle" Value="True" />
                 <Setter Property="Foreground">
                     <Setter.Value>
-                        <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                        <SolidColorBrush Color="{DynamicResource WindowTabForegroundColor}" />
                     </Setter.Value>
                 </Setter>
                 <Setter Property="FontFamily" Value="Marlett"/>

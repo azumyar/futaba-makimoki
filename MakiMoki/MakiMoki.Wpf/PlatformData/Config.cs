@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls;
+using System.Windows.Media;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 
@@ -180,5 +182,177 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				WindowPlacement = default,
 			};
 		}
+	}
+
+	public class StyleConfig : Data.ConfigObject {
+		public static int CurrentVersion { get; } = -1;
+
+		[JsonProperty("style-type", Required = Required.Always)]
+		public StyleType StyleType { get; private set; }
+
+		[JsonProperty("color-white", Required = Required.Always)]
+		public string WhiteColor { get; private set; }
+		[JsonProperty("color-black", Required = Required.Always)]
+		public string BlackColor { get; private set; }
+		[JsonProperty("color-primary", Required = Required.Always)]
+		public string PrimaryColor { get; private set; }
+		[JsonProperty("color-secondary", Required = Required.Always)]
+		public string SecondaryColor { get; private set; }
+		[JsonProperty("color-window-frame", Required = Required.Always)]
+		public string WindowFrameColor { get; private set; }
+		[JsonProperty("color-window-tab", Required = Required.Always)]
+		public string WindowTabColor { get; private set; }
+		[JsonProperty("color-window-tab-badge")]
+		public string WindowTabBadgeColor { get; private set; }
+		[JsonProperty("color-viewer-foreground", Required = Required.Always)]
+		public string ViewerForegroundColor { get; private set; }
+		[JsonProperty("color-viewer-background", Required = Required.Always)]
+		public string ViewerBackgroundColor { get; private set; }
+		[JsonProperty("color-viewer-border", Required = Required.Always)]
+		public string ViewerBorderColor { get; private set; }
+
+		[JsonProperty("color-viewer-catalog-item-background")]
+		public string CatalogItemBackgroundColor { get; private set; }
+		[JsonProperty("color-viewer-catalog-item-background-search-hit")]
+		public string CatalogItemSearchHitBackgroundColor { get; private set; }
+		[JsonProperty("color-viewer-catalog-item-background-opend")]
+		public string CatalogItemOpendBackgroundColor { get; private set; }
+		[JsonProperty("color-viewer-catalog-badge-count-foreground")]
+		public string CatalogBadgeCountForegroundColor { get; private set; }
+		[JsonProperty("color-viewer-catalog-badge-count-background")]
+		public string CatalogBadgeCountBackgroundColor { get; private set; }
+		//[JsonProperty("color-viewer-catalog-badge-old-foreground")]
+		//public string CatalogBadgeOldForegroundColor { get; private set; }
+		//[JsonProperty("color-viewer-catalog-badge-old-background")]
+		//public string CatalogBadgeOldBackgroundColor { get; private set; }
+		[JsonProperty("color-viewer-catalog-badge-movie-foreground")]
+		public string CatalogBadgeMovieForegroundColor { get; private set; }
+		[JsonProperty("color-viewer-catalog-badge-movie-background")]
+		public string CatalogBadgeMovieBackgroundColor { get; private set; }
+		[JsonProperty("color-viewer-catalog-badge-isolate-foreground")]
+		public string CatalogBadgeIsolateForegroundColor { get; private set; }
+		[JsonProperty("color-viewer-catalog-badge-isolate-background")]
+		public string CatalogBadgeIsolateBackgroundColor { get; private set; }
+
+		[JsonProperty("color-viewer-thread-background")]
+		public string ThreadBackgroundColor { get; private set; }
+		[JsonProperty("color-viewer-thread-search-hit-background")]
+		public string ThreadSearchHitBackgroundColor { get; private set; }
+		[JsonProperty("color-viewer-thread-quot-hit-background")]
+		public string ThreadQuotHitBackgroundColor { get; private set; }
+		[JsonProperty("color-viewer-thread-old-foreground")]
+		public string ThreadOldForegroundColor { get; private set; }
+		[JsonProperty("color-viewer-thread-header-posted-foreground")]
+		public string ThreadHeaerPostedForegroundColor { get; private set; }
+		[JsonProperty("color-viewer-thread-header-subject-foreground")]
+		public string ThreadHeaerSubjectForegroundColor { get; private set; }
+		[JsonProperty("color-viewer-thread-header-name-foreground")]
+		public string ThreadHeaerNameForegroundColor { get; private set; }
+		[JsonProperty("color-viewer-thread-header-mail-foreground")]
+		public string ThreadHeaerMailForegroundColor { get; private set; }
+		[JsonProperty("color-viewer-thread-header-soudane-foreground")]
+		public string ThreadHeaerSoudaneForegroundColor { get; private set; }
+
+		[JsonProperty("color-viewer-scrollbar-thumb", Required = Required.Always)]
+		public string ViewerScollbarThumbColor { get; private set; }
+		[JsonProperty("color-viewer-scrollbar-tarck", Required = Required.Always)]
+		public string ViewerScollbarTrackColor { get; private set; }
+
+		[JsonProperty("size-catalog-image", Required = Required.Always)]
+		public double CatalogImageSize { get; private set; }
+		[JsonProperty("size-catalog-text", Required = Required.Always)]
+		public double CatalogTextSize { get; private set; }
+		[JsonProperty("size-catalog-bade", Required = Required.Always)]
+		public double CatalogBadgeSize { get; private set; }
+		[JsonProperty("size-catalog-text-font", Required = Required.Always)]
+		public double CatalogTextFontSize { get; private set; }
+		[JsonProperty("size-thread-header-font", Required = Required.Always)]
+		public double ThreadHeaderFontSize { get; private set; }
+		[JsonProperty("size-thread-text-font", Required = Required.Always)]
+		public double ThreadTextFontSize { get; private set; }
+		[JsonProperty("size-post-font", Required = Required.Always)]
+		public double PostFontSize { get; private set; }
+
+
+		[JsonProperty("font-catalog", Required = Required.Always)]
+		public string CatalogFont { get; private set; }
+		[JsonProperty("font-catalog-badge", Required = Required.Always)]
+		public string CatalogBadgeFont { get; private set; }
+		[JsonProperty("font-thread-header", Required = Required.Always)]
+		public string ThreadHeaderFont { get; private set; }
+		[JsonProperty("font-thread-text", Required = Required.Always)]
+		public string ThreadTextFont { get; private set; }
+		[JsonProperty("font-post", Required = Required.Always)]
+		public string PostFont { get; private set; }
+
+
+
+		public (bool Successed, string ErrorText) Validate() {
+			if(!((this.StyleType == StyleType.Light) || (this.StyleType == StyleType.Dark))) {
+				return (false, $"{ nameof(StyleType) }が不正です。");
+			}
+
+			var ps = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+			foreach(var p in ps.Where(x => x.CanRead && (x.PropertyType == typeof(string)) && x.Name.EndsWith("Color"))) {
+				try {
+					if(p.GetValue(this) is string s) {
+						this.ToWpfColor(s);
+					} else {
+						return (false, $"{ p.Name }が不正です。");
+					}
+				}
+				catch(InvalidOperationException) {
+					return (false, $"{ p.Name }が不正です。");
+				}
+			}
+
+			foreach(var p in ps.Where(x => x.CanRead && (x.PropertyType == typeof(string)) && x.Name.EndsWith("Font"))) {
+				if(p.GetValue(this) is string s) {
+					var f = new FontFamily(s);
+					if(f.FamilyTypefaces.Count == 0) {
+						return (false, $"{ p.Name }が不正です。");
+					}
+				} else {
+					return (false, $"{ p.Name }が不正です。");
+				}
+			}
+
+			return (true, "");
+		}
+
+		public Color ToWpfColor(string hex) {
+			if(hex[0] != '#') {
+				throw new InvalidOperationException();
+			}
+
+			var u = Convert.ToUInt32(hex.Substring(1), 16);
+			switch(hex.Length) {
+			case 7:
+				return Color.FromRgb((byte)(u >> 16 & 0xff), (byte)(u >> 8 & 0xff), (byte)(u & 0xff));
+			case 9:
+				return Color.FromArgb((byte)(u >> 24 & 0xff), (byte)(u >> 16 & 0xff), (byte)(u >> 8 & 0xff), (byte)(u & 0xff));
+			}
+			throw new InvalidOperationException();
+		}
+
+		public Color GetSubColor(Color baseColor, StyleType? type = null) {
+			return WpfUtil.ImageUtil.GetMaterialSubColor(baseColor, type ?? this.StyleType);
+		}
+
+		public Color GetTextColor(Color background, Color white, Color black) {
+			return WpfUtil.ImageUtil.GetTextColor(background, white, black, this.StyleType);
+		}
+
+		public static StyleConfig CreateDefault() {
+			// ここは使われない
+			return new StyleConfig() {
+				Version = CurrentVersion,
+			};
+		}
+	}
+
+	public enum StyleType {
+		Light,
+		Dark,
 	}
 }

@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
 using Yarukizero.Net.MakiMoki.Util;
+using System.Runtime.CompilerServices;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	class FutabaCommentBlock : TextBlock {
@@ -101,14 +102,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			var regexFontStart = new Regex("^<font\\s+color=[\"']#([0-9a-fA-F]+)[\"'][^>]*>", regexOpt);
 			var regexFontEnd = new Regex("</font>", regexOpt);
 			void EvalEmoji(string text, Color? color, Model.BindableFutabaResItem quotRes = null, ToolTip toolTip = null) {
-				var fb = (color.HasValue) ? new SolidColorBrush(color.Value) : tb.Foreground;
+				var fb = (color.HasValue) ? new SolidColorBrush(color.Value) : null;
 				var pos = 0;
 				foreach(Match m in Emoji.Wpf.EmojiData.MatchMultiple.Matches(text)) {
 					var run1 = new Run(text.Substring(pos, m.Index - pos)) {
-						Foreground = fb,
 						ToolTip = toolTip,
 						Tag = quotRes,
 					};
+					if(fb != null) {
+						// nullを入れると何も描画されなくなるのでnull以外の場合は代入
+						run1.Foreground = fb;
+					}
 					var run2 = new Emoji.Wpf.EmojiInline() {
 						FallbackBrush = tb.Foreground,
 						Text = text.Substring(m.Index, m.Length),
@@ -126,10 +130,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					pos = m.Index + m.Length;
 				}
 				var run3 = new Run(text.Substring(pos)) {
-					Foreground = fb,
 					ToolTip = toolTip,
 					Tag = quotRes,
 				};
+				if(fb != null) {
+					// nullを入れると何も描画されなくなるのでnull以外の場合は代入
+					run3.Foreground = fb;
+				}
 				if(quotRes != null) {
 					run3.Loaded += OnLoadedQuot;
 				}
@@ -248,7 +255,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 										.FirstOrDefault();
 								} else {
 									toolTip = new ToolTip() {
+										Background = new SolidColorBrush((Color)App.Current.Resources["ViewerBackgroundColor"]),
 										Content = new TextBlock() {
+											Foreground = new SolidColorBrush((Color)App.Current.Resources["ViewerForegroundColor"]),
 											Text = "見つかりませんでした",
 											FontFamily = tb.FontFamily,
 											FontSize = tb.FontSize,
@@ -349,7 +358,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			if((e.Source is Run run) && (run.Tag is Model.BindableFutabaResItem ri)) {
 				if(run.ToolTip == null) {
 					run.ToolTip = new ToolTip() {
+						Background = new SolidColorBrush((Color)App.Current.Resources["ViewerBackgroundColor"]),
 						Content = new FutabaResBlock() {
+							Foreground = new SolidColorBrush((Color)App.Current.Resources["ViewerForegroundColor"]),
+							Background = new SolidColorBrush((Color)App.Current.Resources["ThreadBackgroundColor"]),
 							IsHitTestVisible = false,
 							DataContext = ri,
 						}

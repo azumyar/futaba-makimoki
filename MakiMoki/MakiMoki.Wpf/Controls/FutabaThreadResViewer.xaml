@@ -45,9 +45,6 @@
             <converter:PostViewMinWidthConverter x:Key="PostViewMinWidthConverter" />
             <converter:PostViewMaxWidthConverter x:Key="PostViewMaxWidthConverter" />
 
-            <Color x:Key="TextColor">Black</Color>
-            <Color x:Key="OldColor">Red</Color>
-
             <Style x:Key="ResIndexStyle" TargetType="TextBlock">
             </Style>
             <Style x:Key="PostedResIndexStyle" TargetType="TextBlock">
@@ -101,6 +98,18 @@
     <Grid>
         <!-- DynamicResource取得用のElement -->
         <FrameworkElement 
+            x:Name="StyleTypeGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource StyleType}" />
+        <FrameworkElement 
+            x:Name="WhiteColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource ViewerBackgroundColor}" />
+        <FrameworkElement 
+            x:Name="BlackColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource ViewerForegroundColor}" />
+        <FrameworkElement 
             x:Name="CatalogItemBackgroundColorGetter"
             Visibility="Collapsed"
             DataContext="{DynamicResource CatalogItemBackgroundColor}" />
@@ -119,11 +128,12 @@
         <FrameworkElement 
             x:Name="ToolbarTextColorGetter"
             Visibility="Collapsed"
-            DataContext="{DynamicResource ToolbarTextColor}" />
+            DataContext="{DynamicResource WindowTabSelectedForegroundColor}" />
         <FrameworkElement 
             x:Name="ThreadTextOldColorGetter"
             Visibility="Collapsed"
             DataContext="{DynamicResource ThreadTextOldColor}" />
+        <!-- TODO:重複してるので差し替える -->
         <FrameworkElement 
             x:Name="ViewerForegroundColorGetter"
             Visibility="Collapsed"
@@ -135,6 +145,9 @@
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0" Margin="0" BorderThickness="0 0 0 1">
+                <Border.Background>
+                    <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                </Border.Background>
                 <Border.BorderBrush>
                     <SolidColorBrush Color="{DynamicResource ViewerBorderColor}" />
                 </Border.BorderBrush>
@@ -205,11 +218,12 @@
                         </TextBlock.Foreground>
                     </TextBlock>
 
-                    <Button Grid.Column="3"
-                            Style="{StaticResource ToolbarButton}"
-                            Content="{StaticResource ButtonIconViewerUpdate}"
-                            DataContext="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
-                            Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
+                    <Button
+                        Grid.Column="3"
+                        Style="{StaticResource ToolbarButton}"
+                        Content="{StaticResource ButtonIconViewerUpdate}"
+                        DataContext="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
+                        Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
                         <!--
                         <Button.Style>
                             <Style TargetType="Button">
@@ -265,12 +279,16 @@
                         <TextBox
                             x:Name="SearchTextBox"
                             Grid.Column="0"
+                            CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
                             Text="{Binding Contents.Futaba.Value.FilterText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ElementName=_this}"
                             FontSize="14"
                             VerticalAlignment="Center"
                             local:PlaceHolderBehavior.PlaceHolderText="検索テキスト"
                             Tag="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
                             >
+                            <TextBox.Foreground>
+                                <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                            </TextBox.Foreground>
                             <i:Interaction.Behaviors>
                                 <behavior:FocusBehavior x:Name="SearchFocusBehavior" />
                             </i:Interaction.Behaviors>
@@ -395,7 +413,7 @@
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="8" Style="{StaticResource ToolbarButtonHarf}" Content="{DynamicResource ButtonIconThreadMouseHamburger}">
+                    <Button Grid.Column="8" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconThreadMouseHamburger}" Width="16">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
                                 <i:ChangePropertyAction 
@@ -434,6 +452,7 @@
                 VirtualizingPanel.VirtualizationMode="Recycling"
                 HorizontalContentAlignment="Stretch"
                 >
+                <!--
                 <ListBox.Style>
                     <Style TargetType="ListBox">
                         <Setter Property="Template">
@@ -447,6 +466,7 @@
                         </Setter>
                     </Style>
                 </ListBox.Style>
+                -->
                 <ListBox.Background>
                     <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
                 </ListBox.Background>
@@ -473,9 +493,6 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="16 4 16 4" Background="Transparent">
-                            <TextBlock.Foreground>
-                                <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
-                            </TextBlock.Foreground>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -602,6 +619,36 @@
                                     Grid.Column="0" Grid.Row="0"
                                     MaxWidth="1024"
                                     >
+                                    <local:FutabaResBlock.Resources>
+                                        <!-- 見つからないと言われることがあるのでリソースに置く -->
+                                        <ResourceDictionary>
+                                            <FrameworkElement 
+                                                x:Key="StyleTypeGetter"
+                                                Visibility="Collapsed"
+                                                DataContext="{DynamicResource StyleType}" />
+                                            <FrameworkElement 
+                                                x:Key="WhiteColorGetter"
+                                                Visibility="Collapsed"
+                                                DataContext="{DynamicResource ViewerBackgroundColor}" />
+                                            <FrameworkElement 
+                                                x:Key="BlackColorGetter"
+                                                Visibility="Collapsed"
+                                                DataContext="{DynamicResource ViewerForegroundColor}" />
+                                        </ResourceDictionary>
+                                    </local:FutabaResBlock.Resources>
+                                    <local:FutabaResBlock.Foreground>
+                                        <SolidColorBrush>
+                                            <SolidColorBrush.Color>
+                                                <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}">
+                                                    <Binding Path="Background" RelativeSource="{RelativeSource FindAncestor, AncestorType=Grid}" />
+                                                    <Binding Path="DataContext" Source="{StaticResource StyleTypeGetter}" />
+                                                    <Binding Path="DataContext" Source="{StaticResource WhiteColorGetter}" />
+                                                    <Binding Path="DataContext" Source="{StaticResource BlackColorGetter}" />
+                                                </MultiBinding>
+                                            </SolidColorBrush.Color>
+                                        </SolidColorBrush>
+                                    </local:FutabaResBlock.Foreground>
+
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="ImageClick">
                                             <ri:EventToReactiveCommand Command="{Binding DataContext.ImageClickCommand, ElementName=_this}" />
@@ -900,7 +947,7 @@
                             <!-- リストビューアイテムフッタ テンプレートで何とかしたいけど無理だったよ… -->
                             <Grid 
                                 Grid.Column="0" Grid.Row="1"
-                                Margin="0 4 0 4">
+                                Margin="0 8 0 4">
                                 <Grid.Visibility>
                                     <MultiBinding Converter="{StaticResource FutabaResItemFooterVisibleConverter}">
                                         <Binding Mode="OneWay" />
@@ -925,7 +972,10 @@
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </Button>
-                                <Border Grid.Column="2" BorderBrush="Black" BorderThickness="1" CornerRadius="4" Padding="4">
+                                <Border Grid.Column="2" BorderThickness="1" CornerRadius="4" Padding="4">
+                                    <Border.BorderBrush>
+                                        <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                                    </Border.BorderBrush>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
@@ -971,6 +1021,7 @@
                         Command="{Binding WheelUpdateCommand, Mode=OneWay}"
                         CommandParameter="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"
                         />
+                    <behavior:AttachedScrollBarStyleBehavior Style="{StaticResource MakiMokiScrollBarStyle}" />
                 </i:Interaction.Behaviors>
             </ListBox>
 
