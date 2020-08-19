@@ -17,8 +17,8 @@
   "color-viewer-border": "#9E9E9E",
 
   "color-viewer-catalog-item-background": "#424242",
-  "color-viewer-catalog-item-background-search-hit": "#C8E6C9",
-  "color-viewer-catalog-item-background-opend": "#FFE0B2",
+  "color-viewer-catalog-item-background-search-hit": "#33691E",
+  "color-viewer-catalog-item-background-opend": "#BF360C",
   "color-viewer-catalog-badge-count-foreground": "#ffffff",
   "color-viewer-catalog-badge-count-background": "#f44336",
   "x-color-viewer-catalog-badge-old-foreground": "#ffffff",
@@ -29,8 +29,8 @@
   "color-viewer-catalog-badge-isolate-background": "#212121",
 
   "color-viewer-thread-background": "#00000000",
-  "color-viewer-thread-search-hit-background": "#C8E6C9",
-  "color-viewer-thread-quot-hit-background": "#FFE0B2",
+  "color-viewer-thread-search-hit-background": "#33691E",
+  "color-viewer-thread-quot-hit-background": "#BF360C",
   "color-viewer-thread-old-foreground": "#f44336",
   "color-viewer-thread-header-posted-foreground": "#90CAF9",
   "color-viewer-thread-header-subject-foreground": "#A5D6A7",
