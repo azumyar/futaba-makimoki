@@ -820,6 +820,9 @@
                         <Button.LayoutTransform>
                             <RotateTransform x:Name="ContractRotate" Angle="180" />
                         </Button.LayoutTransform>
+                        <Button.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="スレッド画面最大化" />
                         </Button.ToolTip>
@@ -836,6 +839,9 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button Grid.Column="2" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerUpdate}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                        <Button.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="更新" />
                         </Button.ToolTip>
@@ -904,6 +910,9 @@
                         Style="{StaticResource ToolbarButton}"
                         Content="{StaticResource ButtonIconViewerSearch}"
                         Visibility="{Binding Contents.SearchButtonVisibility.Value, Mode=OneWay, ElementName=_this}">
+                        <Button.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="検索" />
                         </Button.ToolTip>
@@ -921,6 +930,9 @@
                     </Button>
 
                     <Button Grid.Column="4" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconCatalogSort}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                        <Button.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="ソート" />
                         </Button.ToolTip>
@@ -946,6 +958,9 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button Grid.Column="5"  Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconCatalogMode}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                        <Button.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="モード切替" />
                         </Button.ToolTip>
@@ -956,6 +971,9 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button Grid.Column="6"  Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                        <Button.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="スレッド作成" />
                         </Button.ToolTip>
@@ -975,6 +993,9 @@
                         <Button.LayoutTransform>
                             <RotateTransform x:Name="FullScreenRotate" Angle="0" />
                         </Button.LayoutTransform>
+                        <Button.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="スレッド画面最大化" />
                         </Button.ToolTip>

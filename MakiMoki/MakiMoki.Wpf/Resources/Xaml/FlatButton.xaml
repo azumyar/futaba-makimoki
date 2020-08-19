@@ -23,6 +23,7 @@
         <Setter Property="Width" Value="32" />
         <Setter Property="Height" Value="32" />
         <Setter Property="Margin" Value="2" />
+        <!--
         <Setter Property="Foreground">
             <Setter.Value>
                 <SolidColorBrush>
@@ -37,6 +38,7 @@
                 </SolidColorBrush>
             </Setter.Value>
         </Setter>
+        -->
         <Setter Property="Background" Value="Transparent" x:Name="TestProperty" />
         <Setter Property="BorderBrush" Value="Transparent" />
 
@@ -72,6 +74,7 @@
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
 
+                        <!--
                         <ContentPresenter
                             Width="{TemplateBinding Width}"
                             Height="{TemplateBinding Height}"
@@ -79,6 +82,28 @@
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             />
+                        -->
+                        <ContentControl
+                            Content="{TemplateBinding Content}"
+                            Width="{TemplateBinding Width}"
+                            Height="{TemplateBinding Height}"
+                            Margin="{TemplateBinding Margin}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            >
+                            <ContentControl.Foreground>
+                                <SolidColorBrush>
+                                    <SolidColorBrush.Color>
+                                        <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}">
+                                            <Binding Path="Background" ElementName="Border" />
+                                            <Binding Path="DataContext" Source="{StaticResource StyleTypeGetter}" />
+                                            <Binding Path="DataContext" Source="{StaticResource WhiteColorGetter}" />
+                                            <Binding Path="DataContext" Source="{StaticResource BlackColorGetter}" />
+                                        </MultiBinding>
+                                    </SolidColorBrush.Color>
+                                </SolidColorBrush>
+                            </ContentControl.Foreground>
+                        </ContentControl>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

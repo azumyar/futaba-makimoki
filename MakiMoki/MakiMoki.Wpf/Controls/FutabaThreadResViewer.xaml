@@ -246,6 +246,9 @@
                                     CommandParameter="{Binding Mode=OneWay}"/>
                             </ContextMenu>
                         </Button.ContextMenu>
+                        <Button.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="更新" />
                         </Button.ToolTip>
@@ -347,6 +350,9 @@
                         Style="{StaticResource ToolbarButton}"
                         Content="{StaticResource ButtonIconViewerSearch}"    
                         Visibility="{Binding Contents.SearchButtonVisibility.Value, Mode=OneWay, ElementName=_this}">
+                        <Button.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="検索" />
                         </Button.ToolTip>
@@ -363,6 +369,9 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button Grid.Column="5" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerArrow}">
+                        <Button.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="一番上に移動" />
                         </Button.ToolTip>
@@ -373,6 +382,9 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button Grid.Column="6" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerArrow}">
+                        <Button.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="一番下に移動" />
                         </Button.ToolTip>
@@ -397,6 +409,9 @@
                             </Style>
                         </Button.Style>
                         -->
+                        <Button.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="レス書き込み" />
                         </Button.ToolTip>
@@ -414,6 +429,9 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button Grid.Column="8" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconThreadMouseHamburger}" Width="16">
+                        <Button.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                        </Button.Background>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
                                 <i:ChangePropertyAction 
