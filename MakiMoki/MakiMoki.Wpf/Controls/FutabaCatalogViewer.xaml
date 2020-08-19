@@ -22,6 +22,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/ViewerListBox.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converter:BackgroundToForegroundColorConverter x:Key="BackgroundToForegroundColorConverter" />
             <converter:CatalogTextConverter x:Key="CatalogTextConverter"/>
@@ -170,7 +171,7 @@
                 <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             </Style>
 
-            <Style x:Key="CatalogWrapBox" TargetType="ListBox">
+            <Style x:Key="CatalogWrapBox" TargetType="ListBox" BasedOn="{StaticResource MakiMokiViewerListBoxStyle}">
                 <Setter Property="ItemsPanel">
                     <Setter.Value>
                         <ItemsPanelTemplate>
@@ -499,7 +500,7 @@
                 </Setter>
             </Style>
 
-            <Style x:Key="CatalogListBox" TargetType="ListBox">
+            <Style x:Key="CatalogListBox" TargetType="ListBox" BasedOn="{StaticResource MakiMokiViewerListBoxStyle}">
                 <Setter Property="ItemsPanel">
                     <Setter.Value>
                         <ItemsPanelTemplate>
@@ -1038,9 +1039,6 @@
                         <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
                     </MultiBinding>
                 </ListBox.ItemsSource>
-                <ListBox.Background>
-                    <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
-                </ListBox.Background>
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                         <Setter Property="Template">

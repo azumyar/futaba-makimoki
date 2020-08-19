@@ -23,6 +23,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/ViewerListBox.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converter:CatalogTextConverter x:Key="CatalogTextConverter"/>
             <converter:FutabaResItemConverter x:Key="FutabaResItemConverter"/>
@@ -459,6 +460,7 @@
             <!-- スレッド -->
             <ListBox
                 x:Name="ThreadResListBox"
+                Style="{StaticResource MakiMokiViewerListBoxStyle}"
                 Grid.Row="1"
                 ItemsSource="{Binding Contents.Futaba.Value.ResItems, ElementName=_this, Mode=OneWay}"
                 BorderThickness="0"
@@ -485,9 +487,6 @@
                     </Style>
                 </ListBox.Style>
                 -->
-                <ListBox.Background>
-                    <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
-                </ListBox.Background>
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                         <Setter Property="Template">

@@ -48,7 +48,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 						var len = VisualTreeHelper.GetChildrenCount(grid);
 						for(var i=0; i<len; i++) {
 							if(VisualTreeHelper.GetChild(grid, i) is System.Windows.Controls.Primitives.ScrollBar sb) {
-								sb.Style = Style;
+								//sb.Style = Style;
 							}
 						}
 					}
