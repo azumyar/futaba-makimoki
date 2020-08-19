@@ -1038,7 +1038,6 @@
                         Command="{Binding WheelUpdateCommand, Mode=OneWay}"
                         CommandParameter="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"
                         />
-                    <behavior:AttachedScrollBarStyleBehavior Style="{StaticResource MakiMokiScrollBarStyle}" />
                 </i:Interaction.Behaviors>
             </ListBox>
 
