@@ -149,11 +149,13 @@
                             <behavior:FocusBehavior x:Name="PostViewFocusBehavior" />
                             <behavior:AttachedScrollBarStyleBehavior Style="{StaticResource MakiMokiScrollBarStyle}" />
                         </i:Interaction.Behaviors>
+                        <!--
                         <i:Interaction.Triggers>
                             <i:DataTrigger Binding="{Binding Visibility, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}, Mode=OneWay}" Value="Visible" Comparison="Equal">
                                 <i:CallMethodAction TargetObject="{Binding ElementName=PostViewFocusBehavior, Mode=OneWay}" MethodName="Focus" />
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
+                        -->
                     </TextBox>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock Margin="2 2 0 2" Text="{Binding PostData.Value.CommentBytes.Value, StringFormat='たぶん\{0\}byte', Mode=OneWay}" />

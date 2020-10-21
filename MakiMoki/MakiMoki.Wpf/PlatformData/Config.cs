@@ -26,7 +26,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	}
 
 	class WpfConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2020071900;
+		public static int CurrentVersion { get; } = 2020102900;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
 		public bool IsEnabledMovieMarker { get; private set; }
@@ -91,6 +91,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("platform-ng-reason-input", Required = Required.Always)]
 		public bool IsEnabledNgReasonInput { get; private set; }
 
+
+		// 2020102900
+		[JsonProperty("platform-window-theme", Required = Required.Always)]
+		public WindowTheme WindowTheme { get; private set; }
+		[JsonProperty("catalog-enable-id-marker", Required = Required.Always)]
+		public bool IsEnabledIdMarker { get; private set; }
+		[JsonProperty("thread-enable-command-palette", Required = Required.Always)]
+		public bool IsEnabledThreadCommandPalette { get; private set; }
+
 		public static WpfConfig CreateDefault() {
 			// ここは使われない
 			return new WpfConfig() {
@@ -99,9 +108,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		}
 
 		public static WpfConfig Create(
-			bool isEnabledMovieMarker, bool isEnabledOldMarker,
+			WindowTheme windowTheme,
+			bool isEnabledMovieMarker, bool isEnabledIdMarker, bool isEnabledOldMarker,
 			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility, bool isEnabledQuotLink,
 			bool isVisibleCatalogIsolateThread, CatalogSearchResult catalogSearchResult,
+			bool isEnabledThreadCommandPalette,
 			int clipbordJpegQuality, bool clipbordIsEnabledUrl,
 			int minWidthPostView, int maxWidthPostView, bool isEnabledOpacityPostView, int opacityPostView,
 			string[] mediaExportPath, int cacheExpireDay,
@@ -116,12 +127,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 
 			return new WpfConfig() {
 				Version = CurrentVersion,
+				WindowTheme = windowTheme,
 				IsEnabledMovieMarker = isEnabledMovieMarker,
+				IsEnabledIdMarker = isEnabledIdMarker,
 				IsEnabledOldMarker = isEnabledOldMarker,
 				CatalogNgImage = catalogNgImage,
 				IsVisibleCatalogIsolateThread = isVisibleCatalogIsolateThread,
 				CatalogSearchResult = catalogSearchResult,
 				ThreadDelResVisibility = threadDelResVisibility,
+				IsEnabledThreadCommandPalette = isEnabledThreadCommandPalette,
 				IsEnabledQuotLink = isEnabledQuotLink,
 				ClipbordJpegQuality = clipbordJpegQuality,
 				ClipbordIsEnabledUrl = clipbordIsEnabledUrl,
@@ -138,6 +152,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				BrowserPath = browserPath,
 			};
 		}
+	}
+
+	enum WindowTheme {
+		Light,
+		Dark,
 	}
 
 	enum CatalogSearchResult {

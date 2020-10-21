@@ -11,7 +11,14 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 			var id = idNg;
 
 			// ID表示スレはID NG機能は無効化
-			if(id) {
+			if(id && futaba.Url.IsCatalogUrl) {
+				var first = item;
+				if(first != null) {
+					if((first.ResItem.Res.Email == "id表示") || (first.ResItem.Res.Email == "ip表示")) {
+						id = false;
+					}
+				}
+			} else if(id && futaba.Url.IsThreadUrl) {
 				var first = futaba.ResItems.FirstOrDefault();
 				if(first != null) {
 					if((first.ResItem.Res.Email == "id表示") || (first.ResItem.Res.Email == "ip表示")) {
@@ -45,14 +52,14 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 
 		public static bool CheckCatalogNg(Data.FutabaContext futaba, Data.FutabaContext.Item item) {
 			return CheckNg(futaba, item,
-				NgConfig.NgConfigLoader.NgConfig.EnableIdNg,
+				NgConfig.NgConfigLoader.NgConfig.EnableCatalogIdNg,
 				NgConfig.NgConfigLoader.NgConfig.CatalogWords,
 				NgConfig.NgConfigLoader.NgConfig.CatalogRegex);
 		}
 
 		public static bool CheckThreadNg(Data.FutabaContext futaba, Data.FutabaContext.Item item) {
 			return CheckNg(futaba, item,
-				NgConfig.NgConfigLoader.NgConfig.EnableIdNg,
+				NgConfig.NgConfigLoader.NgConfig.EnableThreadIdNg,
 				NgConfig.NgConfigLoader.NgConfig.ThreadWords,
 				NgConfig.NgConfigLoader.NgConfig.ThreadRegex);
 		}

@@ -11,7 +11,7 @@ using System.Windows.Media;
 namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class BackgroundToForegroundColorConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-			if(values.Length != 4) {
+			if(4 < values.Length) {
 				throw new ArgumentException("型不正。", "values");
 			}
 

@@ -641,14 +641,17 @@
                                         <ResourceDictionary>
                                             <FrameworkElement 
                                                 x:Key="StyleTypeGetter"
+                                                x:Shared="False"
                                                 Visibility="Collapsed"
                                                 DataContext="{DynamicResource StyleType}" />
                                             <FrameworkElement 
                                                 x:Key="WhiteColorGetter"
+                                                x:Shared="False"
                                                 Visibility="Collapsed"
                                                 DataContext="{DynamicResource ViewerBackgroundColor}" />
                                             <FrameworkElement 
                                                 x:Key="BlackColorGetter"
+                                                x:Shared="False"
                                                 Visibility="Collapsed"
                                                 DataContext="{DynamicResource ViewerForegroundColor}" />
                                         </ResourceDictionary>
@@ -687,134 +690,136 @@
                                     HorizontalAlignment="Right"
                                     Visibility="Hidden"
                                     >
-                                    <Button 
-                                        Grid.Column="1" Grid.Row="1" 
-                                        Width="32" Height="24"
-                                        VerticalAlignment="Bottom"
-                                        Content="{StaticResource ButtonIconComment}"
-                                        Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}"
-                                        Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
-                                        <Button.Resources>
-                                            <ContextMenu
-                                                x:Key="ContextMenu"
-                                                Placement="Top"
-                                                DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
-                                                Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
-                                                <MenuItem
-                                                    Header="本文"
-                                                    Command="{Binding Tag.MenuItemReplyClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                    CommandParameter="{Binding Mode=OneWay}"
-                                                    />
-                                                <MenuItem
-                                                    Header="発言No"
-                                                    Command="{Binding Tag.MenuItemReplyResNoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                    CommandParameter="{Binding Mode=OneWay}"
-                                                    />
-                                                <MenuItem
-                                                    Header="画像ファイル名"
-                                                    Visibility="{Binding DataContext.ImageName.Value, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                    Command="{Binding Tag.MenuItemReplyImageNameoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                    CommandParameter="{Binding Mode=OneWay}"
-                                                    />
-                                            </ContextMenu>
-                                        </Button.Resources>
-                                        <Button.ToolTip>
-                                            <ToolTip Content="引用" />
-                                        </Button.ToolTip>
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="Click">
-                                                <i:ChangePropertyAction 
-                                                    TargetObject="{StaticResource ContextMenu}" 
-                                                    PropertyName="IsOpen"
-                                                    Value="True"/>
-                                                <i:ChangePropertyAction
-                                                    TargetObject="{StaticResource ContextMenu}" 
-                                                    PropertyName="PlacementTarget" 
-                                                    Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </Button>
-                                    <Button 
-                                        Grid.Column="1" Grid.Row="1" 
-                                        Width="32" Height="24"
-                                        VerticalAlignment="Bottom"
-                                        Content="{StaticResource ButtonIconCopy}"
-                                        Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
-                                        <Button.ToolTip>
-                                            <ToolTip Content="コピー" />
-                                        </Button.ToolTip>
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="Click">
-                                                <ri:EventToReactiveCommand Command="{Binding DataContext.PaletteButtonCopyCommand, Mode=OneWay, ElementName=_this}" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </Button>
-                                    <Button 
-                                        Grid.Column="1" Grid.Row="1" 
-                                        Width="32" Height="24"
-                                        VerticalAlignment="Bottom"
-                                        Content="{StaticResource ButtonIconSoudane}">
-                                        <Button.ToolTip>
-                                            <ToolTip Content="そうだね" />
-                                        </Button.ToolTip>
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="Click">
-                                                <ri:EventToReactiveCommand Command="{Binding DataContext.PaletteButtonSoudaneCommand, Mode=OneWay, ElementName=_this}" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </Button>
-                                    <Button 
-                                        Grid.Column="1" Grid.Row="1" 
-                                        Width="32" Height="24"
-                                        VerticalAlignment="Bottom"
-                                        Content="{StaticResource ButtonIconDel}">
-                                        <Button.ToolTip>
-                                            <ToolTip Content="del" />
-                                        </Button.ToolTip>
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="Click">
-                                                <ri:EventToReactiveCommand Command="{Binding DataContext.PaletteButtonDelCommand, Mode=OneWay, ElementName=_this}" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </Button>
-                                    <Button 
-                                        Grid.Column="1" Grid.Row="1" 
-                                        Width="32" Height="24"
-                                        VerticalAlignment="Bottom"
-                                        Content="{StaticResource ButtonIconDelete}"
-                                        Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
-                                        <Button.Resources>
-                                            <ContextMenu
-                                                x:Key="ContextMenu"
-                                                Placement="Top"
-                                                DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
-                                                Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
-                                                <MenuItem
-                                                    Header="レスを削除"
-                                                    Command="{Binding Tag.MenuItemDeleteClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                    CommandParameter="{Binding Mode=OneWay}" />
-                                                <MenuItem
-                                                    Header="画像のみ削除"
-                                                    Command="{Binding Tag.MenuItemDeleteImageClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                    CommandParameter="{Binding Mode=OneWay}" />
-                                            </ContextMenu>
-                                        </Button.Resources>
-                                        <Button.ToolTip>
-                                            <ToolTip Content="削除" />
-                                        </Button.ToolTip>
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="Click">
-                                                <i:ChangePropertyAction 
-                                                    TargetObject="{StaticResource ContextMenu}" 
-                                                    PropertyName="IsOpen"
-                                                    Value="True"/>
-                                                <i:ChangePropertyAction
-                                                    TargetObject="{StaticResource ContextMenu}" 
-                                                    PropertyName="PlacementTarget" 
-                                                    Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </Button>
+                                    <StackPanel Orientation="Horizontal" Visibility="{Binding CommandPaletteVisibility.Value, Mode=OneWay}">
+                                        <Button 
+                                            Grid.Column="1" Grid.Row="1" 
+                                            Width="32" Height="24"
+                                            VerticalAlignment="Bottom"
+                                            Content="{StaticResource ButtonIconComment}"
+                                            Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}"
+                                            Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
+                                            <Button.Resources>
+                                                <ContextMenu
+                                                    x:Key="ContextMenu"
+                                                    Placement="Top"
+                                                    DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                                    Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                                                    <MenuItem
+                                                        Header="本文"
+                                                        Command="{Binding Tag.MenuItemReplyClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                        CommandParameter="{Binding Mode=OneWay}"
+                                                        />
+                                                    <MenuItem
+                                                        Header="発言No"
+                                                        Command="{Binding Tag.MenuItemReplyResNoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                        CommandParameter="{Binding Mode=OneWay}"
+                                                        />
+                                                    <MenuItem
+                                                        Header="画像ファイル名"
+                                                        Visibility="{Binding DataContext.ImageName.Value, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                        Command="{Binding Tag.MenuItemReplyImageNameoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                        CommandParameter="{Binding Mode=OneWay}"
+                                                        />
+                                                </ContextMenu>
+                                            </Button.Resources>
+                                            <Button.ToolTip>
+                                                <ToolTip Content="引用" />
+                                            </Button.ToolTip>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Click">
+                                                    <i:ChangePropertyAction 
+                                                        TargetObject="{StaticResource ContextMenu}" 
+                                                        PropertyName="IsOpen"
+                                                        Value="True"/>
+                                                    <i:ChangePropertyAction
+                                                        TargetObject="{StaticResource ContextMenu}" 
+                                                        PropertyName="PlacementTarget" 
+                                                        Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Button>
+                                        <Button 
+                                            Grid.Column="1" Grid.Row="1" 
+                                            Width="32" Height="24"
+                                            VerticalAlignment="Bottom"
+                                            Content="{StaticResource ButtonIconCopy}"
+                                            Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
+                                            <Button.ToolTip>
+                                                <ToolTip Content="コピー" />
+                                            </Button.ToolTip>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Click">
+                                                    <ri:EventToReactiveCommand Command="{Binding DataContext.PaletteButtonCopyCommand, Mode=OneWay, ElementName=_this}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Button>
+                                        <Button 
+                                            Grid.Column="1" Grid.Row="1" 
+                                            Width="32" Height="24"
+                                            VerticalAlignment="Bottom"
+                                            Content="{StaticResource ButtonIconSoudane}">
+                                            <Button.ToolTip>
+                                                <ToolTip Content="そうだね" />
+                                            </Button.ToolTip>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Click">
+                                                    <ri:EventToReactiveCommand Command="{Binding DataContext.PaletteButtonSoudaneCommand, Mode=OneWay, ElementName=_this}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Button>
+                                        <Button 
+                                            Grid.Column="1" Grid.Row="1" 
+                                            Width="32" Height="24"
+                                            VerticalAlignment="Bottom"
+                                            Content="{StaticResource ButtonIconDel}">
+                                            <Button.ToolTip>
+                                                <ToolTip Content="del" />
+                                            </Button.ToolTip>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Click">
+                                                    <ri:EventToReactiveCommand Command="{Binding DataContext.PaletteButtonDelCommand, Mode=OneWay, ElementName=_this}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Button>
+                                        <Button 
+                                            Grid.Column="1" Grid.Row="1" 
+                                            Width="32" Height="24"
+                                            VerticalAlignment="Bottom"
+                                            Content="{StaticResource ButtonIconDelete}"
+                                            Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
+                                            <Button.Resources>
+                                                <ContextMenu
+                                                    x:Key="ContextMenu"
+                                                    Placement="Top"
+                                                    DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                                    Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                                                    <MenuItem
+                                                        Header="レスを削除"
+                                                        Command="{Binding Tag.MenuItemDeleteClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                        CommandParameter="{Binding Mode=OneWay}" />
+                                                    <MenuItem
+                                                        Header="画像のみ削除"
+                                                        Command="{Binding Tag.MenuItemDeleteImageClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                        CommandParameter="{Binding Mode=OneWay}" />
+                                                </ContextMenu>
+                                            </Button.Resources>
+                                            <Button.ToolTip>
+                                                <ToolTip Content="削除" />
+                                            </Button.ToolTip>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Click">
+                                                    <i:ChangePropertyAction 
+                                                        TargetObject="{StaticResource ContextMenu}" 
+                                                        PropertyName="IsOpen"
+                                                        Value="True"/>
+                                                    <i:ChangePropertyAction
+                                                        TargetObject="{StaticResource ContextMenu}" 
+                                                        PropertyName="PlacementTarget" 
+                                                        Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Button>
+                                    </StackPanel>
                                     <Button 
                                         Grid.Column="1" Grid.Row="1" 
                                         Width="32" Height="24"

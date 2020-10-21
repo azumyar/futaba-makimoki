@@ -4,12 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Yarukizero.Net.MakiMoki.Data;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
-
-	class WpfConfig2020070500 : Data.ConfigObject, Data.IMigrateCompatObject {
-		public static int CurrentVersion { get; } = 2020070500;
+	class WpfConfig2020071900 : Data.ConfigObject, Data.IMigrateCompatObject {
+		public static int CurrentVersion { get; } = 2020071900;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
 		public bool IsEnabledMovieMarker { get; private set; }
@@ -64,7 +62,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 		[JsonProperty("post-view-enable-opacity-value", Required = Required.Always)]
 		public int OpacityPostView { get; private set; }
 
-		public ConfigObject Migrate() {
+		// 2020071900
+		[JsonProperty("thread-enable-quot-link", Required = Required.Always)]
+		public bool IsEnabledQuotLink { get; private set; }
+
+		[JsonProperty("platform-window-topmost", Required = Required.Always)]
+		public bool IsEnabledWindowTopmost { get; private set; }
+
+		[JsonProperty("platform-ng-reason-input", Required = Required.Always)]
+		public bool IsEnabledNgReasonInput { get; private set; }
+
+		public Data.ConfigObject Migrate() {
 			var t = typeof(Wpf.WpfConfig.WpfConfigLoader);
 			var conf = JsonConvert.DeserializeObject<WpfConfig>(
 				Util.FileUtil.LoadFileString(t.Assembly.GetManifestResourceStream(
@@ -100,6 +108,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				isEnabledThreadCommandPalette: conf.IsEnabledThreadCommandPalette
 			);
 		}
+
 		/*
 		public static WpfConfig CreateDefault() {
 			// ここは使われない
@@ -110,13 +119,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 
 		public static WpfConfig Create(
 			bool isEnabledMovieMarker, bool isEnabledOldMarker,
-			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility,
+			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility, bool isEnabledQuotLink,
 			bool isVisibleCatalogIsolateThread, CatalogSearchResult catalogSearchResult,
 			int clipbordJpegQuality, bool clipbordIsEnabledUrl,
 			int minWidthPostView, int maxWidthPostView, bool isEnabledOpacityPostView, int opacityPostView,
 			string[] mediaExportPath, int cacheExpireDay,
 			ExportNgRes exportNgRes, ExportNgImage exportNgImage,
-			string browserPath) {
+			bool windowTopmost, bool ngResonInput, string browserPath) {
 
 			System.Diagnostics.Debug.Assert(catalogNgImage <= CatalogNgImage.MaxValue);
 			System.Diagnostics.Debug.Assert(threadDelResVisibility <= ThreadDelResVisibility.MaxValue);
@@ -132,6 +141,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				IsVisibleCatalogIsolateThread = isVisibleCatalogIsolateThread,
 				CatalogSearchResult = catalogSearchResult,
 				ThreadDelResVisibility = threadDelResVisibility,
+				IsEnabledQuotLink = isEnabledQuotLink,
 				ClipbordJpegQuality = clipbordJpegQuality,
 				ClipbordIsEnabledUrl = clipbordIsEnabledUrl,
 				MinWidthPostView = minWidthPostView,
@@ -142,6 +152,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				CacheExpireDay = cacheExpireDay,
 				ExportNgRes = exportNgRes,
 				ExportNgImage = exportNgImage,
+				IsEnabledWindowTopmost = windowTopmost,
+				IsEnabledNgReasonInput = ngResonInput,
 				BrowserPath = browserPath,
 			};
 		}

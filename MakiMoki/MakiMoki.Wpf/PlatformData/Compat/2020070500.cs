@@ -73,7 +73,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				// 2020071900
 				isEnabledQuotLink: conf.IsEnabledQuotLink,
 				windowTopmost: conf.IsEnabledWindowTopmost,
-				ngResonInput: conf.IsEnabledNgReasonInput
+				ngResonInput: conf.IsEnabledNgReasonInput,
+
+				// 2020102900
+				windowTheme: conf.WindowTheme,
+				isEnabledIdMarker: conf.IsEnabledIdMarker,
+				isEnabledThreadCommandPalette: conf.IsEnabledThreadCommandPalette
 			);
 		}
 

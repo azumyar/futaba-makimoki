@@ -378,13 +378,17 @@
                                                 </Grid>
                                             </Viewbox>
 
-                                            <!-- カタログJSONのidは常に空なのでできない
                                             <Viewbox
                                                 Margin="2 2 0 2"
-                                                Visibility="{Binding Raw.Value, Converter={StaticResource FutabaIdResVisibilityConverter}, Mode=OneWay}"                                        
                                                 Width="{DynamicResource CatalogBadgeSize}"
                                                 Height="{DynamicResource CatalogBadgeSize}"
                                                 >
+                                                <Viewbox.Visibility>
+                                                    <MultiBinding Converter="{StaticResource FutabaIdResVisibilityConverter}">
+                                                        <Binding Path="Raw.Value" Mode="OneWay" />
+                                                        <Binding Path="IsVisibleCatalogIdMarker.Value" Mode="OneWay" />
+                                                    </MultiBinding>
+                                                </Viewbox.Visibility>
                                                 <Grid
                                                     Width="16" Height="16"
                                                     HorizontalAlignment="Right"
@@ -410,7 +414,6 @@
                                                     </TextBlock>
                                                 </Grid>
                                             </Viewbox>
-                                            -->
                                         </StackPanel>
 
                                         <!-- 動画マーカー -->

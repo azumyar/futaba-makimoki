@@ -528,6 +528,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<bool> IsNgImageHidden { get; }
 
 		public ReactiveProperty<string> CommentCopy { get; }
+		public ReactiveProperty<Visibility> CommandPaletteVisibility { get; }
 
 
 		public ReactiveProperty<Visibility> ReleaseHiddenResBuutonVisibility { get; }
@@ -541,6 +542,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Visibility> CopyBlockVisibility { get; }
 
 		public ReactiveProperty<Visibility> IsVisibleMenuItemNgImage { get; }
+
+		public ReactiveProperty<bool> IsVisibleCatalogIdMarker{ get; }
+
 		public ReactiveProperty<string> MenuItemTextHidden { get; }
 
 		public ReactiveProperty<BindableFutaba> Parent { get; }
@@ -571,6 +575,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ThumbSource = new ReactiveProperty<BitmapSource>();
 			this.OriginSource = new ReactiveProperty<BitmapSource>();
 			this.ThumbHash = new ReactiveProperty<ulong?>();
+			this.CommandPaletteVisibility = new ReactiveProperty<Visibility>(
+				WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledThreadCommandPalette ? Visibility.Visible : Visibility.Collapsed);
+			this.IsVisibleCatalogIdMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledIdMarker);
 
 			// delとhostの処理
 			{
@@ -819,6 +826,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden);
 			this.SetCommentHtml();
 			this.IsVisibleOriginComment.Value =(this.IsHidden.Value || this.IsNg.Value || this.IsDel.Value) ? false : true;
+			this.CommandPaletteVisibility.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledThreadCommandPalette ? Visibility.Visible : Visibility.Collapsed;
+			this.IsVisibleCatalogIdMarker.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledIdMarker;
 		}
 	}
 }

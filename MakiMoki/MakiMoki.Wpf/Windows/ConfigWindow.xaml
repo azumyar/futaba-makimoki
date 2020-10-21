@@ -40,6 +40,18 @@
                             >
                             <TextBlock Style="{StaticResource ConfigHeaderText}">コア設定</TextBlock>
                             <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>画面のテーマ(β)</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">
+                                    <Run Text="画面のテーマを設定します。この設定はユーザカスタム設定が存在する場合無視されます。" />
+                                    <LineBreak />
+                                    <Run Text="(*アプリ再起動後に適用されます)" Foreground="Red" />
+                                </TextBlock>
+                                <ComboBox SelectedIndex="{Binding WindowTheme.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>ライト</ComboBoxItem>
+                                    <ComboBoxItem>ダーク</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>スレッドデータを差分取得する</TextBlock>
                                 <CheckBox Content="有効" IsChecked="{Binding CoreConfigThreadDataIncremental.Value, Mode=TwoWay}" />
                             </StackPanel>
@@ -52,9 +64,14 @@
 
                             <TextBlock Style="{StaticResource ConfigHeaderText}" Margin="0 8 0 0">NG設定</TextBlock>
                             <StackPanel Style="{StaticResource ConfigContents}">
-                                <TextBlock>IDをNG</TextBlock>
+                                <TextBlock>IDスレッドをカタログNG</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレ本文にIDが出ている場合カタログに表示しません。ただしスレッドがid表示で立てられている場合この設定は無視されます。</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding NgConfigCatalogIdNg.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>IDレスをNG</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">IDが出たレスをコメント文に関わらずNG扱いとします。ただしスレッドがid表示で立てられている場合この設定は無視されます。</TextBlock>
-                                <CheckBox Content="有効" IsChecked="{Binding NgConfigIdNg.Value, Mode=TwoWay}" />
+                                <CheckBox Content="有効" IsChecked="{Binding NgConfigThreadIdNg.Value, Mode=TwoWay}" />
                             </StackPanel>
 
                             <StackPanel Style="{StaticResource ConfigContents}">
@@ -245,6 +262,11 @@
                                 </ComboBox>
                             </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>カタログ(Wrap表示)にIDマーカーを表示</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文にIDが出ている場合サムネイルにマーカーを表示します。</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding CatalogIsEnabledIdMarker.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>カタログ(Wrap表示)に動画マーカーを表示</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド画像が.mp4/.webmの場合サムネイルにマーカーを表示します。</TextBlock>
                                 <CheckBox Content="有効" IsChecked="{Binding CatalogIsEnabledMovieMarker.Value, Mode=TwoWay}" />
@@ -278,7 +300,11 @@
                                     <ComboBoxItem>隠す</ComboBoxItem>
                                 </ComboBox>
                             </StackPanel>
-
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>コマンドパレットを表示</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding IsEnabledThreadCommandPalette.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            
                             <TextBlock Style="{StaticResource ConfigHeaderText}">投稿画面</TextBlock>
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>投稿した題名を記憶する</TextBlock>

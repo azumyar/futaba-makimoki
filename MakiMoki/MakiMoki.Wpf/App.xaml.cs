@@ -34,6 +34,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 
 		public LibVLCSharp.Shared.LibVLC LibVLC { get; private set; }
 
+		//private Action<PlatformData.WpfConfig> systemUpdateAction;
+
 		protected override Window CreateShell() {
 			AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs e) {
 				if((e.ExceptionObject is Exception ex) && !string.IsNullOrEmpty(UserLogDirectory) && Directory.Exists(UserLogDirectory)) {
@@ -142,13 +144,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				});
 #endif
 			WpfConfig.WpfConfigLoader.Style.Validate();
-			ApplyStyle(WpfConfig.WpfConfigLoader.Style);
+			ApplyStyle();
 			PlatformUtil.RemoveOldCache(AppCacheDirectory);
+			//WpfConfig.WpfConfigLoader.AddSystemConfigUpdateNotifyer(systemUpdateAction = (x) => ApplyStyle());
 
 			return Container.Resolve<Windows.MainWindow>();
 		}
 
-		private void ApplyStyle(PlatformData.StyleConfig style) {
+		private void ApplyStyle(PlatformData.StyleConfig styleConfig = null) {
+			var style = styleConfig ?? WpfConfig.WpfConfigLoader.Style;
 			this.Resources["StyleType"] = style.StyleType;
 			{
 				var white = style.ToWpfColor(style.WhiteColor);
