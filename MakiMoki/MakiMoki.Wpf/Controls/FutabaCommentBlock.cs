@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
 using Yarukizero.Net.MakiMoki.Util;
+using System.Runtime.CompilerServices;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	class FutabaCommentBlock : TextBlock {
@@ -94,188 +95,204 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				return;
 			}
 
-			var msg = item.DisplayHtml.Value ?? "";
-			var s1 = Regex.Replace(msg, @"<br>", Environment.NewLine,
-				RegexOptions.IgnoreCase | RegexOptions.Multiline);
-			//var s2 = Regex.Replace(s1, @"<[^>]*>", "",
-			//	RegexOptions.IgnoreCase | RegexOptions.Multiline);
-			//var s3 = System.Net.WebUtility.HtmlDecode(s2);
-			msg = s1;
-			var lines = msg.Replace("\r", "").Split('\n').Take(maxLines).ToArray();
 			var regexOpt = /* RegexOptions.IgnoreCase | */ RegexOptions.Singleline;
 			var regex = new Regex[] {
 				new Regex(@"^(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)", regexOpt),
 			}.Concat(Config.ConfigLoader.Uploder.Uploders.Select(x => new Regex(x.File, regexOpt))).ToArray();
 			var regexFontStart = new Regex("^<font\\s+color=[\"']#([0-9a-fA-F]+)[\"'][^>]*>", regexOpt);
 			var regexFontEnd = new Regex("</font>", regexOpt);
-			var last = lines.LastOrDefault();
-			for(var i = 0; i < lines.Length; i++) {
-				var s = lines[i];
-				var input = new StringBuilder(s);
-				var output = new StringBuilder();
-
-				void EvalEmoji(string text, Color? color, Model.BindableFutabaResItem quotRes = null, ToolTip toolTip = null) {
-					var fb = (color.HasValue) ? new SolidColorBrush(color.Value) : tb.Foreground;
-					var pos = 0;
-					foreach(Match m in Emoji.Wpf.EmojiData.MatchMultiple.Matches(text)) {
-						var run1 = new Run(text.Substring(pos, m.Index - pos)) {
-							Foreground = fb,
-							ToolTip = toolTip,
-							Tag = quotRes,
-						};
-						var run2 = new Emoji.Wpf.EmojiInline() {
-							FallbackBrush = tb.Foreground,
-							Text = text.Substring(m.Index, m.Length),
-							FontSize = tb.FontSize,
-							ToolTip = toolTip,
-							Tag = quotRes,
-						};
-						if(quotRes != null) {
-							run1.Loaded += OnLoadedQuot;
-							run2.Loaded += OnLoadedQuot;
-						}
-
-						tb.Inlines.Add(run1);
-						tb.Inlines.Add(run2);
-						pos = m.Index + m.Length;
+			void EvalEmoji(string text, Color? color, Model.BindableFutabaResItem quotRes = null, ToolTip toolTip = null) {
+				var fb = (color.HasValue) ? new SolidColorBrush(color.Value) : null;
+				var pos = 0;
+				foreach(Match m in Emoji.Wpf.EmojiData.MatchMultiple.Matches(text)) {
+					var run1 = new Run(text.Substring(pos, m.Index - pos)) {
+						ToolTip = toolTip,
+						Tag = quotRes,
+					};
+					if(fb != null) {
+						// nullを入れると何も描画されなくなるのでnull以外の場合は代入
+						run1.Foreground = fb;
 					}
-					var run3 = new Run(text.Substring(pos)) {
-						Foreground = fb,
+					var run2 = new Emoji.Wpf.EmojiInline() {
+						FallbackBrush = tb.Foreground,
+						Text = text.Substring(m.Index, m.Length),
+						FontSize = tb.FontSize,
 						ToolTip = toolTip,
 						Tag = quotRes,
 					};
 					if(quotRes != null) {
-						run3.Loaded += OnLoadedQuot;
+						run1.Loaded += OnLoadedQuot;
+						run2.Loaded += OnLoadedQuot;
 					}
-					tb.Inlines.Add(run3);
-				}
 
-				void EvalFont(StringBuilder inputVal, StringBuilder outputVal, Model.BindableFutabaResItem quotRes = null, ToolTip toolTip = null) {
-					var fm = regexFontStart.Match(inputVal.ToString());
-					if(fm.Success) {
-						var rgb = fm.Groups[1].Value;
-						var color = default(Color?);
-						var ns = System.Globalization.NumberStyles.HexNumber;
-						var fp = System.Globalization.CultureInfo.InvariantCulture;
-						if(rgb.Length == 3) {
-							if(int.TryParse(rgb[0].ToString(), ns, fp, out var r)
-								&& int.TryParse(rgb[1].ToString(), ns, fp, out var g)
-								&& int.TryParse(rgb[2].ToString(), ns, fp, out var b)) {
-								color = Color.FromRgb((byte)r, (byte)g, (byte)b);
-							}
-						} else {
-							if(uint.TryParse(rgb, ns, fp, out var v)) {
-								color = Color.FromRgb((byte)(v >> 16 & 0xff), (byte)(v >> 8 & 0xff), (byte)(v & 0xff));
-							}
-						}
-						inputVal.Remove(0, fm.Length);
-						var fm2 = regexFontEnd.Match(inputVal.ToString());
-						if(!fm.Success) {
-							// 前提条件として想定していない形式
-						} else {
-							var text = inputVal.ToString().Substring(0, fm2.Index);
-							var t2 = Regex.Replace(text, @"<[^>]*>", "",
-								RegexOptions.IgnoreCase | RegexOptions.Multiline);
-							var t3 = System.Net.WebUtility.HtmlDecode(t2);
-							EvalEmoji(t3, color, quotRes, toolTip);
-							inputVal.Remove(0, fm2.Index + fm2.Length);
-						}
-					}
+					tb.Inlines.Add(run1);
+					tb.Inlines.Add(run2);
+					pos = m.Index + m.Length;
 				}
+				var run3 = new Run(text.Substring(pos)) {
+					ToolTip = toolTip,
+					Tag = quotRes,
+				};
+				if(fb != null) {
+					// nullを入れると何も描画されなくなるのでnull以外の場合は代入
+					run3.Foreground = fb;
+				}
+				if(quotRes != null) {
+					run3.Loaded += OnLoadedQuot;
+				}
+				tb.Inlines.Add(run3);
+			}
 
-				void EvalLink(StringBuilder inputVal, StringBuilder outputVal) {
-					foreach(var r in regex) {
-						var m = r.Match(inputVal.ToString());
-						if(m.Success) {
-							try {
-								var uri = new Uri(ToUrl(m.Value));
-								var link = new Hyperlink() {
-									TextDecorations = null,
-									Foreground = tb.Foreground,
-									NavigateUri = uri,
-									Tag = item,
-								};
-								link.Loaded += OnLoadedLink;
-								link.Inlines.Add(System.Net.WebUtility.HtmlDecode(m.Value));
-								if(0 < outputVal.Length) {
-									EvalEmoji(outputVal.ToString(), null);
-								}
-								tb.Inlines.Add(link);
-							}
-							catch(UriFormatException) {
-								// URLが作れなかったのでべた書きする
-								if(0 < outputVal.Length) {
-									EvalEmoji(outputVal.ToString(), null);
-								}
-								EvalEmoji(m.Value, null);
-							}
-							outputVal.Clear();
-							inputVal.Remove(0, m.Length);
-							goto next;
+			void EvalFont(StringBuilder inputVal, StringBuilder outputVal, Model.BindableFutabaResItem quotRes = null, ToolTip toolTip = null) {
+				var fm = regexFontStart.Match(inputVal.ToString());
+				if(fm.Success) {
+					var rgb = fm.Groups[1].Value;
+					var color = default(Color?);
+					var ns = System.Globalization.NumberStyles.HexNumber;
+					var fp = System.Globalization.CultureInfo.InvariantCulture;
+					if(rgb.Length == 3) {
+						if(int.TryParse(rgb[0].ToString(), ns, fp, out var r)
+							&& int.TryParse(rgb[1].ToString(), ns, fp, out var g)
+							&& int.TryParse(rgb[2].ToString(), ns, fp, out var b)) {
+							color = Color.FromRgb((byte)r, (byte)g, (byte)b);
+						}
+					} else {
+						if(uint.TryParse(rgb, ns, fp, out var v)) {
+							color = Color.FromRgb((byte)(v >> 16 & 0xff), (byte)(v >> 8 & 0xff), (byte)(v & 0xff));
 						}
 					}
-					outputVal.Append(inputVal[0]);
-					inputVal.Remove(0, 1);
-				next:;
+					inputVal.Remove(0, fm.Length);
+					var fm2 = regexFontEnd.Match(inputVal.ToString());
+					if(!fm.Success) {
+						// 前提条件として想定していない形式
+					} else {
+						var text = inputVal.ToString().Substring(0, fm2.Index);
+						var t2 = Regex.Replace(text, @"<[^>]*>", "",
+							RegexOptions.IgnoreCase | RegexOptions.Multiline);
+						var t3 = System.Net.WebUtility.HtmlDecode(t2);
+						EvalEmoji(t3, color, quotRes, toolTip);
+						inputVal.Remove(0, fm2.Index + fm2.Length);
+					}
 				}
-			start:
-				var fontPos = input.ToString().ToLower().IndexOf("<font");
-				if(fontPos < 0) {
-					var text = input.ToString();
-					var t2 = Regex.Replace(text, @"<[^>]*>", "",
-						RegexOptions.IgnoreCase | RegexOptions.Multiline);
-					var t3 = System.Net.WebUtility.HtmlDecode(t2);
-					input = new StringBuilder(t3);
-					while(input.Length != 0) {
-						EvalLink(input, output);
+			}
+
+			void EvalLink(StringBuilder inputVal, StringBuilder outputVal) {
+				foreach(var r in regex) {
+					var m = r.Match(inputVal.ToString());
+					if(m.Success) {
+						try {
+							var uri = new Uri(ToUrl(m.Value));
+							var link = new Hyperlink() {
+								TextDecorations = null,
+								Foreground = tb.Foreground,
+								NavigateUri = uri,
+								Tag = item,
+							};
+							link.Loaded += OnLoadedLink;
+							link.Inlines.Add(System.Net.WebUtility.HtmlDecode(m.Value));
+							if(0 < outputVal.Length) {
+								EvalEmoji(outputVal.ToString(), null);
+							}
+							tb.Inlines.Add(link);
+						}
+						catch(UriFormatException) {
+							// URLが作れなかったのでべた書きする
+							if(0 < outputVal.Length) {
+								EvalEmoji(outputVal.ToString(), null);
+							}
+							EvalEmoji(m.Value, null);
+						}
+						outputVal.Clear();
+						inputVal.Remove(0, m.Length);
+						goto next;
 					}
-				} else if(fontPos == 0) {
-					ToolTip toolTip = null;
-					Model.BindableFutabaResItem quotRes = null;
-					if(i < item.Raw.Value.QuotLines.Length) {
-						var q = item.Raw.Value.QuotLines[i];
-						if(q.IsQuot) {
-							if(q.IsHit) {
-								quotRes = item.Parent.Value.ResItems
-									.Where(x => x.Raw.Value.ResItem.No == q.ResNo)
-									.FirstOrDefault();
-							} else {
-								toolTip = new ToolTip() {
-									Content = new TextBlock() {
-										Text = "見つかりませんでした",
-										FontFamily = tb.FontFamily,
-										FontSize = tb.FontSize,
-									}
-								};
+				}
+				outputVal.Append(inputVal[0]);
+				inputVal.Remove(0, 1);
+			next:;
+			}
+
+
+			var zeroQuot = new Data.FutabaContext.Quot[0];
+			var disp = item.DisplayHtml.Value ?? "";
+			var orig = item.OriginHtml.Value ?? "";
+			var headLine = (disp == orig) ? item.HeadLineHtml.Value : "";
+			var quotLine = (disp == orig) ? item.Raw.Value.QuotLines : zeroQuot;
+
+			foreach(var m in new (string Msg, Data.FutabaContext.Quot[] Quot)[] { (headLine, zeroQuot), (disp, quotLine) }) {
+				if(string.IsNullOrEmpty(m.Msg)) {
+					continue;
+				}
+				var s1 = Regex.Replace(m.Msg, @"<br>", Environment.NewLine,
+					RegexOptions.IgnoreCase | RegexOptions.Multiline);
+				var lines = s1.Replace("\r", "").Split('\n').Take(maxLines).ToArray();
+				var last = lines.LastOrDefault();
+				for(var i = 0; i < lines.Length; i++) {
+					var s = lines[i];
+					var input = new StringBuilder(s);
+					var output = new StringBuilder();
+
+				start:
+					var fontPos = input.ToString().ToLower().IndexOf("<font");
+					if(fontPos < 0) {
+						var text = input.ToString();
+						var t2 = Regex.Replace(text, @"<[^>]*>", "",
+							RegexOptions.IgnoreCase | RegexOptions.Multiline);
+						var t3 = System.Net.WebUtility.HtmlDecode(t2);
+						input = new StringBuilder(t3);
+						while(input.Length != 0) {
+							EvalLink(input, output);
+						}
+					} else if(fontPos == 0) {
+						ToolTip toolTip = null;
+						Model.BindableFutabaResItem quotRes = null;
+						if(i < m.Quot.Length) {
+							var q = m.Quot[i];
+							if(q.IsQuot) {
+								if(q.IsHit) {
+									quotRes = item.Parent.Value.ResItems
+										.Where(x => x.Raw.Value.ResItem.No == q.ResNo)
+										.FirstOrDefault();
+								} else {
+									toolTip = new ToolTip() {
+										Background = new SolidColorBrush((Color)App.Current.Resources["ViewerBackgroundColor"]),
+										Content = new TextBlock() {
+											Foreground = new SolidColorBrush((Color)App.Current.Resources["ViewerForegroundColor"]),
+											Text = "見つかりませんでした",
+											FontFamily = tb.FontFamily,
+											FontSize = tb.FontSize,
+										}
+									};
+								}
 							}
 						}
+						EvalFont(input, output, quotRes, toolTip);
+						goto start;
+					} else {
+						var text = input.ToString().Substring(0, fontPos);
+						var t2 = Regex.Replace(text, @"<[^>]*>", "",
+							RegexOptions.IgnoreCase | RegexOptions.Multiline);
+						var t3 = System.Net.WebUtility.HtmlDecode(t2);
+						var input2 = new StringBuilder(t3);
+						while(input2.Length != 0) {
+							EvalLink(input2, output);
+						}
+						if(output.Length != 0) {
+							EvalEmoji(output.ToString(), null);
+							output.Clear();
+						}
+						input.Remove(0, fontPos);
+						EvalFont(input, output);
+						goto start;
 					}
-					EvalFont(input, output, quotRes, toolTip);
-					goto start;
-				} else {
-					var text = input.ToString().Substring(0, fontPos);
-					var t2 = Regex.Replace(text, @"<[^>]*>", "",
-						RegexOptions.IgnoreCase | RegexOptions.Multiline);
-					var t3 = System.Net.WebUtility.HtmlDecode(t2);
-					var input2 = new StringBuilder(t3);
-					while(input2.Length != 0) {
-						EvalLink(input2, output);
-					}
+
 					if(output.Length != 0) {
 						EvalEmoji(output.ToString(), null);
 						output.Clear();
 					}
-					input.Remove(0, fontPos);
-					EvalFont(input, output);
-					goto start;
-				}
-
-				if(output.Length != 0) {
-					EvalEmoji(output.ToString(), null);
-					output.Clear();
-				}
-				if(!object.ReferenceEquals(s, last)) {
-					tb.Inlines.Add(new LineBreak());
+					if(!object.ReferenceEquals(s, last)) {
+						tb.Inlines.Add(new LineBreak());
+					}
 				}
 			}
 		}
@@ -341,7 +358,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			if((e.Source is Run run) && (run.Tag is Model.BindableFutabaResItem ri)) {
 				if(run.ToolTip == null) {
 					run.ToolTip = new ToolTip() {
+						Background = new SolidColorBrush((Color)App.Current.Resources["ViewerBackgroundColor"]),
 						Content = new FutabaResBlock() {
+							Foreground = new SolidColorBrush((Color)App.Current.Resources["ViewerForegroundColor"]),
+							Background = new SolidColorBrush((Color)App.Current.Resources["ThreadBackgroundColor"]),
 							IsHitTestVisible = false,
 							DataContext = ri,
 						}

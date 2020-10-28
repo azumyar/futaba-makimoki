@@ -36,10 +36,26 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 				}
 				return defaultValue;
 			}
+			T getPath<T>(string path, T defaultValue, Func<string, T> convFunc = null) {
+				var r = defaultValue;
+				convFunc = convFunc ?? ((j) => Newtonsoft.Json.JsonConvert.DeserializeObject<T>(j));
+				if(File.Exists(path)) {
+					Util.FileUtil.LoadConfigHelper(path,
+						(json) => r = convFunc(json),
+						(e, m) => throw new Exceptions.InitializeFailedException(m, e));
+				}
+				return r;
+			}
 
 			try {
 				if((setting.UserDirectory != null) && Directory.Exists(setting.UserDirectory)) {
 					ConfigDirectory = setting.UserDirectory;
+					NgConfig = getPath(
+						Path.Combine(ConfigDirectory, NgConfigFile),
+						NgData.NgConfig.CreateDefault(),
+						(json) => Util.CompatUtil.Migrate<NgData.NgConfig>(json, new Dictionary<int, Type>() {
+							{ NgData.Compat.NgConfig2020062900.CurrentVersion, typeof(NgData.Compat.NgConfig2020062900) },
+						}));
 					NgConfig = get(Path.Combine(ConfigDirectory, NgConfigFile), NgData.NgConfig.CreateDefault());
 					NgImageConfig = get(Path.Combine(ConfigDirectory, NgImageConfigFile), NgData.NgImageConfig.CreateDefault());
 					HiddenConfig = get(Path.Combine(ConfigDirectory, HiddenConfigFile), NgData.HiddenConfig.CreateDefault());
@@ -101,9 +117,17 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 
 		public static NgData.HiddenConfig HiddenConfig { get; private set; }
 
-		public static void UpdateIdNg(bool ng) {
-			if(NgConfig.EnableIdNg != ng) {
-				NgConfig.EnableIdNg = ng;
+		public static void UpdateCatalogIdNg(bool ng) {
+			if(NgConfig.EnableCatalogIdNg != ng) {
+				NgConfig.EnableCatalogIdNg = ng;
+				SaveConfig(NgConfigFile, NgConfig);
+				ngUpdateNotifyer = Notify(ngUpdateNotifyer, NgConfig);
+			}
+		}
+
+		public static void UpdateThreadIdNg(bool ng) {
+			if(NgConfig.EnableThreadIdNg != ng) {
+				NgConfig.EnableThreadIdNg = ng;
 				SaveConfig(NgConfigFile, NgConfig);
 				ngUpdateNotifyer = Notify(ngUpdateNotifyer, NgConfig);
 			}

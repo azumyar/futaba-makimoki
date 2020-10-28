@@ -5,10 +5,14 @@ using System.Text;
 
 namespace Yarukizero.Net.MakiMoki.Ng.NgData {
 	public class NgConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2020062900;
+		public static int CurrentVersion { get; } = 2020102900;
 
-		[JsonProperty("ng-id", Required = Required.DisallowNull)]
-		public bool EnableIdNg { get; internal set; }
+		[JsonProperty("ng-catalog-id", Required = Required.DisallowNull)]
+		public bool EnableCatalogIdNg { get; internal set; }
+
+		[JsonProperty("ng-thread-id", Required = Required.DisallowNull)]
+		public bool EnableThreadIdNg { get; internal set; }
+
 
 		[JsonProperty("ng-catalog-words", Required = Required.DisallowNull)]
 		public string[] CatalogWords { get; internal set; }
@@ -25,11 +29,31 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgData {
 		internal static NgConfig CreateDefault() {
 			return new NgConfig() {
 				Version = CurrentVersion,
-				EnableIdNg = false,
+				EnableCatalogIdNg = false,
+				EnableThreadIdNg = false,
 				CatalogWords = new string[0],
 				CatalogRegex = new string[0],
 				ThreadWords = new string[0],
 				ThreadRegex = new string[0],
+			};
+		}
+		
+		internal static NgConfig Create(
+			bool enableCatalogIdNg,
+			bool enableThreadIdNg,
+			string[] catalogWords,
+			string[] catalogRegex,
+			string[] threadWords,
+			string[] threadRegex) {
+
+			return new NgConfig() {
+				Version = CurrentVersion,
+				EnableCatalogIdNg = enableCatalogIdNg,
+				EnableThreadIdNg = enableThreadIdNg,
+				CatalogWords = catalogWords,
+				CatalogRegex = catalogRegex,
+				ThreadWords = threadWords,
+				ThreadRegex = threadRegex,
 			};
 		}
 	}

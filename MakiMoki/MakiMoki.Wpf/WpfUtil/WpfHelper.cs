@@ -38,6 +38,36 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			return default;
 		}
 
+		public static DependencyObject FindFirstChild(DependencyObject o, Type target) {
+			int c = VisualTreeHelper.GetChildrenCount(o);
+			for(var i = 0; i < c; i++) {
+				var co = VisualTreeHelper.GetChild(o, i);
+				if(target.IsAssignableFrom(co.GetType())) {
+					return co;
+				}
+				var r = FindFirstChild(co, target);
+				if(r != null) {
+					return r;
+				}
+			}
+			return default;
+		}
+
+		public static DependencyObject FindLastChild(DependencyObject o, Type target) {
+			int c = VisualTreeHelper.GetChildrenCount(o);
+			for(var i = c - 1; 0 <= i; i--) {
+				var co = VisualTreeHelper.GetChild(o, i);
+				if(target.IsAssignableFrom(co.GetType())) {
+					return co;
+				}
+				var r = FindLastChild(co, target);
+				if(r != null) {
+					return r;
+				}
+			}
+			return default;
+		}
+
 		public static T FindFirstParent<T>(DependencyObject o) {
 			var p = VisualTreeHelper.GetParent(o);
 			do {

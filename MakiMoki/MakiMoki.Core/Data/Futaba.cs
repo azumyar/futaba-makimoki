@@ -486,6 +486,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 					+ ResItem.Res.Host
 					+ ResItem.Res.Com
 					+ ResItem.Res.Thumb
+					+ ResItem.Res.Fsize
 					+ Soudane;
 			}
 

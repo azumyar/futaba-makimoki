@@ -63,6 +63,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Behaviors\ScrollBehavior.cs" />
+    <Compile Include="Behaviors\AttachedScrollBarStyleBehavior.cs" />
     <Compile Include="Behaviors\WheelUpdateBehavior.cs" />
     <Compile Include="Behaviors\FocusBehavior.cs" />
     <Compile Include="Controls\FutabaPostView.xaml.cs">
@@ -85,11 +86,13 @@
     <Compile Include="Converters\FutabaNewResVisibilityConverter.cs" />
     <Compile Include="Converters\FutabaNewResCountConverter.cs" />
     <Compile Include="Converters\FutabaViewerConverter.cs" />
+    <Compile Include="Converters\StyleConverter.cs" />
     <Compile Include="Converters\ThreadResConverter.cs" />
     <Compile Include="Model\Interface.cs" />
     <Compile Include="PlatformConst.cs" />
     <Compile Include="PlatformData\Compat\2020070500.cs" />
     <Compile Include="PlatformData\Compat\2020071900.cs" />
+    <Compile Include="PlatformData\Compat\2020102900.cs" />
     <Compile Include="PlatformData\Config.cs" />
     <Compile Include="PlatformData\Data.cs" />
     <Compile Include="PlatformData\Event.cs" />
@@ -130,7 +133,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Resources\Xaml\ScrollViewer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Resources\Xaml\FlatButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Xaml\ViewerListBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -186,9 +197,6 @@
     <None Include="Config.d\windows.exe.json.sample">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Config.d\windows.design.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Config.d\makimoki.bord.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -197,6 +205,8 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <EmbeddedResource Include="WpfConfig\windows.makimoki.json" />
+    <EmbeddedResource Include="WpfConfig\windows.style.light.json" />
+    <EmbeddedResource Include="WpfConfig\windows.style.dark.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

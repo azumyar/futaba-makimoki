@@ -406,5 +406,181 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				jpegEncoder.Save(fs);
 			}
 		}
+
+		public static Color GetMaterialSubColor(Color baseColor, PlatformData.StyleType styleType) {
+			var hsl = ToHsl(baseColor);
+			if(styleType == PlatformData.StyleType.Light) {
+				var l = Math.Max(hsl.Lightness - (0.05 * 2), 0);
+				var rgb = HslToRgb(hsl.Hue, hsl.Saturation, l);
+				return Color.FromArgb(baseColor.A, rgb.R, rgb.G, rgb.B);
+			} else {
+				var l = Math.Min(hsl.Lightness + (0.05 * 2), 1.0);
+				var rgb = HslToRgb(hsl.Hue, hsl.Saturation, l);
+				return Color.FromArgb(baseColor.A, rgb.R, rgb.G, rgb.B);
+			}
+		}
+
+		public static Color GetTextColor(Color background, Color white, Color black, PlatformData.StyleType styleType) {
+			var w = (styleType == PlatformData.StyleType.Light) ? white : black;
+			var b = (styleType == PlatformData.StyleType.Light) ? black : white;
+
+			return (ToHsl(background).Lightness < 0.5) ? w : b;
+		}
+
+		public static (double H, double S, double V) ToHsv(Color c) {
+			var r = c.R / 255.0;
+			var g = c.G / 255.0;
+			var b = c.B / 255.0;
+
+			var list = new[] { r, g, b };
+			var max = list.Max();
+			var min = list.Min();
+
+			double h;
+			if(max == min) {
+				h = 0;
+			} else if(max == r) {
+				h = (60 * (g - b) / (max - min) + 360) % 360;
+			} else if(max == g) {
+				h = 60 * (b - r) / (max - min) + 120;
+			} else {
+				h = 60 * (r - g) / (max - min) + 240;
+			}
+			var s = ((max == 0) ? 0 : ((max - min) / max)) * 100;
+			var v = max * 100;
+
+			return (h, s, v);
+		}
+
+		public static Color HsvToRgb(double Hue, double Saturation, double Brightness) {
+			// https://sites.google.com/site/bknobiboroku/programming-tips/wpf/Csharp_wpf_HSB_to_RGB
+			List<double> colors = new List<double> { 0, 0, 0 };
+			int CC = colors.Count;
+
+			double RelativeInDegrees = Hue / (360 / CC);
+			int WholeNoPart = (int)Math.Truncate(RelativeInDegrees);
+			double FractionalPart = RelativeInDegrees % 1.0;
+
+			int StartIndex = WholeNoPart % CC;
+			int SecondIndex = (WholeNoPart + 1) % CC;
+
+			double val = FractionalPart * 2;
+			double color1 = Math.Min(2 - val, 1);
+			double color2 = Math.Min(val, 1);
+			colors[StartIndex] = 255 * color1;
+			colors[SecondIndex] = 255 * color2;
+			double satAs0to1 = Saturation / 100.0;
+			colors = colors.Select(item => item += (255 - item) * (1.0 - satAs0to1)).ToList();
+
+			double brightAs0to1 = Brightness / 100.0;
+			colors = colors.Select(item => item *= brightAs0to1).ToList();
+
+			var col = Color.FromArgb(255, (byte)colors[0], (byte)colors[1], (byte)colors[2]);
+			return col;
+		}
+
+		public static (double Hue, double Saturation, double Lightness) ToHsl(Color rgb) {
+			float r = (float)rgb.R / 255f;
+			float g = (float)rgb.G / 255f;
+			float b = (float)rgb.B / 255f;
+
+			float max = Math.Max(r, Math.Max(g, b));
+			float min = Math.Min(r, Math.Min(g, b));
+
+			float lightness = (max + min) / 2f;
+
+			float hue, saturation;
+			if(max == min) {
+				//undefined
+				hue = 0f;
+				saturation = 0f;
+			} else {
+				float c = max - min;
+
+				if(max == r) {
+					hue = (g - b) / c;
+				} else if(max == g) {
+					hue = (b - r) / c + 2f;
+				} else {
+					hue = (r - g) / c + 4f;
+				}
+				hue *= 60f;
+				if(hue < 0f) {
+					hue += 360f;
+				}
+
+				//saturation = c / (1f - Math.Abs(2f * lightness - 1f));
+				if(lightness < 0.5f) {
+					saturation = c / (max + min);
+				} else {
+					saturation = c / (2f - max - min);
+				}
+			}
+
+			return (hue, saturation, lightness);
+		}
+
+		public static Color HslToRgb(double hue, double saturation, double lightness) {
+			var s = saturation;
+			var l = lightness;
+
+			double r1, g1, b1;
+			if(s == 0) {
+				r1 = l;
+				g1 = l;
+				b1 = l;
+			} else {
+				var h = hue / 60.0;
+				var i = (int)Math.Floor(h);
+				var f = h - i;
+				//float c = (1f - Math.Abs(2f * l - 1f)) * s;
+				var c = (l < 0.5) ? (2.0 * s * l) : (2.0 * s * (1.0 - l));
+				var m = l - c / 2.0;
+				var p = c + m;
+				//float x = c * (1f - Math.Abs(h % 2f - 1f));
+				var q = (i % 2 == 0) ? (l + c * (f - 0.5)) : (l - c * (f - 0.5));
+
+				switch(i) {
+				case 0:
+					r1 = p;
+					g1 = q;
+					b1 = m;
+					break;
+				case 1:
+					r1 = q;
+					g1 = p;
+					b1 = m;
+					break;
+				case 2:
+					r1 = m;
+					g1 = p;
+					b1 = q;
+					break;
+				case 3:
+					r1 = m;
+					g1 = q;
+					b1 = p;
+					break;
+				case 4:
+					r1 = q;
+					g1 = m;
+					b1 = p;
+					break;
+				case 5:
+					r1 = p;
+					g1 = m;
+					b1 = q;
+					break;
+				default:
+					throw new ArgumentException(
+						"色相の値が不正です。", "hsl");
+				}
+			}
+
+			return Color.FromRgb(
+				(byte)Math.Round(r1 * 255.0),
+				(byte)Math.Round(g1 * 255.0),
+				(byte)Math.Round(b1 * 255.0));
+		}
 	}
 }

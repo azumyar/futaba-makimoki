@@ -256,9 +256,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						// 画面から参照されているので this の初期化が終わっていないこのタイミングで書き換えてはいけない
 						//this.ResItems[i] = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
 						var bf = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
-						bf.ThumbSource.Value = a.ThumbSource.Value;
-						bf.ThumbHash.Value = a.ThumbHash.Value;
-						bf.OriginSource.Value = a.OriginSource.Value;
+						if(b.ResItem.Res.Fsize != 0) {
+							bf.ThumbSource.Value = a.ThumbSource.Value;
+							bf.ThumbHash.Value = a.ThumbHash.Value;
+							bf.OriginSource.Value = a.OriginSource.Value;
+						}
 						updateItems.Add((i, bf));
 					}
 					i++;
@@ -515,6 +517,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> ThreadResNo { get; }
 		public ReactiveProperty<Data.FutabaContext.Item> Raw { get; }
 
+		public ReactiveProperty<string> HeadLineHtml { get; }
 		public ReactiveProperty<string> DisplayHtml { get; }
 		public ReactiveProperty<string> CommentHtml { get; }
 		public ReactiveProperty<string> OriginHtml { get; }
@@ -525,6 +528,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<bool> IsNgImageHidden { get; }
 
 		public ReactiveProperty<string> CommentCopy { get; }
+		public ReactiveProperty<Visibility> CommandPaletteVisibility { get; }
 
 
 		public ReactiveProperty<Visibility> ReleaseHiddenResBuutonVisibility { get; }
@@ -538,6 +542,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Visibility> CopyBlockVisibility { get; }
 
 		public ReactiveProperty<Visibility> IsVisibleMenuItemNgImage { get; }
+
+		public ReactiveProperty<bool> IsVisibleCatalogIdMarker{ get; }
+
 		public ReactiveProperty<string> MenuItemTextHidden { get; }
 
 		public ReactiveProperty<BindableFutaba> Parent { get; }
@@ -568,19 +575,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ThumbSource = new ReactiveProperty<BitmapSource>();
 			this.OriginSource = new ReactiveProperty<BitmapSource>();
 			this.ThumbHash = new ReactiveProperty<ulong?>();
+			this.CommandPaletteVisibility = new ReactiveProperty<Visibility>(
+				WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledThreadCommandPalette ? Visibility.Visible : Visibility.Collapsed);
+			this.IsVisibleCatalogIdMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledIdMarker);
 
 			// delとhostの処理
 			{
-				var com = new StringBuilder();
+				var headLine = new StringBuilder();
 				if(Raw.Value.ResItem.Res.IsDel) {
-					com.Append("<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font><br>");
+					headLine.Append("<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font><br>");
 				} else if(Raw.Value.ResItem.Res.IsDel2) {
-					com.Append("<font color=\"#ff0000\">削除依頼によって隔離されました</font><br>");
+					headLine.Append("<font color=\"#ff0000\">削除依頼によって隔離されました</font><br>");
 				}
 				if(!string.IsNullOrEmpty(Raw.Value.ResItem.Res.Host)) {
-					com.AppendFormat("[<font color=\"#ff0000\">{0}</font>]<br>", Raw.Value.ResItem.Res.Host);
+					headLine.AppendFormat("[<font color=\"#ff0000\">{0}</font>]<br>", Raw.Value.ResItem.Res.Host);
 				}
-				com.Append(Raw.Value.ResItem.Res.Com);
 				this.IsNg = new ReactiveProperty<bool>(
 					parent.Url.IsCatalogUrl ? Ng.NgUtil.NgHelper.CheckCatalogNg(parent.Raw, item)
 						: Ng.NgUtil.NgHelper.CheckThreadNg(parent.Raw, item));
@@ -589,8 +598,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					(item.ResItem.Res.IsDel || item.ResItem.Res.IsDel2)
 						&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden));
 				this.IsNgImageHidden = new ReactiveProperty<bool>(false);
+				this.HeadLineHtml = new ReactiveProperty<string>(headLine.ToString());
 				this.CommentHtml = new ReactiveProperty<string>("");
-				this.OriginHtml = new ReactiveProperty<string>(com.ToString());
+				this.OriginHtml = new ReactiveProperty<string>(Raw.Value.ResItem.Res.Com);
 				this.SetCommentHtml();
 				this.IsVisibleOriginComment = new ReactiveProperty<bool>((this.IsHidden.Value || this.IsNg.Value || this.IsDel.Value) ? false : true);
 				this.DisplayHtml = IsVisibleOriginComment
@@ -608,7 +618,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					.CombineLatest(this.IsVisibleOriginComment, (x, y) => (x | y) ? Visibility.Visible : Visibility.Collapsed)
 					.ToReactiveProperty();
 				this.ShowNgResButtonText = this.IsVisibleOriginComment
-						.Select(x => x ? "レスを非表示" : "レスを表示")
+						.Select(x => x ? "非表示" : "レスを表示")
 						.ToReactiveProperty();
 
 				ngUpdateAction = (x) => a();
@@ -816,6 +826,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden);
 			this.SetCommentHtml();
 			this.IsVisibleOriginComment.Value =(this.IsHidden.Value || this.IsNg.Value || this.IsDel.Value) ? false : true;
+			this.CommandPaletteVisibility.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledThreadCommandPalette ? Visibility.Visible : Visibility.Collapsed;
+			this.IsVisibleCatalogIdMarker.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledIdMarker;
 		}
 	}
 }

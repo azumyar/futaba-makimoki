@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Navigation;
 using Prism.Mvvm;
 using Prism.Ioc;
@@ -32,6 +33,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 		public string SystemDirectory { get; private set; }
 
 		public LibVLCSharp.Shared.LibVLC LibVLC { get; private set; }
+
+		//private Action<PlatformData.WpfConfig> systemUpdateAction;
 
 		protected override Window CreateShell() {
 			AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs e) {
@@ -122,6 +125,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				Environment.Exit(1);
 			}
 			//Util.TaskUtil.Initialize();
+#if !DEBUG
 			Observable.Create<bool>(async o => {
 				o.OnNext(await PlatformUtil.CheckNewVersion());
 				return System.Reactive.Disposables.Disposable.Empty;
@@ -138,9 +142,123 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 						}
 					}
 				});
+#endif
+			WpfConfig.WpfConfigLoader.Style.Validate();
+			ApplyStyle();
 			PlatformUtil.RemoveOldCache(AppCacheDirectory);
+			//WpfConfig.WpfConfigLoader.AddSystemConfigUpdateNotifyer(systemUpdateAction = (x) => ApplyStyle());
 
 			return Container.Resolve<Windows.MainWindow>();
+		}
+
+		private void ApplyStyle(PlatformData.StyleConfig styleConfig = null) {
+			var style = styleConfig ?? WpfConfig.WpfConfigLoader.Style;
+			this.Resources["StyleType"] = style.StyleType;
+			{
+				var white = style.ToWpfColor(style.WhiteColor);
+				var black = style.ToWpfColor(style.BlackColor);
+				var primary = style.ToWpfColor(style.PrimaryColor);
+				var primarySub = style.GetSubColor(primary);
+				var secondary = style.ToWpfColor(style.SecondaryColor);
+				var secondarySub = style.GetSubColor(secondary);
+				var windowFrame = style.ToWpfColor(style.WindowFrameColor);
+				var windowBorder = style.GetSubColor(windowFrame, PlatformData.StyleType.Light);
+				var windowTabBackground = style.ToWpfColor(style.WindowTabColor);
+				var windowTabForeground = style.GetTextColor(windowFrame, white, black);
+				var windowTabActiveForeground = style.GetTextColor(windowTabBackground, white, black);
+				var windowTabBadge = style.ToWpfColor(style.WindowTabBadgeColor);
+				var viewerForeground = style.ToWpfColor(style.ViewerForegroundColor);
+				var viewerBackground = style.ToWpfColor(style.ViewerBackgroundColor);
+				var viewerBorder = style.ToWpfColor(style.ViewerBorderColor);
+				var viewerScrollBarThumb = style.ToWpfColor(style.ViewerScollbarThumbColor);
+				var viewerScrollBarThumbSub = style.GetSubColor(viewerScrollBarThumb);
+				var viewerScrollBarThumbSubSub = style.GetSubColor(viewerScrollBarThumbSub);
+				var viewerScrollBarTrack = style.ToWpfColor(style.ViewerScollbarTrackColor);
+
+				this.Resources["WindowFrameColor"] = windowFrame;
+				this.Resources["WindowFrameBorderColor"] = windowBorder;
+				this.Resources["WindowTabBackgroundColor"] = windowTabBackground;
+				this.Resources["WindowTabForegroundColor"] = windowTabForeground;
+				this.Resources["WindowTabSelectedForegroundColor"] = windowTabActiveForeground;
+				this.Resources["WindowThreadTabNewColor"] = windowTabBadge;
+
+				this.Resources["ViewerForegroundColor"] = white;
+				this.Resources["ViewerBackgroundColor"] = black;
+				this.Resources["ViewerPrimaryColor"] = primary;
+				this.Resources["ViewerPrimaryDarkColor"] = primarySub;
+				this.Resources["ViewerSecondaryColor"] = secondary;
+				this.Resources["ViewerSecondaryDarkColor"] = secondarySub;
+				this.Resources["ViewerForegroundColor"] = viewerForeground;
+				this.Resources["ViewerBackgroundColor"] = viewerBackground;
+				this.Resources["ViewerBorderColor"] = viewerBorder;
+
+				this.Resources["ViewerScrollBarColor"] = viewerScrollBarThumb;
+				this.Resources["ViewerScrollBarBorderColor"] = viewerScrollBarThumb;
+				this.Resources["ViewerScrollBarMouseOverColor"] = viewerScrollBarThumbSub;
+				this.Resources["ViewerScrollBarPressedColor"] = viewerScrollBarThumbSubSub;
+				this.Resources["ViewerScrollBarTrackColor"] = viewerScrollBarTrack;
+				this.Resources["ViewerScrollButtonColor"] = viewerScrollBarThumb;
+				this.Resources["ViewerScrollButtonMouseOverColor"] = primary;
+				this.Resources["ViewerScrollButtonPressedColor"] = primarySub;
+
+				var catalogItemBackground = style.ToWpfColor(style.CatalogItemBackgroundColor);
+				var catalogItemSearchHitBackground = style.ToWpfColor(style.CatalogItemSearchHitBackgroundColor);
+				var catalogItemOpendBackground = style.ToWpfColor(style.CatalogItemOpendBackgroundColor);
+				var catalogBadgeCountForeground = style.ToWpfColor(style.CatalogBadgeCountForegroundColor);
+				var catalogBadgeCountBackground = style.ToWpfColor(style.CatalogBadgeCountBackgroundColor);
+				var catalogBadgeIdForeground = style.ToWpfColor(style.CatalogBadgeIdForegroundColor);
+				var catalogBadgeIdBackground = style.ToWpfColor(style.CatalogBadgeIdBackgroundColor);
+				var catalogBadgeMovieForeground = style.ToWpfColor(style.CatalogBadgeMovieForegroundColor);
+				var catalogBadgeMovieBackground = style.ToWpfColor(style.CatalogBadgeMovieBackgroundColor);
+				var catalogBadgeIsolateForeground = style.ToWpfColor(style.CatalogBadgeIsolateForegroundColor);
+				var catalogBadgeIsolateBackground = style.ToWpfColor(style.CatalogBadgeIsolateBackgroundColor);
+				this.Resources["CatalogItemBackgroundColor"] = catalogItemBackground;
+				this.Resources["CatalogBackgroundSerachHitColor"] = catalogItemSearchHitBackground;
+				this.Resources["CatalogItemOpendBackgroundColor"] = catalogItemOpendBackground;
+				this.Resources["CatalogBadgeCountForegroundColor"] = catalogBadgeCountForeground;
+				this.Resources["CatalogBadgeCountBackgroundColor"] = catalogBadgeCountBackground;
+				//this.Resources["CatalogBadgeOldForegroundColor"] = null;
+				//this.Resources["CatalogBadgeOldBackgroundColor"] = null;
+				this.Resources["CatalogBadgeIdForegroundColor"] = catalogBadgeIdForeground;
+				this.Resources["CatalogBadgeIdBackgroundColor"] = catalogBadgeIdBackground;
+				this.Resources["CatalogBadgeMovieForegroundColor"] = catalogBadgeMovieForeground;
+				this.Resources["CatalogBadgeMovieBackgroundColor"] = catalogBadgeMovieBackground;
+				this.Resources["CatalogBadgeIsolateForegroundColor"] = catalogBadgeIsolateForeground;
+				this.Resources["CatalogBadgeIsolateBackgroundColor"] = catalogBadgeIsolateBackground;
+
+				var threadBackground = style.ToWpfColor(style.ThreadBackgroundColor);
+				var threadSearchHitBackground = style.ToWpfColor(style.ThreadSearchHitBackgroundColor);
+				var threadQuotHitBackground = style.ToWpfColor(style.ThreadQuotHitBackgroundColor);
+				var threadOldForeground = style.ToWpfColor(style.ThreadOldForegroundColor);
+				var threadHeaderPostedForeground = style.ToWpfColor(style.ThreadHeaerPostedForegroundColor);
+				var threadHeaderSubjectForeground = style.ToWpfColor(style.ThreadHeaerSubjectForegroundColor);
+				var threadHeaderNameForeground = style.ToWpfColor(style.ThreadHeaerNameForegroundColor);
+				var threadHeaderMailForeground = style.ToWpfColor(style.ThreadHeaerMailForegroundColor);
+				var threadHeaderSoudaneForeground = style.ToWpfColor(style.ThreadHeaerSoudaneForegroundColor);
+				this.Resources["ThreadBackgroundColor"] = threadBackground;
+				this.Resources["ThreadBackgroundSerachHitColor"] = threadSearchHitBackground;
+				this.Resources["ThreadBackgroundQuotHitColor"] = threadQuotHitBackground;
+				this.Resources["ThreadTextOldColor"] = threadOldForeground;
+				this.Resources["ThreadHeaderPostedColor"] = threadHeaderPostedForeground;
+				this.Resources["ThreadHeaderSubjectColor"] = threadHeaderSubjectForeground;
+				this.Resources["ThreadHeaderNameColor"] = threadHeaderNameForeground;
+				this.Resources["ThreadHeaderMailColor"] = threadHeaderMailForeground;
+				this.Resources["ThreadHeaderSoudaneColor"] = threadHeaderSoudaneForeground;
+			}
+
+			this.Resources["CatalogImageSize"] = style.CatalogImageSize;
+			this.Resources["CatalogTextSize"] = style.CatalogTextSize;
+			this.Resources["CatalogBadgeSize"] = style.CatalogBadgeSize;
+			this.Resources["CatalogTextFontSize"] = style.CatalogTextFontSize;
+			this.Resources["ThreadHeaderFontSize"] = style.ThreadHeaderFontSize;
+			this.Resources["ThreadTextFontSize"] = style.ThreadTextFontSize;
+			this.Resources["PostFontSize"] = style.PostFontSize;
+
+			this.Resources["CatalogTextFont"] = new FontFamily(style.CatalogFont);
+			this.Resources["CatalogBadgeFont"] = new FontFamily(style.CatalogBadgeFont);
+			this.Resources["ThreadHeaderFont"] = new FontFamily(style.ThreadHeaderFont);
+			this.Resources["ThreadTextFont"] = new FontFamily(style.ThreadTextFont);
+			this.Resources["PostFont"] = new FontFamily(style.PostFont);
 		}
 
 		protected override void RegisterTypes(IContainerRegistry containerRegistry) {

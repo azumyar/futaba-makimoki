@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Web.UI.WebControls;
 using System.Windows;
 using Yarukizero.Net.MakiMoki.Wpf.PlatformData;
+using Yarukizero.Net.MakiMoki.Wpf.WpfConfig;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class ConfigWindowViewModel : BindableBase, IDisposable {
@@ -19,7 +20,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> CoreConfigSavedResponse { get; }
 
 
-		public ReactiveProperty<bool> NgConfigIdNg { get; }
+		public ReactiveProperty<bool> NgConfigCatalogIdNg { get; }
+		public ReactiveProperty<bool> NgConfigThreadIdNg { get; }
 		public ReactiveProperty<string> NgConfigCatalogNgWord{ get; }
 		public ReactiveProperty<string> NgConfigCatalogNgWordRegex { get; }
 		public ReactiveProperty<bool> NgConfigCatalogNgWordRegexValid { get; }
@@ -36,6 +38,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> PostItemExpireDayValid { get; }
 
 		public ReactiveProperty<bool> CatalogIsEnabledMovieMarker { get; }
+		public ReactiveProperty<bool> CatalogIsEnabledIdMarker { get; }
 		public ReactiveProperty<bool> CatalogIsEnabledOldMarker { get; }
 		public ReactiveProperty<int> CatalogNgImageAction { get; }
 		public ReactiveProperty<bool> CatalogIsVisibleIsolateThread { get; }
@@ -45,6 +48,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<string> ClipbordJpegQuality { get; }
 		public ReactiveProperty<bool> ClipbordJpegQualityValid { get; }
 		public ReactiveProperty<bool> ClipbordIsEnabledUrl { get; }
+		public ReactiveProperty<bool> IsEnabledThreadCommandPalette { get; }
 
 		public ReactiveProperty<bool> PostViewSavedSubject { get; }
 		public ReactiveProperty<bool> PostViewSavedName { get; }
@@ -63,6 +67,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<int> ExportOutputNgImage { get; }
 		public ReactiveProperty<bool> WindowTopmost { get; }
 		public ReactiveProperty<string> BrowserPath { get; }
+		public ReactiveProperty<int> WindowTheme { get; }
 
 
 		public ReactiveProperty<bool> IsEnabledOkButton { get; }
@@ -77,7 +82,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			CoreConfigThreadDataIncremental = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental);
 			CoreConfigSavedResponse = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaResponseSave);
 
-			NgConfigIdNg = new ReactiveProperty<bool>(Ng.NgConfig.NgConfigLoader.NgConfig.EnableIdNg);
+			NgConfigCatalogIdNg = new ReactiveProperty<bool>(Ng.NgConfig.NgConfigLoader.NgConfig.EnableCatalogIdNg);
+			NgConfigThreadIdNg = new ReactiveProperty<bool>(Ng.NgConfig.NgConfigLoader.NgConfig.EnableThreadIdNg);
 			NgConfigCatalogNgWord = new ReactiveProperty<string>(string.Join(Environment.NewLine, Ng.NgConfig.NgConfigLoader.NgConfig.CatalogWords));
 			NgConfigCatalogNgWordRegex = new ReactiveProperty<string>(string.Join(Environment.NewLine, Ng.NgConfig.NgConfigLoader.NgConfig.CatalogRegex));
 			NgConfigCatalogNgWordRegexValid = NgConfigCatalogNgWordRegex.Select(x => {
@@ -120,12 +126,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}).ToReactiveProperty();
 
 			CatalogIsEnabledMovieMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledMovieMarker);
+			CatalogIsEnabledIdMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledIdMarker);
 			CatalogIsEnabledOldMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledOldMarker);
 			CatalogNgImageAction = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage);
 			CatalogIsVisibleIsolateThread = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleCatalogIsolateThread);
 			CatalogSearchResult = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.CatalogSearchResult);
 			ThreadDelResVisibility = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility);
 			ThreadIsEnabledQuotLink = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledQuotLink);
+			IsEnabledThreadCommandPalette = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledThreadCommandPalette);
 			ClipbordJpegQuality = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.ClipbordJpegQuality.ToString());
 			ClipbordJpegQualityValid = ClipbordJpegQuality.Select(x => {
 				if(int.TryParse(x, out var v)) {
@@ -180,6 +188,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			WindowTopmost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledWindowTopmost);
 			BrowserPath = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.BrowserPath);
 
+			WindowTheme = new ReactiveProperty<int>((int)WpfConfigLoader.SystemConfig.WindowTheme);
+
 			IsEnabledOkButton = new[] {
 				NgConfigCatalogNgWordRegexValid,
 				NgConfigThreadNgWordRegexValid,
@@ -213,7 +223,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Config.ConfigLoader.RemoveSaveFutabaResponseFile();
 			}
 
-			Ng.NgConfig.NgConfigLoader.UpdateIdNg(NgConfigIdNg.Value);
+			Ng.NgConfig.NgConfigLoader.UpdateCatalogIdNg(NgConfigCatalogIdNg.Value);
+			Ng.NgConfig.NgConfigLoader.UpdateThreadIdNg(NgConfigThreadIdNg.Value);
 			Ng.NgConfig.NgConfigLoader.ReplaceCatalogNgWord(
 				NgConfigCatalogNgWord.Value
 					.Replace("\r", "")
@@ -267,7 +278,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				// 2020071900
 				isEnabledQuotLink: ThreadIsEnabledQuotLink.Value,
 				windowTopmost: WindowTopmost.Value,
-				ngResonInput: NgConfigResonInput.Value
+				ngResonInput: NgConfigResonInput.Value,
+				//2020102900
+				windowTheme: (PlatformData.WindowTheme)WindowTheme.Value,
+				isEnabledIdMarker: CatalogIsEnabledIdMarker.Value,
+				isEnabledThreadCommandPalette: IsEnabledThreadCommandPalette.Value
 			);
 			WpfConfig.WpfConfigLoader.UpdateSystemConfig(s);
 		}

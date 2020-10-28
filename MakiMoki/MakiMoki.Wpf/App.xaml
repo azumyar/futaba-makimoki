@@ -3,10 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:pd="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.PlatformData"
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf">
     <Application.Resources>
+        <pd:StyleType x:Key="StyleType">Light</pd:StyleType>
+        
         <sys:Double x:Key="WindowThreadTabDieOpacity">0.6</sys:Double>
-        <Color x:Key="WindowThreadTabNewColor">Red</Color>
+        <!-- Redの500 -->
+        <Color x:Key="WindowThreadTabNewColor">#f44336</Color>
 
         <!-- LightBlueの500 -->
         <Color x:Key="ViewerPrimaryColor">#03A9F4</Color>
@@ -25,10 +29,21 @@
         <!-- Grayの500 -->
         <Color x:Key="ViewerBorderColor">#9E9E9E</Color>
 
+        <!-- LightBlueの500 -->
+        <Color x:Key="WindowFrameColor">#03A9F4</Color>
+        <!-- LightBlueの700 -->
+        <Color x:Key="WindowFrameBorderColor">#0288D1</Color>
+        <Color x:Key="WindowTabBackgroundColor">White</Color>
+        <!-- Grayの100 -->
+        <Color x:Key="WindowTabForegroundColor">#F5F5F5</Color>
+        <!-- BlueGrayの900 -->
+        <Color x:Key="WindowTabSelectedForegroundColor">#263238</Color>
+
         <Color x:Key="TabTextColor">Black</Color>
         <Color x:Key="ToolbarTextColor">Black</Color>
 
         <FontFamily x:Key="CatalogTextFont">メイリオ</FontFamily>
+        <sys:Double x:Key="CatalogTextFontSize">11</sys:Double>
         <sys:Double x:Key="CatalogImageSize">80</sys:Double>
         <sys:Double x:Key="CatalogTextSize">16</sys:Double>
         <sys:Double x:Key="CatalogBadgeSize">20</sys:Double>
@@ -40,7 +55,7 @@
         <Color x:Key="CatalogBadgeCountForegroundColor">White</Color>
         <Color x:Key="CatalogBadgeOldBackgroundColor">#990000ff</Color>
         <Color x:Key="CatalogBadgeOldForegroundColor">#ffffff</Color>
-        <Color x:Key="CatalogBadgeIdBackgroundColor">#99ff0000</Color>
+        <Color x:Key="CatalogBadgeIdBackgroundColor">#f44336</Color>
         <Color x:Key="CatalogBadgeIdForegroundColor">#ffffff</Color>
         <Color x:Key="CatalogBadgeMovieBackgroundColor">#99000000</Color>
         <Color x:Key="CatalogBadgeMovieForegroundColor">#ffffff</Color>
@@ -76,6 +91,30 @@
 
         <sys:Double x:Key="PostFontSize">16</sys:Double>
         <FontFamily x:Key="PostFont">メイリオ</FontFamily>
+
+        <!-- スクロールバーの色-->
+        <!-- Grayの500 -->
+        <Color x:Key="ViewerScrollBarColor">#9E9E9E</Color>
+        <!-- ボーダーの色 -->
+        <Color x:Key="ViewerScrollBarBorderColor">#9E9E9E</Color>
+        <!-- トラック（レーン）の色 -->
+        <!-- Grayの100 -->
+        <Color x:Key="ViewerScrollBarTrackColor">#F5F5F5</Color>
+        <!-- ボタンを押した時の色 -->
+        <!-- Grayの900 -->
+        <Color x:Key="ViewerScrollBarPressedColor">#212121</Color>
+        <!-- Grayの700 -->
+        <Color x:Key="ViewerScrollBarMouseOverColor">#616161</Color>
+        <!-- スクロールバー三角の色 -->
+        <!-- Grayの500 -->
+        <Color x:Key="ViewerScrollButtonColor">#9E9E9E</Color>
+        <!-- LightBlueの500 -->
+        <Color x:Key="ViewerScrollButtonMouseOverColor">#03A9F4</Color>
+        <!-- LightBlueの700 -->
+        <Color x:Key="ViewerScrollButtonPressedColor">#0288D1</Color>
+        <!-- Grayの300 -->
+        <Color x:Key="ViewerScrollButtonDisabledColor">#E0E0E0</Color>
+
 
         <Viewbox x:Key="ButtonIconWindowBordList" x:Shared="False">
             <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
@@ -157,6 +196,31 @@
             </Canvas>        </Viewbox>
 
         <Viewbox x:Key="ButtonIconPostDelete" x:Shared="False">
+            <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
+                <Path Width="576" Height="768" Canvas.Left="224" Canvas.Top="128" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="F1 M 224,256L 384,256L 384,128L 640,128L 640,256L 800,256L 800,288L 224,288L 224,256 Z M 416,384L 448,384L 448,704L 416,704L 416,384 Z M 576,384L 608,384L 608,704L 576,704L 576,384 Z M 288,320L 320,320L 320,864L 704,864L 704,320L 736,320L 736,896L 288,896L 288,320 Z M 608,256L 608,160L 416,160L 416,256L 608,256 Z "/>
+            </Canvas>        </Viewbox>
+
+        <Viewbox x:Key="ButtonIconComment" x:Shared="False">
+            <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
+                <Path Width="768" Height="608" Canvas.Left="128" Canvas.Top="208" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="F1 M 320,816L 224,720L 192,720C 156.654,720 128,691.346 128,656L 128,272C 128,236.654 156.654,208 192,208L 832,208C 867.346,208 896,236.654 896,272L 896,656C 896,691.346 867.346,720 832,720L 416,720L 320,816 Z M 272,416C 298.509,416 320,437.491 320,464C 320,490.51 298.509,512 272,512C 245.49,512 224,490.51 224,464C 224,437.491 245.49,416 272,416 Z M 512,416C 538.51,416 560,437.49 560,464C 560,490.51 538.51,512 512,512C 485.49,512 464,490.51 464,464C 464,437.49 485.49,416 512,416 Z M 752,416C 778.509,416 800,437.49 800,464C 800,490.51 778.509,512 752,512C 725.49,512 704,490.51 704,464C 704,437.49 725.49,416 752,416 Z M 192,240.001C 174.327,240.001 160,254.328 160,272.001L 160,656C 160,673.673 174.327,688 192,688L 831.999,688C 849.672,688 863.999,673.673 863.999,656L 863.999,272.001C 863.999,254.328 849.672,240.001 831.999,240.001L 192,240.001 Z "/>
+            </Canvas>        </Viewbox>
+
+        <Viewbox x:Key="ButtonIconCopy" x:Shared="False">
+            <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
+                <Path Width="736" Height="832" Canvas.Left="128" Canvas.Top="96.0002" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="F1 M 128,256L 352,256L 352,96.0002L 864,96.0002L 864,768L 640,768L 640,928L 128,928L 128,256 Z M 640,256L 640,736L 832,736L 832,128L 384,128L 384,256L 640,256 Z M 160,288L 160,896L 608,896L 608,288L 160,288 Z "/>
+            </Canvas>        </Viewbox>
+
+        <Viewbox x:Key="ButtonIconSoudane" x:Shared="False">
+            <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
+                <Path Width="703.999" Height="703.999" Canvas.Left="160" Canvas.Top="160.001" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="F1 M 390.444,353.868L 611.077,353.868L 631.513,378.587C 570.251,413.613 511.385,447.957 454.913,481.62C 506.155,479.95 577.37,476.72 668.56,471.93L 685.04,471.073L 687.544,503.242L 625.909,505.681C 590.489,507.219 558.21,515.393 529.073,530.203C 508.77,540.662 493.323,553.099 482.732,567.514C 473.547,579.995 468.954,593.178 468.954,607.066C 468.954,633.302 483.435,650.946 512.396,659.999C 534.237,666.723 567.812,670.151 613.121,670.283L 613.121,703.44C 556.826,703.308 515.56,697.486 489.324,685.972C 453.507,670.151 435.599,645.145 435.599,610.955C 435.599,585.29 446.586,562.284 468.559,541.937C 484.204,527.391 505.276,515.591 531.776,506.538L 513.846,507.329C 437.642,510.625 379.479,513.438 339.356,515.767L 336.917,484.059L 341.465,484.059L 360.187,483.664L 379.106,483.466L 398.288,483.004L 404.88,482.807C 476.162,437.498 532.677,404.208 574.426,382.938L 390.444,382.938L 390.444,353.868 Z M 512,160.001C 706.404,160.001 863.999,317.596 863.999,512C 863.999,554.476 856.476,595.195 842.689,632.896L 781.926,612.642C 793.611,581.313 799.999,547.403 799.999,512C 799.999,352.942 671.058,224.001 512,224.001C 352.941,224.001 224,352.942 224,512C 224,671.058 352.941,800 512,800C 536.094,800 559.498,797.041 581.867,791.467L 597.393,853.571C 570.053,860.384 541.449,864 512,864C 317.596,864 160,706.404 160,512C 160,317.596 317.596,160.001 512,160.001 Z M 724.239,786.027L 724.239,816.64L 703.573,816.64L 703.573,786.027L 672.853,786.027L 672.853,765.44L 703.573,765.44L 703.573,734.72L 724.239,734.72L 724.239,765.44L 754.773,765.44L 754.773,786.027L 724.239,786.027 Z M 788.906,823.467L 788.906,738.133C 785.119,740.622 781.195,742.516 777.133,743.813C 773.071,745.111 768.462,746.062 763.306,746.667L 763.306,719.787C 770.773,718.489 777.724,716.453 784.159,713.68C 790.595,710.907 797.191,707.111 803.946,702.293L 824.746,702.293L 824.746,823.467L 788.906,823.467 Z "/>
+            </Canvas>        </Viewbox>
+
+        <Viewbox x:Key="ButtonIconDel" x:Shared="False">
+            <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
+                <Path Width="683.809" Height="403.824" Canvas.Left="170.095" Canvas.Top="310.088" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="M 428.543,708.528L 369.315,708.528L 369.315,661.752L 368.306,661.752C 348.844,696.525 318.893,713.912 278.455,713.912C 245.644,713.912 219.382,701.938 199.667,677.989C 179.953,654.04 170.095,621.453 170.095,580.229C 170.095,535.977 180.99,500.53 202.78,473.889C 224.57,447.248 253.609,433.927 289.897,433.927C 325.848,433.927 351.985,448.426 368.306,477.422L 369.315,477.422L 369.315,310.088L 428.543,310.088L 428.543,708.528 Z M 370.157,585.277L 370.157,550.363C 370.157,531.406 364.113,515.337 352.027,502.157C 339.94,488.976 324.558,482.386 305.881,482.386C 283.783,482.386 266.396,490.799 253.721,507.625C 241.045,524.451 234.707,547.811 234.707,577.706C 234.707,604.795 240.793,626.193 252.964,641.897C 265.134,657.601 281.484,665.453 302.011,665.453C 322.259,665.453 338.678,657.854 351.27,642.654C 363.861,627.454 370.157,608.329 370.157,585.277 Z M 746.218,590.073L 557.767,590.073C 558.496,614.19 566.376,632.783 581.407,645.851C 596.439,658.919 617.107,665.453 643.411,665.453C 672.913,665.453 700.003,656.479 724.681,638.532L 724.681,689.767C 699.33,705.864 665.846,713.912 624.23,713.912C 583.342,713.912 551.275,701.769 528.027,677.484C 504.779,653.198 493.155,619.014 493.155,574.929C 493.155,533.313 505.943,499.409 531.518,473.216C 557.094,447.024 588.867,433.927 626.838,433.927C 664.808,433.927 694.198,445.663 715.006,469.136C 735.814,492.608 746.218,525.18 746.218,566.853L 746.218,590.073 Z M 681.606,546.998C 681.438,526.583 676.306,510.71 666.211,499.38C 656.115,488.051 642.177,482.386 624.398,482.386C 606.955,482.386 592.19,488.345 580.103,500.264C 568.017,512.182 560.571,527.76 557.767,546.998L 681.606,546.998 Z M 853.905,708.528L 794.677,708.528L 794.677,310.088L 853.905,310.088L 853.905,708.528 Z "/>
+            </Canvas>        </Viewbox>
+
+        <Viewbox x:Key="ButtonIconDelete" x:Shared="False">
             <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
                 <Path Width="576" Height="768" Canvas.Left="224" Canvas.Top="128" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="F1 M 224,256L 384,256L 384,128L 640,128L 640,256L 800,256L 800,288L 224,288L 224,256 Z M 416,384L 448,384L 448,704L 416,704L 416,384 Z M 576,384L 608,384L 608,704L 576,704L 576,384 Z M 288,320L 320,320L 320,864L 704,864L 704,320L 736,320L 736,896L 288,896L 288,320 Z M 608,256L 608,160L 416,160L 416,256L 608,256 Z "/>
             </Canvas>        </Viewbox>

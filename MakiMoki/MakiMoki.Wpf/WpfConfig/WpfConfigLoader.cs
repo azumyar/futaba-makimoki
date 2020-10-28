@@ -14,6 +14,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 	static class WpfConfigLoader {
 		internal static readonly string SystemConfigFile = "windows.makimoki.json";
 		internal static readonly string PlacementConfigFile = "windows.placement.json";
+		internal static readonly string StyleLightConfigFile = "windows.style.light.json";
+		internal static readonly string StyleDarkConfigFile = "windows.style.dark.json";
+		internal static readonly string StyleUserConfigFile = "windows.style.user.json";
 		private static volatile object lockObj = new object();
 
 		public static Helpers.UpdateNotifyer<PlatformData.WpfConfig> SystemConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer<PlatformData.WpfConfig>();
@@ -44,11 +47,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 					(e, m) => throw new Exceptions.InitializeFailedException(m, e));
 				return r;
 			}
-			string getResPath(string name) => $"{ typeof(WpfConfigLoader).Namespace }.{ name }";
 
 			var asm = typeof(WpfConfigLoader).Assembly;
 			SystemConfig = getStream(
-				asm.GetManifestResourceStream(getResPath(SystemConfigFile)),
+				asm.GetManifestResourceStream(GetResourcePath(SystemConfigFile)),
 				PlatformData.WpfConfig.CreateDefault());
 			Placement = getPath(
 				Path.Combine(InitializedSetting.WorkDirectory, PlacementConfigFile),
@@ -60,14 +62,27 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 					(json) => Util.CompatUtil.Migrate<PlatformData.WpfConfig>(json, new Dictionary<int, Type>() {
 						{ PlatformData.Compat.WpfConfig2020062900.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2020062900) },
 						{ PlatformData.Compat.WpfConfig2020070500.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2020070500) },
+						{ PlatformData.Compat.WpfConfig2020071900.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2020071900) },
 					}));
+				if(File.Exists(Path.Combine(InitializedSetting.UserDirectory, StyleUserConfigFile))) {
+					Style = getPath(
+						Path.Combine(InitializedSetting.UserDirectory, StyleUserConfigFile),
+						Style);
+					var r = Style.Validate();
+					if(!r.Successed) {
+						throw new Exceptions.InitializeFailedException(r.ErrorText);
+					}
+				}
 			}
+			UpdateStyle();
 		}
 
 		public static Setting InitializedSetting { get; private set; }
 		public static PlatformData.WpfConfig SystemConfig { get; private set; }
 		
 		public static PlatformData.PlacementConfig Placement { get; private set; }
+
+		public static PlatformData.StyleConfig Style { get; private set; }
 
 		public static void AddSystemConfigUpdateNotifyer(Action<PlatformData.WpfConfig> action) {
 			SystemConfigUpdateNotifyer.AddHandler(action);
@@ -77,6 +92,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 			System.Diagnostics.Debug.Assert(conf != null);
 
 			SystemConfig = conf;
+			//UpdateStyle();
 			SystemConfigUpdateNotifyer.Notify(conf);
 			if(Directory.Exists(InitializedSetting.UserDirectory)) {
 				Util.FileUtil.SaveJson(
@@ -95,7 +111,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 			Util.FileUtil.SaveJson(
 				Path.Combine(InitializedSetting.WorkDirectory, PlacementConfigFile),
 				Placement);
+		}
 
+		private static string GetResourcePath(string name) => $"{ typeof(WpfConfigLoader).Namespace }.{ name }";
+
+		private static void UpdateStyle() {
+			T getStream<T>(Stream path, T defaultValue) {
+				var r = defaultValue;
+				Util.FileUtil.LoadConfigHelper(path,
+					(json) => r = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json),
+					(e, m) => throw new Exceptions.InitializeFailedException(m, e));
+				return r;
+			}
+
+			if(!File.Exists(Path.Combine(InitializedSetting.UserDirectory, StyleUserConfigFile))) {
+				var asm = typeof(WpfConfigLoader).Assembly;
+				var styleFile = (SystemConfig.WindowTheme == WindowTheme.Light) ? StyleLightConfigFile : StyleDarkConfigFile;
+				Style = getStream(
+					asm.GetManifestResourceStream(GetResourcePath(styleFile)),
+					PlatformData.StyleConfig.CreateDefault());
+			}
 		}
 	}
 }

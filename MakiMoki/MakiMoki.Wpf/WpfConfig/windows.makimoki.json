@@ -1,7 +1,8 @@
 ﻿{
-  "version": 2020071900,
+  "version": 2020102900,
 
   "catalog-enable-movie-marker": true,
+  "catalog-enable-id-marker": false,
   "catalog-enable-old-marker": true,
   "catalog-ng-image-hidden": 0,
   "catalog-search-result-type": 0,
@@ -9,6 +10,7 @@
 
   "thread-visible-del-res": 1,
   "thread-enable-quot-link": true,
+  "thread-enable-command-palette": false,
 
   "post-clipbord-jpeg-quality": 85,
   "post-clipbord-enable-url": true,
@@ -23,6 +25,7 @@
   "export-output-ng-image": 0,
   "export-output-ng-res": 0,
 
+  "platform-window-theme": "Light",
   "platform-window-topmost": false,
   "platform-ng-reason-input": true,
   "platform-browser-path": ""

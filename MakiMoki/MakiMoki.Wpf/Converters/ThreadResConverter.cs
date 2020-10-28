@@ -109,19 +109,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 	}
 
-	class FutabaIdResVisibilityConverter : IValueConverter {
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			if(value == null) {
-				return null;
+	[Obsolete]
+	class FutabaIdResVisibilityConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if(values.Length != 2) {
+				throw new ArgumentException("型不正。", "value");
 			}
 
-			if(value is Data.FutabaContext.Item it) {
-				return !string.IsNullOrEmpty(it.ResItem.Res.Id) ? Visibility.Visible : Visibility.Collapsed;
+			if(values[1] is bool flag) {
+				if(flag && (values[0] is Data.FutabaContext.Item it)) {
+					var b1 = !string.IsNullOrEmpty(it.ResItem.Res.Id);
+					var b2 = (it.ResItem.Res.Email != "id表示") || (it.ResItem.Res.Email != "ip表示");
+					return (b1 && b2) ? Visibility.Visible : Visibility.Collapsed;
+				}
 			}
-			throw new ArgumentException("型不正。", "value");
+			return Visibility.Collapsed;
 		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
 			throw new NotImplementedException();
 		}
 	}
