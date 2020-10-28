@@ -240,6 +240,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public string CatalogBadgeCountForegroundColor { get; private set; }
 		[JsonProperty("color-viewer-catalog-badge-count-background")]
 		public string CatalogBadgeCountBackgroundColor { get; private set; }
+		[JsonProperty("color-viewer-catalog-badge-id-foreground")]
+		public string CatalogBadgeIdForegroundColor { get; private set; }
+		[JsonProperty("color-viewer-catalog-badge-id-background")]
+		public string CatalogBadgeIdBackgroundColor { get; private set; }
 		//[JsonProperty("color-viewer-catalog-badge-old-foreground")]
 		//public string CatalogBadgeOldForegroundColor { get; private set; }
 		//[JsonProperty("color-viewer-catalog-badge-old-background")]

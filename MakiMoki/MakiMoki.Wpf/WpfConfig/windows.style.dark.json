@@ -21,6 +21,8 @@
   "color-viewer-catalog-item-background-opend": "#BF360C",
   "color-viewer-catalog-badge-count-foreground": "#ffffff",
   "color-viewer-catalog-badge-count-background": "#f44336",
+  "color-viewer-catalog-badge-id-foreground": "#ffffff",
+  "color-viewer-catalog-badge-id-background": "#f44336",
   "x-color-viewer-catalog-badge-old-foreground": "#ffffff",
   "x-color-viewer-catalog-badge-old-background": "#616161",
   "color-viewer-catalog-badge-movie-foreground": "#ffffff",

@@ -55,7 +55,7 @@
         <Color x:Key="CatalogBadgeCountForegroundColor">White</Color>
         <Color x:Key="CatalogBadgeOldBackgroundColor">#990000ff</Color>
         <Color x:Key="CatalogBadgeOldForegroundColor">#ffffff</Color>
-        <Color x:Key="CatalogBadgeIdBackgroundColor">#99ff0000</Color>
+        <Color x:Key="CatalogBadgeIdBackgroundColor">#f44336</Color>
         <Color x:Key="CatalogBadgeIdForegroundColor">#ffffff</Color>
         <Color x:Key="CatalogBadgeMovieBackgroundColor">#99000000</Color>
         <Color x:Key="CatalogBadgeMovieForegroundColor">#ffffff</Color>
