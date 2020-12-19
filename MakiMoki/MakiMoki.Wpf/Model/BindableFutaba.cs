@@ -431,7 +431,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				string getImageBase64(BindableFutabaResItem bfi) {
 					var url = bfi.Raw.Value.Url;
 					var item = bfi.Raw.Value.ResItem.Res;
-					if(item.Fsize == 0) {
+					if(string.IsNullOrEmpty(item.Ext)) {
 						return "";
 					}
 
@@ -482,7 +482,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 										No = x.Raw.Value.ResItem.No,
 										Date = string.Format("{0}{1}", x.Raw.Value.ResItem.Res.Now, string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Id) ? "" : (" " + x.Raw.Value.ResItem.Res.Id)),
 										Soudane = x.Raw.Value.Soudane,
-										OriginalImageName = ngImage ? "" : x.ImageName.Value,
+										Host = x.Raw.Value.ResItem.Res.Host,
+										OriginalImageName = (ngImage || string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Ext)) ? "" : x.ImageName.Value,
 										ThumbnailImageData = getImageBase64(x),
 									};
 								}).Where(x => x != null).ToArray()

@@ -27,6 +27,9 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public string Date { get; set; }
 		public int Soudane { get; set; }
 
+		public string Host { get; set; }
+
+
 		public string OriginalImageName { get; set; }
 		public string ThumbnailImageData { get; set; }
 	}

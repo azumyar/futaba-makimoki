@@ -42,10 +42,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				.AppendLine(@".res { display: table; background-color: #F0E0D6; margin: 0.5em 1em 0 1em; padding: 4px; min-width: 480px; }")
 				.AppendLine(@".res .res-body { display: flex; }")
 				.AppendLine(@".res-comment-body { margin: 1em 2em 1em 2em; word-wrap: break-word; max-width: 800px; min-width: 150px; }")
-				.AppendLine(@".res-count, .res-subject, .res-name, .res-date, .res-no, .res-soudane { margin-right: 0.5em; }")
+				.AppendLine(@".res-count, .res-subject, .res-name, .res-date, .res-email, .res-no, .res-soudane { margin-right: 0.5em; }")
 				.AppendLine(@".res-subject { color: #cc1105; font-weight: bold; }")
 				.AppendLine(@".res-name { color: #117743; font-weight: bold; }")
 				.AppendLine(@".res-email { color: rgb(0, 92, 230); }")
+				.AppendLine(@".res-host { color: rgb(255, 0, 0); }")
 				.AppendLine(@"</style>")
 				.AppendLine(@"</head>")
 				.AppendLine(@"<body>")
@@ -68,8 +69,17 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				{
 					exportHtml.AppendLine(@"<div class='res-comment'>");
 					appendResHeader(exportHtml, it, 0);
-					exportHtml.AppendLine(@"<div class='res-comment-body'>")
-						.AppendLine(it.Comment)
+					exportHtml.AppendLine(@"<div class='res-comment-body'>");
+					if(!string.IsNullOrEmpty(it.Host)) {
+						exportHtml.AppendLine(@"<div>")
+							.Append(@"[")
+							.Append(@"<span class='res-host'>")
+							.AppendLine(it.Host)
+							.Append(@"</span>")
+							.Append(@"]")
+							.AppendLine(@"</div>");
+					}
+					exportHtml.AppendLine(it.Comment)
 						.AppendLine(@"</div>");
 
 					exportHtml.AppendLine(@"</div>");
@@ -95,8 +105,17 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				}
 				{
 					exportHtml.AppendLine(@"<div class='res-comment'>");
-					exportHtml.AppendLine(@"<div class='res-comment-body'>")
-						.AppendLine(it.Comment)
+					exportHtml.AppendLine(@"<div class='res-comment-body'>");
+					if(!string.IsNullOrEmpty(it.Host)) {
+						exportHtml.AppendLine(@"<div>")
+							.Append(@"[")
+							.Append(@"<span class='res-host'>")
+							.AppendLine(it.Host)
+							.Append(@"</span>")
+							.Append(@"]")
+							.AppendLine(@"</div>");
+					}
+					exportHtml.AppendLine(it.Comment)
 						.AppendLine(@"</div>");
 
 					exportHtml.AppendLine(@"</div>");
