@@ -115,7 +115,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private async Task OpenUpload(Model.BindableFutaba f) {
 			try {
 				Application.Current.MainWindow.IsEnabled = false;
-				var ext = Config.ConfigLoader.Mime.Types.Select(x => x.Ext);
+				var ext = Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext);
 				var ofd = new Microsoft.Win32.OpenFileDialog() {
 					Filter = "ふたば画像ファイル|"
 						+ string.Join(";", ext.Select(x => "*" + x).ToArray())
@@ -137,7 +137,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnContentsChanged(RoutedPropertyChangedEventArgs<Model.BindableFutaba> e) { }
 
 		private void OnImageDragOver(DragEventArgs e) {
-			if(IsValidDragFile(e)) {
+			if(IsValidDragFile(e, Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext).ToArray())) {
 				e.Effects = DragDropEffects.Copy;
 			} else {
 				e.Effects = DragDropEffects.None; // 機能していないけど今度調べる
@@ -148,7 +148,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnImageDrop(DragEventArgs e) {
 			if((e.Source as FrameworkElement)?.DataContext is Model.BindableFutaba f) {
-				if(IsValidDragFile(e) && e.Data.GetData(DataFormats.FileDrop) is string[] files) {
+				if(IsValidDragFile(e, Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext).ToArray())
+					&& e.Data.GetData(DataFormats.FileDrop) is string[] files) {
+
 					f.PostData.Value.ImagePath.Value = files[0];
 				} else {
 					Util.Futaba.PutInformation(new Information("未対応のファイル"));
@@ -172,7 +174,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private async Task OpenImage(Model.BindableFutaba f) {
 			try {
 				Application.Current.MainWindow.IsEnabled = false;
-				var ext = Config.ConfigLoader.Mime.Types.Select(x => x.Ext);
+				var ext = Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext);
 				var ofd = new Microsoft.Win32.OpenFileDialog() {
 					Filter = "ふたば画像ファイル|"
 						+ string.Join(";", ext.Select(x => "*" + x).ToArray())
@@ -191,7 +193,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnUploadDragOver(DragEventArgs e) {
-			if(IsValidDragFile(e)) {
+			if(IsValidDragFile(e, Config.ConfigLoader.MimeUp2.Types.Select(x => x.Ext).ToArray())) {
 				e.Effects = DragDropEffects.Copy;
 			} else {
 				e.Effects = DragDropEffects.None; // 機能していないけど今度調べる
@@ -202,7 +204,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnUploadDrop(DragEventArgs e) {
 			if((e.Source as FrameworkElement)?.DataContext is Model.BindableFutaba f) {
-				if(IsValidDragFile(e) && e.Data.GetData(DataFormats.FileDrop) is string[] files) {
+				if(IsValidDragFile(e, Config.ConfigLoader.MimeUp2.Types.Select(x => x.Ext).ToArray())
+					&& e.Data.GetData(DataFormats.FileDrop) is string[] files) {
+
 					this.UploadUp2(f, files[0]);
 				} else {
 					Util.Futaba.PutInformation(new Information("未対応のファイル"));
@@ -210,8 +214,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private bool IsValidDragFile(DragEventArgs e) {
-			var ext = Config.ConfigLoader.Mime.Types.Select(x => x.Ext);
+		private bool IsValidDragFile(DragEventArgs e, string[] ext) {
+			//var ext = Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext);
 			return (e.Data.GetDataPresent(DataFormats.FileDrop, false)
 				&& e.Data.GetData(System.Windows.DataFormats.FileDrop) is string[] files
 				&& (files.Length == 1)
@@ -359,7 +363,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						var ret1 = await client.SendAsync(new System.Net.Http.HttpRequestMessage(
 							System.Net.Http.HttpMethod.Head, uri));
 						if((ret1.StatusCode == System.Net.HttpStatusCode.OK) && (ret1.Content.Headers.ContentLength <= maxFileSize)) {
-							var mime = Config.ConfigLoader.Mime.Types
+							var mime = Config.ConfigLoader.MimeFutaba.Types
 								.Where(x => x.MimeType == ret1.Content.Headers.ContentType.MediaType)
 								.FirstOrDefault();
 							if(mime != null) {

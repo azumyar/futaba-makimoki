@@ -137,7 +137,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if((values.Length == 2) && (values[0] is Data.FutabaContext.Item it)) {
 				if(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledMovieMarker) {
 					if(ext == null) {
-						ext = Config.ConfigLoader.Mime.Types
+						ext = Config.ConfigLoader.MimeFutaba.Types
 							.Where(x => x.MimeContents == MimeContents.Video)
 							.Select(x => x.Ext)
 							.ToArray();

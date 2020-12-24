@@ -1,0 +1,290 @@
+﻿{
+  "version": 2020062900,
+  "support-types": [
+    {
+      "ext": ".3g2",
+      "mime": "video/3gpp2",
+      "contents": "None"
+    },
+    {
+      "ext": ".3gp",
+      "mime": "video/3gpp",
+      "contents": "None"
+    },
+    {
+      "ext": ".7z",
+      "mime": "application/x-7z-compressed",
+      "contents": "None"
+    },
+    {
+      "ext": ".ai",
+      "mime": "application/postscript",
+      "contents": "None"
+    },
+    {
+      "ext": ".aif",
+      "mime": "audio/x-aiff",
+      "contents": "None"
+    },
+    {
+      "ext": ".asf",
+      "mime": "video/x-ms-asf",
+      "contents": "None"
+    },
+    {
+      "ext": ".avi",
+      "mime": "video/x-msvideo",
+      "contents": "None"
+    },
+    {
+      "ext": ".bmp",
+      "mime": "image/bmp",
+      "contents": "None"
+    },
+    {
+      "ext": ".c",
+      "mime": "text/plain",
+      "contents": "None"
+    },
+    {
+      "ext": ".doc",
+      "mime": "application/msword",
+      "contents": "None"
+    },
+    {
+      "ext": ".eps",
+      "mime": "application/postscript",
+      "contents": "None"
+    },
+    {
+      "ext": ".exe",
+      "mime": "application/octet-stream",
+      "contents": "None"
+    },
+    {
+      "ext": ".f4v",
+      "mime": "video/mp4",
+      "contents": "None"
+    },
+    {
+      "ext": ".flv",
+      "mime": "video/x-flv",
+      "contents": "None"
+    },
+    {
+      "ext": ".gca",
+      "mime": "application/x-gca-compressed",
+      "contents": "None"
+    },
+    {
+      "ext": ".gif",
+      "mime": "image/gif",
+      "contents": "None"
+    },
+    {
+      "ext": ".htm",
+      "mime": "text/html",
+      "contents": "None"
+    },
+    {
+      "ext": ".html",
+      "mime": "text/html",
+      "contents": "None"
+    },
+    {
+      "ext": ".jpeg",
+      "mime": "image/jpeg",
+      "contents": "None"
+    },
+    {
+      "ext": ".jpg",
+      "mime": "image/jpeg",
+      "contents": "None"
+    },
+    {
+      "ext": ".lzh",
+      "mime": "application/octet-stream",
+      "contents": "None"
+    },
+    {
+      "ext": ".m4a",
+      "mime": "audio/aac",
+      "contents": "None"
+    },
+    {
+      "ext": ".mgx",
+      "mime": "application/x-mgx-designer",
+      "contents": "None"
+    },
+    {
+      "ext": ".mht",
+      "mime": "application/vnd.sealed.mht",
+      "contents": "None"
+    },
+    {
+      "ext": ".mid",
+      "mime": "audio/midi",
+      "contents": "None"
+    },
+    {
+      "ext": ".mkv",
+      "mime": "video/x-matroska",
+      "contents": "None"
+    },
+    {
+      "ext": ".mmf",
+      "mime": "application/x-smaf",
+      "contents": "None"
+    },
+    {
+      "ext": ".mov",
+      "mime": "\tvideo/quicktime",
+      "contents": "None"
+    },
+    {
+      "ext": ".mp3",
+      "mime": "audio/mpeg",
+      "contents": "None"
+    },
+    {
+      "ext": ".mp4",
+      "mime": "video/mp4",
+      "contents": "None"
+    },
+    {
+      "ext": ".mpeg",
+      "mime": "video/mpeg",
+      "contents": "None"
+    },
+    {
+      "ext": ".mpg",
+      "mime": "video/mpeg",
+      "contents": "None"
+    },
+    {
+      "ext": ".mpo",
+      "mime": "image/mpo",
+      "contents": "None"
+    },
+    {
+      "ext": ".mqo",
+      "mime": "application/octet-stream",
+      "contents": "None"
+    },
+    {
+      "ext": ".ogg",
+      "mime": "application/ogg",
+      "contents": "None"
+    },
+    {
+      "ext": ".pdf",
+      "mime": "application/pdf",
+      "contents": "None"
+    },
+    {
+      "ext": ".pls",
+      "mime": "application/pls+xml",
+      "contents": "None"
+    },
+    {
+      "ext": ".png",
+      "mime": "image/png",
+      "contents": "None"
+    },
+    {
+      "ext": ".ppt",
+      "mime": "application/vnd.ms-powerpoint",
+      "contents": "None"
+    },
+    {
+      "ext": ".psd",
+      "mime": "image/vnd.adobe.photoshop",
+      "contents": "None"
+    },
+    {
+      "ext": ".ram",
+      "mime": "audio/x-pn-realaudio",
+      "contents": "None"
+    },
+    {
+      "ext": ".rar",
+      "mime": "application/x-rar-compressed",
+      "contents": "None"
+    },
+    {
+      "ext": ".rm",
+      "mime": "audio/x-pn-realaudio",
+      "contents": "None"
+    },
+    {
+      "ext": ".rpy",
+      "mime": "text/plain",
+      "contents": "None"
+    },
+    {
+      "ext": ".sai",
+      "mime": "application/octet-stream",
+      "contents": "None"
+    },
+    {
+      "ext": ".swf",
+      "mime": "application/x-shockwave-flash",
+      "contents": "None"
+    },
+    {
+      "ext": ".tif",
+      "mime": "image/tiff",
+      "contents": "None"
+    },
+    {
+      "ext": ".tiff",
+      "mime": "image/tiff",
+      "contents": "None"
+    },
+    {
+      "ext": ".",
+      "mime": "text/plain",
+      "contents": "None"
+    },
+    {
+      "ext": ".txt",
+      "mime": "",
+      "contents": "None"
+    },
+    {
+      "ext": ".wav",
+      "mime": "audio/x-wav",
+      "contents": "None"
+    },
+    {
+      "ext": ".webm",
+      "mime": "video/webm",
+      "contents": "None"
+    },
+    {
+      "ext": ".webp",
+      "mime": "image/webp",
+      "contents": "None"
+    },
+    {
+      "ext": ".wma",
+      "mime": "audio/x-ms-wma",
+      "contents": "None"
+    },
+    {
+      "ext": ".wmv",
+      "mime": "video/x-ms-wmv",
+      "contents": "None"
+    },
+    {
+      "ext": ".xls",
+      "mime": "application/vnd.ms-excel",
+      "contents": "None"
+    },
+    {
+      "ext": ".zip",
+      "mime": "application/zip",
+      "contents": "None"
+    }
+  ]
+}

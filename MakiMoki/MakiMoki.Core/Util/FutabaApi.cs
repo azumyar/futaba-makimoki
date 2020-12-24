@@ -379,7 +379,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			if(string.IsNullOrWhiteSpace(threadNo)) {
 				r.AddParameter("textonly", string.IsNullOrWhiteSpace(filePath) ? "on" : "", ParameterType.GetOrPost);
 				if(!string.IsNullOrWhiteSpace(filePath)) {
-					if(Config.ConfigLoader.Mime.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
+					if(Config.ConfigLoader.MimeFutaba.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
 						r.AddFile("upfile", filePath, m);
 					} else {
 						// TODO: なんかエラーだす
@@ -390,7 +390,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				if(bord.Extra?.ResImageValue ?? true) {
 					r.AddParameter("textonly", string.IsNullOrWhiteSpace(filePath) ? "on" : "", ParameterType.GetOrPost);
 					if(!string.IsNullOrWhiteSpace(filePath)) {
-						if(Config.ConfigLoader.Mime.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
+						if(Config.ConfigLoader.MimeFutaba.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
 							r.AddFile("upfile", filePath, m);
 						} else {
 							// TODO: なんかエラーだす
@@ -511,7 +511,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(filePath != null);
 			System.Diagnostics.Debug.Assert(passwd != null);
 			return await Task.Run(() => {
-				if(Config.ConfigLoader.Mime.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
+				if(Config.ConfigLoader.MimeUp2.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {
 					// コメントがない場合ファイルのMD5 sumを埋め込む
 					if(string.IsNullOrEmpty(comment)) {
 						try {

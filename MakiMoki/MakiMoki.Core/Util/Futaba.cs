@@ -591,7 +591,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUploaderFile(string url) {
 			System.Diagnostics.Debug.Assert(url != null);
 			var localFile = CreateLocalFileNameFromUploader(url);
-			if(Config.ConfigLoader.Mime.Types.Select(x => x.Ext).Contains(Path.GetExtension(localFile).ToLower())) {
+			if(Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext).Contains(Path.GetExtension(localFile).ToLower())) {
 				var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
 				return GetUrlImage(url, localPath);
 			} else {

@@ -14,14 +14,16 @@
   <ItemGroup>
     <None Remove="Config\makimoki.bord.json" />
     <None Remove="Config\makimoki.json" />
-    <None Remove="Config\mime.json" />
+    <None Remove="Config\mime-futaba.json" />
+    <None Remove="Config\mime-up2.json" />
     <None Remove="Config\uploder.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Config\mime-up2.json" />
     <EmbeddedResource Include="Config\uploder.json" />
     <EmbeddedResource Include="Config\makimoki.json" />
-    <EmbeddedResource Include="Config\mime.json" />
+    <EmbeddedResource Include="Config\mime-futaba.json" />
     <EmbeddedResource Include="Config\makimoki.bord.json" />
   </ItemGroup>
 

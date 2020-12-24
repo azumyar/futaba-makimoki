@@ -174,7 +174,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 				var ext = Regex.Match(u, @"\.[a-zA-Z0-9]+$");
 				if(ext.Success) {
-					if(Config.ConfigLoader.Mime.Types.Select(x => x.Ext).Contains(ext.Value.ToLower())) {
+					if(Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext).Contains(ext.Value.ToLower())) {
 						Messenger.Instance.GetEvent<PubSubEvent<MediaViewerOpenMessage>>()
 							.Publish(new MediaViewerOpenMessage(
 								PlatformData.FutabaMedia.FromExternalUrl(u)));
