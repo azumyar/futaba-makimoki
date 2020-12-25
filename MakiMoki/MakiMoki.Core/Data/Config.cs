@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -163,7 +164,8 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonProperty("mime", Required = Required.Always)]
 		public string MimeType { get; private set; }
 
-		[JsonProperty("contents", Required = Required.Always)]
+		[JsonProperty("contents", Required = Required.Default)]
+		[DefaultValue(MimeContents.None)]
 		public MimeContents MimeContents { get; private set; }
 	}
 

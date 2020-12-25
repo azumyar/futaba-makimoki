@@ -115,9 +115,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private async Task OpenUpload(Model.BindableFutaba f) {
 			try {
 				Application.Current.MainWindow.IsEnabled = false;
-				var ext = Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext);
+				var ext = Config.ConfigLoader.MimeUp2.Types.Select(x => x.Ext);
 				var ofd = new Microsoft.Win32.OpenFileDialog() {
-					Filter = "ふたば画像ファイル|"
+					Filter = "あぷ小ファイル|"
 						+ string.Join(";", ext.Select(x => "*" + x).ToArray())
 						+ "|すべてのファイル|*.*"
 				};
