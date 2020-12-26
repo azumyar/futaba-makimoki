@@ -121,7 +121,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							}
 							dic.Add(c.No, c.Count);
 						}
-						sortList.AddRange(resList.Select(x => new Data.NumberedResItem(x.No, x.Res, true)));
+						sortList.AddRange(
+							resList.Reverse<Data.NumberedResItem>()
+								.Select(x => new Data.NumberedResItem(x.No, x.Res, true)));
 						lock(lockObj) {
 							for(var i = 0; i < Catalog.Value.Length; i++) {
 								if(Catalog.Value[i].Bord.Url == bord.Url) {
