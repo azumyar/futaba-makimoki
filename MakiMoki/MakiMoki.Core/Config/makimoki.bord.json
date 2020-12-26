@@ -7,7 +7,8 @@
       "name": "ねこ",
       "url": "https://may.2chan.net/27/",
       "extra": {
-        "always-ip": true
+        "always-ip": true,
+        "max-stored-res": 2000
       }
     }
   ]

@@ -349,7 +349,7 @@
                                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
                                             <Viewbox
                                                 Margin="2 2 0 2"
-                                                Visibility="{Binding Raw.Value, Converter={StaticResource FutabaOldResVisibilityConverter}, Mode=OneWay}"                                        
+                                                Visibility="{Binding Converter={StaticResource FutabaOldResVisibilityConverter}, Mode=OneWay}"                                        
                                                 Width="{DynamicResource CatalogBadgeSize}"
                                                 Height="{DynamicResource CatalogBadgeSize}"
                                                 >

@@ -81,9 +81,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return null;
 			}
 
-			if(value is Data.FutabaContext.Item it) {
-				// 未実装
-				return Visibility.Collapsed;
+			if(value is Model.BindableFutabaResItem it) {
+				var old = false;
+				var curNo = long.TryParse(it.ThreadResNo.Value, out var cno) ? cno : 0;
+				var lastNo = it.Parent.Value.ResItems
+					.Select(x => long.TryParse(x.ThreadResNo.Value, out var lno) ? lno : 0)
+					.Max();
+				if((0 < curNo)
+					&& (0 < lastNo) 
+					&& ((0 < it.Bord.Value.Extra.MaxStoredRes) || (0 < it.Bord.Value.Extra.MaxStoredTime))) { 
+				
+					if(0 < it.Bord.Value.Extra.MaxStoredRes) {
+						old = (it.Bord.Value.Extra.MaxStoredRes * 0.9) < (lastNo - curNo);
+					}
+
+					if(0 < it.Bord.Value.Extra.MaxStoredTime) {
+						if((DateTime.Now - it.Raw.Value.ResItem.Res.NowDateTime)
+							< TimeSpan.FromSeconds(it.Bord.Value.Extra.MaxStoredTime - (5 * 60))) {
+
+							old = false;
+						}
+					}
+				}
+				return old ? Visibility.Visible : Visibility.Collapsed;
 			}
 			throw new ArgumentException("型不正。", "value");
 		}

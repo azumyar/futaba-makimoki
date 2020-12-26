@@ -117,6 +117,14 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonProperty("always-id")]
 		public bool? AlwaysId { get; set; }
 
+		[JsonProperty("max-stored-res", Required = Required.Default)]
+		[DefaultValue(0)]
+		public int MaxStoredRes { get; set; }
+
+		[JsonProperty("max-stored-time", Required = Required.Default)]
+		[DefaultValue(0)]
+		public int MaxStoredTime { get; set; }
+
 		[JsonIgnore]
 		public bool NameValue => Name ?? true;
 

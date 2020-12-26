@@ -206,6 +206,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				var catalogItemOpendBackground = style.ToWpfColor(style.CatalogItemOpendBackgroundColor);
 				var catalogBadgeCountForeground = style.ToWpfColor(style.CatalogBadgeCountForegroundColor);
 				var catalogBadgeCountBackground = style.ToWpfColor(style.CatalogBadgeCountBackgroundColor);
+				var catalogBadgeOldForeground = style.ToWpfColor(style.CatalogBadgeOldForegroundColor);
+				var catalogBadgeOldBackground = style.ToWpfColor(style.CatalogBadgeOldBackgroundColor);
 				var catalogBadgeIdForeground = style.ToWpfColor(style.CatalogBadgeIdForegroundColor);
 				var catalogBadgeIdBackground = style.ToWpfColor(style.CatalogBadgeIdBackgroundColor);
 				var catalogBadgeMovieForeground = style.ToWpfColor(style.CatalogBadgeMovieForegroundColor);
@@ -217,8 +219,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				this.Resources["CatalogItemOpendBackgroundColor"] = catalogItemOpendBackground;
 				this.Resources["CatalogBadgeCountForegroundColor"] = catalogBadgeCountForeground;
 				this.Resources["CatalogBadgeCountBackgroundColor"] = catalogBadgeCountBackground;
-				//this.Resources["CatalogBadgeOldForegroundColor"] = null;
-				//this.Resources["CatalogBadgeOldBackgroundColor"] = null;
+				this.Resources["CatalogBadgeOldForegroundColor"] = catalogBadgeOldForeground;
+				this.Resources["CatalogBadgeOldBackgroundColor"] = catalogBadgeOldBackground;
 				this.Resources["CatalogBadgeIdForegroundColor"] = catalogBadgeIdForeground;
 				this.Resources["CatalogBadgeIdBackgroundColor"] = catalogBadgeIdBackground;
 				this.Resources["CatalogBadgeMovieForegroundColor"] = catalogBadgeMovieForeground;
