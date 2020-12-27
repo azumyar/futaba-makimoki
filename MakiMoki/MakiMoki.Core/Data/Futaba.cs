@@ -664,6 +664,13 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		}
 
 		private static void a(List<Item> list, UrlContext url, IEnumerable<NumberedResItem> res, Dictionary<string, string> soudane) {
+			// ふたばが重いときに重複する可能性があるのでチェックして除去
+			foreach(var it in res) {
+				foreach(var d in list.Where(x => x.ResItem.No == it.No).ToArray()) {
+					list.Remove(d);
+				}
+			}
+
 			var q = list.Select(x => x.ResItem).ToList();
 			foreach(var it in res) {
 				var sd = 0;
