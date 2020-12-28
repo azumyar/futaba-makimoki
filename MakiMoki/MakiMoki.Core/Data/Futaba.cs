@@ -567,7 +567,10 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				}
 				// レスの追加
 				if(response.Res != null) {
-					a(list, parent.Url, response.Res, response.Sd);
+					a(list,
+						parent.Url,
+						response.IsDie ? RenumberRsc(parent, response.Res) : response.Res,
+						response.Sd);
 				}
 				return new FutabaContext() {
 					Name = parent.Name,
@@ -650,7 +653,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 							ad.Insert(0, r);
 						}
 					}
-					a(list, thread.Url, ad, response.Sd);
+					a(list, thread.Url, RenumberRsc(thread, ad.ToArray()), response.Sd);
 				}
 
 				return new FutabaContext() {
@@ -680,6 +683,34 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				list.Add(Item.FromThreadRes(url, it, sd, q));
 				q.Add(it);
 			}
+		}
+
+		private static NumberedResItem[] RenumberRsc(FutabaContext thread, NumberedResItem[] res) {
+			var result = new NumberedResItem[res.Length];
+			// rscをふりなおす
+			for(var i = 0; i < res.Length; i++) {
+				var r = res[i];
+				result[i] = new NumberedResItem(
+						r.No,
+						ResItem.From(
+							sub: r.Res.Sub,
+							name: r.Res.Name,
+							email: r.Res.Email,
+							com: r.Res.Com,
+							id: r.Res.Id,
+							host: r.Res.Host,
+							del: r.Res.Del,
+							src: r.Res.Src,
+							thumb: r.Res.Thumb,
+							ext: r.Res.Ext,
+							fsize: r.Res.Fsize,
+							w: r.Res.W,
+							h: r.Res.H,
+							now: r.Res.Now,
+							tim: r.Res.Tim,
+							rsc: thread.ResItems.Length + i));
+			}
+			return result;
 		}
 
 		public static FutabaContext FromCatalog_(BordData bord, FutabaResonse response, string[] sortRes, Dictionary<string, int> counter) {
