@@ -27,6 +27,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 	}
 
+	class FutabaCatalogToolTipResCountConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value == null) {
+				return Visibility.Collapsed;
+			}
+
+			if(value is Model.BindableFutabaResItem f) {
+				return (f.Raw.Value.ResItem.Isolate ?? false)
+					? "隔離" : $"{ f.Raw.Value.CounterCurrent }レス"; 
+			}
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
+
+
 	class FutabaThreadResVisibleConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			if(value == null) {

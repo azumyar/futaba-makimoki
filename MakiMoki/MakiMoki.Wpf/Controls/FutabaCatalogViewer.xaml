@@ -31,6 +31,7 @@
             <converter:FutabaCatalogSortParamConverter x:Key="FutabaCatalogSortParamConverter"/>
             <converter:FutabaCatalogVisibleConverter x:Key="FutabaCatalogVisibleConverter"/>
             <converter:FutabaCatalogStyleConverter x:Key="FutabaCatalogStyleConverter"/>
+            <converter:FutabaCatalogToolTipResCountConverter x:Key="FutabaCatalogToolTipResCountConverter" />
             <converter:FutabaThreadResVisibleConverter x:Key="FutabaThreadResVisibleConverter"/>
             <converter:FutabaCatalogItemBackgroundConverter x:Key="FutabaCatalogItemBackgroundConverter" />
             <converter:FutabaCatalogItemFilterConverter x:Key="FutabaCatalogItemFilterConverter" />
@@ -115,7 +116,7 @@
                     </Grid>
                     <TextBlock
                         Grid.Row="1"
-                        Text="{Binding Raw.Value.CounterCurrent, Mode=OneWay, StringFormat='\{0\}レス'}"
+                        Text="{Binding Mode=OneWay, Converter={StaticResource FutabaCatalogToolTipResCountConverter}}"
                         HorizontalAlignment="Right"
                         Margin="2"/>
                 </Grid>
