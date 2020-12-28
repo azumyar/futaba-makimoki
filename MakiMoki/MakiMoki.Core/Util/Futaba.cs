@@ -121,7 +121,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							}
 							dic.Add(c.No, c.Count);
 						}
-						sortList.AddRange(resList.Select(x => new Data.NumberedResItem(x.No, x.Res, true)));
+						sortList.AddRange(
+							resList.Reverse<Data.NumberedResItem>()
+								.Select(x => new Data.NumberedResItem(x.No, x.Res, true)));
 						lock(lockObj) {
 							for(var i = 0; i < Catalog.Value.Length; i++) {
 								if(Catalog.Value[i].Bord.Url == bord.Url) {
@@ -591,7 +593,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUploaderFile(string url) {
 			System.Diagnostics.Debug.Assert(url != null);
 			var localFile = CreateLocalFileNameFromUploader(url);
-			if(Config.ConfigLoader.Mime.Types.Select(x => x.Ext).Contains(Path.GetExtension(localFile).ToLower())) {
+			if(Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext).Contains(Path.GetExtension(localFile).ToLower())) {
 				var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
 				return GetUrlImage(url, localPath);
 			} else {

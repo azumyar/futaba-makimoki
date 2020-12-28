@@ -222,7 +222,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private bool IsImageFile(string url) {
 			var ext = Regex.Match(url, @"\.[a-zA-Z0-9]+$");
 			if(ext.Success) {
-				if(Config.ConfigLoader.Mime.Types
+				if(Config.ConfigLoader.MimeFutaba.Types
 					.Where(x => x.MimeContents == Data.MimeContents.Image)
 					.Select(x => x.Ext).Contains(ext.Value.ToLower())) {
 					
@@ -235,7 +235,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private bool IsMovieFile(string url) {
 			var ext = Regex.Match(url, @"\.[a-zA-Z0-9]+$");
 			if(ext.Success) {
-				if(Config.ConfigLoader.Mime.Types
+				if(Config.ConfigLoader.MimeFutaba.Types
 					.Where(x => x.MimeContents == Data.MimeContents.Video)
 					.Select(x => x.Ext).Contains(ext.Value.ToLower())) {
 

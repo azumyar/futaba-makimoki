@@ -27,6 +27,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 	}
 
+	class FutabaCatalogToolTipResCountConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value == null) {
+				return Visibility.Collapsed;
+			}
+
+			if(value is Model.BindableFutabaResItem f) {
+				return (f.Raw.Value.ResItem.Isolate ?? false)
+					? "隔離" : $"{ f.Raw.Value.CounterCurrent }レス"; 
+			}
+			throw new ArgumentException("型不正。", "value");
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
+
+
 	class FutabaThreadResVisibleConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			if(value == null) {
@@ -81,9 +101,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return null;
 			}
 
-			if(value is Data.FutabaContext.Item it) {
-				// 未実装
-				return Visibility.Collapsed;
+			if(value is Model.BindableFutabaResItem it) {
+				var old = false;
+				var curNo = long.TryParse(it.ThreadResNo.Value, out var cno) ? cno : 0;
+				var lastNo = it.Parent.Value.ResItems
+					.Select(x => long.TryParse(x.ThreadResNo.Value, out var lno) ? lno : 0)
+					.Max();
+				if((0 < curNo)
+					&& (0 < lastNo) 
+					&& ((0 < it.Bord.Value.Extra.MaxStoredRes) || (0 < it.Bord.Value.Extra.MaxStoredTime))) { 
+				
+					if(0 < it.Bord.Value.Extra.MaxStoredRes) {
+						old = (it.Bord.Value.Extra.MaxStoredRes * 0.9) < (lastNo - curNo);
+					}
+
+					if(0 < it.Bord.Value.Extra.MaxStoredTime) {
+						if((DateTime.Now - it.Raw.Value.ResItem.Res.NowDateTime)
+							< TimeSpan.FromSeconds(it.Bord.Value.Extra.MaxStoredTime - (5 * 60))) {
+
+							old = false;
+						}
+					}
+				}
+				return old ? Visibility.Visible : Visibility.Collapsed;
 			}
 			throw new ArgumentException("型不正。", "value");
 		}
@@ -137,7 +177,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if((values.Length == 2) && (values[0] is Data.FutabaContext.Item it)) {
 				if(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledMovieMarker) {
 					if(ext == null) {
-						ext = Config.ConfigLoader.Mime.Types
+						ext = Config.ConfigLoader.MimeFutaba.Types
 							.Where(x => x.MimeContents == MimeContents.Video)
 							.Select(x => x.Ext)
 							.ToArray();

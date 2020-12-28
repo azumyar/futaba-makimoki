@@ -71,11 +71,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.ImagePreview = this.ImagePath.Select<string, ImageSource>(x => {
 					if(File.Exists(x)) {
 						var ext = Path.GetExtension(x).ToLower();
-						var imageExt = Config.ConfigLoader.Mime.Types
+						var imageExt = Config.ConfigLoader.MimeFutaba.Types
 							.Where(y => y.MimeContents == MimeContents.Image)
 							.Select(y => y.Ext)
 							.ToArray();
-						var movieExt = Config.ConfigLoader.Mime.Types
+						var movieExt = Config.ConfigLoader.MimeFutaba.Types
 							.Where(y => y.MimeContents == MimeContents.Video)
 							.Select(y => y.Ext)
 							.ToArray();
@@ -363,7 +363,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					case MouseButton.Left:
 						try {
 							Application.Current.MainWindow.IsEnabled = false;
-							var ext = Config.ConfigLoader.Mime.Types.Select(x => x.Ext);
+							var ext = Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext);
 							var ofd = new Microsoft.Win32.OpenFileDialog() {
 								Filter = "ふたば画像ファイル|"
 									+ string.Join(";", ext.Select(x => "*" + x).ToArray())
@@ -431,7 +431,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				string getImageBase64(BindableFutabaResItem bfi) {
 					var url = bfi.Raw.Value.Url;
 					var item = bfi.Raw.Value.ResItem.Res;
-					if(item.Fsize == 0) {
+					if(string.IsNullOrEmpty(item.Ext)) {
 						return "";
 					}
 
@@ -439,7 +439,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					if(ngImage && WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Hidden) {
 						return "";
 					} else if(ngImage && WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Dummy) {
-						if(Config.ConfigLoader.Mime.MimeTypes.TryGetValue(".png", out var mime)) {
+						if(Config.ConfigLoader.MimeFutaba.MimeTypes.TryGetValue(".png", out var mime)) {
 							return "data:" + mime + ";base64," + WpfUtil.ImageUtil.GetNgImageBase64();
 						} else {
 							return "";
@@ -450,7 +450,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					return Util.Futaba.GetThumbImage(url, item)
 						.Select(x => {
 							if(x.Successed) {
-								if(Config.ConfigLoader.Mime.MimeTypes.TryGetValue(Path.GetExtension(x.LocalPath).ToLower(), out var mime)) {
+								if(Config.ConfigLoader.MimeFutaba.MimeTypes.TryGetValue(Path.GetExtension(x.LocalPath).ToLower(), out var mime)) {
 									using(var stream = new FileStream(x.LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
 										return "data:" + mime + ";base64," + FileUtil.ToBase64(stream);
 									}
@@ -482,7 +482,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 										No = x.Raw.Value.ResItem.No,
 										Date = string.Format("{0}{1}", x.Raw.Value.ResItem.Res.Now, string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Id) ? "" : (" " + x.Raw.Value.ResItem.Res.Id)),
 										Soudane = x.Raw.Value.Soudane,
-										OriginalImageName = ngImage ? "" : x.ImageName.Value,
+										Host = x.Raw.Value.ResItem.Res.Host,
+										OriginalImageName = (ngImage || string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Ext)) ? "" : x.ImageName.Value,
 										ThumbnailImageData = getImageBase64(x),
 									};
 								}).Where(x => x != null).ToArray()

@@ -12,7 +12,8 @@ namespace Yarukizero.Net.MakiMoki.Config {
 	public static class ConfigLoader {
 		internal static readonly string MakiMokiConfigFile = "makimoki.json";
 		internal static readonly string BordConfigFile = "makimoki.bord.json";
-		internal static readonly string MimeConfigFile = "mime.json";
+		internal static readonly string MimeFutabaConfigFile = "mime-futaba.json";
+		internal static readonly string MimeUp2ConfigFile = "mime-up2.json";
 		internal static readonly string UploderConfigFile = "uploder.json";
 		internal static readonly string FutabaApiFile = "makimoki.futaba.json";
 		internal static readonly string FutabaSavedFile = "makimoki.response.json";
@@ -115,9 +116,12 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			MakiMoki = JsonConvert.DeserializeObject<Data.MakiMokiConfig>(
 				loadFile(CoreAssembly.GetManifestResourceStream(
 					typeof(ConfigLoader).Namespace + "." + MakiMokiConfigFile)));
-			Mime = JsonConvert.DeserializeObject<Data.MimeConfig>(
+			MimeFutaba = JsonConvert.DeserializeObject<Data.MimeConfig>(
 				loadFile(CoreAssembly.GetManifestResourceStream(
-					typeof(ConfigLoader).Namespace + "." + MimeConfigFile)));
+					typeof(ConfigLoader).Namespace + "." + MimeFutabaConfigFile)));
+			MimeUp2 = JsonConvert.DeserializeObject<Data.MimeConfig>(
+				loadFile(CoreAssembly.GetManifestResourceStream(
+					typeof(ConfigLoader).Namespace + "." + MimeUp2ConfigFile)));
 			Uploder = JsonConvert.DeserializeObject<Data.UploderConfig>(
 				loadFile(CoreAssembly.GetManifestResourceStream(
 					typeof(ConfigLoader).Namespace + "." + UploderConfigFile)));
@@ -224,7 +228,9 @@ namespace Yarukizero.Net.MakiMoki.Config {
 
 		public static Data.CoreBordConfig Bord { get; private set; }
 
-		public static Data.MimeConfig Mime { get; private set; }
+		public static Data.MimeConfig MimeFutaba { get; private set; }
+
+		public static Data.MimeConfig MimeUp2 { get; private set; }
 
 		public static Data.UploderConfig Uploder { get; private set; }
 

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -116,6 +117,14 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonProperty("always-id")]
 		public bool? AlwaysId { get; set; }
 
+		[JsonProperty("max-stored-res", Required = Required.Default)]
+		[DefaultValue(0)]
+		public int MaxStoredRes { get; set; }
+
+		[JsonProperty("max-stored-time", Required = Required.Default)]
+		[DefaultValue(0)]
+		public int MaxStoredTime { get; set; }
+
 		[JsonIgnore]
 		public bool NameValue => Name ?? true;
 
@@ -163,7 +172,8 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonProperty("mime", Required = Required.Always)]
 		public string MimeType { get; private set; }
 
-		[JsonProperty("contents", Required = Required.Always)]
+		[JsonProperty("contents", Required = Required.Default)]
+		[DefaultValue(MimeContents.None)]
 		public MimeContents MimeContents { get; private set; }
 	}
 

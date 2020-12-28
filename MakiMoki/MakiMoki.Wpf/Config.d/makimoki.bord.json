@@ -10,15 +10,19 @@
       "extra": {
         "name": false,
         "enable-res-image": false,
-        "enable-mail-id": true
+        "enable-mail-id": true,
+        "max-stored-res": 20000,
+        "max-stored-time": 3600
       }
     },
     {
       "name": "二次元裏(dec)",
-      "url": "https://dec.2chan.net/b/",
+      "url": "https://dec.2chan.net/dec/",
       "max-file-size": 3072000,
       "sort-index": 102,
-      "extra": {}
+      "extra": {
+        "max-stored-res": 10000
+      }
     },
 
     {
@@ -28,7 +32,8 @@
       "sort-index": 103,
       "extra": {
         "enable-mail-id": true,
-        "enable-mail-ip": true
+        "enable-mail-ip": true,
+        "max-stored-res": 8000
       }
     },
 
@@ -38,7 +43,8 @@
       "max-file-size": 3072000,
       "sort-index": 104,
       "extra": {
-        "enable-mail-ip": true
+        "enable-mail-ip": true,
+        "max-stored-res": 80000
       }
     },
     {
@@ -48,7 +54,8 @@
       "sort-index": 105,
       "extra": {
         "name": false,
-        "enable-res-image": false
+        "enable-res-image": false,
+        "max-stored-res": 4000
       }
     }
   ]

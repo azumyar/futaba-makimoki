@@ -567,7 +567,10 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				}
 				// レスの追加
 				if(response.Res != null) {
-					a(list, parent.Url, response.Res, response.Sd);
+					a(list,
+						parent.Url,
+						response.IsDie ? RenumberRsc(parent, response.Res) : response.Res,
+						response.Sd);
 				}
 				return new FutabaContext() {
 					Name = parent.Name,
@@ -596,40 +599,40 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				};
 			}
 
-			public static FutabaContext FromThreadResResponse404(FutabaContext catalog, FutabaContext thread, FutabaResonse response) {
-				if(response == null) {
-					return null;
-				}
+		public static FutabaContext FromThreadResResponse404(FutabaContext catalog, FutabaContext thread, FutabaResonse response) {
+			if(response == null) {
+				return null;
+			}
 
-				if(thread.ResItems.Length == 0) {
-					var c = catalog?.ResItems?.Where(x => x.ResItem.No == thread.Url.ThreadNo).FirstOrDefault()?.ResItem;
-					var sub = "MakiMoki";
-					var name = "MakiMoki";
-					var com = "<font color=\"#ff0000\">取得できませんでした</font>";
-					var date = DateTime.Now;
-					var now = string.Format("{0}({1}){2}",
-						date.ToString("yy/MM/dd", System.Globalization.CultureInfo.InvariantCulture),
-						date.ToString("ddd"),
-						date.ToString("HH:mm:ss"));
-					var tim = new DateTimeOffset(date.Ticks, new TimeSpan(+09, 00, 00)).ToUnixTimeMilliseconds().ToString();
-					if(c == null) {
-						c = new NumberedResItem(thread.Url.ThreadNo, ResItem.From(
+			if(thread.ResItems.Length == 0) {
+				var c = catalog?.ResItems?.Where(x => x.ResItem.No == thread.Url.ThreadNo).FirstOrDefault()?.ResItem;
+				var sub = "MakiMoki";
+				var name = "MakiMoki";
+				var com = "<font color=\"#ff0000\">取得できませんでした</font>";
+				var date = DateTime.Now;
+				var now = string.Format("{0}({1}){2}",
+					date.ToString("yy/MM/dd", System.Globalization.CultureInfo.InvariantCulture),
+					date.ToString("ddd"),
+					date.ToString("HH:mm:ss"));
+				var tim = new DateTimeOffset(date.Ticks, new TimeSpan(+09, 00, 00)).ToUnixTimeMilliseconds().ToString();
+				if(c == null) {
+					c = new NumberedResItem(thread.Url.ThreadNo, ResItem.From(
+						sub, name, "", com,
+						"", "", "", "", "", "", 0, 0, 0, now, tim, 0));
+				}
+				var ad = new List<Item>() { Item.FromThreadRes(thread.Url, c, 0, new List<NumberedResItem>()) };
+				if((response.Res != null) && (0 < response.Res.Length)) {
+					/* これはレスが消えたらf.Res.Rscも更新されてできなかったのでお蔵入り
+					var i = 1;
+					var f = response.Res.First();
+					if(i < f.Res.Rsc) {
+						ad.Add(new NumberedResItem(thread.Url.ThreadNo, ResItem.From(
 							sub, name, "", com,
-							"", "", "", "", "", "", 0, 0, 0, now, tim, 0));
+							"", "", "", "", "", "", 0, 0, 0, now, tim, i)));
+						i++;
 					}
-					var ad = new List<Item>() { Item.FromThreadRes(thread.Url, c, 0, new List<NumberedResItem>()) };
-					if((response.Res != null) && (0 < response.Res.Length)) {
-						/* これはレスが消えたらf.Res.Rscも更新されてできなかったのでお蔵入り
-						var i = 1;
-						var f = response.Res.First();
-						if(i < f.Res.Rsc) {
-							ad.Add(new NumberedResItem(thread.Url.ThreadNo, ResItem.From(
-								sub, name, "", com,
-								"", "", "", "", "", "", 0, 0, 0, now, tim, i)));
-							i++;
-						}
-						*/
-	a(ad, thread.Url, response.Res, response.Sd);
+					*/
+					a(ad, thread.Url, response.Res, response.Sd);
 				}
 				return new FutabaContext() {
 					Name = thread.Name,
@@ -650,7 +653,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 							ad.Insert(0, r);
 						}
 					}
-					a(list, thread.Url, ad, response.Sd);
+					a(list, thread.Url, RenumberRsc(thread, ad.ToArray()), response.Sd);
 				}
 
 				return new FutabaContext() {
@@ -664,6 +667,13 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		}
 
 		private static void a(List<Item> list, UrlContext url, IEnumerable<NumberedResItem> res, Dictionary<string, string> soudane) {
+			// ふたばが重いときに重複する可能性があるのでチェックして除去
+			foreach(var it in res) {
+				foreach(var d in list.Where(x => x.ResItem.No == it.No).ToArray()) {
+					list.Remove(d);
+				}
+			}
+
 			var q = list.Select(x => x.ResItem).ToList();
 			foreach(var it in res) {
 				var sd = 0;
@@ -673,6 +683,34 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				list.Add(Item.FromThreadRes(url, it, sd, q));
 				q.Add(it);
 			}
+		}
+
+		private static NumberedResItem[] RenumberRsc(FutabaContext thread, NumberedResItem[] res) {
+			var result = new NumberedResItem[res.Length];
+			// rscをふりなおす
+			for(var i = 0; i < res.Length; i++) {
+				var r = res[i];
+				result[i] = new NumberedResItem(
+						r.No,
+						ResItem.From(
+							sub: r.Res.Sub,
+							name: r.Res.Name,
+							email: r.Res.Email,
+							com: r.Res.Com,
+							id: r.Res.Id,
+							host: r.Res.Host,
+							del: r.Res.Del,
+							src: r.Res.Src,
+							thumb: r.Res.Thumb,
+							ext: r.Res.Ext,
+							fsize: r.Res.Fsize,
+							w: r.Res.W,
+							h: r.Res.H,
+							now: r.Res.Now,
+							tim: r.Res.Tim,
+							rsc: thread.ResItems.Length + i));
+			}
+			return result;
 		}
 
 		public static FutabaContext FromCatalog_(BordData bord, FutabaResonse response, string[] sortRes, Dictionary<string, int> counter) {
