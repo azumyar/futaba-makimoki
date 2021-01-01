@@ -567,7 +567,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				}
 				// レスの追加
 				if(response.Res != null) {
-					a(list,
+					AddResponseToList(list,
 						parent.Url,
 						response.IsDie ? RenumberRsc(parent, response.Res) : response.Res,
 						response.Sd);
@@ -585,7 +585,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				var url = new UrlContext(bord.Url, threadNo);
 				var list = new List<Item>() { Item.FromThreadRes(url, parent, soudane, new List<NumberedResItem>()) };
 				if(response.Res != null) {
-					a(list, url, response.Res, response.Sd);
+					AddResponseToList(list, url, response.Res, response.Sd);
 				}
 				return new FutabaContext() {
 					Name = Util.TextUtil.SafeSubstring(
@@ -632,7 +632,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 						i++;
 					}
 					*/
-					a(ad, thread.Url, response.Res, response.Sd);
+					AddResponseToList(ad, thread.Url, response.Res, response.Sd);
 				}
 				return new FutabaContext() {
 					Name = thread.Name,
@@ -653,7 +653,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 							ad.Insert(0, r);
 						}
 					}
-					a(list, thread.Url, RenumberRsc(thread, ad.ToArray()), response.Sd);
+					AddResponseToList(list, thread.Url, RenumberRsc(thread, ad.ToArray()), response.Sd);
 				}
 
 				return new FutabaContext() {
@@ -666,7 +666,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			}
 		}
 
-		private static void a(List<Item> list, UrlContext url, IEnumerable<NumberedResItem> res, Dictionary<string, string> soudane) {
+		private static void AddResponseToList(List<Item> list, UrlContext url, IEnumerable<NumberedResItem> res, Dictionary<string, string> soudane) {
 			// ふたばが重いときに重複する可能性があるのでチェックして除去
 			foreach(var it in res) {
 				foreach(var d in list.Where(x => x.ResItem.No == it.No).ToArray()) {
