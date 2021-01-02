@@ -116,6 +116,12 @@
         <!-- Grayの300 -->
         <Color x:Key="ViewerScrollButtonDisabledColor">#E0E0E0</Color>
 
+        <pd:ColorMapCollection x:Key="FutabaCommentColorMap">
+            <!-- コメント→Greenの500-->
+            <pd:ColorMap Target="#789922" Value="#4CAF50" />
+            <!-- 赤字→Redの500-->
+            <pd:ColorMap Target="#ff0000" Value="#f44336" />
+        </pd:ColorMapCollection>
 
         <Viewbox x:Key="ButtonIconWindowBordList" x:Shared="False">
             <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">

@@ -88,6 +88,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 
 		private static void a(TextBlock tb, Model.BindableFutabaResItem item, int maxLines) {
+			var cmc = Application.Current?.TryFindResource("FutabaCommentColorMap") as PlatformData.ColorMapCollection;
 			tb.Text = null;
 			tb.Inlines.Clear();
 
@@ -155,10 +156,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 							&& int.TryParse(rgb[1].ToString(), ns, fp, out var g)
 							&& int.TryParse(rgb[2].ToString(), ns, fp, out var b)) {
 							color = Color.FromRgb((byte)r, (byte)g, (byte)b);
+							color = cmc?.Where(x => x.Target == color).FirstOrDefault()?.Value ?? color;
 						}
 					} else {
 						if(uint.TryParse(rgb, ns, fp, out var v)) {
 							color = Color.FromRgb((byte)(v >> 16 & 0xff), (byte)(v >> 8 & 0xff), (byte)(v & 0xff));
+							color = cmc?.Where(x => x.Target == color).FirstOrDefault()?.Value ?? color;
 						}
 					}
 					inputVal.Remove(0, fm.Length);

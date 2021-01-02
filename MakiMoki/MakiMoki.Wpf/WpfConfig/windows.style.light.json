@@ -43,6 +43,11 @@
   "color-viewer-scrollbar-thumb": "#9E9E9E",
   "color-viewer-scrollbar-tarck": "#F5F5F5",
 
+  "color-viewer-map-futaba": {
+    "#789922": "#4CAF50",
+    "#ff0000": "#f44336"
+  },
+
   "size-catalog-image": 80,
   "size-catalog-text": 16,
   "size-catalog-bade": 20,

@@ -281,6 +281,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("color-viewer-scrollbar-tarck", Required = Required.Always)]
 		public string ViewerScollbarTrackColor { get; private set; }
 
+		[JsonProperty("color-viewer-map-futaba")]
+		public Dictionary<string, string> ViewerFutabaColorMap { get; private set; }
+
 		[JsonProperty("size-catalog-image", Required = Required.Always)]
 		public double CatalogImageSize { get; private set; }
 		[JsonProperty("size-catalog-text", Required = Required.Always)]
@@ -377,5 +380,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	public enum StyleType {
 		Light,
 		Dark,
+	}
+
+	public class ColorMapCollection : System.Collections.ObjectModel.ObservableCollection<ColorMap> {
+		public ColorMapCollection() : base() { }
+		public ColorMapCollection(List<ColorMap> list) : base(list) { }
+		public ColorMapCollection(IEnumerable<ColorMap> collection) : base(collection) { }
+	}
+
+	public class ColorMap {
+		public Color Target { get; set; }
+		public Color Value { get; set; }
 	}
 }

@@ -246,6 +246,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				this.Resources["ThreadHeaderNameColor"] = threadHeaderNameForeground;
 				this.Resources["ThreadHeaderMailColor"] = threadHeaderMailForeground;
 				this.Resources["ThreadHeaderSoudaneColor"] = threadHeaderSoudaneForeground;
+
+				var mapArray = style.ViewerFutabaColorMap
+					?.Select(x => new PlatformData.ColorMap() {
+						Target = style.ToWpfColor(x.Key),
+						Value = style.ToWpfColor(x.Value),
+					}).ToArray() ?? new PlatformData.ColorMap[0];
+				this.Resources["FutabaCommentColorMap"] = new PlatformData.ColorMapCollection(mapArray);
 			}
 
 			this.Resources["CatalogImageSize"] = style.CatalogImageSize;
