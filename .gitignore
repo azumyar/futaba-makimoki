@@ -1,8 +1,8 @@
 /**/**/bin
 /**/**/obj
 
-MakiMoki/MakiMoki.Droid/
 .vs/
 publish/
+MakiMoki/
 *.csproj.user
-MakiMoki/MakiMoki.Wpf/Properties/AssemblyInfoDebug.cs
+src/wpf/MakiMoki.Wpf/Properties/AssemblyInfoDebug.cs

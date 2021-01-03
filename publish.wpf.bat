@@ -7,8 +7,11 @@ set DOTNET_CLI_TELEMETRY_OPTOUT=1
 @rem 基本設定
 set DOTNET="%ProgramFiles%\dotnet\dotnet.exe"
 set CONF_FILE=publish.wpf.conf.json
+set TARGET_PLATFORM=win
+set TARGET_ARCH=x64
+set TARGET_RUNTIME=%TARGET_PLATFORM%-%TARGET_ARCH%
 set TARGET_SLN=MakiMoki.sln
-set TARGET_PRJ=MakiMoki\MakiMoki.Wpf\MakiMoki.Wpf.csproj
+set TARGET_PRJ=src\wpf\MakiMoki.Wpf\MakiMoki.Wpf.csproj
 set OUTPUT_ROOT=publish
 set OUTPUT_DIR=%OUTPUT_ROOT%\FutaMaki
 for /f %%a in ('powershell -Command "(Get-Content %CONF_FILE% | ConvertFrom-Json).version"') do set VERSION=%%a
@@ -22,11 +25,11 @@ if exist %OUTPUT_ROOT%\%OUTPUT_ZIP% echo 既にアーカイブが存在します & goto end
 @rem ビルド
 if exist %OUTPUT_DIR% rd /s /q %OUTPUT_DIR% 
 %DOTNET% restore
-%DOTNET% clean --nologo -c Release
+%DOTNET% clean --nologo -c Release  -r %TARGET_RUNTIME%
 %DOTNET% publish ^
    --nologo ^
-   -r win-x64 ^
    -c Release ^
+   -r %TARGET_RUNTIME% ^
    -o %OUTPUT_DIR% ^
    %TARGET_PRJ%
 if not %errorlevel%==0 goto end

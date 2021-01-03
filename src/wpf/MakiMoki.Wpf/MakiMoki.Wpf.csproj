@@ -9,6 +9,7 @@
     <RootNamespace>Yarukizero.Net.MakiMoki.Wpf</RootNamespace>
     <AssemblyName>futamaki</AssemblyName>
     <TargetFramework>net5.0-windows</TargetFramework>
+    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <AssemblyTitle>ふたマキ</AssemblyTitle>
@@ -53,8 +54,8 @@
     <EmbeddedResource Include="WpfConfig\windows.style.dark.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MakiMoki.Core.Ng\MakiMoki.Core.Ng.csproj" />
-    <ProjectReference Include="..\MakiMoki.Core\MakiMoki.Core.csproj" />
+    <ProjectReference Include="..\..\core\MakiMoki.Core.Ng\MakiMoki.Core.Ng.csproj" />
+    <ProjectReference Include="..\..\core\MakiMoki.Core\MakiMoki.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Emoji.Wpf" Version="0.1.5" />
