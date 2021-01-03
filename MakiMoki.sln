@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29519.87
@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{29E060A0-1293-480F-B9B9-AC015E8DD64F}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		publish.wpf.bat = publish.wpf.bat
 		publish.wpf.conf.json = publish.wpf.conf.json
@@ -23,12 +24,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D706AD32-07A7-4616-973D-5A5F2545535A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D706AD32-07A7-4616-973D-5A5F2545535A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D706AD32-07A7-4616-973D-5A5F2545535A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{D706AD32-07A7-4616-973D-5A5F2545535A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D706AD32-07A7-4616-973D-5A5F2545535A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D706AD32-07A7-4616-973D-5A5F2545535A}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{5BA0BF4B-823D-413A-86D9-EB5B3D719B22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5BA0BF4B-823D-413A-86D9-EB5B3D719B22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BA0BF4B-823D-413A-86D9-EB5B3D719B22}.Release|Any CPU.ActiveCfg = Release|Any CPU

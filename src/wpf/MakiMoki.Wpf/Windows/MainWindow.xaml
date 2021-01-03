@@ -1,4 +1,4 @@
-﻿<Window x:Class="Yarukizero.Net.MakiMoki.Wpf.Windows.MainWindow"
+<Window x:Class="Yarukizero.Net.MakiMoki.Wpf.Windows.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -106,7 +106,8 @@
                                     <Viewbox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Top">
                                         <Canvas Width="1024" Height="1024" Opacity="0.6">
                                             <Path Width="768" Height="512" Canvas.Left="128" Canvas.Top="352" Stretch="Fill" Fill="#FFFFFFFF" Data="F1 M 768,576C 682.866,576 569.422,543.679 528,498.924L 528,864L 496,864L 496,498.924C 454.578,543.679 341.133,576 256,576C 149.961,576 128,525.856 128,464C 128,402.144 149.961,352 256,352C 362.038,352 512,402.144 512,464C 512,402.144 661.961,352 768,352C 874.039,352 896,402.144 896,464C 896,525.856 874.039,576 768,576 Z M 512,464L 511.993,464.75L 512.007,464.75C 512.002,464.5 512,464.25 512,464 Z "/>
-                                        </Canvas>                                    </Viewbox>
+                                        </Canvas>
+                                    </Viewbox>
 
                                     <ScrollViewer
                                         x:Name="scrollViewer"

@@ -1,4 +1,4 @@
-﻿using Prism.Events;
+using Prism.Events;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;

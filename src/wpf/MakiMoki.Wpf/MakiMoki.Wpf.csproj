@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{E637E7F7-50C9-41C6-B82D-FE6AC7A5CB30}</ProjectGuid>
     <OutputType>WinExe</OutputType>

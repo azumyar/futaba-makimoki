@@ -1,4 +1,4 @@
-﻿using Reactive.Bindings;
+using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
 using System.IO;

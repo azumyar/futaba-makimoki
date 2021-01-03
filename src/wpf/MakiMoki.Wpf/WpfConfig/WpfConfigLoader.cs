@@ -1,4 +1,4 @@
-﻿using AngleSharp;
+using AngleSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;

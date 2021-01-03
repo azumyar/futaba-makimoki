@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Yarukizero.Net.MakiMoki.Exceptions {
 	public class InitializeFailedException : Exception {

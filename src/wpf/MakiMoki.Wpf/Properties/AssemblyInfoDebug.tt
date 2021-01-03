@@ -1,4 +1,4 @@
-﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ assembly name="System.Core" #>
 /*#@ assembly name="System.Text.Json" #*/
 <#@ assembly name="EnvDTE" #>

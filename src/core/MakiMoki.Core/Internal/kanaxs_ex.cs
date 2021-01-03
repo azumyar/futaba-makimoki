@@ -1,4 +1,4 @@
-﻿/*
+/*
  * kanaxs C# 拡張版 1.0.2
  * Copyright (c) 2011, DOBON! <http://dobon.net>
  * All rights reserved.
@@ -97,7 +97,7 @@ namespace CSharp.Japanese.Kanaxs {
         /// <param name="str">変換する String。</param>
         /// <returns>変換された String。</returns>
         /// <remarks>
-        /// Kana.ToHankakuメソッドと違い、「￥”’」も変換します。
+        /// Kana.ToHankakuメソッドと違い、「¥”’」も変換します。
         /// </remarks>
         public static string ToHankaku(string str) {
             if(str == null || str.Length == 0) {
@@ -116,7 +116,7 @@ namespace CSharp.Japanese.Kanaxs {
                 // 全角スペース(0x3000) -> 半角スペース(0x0020)
                 else if(c == '　') {
                     cs[i] = ' ';
-                } else if(c == '￥') {
+                } else if(c == '¥') {
                     cs[i] = '\\';
                 } else if(c == '”' || c == '“') {
                     cs[i] = '"';
@@ -134,7 +134,7 @@ namespace CSharp.Japanese.Kanaxs {
         /// <param name="str">変換する String。</param>
         /// <returns>変換された String。</returns>
         /// <remarks>
-        /// Kana.ToZenkakuメソッドと違い、「\"'」を「￥”’」に変換します。
+        /// Kana.ToZenkakuメソッドと違い、「\"'」を「¥”’」に変換します。
         /// </remarks>
         public static string ToZenkaku(string str) {
             if(str == null || str.Length == 0) {
@@ -147,7 +147,7 @@ namespace CSharp.Japanese.Kanaxs {
             for(int i = 0; i < f; i++) {
                 char c = cs[i];
                 if(c == '\\') {
-                    cs[i] = '￥';
+                    cs[i] = '¥';
                 } else if(c == '"') {
                     cs[i] = '”';
                 } else if(c == '\'') {
@@ -196,28 +196,28 @@ namespace CSharp.Japanese.Kanaxs {
                     // カ(0x30AB) ～ ド(0x30C9)
                     else if('カ' <= c && c <= 'ド') {
                         cs[len++] = ConvertToHankakuKanaChar((char)(c - 1));
-                        cs[len++] = 'ﾞ';
+                        cs[len++] = '゛';
                     }
                     // ハ(0x30CF) ～ ポ(0x30DD)
                     else if('ハ' <= c && c <= 'ポ') {
                         int mod3 = c % 3;
                         cs[len++] = ConvertToHankakuKanaChar((char)(c - mod3));
-                        cs[len++] = (mod3 == 1 ? 'ﾞ' : 'ﾟ');
+                        cs[len++] = (mod3 == 1 ? '゛' : '゜');
                     }
                     // ヴ(0x30F4)
                     else if(c == 'ヴ') {
-                        cs[len++] = 'ｳ';
-                        cs[len++] = 'ﾞ';
+                        cs[len++] = 'ウ';
+                        cs[len++] = '゛';
                     }
                     // ヷ(0x30F7)
                     else if(c == 'ヷ') {
-                        cs[len++] = 'ﾜ';
-                        cs[len++] = 'ﾞ';
+                        cs[len++] = 'ワ';
+                        cs[len++] = '゛';
                     }
                     // ヺ(0x30FA)
                     else if(c == 'ヺ') {
-                        cs[len++] = 'ｦ';
-                        cs[len++] = 'ﾞ';
+                        cs[len++] = 'ヲ';
+                        cs[len++] = '゛';
                     } else {
                         cs[len++] = c;
                     }
@@ -235,7 +235,7 @@ namespace CSharp.Japanese.Kanaxs {
         /// <param name="str">変換する String。</param>
         /// <returns>変換された String。</returns>
         /// <remarks>
-        /// Kana.ToZenkakuKanaと違い、「｡｢｣､･」も変換します。
+        /// Kana.ToZenkakuKanaと違い、「。「」、・」も変換します。
         /// また、濁点、半濁点がその前の文字と合体できる時は合体させて1文字にします。
         /// </remarks>
         public static string ToZenkakuKana(string str) {
@@ -250,35 +250,35 @@ namespace CSharp.Japanese.Kanaxs {
                 char c = str[i];
 
                 // 濁点(0xFF9E)
-                if(c == 'ﾞ' && 0 < i) {
+                if(c == '゛' && 0 < i) {
                     char c2 = str[i - 1];
-                    // ｶ(0xFF76) ～ ﾁ(0xFF81)
-                    if('ｶ' <= c2 && c2 <= 'ﾁ') {
+                    // カ(0xFF76) ～ チ(0xFF81)
+                    if('カ' <= c2 && c2 <= 'チ') {
                         cs[pos--] = (char)((c2 - 0xFF76) * 2 + 0x30AC);
                         i--;
                     }
-                    // ﾂ(0xFF82) ～ ﾄ(0xFF84)
-                    else if('ﾂ' <= c2 && c2 <= 'ﾄ') {
+                    // ツ(0xFF82) ～ ト(0xFF84)
+                    else if('ツ' <= c2 && c2 <= 'ト') {
                         cs[pos--] = (char)((c2 - 0xFF82) * 2 + 0x30C5);
                         i--;
                     }
-                    // ﾊ(0xFF8A) ～ ﾎ(0xFF8E)
-                    else if('ﾊ' <= c2 && c2 <= 'ﾎ') {
+                    // ハ(0xFF8A) ～ ホ(0xFF8E)
+                    else if('ハ' <= c2 && c2 <= 'ホ') {
                         cs[pos--] = (char)((c2 - 0xFF8A) * 3 + 0x30D0);
                         i--;
                     }
-                    // ｳ(0xFF73)
-                    else if(c2 == 'ｳ') {
+                    // ウ(0xFF73)
+                    else if(c2 == 'ウ') {
                         cs[pos--] = 'ヴ';
                         i--;
                     }
-                    // ﾜ(0xFF9C)
-                    else if(c2 == 'ﾜ') {
+                    // ワ(0xFF9C)
+                    else if(c2 == 'ワ') {
                         cs[pos--] = 'ヷ';
                         i--;
                     }
-                    // ｦ(0xFF66)
-                    else if(c2 == 'ｦ') {
+                    // ヲ(0xFF66)
+                    else if(c2 == 'ヲ') {
                         cs[pos--] = 'ヺ';
                         i--;
                     }
@@ -288,10 +288,10 @@ namespace CSharp.Japanese.Kanaxs {
                     }
                 }
                 // 半濁点(0xFF9F)
-                else if(c == 'ﾟ' && 0 < i) {
+                else if(c == '゜' && 0 < i) {
                     char c2 = str[i - 1];
-                    // ﾊ(0xFF8A) ～ ﾎ(0xFF8E)
-                    if('ﾊ' <= c2 && c2 <= 'ﾎ') {
+                    // ハ(0xFF8A) ～ ホ(0xFF8E)
+                    if('ハ' <= c2 && c2 <= 'ホ') {
                         cs[pos--] = (char)((c2 - 0xFF8A) * 3 + 0x30D1);
                         i--;
                     }
@@ -300,8 +300,8 @@ namespace CSharp.Japanese.Kanaxs {
                         cs[pos--] = '゜';
                     }
                 }
-                // ｡(0xFF61) ～ ﾟ(0xFF9F)
-                else if('｡' <= c && c <= 'ﾟ') {
+                // 。(0xFF61) ～ ゜(0xFF9F)
+                else if('。' <= c && c <= '゜') {
                     char m = ConvertToZenkakuKanaChar(c);
                     if(m != '\0') {
                         cs[pos--] = m;
@@ -399,143 +399,143 @@ namespace CSharp.Japanese.Kanaxs {
         private static char ConvertToHankakuKanaChar(char zenkakuChar) {
             switch(zenkakuChar) {
             case 'ァ':
-                return 'ｧ';
+                return 'ァ';
             case 'ィ':
-                return 'ｨ';
+                return 'ィ';
             case 'ゥ':
-                return 'ｩ';
+                return 'ゥ';
             case 'ェ':
-                return 'ｪ';
+                return 'ェ';
             case 'ォ':
-                return 'ｫ';
+                return 'ォ';
             case 'ー':
-                return 'ｰ';
+                return 'ー';
             case 'ア':
-                return 'ｱ';
+                return 'ア';
             case 'イ':
-                return 'ｲ';
+                return 'イ';
             case 'ウ':
-                return 'ｳ';
+                return 'ウ';
             case 'エ':
-                return 'ｴ';
+                return 'エ';
             case 'オ':
-                return 'ｵ';
+                return 'オ';
             case 'カ':
-                return 'ｶ';
+                return 'カ';
             case 'キ':
-                return 'ｷ';
+                return 'キ';
             case 'ク':
-                return 'ｸ';
+                return 'ク';
             case 'ケ':
-                return 'ｹ';
+                return 'ケ';
             case 'コ':
-                return 'ｺ';
+                return 'コ';
             case 'サ':
-                return 'ｻ';
+                return 'サ';
             case 'シ':
-                return 'ｼ';
+                return 'シ';
             case 'ス':
-                return 'ｽ';
+                return 'ス';
             case 'セ':
-                return 'ｾ';
+                return 'セ';
             case 'ソ':
-                return 'ｿ';
+                return 'ソ';
             case 'タ':
-                return 'ﾀ';
+                return 'タ';
             case 'チ':
-                return 'ﾁ';
+                return 'チ';
             case 'ツ':
-                return 'ﾂ';
+                return 'ツ';
             case 'テ':
-                return 'ﾃ';
+                return 'テ';
             case 'ト':
-                return 'ﾄ';
+                return 'ト';
             case 'ナ':
-                return 'ﾅ';
+                return 'ナ';
             case 'ニ':
-                return 'ﾆ';
+                return 'ニ';
             case 'ヌ':
-                return 'ﾇ';
+                return 'ヌ';
             case 'ネ':
-                return 'ﾈ';
+                return 'ネ';
             case 'ノ':
-                return 'ﾉ';
+                return 'ノ';
             case 'ハ':
-                return 'ﾊ';
+                return 'ハ';
             case 'ヒ':
-                return 'ﾋ';
+                return 'ヒ';
             case 'フ':
-                return 'ﾌ';
+                return 'フ';
             case 'ヘ':
-                return 'ﾍ';
+                return 'ヘ';
             case 'ホ':
-                return 'ﾎ';
+                return 'ホ';
             case 'マ':
-                return 'ﾏ';
+                return 'マ';
             case 'ミ':
-                return 'ﾐ';
+                return 'ミ';
             case 'ム':
-                return 'ﾑ';
+                return 'ム';
             case 'メ':
-                return 'ﾒ';
+                return 'メ';
             case 'モ':
-                return 'ﾓ';
+                return 'モ';
             case 'ヤ':
-                return 'ﾔ';
+                return 'ヤ';
             case 'ユ':
-                return 'ﾕ';
+                return 'ユ';
             case 'ヨ':
-                return 'ﾖ';
+                return 'ヨ';
             case 'ラ':
-                return 'ﾗ';
+                return 'ラ';
             case 'リ':
-                return 'ﾘ';
+                return 'リ';
             case 'ル':
-                return 'ﾙ';
+                return 'ル';
             case 'レ':
-                return 'ﾚ';
+                return 'レ';
             case 'ロ':
-                return 'ﾛ';
+                return 'ロ';
             case 'ワ':
-                return 'ﾜ';
+                return 'ワ';
             case 'ヲ':
-                return 'ｦ';
+                return 'ヲ';
             case 'ン':
-                return 'ﾝ';
+                return 'ン';
             case 'ッ':
-                return 'ｯ';
+                return 'ッ';
 
             //ャュョ を追加
             case 'ャ':
-                return 'ｬ';
+                return 'ャ';
             case 'ュ':
-                return 'ｭ';
+                return 'ュ';
             case 'ョ':
-                return 'ｮ';
+                return 'ョ';
 
             // 、。「」・ を追加
             case '、':
-                return '､';
+                return '、';
             case '。':
-                return '｡';
+                return '。';
             case '「':
-                return '｢';
+                return '「';
             case '」':
-                return '｣';
+                return '」';
             case '・':
-                return '･';
+                return '・';
 
             //゛゜ を追加
             case '゛':
-                return 'ﾞ';
+                return '゛';
             case '゜':
-                return 'ﾟ';
+                return '゜';
 
             //U+3099とU+309Aの濁点と半濁点を追加
             case '\u3099':
-                return 'ﾞ';
+                return '゛';
             case '\u309A':
-                return 'ﾟ';
+                return '゜';
 
             default:
                 return '\0';
@@ -544,135 +544,135 @@ namespace CSharp.Japanese.Kanaxs {
 
         private static char ConvertToZenkakuKanaChar(char hankakuChar) {
             switch(hankakuChar) {
-            case 'ｦ':
+            case 'ヲ':
                 return 'ヲ';
-            case 'ｧ':
+            case 'ァ':
                 return 'ァ';
-            case 'ｨ':
+            case 'ィ':
                 return 'ィ';
-            case 'ｩ':
+            case 'ゥ':
                 return 'ゥ';
-            case 'ｪ':
+            case 'ェ':
                 return 'ェ';
-            case 'ｫ':
+            case 'ォ':
                 return 'ォ';
-            case 'ｰ':
+            case 'ー':
                 return 'ー';
-            case 'ｱ':
+            case 'ア':
                 return 'ア';
-            case 'ｲ':
+            case 'イ':
                 return 'イ';
-            case 'ｳ':
+            case 'ウ':
                 return 'ウ';
-            case 'ｴ':
+            case 'エ':
                 return 'エ';
-            case 'ｵ':
+            case 'オ':
                 return 'オ';
-            case 'ｶ':
+            case 'カ':
                 return 'カ';
-            case 'ｷ':
+            case 'キ':
                 return 'キ';
-            case 'ｸ':
+            case 'ク':
                 return 'ク';
-            case 'ｹ':
+            case 'ケ':
                 return 'ケ';
-            case 'ｺ':
+            case 'コ':
                 return 'コ';
-            case 'ｻ':
+            case 'サ':
                 return 'サ';
-            case 'ｼ':
+            case 'シ':
                 return 'シ';
-            case 'ｽ':
+            case 'ス':
                 return 'ス';
-            case 'ｾ':
+            case 'セ':
                 return 'セ';
-            case 'ｿ':
+            case 'ソ':
                 return 'ソ';
-            case 'ﾀ':
+            case 'タ':
                 return 'タ';
-            case 'ﾁ':
+            case 'チ':
                 return 'チ';
-            case 'ﾂ':
+            case 'ツ':
                 return 'ツ';
-            case 'ﾃ':
+            case 'テ':
                 return 'テ';
-            case 'ﾄ':
+            case 'ト':
                 return 'ト';
-            case 'ﾅ':
+            case 'ナ':
                 return 'ナ';
-            case 'ﾆ':
+            case 'ニ':
                 return 'ニ';
-            case 'ﾇ':
+            case 'ヌ':
                 return 'ヌ';
-            case 'ﾈ':
+            case 'ネ':
                 return 'ネ';
-            case 'ﾉ':
+            case 'ノ':
                 return 'ノ';
-            case 'ﾊ':
+            case 'ハ':
                 return 'ハ';
-            case 'ﾋ':
+            case 'ヒ':
                 return 'ヒ';
-            case 'ﾌ':
+            case 'フ':
                 return 'フ';
-            case 'ﾍ':
+            case 'ヘ':
                 return 'ヘ';
-            case 'ﾎ':
+            case 'ホ':
                 return 'ホ';
-            case 'ﾏ':
+            case 'マ':
                 return 'マ';
-            case 'ﾐ':
+            case 'ミ':
                 return 'ミ';
-            case 'ﾑ':
+            case 'ム':
                 return 'ム';
-            case 'ﾒ':
+            case 'メ':
                 return 'メ';
-            case 'ﾓ':
+            case 'モ':
                 return 'モ';
-            case 'ﾔ':
+            case 'ヤ':
                 return 'ヤ';
-            case 'ﾕ':
+            case 'ユ':
                 return 'ユ';
-            case 'ﾖ':
+            case 'ヨ':
                 return 'ヨ';
-            case 'ﾗ':
+            case 'ラ':
                 return 'ラ';
-            case 'ﾘ':
+            case 'リ':
                 return 'リ';
-            case 'ﾙ':
+            case 'ル':
                 return 'ル';
-            case 'ﾚ':
+            case 'レ':
                 return 'レ';
-            case 'ﾛ':
+            case 'ロ':
                 return 'ロ';
-            case 'ﾜ':
+            case 'ワ':
                 return 'ワ';
-            case 'ﾝ':
+            case 'ン':
                 return 'ン';
-            case 'ﾞ':
+            case '゛':
                 return '゛';
-            case 'ﾟ':
+            case '゜':
                 return '゜';
 
-            // ｬｭｮｯ を追加
-            case 'ｬ':
+            // ャュョッ を追加
+            case 'ャ':
                 return 'ャ';
-            case 'ｭ':
+            case 'ュ':
                 return 'ュ';
-            case 'ｮ':
+            case 'ョ':
                 return 'ョ';
-            case 'ｯ':
+            case 'ッ':
                 return 'ッ';
 
-            // ｡｢｣､･ を追加
-            case '｡':
+            // 。「」、・ を追加
+            case '。':
                 return '。';
-            case '｢':
+            case '「':
                 return '「';
-            case '｣':
+            case '」':
                 return '」';
-            case '､':
+            case '、':
                 return '、';
-            case '･':
+            case '・':
                 return '・';
 
             default:

@@ -1,4 +1,4 @@
-﻿using AngleSharp.Common;
+using AngleSharp.Common;
 using AngleSharp.Text;
 using Newtonsoft.Json;
 using System;
