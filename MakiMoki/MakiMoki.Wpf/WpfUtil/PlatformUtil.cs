@@ -9,6 +9,15 @@ using System.Threading.Tasks;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 	static class PlatformUtil {
+		public static string GetExePath() {
+#if DEBUG
+			var exe = System.Reflection.Assembly.GetExecutingAssembly().Location;
+			return string.IsNullOrEmpty(exe) ? Environment.GetCommandLineArgs()[0] : exe;
+#else
+			return Environment.GetCommandLineArgs()[0];
+#endif
+		}
+
 		public static void StartBrowser(Uri uri) {
 			var b = WpfConfig.WpfConfigLoader.SystemConfig.BrowserPath;
 			try {
@@ -40,7 +49,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 							var b = await ret.Content.ReadAsByteArrayAsync();
 							var r = JsonConvert.DeserializeObject<PlatformData.VersionCheckResponse>(Encoding.UTF8.GetString(b));
 							if(r.Period.HasValue) {
-								var exe = System.Reflection.Assembly.GetExecutingAssembly().Location;
+								var exe = GetExePath();
 								var ver = System.Diagnostics.FileVersionInfo.GetVersionInfo(exe);
 								return ver.FileMinorPart < r.Period.Value;
 							}
@@ -54,14 +63,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		}
 
 		public static string GetContentType() {
-			var exe = System.Reflection.Assembly.GetExecutingAssembly().Location;
+			var exe = GetExePath();
 			var ver = System.Diagnostics.FileVersionInfo.GetVersionInfo(exe);
 			return string.Format("FutaMaki/period.{0:00}", ver.FileMinorPart);
 
 		}
 
 		public static string GetArchiveFileName() {
-			var exe = System.Reflection.Assembly.GetExecutingAssembly().Location;
+			var exe = GetExePath();
 			var ver = System.Diagnostics.FileVersionInfo.GetVersionInfo(exe);
 			return string.Format("{0}-{1:000}", Path.GetFileNameWithoutExtension(exe), ver.FileMinorPart);
 		}

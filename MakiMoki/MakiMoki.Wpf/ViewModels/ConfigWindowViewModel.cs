@@ -9,7 +9,6 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using System.Windows;
 using Yarukizero.Net.MakiMoki.Wpf.PlatformData;
 using Yarukizero.Net.MakiMoki.Wpf.WpfConfig;

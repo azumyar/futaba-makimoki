@@ -7,13 +7,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		publish.wpf.bat = publish.wpf.bat
+		publish.wpf.conf.json = publish.wpf.conf.json
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MakiMoki.Droid", "MakiMoki\MakiMoki.Droid\MakiMoki.Droid.csproj", "{D706AD32-07A7-4616-973D-5A5F2545535A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakiMoki.Core", "MakiMoki\MakiMoki.Core\MakiMoki.Core.csproj", "{5BA0BF4B-823D-413A-86D9-EB5B3D719B22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MakiMoki.Wpf", "MakiMoki\MakiMoki.Wpf\MakiMoki.Wpf.csproj", "{E637E7F7-50C9-41C6-B82D-FE6AC7A5CB30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakiMoki.Wpf", "MakiMoki\MakiMoki.Wpf\MakiMoki.Wpf.csproj", "{E637E7F7-50C9-41C6-B82D-FE6AC7A5CB30}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakiMoki.Core.Ng", "MakiMoki\MakiMoki.Core.Ng\MakiMoki.Core.Ng.csproj", "{2E7E97A0-5AC2-441E-8EEB-07135359830F}"
 EndProject

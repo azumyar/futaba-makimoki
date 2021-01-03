@@ -3,3 +3,6 @@
 
 MakiMoki/MakiMoki.Droid/
 .vs/
+publish/
+*.csproj.user
+MakiMoki/MakiMoki.Wpf/Properties/AssemblyInfoDebug.cs

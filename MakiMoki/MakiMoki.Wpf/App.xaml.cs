@@ -24,6 +24,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 	public partial class App : PrismApplication {
 		private static readonly string ExeConfig = "windows.exe.json";
 
+		static App() {
+			System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+		}
+
 		public string AppSettingRootDirectory { get; private set; }
 		public string AppWorkDirectory { get; private set; }
 		public string AppCacheDirectory { get; private set; }
@@ -51,16 +55,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				}
 			};
 			WinApi.Win32.SetDllDirectory(Path.Combine(
-				Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
+				AppContext.BaseDirectory,
 				"Lib",
 				Environment.Is64BitProcess ? "x64" : "x86"));
 
 			UIDispatcherScheduler.Initialize();
-			LibVLCSharp.Shared.Core.Initialize();
+			LibVLCSharp.Shared.Core.Initialize(Path.Combine(
+				AppContext.BaseDirectory,
+				"libvlc",
+				Environment.Is64BitProcess ? "win-x64" : "win-x86"));
 			this.LibVLC = new LibVLCSharp.Shared.LibVLC();
 
 			try {
-				SystemDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Config.d");
+				SystemDirectory = Path.Combine(System.AppContext.BaseDirectory, "Config.d");
 				var exeConf = Path.Combine(SystemDirectory, ExeConfig);
 				if(File.Exists(exeConf)) {
 					Util.FileUtil.LoadConfigHelper(exeConf,
@@ -81,7 +88,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 								}
 								return null;
 							}
-							var exeConfPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "SingleUser"); ;
+							var exeConfPath = Path.Combine(System.AppContext.BaseDirectory, "SingleUser"); ;
 							AppSettingRootDirectory = get(conf.IsSingleUserData, exeConfPath, conf.CustomDataPathRoot);
 							UserRootDirectory = get(conf.IsSingleUserConfig, exeConfPath, conf.CustomConfigPathRoot);
 						},
@@ -98,7 +105,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				Config.ConfigLoader.Initialize(new Config.ConfigLoader.Setting() {
 					RestUserAgent = WpfUtil.PlatformUtil.GetContentType(),
 					SystemDirectory = Path.Combine(
-						Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
+						System.AppContext.BaseDirectory,
 						"Config.d"),
 					UserDirectory = UserConfigDirectory,
 					CacheDirectory = AppCacheDirectory,
@@ -110,7 +117,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				});
 				WpfConfig.WpfConfigLoader.Initialize(new WpfConfig.WpfConfigLoader.Setting() {
 					SystemDirectory = Path.Combine(
-						Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
+						System.AppContext.BaseDirectory,
 						"Config.d"),
 					UserDirectory = UserConfigDirectory,
 					WorkDirectory = AppWorkDirectory,
