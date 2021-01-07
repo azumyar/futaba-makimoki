@@ -48,9 +48,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 			}
 		}
 
-		private static string WebMessageReady { get; } = "x-makimoki-canvas98-message:ready";
-		private static string WebMessage404 { get; } = "x-makimoki-canvas98-message:404";
-		private static string WebMessagePostSucessed { get; } = "x-makimoki-canvas98-message:post-ok";
+		private static string WebMessageReady { get; } = "x-makimoki-canvas98-message://ready";
+		private static string WebMessage404 { get; } = "x-makimoki-canvas98-message://404";
+		private static string WebMessagePostSucessed { get; } = "x-makimoki-canvas98-message://post-ok";
+		private static string WebMessagePostError { get; } = "x-makimoki-canvas98-message://post-error";
 
 		private static string MakiMokiProtocolViewClose { get; } = "x-makimoki-canvas98://close";
 		private static string MakiMokiProtocol98Open { get; } = "x-makimoki-canvas98://open98";
@@ -110,6 +111,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 						await this.webView.ExecuteScriptAsync(new StringBuilder()
 							.AppendLine("'use strict';")
 							.AppendLine("let target = null;")
+							// リダイレクトが入っている場合成功とみなす
 							.AppendLine("head: for(const el of document.head.children) {")
 							.AppendLine("  if(el.localName.toLowerCase() == 'meta') {")
 							.AppendLine("    for(const atr of el.attributes) {")
@@ -121,8 +123,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 							.AppendLine("    }")
 							.AppendLine("  }")
 							.AppendLine("}")
-							.AppendLine("if(!target && document.body.innerText.indexOf('スレッドがありません')) {")
-							.AppendLine($"  window.chrome.webview.postMessage('{ WebMessage404 }');")
+							// エラー文字列取得処理
+							.AppendLine("if(!target) {")
+							.AppendLine("  let div = null;")
+							.AppendLine("  let firstDiv = false;")
+							.AppendLine("  for(const el of document.body.children) {")
+							.AppendLine("    if(el.localName.toLowerCase() == 'div') {")
+							.AppendLine("      if(!firstDiv) {")
+							.AppendLine("        firstDiv = true;")
+							.AppendLine("      } else {")
+							.AppendLine("        div = el;")
+							.AppendLine("        break;")
+							.AppendLine("      }")
+							.AppendLine("    }")
+							.AppendLine("  }")
+							.AppendLine("  if(div) {")
+							.AppendLine("    if(div.innerText.startsWith('スレッドがありません')) {")
+							.AppendLine($"      window.chrome.webview.postMessage('{ WebMessage404 }');")
+							.AppendLine("    } else {")
+							.AppendLine(@"      const s = div.innerText.replace(/\r?\n\r?\nリロード$/i, '');")
+							.AppendLine($"      window.chrome.webview.postMessage('{ WebMessagePostError }?' + encodeURI(s));")
+							.AppendLine("      window.history.back(-1);")
+							.AppendLine("    }")
+							.AppendLine("  }")
 							.AppendLine("}")
 							.ToString());
 						break;
@@ -134,6 +157,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 					new StringBuilder()
 						.AppendLine("'use strict';")
 						.AppendLine("window.addEventListener('load', ()=>{")
+						// XMLHttpRequestを無効化する
+						.AppendLine("  XMLHttpRequest = class {")
+						.AppendLine("    constructor() {}")
+						.AppendLine("    onload")
+						.AppendLine("    open(method, f) {}")
+						.AppendLine("    send(data) {}")
+						.AppendLine("  };")
 						.AppendLine("  if(document.location.href.endsWith('.htm')) {")
 						.AppendLine("    if(document.body.bgColor != '') {")
 						// フォーム以外のノード全削除
@@ -193,6 +223,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 						.AppendLine("          const input = document.createElement('input');")
 						.AppendLine("          input.type = 'submit';")
 						.AppendLine("          input.value = '返信する';")
+						// ptfk()を呼ばないと手書きがinputにマッピングされない
+						// そのまま送信するのでXMLHttpRequestを無効化しておく必要がある
+						.AppendLine($"          input.addEventListener('click', ()=>{{")
+						.AppendLine($"            ptfk({ this.ThreadUrl.ThreadNo });")
+						.AppendLine($"            return true;")
+						.AppendLine($"           }});")
 						.AppendLine("          tr.appendChild(input);")
 						.AppendLine("        }")
 						// フォーム位置をずらす、パスワードを表示
@@ -242,6 +278,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 						this.Visibility = Visibility.Hidden;
 					}
 					this.webView.NavigateToString("");
+				} else if(message.StartsWith(WebMessagePostError)) {
+					Util.Futaba.PutInformation(new Data.Information(
+						System.Web.HttpUtility.UrlDecode(message.Substring(WebMessagePostError.Length + 1))));
 				}
 			};
 

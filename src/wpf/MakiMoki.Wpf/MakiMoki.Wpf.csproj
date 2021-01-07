@@ -109,9 +109,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Update="Config.d\windows.makimoki.canvas98.template.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Properties\AssemblyInfoDebug.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AssemblyInfoDebug.cs</LastGenOutput>
