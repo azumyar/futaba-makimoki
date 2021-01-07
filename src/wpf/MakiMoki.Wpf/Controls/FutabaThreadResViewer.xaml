@@ -15,6 +15,7 @@
              xmlns:model="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Model"
              xmlns:data="clr-namespace:Yarukizero.Net.MakiMoki.Data;assembly=MakiMoki.Core"
              xmlns:util="clr-namespace:Yarukizero.Net.MakiMoki.Util;assembly=MakiMoki.Core"
+             xmlns:c98="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls;assembly=MakiMoki.Wpf.Canvas98"
              mc:Ignorable="d" 
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -42,6 +43,7 @@
             <converter:FutabaResItemOldColorConverter x:Key="FutabaResItemOldColorConverter" />
             <converter:FutabaResItemResCountColorConverter x:Key="FutabaResItemResCountColorConverter" />
             <converter:FutabaResItemCopyTextBoxEventConverter x:Key="FutabaResItemCopyTextBoxEventConverter" />
+            <converter:FutabaEnabledTegakiResConverter x:Key="FutabaEnabledTegakiResConverter" />
             <converter:PostViewOpacityConverter x:Key="PostViewOpacityConverter" />
             <converter:PostViewMinWidthConverter x:Key="PostViewMinWidthConverter" />
             <converter:PostViewMaxWidthConverter x:Key="PostViewMaxWidthConverter" />
@@ -162,6 +164,7 @@
                             x:Name="SearchColumn"
                             Width="{Binding Contents.SearchColumnWidth.Value, Mode=OneWay, ElementName=_this}"
                             MaxWidth="320" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
@@ -414,6 +417,32 @@
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                         </Button.Background>
                         <Button.ToolTip>
+                            <ToolTip Content="はっちゃんキャンバス" />
+                        </Button.ToolTip>
+                        <Button.Visibility>
+                            <MultiBinding Converter="{StaticResource FutabaEnabledTegakiResConverter}">
+                                <Binding Path="Contents.Futaba.Value" Mode="OneWay" ElementName="_this" />
+                                <Binding Path="DataContext.Canvas98BookmarkletToken.Value" Mode="OneWay" ElementName="_this" />
+                            </MultiBinding>
+                        </Button.Visibility>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <ri:EventToReactiveCommand Command="{Binding DataContext.TegakiClickCommand, ElementName=_this}" />
+                            </i:EventTrigger>
+
+                            <i:DataTrigger Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True" Comparison="Equal">
+                                <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}}" PropertyName="IsEnabled" Value="False" />
+                            </i:DataTrigger>
+                            <i:DataTrigger Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True" Comparison="NotEqual">
+                                <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}}" PropertyName="IsEnabled" Value="True" />
+                            </i:DataTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                    <Button Grid.Column="8" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                        <Button.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                        </Button.Background>
+                        <Button.ToolTip>
                             <ToolTip Content="レス書き込み" />
                         </Button.ToolTip>
                         <i:Interaction.Triggers>
@@ -429,7 +458,7 @@
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="8" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconThreadMouseHamburger}" Width="16">
+                    <Button Grid.Column="9" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconThreadMouseHamburger}" Width="16">
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                         </Button.Background>
@@ -1092,6 +1121,13 @@
                     </i:DataStoreChangedTrigger>
                 </i:Interaction.Triggers>
             </local:FutabaPostView>
+
+            <c98:FutabaCanvas98View
+                Grid.Row="0" Grid.RowSpan="2"
+                ThreadUrl="{Binding Contents.Futaba.Value.Url, ElementName=_this}"
+                Visibility="{Binding DataContext.TegakiViewVisibility.Value, ElementName=_this, Mode=TwoWay}"
+                />
+
         </Grid>
     </Grid>
 </UserControl>

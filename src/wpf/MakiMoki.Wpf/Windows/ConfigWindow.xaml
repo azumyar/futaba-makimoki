@@ -342,6 +342,40 @@
                 </Grid>
             </TabItem>
 
+            <TabItem Header="アプリ連携">
+                <Grid>
+                    <ScrollViewer
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Visible"
+                        >
+                        <StackPanel
+                            Margin="4"
+                            TextBlock.FontFamily="メイリオ"
+                            TextBlock.FontSize="14"
+                            >
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">はっちゃんキャンバス</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>ブックマークレット</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">はっちゃんキャンバスのブックマークレットをそのまま入力してください。</TextBlock>
+                                <TextBox Text="{Binding Canvas98Bookmarklet.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="320" MaxLines="1" HorizontalAlignment="Left" />
+                                <TextBlock Visibility="{Binding WebView2RuntimeVisiblity.Value, Mode=OneWay}">
+                                    <LineBreak />
+                                    <Run>はっちゃんキャンバスの動作にはWebView2 Runtimeが必要です</Run>
+                                    <LineBreak />
+                                    <Hyperlink
+                                        NavigateUri="https://go.microsoft.com/fwlink/p/?LinkId=2124703"
+                                        Command="{Binding LinkClickCommand, Mode=OneWay}"
+                                        CommandParameter="{Binding NavigateUri, RelativeSource={RelativeSource self}}">
+                                        https://go.microsoft.com/fwlink/p/?LinkId=2124703
+                                    </Hyperlink>
+                                </TextBlock>
+
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
             <TabItem Header="情報">
                 <Grid
                     TextBlock.FontFamily="メイリオ"

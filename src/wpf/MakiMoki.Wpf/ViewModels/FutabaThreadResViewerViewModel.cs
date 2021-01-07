@@ -44,6 +44,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<RoutedEventArgs> PostClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
+		public ReactiveCommand<RoutedEventArgs> TegakiClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+
 		public ReactiveCommand<RoutedEventArgs> ThreadUpdateCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
 		public ReactiveCommand<RoutedEventArgs> ImageClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
@@ -57,6 +59,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<Visibility> PostViewVisibility { get; }
 			= new ReactiveProperty<Visibility>(Visibility.Hidden);
+		public ReactiveProperty<Visibility> TegakiViewVisibility { get; }
+			= new ReactiveProperty<Visibility>(Visibility.Hidden);
+
+		public ReactiveProperty<object> Canvas98BookmarkletToken { get; } = new ReactiveProperty<object>(DateTime.Now);
+
 
 		public ReactiveProperty<string> FilterText { get; } = new ReactiveProperty<string>("");
 
@@ -97,6 +104,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 
 		private bool isThreadImageClicking = false;
+		private readonly Action<Canvas98.Canvas98Data.Canvas98Bookmarklet> canvas98BookmarkletNotifyAction;
 
 		public FutabaThreadResViewerViewModel() {
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
@@ -107,6 +115,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			ThreadImageClickCommand.Subscribe(x => OnThreadImageClick(x));
 			ThreadUpdateCommand.Subscribe(x => OnThreadUpdateClick(x));
 			PostClickCommand.Subscribe(x => OnPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
+			TegakiClickCommand.Subscribe(x => OnTegakiClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
 			ImageClickCommand.Subscribe(x => OnImageClick(x));
 			LinkClickCommand.Subscribe(x => OnLinkClick(x));
 			QuotClickCommand.Subscribe(x => OnQuotClick(x));
@@ -140,6 +149,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			//KeyBindingSearchCommand.Subscribe(x => x);
 			KeyBindingPostCommand.Subscribe(x => UpdatePost(x));
 			//KeyBindingCloseCommand.Subscribe(x => x);
+
+			canvas98BookmarkletNotifyAction = (_) => Canvas98BookmarkletToken.Value = DateTime.Now;
+			Canvas98.Canvas98Config.Canvas98ConfigLoader.BookmarkletUpdateNotifyer.AddHandler(canvas98BookmarkletNotifyAction);
 		}
 
 		public void Dispose() {
@@ -266,6 +278,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnPostClick(Model.BindableFutaba x) {
 			if(x != null) {
 				UpdatePost(x);
+			}
+		}
+
+		private void OnTegakiClick(Model.BindableFutaba x) {
+			if(x != null) {
+				this.TegakiViewVisibility.Value = (this.TegakiViewVisibility.Value == Visibility.Hidden) ? Visibility.Visible : Visibility.Hidden;
 			}
 		}
 

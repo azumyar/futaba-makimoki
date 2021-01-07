@@ -56,6 +56,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\core\MakiMoki.Core.Ng\MakiMoki.Core.Ng.csproj" />
     <ProjectReference Include="..\..\core\MakiMoki.Core\MakiMoki.Core.csproj" />
+    <ProjectReference Include="..\MakiMoki.Wpf.Canvas98\MakiMoki.Wpf.Canvas98.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Emoji.Wpf" Version="0.1.5" />
@@ -63,6 +64,7 @@
     <PackageReference Include="LibVLCSharp.WPF" Version="3.4.9" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Prism.Unity" Version="7.2.0.1422" />
     <PackageReference Include="ReactiveProperty" Version="7.5.1" />
     <PackageReference Include="ReactiveProperty.WPF" Version="7.5.1" />
@@ -107,6 +109,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Update="Config.d\windows.makimoki.canvas98.template.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Properties\AssemblyInfoDebug.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AssemblyInfoDebug.cs</LastGenOutput>

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Yarukizero.Net.MakiMoki.Wpf.PlatformData;
 using Yarukizero.Net.MakiMoki.Wpf.WpfConfig;
+using Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class ConfigWindowViewModel : BindableBase, IDisposable {
@@ -67,6 +68,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> WindowTopmost { get; }
 		public ReactiveProperty<string> BrowserPath { get; }
 		public ReactiveProperty<int> WindowTheme { get; }
+
+		public ReactiveProperty<string> Canvas98Bookmarklet { get; }
+		public ReactiveProperty<Visibility> WebView2RuntimeVisiblity { get; }
 
 
 		public ReactiveProperty<bool> IsEnabledOkButton { get; }
@@ -189,6 +193,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 			WindowTheme = new ReactiveProperty<int>((int)WpfConfigLoader.SystemConfig.WindowTheme);
 
+			Canvas98Bookmarklet = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.Bookmarklet ?? "");
+			WebView2RuntimeVisiblity = new ReactiveProperty<Visibility>(Canvas98.Canvas98Util.Util.IsInstalledWebView2Runtime() ? Visibility.Collapsed : Visibility.Visible);
+
 			IsEnabledOkButton = new[] {
 				NgConfigCatalogNgWordRegexValid,
 				NgConfigThreadNgWordRegexValid,
@@ -284,6 +291,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				isEnabledThreadCommandPalette: IsEnabledThreadCommandPalette.Value
 			);
 			WpfConfig.WpfConfigLoader.UpdateSystemConfig(s);
+			Canvas98ConfigLoader.UpdateBookmarklet(Canvas98Bookmarklet.Value);
 		}
 
 		private void OnCancelButtonClick(RoutedEventArgs _) { }

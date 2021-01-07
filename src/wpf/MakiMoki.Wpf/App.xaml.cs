@@ -122,6 +122,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					UserDirectory = UserConfigDirectory,
 					WorkDirectory = AppWorkDirectory,
 				});
+				Canvas98.Canvas98Config.Canvas98ConfigLoader.Initialize(new Canvas98.Canvas98Config.Canvas98ConfigLoader.Setting() {
+					SystemDirectory = Path.Combine(
+						System.AppContext.BaseDirectory,
+						"Config.d"),
+					UserDirectory = UserConfigDirectory,
+				});
 			}
 			catch(Exceptions.InitializeFailedException ex) {
 				MessageBox.Show(ex.Message, "初期化エラー", MessageBoxButton.OK, MessageBoxImage.Error);

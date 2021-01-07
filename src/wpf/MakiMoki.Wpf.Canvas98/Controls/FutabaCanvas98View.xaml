@@ -1,0 +1,25 @@
+<UserControl x:Class="Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls.FutabaCanvas98View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls"
+             xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid Background="#FFFFEE">
+            <TextBlock
+                Foreground="#800000"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontFamily="メイリオ"
+                FontSize="12"
+                Text="読み込み中…" />
+        </Grid>
+        <wv2:WebView2
+            x:Name="webView"
+            Visibility="{Binding NavigationVisibility,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaCanvas98View}}"            
+            />
+    </Grid>
+</UserControl>
