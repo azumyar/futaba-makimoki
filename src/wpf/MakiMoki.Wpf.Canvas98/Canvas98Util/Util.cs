@@ -6,7 +6,12 @@ using System.Text;
 namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Util {
 	public static class Util {
 		public static bool IsInstalledWebView2Runtime() {
-			return !string.IsNullOrEmpty(CoreWebView2Environment.GetAvailableBrowserVersionString());
+			try {
+				return !string.IsNullOrEmpty(CoreWebView2Environment.GetAvailableBrowserVersionString());
+			}
+			catch(EdgeNotFoundException) {
+				return false;
+			}
 		}
 
 		public static bool IsEnabledCanvas98() {
