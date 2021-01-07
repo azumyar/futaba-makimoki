@@ -32,6 +32,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WinApi {
 
 		[DllImport("kernel32.dll")]
 		public static extern bool SetDllDirectory(string lpPathName);
+
+		[DllImport("shell32.dll")]
+		public static extern IntPtr ShellExecute(IntPtr hwnd, string lpVerb, string lpFile, string lpParameters, string lpDirectory, int nShowCmd);
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
