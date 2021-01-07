@@ -19,7 +19,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if(value is Data.FutabaContext f) {
 				return string.IsNullOrWhiteSpace(f.Url.ThreadNo) ? Visibility.Visible : Visibility.Hidden;
 			}
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(value));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
@@ -37,7 +37,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return (f.Raw.Value.ResItem.Isolate ?? false)
 					? "隔離" : $"{ f.Raw.Value.CounterCurrent }レス"; 
 			}
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(value));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
@@ -56,7 +56,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if(value is Data.FutabaContext f) {
 				return !string.IsNullOrWhiteSpace(f.Url.ThreadNo) ? Visibility.Visible : Visibility.Hidden;
 			}
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(value));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
@@ -88,7 +88,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return normalColor; // スレを受信していない場合values[0]が設定されていないのでnormalColorを返す
 			}
 
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
 			throw new NotImplementedException();
@@ -125,7 +125,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				}
 				return old ? Visibility.Visible : Visibility.Collapsed;
 			}
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(value));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
@@ -141,7 +141,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if(value is Data.FutabaContext.Item it) {
 				return (!it.ResItem.IsolateValue && (0 < (it.CounterCurrent - it.CounterPrev))) ? Visibility.Visible : Visibility.Collapsed;
 			}
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(value));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
@@ -153,7 +153,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class FutabaIdResVisibilityConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
 			if(values.Length != 2) {
-				throw new ArgumentException("型不正。", "value");
+				throw new ArgumentException("型不正。", nameof(values));
 			}
 
 			if(values[1] is bool flag) {
@@ -187,7 +187,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 					return Visibility.Collapsed;
 				}
 			}
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -204,7 +204,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 					return Visibility.Collapsed;
 				}
 			}
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -221,7 +221,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if(value is Data.FutabaContext.Item it) {
 				return it.ResItem.IsolateValue ? Visibility.Hidden : Visibility.Visible;
 			}
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(value));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
@@ -238,7 +238,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return values[1];
 			}
 
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -289,7 +289,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return i1.ApiValue == i2.ApiValue;
 			}
 
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -306,7 +306,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return (i1, i2);
 			}
 	
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -325,7 +325,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			} else if(value is int v2) {
 				return (0 < v2) ? Visibility.Visible : Visibility.Collapsed;
 			}
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(value));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
@@ -345,7 +345,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return normalColor; // スレを受信していない場合values[0]が設定されていないのでnormalColorを返す
 			}
 
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
 			throw new NotImplementedException();
@@ -366,7 +366,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return values[2];
 			}
 
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
 			throw new NotImplementedException();
@@ -396,7 +396,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return "";
 			}
 
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(value));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
@@ -413,7 +413,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if(value is string v1) {
 				return Regex.Replace(v1, @"<[^>*]>", "", RegexOptions.Multiline);
 			}
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(value));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
@@ -433,7 +433,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return Visibility.Collapsed;
 			}
 
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
 			throw new NotImplementedException();
@@ -449,7 +449,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if(value is Model.BindableFutaba v) {
 				return !v.IsDie.Value; // && !v.IsMaxRes.Value; そうだねが更新できなくなるので保留
 			}
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(value));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
@@ -466,7 +466,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return normalColor; // スレを受信していない場合values[0]が設定されていないのでnormalColorを返す
 			}
 
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -483,7 +483,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return normalColor; // スレを受信していない場合values[0]が設定されていないのでnormalColorを返す
 			}
 
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -501,7 +501,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				}
 			}
 
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -522,7 +522,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				}
 			}
 
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {

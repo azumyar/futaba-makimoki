@@ -14,7 +14,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class MediaEnumQuickSaveItemConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
 			if(values.Length != 2) {
-				throw new ArgumentException("型不正。", "values");
+				throw new ArgumentException("型不正。", nameof(values));
 			}
 
 			if((values[0] is PlatformData.FutabaMedia fm) && (WpfConfig.WpfConfigLoader.SystemConfig.MediaExportPath.Length != 0)) {

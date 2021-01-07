@@ -19,7 +19,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				return f.ResItems.Select(x => new Model.BindableFutabaResItem(x, f.Url.BaseUrl)).ToArray();
 			}
 			*/
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(value));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {

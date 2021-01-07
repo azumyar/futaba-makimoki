@@ -13,7 +13,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class TabItemWidthConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
 			if(values == null) {
-				throw new ArgumentException("型不正。", "values");
+				throw new ArgumentException("型不正。", nameof(values));
 			}
 			if(values.Length == 3) {
 				if(values[0] == null && (values[1] is double)) {
@@ -22,7 +22,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 					return aw / ti.Count() - 1; // 端数が出ると全部足したときに aw を超えるので切り捨て+余裕を持たせるために1引く
 				}
 			}
-			throw new ArgumentException("型不正。", "values");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -36,7 +36,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if(value is IEnumerable<Model.TabItem> ti) {
 				return ti.Where(x => x.Futaba.Value.Url.IsCatalogUrl);
 			}
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(value));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
@@ -55,7 +55,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				}
 				return ti;
 			}
-			throw new ArgumentException("型不正。", "values");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -77,7 +77,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				}
 				return true;
 			}
-			throw new ArgumentException("型不正。", "values");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -93,7 +93,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				}
 				return 1.0;
 			}
-			throw new ArgumentException("型不正。", "values");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -110,7 +110,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				}
 				return Visibility.Hidden;
 			}
-			throw new ArgumentException("型不正。", "values");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -124,7 +124,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				// Count() == 0の時ReverseするとAddOnSchedulerが機能しなくなる？
 				return (ti.Count() != 0) ? ti.Reverse() : ti;
 			}
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(value));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {

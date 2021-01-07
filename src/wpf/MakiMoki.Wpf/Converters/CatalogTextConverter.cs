@@ -15,7 +15,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 				return Util.TextUtil.SafeSubstring(s2, 4);
 			}
-			throw new ArgumentException("型不正。", "value");
+			throw new ArgumentException("型不正。", nameof(value));
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {

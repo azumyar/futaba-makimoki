@@ -23,7 +23,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class PostViewMinWidthConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
 			if(values.Length != 3) {
-				throw new ArgumentException("型不正。", "values");
+				throw new ArgumentException("型不正。", nameof(values));
 			}
 
 			var c = WpfConfig.WpfConfigLoader.SystemConfig;
@@ -32,7 +32,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 				return Math.Min(Math.Max(def, val), width);
 			}
-			throw new ArgumentException("型不正。", "values");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -43,7 +43,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class PostViewMaxWidthConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
 			if(values.Length != 2) {
-				throw new ArgumentException("型不正。", "values");
+				throw new ArgumentException("型不正。", nameof(values));
 			}
 
 			var c = WpfConfig.WpfConfigLoader.SystemConfig;
@@ -52,7 +52,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 				return Math.Min(width, val);
 			}
-			throw new ArgumentException("型不正。", "values");
+			throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
