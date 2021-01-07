@@ -214,7 +214,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private bool IsValidDragFile(DragEventArgs e, string[] ext) {
+		private static bool IsValidDragFile(DragEventArgs e, string[] ext) {
 			//var ext = Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext);
 			return (e.Data.GetDataPresent(DataFormats.FileDrop, false)
 				&& e.Data.GetData(System.Windows.DataFormats.FileDrop) is string[] files

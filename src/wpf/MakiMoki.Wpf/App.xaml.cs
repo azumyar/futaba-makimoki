@@ -43,14 +43,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 		protected override Window CreateShell() {
 			AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs e) {
 				if((e.ExceptionObject is Exception ex) && !string.IsNullOrEmpty(UserLogDirectory) && Directory.Exists(UserLogDirectory)) {
-					var pid = System.Diagnostics.Process.GetCurrentProcess().Id;
+					var pid = Environment.ProcessId;
 					var tid = System.Threading.Thread.CurrentThread.ManagedThreadId;
 					var d = DateTime.Now;
 
 					File.AppendAllText(
 						Path.Combine(UserLogDirectory, $"crash-{ d.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) }.txt"),
 						$"[{ d.ToString("yyyy/MM/dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture) }][{ pid }][{ tid }]{ Environment.NewLine }"
-							+ $"{ ex.ToString() }{ Environment.NewLine }",
+							+ $"{ ex }{ Environment.NewLine }",
 						System.Text.Encoding.UTF8);
 				}
 			};
@@ -95,10 +95,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 						(e, m) => throw new Exceptions.InitializeFailedException(m, e));
 				}
 
-				AppSettingRootDirectory = AppSettingRootDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FutaMaki");
+				AppSettingRootDirectory ??= Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FutaMaki");
 				AppWorkDirectory = Directory.CreateDirectory(Path.Combine(AppSettingRootDirectory, "Work")).FullName;
 				AppCacheDirectory = Directory.CreateDirectory(Path.Combine(AppSettingRootDirectory, "Work", "Cache")).FullName;
-				UserRootDirectory = UserRootDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "FutaMaki");
+				UserRootDirectory ??= Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "FutaMaki");
 				UserConfigDirectory = Directory.CreateDirectory(Path.Combine(UserRootDirectory, "Config.d")).FullName;
 				UserLogDirectory = Directory.CreateDirectory(Path.Combine(UserRootDirectory, "Log")).FullName;
 
@@ -264,7 +264,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					?.Select(x => new PlatformData.ColorMap() {
 						Target = style.ToWpfColor(x.Key),
 						Value = style.ToWpfColor(x.Value),
-					}).ToArray() ?? new PlatformData.ColorMap[0];
+					}).ToArray() ?? Array.Empty<PlatformData.ColorMap>();
 				this.Resources["FutabaCommentColorMap"] = new PlatformData.ColorMapCollection(mapArray);
 			}
 
@@ -297,13 +297,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			var controlType = typeof(Controls.FutabaCatalogViewer);
 			var vmType = typeof(ViewModels.MainWindowViewModel);
 			var va = vmType.Assembly.GetTypes().Where(x => x.Namespace == vmType.Namespace).ToArray();
-			var m = typeof(ViewModelLocationProvider).GetMethod("Register", new Type[0]);
+			var m = typeof(ViewModelLocationProvider).GetMethod("Register", Array.Empty<Type>());
 			System.Diagnostics.Debug.Assert(m != null);
 			foreach(var t in controlType.Assembly.GetTypes().Where(x => (x.Namespace == windowType.Namespace) || (x.Namespace == controlType.Namespace))) {
 				var vm = va.Where(x => x.FullName == $"{ x.Namespace }.{ t.Name }ViewModel").FirstOrDefault();
 				if(vm != null) {
 					System.Diagnostics.Debug.WriteLine($"Register: { vm.Name }");
-					m.MakeGenericMethod(t, vm).Invoke(null, new object[0]);
+					m.MakeGenericMethod(t, vm).Invoke(null, Array.Empty<object>());
 				}
 			}
 		}

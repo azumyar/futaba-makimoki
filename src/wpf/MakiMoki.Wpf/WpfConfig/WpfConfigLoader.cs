@@ -34,7 +34,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 
 			T getPath<T>(string path, T defaultValue, Func<string, T> convFunc = null) {
 				var r = defaultValue;
-				convFunc = convFunc ?? ((j) => Newtonsoft.Json.JsonConvert.DeserializeObject<T>(j));
+				convFunc ??= ((j) => Newtonsoft.Json.JsonConvert.DeserializeObject<T>(j));
 				if(File.Exists(path)) {
 					Util.FileUtil.LoadConfigHelper(path,
 						(json) => r = convFunc(json),
@@ -105,8 +105,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 
 		public static void UpdatePlacementByWindowClosing(Window window) {
 			var hwnd = new WindowInteropHelper(window).Handle;
-			var placement = new WinApi.WINDOWPLACEMENT();
-			placement.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(WinApi.WINDOWPLACEMENT));
+			var placement = new WinApi.WINDOWPLACEMENT() {
+				length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(WinApi.WINDOWPLACEMENT))
+			};
 			WinApi.Win32.GetWindowPlacement(hwnd, ref placement);
 			Placement.WindowPlacement = placement;
 
