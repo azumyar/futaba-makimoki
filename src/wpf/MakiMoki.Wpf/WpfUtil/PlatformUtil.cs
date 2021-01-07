@@ -26,6 +26,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						Arguments = $"\"{ uri.AbsoluteUri }\""
 					});
 				} else {
+					//.Net Coreでは動かない
 					//System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(uri.AbsoluteUri));
 					WinApi.Win32.ShellExecute(IntPtr.Zero, null, uri.AbsoluteUri, null, null, WinApi.Win32.SW_SHOW);
 				}
