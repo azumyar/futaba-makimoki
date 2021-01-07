@@ -92,7 +92,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			NgConfigCatalogNgWordRegexValid = NgConfigCatalogNgWordRegex.Select(x => {
 				foreach(var r in x.Replace("\r", "").Split('\n')) {
 					try {
-						new Regex(r);
+						_ = new Regex(r);
 					}
 					catch(ArgumentException) {
 						return false;
@@ -106,7 +106,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			NgConfigThreadNgWordRegexValid = NgConfigThreadNgWordRegex.Select(x => {
 				foreach(var r in x.Replace("\r", "").Split('\n')) {
 					try {
-						new Regex(r);
+						_ = new Regex(r);
 					}
 					catch(ArgumentException) {
 						return false;

@@ -73,9 +73,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 
 		private static void OnInlinePropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
 			if((obj is TextBlock tb) && (e.NewValue is Model.BindableFutabaResItem item)) {
-				a(tb, item, (tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue);
+				ParseComment(tb, item, (tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue);
 				// メモリリークする気がする
-				item?.DisplayHtml.Subscribe(x => a(
+				item?.DisplayHtml.Subscribe(x => ParseComment(
 					tb,
 					GetInline(tb),
 					(tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue));
@@ -83,11 +83,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 		private static void OnMaxLinesPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
 			if((obj is TextBlock tb) && (e.NewValue is int maxLines)) {
-				a(tb, GetInline(tb), maxLines);
+				ParseComment(tb, GetInline(tb), maxLines);
 			}
 		}
 
-		private static void a(TextBlock tb, Model.BindableFutabaResItem item, int maxLines) {
+		private static void ParseComment(TextBlock tb, Model.BindableFutabaResItem item, int maxLines) {
 			var cmc = Application.Current?.TryFindResource("FutabaCommentColorMap") as PlatformData.ColorMapCollection;
 			tb.Text = null;
 			tb.Inlines.Clear();
@@ -216,7 +216,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			}
 
 
-			var zeroQuot = new Data.FutabaContext.Quot[0];
+			var zeroQuot = Array.Empty<Data.FutabaContext.Quot>();
 			var disp = item.DisplayHtml.Value ?? "";
 			var orig = item.OriginHtml.Value ?? "";
 			var headLine = (disp == orig) ? item.HeadLineHtml.Value : "";
@@ -384,7 +384,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 		
 		private static void OnLoadedLink(object sender, RoutedEventArgs e) {
-			void setLink(Hyperlink targetLink, Uri targetUri = null) {
+			static void setLink(Hyperlink targetLink, Uri targetUri = null) {
 				targetLink.NavigateUri = targetUri ?? targetLink.NavigateUri;
 				targetLink.Foreground = new SolidColorBrush(GetLinkColor());
 				targetLink.RequestNavigate += OnRequestNavigate;
@@ -405,7 +405,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						} else if(link.NavigateUri.Authority == SharadConst.MkiMokiCompleteUrlAuthorityShiokara) {
 							o = Futaba.GetCompleteUrlShiokara(ri.Parent.Value.Url, link.NavigateUri.AbsolutePath.Substring(1));
 						} else {
-							Futaba.PutInformation(new Data.Information($"不明なURL{ link.NavigateUri.ToString() }"));
+							Futaba.PutInformation(new Data.Information($"不明なURL{ link.NavigateUri }"));
 						}
 						o?.Subscribe(x => {
 							if(x.Successed) {
@@ -429,22 +429,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 
 		private static void OnMouseEnterLink(object sender, MouseEventArgs e) {
-			var link = sender as Hyperlink;
-			if(link == null)
-				return;
-
-			link.TextDecorations = System.Windows.TextDecorations.Underline;
-			link.Foreground = new SolidColorBrush(GetLinkActiveColor());
+			if(sender is Hyperlink link) {
+				link.TextDecorations = System.Windows.TextDecorations.Underline;
+				link.Foreground = new SolidColorBrush(GetLinkActiveColor());
+			}
 		}
 
 		private static void OnMouseLeaveLink(object sender, MouseEventArgs e) {
-			var link = sender as Hyperlink;
-			var parent = link.Parent as TextBlock;
-			if(link == null || parent == null)
-				return;
-
-			link.TextDecorations = null;
-			link.Foreground = new SolidColorBrush(GetLinkColor());
+			if((sender is Hyperlink link) /* && (link.Parent is TextBlock parent) */) {
+				link.TextDecorations = null;
+				link.Foreground = new SolidColorBrush(GetLinkColor());
+			}
 		}
 
 		private static Color GetLinkColor() {

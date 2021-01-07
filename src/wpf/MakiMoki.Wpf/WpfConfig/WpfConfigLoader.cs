@@ -17,7 +17,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 		internal static readonly string StyleLightConfigFile = "windows.style.light.json";
 		internal static readonly string StyleDarkConfigFile = "windows.style.dark.json";
 		internal static readonly string StyleUserConfigFile = "windows.style.user.json";
+#pragma warning disable IDE0044, IDE0052
 		private static volatile object lockObj = new object();
+#pragma warning restore IDE0052, IDE0044
 
 		public static Helpers.UpdateNotifyer<PlatformData.WpfConfig> SystemConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer<PlatformData.WpfConfig>();
 

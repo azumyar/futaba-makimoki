@@ -70,8 +70,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 			}
 		}
 
-		private Task webViewInitializeTask;
-		private Dictionary<ulong, (UrlType Type, Data.UrlContext Url)> urlCache
+		private readonly Task webViewInitializeTask;
+		private readonly Dictionary<ulong, (UrlType Type, Data.UrlContext Url)> urlCache
 			= new Dictionary<ulong, (UrlType Type, Data.UrlContext Url)>();
 		public FutabaCanvas98View() {
 			InitializeComponent();
@@ -246,7 +246,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 			this.webView.WebMessageReceived += async (s, e) => { 
 				var message = e.TryGetWebMessageAsString();
 				if(message == WebMessageReady) {
-					string conv(string p) 
+					static string conv(string p) 
 						=> new string(Newtonsoft.Json.JsonConvert.ToString(p)
 							.Replace("'", @"\'")
 							.ToCharArray()
