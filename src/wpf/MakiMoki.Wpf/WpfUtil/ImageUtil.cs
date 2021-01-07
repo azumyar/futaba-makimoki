@@ -109,7 +109,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 
 						var bitmapImage = new BitmapImage();
 						var ms = new MemoryStream();
-						bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+						bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 						ms.Position = 0;
 
 						bitmapImage.BeginInit();
