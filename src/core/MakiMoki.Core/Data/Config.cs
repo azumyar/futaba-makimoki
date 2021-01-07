@@ -82,20 +82,20 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonProperty("url", Required = Required.Always)]
 		public string Url { get; set; }
 
-		[JsonProperty("sort-index")]
-		public int? SortIndex { get; set; }
+		[JsonProperty("default-comment", DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue("本文無し")]
+		public string DefaultComment { get; set; }
 
-		[JsonProperty("display")]
-		public bool? Display { get; set; }
+		[JsonProperty("sort-index", DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(int.MaxValue)]
+		public int SortIndex { get; set; }
+
+		[JsonProperty("display", DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(true)]
+		public bool Display { get; set; }
 
 		[JsonProperty("extra", Required = Required.Always)]
 		public BordDataExtra Extra { get; set; }
-
-		[JsonIgnore]
-		public bool DisplayValue => (Display ?? true);
-
-		[JsonIgnore]
-		public int SortIndexValue => (SortIndex ?? int.MaxValue);
 	}
 
 	public class BordDataExtra : JsonObject {
@@ -117,13 +117,17 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonProperty("always-id")]
 		public bool? AlwaysId { get; set; }
 
-		[JsonProperty("max-stored-res", Required = Required.Default)]
+		[JsonProperty("max-stored-res", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(0)]
 		public int MaxStoredRes { get; set; }
 
-		[JsonProperty("max-stored-time", Required = Required.Default)]
+		[JsonProperty("max-stored-time", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(0)]
 		public int MaxStoredTime { get; set; }
+
+		[JsonProperty("enable-res-tegaki", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(false)]
+		public bool ResTegaki { get; set; }
 
 		[JsonIgnore]
 		public bool NameValue => Name ?? true;

@@ -219,7 +219,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			foreach(var k in bordDic.Keys.OrderBy(x => x)) {
 				bordList.Add(bordDic[k]);
 			}
-			Bord = CoreBordConfig.CreateAppInstance(bord, bordList.Where(x => x.DisplayValue).OrderBy(x => x.SortIndexValue).ToArray());
+			Bord = CoreBordConfig.CreateAppInstance(bord, bordList.Where(x => x.Display).OrderBy(x => x.SortIndex).ToArray());
 		}
 
 		public static Setting InitializedSetting { get; private set; }
