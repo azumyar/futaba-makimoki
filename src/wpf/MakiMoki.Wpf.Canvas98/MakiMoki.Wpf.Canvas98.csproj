@@ -1,10 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import
+    Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets"
+    Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')"/>
 
   <PropertyGroup>
     <TargetFramework>net5.0-windows</TargetFramework>
     <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
     <UseWPF>true</UseWPF>
     <RootNamespace>Yarukizero.Net.MakiMoki.Wpf.Canvas98</RootNamespace>
+    <TransformOnBuild Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')">true</TransformOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <ErrorReport>none</ErrorReport>
   </PropertyGroup>
 
   <ItemGroup>

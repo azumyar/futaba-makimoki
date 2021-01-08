@@ -14,31 +14,27 @@
 <#
 	var version = "";
 
-	var conf = "publish.wpf.conf.json";
-	IServiceProvider serviceProvider = this.Host as IServiceProvider;
-	EnvDTE.DTE dte = serviceProvider?.GetService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
-	if(dte != null) {
-		var confPath = Path.Combine(
-			Path.GetDirectoryName(dte.Solution.FullName),
-			conf);
-		if(File.Exists(confPath)) {
-			using(var rs = RunspaceFactory.CreateRunspace())
-			using(var ps = PowerShell.Create()) {
-				rs.Open();
-				ps.Runspace = rs;
-				var result = ps
-					.AddScript($"(Get-Content \"{ confPath }\" | ConvertFrom-Json).version")
-					.Invoke();
-				if(result?.Count == 1) {
-					version = result[0].ToString();
-				}
+	var conf = "publish.conf.json";
+	var confPath = Path.Combine(
+		Path.GetDirectoryName(this.Host.TemplateFile),
+		conf);
+	if(File.Exists(confPath)) {
+		using(var rs = RunspaceFactory.CreateRunspace())
+		using(var ps = PowerShell.Create()) {
+			rs.Open();
+			ps.Runspace = rs;
+			var result = ps
+				.AddScript($"(Get-Content \"{ confPath }\" | ConvertFrom-Json).version")
+				.Invoke();
+			if(result?.Count == 1) {
+				version = result[0].ToString();
 			}
-
-			// System.Text.Jsonでやりたい
-			//var json = File.ReadAllText(confPath, Encoding.UTF8);
-			//var jsonDic = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-			//jsonDic.TryGetValue("version", out version);
 		}
+
+		// System.Text.Jsonでやりたい
+		//var json = File.ReadAllText(confPath, Encoding.UTF8);
+		//var jsonDic = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+		//jsonDic.TryGetValue("version", out version);
 	}
 #>
 <# if(!string.IsNullOrEmpty(version)) { #>

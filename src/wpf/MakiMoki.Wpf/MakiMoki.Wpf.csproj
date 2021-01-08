@@ -1,4 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import
+    Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets"
+    Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')"/>
+
   <PropertyGroup>
     <ProjectGuid>{E637E7F7-50C9-41C6-B82D-FE6AC7A5CB30}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -17,6 +21,7 @@
     <Copyright>Copyright © by https://dev.yarukizero.net/</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <UseWPF>true</UseWPF>
+    <TransformOnBuild Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')">true</TransformOnBuild>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
