@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Newtonsoft.Json;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 	/// <summary>
@@ -23,6 +24,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 			ThreadHtml,
 			FutbaPhp,
 		}
+
+		class StoredForm : Data.JsonObject {
+			[JsonProperty("name")]
+			public string Name { get; private set; }
+			[JsonProperty("sub")]
+			public string Subject { get; private set; }
+			[JsonProperty("email")]
+			public string Email { get; private set; }
+			[JsonProperty("pwd")]
+			public string Password { get; private set; }
+		}
+
 		public static readonly DependencyProperty ContentsProperty
 			= DependencyProperty.Register(
 				nameof(ThreadUrl),
@@ -52,6 +65,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 		private static string WebMessage404 { get; } = "x-makimoki-canvas98-message://404";
 		private static string WebMessagePostSucessed { get; } = "x-makimoki-canvas98-message://post-ok";
 		private static string WebMessagePostError { get; } = "x-makimoki-canvas98-message://post-error";
+		private static string WebMessagePostStore { get; } = "x-makimoki-canvas98-message://post-store";
 
 		private static string MakiMokiProtocolViewClose { get; } = "x-makimoki-canvas98://close";
 		private static string MakiMokiProtocol98Open { get; } = "x-makimoki-canvas98://open98";
@@ -73,6 +87,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 		private readonly Task webViewInitializeTask;
 		private readonly Dictionary<ulong, (UrlType Type, Data.UrlContext Url)> urlCache
 			= new Dictionary<ulong, (UrlType Type, Data.UrlContext Url)>();
+		private StoredForm formCache;
+
 		public FutabaCanvas98View() {
 			InitializeComponent();
 			webViewInitializeTask = webView.EnsureCoreWebView2Async();
@@ -226,6 +242,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 						// ptfk()を呼ばないと手書きがinputにマッピングされない
 						// そのまま送信するのでXMLHttpRequestを無効化しておく必要がある
 						.AppendLine($"          input.addEventListener('click', ()=>{{")
+						.AppendLine("             const json = JSON.stringify({")
+						.AppendLine("               name: (document.forms.fm.name) ? document.forms.fm.name : '',")
+						.AppendLine("               sub: (document.forms.fm.sub) ? document.forms.fm.sub : '',")
+						.AppendLine("               email: document.forms.fm.email,")
+						.AppendLine("               pwd: document.forms.fm.pwd,")
+						.AppendLine("             });")
+						.AppendLine($"             window.chrome.webview.postMessage('{ WebMessagePostStore }?' + encodeURI(json));")
 						.AppendLine($"            ptfk({ this.ThreadUrl.ThreadNo });")
 						.AppendLine($"            return true;")
 						.AppendLine($"           }});")
@@ -246,7 +269,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 			this.webView.WebMessageReceived += async (s, e) => { 
 				var message = e.TryGetWebMessageAsString();
 				if(message == WebMessageReady) {
-					static string conv(string p) 
+					this.formCache = null;
+					static string conv(string p)
 						=> new string(Newtonsoft.Json.JsonConvert.ToString(p)
 							.Replace("'", @"\'")
 							.ToCharArray()
@@ -281,6 +305,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				} else if(message.StartsWith(WebMessagePostError)) {
 					Util.Futaba.PutInformation(new Data.Information(
 						System.Web.HttpUtility.UrlDecode(message.Substring(WebMessagePostError.Length + 1))));
+				} else if(message.StartsWith(WebMessagePostStore)) {
+					this.formCache = JsonConvert.DeserializeObject<StoredForm>(
+						System.Web.HttpUtility.UrlDecode(message.Substring(WebMessagePostStore.Length + 1)));
 				}
 			};
 

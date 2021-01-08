@@ -206,6 +206,8 @@ dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
 # 「IDE0042 変数の宣言を分解できます」を黙らせる
 csharp_style_deconstructed_variable_declaration = false
+# 「IDE0057	Substring を簡略化できます」を黙らせる
+csharp_style_prefer_range_operator = false
 
 [*.bat]
 end_of_line = crlf
