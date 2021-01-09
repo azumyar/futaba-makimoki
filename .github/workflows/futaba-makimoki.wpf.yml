@@ -89,7 +89,7 @@ jobs:
       run: dotnet publish -c $env:Configuration -r win-$env:Target_Arch -o $env:Wap_Publish_Output --no-restore -m $env:Wap_Project_Path
       env:
         Configuration: ${{ matrix.configuration }}
-        Target_Arch: ${{ matrix.arch }} :  
+        Target_Arch: ${{ matrix.arch }}
 
     - name: ls $Wap_Publish_Output
       run: Get-ChildItem $env:Wap_Publish_Output
