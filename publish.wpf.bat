@@ -1,4 +1,4 @@
-rem @echo off
+@echo off
 cd /d %~dp0
 
 @rem dotnet CLIのテレメトリを送信しない
@@ -31,8 +31,11 @@ if exist %OUTPUT_ROOT%\%OUTPUT_ZIP% echo 既にアーカイブが存在します & goto end
 @rem ビルド
 if exist %OUTPUT_DIR% rd /s /q %OUTPUT_DIR% 
 "%DOTNET%" restore
+if not %errorlevel%==0 goto end
 "%DOTNET%" clean --nologo -c Release -r %TARGET_RUNTIME%
+if not %errorlevel%==0 goto end
 "%MSBUILD%" %TARGET_SLN% -nologo -m -t:TransformAll
+if not %errorlevel%==0 goto end
 "%DOTNET%" publish ^
    --nologo ^
    -c Release ^
