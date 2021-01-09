@@ -614,7 +614,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 					date.ToString("yy/MM/dd", System.Globalization.CultureInfo.InvariantCulture),
 					date.ToString("ddd"),
 					date.ToString("HH:mm:ss"));
-				var tim = new DateTimeOffset(date.Ticks, new TimeSpan(+09, 00, 00)).ToUnixTimeMilliseconds().ToString();
+				var tim = Util.TimeUtil.ToUnixTimeMilliseconds(date).ToString();
 				if(c == null) {
 					c = new NumberedResItem(thread.Url.ThreadNo, ResItem.From(
 						sub, name, "", com,

@@ -338,7 +338,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private async Task<string> Paste(Model.BindableFutaba f, int maxFileSize) {
-			var fileName = new DateTimeOffset(DateTime.Now, new TimeSpan(+09, 00, 00)).ToUnixTimeMilliseconds().ToString();
+			var fileName = Util.TimeUtil.ToUnixTimeMilliseconds().ToString();
 			if(Clipboard.ContainsImage()) {
 				var path = Path.Combine(
 					Config.ConfigLoader.InitializedSetting.CacheDirectory,

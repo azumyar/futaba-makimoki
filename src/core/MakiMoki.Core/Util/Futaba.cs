@@ -359,7 +359,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 										out var dt)) {
 
 										// ミリ秒以下がなくなるが仕方無し
-										utc = new DateTimeOffset(dt.Ticks, new TimeSpan(9, 0, 0)).ToUnixTimeMilliseconds();
+										utc = Util.TimeUtil.ToUnixTimeMilliseconds(dt);
 									}
 								}
 								if(0 < ip.Length) {

@@ -251,7 +251,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public static FutabaSavedConfig CreateDefault() {
 			return new FutabaSavedConfig() {
 				Version = CurrentVersion,
-				Time = new DateTimeOffset(DateTime.Now, new TimeSpan(+09, 00, 00)).ToUnixTimeMilliseconds(),
+				Time = Util.TimeUtil.ToUnixTimeMilliseconds(),
 				Catalogs = new FutabaSavedCatalogData[0],
 				Threads = new FutabaSavedThreadData[0],
 			};
@@ -263,7 +263,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 			return new FutabaSavedConfig() {
 				Version = CurrentVersion,
-				Time = new DateTimeOffset(DateTime.Now, new TimeSpan(+09, 00, 00)).ToUnixTimeMilliseconds(),
+				Time = Util.TimeUtil.ToUnixTimeMilliseconds(),
 				Catalogs = catalogs.Select(x => FutabaSavedCatalogData.From(x)).Where(x => x != null).ToArray(),
 				Threads = threads.Select(x => FutabaSavedThreadData.From(x)).Where(x => x != null).ToArray(),
 			};
