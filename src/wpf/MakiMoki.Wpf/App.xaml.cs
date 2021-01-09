@@ -58,16 +58,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 						System.Text.Encoding.UTF8);
 				}
 			};
+
+			var arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString().ToLower();
 			WinApi.Win32.SetDllDirectory(Path.Combine(
 				AppContext.BaseDirectory,
 				"Lib",
-				Environment.Is64BitProcess ? "x64" : "x86"));
+				arch));
 
 			UIDispatcherScheduler.Initialize();
+			// ARM64未対応
 			LibVLCSharp.Shared.Core.Initialize(Path.Combine(
 				AppContext.BaseDirectory,
 				"libvlc",
-				Environment.Is64BitProcess ? "win-x64" : "win-x86"));
+				$"win-{ arch }"));
 			this.LibVLC = new LibVLCSharp.Shared.LibVLC();
 
 			try {
