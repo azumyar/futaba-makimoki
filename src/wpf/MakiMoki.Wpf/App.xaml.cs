@@ -39,6 +39,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 		public LibVLCSharp.Shared.LibVLC LibVLC { get; private set; }
 
 		//private Action<PlatformData.WpfConfig> systemUpdateAction;
+		protected override void OnStartup(StartupEventArgs e) {
+			base.OnStartup(e);
+			StartAppCenter();
+		}
 
 		protected override Window CreateShell() {
 			AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs e) {

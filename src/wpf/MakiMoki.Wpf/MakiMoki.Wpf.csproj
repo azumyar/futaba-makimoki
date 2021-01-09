@@ -1,7 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import
-    Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets"
-    Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')"/>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')" />
 
   <PropertyGroup>
     <ProjectGuid>{E637E7F7-50C9-41C6-B82D-FE6AC7A5CB30}</ProjectGuid>
@@ -67,6 +65,8 @@
     <PackageReference Include="Emoji.Wpf" Version="0.1.5" />
     <PackageReference Include="Imazen.WebP" Version="10.0.1" />
     <PackageReference Include="LibVLCSharp.WPF" Version="3.4.9" />
+    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="4.1.0" />
+    <PackageReference Include="Microsoft.AppCenter.Crashes" Version="4.1.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
@@ -102,6 +102,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="App.AppCenter.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>App.AppCenter.tt</DependentUpon>
+    </Compile>
     <Compile Update="Properties\AssemblyInfoDebug.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -114,6 +119,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Update="App.AppCenter.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>App.AppCenter.cs</LastGenOutput>
+    </None>
     <None Update="Properties\AssemblyInfoDebug.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AssemblyInfoDebug.cs</LastGenOutput>

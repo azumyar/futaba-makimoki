@@ -8,3 +8,5 @@ MakiMoki/
 src/core/MakiMoki.Core/Exceptions/Exceptions.cs
 src/core/MakiMoki.Core/Helpers/UpdateNotifyer_Tx.cs
 src/wpf/MakiMoki.Wpf/Properties/AssemblyInfoDebug.cs
+src/wpf/MakiMoki.Wpf/Properties/appcenter-secrets.json
+src/wpf/MakiMoki.Wpf/App.AppCenter.cs
