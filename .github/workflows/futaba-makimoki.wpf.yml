@@ -97,6 +97,7 @@ jobs:
     - name: Publish app ${{ env.VERSION }}
       run: dotnet publish -c:$env:Configuration -r win-$env:arch -o $env:Wap_Publish_Output --no-restore -m $env:Wap_Project_Path
       env:
+        Configuration: ${{ matrix.configuration }}
         arch: ${{ matrix.arch }}
 
     #
