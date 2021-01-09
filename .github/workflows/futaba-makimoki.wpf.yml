@@ -106,8 +106,8 @@ jobs:
 
     - name: Remove No Arch Lib
       run: |
-        Get-ChildItem -Path %OUTPUT_DIR%\Lib\ -Exclude x64 | Remove-Item -Recurse -Force
-        Get-ChildItem -Path %OUTPUT_DIR%\libvlc\ -Exclude x64 | Remove-Item -Recurse -Force
+        Get-ChildItem -Path $env:Wap_Publish_Output/Lib -Exclude x64 | Remove-Item -Recurse -Force
+        Get-ChildItem -Path $env:Wap_Publish_Output/libvlc -Exclude x64 | Remove-Item -Recurse -Force
 
     - name: Archive Zip
       run: Compress-Archive -Path $env:Wap_Publish_Output -DestinationPath $env:Wap_Publish_Zip
