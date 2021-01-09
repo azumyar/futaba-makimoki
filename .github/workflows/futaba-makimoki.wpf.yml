@@ -1,4 +1,3 @@
-
 name: MakiMoki-Windows
 
 # on: [push]
@@ -17,7 +16,6 @@ jobs:
     strategy:
       matrix:
         configuration: [Release]
-        arch: [x64] # [x86, x64, arm64]
 
     runs-on: windows-latest  # For a list of available runner types, refer to
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
@@ -40,20 +38,6 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
-
-    # Install the .NET Core workload
-    - name: Install .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.100
-
-    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1
-
-    #
-    # 前準備
-    #
 
     - name: get config version(Release)
       run: |
@@ -78,9 +62,15 @@ jobs:
       env:
         secrets: ${{ secrets.APP_CENTER_APPSECRETS }}
 
-    #
-    # ビルド開始
-    #
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.100
+
+    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1
 
     # Execute all unit tests in the solution
     #- name: Execute unit tests
@@ -95,17 +85,12 @@ jobs:
       run: msbuild $env:Solution_Name /t:TransformAll /m
 
     - name: Publish app ${{ env.VERSION }}
-      run: dotnet publish -c $env:Configuration -r win-$env:Target_Arch -o $env:Wap_Publish_Output --no-restore -m $env:Wap_Project_Path
+      run: dotnet publish -c $env:Configuration -r win-x64 -o $env:Wap_Publish_Output --no-restore -m $env:Wap_Project_Path
       env:
         Configuration: ${{ matrix.configuration }}
-        Target_Arch: ${{ matrix.arch }}
 
-    #
-    # ビルド後後処理
-    #
-
-    #- name: ls $Wap_Publish_Output
-    #  run: Get-ChildItem $env:Wap_Publish_Output
+    - name: ls $Wap_Publish_Output
+      run: Get-ChildItem $env:Wap_Publish_Output
 
     - name: Rename dll.conf -> .exe.conf
       run: Move-Item $env:Wap_Publish_Output/futamaki.dll.config $env:Wap_Publish_Output/futamaki.exe.config
@@ -121,23 +106,16 @@ jobs:
 
     - name: Remove No Arch Lib
       run: |
-        Get-ChildItem -Path $env:Wap_Publish_Output/Lib -Exclude $env:Target_Arch | Remove-Item -Recurse -Force
-        Get-ChildItem -Path $env:Wap_Publish_Output/libvlc -Exclude $env:Target_Arch | Remove-Item -Recurse -Force
-      env:
-        Target_Arch: ${{ matrix.arch }}
+        Get-ChildItem -Path %OUTPUT_DIR%\Lib\ -Exclude x64 | Remove-Item -Recurse -Force
+        Get-ChildItem -Path %OUTPUT_DIR%\libvlc\ -Exclude x64 | Remove-Item -Recurse -Force
 
     - name: Archive Zip
       run: Compress-Archive -Path $env:Wap_Publish_Output -DestinationPath $env:Wap_Publish_Zip
-
-    #
-    # AppCenterへのリリース(今のところx64に限定)
-    #
 
     - name: install node
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
-      if: ${{ matrix.arch == 'x64' }}
 
     - name: Update AppCenter Config
       run: |
@@ -155,7 +133,6 @@ jobs:
         exit $r
       env:
         token: ${{ secrets.APP_CENTER_TOKEN }}
-      if: ${{ matrix.arch == 'x64' }}
 
     #- name: Create the app package
     #  run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
