@@ -46,12 +46,13 @@ if not %errorlevel%==0 goto end
 
 xcopy /y %OUTPUT_DIR%\x86 %OUTPUT_DIR%\Lib\x86
 xcopy /y %OUTPUT_DIR%\x64 %OUTPUT_DIR%\Lib\x64
+xcopy /y %OUTPUT_DIR%\arm64 %OUTPUT_DIR%\Lib\arm64
 rd /s /q %OUTPUT_DIR%\x86
 rd /s /q %OUTPUT_DIR%\x64
 rd /s /q %OUTPUT_DIR%\arm64
 
-rd /s /q %OUTPUT_DIR%\Lib\x86
-rd /s /q %OUTPUT_DIR%\libvlc\win-x86
+powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\Lib\ -Exclude %TARGET_ARCH% | Remove-Item -Recurse -Force"
+powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\libvlc\\ -Exclude %TARGET_ARCH% | Remove-Item -Recurse -Force"
 move %OUTPUT_ROOT%\FutaMaki\futamaki.dll.config %OUTPUT_ROOT%\FutaMaki\futamaki.exe.config
 
 @rem 公開用ZIPファイルの生成
