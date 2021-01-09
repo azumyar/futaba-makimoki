@@ -41,6 +41,8 @@ if not %errorlevel%==0 goto end
    -c Release ^
    -r %TARGET_RUNTIME% ^
    -o %OUTPUT_DIR% ^
+   --no-restore ^
+   -m ^
    %TARGET_PRJ%
 if not %errorlevel%==0 goto end
 
@@ -52,8 +54,8 @@ rd /s /q %OUTPUT_DIR%\x64
 rd /s /q %OUTPUT_DIR%\arm64
 
 powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\Lib\ -Exclude %TARGET_ARCH% | Remove-Item -Recurse -Force"
-powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\libvlc\\ -Exclude %TARGET_ARCH% | Remove-Item -Recurse -Force"
-move %OUTPUT_ROOT%\FutaMaki\futamaki.dll.config %OUTPUT_ROOT%\FutaMaki\futamaki.exe.config
+powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\libvlc\\ -Exclude win-%TARGET_ARCH% | Remove-Item -Recurse -Force"
+ove %OUTPUT_ROOT%\FutaMaki\futamaki.dll.config %OUTPUT_ROOT%\FutaMaki\futamaki.exe.config
 
 @rem 公開用ZIPファイルの生成
 @rem 既に存在してる場合は設定がおかしいのであえて-Forceはつけない

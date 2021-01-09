@@ -109,7 +109,7 @@ jobs:
     - name: Remove No Arch Lib
       run: |
         Get-ChildItem -Path $env:Wap_Publish_Output/Lib -Exclude $env:Target_Arch | Remove-Item -Recurse -Force
-        Get-ChildItem -Path $env:Wap_Publish_Output/libvlc -Exclude $env:Target_Arch | Remove-Item -Recurse -Force
+        Get-ChildItem -Path $env:Wap_Publish_Output/libvlc -Exclude win-$env:Target_Arch | Remove-Item -Recurse -Force
       env:
         Target_Arch: ${{ matrix.arch }}
 
