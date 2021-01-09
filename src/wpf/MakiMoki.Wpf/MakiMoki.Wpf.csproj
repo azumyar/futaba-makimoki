@@ -43,6 +43,9 @@
     <ApplicationIcon>App.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Lib\arm64\libwebp.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
@@ -136,6 +139,11 @@
   <!-- 文字列処理はNLSとする https://ufcpp.net/blog/2020/11/net5_0ga/ -->
   <ItemGroup>
     <RuntimeHostConfigurationOption Include="System.Globalization.UseNls" Value="true" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Lib\arm64\libwebp.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <TrimmerRootAssembly Include="System.Net.Security" />
