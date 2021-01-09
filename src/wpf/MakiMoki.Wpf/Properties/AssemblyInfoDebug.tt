@@ -1,7 +1,6 @@
 <#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ assembly name="System.Core" #>
 /*#@ assembly name="System.Text.Json" #*/
-<#@ assembly name="EnvDTE" #>
 <#@ assembly name="System.Management.Automation" #>
 <#@ import namespace="System.IO" #>
 <#@ import namespace="System.Linq" #>
@@ -19,17 +18,20 @@
 		Path.GetDirectoryName(this.Host.TemplateFile),
 		conf);
 	if(File.Exists(confPath)) {
-		using(var rs = RunspaceFactory.CreateRunspace())
-		using(var ps = PowerShell.Create()) {
-			rs.Open();
-			ps.Runspace = rs;
-			var result = ps
-				.AddScript($"(Get-Content \"{ confPath }\" | ConvertFrom-Json).version")
-				.Invoke();
-			if(result?.Count == 1) {
-				version = result[0].ToString();
+		try {
+			using(var rs = RunspaceFactory.CreateRunspace())
+			using(var ps = PowerShell.Create()) {
+				rs.Open();
+				ps.Runspace = rs;
+				var result = ps
+					.AddScript($"(Get-Content \"{ confPath }\" | ConvertFrom-Json).version")
+					.Invoke();
+				if(result?.Count == 1) {
+					version = result[0].ToString();
+				}
 			}
 		}
+		catch {}
 
 		// System.Text.Jsonでやりたい
 		//var json = File.ReadAllText(confPath, Encoding.UTF8);
