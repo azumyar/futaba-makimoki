@@ -95,10 +95,10 @@ jobs:
       run: msbuild $env:Solution_Name /t:TransformAll /m
 
     - name: Publish app ${{ env.VERSION }}
-      run: dotnet publish -c $env:Configuration -r win-$env:arch -o $env:Wap_Publish_Output --no-restore -m $env:Wap_Project_Path
+      run: dotnet publish -c $env:Configuration -r win-$env:Target_Arch -o $env:Wap_Publish_Output --no-restore -m $env:Wap_Project_Path
       env:
         Configuration: ${{ matrix.configuration }}
-        arch: ${{ matrix.arch }}
+        Target_Arch: ${{ matrix.arch }}
 
     #
     # ビルド後後処理
@@ -121,10 +121,10 @@ jobs:
 
     - name: Remove No Arch Lib
       run: |
-        Get-ChildItem -Path $env:Wap_Publish_Output/Lib -Exclude $env:arch | Remove-Item -Recurse -Force
-        Get-ChildItem -Path $env:Wap_Publish_Output/libvlc -Exclude $env:arch | Remove-Item -Recurse -Force
+        Get-ChildItem -Path $env:Wap_Publish_Output/Lib -Exclude $env:Target_Arch | Remove-Item -Recurse -Force
+        Get-ChildItem -Path $env:Wap_Publish_Output/libvlc -Exclude $env:Target_Arch | Remove-Item -Recurse -Force
       env:
-        arch: ${{ matrix.arch }}
+        Target_Arch: ${{ matrix.arch }}
 
     - name: Archive Zip
       run: Compress-Archive -Path $env:Wap_Publish_Output -DestinationPath $env:Wap_Publish_Zip
