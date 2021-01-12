@@ -196,7 +196,7 @@ jobs:
       uses: SamKirkland/FTP-Deploy-Action@4.0.0
       env:
         FTP_SERVER: ${{ secrets.FTP_SERVER }}
-        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+        FTP_USERNAME: ${{ secrets.FTP_USER }}
         FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         LOCAL_DIR: ${{ env.FTP_CANARY_ROOT }}
         REMOTE_DIR: ${{ env.FTP_CANARY_UPLOAD }}
