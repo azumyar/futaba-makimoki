@@ -33,6 +33,9 @@ jobs:
       Wap_Version_ConfFile: src/wpf/MakiMoki.Wpf/Properties/publish.conf.json
       App_Center_Group: Collaborators
       App_Center_T4_Conf: src/wpf/MakiMoki.Wpf/Properties/appcenter-secrets.json
+      FTP_CANARY_ROOT: publish/canary
+      FTP_CANARY_JSON: publish/canary/canary.version.json
+      FTP_CANARY_UPLOAD: /canary
 
     steps:
     - name: Checkout
@@ -73,20 +76,54 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1
 
+    - name: Update AppCenter Config
+      run: |
+        echo "setup canary build"
+        echo "App_Center_Group=Canary" | Add-Content -Path $env:GITHUB_ENV
+      if: ${{ github.repository != 'master' && github.repository != 'main' }}
+
     # Execute all unit tests in the solution
     #- name: Execute unit tests
     #  run: dotnet test
 
     - name: Restore the application
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration /m
+      run: |
+        msbuild `
+          -t:Restore `
+          -p:Configuration=$env:Configuration `
+          -m `
+          $env:Solution_Name
       env:
         Configuration: ${{ matrix.configuration }}
 
     - name: Exec T4
-      run: msbuild $env:Solution_Name /t:TransformAll /m
+      run: |
+        msbuild `
+          -t:TransformAll `
+          -m `
+          $env:Solution_Name
+
+    - name: Build app
+      run: |
+        $d = $env:App_Center_Group.ToUpper()
+        dotnet msbuild `
+          -p:Configuration=$env:Configuration `
+          -p:RuntimeIdentifier=%TARGET_RUNTIME% `
+          "-p:DefineConstants=$d" `
+          -m `
+          $env:Wap_Project_Path
+      env:
+        Configuration: ${{ matrix.configuration }}
 
     - name: Publish app ${{ env.VERSION }}
-      run: dotnet publish -c $env:Configuration -r win-$env:Target_Arch -o $env:Wap_Publish_Output --no-restore -m $env:Wap_Project_Path
+      run: |
+        dotnet publish `
+          -c $env:Configuration `
+          -r win-$env:Target_Arch `
+          -o $env:Wap_Publish_Output `
+          --no-restore `
+          --no-build `
+          $env:Wap_Project_Path
       env:
         Configuration: ${{ matrix.configuration }}
         Target_Arch: ${{ matrix.arch }}
@@ -99,9 +136,13 @@ jobs:
 
     - name: Move WebView2 Dll and Remove
       run: |
+        # libvlcがコピーされないので手動で移す
+        Copy-Item -Recurse -Force src/wpf/MakiMoki.Wpf/bin/Release/net5.0-windows/win-$env:Target_Arch/libvlc $env:Wap_Publish_Output
+        # WebView2のlibをコピー
         Copy-Item -Force $env:Wap_Publish_Output/x86 $env:Wap_Publish_Output/Lib
         Copy-Item -Force $env:Wap_Publish_Output/x64 $env:Wap_Publish_Output/Lib
         Copy-Item -Force $env:Wap_Publish_Output/arm64 $env:Wap_Publish_Output/Lib
+        # WebView2のコピー元を削除
         Remove-Item -Recurse $env:Wap_Publish_Output/x86
         Remove-Item -Recurse $env:Wap_Publish_Output/x64
         Remove-Item -Recurse $env:Wap_Publish_Output/arm64
@@ -122,12 +163,6 @@ jobs:
         node-version: 12.x
       if: ${{ matrix.arch == 'x64' }}
 
-    - name: Update AppCenter Config
-      run: |
-        echo "setup canary build"
-        echo "App_Center_Group=Canary" | Add-Content -Path $env:GITHUB_ENV
-      if: ${{ github.repository != 'master' && github.repository != 'main' }}
-
     - name: upload artefact to App Center
       run: |
         echo "upload appcenter: -g=$env:App_Center_Group -b=$env:VERSION"
@@ -139,6 +174,24 @@ jobs:
       env:
         token: ${{ secrets.APP_CENTER_TOKEN }}
       if: ${{ matrix.arch == 'x64' }}
+
+    - name: FTP Put Json
+        run: |
+          New-Item -Force -ItemType Directory $env:FTP_CANARY_ROOT
+          $a = '{ "version": "$env:VERSION" }'
+          echo $a | Set-Content -Path $env:FTP_CANARY_JSON
+        if: ${{ github.repository != 'master' && github.repository != 'main' &&  matrix.arch == 'x64' }}
+
+
+    - name: FTP Upload
+      uses: SamKirkland/FTP-Deploy-Action@v4
+      env:
+        FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        LOCAL_DIR: ${{ env.FTP_CANARY_ROOT }}
+        REMOTE_DIR: ${{ env.FTP_CANARY_UPLOAD }}
+      if: ${{ github.repository != 'master' && github.repository != 'main' &&  matrix.arch == 'x64' }}
 
     #- name: Create the app package
     #  run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
