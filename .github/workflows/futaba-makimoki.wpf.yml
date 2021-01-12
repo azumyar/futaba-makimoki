@@ -194,12 +194,12 @@ jobs:
 
     - name: FTP Upload
       uses: SamKirkland/FTP-Deploy-Action@4.0.0
-      env:
-        FTP_SERVER: ${{ secrets.FTP_SERVER }}
-        FTP_USERNAME: ${{ secrets.FTP_USER }}
-        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        LOCAL_DIR: ${{ env.FTP_CANARY_ROOT }}
-        REMOTE_DIR: ${{ env.FTP_CANARY_UPLOAD }}
+      with:
+        server:  ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ${{ env.FTP_CANARY_ROOT }}
+        server-dir: ${{ env.FTP_CANARY_UPLOAD }}
       if: ${{ github.repository != 'master' && github.repository != 'main' &&  matrix.arch == 'x64' }}
 
     #- name: Create the app package
