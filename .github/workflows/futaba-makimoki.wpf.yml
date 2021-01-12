@@ -108,7 +108,7 @@ jobs:
         $d = $env:App_Center_Group.ToUpper()
         dotnet msbuild `
           -p:Configuration=$env:Configuration `
-          -p:RuntimeIdentifier=%TARGET_RUNTIME% `
+          -p:RuntimeIdentifier=win-$env:Target_Arch `
           "-p:DefineConstants=$d" `
           -m `
           $env:Wap_Project_Path
