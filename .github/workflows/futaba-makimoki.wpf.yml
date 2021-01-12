@@ -114,6 +114,7 @@ jobs:
           $env:Wap_Project_Path
       env:
         Configuration: ${{ matrix.configuration }}
+        Target_Arch: ${{ matrix.arch }}
 
     - name: Publish app ${{ env.VERSION }}
       run: |
