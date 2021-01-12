@@ -9,9 +9,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 		public static long ToUnixTimeMilliseconds(DateTime ticks) {
-			return new DateTimeOffset(
-				ticks,
-				-TimeZoneInfo.Local.GetUtcOffset(ticks)).ToUnixTimeMilliseconds();
+			var offest = TimeZoneInfo.Local.GetUtcOffset(ticks);
+			return new DateTimeOffset(ticks).ToUnixTimeMilliseconds()
+					- (((offest.Hours * 3600) + (offest.Minutes * 60) + offest.Seconds) * 1000);
 		}
 	}
 }
