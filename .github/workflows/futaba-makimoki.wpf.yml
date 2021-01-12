@@ -33,9 +33,9 @@ jobs:
       Wap_Version_ConfFile: src/wpf/MakiMoki.Wpf/Properties/publish.conf.json
       App_Center_Group: Collaborators
       App_Center_T4_Conf: src/wpf/MakiMoki.Wpf/Properties/appcenter-secrets.json
-      FTP_CANARY_ROOT: publish/canary
+      FTP_CANARY_ROOT: publish/canary/
       FTP_CANARY_JSON: publish/canary/canary.version.json
-      FTP_CANARY_UPLOAD: /canary
+      FTP_CANARY_UPLOAD: /canary/
 
     steps:
     - name: Checkout
