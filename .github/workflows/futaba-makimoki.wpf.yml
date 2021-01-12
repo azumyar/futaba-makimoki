@@ -176,7 +176,7 @@ jobs:
           --token $env:token `
           -f $env:Wap_Publish_Zip `
           -g $env:App_Center_Group `
-          -b $env:VERSION ~
+          -b $env:VERSION `
           -a azumyar/futamaki ; $r = if($?) { 0 } else { 1 }
         appcenter logout --disable-telemetry
         exit $r
