@@ -147,6 +147,8 @@ jobs:
         Remove-Item -Recurse $env:Wap_Publish_Output/x86
         Remove-Item -Recurse $env:Wap_Publish_Output/x64
         Remove-Item -Recurse $env:Wap_Publish_Output/arm64
+      env:
+        Target_Arch: ${{ matrix.arch }}
 
     - name: Remove No Arch Lib
       run: |
