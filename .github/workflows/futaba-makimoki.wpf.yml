@@ -176,11 +176,11 @@ jobs:
       if: ${{ matrix.arch == 'x64' }}
 
     - name: FTP Put Json
-        run: |
-          New-Item -Force -ItemType Directory $env:FTP_CANARY_ROOT
-          $a = '{ "version": "$env:VERSION" }'
-          echo $a | Set-Content -Path $env:FTP_CANARY_JSON
-        if: ${{ github.repository != 'master' && github.repository != 'main' &&  matrix.arch == 'x64' }}
+      run: |
+        New-Item -Force -ItemType Directory $env:FTP_CANARY_ROOT
+        $a = '{ "version": "$env:VERSION" }'
+        echo $a | Set-Content -Path $env:FTP_CANARY_JSON
+      if: ${{ github.repository != 'master' && github.repository != 'main' &&  matrix.arch == 'x64' }}
 
 
     - name: FTP Upload
