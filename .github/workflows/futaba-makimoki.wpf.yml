@@ -55,7 +55,7 @@ jobs:
         $v = Write-Output('{0}.{1}.{2}.{3}' -f $a.Major, $a.Minor, $a.Build, $env:GITHUB_RUN_NUMBER)
         $b = Write-Output('period.{0:000}-dev' -f ($a.Minor + 1))
         if(0 -lt $a.Build) { $b += "Write-Output('{0:00}' -f $a.Build)" }
-        $b += "Write-Output('/{0}' -f $env:GITHUB_RUN_NUMBER)"
+        $b += Write-Output("/{0}" -f $env:GITHUB_RUN_NUMBER)
         echo "VERSION=$v" | Add-Content -Path $env:GITHUB_ENV
         echo "App_Center_Version=$b" | Add-Content -Path $env:GITHUB_ENV
         echo "build version for $b($v)"
