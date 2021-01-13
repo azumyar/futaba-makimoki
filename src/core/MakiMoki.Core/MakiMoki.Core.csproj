@@ -1,7 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import
-    Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets"
-    Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')"/>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')" />
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -19,12 +17,14 @@
   <ItemGroup>
     <None Remove="Config\makimoki.bord.json" />
     <None Remove="Config\makimoki.json" />
+    <None Remove="Config\makimoki.optout.json" />
     <None Remove="Config\mime-futaba.json" />
     <None Remove="Config\mime-up2.json" />
     <None Remove="Config\uploder.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Config\makimoki.optout.json" />
     <EmbeddedResource Include="Config\mime-up2.json" />
     <EmbeddedResource Include="Config\uploder.json" />
     <EmbeddedResource Include="Config\makimoki.json" />
@@ -42,6 +42,8 @@
 
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.14.0" />
+    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="4.1.0" />
+    <PackageReference Include="Microsoft.AppCenter.Crashes" Version="4.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="ReactiveProperty" Version="7.5.1" />
     <PackageReference Include="RestSharp" Version="106.11.7" />

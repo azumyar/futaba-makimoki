@@ -14,7 +14,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				throw new ArgumentException($"{ typeof(T).FullName }はCurrentVersionを持っていません");
 			}
 			var ver = (int)p.GetValue(null);
-			if(targetConf.Version == ver) {
+			if((targetConf.Version < 0) || (targetConf.Version == ver)) { // Versionが負の値の場合上書きする
 				return JsonConvert.DeserializeObject<T>(json);
 			}
 

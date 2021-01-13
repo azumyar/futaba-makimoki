@@ -9,8 +9,9 @@ using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Util;
 
 namespace Yarukizero.Net.MakiMoki.Config {
-	public static class ConfigLoader {
+	public static partial class ConfigLoader {
 		internal static readonly string MakiMokiConfigFile = "makimoki.json";
+		internal static readonly string MakiMokiOptoutConfigFile = "makimoki.optout.json";
 		internal static readonly string BordConfigFile = "makimoki.bord.json";
 		internal static readonly string MimeFutabaConfigFile = "mime-futaba.json";
 		internal static readonly string MimeUp2ConfigFile = "mime-up2.json";
@@ -116,6 +117,9 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			MakiMoki = JsonConvert.DeserializeObject<Data.MakiMokiConfig>(
 				loadFile(CoreAssembly.GetManifestResourceStream(
 					typeof(ConfigLoader).Namespace + "." + MakiMokiConfigFile)));
+			Optout = JsonConvert.DeserializeObject<Data.MakiMokiOptout>(
+				loadFile(CoreAssembly.GetManifestResourceStream(
+					typeof(ConfigLoader).Namespace + "." + MakiMokiOptoutConfigFile)));
 			MimeFutaba = JsonConvert.DeserializeObject<Data.MimeConfig>(
 				loadFile(CoreAssembly.GetManifestResourceStream(
 					typeof(ConfigLoader).Namespace + "." + MimeFutabaConfigFile)));
@@ -154,10 +158,15 @@ namespace Yarukizero.Net.MakiMoki.Config {
 				foreach(var confDir in new string[] { setting.SystemDirectory, setting.UserDirectory }) {
 					if(confDir != null) {
 						MakiMoki = getPath(
-							Path.Combine(InitializedSetting.UserDirectory, MakiMokiConfigFile),
+							Path.Combine(confDir, MakiMokiConfigFile),
 							MakiMoki,
 							(json) => Util.CompatUtil.Migrate<Data.MakiMokiConfig>(json, new Dictionary<int, Type>() {
 								{ Data.Compat.MakiMokiConfig2020062900.CurrentVersion, typeof(Data.Compat.MakiMokiConfig2020062900) },
+							}));
+						Optout = getPath(
+							Path.Combine(confDir, MakiMokiOptoutConfigFile),
+							Optout,
+							(json) => Util.CompatUtil.Migrate<Data.MakiMokiOptout>(json, new Dictionary<int, Type>() {
 							}));
 						var b = Path.Combine(confDir, BordConfigFile);
 						if(File.Exists(b)) {
@@ -225,6 +234,9 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		public static Setting InitializedSetting { get; private set; }
 
 		public static Data.MakiMokiConfig MakiMoki { get; private set; }
+
+		public static Data.MakiMokiOptout Optout { get; private set; }
+
 
 		public static Data.CoreBordConfig Bord { get; private set; }
 
