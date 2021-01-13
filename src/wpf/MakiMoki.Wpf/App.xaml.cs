@@ -150,12 +150,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			PlatformUtil.RemoveOldCache(AppCacheDirectory);
 			//WpfConfig.WpfConfigLoader.AddSystemConfigUpdateNotifyer(systemUpdateAction = (x) => ApplyStyle());
 
-			base.OnStartup(e);
-		}
-
-		protected override void OnLoadCompleted(NavigationEventArgs e) {
-			base.OnLoadCompleted(e);
-
 #if !DEBUG
 			Observable.Create<bool>(async o => {
 				o.OnNext(await PlatformUtil.CheckNewVersion());
@@ -174,6 +168,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					}
 				});
 #endif
+			base.OnStartup(e);
 		}
 
 		protected override Window CreateShell() {
@@ -313,7 +308,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			var controlType = typeof(Controls.FutabaCatalogViewer);
 			var vmType = typeof(ViewModels.MainWindowViewModel);
 			var va = vmType.Assembly.GetTypes().Where(x => x.Namespace == vmType.Namespace).ToArray();
-			var m = typeof(ViewModelLocationProvider).GetMethod("Register", Array.Empty<Type>());
+			var m = typeof(ViewModelLocationProvider).GetMethod(nameof(ViewModelLocationProvider.Register), Array.Empty<Type>());
 			System.Diagnostics.Debug.Assert(m != null);
 			foreach(var t in controlType.Assembly.GetTypes().Where(x => (x.Namespace == windowType.Namespace) || (x.Namespace == controlType.Namespace))) {
 				var vm = va.Where(x => x.FullName == $"{ x.Namespace }.{ t.Name }ViewModel").FirstOrDefault();
