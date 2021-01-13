@@ -218,6 +218,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.Url = futaba.Url;
 
 			var updateItems = new List<(int Index, BindableFutabaResItem Item)>();
+			var disps = new CompositeDisposable();
 			if((old == null) || old.Raw.Url.IsCatalogUrl) { // カタログはそうとっかえする
 				this.ResItems = new ReactiveCollection<BindableFutabaResItem>();
 				int c = 0;
@@ -226,6 +227,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						.ToArray()) {
 
 					this.ResItems.Add(it);
+				}
+
+				if(old?.ResItems != null) {
+					disps.Add(old.ResItems);
 				}
 			} else {
 				this.ResItems = old.ResItems;
@@ -236,6 +241,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				foreach(var it in ep) {
 					for(var ii=0; ii<this.ResItems.Count;ii++) {
 						if(it == this.ResItems[ii].Raw.Value.ResItem.No) {
+							disps.Add(this.ResItems[ii]);
 							this.ResItems.RemoveAt(ii);
 							break;
 						}
@@ -248,6 +254,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					if(a.Raw.Value.ResItem.No != b.ResItem.No) {
 						// 普通は来ない
 						System.Diagnostics.Debug.WriteLine("%%%%%%%%%%%%%%%%%%%%%%%%%% this.ResItems.RemoveAt(i) %%%%%%%%%%%%%%%%%%%%%%%");
+						disps.Add(this.ResItems[i]);
 						this.ResItems.RemoveAt(i);
 						continue;
 					}
@@ -262,6 +269,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 							bf.OriginSource.Value = a.OriginSource.Value;
 						}
 						updateItems.Add((i, bf));
+						disps.Add(a);
 					}
 					i++;
 				} 
@@ -347,6 +355,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			foreach(var it in updateItems) {
 				this.ResItems[it.Index] = it.Item;
 			}
+
+			// 古いインスタンスを削除
+			disps.Dispose();
 		}
 
 		public void Dispose() {
