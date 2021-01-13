@@ -23,6 +23,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static ReactiveProperty<Data.PostedResItem[]> PostItems { get; private set; }
 		public static ReactiveCollection<Data.Information> Informations { get; private set; }
 
+		private static Helpers.ConnectionQueue<(bool Successed, string Message)> SoudaneQueue { get; set; }
+		private static Helpers.ConnectionQueue<(bool Successed, string Message)> DelQueue { get; set; }
+
 		public static void Initialize() {
 			if(Config.ConfigLoader.MakiMoki.FutabaResponseSave) {
 				Catalog = new ReactiveProperty<Data.FutabaContext[]>(
@@ -53,6 +56,15 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			Catalog.Subscribe(x => Config.ConfigLoader.SaveFutabaResponse(Catalog.Value.ToArray(), Threads.Value.ToArray()));
 			Threads.Subscribe(x => Config.ConfigLoader.SaveFutabaResponse(Catalog.Value.ToArray(), Threads.Value.ToArray()));
 			PostItems.Subscribe(x => Config.ConfigLoader.SavePostItems(PostItems.Value.ToArray()));
+
+			SoudaneQueue = new Helpers.ConnectionQueue<(bool Successed, string Message)>(
+				name: "そうだねAPIキュー"
+			);
+			DelQueue = new Helpers.ConnectionQueue<(bool Successed, string Message)>(
+				name: "delAPIキュー",
+				maxConcurrency: 1,
+				waitTime: 5000
+			);
 		}
 
 		public static IObservable<(bool Successed, Data.FutabaContext, string ErrorMessage)> UpdateCatalog(Data.BordData bord, Data.CatalogSortItem sort = null) {
@@ -705,27 +717,29 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 		public static IObservable<(bool Successed, string Message)> PostSoudane(Data.BordData bord, string threadNo) {
-			return Observable.Create<(bool Successed, string Message)>(async o => {
-				var r = await FutabaApi.PostSoudane(bord.Url, threadNo);
-				if(r.Raw == null) {
-					o.OnNext((false, "不明なエラー"));
-				} else {
-					o.OnNext((r.Successed, r.Raw));
-				}
-				return System.Reactive.Disposables.Disposable.Empty;
-			});
+			return SoudaneQueue.Push(Helpers.ConnectionQueueItem<(bool Successed, string Message)>.From(
+				(o) => {
+					var task = FutabaApi.PostSoudane(bord.Url, threadNo);
+					task.Wait();
+					if(task.Result.Raw == null) {
+						o.OnNext((false, "不明なエラー"));
+					} else {
+						o.OnNext((task.Result.Successed, task.Result.Raw));
+					}
+				}));
 		}
 
 		public static IObservable<(bool Successed, string Message)> PostDel(Data.BordData bord, string threadNo, string resNo) {
-			return Observable.Create<(bool Successed, string Message)>(async o => {
-				var r = await FutabaApi.PostDel(bord.Url, threadNo, resNo /*, Config.ConfigLoader.FutabaApi.Cookies */);
-				if(r.Raw == null) {
-					o.OnNext((false, "不明なエラー"));
-				} else {
-					o.OnNext((r.Successed, r.Raw));
-				}
-				return System.Reactive.Disposables.Disposable.Empty;
-			});
+			return DelQueue.Push(Helpers.ConnectionQueueItem<(bool Successed, string Message)>.From(
+				(o) => {
+					var task = FutabaApi.PostDel(bord.Url, threadNo, resNo /*, Config.ConfigLoader.FutabaApi.Cookies */);
+					task.Wait();
+					if(task.Result.Raw == null) {
+						o.OnNext((false, "不明なエラー"));
+					} else {
+						o.OnNext((task.Result.Successed, task.Result.Raw));
+					}
+				}));
 		}
 
 		public static IObservable<(bool Successed, string FileNameOrMessage)> UploadUp2(string filePath, string passwd) {
