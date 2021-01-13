@@ -162,7 +162,7 @@ jobs:
       run: |
         $a = '{ "version": "$env:VERSION", "group": "$env:App_Center_Group" }'
         echo $a | Set-Content -Path $env:Artifact_Conf
-        echo "Artifact_Name=$env:Configuration-win-$env:Target_Arch/$env:GITHUB_RUN_ID" | Add-Content -Path $env:GITHUB_ENV
+        echo "Artifact_Name=$env:Configuration-win-$env:Target_Arch[$env:GITHUB_RUN_ID]" | Add-Content -Path $env:GITHUB_ENV
       env:
         Configuration: ${{ matrix.configuration }}
         Target_Arch: ${{ matrix.arch }}
@@ -191,7 +191,7 @@ jobs:
     - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
-        name: ${{ env.Artifact_Name }}/${{ env.GITHUB_RUN_ID }}
+        name: ${{ env.Artifact_Name }}[${{ env.GITHUB_RUN_ID }}]
 
     - name: Load Conf
       run: |
