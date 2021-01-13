@@ -17,10 +17,7 @@ jobs:
       matrix:
         configuration: [Release]
         arch: [x64] # x64, x86, arm64
-
-    runs-on: windows-latest  # For a list of available runner types, refer to
-                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
-
+    runs-on: windows-latest 
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
       Solution_Name: MakiMoki.sln
@@ -44,8 +41,11 @@ jobs:
     - name: get config version(Release)
       run: |
         $v = (Get-Content $env:Wap_Version_ConfFile | ConvertFrom-Json).version
-        echo "env:VERSION=$v" | Add-Content -Path $env:GITHUB_ENV
-        echo "build version for $v"
+        $a = New-Object System.Version($v)
+        $b = Write-Output('period.{0:000}' -f $a.Minor)
+        echo "VERSION=$v" | Add-Content -Path $env:GITHUB_ENV
+        echo "App_Center_Version=$b" | Add-Content -Path $env:GITHUB_ENV
+        echo "build version for $b($v)"
       if: ${{ github.repository == 'master' || github.repository == 'main' }}
 
     - name: get config version(Canary)
@@ -53,8 +53,12 @@ jobs:
         $v = (Get-Content $env:Wap_Version_ConfFile | ConvertFrom-Json).version
         $a = New-Object System.Version($v)
         $v = Write-Output('{0}.{1}.{2}.{3}' -f $a.Major, $a.Minor, $a.Build, $env:GITHUB_RUN_NUMBER)
+        $b = Write-Output('period.{0:000}-dev' -f ($a.Minor + 1))
+        if(0 -lt $a.Build) { $b += "Write-Output('{0:00}' -f $a.Build)" }
+        $b += "Write-Output('/{0}' -f $env:GITHUB_RUN_NUMBER)" }
         echo "VERSION=$v" | Add-Content -Path $env:GITHUB_ENV
-        echo "build version for $v"
+        echo "App_Center_Version=$b" | Add-Content -Path $env:GITHUB_ENV
+        echo "build version for $b($v)"
       if: ${{ github.repository != 'master' && github.repository != 'main' }}
 
     - name: Put AppCenter Secrets
@@ -63,6 +67,12 @@ jobs:
         echo $a | Set-Content -Path $env:App_Center_T4_Conf
       env:
         secrets: ${{ secrets.APP_CENTER_APPSECRETS }}
+
+    - name: Update AppCenter Config
+      run: |
+        echo "setup canary build"
+        echo "App_Center_Group=Canary" | Add-Content -Path $env:GITHUB_ENV
+      if: ${{ github.repository != 'master' && github.repository != 'main' }}
 
     # Install the .NET Core workload
     - name: Install .NET
@@ -73,12 +83,6 @@ jobs:
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1
-
-    - name: Update AppCenter Config
-      run: |
-        echo "setup canary build"
-        echo "App_Center_Group=Canary" | Add-Content -Path $env:GITHUB_ENV
-      if: ${{ github.repository != 'master' && github.repository != 'main' }}
 
     # Execute all unit tests in the solution
     #- name: Execute unit tests
@@ -160,7 +164,12 @@ jobs:
 
     - name: Put Artifact Config
       run: |
-        $a = Write-Output('{{ "version": "{0}", "group": "{1}" }}' -f $env:VERSION, $env:App_Center_Group)
+        $a = Write-Output( `
+          '{{ "display": "{0}", "version": "{1}", "group": "{2}" }}' `
+          -f  `
+            $env:App_Center_Version, `
+            $env:VERSION, `
+            $env:App_Center_Group)
         echo $a | Set-Content -Path $env:Artifact_Conf
         echo "Artifact_Name=$env:Configuration-win-$env:Target_Arch[$env:GITHUB_RUN_ID]" | Add-Content -Path $env:GITHUB_ENV
       env:
@@ -197,8 +206,10 @@ jobs:
       run: |
         g=`cat ${Artifact_File_Conf} | jq -r '.group'`
         v=`cat ${Artifact_File_Conf} | jq -r '.version'`
+        b=`cat ${Artifact_File_Conf} | jq -r '.display'`
         echo "App_Center_Group=${g}" >> $GITHUB_ENV
-        echo "App_Center_Version=${v}" >> $GITHUB_ENV
+        echo "VERSION=${v}" >> $GITHUB_ENV
+        echo "App_Center_Version=${b}" >> $GITHUB_ENV
 
     - name: Install node
       uses: actions/setup-node@v1
@@ -221,7 +232,7 @@ jobs:
     - name: FTP Put Json(Canary)
       run: |
         mkdir ${Ftp_Canary_Root}
-        echo "{ \"version\": \"${App_Center_Version}\" }" > ${Ftp_Canary_Json}
+        echo "{ \"version\": \"${VERSION}\" }" > ${Ftp_Canary_Json}
       if: ${{ env.App_Center_Group == 'Canary' }}
 
     - name: FTP Upload(Canary)
