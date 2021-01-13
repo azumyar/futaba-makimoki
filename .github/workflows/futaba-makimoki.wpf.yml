@@ -195,7 +195,7 @@ jobs:
 
     - name: Load Conf
       run: |
-        g=`cat ${Artifact_File_Conf} | jq ―r '.group'`
+        g=`cat ${Artifact_File_Conf} | jq -r '.group'`
         v=`cat ${Artifact_File_Conf} | jq -r '.version'`
         echo "App_Center_Group=${g}" >> $GITHUB_ENV
         echo "App_Center_Version=${v}" >> $GITHUB_ENV
