@@ -33,9 +33,7 @@ jobs:
       Wap_Version_ConfFile: src/wpf/MakiMoki.Wpf/Properties/publish.conf.json
       App_Center_Group: Collaborators
       App_Center_T4_Conf: src/wpf/MakiMoki.Wpf/Properties/appcenter-secrets.json
-      FTP_CANARY_ROOT: publish/canary/
-      FTP_CANARY_JSON: publish/canary/canary.version.json
-      FTP_CANARY_UPLOAD: /canary/
+      Artifact_Conf: publish/appcenter.conf.json
 
     steps:
     - name: Checkout
@@ -160,47 +158,81 @@ jobs:
     - name: Archive Zip
       run: Compress-Archive -Path $env:Wap_Publish_Output -DestinationPath $env:Wap_Publish_Zip
 
-    - name: install node
+    - name: Put Artifact Config
+      run: |
+        $a = '{ "version": "$env:VERSION", "group": "$env:App_Center_Group" }'
+        echo $a | Set-Content -Path $env:Artifact_Conf
+        echo "Artifact_Name=$env:Configuration-win-$env:Target_Arch/$env:GITHUB_RUN_ID" | Add-Content -Path $env:GITHUB_ENV
+      env:
+        Configuration: ${{ matrix.configuration }}
+        Target_Arch: ${{ matrix.arch }}
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.Artifact_Name }}
+        path: |
+          ${{ env.Wap_Publish_Zip }}
+          ${{ env.Artifact_Conf }}
+        retention-days: 7
+
+  distribute:
+    needs: build
+    runs-on: ubuntu-18.04
+    env:
+      Artifact_Name: Release-win-x64
+      Artifact_File_Zip: futamaki.zip
+      Artifact_File_Conf: appcenter.conf.json
+      Ftp_Canary_Root: canary/
+      Ftp_Canary_Json: canary/canary.version.json
+      Ftp_Canary_Upload: /canary/
+
+    steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ env.Artifact_Name }}/${{ env.GITHUB_RUN_ID }}
+
+    - name: Load Conf
+      run: |
+        g=`cat ${Artifact_File_Conf} | jq '.group'`
+        v=`cat ${Artifact_File_Conf} | jq '.version'`
+        echo "App_Center_Version=${v}" >> $GITHUB_ENV
+        echo "App_Center_Group=${g}" >> $GITHUB_ENV
+
+    - name: Install node
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
-      if: ${{ matrix.arch == 'x64' }}
 
-    - name: upload artefact to App Center
+    - name: Upload Artefact to App Center
       run: |
-        echo "upload appcenter: -g=$env:App_Center_Group -b=$env:VERSION"
-        npm install -g appcenter-cli
-        appcenter login --disable-telemetry --token $env:token
-        appcenter distribute release `
-          --disable-telemetry `
-          --token $env:token `
-          -f $env:Wap_Publish_Zip `
-          -g $env:App_Center_Group `
-          -b $env:VERSION `
-          -a azumyar/futamaki ; $r = if($?) { 0 } else { 1 }
-        appcenter logout --disable-telemetry
-        exit $r
+        echo "upload appcenter: -g=${App_Center_Group} -b=${App_Center_Version}"
+        npx appcenter-cli distribute release \
+          --disable-telemetry \
+          --token ${token} \
+          -f ${Artifact_File_Zip} \
+          -g ${App_Center_Group} \
+          -b ${App_Center_Version} \
+          -a azumyar/futamaki
       env:
         token: ${{ secrets.APP_CENTER_TOKEN }}
-      if: ${{ matrix.arch == 'x64' }}
 
-    - name: FTP Put Json
+    - name: FTP Put Json(Canary)
       run: |
-        New-Item -Force -ItemType Directory $env:FTP_CANARY_ROOT
-        $a = '{ "version": "$env:VERSION" }'
-        echo $a | Set-Content -Path $env:FTP_CANARY_JSON
-      if: ${{ github.repository != 'master' && github.repository != 'main' &&  matrix.arch == 'x64' }}
+        mkdir ${Ftp_Canary_Root}
+        echo "{ 'version': '${App_Center_Version}' }" > ${Ftp_Canary_Json}
+      if: ${{ env.App_Center_Group == 'Canary' }}
 
-
-    - name: FTP Upload
+    - name: FTP Upload(Canary)
       uses: SamKirkland/FTP-Deploy-Action@4.0.0
       with:
         server:  ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ${{ env.FTP_CANARY_ROOT }}
-        server-dir: ${{ env.FTP_CANARY_UPLOAD }}
-      if: ${{ github.repository != 'master' && github.repository != 'main' &&  matrix.arch == 'x64' }}
+        local-dir: ${{ env.Ftp_Canary_Root }}
+        server-dir: ${{ env.Ftp_Canary_Upload }}
+      if: ${{ env.App_Center_Group == 'Canary' }}
 
     #- name: Create the app package
     #  run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
