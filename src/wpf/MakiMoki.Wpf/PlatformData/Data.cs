@@ -16,5 +16,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 
 		[JsonProperty("url")]
 		public string Url { get; private set; }
+
+		[JsonProperty("canary-version")]
+		public string CanaryVersion { get; private set; }
+
+
+		[JsonProperty("canary-url")]
+		public string CanaryUrl { get; private set; }
 	}
 }

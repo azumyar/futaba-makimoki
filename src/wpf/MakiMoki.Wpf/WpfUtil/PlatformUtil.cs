@@ -50,11 +50,23 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						try {
 							var b = await ret.Content.ReadAsByteArrayAsync();
 							var r = JsonConvert.DeserializeObject<PlatformData.VersionCheckResponse>(Encoding.UTF8.GetString(b));
+#if CANARY
+							if(!string.IsNullOrEmpty(r.CanaryVersion)) {
+								var exe = GetExePath();
+								var fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(exe);
+								if(Version.TryParse(fvi.FileVersion, out var thisVer)
+									&& Version.TryParse(r.CanaryVersion, out var webVer)) {
+
+									return thisVer < webVer;
+								}
+							}
+#else
 							if(r.Period.HasValue) {
 								var exe = GetExePath();
 								var ver = System.Diagnostics.FileVersionInfo.GetVersionInfo(exe);
 								return ver.FileMinorPart < r.Period.Value;
 							}
+#endif
 						}
 						catch(JsonReaderException) { /* 無視する */ }
 						catch(JsonSerializationException) { /* 無視する */ }
