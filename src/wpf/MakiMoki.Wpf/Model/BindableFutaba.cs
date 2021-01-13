@@ -648,27 +648,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				var sb = new StringBuilder()
 					.Append(Index.Value);
 				if(Bord.Value.Extra?.NameValue ?? true) {
-					sb.Append(" ")
-						.Append(Raw.Value.ResItem.Res.Sub)
-						.Append(" ")
-						.Append(Raw.Value.ResItem.Res.Name);
+					sb.Append($" {Raw.Value.ResItem.Res.Sub} {Raw.Value.ResItem.Res.Name}");
 				}
 				if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Email)) {
-					sb.Append(" [").Append(Raw.Value.ResItem.Res.Email).Append("]");
+					sb.Append($" [{Raw.Value.ResItem.Res.Email}]");
 				}
-				sb.Append(" ").Append(Raw.Value.ResItem.Res.Now);
+				sb.Append($" {Raw.Value.ResItem.Res.Now}");
 				if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Host)) {
-					sb.Append(" ").Append(Raw.Value.ResItem.Res.Host);
+					sb.Append($" {Raw.Value.ResItem.Res.Host}");
 				}
 				if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Id)) {
-					sb.Append(" ").Append(Raw.Value.ResItem.Res.Id);
+					sb.Append($" {Raw.Value.ResItem.Res.Id}");
 				}
 				if(0 < Raw.Value.Soudane) {
-					sb.Append(" そうだね×").Append(Raw.Value.Soudane);
+					sb.Append($" そうだね×{Raw.Value.Soudane}");
 				}
-				sb.Append(" No.").Append(Raw.Value.ResItem.No);
-				sb.AppendLine();
-				sb.Append(WpfUtil.TextUtil.RawComment2Text(Raw.Value.ResItem.Res.Com));
+				sb.Append($" No.{Raw.Value.ResItem.No}")
+					.AppendLine()
+					.Append(WpfUtil.TextUtil.RawComment2Text(Raw.Value.ResItem.Res.Com));
 				this.CommentCopy = new ReactiveProperty<string>(sb.ToString());
 			}
 
