@@ -221,7 +221,7 @@ jobs:
     - name: FTP Put Json(Canary)
       run: |
         mkdir ${Ftp_Canary_Root}
-        echo "{ 'version': '${App_Center_Version}' }" > ${Ftp_Canary_Json}
+        echo "{ \"version\": \"${App_Center_Version}\" }" > ${Ftp_Canary_Json}
       if: ${{ env.App_Center_Group == 'Canary' }}
 
     - name: FTP Upload(Canary)
