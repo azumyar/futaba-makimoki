@@ -51,10 +51,15 @@ using Microsoft.AppCenter.Crashes;
 
 namespace Yarukizero.Net.MakiMoki.Wpf {
 	public partial class App {
-		private static void StartAppCenter() {
+		private static void StartAppCenter(bool optoutCrashes=false) {
 <# if(!string.IsNullOrEmpty(secrets)) { #>
 #if !DEBUG
-			AppCenter.Start("<#= secrets #>", typeof(Analytics), typeof(Crashes));
+			var secrets = "<#= secrets #>";
+			if(optoutCrashes) {
+				AppCenter.Start(secrets, typeof(Analytics));
+			} else {
+				AppCenter.Start(secrets, typeof(Analytics), typeof(Crashes));
+			}
 #endif
 <# } #>
 		}

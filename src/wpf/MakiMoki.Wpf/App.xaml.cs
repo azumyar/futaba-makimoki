@@ -25,6 +25,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 		private static readonly string ExeConfig = "windows.exe.json";
 
 		static App() {
+#if CANARY
+#warning カナリアビルド設定です
+#endif
 			System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 		}
 
@@ -40,11 +43,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 
 		//private Action<PlatformData.WpfConfig> systemUpdateAction;
 		protected override void OnStartup(StartupEventArgs e) {
-			base.OnStartup(e);
-			StartAppCenter();
-		}
-
-		protected override Window CreateShell() {
 			AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs e) {
 				if((e.ExceptionObject is Exception ex) && !string.IsNullOrEmpty(UserLogDirectory) && Directory.Exists(UserLogDirectory)) {
 					var pid = Environment.ProcessId;
@@ -58,7 +56,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 						System.Text.Encoding.UTF8);
 				}
 			};
-
 			var arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString().ToLower();
 			WinApi.Win32.SetDllDirectory(Path.Combine(
 				AppContext.BaseDirectory,
@@ -79,22 +76,23 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				if(File.Exists(exeConf)) {
 					Util.FileUtil.LoadConfigHelper(exeConf,
 						(json) => {
-							if (PlatformData.MakiMokiExeConfig.CurrentVersion != JsonConvert.DeserializeObject<Data.ConfigObject>(json).Version) {
-								throw new Exceptions.InitializeFailedException($"{ exeConf }のバージョンが不正です");
-							}
-							var conf = JsonConvert.DeserializeObject<PlatformData.MakiMokiExeConfig>(json);
-							string get(bool? enable, string exePath, string customPath) {
+							static string get(bool? enable, string exePath, string custamPath) {
 								if(enable ?? false) {
-									if(customPath != null) {
-										if(!Directory.Exists(conf.CustomDataPathRoot)) {
-											throw new Exceptions.InitializeFailedException($"設定ディレクトリ{ customPath }が見つかりません");
+									if(custamPath != null) {
+										if(!Directory.Exists(custamPath)) {
+											throw new Exceptions.InitializeFailedException($"設定ディレクトリ{ custamPath }が見つかりません");
 										}
-										return customPath;
+										return custamPath;
 									}
 									return exePath;
 								}
 								return null;
 							}
+
+							if(PlatformData.MakiMokiExeConfig.CurrentVersion != JsonConvert.DeserializeObject<Data.ConfigObject>(json).Version) {
+								throw new Exceptions.InitializeFailedException($"{ exeConf }のバージョンが不正です");
+							}
+							var conf = JsonConvert.DeserializeObject<PlatformData.MakiMokiExeConfig>(json);
 							var exeConfPath = Path.Combine(System.AppContext.BaseDirectory, "SingleUser"); ;
 							AppSettingRootDirectory = get(conf.IsSingleUserData, exeConfPath, conf.CustomDataPathRoot);
 							UserRootDirectory = get(conf.IsSingleUserConfig, exeConfPath, conf.CustomConfigPathRoot);
@@ -144,7 +142,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				MessageBox.Show(ex.Message, "初期化エラー", MessageBoxButton.OK, MessageBoxImage.Error);
 				Environment.Exit(1);
 			}
+			StartAppCenter();
+
 			//Util.TaskUtil.Initialize();
+			WpfConfig.WpfConfigLoader.Style.Validate();
+			ApplyStyle();
+			PlatformUtil.RemoveOldCache(AppCacheDirectory);
+			//WpfConfig.WpfConfigLoader.AddSystemConfigUpdateNotifyer(systemUpdateAction = (x) => ApplyStyle());
+
+			base.OnStartup(e);
+		}
+
+		protected override void OnLoadCompleted(NavigationEventArgs e) {
+			base.OnLoadCompleted(e);
+
 #if !DEBUG
 			Observable.Create<bool>(async o => {
 				o.OnNext(await PlatformUtil.CheckNewVersion());
@@ -163,11 +174,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					}
 				});
 #endif
-			WpfConfig.WpfConfigLoader.Style.Validate();
-			ApplyStyle();
-			PlatformUtil.RemoveOldCache(AppCacheDirectory);
-			//WpfConfig.WpfConfigLoader.AddSystemConfigUpdateNotifyer(systemUpdateAction = (x) => ApplyStyle());
+		}
 
+		protected override Window CreateShell() {
 			return Container.Resolve<Windows.MainWindow>();
 		}
 
