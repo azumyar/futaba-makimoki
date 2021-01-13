@@ -191,7 +191,7 @@ jobs:
     - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
-        name: ${{ env.Artifact_Name }}[${{ env.GITHUB_RUN_ID }}]
+        name: ${{ env.Artifact_Name }}[${{ github.run_id }}]
 
     - name: Load Conf
       run: |
