@@ -252,6 +252,17 @@ namespace Yarukizero.Net.MakiMoki.Config {
 
 		public static Data.FutabaPostItemConfig PostedItem { get; private set; }
 
+		internal static void UpdateOptout(Data.MakiMokiOptout optout) {
+			Optout = optout;
+			lock(lockObj) {
+				if(Directory.Exists(InitializedSetting.UserDirectory)) {
+					Util.FileUtil.SaveJson(
+						Path.Combine(InitializedSetting.UserDirectory, MakiMokiOptoutConfigFile),
+						FutabaApi);
+				}
+			}
+		}
+
 		internal static void UpdateCookie(Data.Cookie[] cookies) {
 			FutabaApi.Cookies = cookies;
 			lock(lockObj) {
