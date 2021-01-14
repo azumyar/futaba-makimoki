@@ -368,7 +368,7 @@
 
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>はっちゃん拡張</TextBlock>
-                                <TextBlock Foreground="Gray" TextWrapping="Wrap">必要においてはっちゃん拡張を追加できます。</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">必要に応じてはっちゃん拡張を追加できます。</TextBlock>
                                 <Grid Width="320" HorizontalAlignment="Left">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="92" />
