@@ -16,6 +16,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Canvas98Config\windows.makimoki.canvas98.bookmarklet.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Canvas98Config\windows.makimoki.canvas98.bookmarklet.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.664.37" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />

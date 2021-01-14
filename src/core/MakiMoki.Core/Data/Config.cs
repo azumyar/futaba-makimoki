@@ -21,6 +21,8 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class CoreBordConfig : BordConfig {
+		public static new int CurrentVersion { get; } = BordConfig.CurrentVersion;
+
 		[JsonProperty("max-file-size", Required = Required.Always)]
 		public int MaxFileSize { get; private set; }
 

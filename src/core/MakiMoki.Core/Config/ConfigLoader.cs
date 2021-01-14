@@ -19,33 +19,10 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		internal static readonly string FutabaApiFile = "makimoki.futaba.json";
 		internal static readonly string FutabaSavedFile = "makimoki.response.json";
 		internal static readonly string FutabaPostedFile = "makimoki.post.json";
-		internal static readonly Assembly CoreAssembly = typeof(ConfigLoader).Assembly;
 
 #pragma warning disable IDE0044
 		private static volatile object lockObj = new object();
 #pragma warning restore IDE0044
-
-		public class Compat {
-			public static bool IsValid(ConfigObject obj, int currentVersion) {
-				if(obj == null) {
-					return false;
-				}
-
-				return obj.Version == currentVersion;
-			}
-
-			public static T Migrate<T>(string path, ConfigObject obj, Func<int, string, T> migrate) where T : ConfigObject {
-				var r = default(T);
-				Util.FileUtil.LoadConfigHelper(path,
-					(json) => r = migrate(obj.Version, json),
-					(e, m) => throw new Exceptions.InitializeFailedException(m, e));
-				if(r == null) {
-					throw new Exceptions.InitializeFailedException($"ファイル[{ path }]のVersion[{ obj.Version }]は不正な設定です。");
-				}
-
-				return r;
-			}
-		}
 
 		public class Setting {
 			public string RestUserAgent { get; set; } = "MakiMoki/Core";
@@ -62,39 +39,11 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			System.Diagnostics.Debug.Assert(setting.WorkDirectory != null);
 			InitializedSetting = setting;
 
-			T get<T>(string path, T defaultValue) {
-				if(File.Exists(path)) {
-					using(var fs = new FileStream(path, FileMode.Open)) {
-						return JsonConvert.DeserializeObject<T>(loadFile(fs));
-					}
+			static void addDic(Dictionary<string, Data.BordData> dic, Data.BordData[] item) {
+				if(item == null) {
+					return;
 				}
-				return defaultValue;
-			}
-			T getPath<T>(string path, T defaultValue, Func<string, T> convFunc = null) {
-				var r = defaultValue;
-				convFunc = convFunc ?? ((j) => Newtonsoft.Json.JsonConvert.DeserializeObject<T>(j));
-				if(File.Exists(path)) {
-					Util.FileUtil.LoadConfigHelper(path,
-						(json) => r = convFunc(json),
-						(e, m) => throw new Exceptions.InitializeFailedException(m, e));
-				}
-				return r;
-			}
-			T getStream<T>(Stream path, T defaultValue) {
-				var r = defaultValue;
-				Util.FileUtil.LoadConfigHelper(path,
-					(json) => r = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json),
-					(e, m) => throw new Exceptions.InitializeFailedException(m, e));
-				return r;
-			}
-			string getResPath(string name) => $"{ typeof(ConfigLoader).Namespace }.{ name }";
 
-			string loadFile(Stream s) {
-				using(var sr = new StreamReader(s, Encoding.UTF8)) {
-					return sr.ReadToEnd();
-				}
-			}
-			void addDic(Dictionary<string, Data.BordData> dic, Data.BordData[] item) {
 				foreach(var b in item) {
 					if(string.IsNullOrWhiteSpace(b.Name)) {
 						throw new Exceptions.InitializeFailedException(
@@ -108,83 +57,57 @@ namespace Yarukizero.Net.MakiMoki.Config {
 					}
 				}
 			}
-
-			var bord = getStream(
-				CoreAssembly.GetManifestResourceStream(getResPath(BordConfigFile)),
+			var loader = new Util.ResourceLoader(typeof(ConfigLoader));
+			var bord = Util.FileUtil.LoadMigrate(
+				loader.Get(BordConfigFile),
 				CoreBordConfig.CreateDefault());
 			var bordDic = new Dictionary<string, Data.BordData>();
 			addDic(bordDic, bord.Bords);
-			MakiMoki = JsonConvert.DeserializeObject<Data.MakiMokiConfig>(
-				loadFile(CoreAssembly.GetManifestResourceStream(
-					typeof(ConfigLoader).Namespace + "." + MakiMokiConfigFile)));
-			Optout = JsonConvert.DeserializeObject<Data.MakiMokiOptout>(
-				loadFile(CoreAssembly.GetManifestResourceStream(
-					typeof(ConfigLoader).Namespace + "." + MakiMokiOptoutConfigFile)));
-			MimeFutaba = JsonConvert.DeserializeObject<Data.MimeConfig>(
-				loadFile(CoreAssembly.GetManifestResourceStream(
-					typeof(ConfigLoader).Namespace + "." + MimeFutabaConfigFile)));
-			MimeUp2 = JsonConvert.DeserializeObject<Data.MimeConfig>(
-				loadFile(CoreAssembly.GetManifestResourceStream(
-					typeof(ConfigLoader).Namespace + "." + MimeUp2ConfigFile)));
-			Uploder = JsonConvert.DeserializeObject<Data.UploderConfig>(
-				loadFile(CoreAssembly.GetManifestResourceStream(
-					typeof(ConfigLoader).Namespace + "." + UploderConfigFile)));
-			{
-				var path = Path.Combine(setting.WorkDirectory, FutabaApiFile);
-				var j = string.Empty;
-				var o = default(FutabaApiConfig);
-				if(File.Exists(path)) {
-					var co = default(ConfigObject);
-					Util.FileUtil.LoadConfigHelper(path,
-						(json) => { j = json; co = JsonConvert.DeserializeObject<ConfigObject>(json); },
-						(e, m) => throw new Exceptions.InitializeFailedException(m, e));
-					if(Compat.IsValid(co, BordConfig.CurrentVersion)) {
-						Util.FileUtil.LoadJsonHelper(j,
-							(json) => o = JsonConvert.DeserializeObject<FutabaApiConfig>(json),
-							(e, m) => throw new Exceptions.InitializeFailedException(m, e));
-					} else {
-						o = Compat.Migrate<FutabaApiConfig>(path, co, (version, json) => null);
-					}
-				} else {
-					o = FutabaApiConfig.CreateDefault();
-				}
-				FutabaApi = o;
-				if(string.IsNullOrEmpty(FutabaApi.Ptua)) {
-					FutabaApi.Ptua = CreatePtua();
-				}
+			MakiMoki = Util.FileUtil.LoadMigrate(
+				loader.Get(MakiMokiConfigFile),
+				default(MakiMokiConfig));
+			Optout = Util.FileUtil.LoadMigrate(
+				loader.Get(MakiMokiOptoutConfigFile),
+				default(MakiMokiOptout));
+			MimeFutaba = Util.FileUtil.LoadMigrate(
+				loader.Get(MimeFutabaConfigFile),
+				default(MimeConfig));
+			MimeUp2 = Util.FileUtil.LoadMigrate(
+				loader.Get(MimeUp2ConfigFile),
+				default(MimeConfig));
+			Uploder = Util.FileUtil.LoadMigrate(
+				loader.Get(UploderConfigFile),
+				default(UploderConfig));
+			FutabaApi = Util.FileUtil.LoadMigrate(
+				Path.Combine(setting.WorkDirectory, FutabaApiFile),
+				FutabaApiConfig.CreateDefault());
+			System.Diagnostics.Debug.Assert(MakiMoki != null);
+			System.Diagnostics.Debug.Assert(Optout != null);
+			System.Diagnostics.Debug.Assert(MimeFutaba != null);
+			System.Diagnostics.Debug.Assert(MimeUp2 != null);
+			System.Diagnostics.Debug.Assert(Uploder != null);
+			System.Diagnostics.Debug.Assert(FutabaApi != null);
+
+			if(string.IsNullOrEmpty(FutabaApi.Ptua)) {
+				FutabaApi.Ptua = CreatePtua();
 			}
 
 			try {
 				foreach(var confDir in new string[] { setting.SystemDirectory, setting.UserDirectory }) {
 					if(confDir != null) {
-						MakiMoki = getPath(
+						MakiMoki = Util.FileUtil.LoadMigrate(
 							Path.Combine(confDir, MakiMokiConfigFile),
 							MakiMoki,
-							(json) => Util.CompatUtil.Migrate<Data.MakiMokiConfig>(json, new Dictionary<int, Type>() {
+							new Dictionary<int, Type>() {
 								{ Data.Compat.MakiMokiConfig2020062900.CurrentVersion, typeof(Data.Compat.MakiMokiConfig2020062900) },
-							}));
-						Optout = getPath(
+							});
+						Optout = Util.FileUtil.LoadMigrate(
 							Path.Combine(confDir, MakiMokiOptoutConfigFile),
-							Optout,
-							(json) => Util.CompatUtil.Migrate<Data.MakiMokiOptout>(json, new Dictionary<int, Type>() {
-							}));
-						var b = Path.Combine(confDir, BordConfigFile);
-						if(File.Exists(b)) {
-							var j = string.Empty;
-							var o = default(BordConfig);
-							var co = default(ConfigObject);
-							Util.FileUtil.LoadConfigHelper(b,
-								(json) => { j = json; co = JsonConvert.DeserializeObject<ConfigObject>(json); },
-								(e, m) => throw new Exceptions.InitializeFailedException(m, e));
-							if(Compat.IsValid(co, BordConfig.CurrentVersion)) {
-								Util.FileUtil.LoadJsonHelper(j,
-									(json) => o = JsonConvert.DeserializeObject<BordConfig>(json),
-									(e, m) => throw new Exceptions.InitializeFailedException(m, e));
-							} else {
-								o = Compat.Migrate<BordConfig>(b, co, (version, json) => null);
-							}
-							addDic(bordDic, o.Bords);
-						}
+							Optout);
+						addDic(bordDic,
+							Util.FileUtil.LoadMigrate(
+								Path.Combine(confDir, BordConfigFile), 
+								default(BordConfig))?.Bords);
 					}
 				}
 			}
@@ -210,25 +133,25 @@ namespace Yarukizero.Net.MakiMoki.Config {
 						e.Message), e);
 			}
 
-			SavedFutaba = getPath(
+			Bord = CoreBordConfig.CreateAppInstance(
+				bord, 
+				bordDic.Select(x => x.Value)
+					.Where(x => x.Display)
+					.OrderBy(x => x.SortIndex)
+					.ToArray());
+			SavedFutaba = Util.FileUtil.LoadMigrate(
 				Path.Combine(InitializedSetting.WorkDirectory, FutabaSavedFile),
 				Data.FutabaSavedConfig.CreateDefault());
-			PostedItem = getPath(
+			PostedItem = Util.FileUtil.LoadMigrate(
 				Path.Combine(InitializedSetting.WorkDirectory, FutabaPostedFile),
 				Data.FutabaPostItemConfig.CreateDefault());
-			if(0 < PostedItem.Items.Length) {
+			if(PostedItem.Items.Any()) {
 				var time = DateTime.Now.AddDays(-MakiMoki.FutabaPostDataExpireDay);
 				var t = PostedItem.Items.Where(x => time <= x.Res.Res.NowDateTime).ToArray();
 				if(t.Length != PostedItem.Items.Length) {
 					PostedItem = Data.FutabaPostItemConfig.From(t);
 				}
 			}
-
-			var bordList = new List<Data.BordData>();
-			foreach(var k in bordDic.Keys.OrderBy(x => x)) {
-				bordList.Add(bordDic[k]);
-			}
-			Bord = CoreBordConfig.CreateAppInstance(bord, bordList.Where(x => x.Display).OrderBy(x => x.SortIndex).ToArray());
 		}
 
 		public static Setting InitializedSetting { get; private set; }

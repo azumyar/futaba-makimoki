@@ -32,42 +32,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 		public static void Initialize(Setting setting) {
 			InitializedSetting = setting;
 
-			T getPath<T>(string path, T defaultValue, Func<string, T> convFunc = null) {
-				var r = defaultValue;
-				convFunc ??= ((j) => Newtonsoft.Json.JsonConvert.DeserializeObject<T>(j));
-				if(File.Exists(path)) {
-					Util.FileUtil.LoadConfigHelper(path,
-						(json) => r = convFunc(json),
-						(e, m) => throw new Exceptions.InitializeFailedException(m, e));
-				}
-				return r;
-			}
-			T getStream<T>(Stream path, T defaultValue) {
-				var r = defaultValue;
-				Util.FileUtil.LoadConfigHelper(path,
-					(json) => r = Newtonsoft.Json.JsonConvert.DeserializeObject < T >(json),
-					(e, m) => throw new Exceptions.InitializeFailedException(m, e));
-				return r;
-			}
-
-			var asm = typeof(WpfConfigLoader).Assembly;
-			SystemConfig = getStream(
-				asm.GetManifestResourceStream(GetResourcePath(SystemConfigFile)),
+			var loader = new Util.ResourceLoader(typeof(WpfConfigLoader));
+			SystemConfig = Util.FileUtil.LoadMigrate(
+				loader.Get(SystemConfigFile),
 				PlatformData.WpfConfig.CreateDefault());
-			Placement = getPath(
+			Placement = Util.FileUtil.LoadMigrate(
 				Path.Combine(InitializedSetting.WorkDirectory, PlacementConfigFile),
 				PlatformData.PlacementConfig.CreateDefault());
 			if(Directory.Exists(InitializedSetting.UserDirectory)) {
-				SystemConfig = getPath(
+				SystemConfig = Util.FileUtil.LoadMigrate(
 					Path.Combine(InitializedSetting.UserDirectory, SystemConfigFile),
 					SystemConfig,
-					(json) => Util.CompatUtil.Migrate<PlatformData.WpfConfig>(json, new Dictionary<int, Type>() {
+					new Dictionary<int, Type>() {
 						{ PlatformData.Compat.WpfConfig2020062900.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2020062900) },
 						{ PlatformData.Compat.WpfConfig2020070500.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2020070500) },
 						{ PlatformData.Compat.WpfConfig2020071900.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2020071900) },
-					}));
+					});
 				if(File.Exists(Path.Combine(InitializedSetting.UserDirectory, StyleUserConfigFile))) {
-					Style = getPath(
+					Style = Util.FileUtil.LoadMigrate(
 						Path.Combine(InitializedSetting.UserDirectory, StyleUserConfigFile),
 						Style);
 					var r = Style.Validate();

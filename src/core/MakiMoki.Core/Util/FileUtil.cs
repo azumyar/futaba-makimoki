@@ -130,6 +130,36 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
+		public static T LoadMigrate<T>(
+			string path, T defaultValue,
+			Dictionary<int, Type> migrateTable = null,
+			Func<string, Exception, Exception> exception = null) where T : Data.ConfigObject {
+
+			var r = defaultValue;
+			exception ??= (m, e) => new Exceptions.InitializeFailedException(m, e);
+			if(File.Exists(path)) {
+				LoadConfigHelper(
+					path,
+					(json) => r = CompatUtil.Migrate<T>(json, migrateTable),
+					(e, m) => throw exception(m, e));
+			}
+			return r;
+		}
+
+		public static T LoadMigrate<T>(
+			Stream stream, T defaultValue,
+			Dictionary<int, Type> migrateTable = null,
+			Func<string, Exception, Exception> exception = null) where T : Data.ConfigObject {
+
+			var r = defaultValue;
+			exception ??= (m, e) => new Exceptions.InitializeFailedException(m, e);
+			LoadConfigHelper(
+				stream,
+				(json) => r = CompatUtil.Migrate<T>(json, migrateTable),
+				(e, m) => throw exception(m, e));
+			return r;
+		}
+
 		public static string ToBase64(Stream stream) {
 			System.Diagnostics.Debug.Assert(stream != null);
 			var list = new List<byte>();

@@ -22,35 +22,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config {
 			System.Diagnostics.Debug.Assert(setting.SystemDirectory != null);
 			System.Diagnostics.Debug.Assert(Directory.Exists(setting.SystemDirectory));
 
+			var loader = new Util.ResourceLoader(typeof(Canvas98ConfigLoader));
 			InitializedSetting = setting;
-			/*
-			{
-				var teamp = default(Canvas98Data.Canvas98Template);
-				Util.FileUtil.LoadConfigHelper(Path.Combine(setting.SystemDirectory, TemplateFile),
-					(json) => teamp = Newtonsoft.Json.JsonConvert.DeserializeObject<Canvas98Data.Canvas98Template>(json),
-					(e, m) => throw new Exceptions.InitializeFailedException(m, e));
-				System.Diagnostics.Debug.Assert(teamp != null);
-				Template = new ReactiveProperty<Canvas98Data.Canvas98Template>(teamp);
-			}
-			*/
+			Bookmarklet = new ReactiveProperty<Canvas98Data.Canvas98Bookmarklet>(
+				Util.FileUtil.LoadMigrate(
+					loader.Get(BookmarkletFile),
+					default(Canvas98Data.Canvas98Bookmarklet)));
+			System.Diagnostics.Debug.Assert(Bookmarklet.Value != null);
 			if((setting.UserDirectory != null) && Directory.Exists(setting.UserDirectory)) {
-				var file = Path.Combine(setting.UserDirectory, BookmarkletFile);
-				if(File.Exists(file)) {
-					var teamp = default(Canvas98Data.Canvas98Bookmarklet);
-					Util.FileUtil.LoadConfigHelper(Path.Combine(setting.UserDirectory, BookmarkletFile),
-						(json) => teamp = Newtonsoft.Json.JsonConvert.DeserializeObject<Canvas98Data.Canvas98Bookmarklet>(json),
-						(e, m) => throw new Exceptions.InitializeFailedException(m, e));
-					System.Diagnostics.Debug.Assert(teamp != null);
-					Bookmarklet = new ReactiveProperty<Canvas98Data.Canvas98Bookmarklet>(teamp);
-				}
-			}
-
-			if(Bookmarklet == null) {
-				Bookmarklet = new ReactiveProperty<Canvas98Data.Canvas98Bookmarklet>(
-					Canvas98Data.Canvas98Bookmarklet.From(
-						bookmarklet: "",
-						extends: new Dictionary<string, string>()
-					));
+				Bookmarklet.Value = Util.FileUtil.LoadMigrate(
+					Path.Combine(setting.UserDirectory, BookmarkletFile),
+					Bookmarklet.Value,
+					new Dictionary<int, Type>());
 			}
 		}
 		public static Setting InitializedSetting { get; private set; }

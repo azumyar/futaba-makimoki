@@ -18,16 +18,16 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				return JsonConvert.DeserializeObject<T>(json);
 			}
 
-			var convert = typeof(JsonConvert)
-				.GetMethods(BindingFlags.Public | BindingFlags.Static)
-				.Where(x =>
-					(x.Name == nameof(JsonConvert.DeserializeObject))
-						&& (x.GetParameters().Length == 1)
-						&& (x.GetParameters()[0].ParameterType == typeof(string))
-						&& x.IsGenericMethodDefinition)
-				.FirstOrDefault();
-			System.Diagnostics.Debug.Assert(convert != null);
-			if(migrateDic.TryGetValue(targetConf.Version, out var type)) {
+			if((migrateDic != null) && migrateDic.TryGetValue(targetConf.Version, out var type)) {
+				var convert = typeof(JsonConvert)
+					.GetMethods(BindingFlags.Public | BindingFlags.Static)
+					.Where(x =>
+						(x.Name == nameof(JsonConvert.DeserializeObject))
+							&& (x.GetParameters().Length == 1)
+							&& (x.GetParameters()[0].ParameterType == typeof(string))
+							&& x.IsGenericMethodDefinition)
+					.FirstOrDefault();
+				System.Diagnostics.Debug.Assert(convert != null);
 				var o = convert.MakeGenericMethod(type).Invoke(null, new object[] { json });
 				if(o is Data.ConfigObject co) {
 					if(co.Version == ver) {
