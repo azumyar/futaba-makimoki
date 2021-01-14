@@ -8,7 +8,7 @@ using Microsoft.AppCenter.Crashes;
 namespace Yarukizero.Net.MakiMoki.Config {
 	public static partial class ConfigLoader {
 		public static void StartAppCenter(string secrets) {
-			if(Optout.AppcenterCrashes) {
+			if(Optout.AppCenterCrashes) {
 				AppCenter.Start(secrets, typeof(Analytics));
 			} else {
 				AppCenter.Start(secrets, typeof(Analytics), typeof(Crashes));

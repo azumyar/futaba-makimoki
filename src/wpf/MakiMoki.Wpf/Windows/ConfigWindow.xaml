@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
+        xmlns:c="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
         xmlns:prism="http://prismlibrary.com/"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows"
@@ -342,7 +343,7 @@
                 </Grid>
             </TabItem>
 
-            <TabItem Header="アプリ連携">
+            <TabItem Header="連携">
                 <Grid>
                     <ScrollViewer
                         HorizontalScrollBarVisibility="Disabled"
@@ -355,10 +356,97 @@
                             >
                             <TextBlock Style="{StaticResource ConfigHeaderText}">はっちゃんキャンバス</TextBlock>
                             <StackPanel Style="{StaticResource ConfigContents}">
-                                <TextBlock>ブックマークレット</TextBlock>
+                                <TextBlock>はっちゃん本体</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">はっちゃんキャンバスのブックマークレットをそのまま入力してください。</TextBlock>
-                                <TextBox Text="{Binding Canvas98Bookmarklet.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="320" MaxLines="1" HorizontalAlignment="Left" />
-                                <TextBlock Visibility="{Binding WebView2RuntimeVisiblity.Value, Mode=OneWay}">
+                                <TextBox
+                                    Text="{Binding Canvas98Bookmarklet.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Width="320"
+                                    MaxLines="1"
+                                    HorizontalAlignment="Left"
+                                    c:PlaceHolderBehavior.PlaceHolderText="ブックマークレット"/>
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>はっちゃん拡張</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">必要においてはっちゃん拡張を追加できます。</TextBlock>
+                                <Grid Width="320" HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="92" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="60" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Text="{Binding Canvas98ExtendsName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        MaxLines="1"
+                                        HorizontalAlignment="Stretch"
+                                        c:PlaceHolderBehavior.PlaceHolderText="名前"
+                                        />
+                                    <TextBox 
+                                        Grid.Column="1"
+                                        Text="{Binding Canvas98ExtendsBookmarklet.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        MaxLines="1"
+                                        HorizontalAlignment="Stretch"
+                                        c:PlaceHolderBehavior.PlaceHolderText="ブックマークレット"
+                                        />
+                                    <Button Grid.Column="2" Command="{Binding Canvas98ExtendAddCommand}">
+                                        <TextBlock>追加</TextBlock>
+                                    </Button>
+                                </Grid>
+                                <ListBox
+                                    ItemsSource="{Binding Canvas98Extends, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ListBoxItem">
+                                                        <ContentPresenter />
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel
+                                                Orientation="Vertical"
+                                                IsItemsHost="True" 
+                                                HorizontalAlignment="Stretch"
+                                                />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Padding="2">
+                                                <Grid HorizontalAlignment="Stretch">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="32" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock
+                                                        Grid.Column="0"
+                                                        VerticalAlignment="Center"
+                                                        Text="{Binding Name.Value, Mode=OneWay}"
+                                                        />
+                                                    <Button
+                                                        Grid.Column="1"
+                                                        Command="{Binding DataContext.Canvas98ExtendRemoveCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:ConfigWindow}}"
+                                                        CommandParameter="{Binding }">
+                                                        <TextBlock>✖</TextBlock>
+                                                    </Button>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" Visibility="{Binding WebView2RuntimeVisiblity.Value, Mode=OneWay}">
+                                <TextBlock>
                                     <LineBreak />
                                     <Run>はっちゃんキャンバスの動作にはWebView2 Runtimeが必要です</Run>
                                     <LineBreak />
@@ -369,7 +457,14 @@
                                         https://go.microsoft.com/fwlink/p/?LinkId=2124703
                                     </Hyperlink>
                                 </TextBlock>
+                            </StackPanel>
 
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock Style="{StaticResource ConfigHeaderText}">オプトアウト</TextBlock>
+                                <StackPanel Style="{StaticResource ConfigContents}">
+                                    <TextBlock>クラッシュ情報の送信</TextBlock>
+                                    <CheckBox Content="オプトアウト" IsChecked="{Binding OptoutAppCenterCrashes.Value, Mode=TwoWay}" />
+                                </StackPanel>
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>

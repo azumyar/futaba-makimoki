@@ -255,13 +255,13 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		public static Helpers.UpdateNotifyer PostConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer();
 
 
-		internal static void UpdateOptout(Data.MakiMokiOptout optout) {
+		public static void UpdateOptout(Data.MakiMokiOptout optout) {
 			Optout = optout;
 			lock(lockObj) {
 				if(Directory.Exists(InitializedSetting.UserDirectory)) {
 					Util.FileUtil.SaveJson(
 						Path.Combine(InitializedSetting.UserDirectory, MakiMokiOptoutConfigFile),
-						FutabaApi);
+						Optout);
 				}
 			}
 		}
