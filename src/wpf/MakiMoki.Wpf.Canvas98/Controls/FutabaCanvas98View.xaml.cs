@@ -368,7 +368,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 			return this.webView.ExecuteScriptAsync(new StringBuilder()
 				.AppendLine("if(document.getElementById('canvas98Element') === null) {")
 				.AppendLine(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.Script)
+				// 拡張が失敗することがあるので少し待つ
+				.AppendLine("  setTimeout(() => {")
 				.AppendJoin<string>(Environment.NewLine, Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ExtendScripts)
+				.AppendLine("  }, 100);")
 				.AppendLine("}")
 				.ToString());
 		}

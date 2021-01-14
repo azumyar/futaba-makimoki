@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using System.Reactive;
 using Reactive.Bindings;
 
@@ -47,7 +48,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config {
 			if(Bookmarklet == null) {
 				Bookmarklet = new ReactiveProperty<Canvas98Data.Canvas98Bookmarklet>(
 					Canvas98Data.Canvas98Bookmarklet.From(
-						bookmarklet: ""
+						bookmarklet: "",
+						extends: new Dictionary<string, string>()
 					));
 			}
 		}
@@ -60,11 +62,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config {
 		public static Helpers.UpdateNotifyer<Canvas98Data.Canvas98Bookmarklet> BookmarkletUpdateNotifyer { get; } = new Helpers.UpdateNotifyer<Canvas98Data.Canvas98Bookmarklet>();
 
 
-		public static void UpdateBookmarklet(string bookmarklet) {
+		public static void UpdateBookmarklet(string bookmarklet, (string Name, string Value)[] extends) {
 			if(Directory.Exists(InitializedSetting.UserDirectory)) {
 				Bookmarklet.Value = Canvas98Data.Canvas98Bookmarklet.From(
 					bookmarklet: bookmarklet,
-					extends: Bookmarklet.Value.ExtendBookmarklet
+					extends: extends.ToDictionary(x => x.Name, x => x.Value)
 				);
 				Util.FileUtil.SaveJson(
 					Path.Combine(InitializedSetting.UserDirectory, BookmarkletFile),
