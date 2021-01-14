@@ -34,18 +34,13 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 		public static CompositeDisposable GetCompositeDisposable(object target) {
 			System.Diagnostics.Debug.Assert(target != null);
 
-			var disposables = new CompositeDisposable();
-			foreach(var d in target.GetType()
+			return new CompositeDisposable(target.GetType()
 				.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)
 				.Where(x => typeof(IDisposable).IsAssignableFrom(x.PropertyType))
 				.Where(x => x.GetCustomAttributes(typeof(IgonoreDisposeAttribute), true).Count() == 0)
 				.Select(x => x.GetValue(target))
 				.Where(x => x != null)
-				.Cast<IDisposable>()) {
-
-				disposables.Add(d);
-			}
-			return disposables;
+				.Cast<IDisposable>());
 		}
 	}
 }

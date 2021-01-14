@@ -254,7 +254,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 
 		public static Helpers.UpdateNotifyer FutabaPostDataUpdateNotifyer { get; } = new Helpers.UpdateNotifyer();
 
-		public Helpers.UpdateNotifyer PostConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer();
+		public static Helpers.UpdateNotifyer PostConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer();
 
 
 		internal static void UpdateOptout(Data.MakiMokiOptout optout) {

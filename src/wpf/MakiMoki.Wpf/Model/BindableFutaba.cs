@@ -117,6 +117,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.PostButtonCommand = new[] { CommentImageValidFlag, PasswordValidFlag }
 					.CombineLatestValuesAreAllTrue()
 					.ToReactiveCommand();
+
+				Config.ConfigLoader.FutabaPostDataUpdateNotifyer.AddHandler(this.UpdateFromConfig);
 			}
 
 			public void Dispose() {
