@@ -252,8 +252,6 @@ namespace Yarukizero.Net.MakiMoki.Config {
 
 		public static Data.FutabaPostItemConfig PostedItem { get; private set; }
 
-		public static Helpers.UpdateNotifyer FutabaPostDataUpdateNotifyer { get; } = new Helpers.UpdateNotifyer();
-
 		public static Helpers.UpdateNotifyer PostConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer();
 
 

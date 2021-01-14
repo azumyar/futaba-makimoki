@@ -118,7 +118,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					.CombineLatestValuesAreAllTrue()
 					.ToReactiveCommand();
 
-				Config.ConfigLoader.FutabaPostDataUpdateNotifyer.AddHandler(this.UpdateFromConfig);
+				Config.ConfigLoader.PostConfigUpdateNotifyer.AddHandler(this.UpdateFromConfig);
 			}
 
 			public void Dispose() {
