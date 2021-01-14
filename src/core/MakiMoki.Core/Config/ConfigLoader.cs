@@ -252,6 +252,11 @@ namespace Yarukizero.Net.MakiMoki.Config {
 
 		public static Data.FutabaPostItemConfig PostedItem { get; private set; }
 
+		public static Helpers.UpdateNotifyer FutabaPostDataUpdateNotifyer { get; } = new Helpers.UpdateNotifyer();
+
+		public Helpers.UpdateNotifyer PostConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer();
+
+
 		internal static void UpdateOptout(Data.MakiMokiOptout optout) {
 			Optout = optout;
 			lock(lockObj) {
@@ -272,19 +277,22 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			}
 		}
 
-		internal static void UpdateFutabaInputData(string subject, string name, string mail, string password) {
+		public static void UpdateFutabaInputData(BordData bord, string subject, string name, string mail, string password) {
 			System.Diagnostics.Debug.Assert(subject != null);
 			System.Diagnostics.Debug.Assert(name != null);
 			System.Diagnostics.Debug.Assert(mail != null);
 			System.Diagnostics.Debug.Assert(password != null);
 
-			FutabaApi.SavedSubject = MakiMoki.FutabaPostSavedSubject ?  subject : "";
-			FutabaApi.SavedName = MakiMoki.FutabaPostSavedName ? name : "";
+			if(bord.Extra?.NameValue ?? true) {
+				FutabaApi.SavedSubject = MakiMoki.FutabaPostSavedSubject ? subject : "";
+				FutabaApi.SavedName = MakiMoki.FutabaPostSavedName ? name : "";
+			}
 			FutabaApi.SavedMail = MakiMoki.FutabaPostSavedMail ? mail : "";
 			FutabaApi.SavedPassword = password;
 			Util.FileUtil.SaveJson(
 				Path.Combine(InitializedSetting.WorkDirectory, FutabaApiFile),
 				FutabaApi);
+			PostConfigUpdateNotifyer.Notify();
 		}
 
 		internal static void UpdateFutabaPassword(string password) {
@@ -294,6 +302,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			Util.FileUtil.SaveJson(
 				Path.Combine(InitializedSetting.WorkDirectory, FutabaApiFile),
 				FutabaApi);
+			PostConfigUpdateNotifyer.Notify();
 		}
 
 		private static string CreatePtua() {

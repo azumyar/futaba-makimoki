@@ -17,6 +17,7 @@ using Prism.Events;
 using Prism.Mvvm;
 using Reactive.Bindings;
 using Yarukizero.Net.MakiMoki.Data;
+using Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls;
 using Yarukizero.Net.MakiMoki.Wpf.Model;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
@@ -101,7 +102,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new ReactiveCommand<BindableFutaba>();
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingCloseCommand { get; } = new ReactiveCommand<BindableFutaba>();
 
-
+		public ReactiveCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs> Canvas98SuccessedCommand { get; }
+			= new ReactiveCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs>();
 
 		private bool isThreadImageClicking = false;
 		private readonly Action<Canvas98.Canvas98Data.Canvas98Bookmarklet> canvas98BookmarkletNotifyAction;
@@ -152,6 +154,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 			canvas98BookmarkletNotifyAction = (_) => Canvas98BookmarkletToken.Value = DateTime.Now;
 			Canvas98.Canvas98Config.Canvas98ConfigLoader.BookmarkletUpdateNotifyer.AddHandler(canvas98BookmarkletNotifyAction);
+			Canvas98SuccessedCommand.Subscribe(x => OnCanvas98Successed(x));
 		}
 
 		public void Dispose() {
@@ -510,6 +513,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if(s != null) {
 				WpfUtil.PlatformUtil.StartBrowser(new Uri(
 					$"https://www.google.com/search?q={ System.Web.HttpUtility.UrlEncode(s) }"));
+			}
+		}
+
+		private void OnCanvas98Successed(FutabaCanvas98View.RoutedSucessEventArgs e) {
+			if(e.FormData != null) {
+				var b = Config.ConfigLoader.Bord.Bords.Where(x => x.Url == e.Url.BaseUrl).FirstOrDefault();
+				if(b != null) {
+					Config.ConfigLoader.UpdateFutabaInputData(
+						b,
+						e.FormData.Subject, e.FormData.Name,
+						e.FormData.Email, e.FormData.Password);
+					Util.Futaba.UpdateThreadRes(
+						b,
+						e.Url.ThreadNo,
+						Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe();
+				}
 			}
 		}
 	}

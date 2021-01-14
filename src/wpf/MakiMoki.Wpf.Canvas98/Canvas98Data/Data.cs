@@ -65,4 +65,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 			};
 		}
 	}
+
+	public class StoredForm : Data.JsonObject {
+		[JsonProperty("name")]
+		public string Name { get; private set; }
+		[JsonProperty("sub")]
+		public string Subject { get; private set; }
+		[JsonProperty("email")]
+		public string Email { get; private set; }
+		[JsonProperty("pwd")]
+		public string Password { get; private set; }
+	}
 }

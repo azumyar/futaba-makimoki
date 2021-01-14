@@ -28,9 +28,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				"Shift_JIS",
 				new EncoderReplacementFallback(FallbackUnicodeString),
 				DecoderFallback.ReplacementFallback);
-			private static string GetDefaultSubject() => Config.ConfigLoader.MakiMoki.FutabaPostSavedSubject ? Config.ConfigLoader.FutabaApi.SavedSubject : "";
-			private static string GetDefaultName() => Config.ConfigLoader.MakiMoki.FutabaPostSavedName ? Config.ConfigLoader.FutabaApi.SavedName : "";
-			private static string GetDefaultMail() => Config.ConfigLoader.MakiMoki.FutabaPostSavedMail ? Config.ConfigLoader.FutabaApi.SavedMail : "";
+			private static string GetDefaultSubject(string defaultValue = "") => Config.ConfigLoader.MakiMoki.FutabaPostSavedSubject ? Config.ConfigLoader.FutabaApi.SavedSubject : defaultValue;
+			private static string GetDefaultName(string defaultValue = "") => Config.ConfigLoader.MakiMoki.FutabaPostSavedName ? Config.ConfigLoader.FutabaApi.SavedName : defaultValue;
+			private static string GetDefaultMail(string defaultValue = "") => Config.ConfigLoader.MakiMoki.FutabaPostSavedMail ? Config.ConfigLoader.FutabaApi.SavedMail : defaultValue;
 
 #pragma warning disable CS0067
 			public event PropertyChangedEventHandler PropertyChanged;
@@ -130,6 +130,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				Subject.Value = GetDefaultSubject();
 				Password.Value = Config.ConfigLoader.FutabaApi.SavedPassword;
 				ImagePath.Value = "";
+			}
+
+			public void UpdateFromConfig() {
+				Name.Value = GetDefaultName(Name.Value);
+				Mail.Value = GetDefaultMail(Mail.Value);
+				Subject.Value = GetDefaultSubject(Subject.Value);
+				Password.Value = Config.ConfigLoader.FutabaApi.SavedPassword;
 			}
 		}
 #pragma warning disable CS0067

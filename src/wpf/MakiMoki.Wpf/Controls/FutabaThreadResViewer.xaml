@@ -1126,8 +1126,14 @@
                 Grid.Row="0" Grid.RowSpan="2"
                 ThreadUrl="{Binding Contents.Futaba.Value.Url, ElementName=_this}"
                 Visibility="{Binding DataContext.TegakiViewVisibility.Value, ElementName=_this, Mode=TwoWay}"
-                />
-
+                >
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Successed">
+                        <ri:EventToReactiveCommand Command="{Binding DataContext.Canvas98SuccessedCommand, ElementName=_this, Mode=OneWay}" />
+                        <i:CallMethodAction TargetObject="{Binding Contents.Futaba.Value.PostData.Value, ElementName=_this, Mode=OneWay}" MethodName="UpdateFromConfig" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </c98:FutabaCanvas98View>
         </Grid>
     </Grid>
 </UserControl>

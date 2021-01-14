@@ -25,16 +25,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 			FutbaPhp,
 		}
 
-		class StoredForm : Data.JsonObject {
-			[JsonProperty("name")]
-			public string Name { get; private set; }
-			[JsonProperty("sub")]
-			public string Subject { get; private set; }
-			[JsonProperty("email")]
-			public string Email { get; private set; }
-			[JsonProperty("pwd")]
-			public string Password { get; private set; }
+		public class RoutedSucessEventArgs : RoutedEventArgs {
+			public Data.UrlContext Url { get; }
+			public Canvas98Data.StoredForm FormData { get; }
+
+			public RoutedSucessEventArgs(Data.UrlContext url, Canvas98Data.StoredForm formData) : base() {
+				this.Url = url;
+				this.FormData = formData;
+			}
+
+			public RoutedSucessEventArgs(Data.UrlContext url, Canvas98Data.StoredForm formData, RoutedEvent routedEvent) : base(routedEvent) {
+				this.Url = url;
+				this.FormData = formData;
+			}
+
+			public RoutedSucessEventArgs(Data.UrlContext url, Canvas98Data.StoredForm formData, RoutedEvent routedEvent, object source) : base(routedEvent, source) {
+				this.Url = url;
+				this.FormData = formData;
+			}
 		}
+		public delegate void RoutedSucessEventHandler(object sender, RoutedSucessEventArgs e);
 
 		public static readonly DependencyProperty ContentsProperty
 			= DependencyProperty.Register(
@@ -47,6 +57,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				nameof(NavigationVisibility),
 				typeof(Visibility),
 				typeof(FutabaCanvas98View));
+		public static RoutedEvent SuccessedEvent
+			= EventManager.RegisterRoutedEvent(
+				nameof(Successed),
+				RoutingStrategy.Tunnel,
+				typeof(RoutedSucessEventHandler),
+				typeof(FutabaCanvas98View));
+
 		public Data.UrlContext ThreadUrl {
 			get => (Data.UrlContext)this.GetValue(ContentsProperty);
 			set {
@@ -59,6 +76,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 			set {
 				this.SetValue(NavigationVisibilityProperty, value);
 			}
+		}
+
+		public event RoutedSucessEventHandler Successed {
+			add { AddHandler(SuccessedEvent, value); }
+			remove { RemoveHandler(SuccessedEvent, value); }
 		}
 
 		private static string WebMessageReady { get; } = "x-makimoki-canvas98-message://ready";
@@ -87,7 +109,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 		private readonly Task webViewInitializeTask;
 		private readonly Dictionary<ulong, (UrlType Type, Data.UrlContext Url)> urlCache
 			= new Dictionary<ulong, (UrlType Type, Data.UrlContext Url)>();
-		private StoredForm formCache;
+		private Canvas98Data.StoredForm formCache;
 
 		public FutabaCanvas98View() {
 			InitializeComponent();
@@ -243,14 +265,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 						// そのまま送信するのでXMLHttpRequestを無効化しておく必要がある
 						.AppendLine($"          input.addEventListener('click', ()=>{{")
 						.AppendLine("             const json = JSON.stringify({")
-						.AppendLine("               name: (document.forms.fm.name) ? document.forms.fm.name : '',")
-						.AppendLine("               sub: (document.forms.fm.sub) ? document.forms.fm.sub : '',")
-						.AppendLine("               email: document.forms.fm.email,")
-						.AppendLine("               pwd: document.forms.fm.pwd,")
+						.AppendLine("               name: (document.forms.fm.name) ? document.forms.fm.name.value : '',")
+						.AppendLine("               sub: (document.forms.fm.sub) ? document.forms.fm.sub.value : '',")
+						.AppendLine("               email: document.forms.fm.email.value,")
+						.AppendLine("               pwd: document.forms.fm.pwd.value,")
 						.AppendLine("             });")
 						.AppendLine($"             window.chrome.webview.postMessage('{ WebMessagePostStore }?' + encodeURI(json));")
-						.AppendLine($"            ptfk({ this.ThreadUrl.ThreadNo });")
-						.AppendLine($"            return true;")
+						.AppendLine($"             ptfk({ this.ThreadUrl.ThreadNo });")
+						.AppendLine($"             return true;")
 						.AppendLine($"           }});")
 						.AppendLine("          tr.appendChild(input);")
 						.AppendLine("        }")
@@ -269,7 +291,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 			this.webView.WebMessageReceived += async (s, e) => { 
 				var message = e.TryGetWebMessageAsString();
 				if(message == WebMessageReady) {
-					this.formCache = null;
+					this.formCache = default;
 					static string conv(string p)
 						=> new string(Newtonsoft.Json.JsonConvert.ToString(p)
 							.Replace("'", @"\'")
@@ -300,13 +322,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				} else if(message == WebMessagePostSucessed) {
 					if(this.Visibility == Visibility.Visible) {
 						this.Visibility = Visibility.Hidden;
+						this.RaiseEvent(new RoutedSucessEventArgs(
+							this.ThreadUrl,
+							this.formCache,
+							SuccessedEvent));
 					}
 					this.webView.NavigateToString("");
 				} else if(message.StartsWith(WebMessagePostError)) {
 					Util.Futaba.PutInformation(new Data.Information(
 						System.Web.HttpUtility.UrlDecode(message.Substring(WebMessagePostError.Length + 1))));
 				} else if(message.StartsWith(WebMessagePostStore)) {
-					this.formCache = JsonConvert.DeserializeObject<StoredForm>(
+					this.formCache = JsonConvert.DeserializeObject<Canvas98Data.StoredForm>(
 						System.Web.HttpUtility.UrlDecode(message.Substring(WebMessagePostStore.Length + 1)));
 				}
 			};
