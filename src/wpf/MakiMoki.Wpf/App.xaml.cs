@@ -115,6 +115,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					UserDirectory = UserConfigDirectory,
 					CacheDirectory = AppCacheDirectory,
 					WorkDirectory = AppWorkDirectory,
+					AppCenterSecrets = AppCenterSecrets,
 				});
 				Util.Futaba.Initialize();
 				Ng.NgConfig.NgConfigLoader.Initialize(new Ng.NgConfig.NgConfigLoader.Setting() {
@@ -142,7 +143,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				MessageBox.Show(ex.Message, "初期化エラー", MessageBoxButton.OK, MessageBoxImage.Error);
 				Environment.Exit(1);
 			}
-			StartAppCenter();
 
 			//Util.TaskUtil.Initialize();
 			WpfConfig.WpfConfigLoader.Style.Validate();

@@ -8,6 +8,10 @@ using Microsoft.AppCenter.Crashes;
 namespace Yarukizero.Net.MakiMoki.Config {
 	public static partial class ConfigLoader {
 		public static void StartAppCenter(string secrets) {
+			if(string.IsNullOrEmpty(secrets)) {
+				return;
+			}
+
 			if(Optout.AppCenterCrashes) {
 				AppCenter.Start(secrets, typeof(Analytics));
 			} else {

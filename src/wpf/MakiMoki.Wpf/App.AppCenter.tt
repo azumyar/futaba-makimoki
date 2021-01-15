@@ -51,13 +51,11 @@ using Microsoft.AppCenter.Crashes;
 
 namespace Yarukizero.Net.MakiMoki.Wpf {
 	public partial class App {
-		private static void StartAppCenter() {
-<# if(!string.IsNullOrEmpty(secrets)) { #>
+		private static string AppCenterSecrets { get; }
 #if !DEBUG
-			Yarukizero.Net.MakiMoki.Config.ConfigLoader.StartAppCenter("<#= secrets #>");
-#endif
+<# if(!string.IsNullOrEmpty(secrets)) { #>
+			= "<#= secrets #>";			
 <# } #>
-		}
-
+#endif
 	}
 }
