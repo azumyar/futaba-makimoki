@@ -36,16 +36,24 @@ if not %errorlevel%==0 goto end
 if not %errorlevel%==0 goto end
 "%MSBUILD%" %TARGET_SLN% -nologo -m -t:TransformAll
 if not %errorlevel%==0 goto end
+"%DOTNET%" msbuild ^
+   -noLogo ^
+   -p:Configuration=Release ^
+   -p:RuntimeIdentifier=%TARGET_RUNTIME% ^
+   -m ^
+   %TARGET_PRJ%
+if not %errorlevel%==0 goto end
 "%DOTNET%" publish ^
    --nologo ^
    -c Release ^
    -r %TARGET_RUNTIME% ^
    -o %OUTPUT_DIR% ^
    --no-restore ^
-   -m ^
+   --no-build ^
    %TARGET_PRJ%
 if not %errorlevel%==0 goto end
 
+xcopy /y /s /q src\wpf\MakiMoki.Wpf\bin\Release\net5.0-windows\%TARGET_RUNTIME%\libvlc %OUTPUT_DIR%
 xcopy /y %OUTPUT_DIR%\x86 %OUTPUT_DIR%\Lib\x86
 xcopy /y %OUTPUT_DIR%\x64 %OUTPUT_DIR%\Lib\x64
 xcopy /y %OUTPUT_DIR%\arm64 %OUTPUT_DIR%\Lib\arm64
@@ -55,7 +63,7 @@ rd /s /q %OUTPUT_DIR%\arm64
 
 powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\Lib\ -Exclude %TARGET_ARCH% | Remove-Item -Recurse -Force"
 powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\libvlc\\ -Exclude win-%TARGET_ARCH% | Remove-Item -Recurse -Force"
-ove %OUTPUT_ROOT%\FutaMaki\futamaki.dll.config %OUTPUT_ROOT%\FutaMaki\futamaki.exe.config
+move %OUTPUT_ROOT%\FutaMaki\futamaki.dll.config %OUTPUT_ROOT%\FutaMaki\futamaki.exe.config
 
 @rem 公開用ZIPファイルの生成
 @rem 既に存在してる場合は設定がおかしいのであえて-Forceはつけない
