@@ -1,0 +1,16 @@
+{
+  "version": 2020062900,
+
+  "max-file-size": 3072000,
+  "bords": [
+    {
+      "name": "ねこ",
+      "url": "https://may.2chan.net/27/",
+      "default-comment": "本文無し",
+      "extra": {
+        "always-ip": true,
+        "max-stored-res": 2000
+      }
+    }
+  ]
+}

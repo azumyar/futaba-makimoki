@@ -1,0 +1,61 @@
+<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+/*#@ assembly name="System.Text.Json" #*/
+<#@ assembly name="System.Management.Automation" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+/*#@ import namespace="System.Text.Json" #*/
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Management.Automation" #>
+<#@ import namespace="System.Management.Automation.Runspaces" #>
+<#@ output extension=".cs" #>
+<#
+	var version = "";
+
+	var conf = "publish.conf.json";
+	var confPath = Path.Combine(
+		Path.GetDirectoryName(this.Host.TemplateFile),
+		conf);
+	if(File.Exists(confPath)) {
+		try {
+			using(var rs = RunspaceFactory.CreateRunspace())
+			using(var ps = PowerShell.Create()) {
+				rs.Open();
+				ps.Runspace = rs;
+				var result = ps
+					.AddScript($"(Get-Content \"{ confPath }\" | ConvertFrom-Json).version")
+					.Invoke();
+				if(result?.Count == 1) {
+					version = result[0].ToString();
+				}
+			}
+		}
+		catch {}
+
+		// System.Text.Jsonでやりたい
+		//var json = File.ReadAllText(confPath, Encoding.UTF8);
+		//var jsonDic = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+		//jsonDic.TryGetValue("version", out version);
+	}
+#>
+<# if(!string.IsNullOrEmpty(version)) { #>
+using System.Reflection;
+#if DEBUG
+
+// アセンブリのバージョン情報は次の 4 つの値で構成されています:
+//
+//      メジャー バージョン
+//      マイナー バージョン
+//      ビルド番号
+//      リビジョン
+//
+// すべての値を指定するか、次を使用してビルド番号とリビジョン番号を既定に設定できます
+// 既定値にすることができます:
+// [assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("<#= version #>")]
+[assembly: AssemblyInformationalVersion("<#= version #>")]
+[assembly: AssemblyFileVersion("<#= version #>")]
+
+#endif
+<# } #>

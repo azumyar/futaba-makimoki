@@ -1,0 +1,254 @@
+name: MakiMoki-Windows
+
+# on: [push]
+on:
+  push:
+    branches:
+      - windows
+    tags:
+      - 'period-*'
+  pull_request:
+    branches:
+      - windows
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        configuration: [Release]
+        arch: [x64] # x64, x86, arm64
+    runs-on: windows-latest 
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      Solution_Name: MakiMoki.sln
+      Test_Project_Path: ""
+      Wap_Project_Directory: ""
+      Wap_Project_Path: src/wpf/MakiMoki.Wpf/MakiMoki.Wpf.csproj
+      Wap_Publish_Base: publish
+      Wap_Publish_Output: publish/FutaMaki
+      Wap_Publish_Zip: publish/futamaki.zip
+      Wap_Version_ConfFile: src/wpf/MakiMoki.Wpf/Properties/publish.conf.json
+      App_Center_Group: Collaborators
+      App_Center_T4_Conf: src/wpf/MakiMoki.Wpf/Properties/appcenter-secrets.json
+      Artifact_Conf: publish/appcenter.conf.json
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: get config version(Release)
+      run: |
+        $v = (Get-Content $env:Wap_Version_ConfFile | ConvertFrom-Json).version
+        $a = New-Object System.Version($v)
+        $b = Write-Output('period.{0:000}' -f $a.Minor)
+        echo "VERSION=$v" | Add-Content -Path $env:GITHUB_ENV
+        echo "App_Center_Version=$b" | Add-Content -Path $env:GITHUB_ENV
+        echo "build version for $b($v)"
+      if: ${{ github.repository == 'master' || github.repository == 'main' }}
+
+    - name: get config version(Canary)
+      run: |
+        $v = (Get-Content $env:Wap_Version_ConfFile | ConvertFrom-Json).version
+        $a = New-Object System.Version($v)
+        $v = Write-Output('{0}.{1}.{2}.{3}' -f $a.Major, $a.Minor, $a.Build, $env:GITHUB_RUN_NUMBER)
+        $b = Write-Output('period.{0:000}-dev' -f ($a.Minor + 1))
+        if(0 -lt $a.Build) { $b += Write-Output("{0:00}" -f $a.Build) }
+        $b += Write-Output("/{0}" -f $env:GITHUB_RUN_NUMBER)
+        echo "VERSION=$v" | Add-Content -Path $env:GITHUB_ENV
+        echo "App_Center_Version=$b" | Add-Content -Path $env:GITHUB_ENV
+        echo "build version for $b($v)"
+      if: ${{ github.repository != 'master' && github.repository != 'main' }}
+
+    - name: Put AppCenter Secrets
+      run: |
+        $a = '{ "secrets": "$env:secrets" }'
+        echo $a | Set-Content -Path $env:App_Center_T4_Conf
+      env:
+        secrets: ${{ secrets.APP_CENTER_APPSECRETS }}
+
+    - name: Update AppCenter Config
+      run: |
+        echo "setup canary build"
+        echo "App_Center_Group=Canary" | Add-Content -Path $env:GITHUB_ENV
+      if: ${{ github.repository != 'master' && github.repository != 'main' }}
+
+    # Install the .NET Core workload
+    - name: Install .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.100
+
+    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1
+
+    # Execute all unit tests in the solution
+    #- name: Execute unit tests
+    #  run: dotnet test
+
+    - name: Restore the application
+      run: |
+        msbuild `
+          -t:Restore `
+          -p:Configuration=$env:Configuration `
+          -m `
+          $env:Solution_Name
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    - name: Exec T4
+      run: |
+        msbuild `
+          -t:TransformAll `
+          -m `
+          $env:Solution_Name
+
+    - name: Build app
+      run: |
+        $d = $env:App_Center_Group.ToUpper()
+        dotnet msbuild `
+          -p:Configuration=$env:Configuration `
+          -p:RuntimeIdentifier=win-$env:Target_Arch `
+          "-p:DefineConstants=$d" `
+          -m `
+          $env:Wap_Project_Path
+      env:
+        Configuration: ${{ matrix.configuration }}
+        Target_Arch: ${{ matrix.arch }}
+
+    - name: Publish app ${{ env.VERSION }}
+      run: |
+        dotnet publish `
+          -c $env:Configuration `
+          -r win-$env:Target_Arch `
+          -o $env:Wap_Publish_Output `
+          --no-restore `
+          --no-build `
+          $env:Wap_Project_Path
+      env:
+        Configuration: ${{ matrix.configuration }}
+        Target_Arch: ${{ matrix.arch }}
+
+    - name: ls $Wap_Publish_Output
+      run: Get-ChildItem $env:Wap_Publish_Output
+
+    - name: Rename dll.conf -> .exe.conf
+      run: Move-Item $env:Wap_Publish_Output/futamaki.dll.config $env:Wap_Publish_Output/futamaki.exe.config
+
+    - name: Move WebView2 Dll and Remove
+      run: |
+        # libvlcがコピーされないので手動で移す
+        Copy-Item -Recurse -Force src/wpf/MakiMoki.Wpf/bin/Release/net5.0-windows/win-$env:Target_Arch/libvlc $env:Wap_Publish_Output
+        # WebView2のlibをコピー
+        Copy-Item -Force $env:Wap_Publish_Output/x86 $env:Wap_Publish_Output/Lib
+        Copy-Item -Force $env:Wap_Publish_Output/x64 $env:Wap_Publish_Output/Lib
+        Copy-Item -Force $env:Wap_Publish_Output/arm64 $env:Wap_Publish_Output/Lib
+        # WebView2のコピー元を削除
+        Remove-Item -Recurse $env:Wap_Publish_Output/x86
+        Remove-Item -Recurse $env:Wap_Publish_Output/x64
+        Remove-Item -Recurse $env:Wap_Publish_Output/arm64
+      env:
+        Target_Arch: ${{ matrix.arch }}
+
+    - name: Remove No Arch Lib
+      run: |
+        Get-ChildItem -Path $env:Wap_Publish_Output/Lib -Exclude $env:Target_Arch | Remove-Item -Recurse -Force
+        Get-ChildItem -Path $env:Wap_Publish_Output/libvlc -Exclude win-$env:Target_Arch | Remove-Item -Recurse -Force
+      env:
+        Target_Arch: ${{ matrix.arch }}
+
+    - name: Archive Zip
+      run: Compress-Archive -Path $env:Wap_Publish_Output -DestinationPath $env:Wap_Publish_Zip
+
+    - name: Put Artifact Config
+      run: |
+        $a = Write-Output( `
+          '{{ "display": "{0}", "version": "{1}", "group": "{2}" }}' `
+          -f  `
+            $env:App_Center_Version, `
+            $env:VERSION, `
+            $env:App_Center_Group)
+        echo $a | Set-Content -Path $env:Artifact_Conf
+        echo "Artifact_Name=$env:Configuration-win-$env:Target_Arch[$env:GITHUB_RUN_ID]" | Add-Content -Path $env:GITHUB_ENV
+      env:
+        Configuration: ${{ matrix.configuration }}
+        Target_Arch: ${{ matrix.arch }}
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.Artifact_Name }}
+        path: |
+          ${{ env.Wap_Publish_Zip }}
+          ${{ env.Artifact_Conf }}
+        retention-days: 7
+
+  distribute:
+    needs: build
+    runs-on: ubuntu-18.04
+    env:
+      Artifact_Name: Release-win-x64
+      Artifact_File_Zip: futamaki.zip
+      Artifact_File_Conf: appcenter.conf.json
+      Ftp_Canary_Root: canary/
+      Ftp_Canary_Json: canary/canary.version.json
+      Ftp_Canary_Upload: /canary/
+
+    steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ env.Artifact_Name }}[${{ github.run_id }}]
+
+    - name: Load Conf
+      run: |
+        g=`cat ${Artifact_File_Conf} | jq -r '.group'`
+        v=`cat ${Artifact_File_Conf} | jq -r '.version'`
+        b=`cat ${Artifact_File_Conf} | jq -r '.display'`
+        echo "App_Center_Group=${g}" >> $GITHUB_ENV
+        echo "VERSION=${v}" >> $GITHUB_ENV
+        echo "App_Center_Version=${b}" >> $GITHUB_ENV
+
+    - name: Install node
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+
+    - name: Upload Artefact to App Center
+      run: |
+        echo "upload appcenter: -g=${App_Center_Group} -b=${App_Center_Version}"
+        npx appcenter-cli distribute release \
+          --disable-telemetry \
+          --token ${token} \
+          -f ${Artifact_File_Zip} \
+          -g ${App_Center_Group} \
+          -b ${App_Center_Version} \
+          -a azumyar/futamaki
+      env:
+        token: ${{ secrets.APP_CENTER_TOKEN }}
+
+    - name: FTP Put Json(Canary)
+      run: |
+        mkdir ${Ftp_Canary_Root}
+        echo "{ \"version\": \"${VERSION}\" }" > ${Ftp_Canary_Json}
+      if: ${{ env.App_Center_Group == 'Canary' }}
+
+    - name: FTP Upload(Canary)
+      uses: SamKirkland/FTP-Deploy-Action@4.0.0
+      with:
+        server:  ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ${{ env.Ftp_Canary_Root }}
+        server-dir: ${{ env.Ftp_Canary_Upload }}
+      if: ${{ env.App_Center_Group == 'Canary' }}
+
+    #- name: Create the app package
+    #  run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
+    #  env:
+    #    Appx_Bundle: Always
+    #    Appx_Bundle_Platforms: x86|x64
+    #    Appx_Package_Build_Mode: StoreUpload
+    #    Configuration: ${{ matrix.configuration }}

@@ -1,0 +1,526 @@
+<Window x:Class="Yarukizero.Net.MakiMoki.Wpf.Windows.ConfigWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
+        xmlns:c="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows"
+        mc:Ignorable="d"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        Title="設定" Height="450" Width="800">
+    <Window.Resources>
+        <Style x:Key="ConfigHeaderText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
+        <Style x:Key="ConfigContents" TargetType="StackPanel">
+            <Setter Property="Margin" Value="0 8 0 8" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TabControl Grid.Row="0">
+            <TabItem Header="設定">
+                <Grid>
+                    <ScrollViewer
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Visible"
+                        >
+                        <StackPanel
+                            Margin="4"
+                            TextBlock.FontFamily="メイリオ"
+                            TextBlock.FontSize="14"
+                            >
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">コア設定</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>画面のテーマ(β)</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">
+                                    <Run Text="画面のテーマを設定します。この設定はユーザカスタム設定が存在する場合無視されます。" />
+                                    <LineBreak />
+                                    <Run Text="(*アプリ再起動後に適用されます)" Foreground="Red" />
+                                </TextBlock>
+                                <ComboBox SelectedIndex="{Binding WindowTheme.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>ライト</ComboBoxItem>
+                                    <ComboBoxItem>ダーク</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>スレッドデータを差分取得する</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding CoreConfigThreadDataIncremental.Value, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>現在のふたばレスポンスデータを保存</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">現在取得しているレスポンスデータ(テキスト)を保存し次回起動時に復元します。</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding CoreConfigSavedResponse.Value, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource ConfigHeaderText}" Margin="0 8 0 0">NG設定</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>IDスレッドをカタログNG</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレ本文にIDが出ている場合カタログに表示しません。ただしスレッドがid表示で立てられている場合この設定は無視されます。</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding NgConfigCatalogIdNg.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>IDレスをNG</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">IDが出たレスをコメント文に関わらずNG扱いとします。ただしスレッドがid表示で立てられている場合この設定は無視されます。</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding NgConfigThreadIdNg.Value, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>カタログNGワード</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文にこのワードが含まれる場合カタログから除外します。1行1ワードとして処理します。大文字小文字は区別されます。</TextBlock>
+                                <TextBox
+                                    Width="320"
+                                    Height="128"
+                                    AcceptsReturn="True"
+                                    HorizontalAlignment="Left"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Text="{Binding NgConfigCatalogNgWord.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    />
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>カタログNGワード(正規表現)</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文にこの正規表現がマッチする場合カタログから除外します。1行1正規表現として処理します。大文字小文字は区別されません。マルチラインモードで処理します。</TextBlock>
+                                <TextBox
+                                    Width="320"
+                                    Height="128"
+                                    AcceptsReturn="True"
+                                    HorizontalAlignment="Left"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Text="{Binding NgConfigCatalogNgWordRegex.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
+                                    />
+                                <TextBlock Foreground="Red" Visibility="{Binding NgConfigCatalogNgWordRegexVisibility.Value, Mode=OneWay}">正規表現に問題があります</TextBlock>
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>スレッドNGワード</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文を含むレスコメントにこのワードが含まれる場合非表示にします。1行1ワードとして処理します。大文字小文字は区別されます。</TextBlock>
+                                <TextBox
+                                    Width="320"
+                                    Height="128"
+                                    AcceptsReturn="True"
+                                    HorizontalAlignment="Left"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Text="{Binding NgConfigThreadNgWord.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    />
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>スレッドNGワード(正規表現)</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文を含むレスコメントにこの正規表現がマッチする場合非表示にします。1行1正規表現として処理します。大文字小文字は区別されません。マルチラインモードで処理します。</TextBlock>
+                                <TextBox
+                                    Width="320"
+                                    Height="128"
+                                    AcceptsReturn="True"
+                                    HorizontalAlignment="Left"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Text="{Binding NgConfigThreadNgWordRegex.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
+                                    />
+                                <TextBlock Foreground="Red" Visibility="{Binding NgConfigThreadNgWordRegexVisibility.Value, Mode=OneWay}">正規表現に問題があります</TextBlock>
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>NG画像処理方法</TextBlock>
+                                <ComboBox SelectedIndex="{Binding NgConfigImageMethod.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>非表示</ComboBoxItem>
+                                    <ComboBoxItem>ダミー画像</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>NG画像判定閾値</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">サムネイルのハッシュのハミング距離が設定された値以下の場合同一画像としてNG処理します。</TextBlock>
+                                <ComboBox SelectedIndex="{Binding NgConfigImageThreshold.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>0</ComboBoxItem>
+                                    <ComboBoxItem>1</ComboBoxItem>
+                                    <ComboBoxItem>2</ComboBoxItem>
+                                    <ComboBoxItem>3</ComboBoxItem>
+                                    <ComboBoxItem>4</ComboBoxItem>
+                                    <ComboBoxItem>5</ComboBoxItem>
+                                    <ComboBoxItem>6</ComboBoxItem>
+                                    <ComboBoxItem>7</ComboBoxItem>
+                                    <ComboBoxItem>8</ComboBoxItem>
+                                    <ComboBoxItem>9</ComboBoxItem>
+                                    <ComboBoxItem>10</ComboBoxItem>
+                                    <ComboBoxItem>11</ComboBoxItem>
+                                    <ComboBoxItem>12</ComboBoxItem>
+                                    <ComboBoxItem>13</ComboBoxItem>
+                                    <ComboBoxItem>14</ComboBoxItem>
+                                    <ComboBoxItem>15</ComboBoxItem>
+                                    <ComboBoxItem>16</ComboBoxItem>
+                                    <ComboBoxItem>17</ComboBoxItem>
+                                    <ComboBoxItem>18</ComboBoxItem>
+                                    <ComboBoxItem>19</ComboBoxItem>
+                                    <ComboBoxItem>20</ComboBoxItem>
+                                </ComboBox>
+                                <StackPanel Style="{StaticResource ConfigContents}">
+                                    <TextBlock>NG理由を入力する</TextBlock>
+                                    <TextBlock Foreground="Gray" TextWrapping="Wrap">NG画像はハッシュ化されて復元できないためNG理由はNGエントリの識別に使用します。入力しない場合デフォルトのNG理由を設定します。</TextBlock>
+                                    <CheckBox Content="有効" IsChecked="{Binding NgConfigResonInput.Value, Mode=TwoWay}" />
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource ConfigContents}">
+                                    <TextBlock>非表示レス設定保存日数</TextBlock>
+                                    <TextBlock Foreground="Gray" TextWrapping="Wrap">非表示に設定したレスを記憶する期間(日)を指定します。削除処理は起動時に行われます。</TextBlock>
+                                    <TextBox Text="30" Width="320" HorizontalAlignment="Left" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">画像設定</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>クイック保存</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">保存先のディレクトリをフルパスで指定します。1行1ディレクトリして処理されます。</TextBlock>
+                                <TextBox
+                                    Width="320"
+                                    Height="128"
+                                    AcceptsReturn="True"
+                                    HorizontalAlignment="Left"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Text="{Binding MediaExportPath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
+                                    />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>画像キャッシュ保存日数</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">キャッシュした画像/動画を保存する期間(日)を指定します。削除処理は起動時に行われます。</TextBlock>
+                                <TextBox Width="320" HorizontalAlignment="Left" Text="{Binding MediaCacheExpireDay.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" />
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">保存設定</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>NGレス</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">出力HTMLにNGレスを含めるか設定します。</TextBlock>
+                                <ComboBox SelectedIndex="{Binding ExportOutputNgRes.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>出力</ComboBoxItem>
+                                    <ComboBoxItem>マスク化</ComboBoxItem>
+                                    <ComboBoxItem>非表示</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>NG画像</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">出力HTMLにNG画像を含めるか設定します。</TextBlock>
+                                <ComboBox SelectedIndex="{Binding ExportOutputNgImage.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>出力</ComboBoxItem>
+                                    <ComboBoxItem>ダミー画像</ComboBoxItem>
+                                    <ComboBoxItem>非表示</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">そのほか</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>Webブラウザ</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">http/httpsのリンクを開くブラウザのexeファイルを指定します。何も設定されていない場合Windowsに関連付けられているブラウザが起動します。</TextBlock>
+                                <TextBox Text="{Binding BrowserPath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="320" HorizontalAlignment="Left" />
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>自レス判定保存日数</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">自分が投稿したレスを記憶する期間(日)を指定します。削除処理は起動時に行われます。</TextBlock>
+                                <TextBox Text="{Binding PostItemExpireDay.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="画面">
+                <Grid>
+                    <ScrollViewer
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Visible"
+                        >
+                        <StackPanel
+                            Margin="4"
+                            TextBlock.FontFamily="メイリオ"
+                            TextBlock.FontSize="14"
+                            >
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">ウインドウ</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>常に最前面に表示する</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding WindowTopmost.Value, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">カタログ</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>検索結果表示形式</TextBlock>
+                                <ComboBox SelectedIndex="{Binding CatalogSearchResult.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>検索該当項目のみ</ComboBoxItem>
+                                    <ComboBoxItem>該当項目の後に続けて表示</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>カタログ(Wrap表示)にIDマーカーを表示</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文にIDが出ている場合サムネイルにマーカーを表示します。</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding CatalogIsEnabledIdMarker.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>カタログ(Wrap表示)に動画マーカーを表示</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド画像が.mp4/.webmの場合サムネイルにマーカーを表示します。</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding CatalogIsEnabledMovieMarker.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>隔離されたスレッドを表示</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">隔離されたスレッドをカタログに表示します。スレッドはまとめてカタログの末尾に追加されます。レス数は取得されません。</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding CatalogIsVisibleIsolateThread.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>キャッシュされているNG画像スレッド設定</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド画像がNGに登録されている場合かつキャッシュに存在する場合カタログから除外します。この設定は新規にダウンロードしてきたNG画像スレッドには適用されません。</TextBlock>
+                                <ComboBox SelectedIndex="{Binding CatalogNgImageAction.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>何もしない</ComboBoxItem>
+                                    <ComboBoxItem>除外</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">スレッド</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>引用に該当レスへのリンクを張る</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding ThreadIsEnabledQuotLink.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>削除されたレス</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッドを建てた人に削除されたレスとユーザが隔離したレスの初期表示を設定します。</TextBlock>
+                                <ComboBox SelectedIndex="{Binding ThreadDelResVisibility.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>表示</ComboBoxItem>
+                                    <ComboBoxItem>隠す</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>コマンドパレットを表示</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding IsEnabledThreadCommandPalette.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">投稿画面</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>投稿した題名を記憶する</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding PostViewSavedSubject.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>投稿したおなまえを記憶する</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding PostViewSavedName.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>投稿したメールアドレスを記憶する</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding PostViewSavedMail.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>投稿画面最低表示幅</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">投稿画面の最低表示幅を設定します。(0で無効，360～)この設定よりも親ビューの表示領域が狭い場合そちらが優先されます。</TextBlock>
+                                <TextBox Text="{Binding PostViewMinWidth.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>投稿画面最大表示幅</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">投稿画面の最大表示幅を設定します。(0で無効，360～)この設定よりも親ビューの表示領域が狭い場合そちらが優先されます。</TextBlock>
+                                <TextBox Text="{Binding PostViewMaxWidth.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>投稿画面からカーソルが離れた場合半透明にする</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding PostViewIsEnabledOpacity.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>クリップボードビットマップの品質</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">クリップボードからビットマップ画像を投稿した場合のJPEG保存品質を設定します。(1-100)</TextBlock>
+                                <TextBox Text="{Binding ClipbordJpegQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="連携">
+                <Grid>
+                    <ScrollViewer
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Visible"
+                        >
+                        <StackPanel
+                            Margin="4"
+                            TextBlock.FontFamily="メイリオ"
+                            TextBlock.FontSize="14"
+                            >
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">はっちゃんキャンバス</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>はっちゃん本体</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">はっちゃんキャンバスのブックマークレットをそのまま入力してください。</TextBlock>
+                                <TextBox
+                                    Text="{Binding Canvas98Bookmarklet.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Width="320"
+                                    MaxLines="1"
+                                    HorizontalAlignment="Left"
+                                    c:PlaceHolderBehavior.PlaceHolderText="ブックマークレット"/>
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>はっちゃん拡張</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">必要に応じてはっちゃん拡張を追加できます。</TextBlock>
+                                <Grid Width="320" HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="92" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="60" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Text="{Binding Canvas98ExtendsName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        MaxLines="1"
+                                        HorizontalAlignment="Stretch"
+                                        c:PlaceHolderBehavior.PlaceHolderText="名前"
+                                        />
+                                    <TextBox 
+                                        Grid.Column="1"
+                                        Text="{Binding Canvas98ExtendsBookmarklet.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        MaxLines="1"
+                                        HorizontalAlignment="Stretch"
+                                        c:PlaceHolderBehavior.PlaceHolderText="ブックマークレット"
+                                        />
+                                    <Button Grid.Column="2" Command="{Binding Canvas98ExtendAddCommand}">
+                                        <TextBlock>追加</TextBlock>
+                                    </Button>
+                                </Grid>
+                                <ListBox
+                                    ItemsSource="{Binding Canvas98Extends, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ListBoxItem">
+                                                        <ContentPresenter />
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel
+                                                Orientation="Vertical"
+                                                IsItemsHost="True" 
+                                                HorizontalAlignment="Stretch"
+                                                />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Padding="2">
+                                                <Grid HorizontalAlignment="Stretch">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="32" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock
+                                                        Grid.Column="0"
+                                                        VerticalAlignment="Center"
+                                                        Text="{Binding Name.Value, Mode=OneWay}"
+                                                        />
+                                                    <Button
+                                                        Grid.Column="1"
+                                                        Command="{Binding DataContext.Canvas98ExtendRemoveCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:ConfigWindow}}"
+                                                        CommandParameter="{Binding }">
+                                                        <TextBlock>✖</TextBlock>
+                                                    </Button>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" Visibility="{Binding WebView2RuntimeVisiblity.Value, Mode=OneWay}">
+                                <TextBlock>
+                                    <LineBreak />
+                                    <Run>はっちゃんキャンバスの動作にはWebView2 Runtimeが必要です</Run>
+                                    <LineBreak />
+                                    <Hyperlink
+                                        NavigateUri="https://go.microsoft.com/fwlink/p/?LinkId=2124703"
+                                        Command="{Binding LinkClickCommand, Mode=OneWay}"
+                                        CommandParameter="{Binding NavigateUri, RelativeSource={RelativeSource self}}">
+                                        https://go.microsoft.com/fwlink/p/?LinkId=2124703
+                                    </Hyperlink>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock Style="{StaticResource ConfigHeaderText}">オプトアウト</TextBlock>
+                                <StackPanel Style="{StaticResource ConfigContents}">
+                                    <TextBlock>クラッシュ情報の送信</TextBlock>
+                                    <CheckBox Content="オプトアウト" IsChecked="{Binding OptoutAppCenterCrashes.Value, Mode=TwoWay}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="情報">
+                <Grid
+                    TextBlock.FontFamily="メイリオ"
+                    TextBlock.FontSize="14"
+                    >
+                    <StackPanel Margin="4">
+                        <TextBlock TextBlock.FontSize="18" TextBlock.FontWeight="Bold">ふたマキ</TextBlock>
+                        <TextBlock>
+                            <Hyperlink
+                                NavigateUri="https://dev.yarukizero.net/"
+                                Command="{Binding LinkClickCommand, Mode=OneWay}"
+                                CommandParameter="{Binding NavigateUri, RelativeSource={RelativeSource self}}">
+                                https://dev.yarukizero.net/
+                            </Hyperlink>
+                            <LineBreak />
+                            <Hyperlink
+                                NavigateUri="https://marshmallow-qa.com/yarukizero_dev"
+                                Command="{Binding LinkClickCommand, Mode=OneWay}"
+                                CommandParameter="{Binding NavigateUri, RelativeSource={RelativeSource self}}">
+                                マシュマロ(連絡先)
+                            </Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+            <Button Width="64" Height="32" Margin="4" Content="保存" IsEnabled="{Binding IsEnabledOkButton.Value, Mode=OneWay}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <ri:EventToReactiveCommand Command="{Binding OkButtonClickCommand, Mode=OneWay}" />
+                        <i:ChangePropertyAction
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:ConfigWindow}}" 
+                            PropertyName="DialogResult"
+                            Value="False" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+            <Button Width="64" Height="32" Margin="4" Content="キャンセル">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <ri:EventToReactiveCommand Command="{Binding CancelButtonClickCommand, Mode=OneWay}" />
+                        <i:ChangePropertyAction
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:ConfigWindow}}" 
+                            PropertyName="DialogResult"
+                            Value="False" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

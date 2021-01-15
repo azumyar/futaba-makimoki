@@ -1,0 +1,365 @@
+<UserControl x:Class="Yarukizero.Net.MakiMoki.Wpf.Controls.FutabaPostView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
+             xmlns:behavior="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Behaviors"
+             mc:Ignorable="d" 
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="450" d:DesignWidth="800"
+             HorizontalAlignment="Right"
+             VerticalAlignment="Top"
+             >
+    <!--
+                 MinWidth="360"
+             MaxWidth="{Binding Parent.ActualWidth, RelativeSource={RelativeSource Self}}"
+    -->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+ 
+            <sys:Double x:Key="DefaultMinWidth">360</sys:Double>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <UserControl.InputBindings>
+        <KeyBinding
+            Gesture="Ctrl+Enter"
+            Command="{Binding KeyBindingPostCommand, Mode=OneWay}"
+            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+P"
+            Command="{Binding KeyBindingOpenImageCommand, Mode=OneWay}"
+            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+L"
+            Command="{Binding KeyBindingOpenUploadCommand, Mode=OneWay}"
+            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+D"
+            Command="{Binding KeyBindingDeleteCommand, Mode=OneWay}"
+            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
+            />
+        <KeyBinding
+            Gesture="Esc"
+            Command="{Binding KeyBindingCloseCommand, Mode=OneWay}"
+            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
+            />
+        <KeyBinding
+            Gesture="Ctrl+Shift+V"
+            Command="{Binding KeyBindingClipbordCommand,Mode=OneWay}"
+            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
+            />
+    </UserControl.InputBindings>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="ContentsChanged">
+            <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
+        </i:EventTrigger>
+
+        <!--
+        <i:DataTrigger Binding="{Binding Parent.ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}" Value="360" Comparison="GreaterThan">
+            <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  PropertyName="MinWidth" Value="360" />
+            <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  PropertyName="Width">
+                <i:ChangePropertyAction.Value>
+                    <sys:Double>NaN</sys:Double>
+                </i:ChangePropertyAction.Value>
+            </i:ChangePropertyAction>
+            <i:ChangePropertyAction TargetName="PostViewRoot" PropertyName="CornerRadius" Value="6" />
+            <i:ChangePropertyAction TargetName="PostViewRoot" PropertyName="Margin" Value="4" />
+        </i:DataTrigger>
+        <i:DataTrigger Binding="{Binding Parent.ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}" Value="360" Comparison="LessThanOrEqual">
+            <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}" PropertyName="MinWidth" Value="{Binding Parent.ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}" />
+            <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  PropertyName="Width" Value="{Binding Parent.ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}" />
+            <i:ChangePropertyAction TargetName="PostViewRoot" PropertyName="CornerRadius" Value="0" />
+            <i:ChangePropertyAction TargetName="PostViewRoot" PropertyName="Margin" Value="0" />
+        </i:DataTrigger>
+        -->
+    </i:Interaction.Triggers>
+    <Border
+        CornerRadius="6"
+        BorderThickness="1"
+        Margin="4"
+        DataContext="{Binding Contents, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
+        >
+        <TextBlock.Foreground>
+            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+        </TextBlock.Foreground>
+        <Border.Background>
+            <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+        </Border.Background>
+        <Border.BorderBrush>
+            <SolidColorBrush Color="{DynamicResource ViewerBorderColor}" />
+        </Border.BorderBrush>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="6" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="6" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Border
+                Grid.Column="0" Grid.ColumnSpan="3"
+                Grid.Row="0"
+                Height="36">
+                <Border.Background>
+                    <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
+                </Border.Background>
+                <TextBlock FontSize="16" Margin="2" Text="{Binding PostTitle.Value, Mode=OneWay}" VerticalAlignment="Center">
+                    <TextBlock.Foreground>
+                        <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                    </TextBlock.Foreground>
+                </TextBlock>
+            </Border>
+            <ScrollViewer
+                Style="{StaticResource MakiMokiScrollViewerStyle}"
+                Grid.Column="1" Grid.Row="1"
+                HorizontalScrollBarVisibility="Disabled"
+                VerticalScrollBarVisibility="Auto">
+                <StackPanel
+                    Orientation="Vertical"
+                    TextBlock.FontFamily="{DynamicResource PostFont}"
+                    TextBlock.FontSize="{DynamicResource PostFontSize}">
+                    <TextBox 
+                        x:Name="PostCommentTextBox"
+                        AcceptsReturn="True"
+                        Text="{Binding PostData.Value.Comment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Margin="0 4 0 4" Padding="1"
+                        CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
+                        ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                        local:PlaceHolderBehavior.PlaceHolderText="コメント">
+                        <TextBox.Foreground>
+                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                        </TextBox.Foreground>
+                        <i:Interaction.Behaviors>
+                            <behavior:FocusBehavior x:Name="PostViewFocusBehavior" />
+                            <behavior:AttachedScrollBarStyleBehavior Style="{StaticResource MakiMokiScrollBarStyle}" />
+                        </i:Interaction.Behaviors>
+                        <i:Interaction.Triggers>
+                            <i:DataTrigger Binding="{Binding Visibility, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}, Mode=OneWay}" Value="Visible" Comparison="Equal">
+                                <i:CallMethodAction TargetObject="{Binding ElementName=PostViewFocusBehavior, Mode=OneWay}" MethodName="Focus" />
+                            </i:DataTrigger>
+                        </i:Interaction.Triggers>
+                    </TextBox>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <TextBlock Margin="2 2 0 2" Text="{Binding PostData.Value.CommentBytes.Value, StringFormat='たぶん\{0\}byte', Mode=OneWay}" />
+                        <TextBlock Margin="2 2 0 2" Text="{Binding PostData.Value.CommentLines.Value, StringFormat='\{0\}行', Mode=OneWay}" />
+                    </StackPanel>
+                    <Grid Visibility="Collapsed">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock
+                                Margin="0 4 0 4"
+                                Text="{Binding PostData.Value.ImageName.Value, Mode=OneWay}" />
+                            <Viewbox Width="128" Height="128"  StretchDirection="DownOnly">
+                                <Image 
+                                    Source="{Binding PostData.Value.ImagePreview.Value, Mode=OneWay}"
+                                    RenderOptions.EdgeMode="Aliased"
+                                    RenderOptions.BitmapScalingMode="Fant">
+                                    <Image.CacheMode>
+                                        <BitmapCache RenderAtScale="1" />
+                                    </Image.CacheMode>
+                                </Image>
+                            </Viewbox>
+                        </StackPanel>
+                        <Button
+                            Margin="4"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top">
+                            <TextBlock>
+                                ✖
+                            </TextBlock>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="PreviewMouseUp">
+                                    <ri:EventToReactiveCommand Command="{Binding DeleteImageCommand, Mode=OneWay}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                        <i:Interaction.Triggers>
+                            <i:DataTrigger Binding="{Binding PostData.Value.ImagePath.Value.Length, Mode=OneWay}" Value="0" Comparison="Equal">
+                                <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
+                            </i:DataTrigger>
+                            <i:DataTrigger Binding="{Binding PostData.Value.ImagePath.Value.Length, Mode=OneWay}" Value="0" Comparison="NotEqual">
+                                <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
+                            </i:DataTrigger>
+                        </i:Interaction.Triggers>
+                    </Grid>
+                    <TextBox
+                        Margin="0 4 0 4" Padding="1"
+                        Visibility="{Binding PostNameVisibility.Value, Mode=OneWay}"
+                        CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
+                        Text="{Binding PostData.Value.Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        local:PlaceHolderBehavior.PlaceHolderText="おなまえ">
+                        <TextBox.Foreground>
+                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                        </TextBox.Foreground>
+                    </TextBox>
+                    <TextBox 
+                        Margin="0 4 0 4" Padding="1"
+                        CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
+                        Text="{Binding PostData.Value.Mail.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        local:PlaceHolderBehavior.PlaceHolderText="メールアドレス">
+                        <TextBox.Foreground>
+                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                        </TextBox.Foreground>
+                    </TextBox>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Height="32" Margin="4 0 0 0" Visibility="{Binding PostIdOptionVisibility.Value, Mode=OneWay}">
+                            <Button.Content>
+                                ID表示
+                            </Button.Content>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <ri:EventToReactiveCommand Command="{Binding MailIdClickCommand, Mode=OneWay}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                        <Button Height="32" Margin="4 0 0 0" Visibility="{Binding PostIpOptionVisibility.Value, Mode=OneWay}">
+                            <Button.Content>
+                                IP表示
+                            </Button.Content>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <ri:EventToReactiveCommand Command="{Binding MailIpClickCommand, Mode=OneWay}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                        <Button Height="32" Margin="4 0 0 0">
+                            <Button.Content>
+                                sage
+                            </Button.Content>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <ri:EventToReactiveCommand Command="{Binding MailSageClickCommand, Mode=OneWay}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                    </StackPanel>
+                    <TextBox
+                        Margin="0 4 0 4" Padding="1"
+                        Visibility="{Binding PostNameVisibility.Value, Mode=OneWay}"
+                        CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
+                        Text="{Binding PostData.Value.Subject.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        local:PlaceHolderBehavior.PlaceHolderText="題名">
+                        <TextBox.Foreground>
+                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                        </TextBox.Foreground>
+                    </TextBox>
+                    <TextBox
+                        Margin="0 4 0 4" Padding="1"
+                        CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
+                        Text="{Binding PostData.Value.Password.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        local:PlaceHolderBehavior.PlaceHolderText="削除キー">
+                        <TextBox.Foreground>
+                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                        </TextBox.Foreground>
+                    </TextBox>
+                </StackPanel>
+            </ScrollViewer>
+            <Border
+                Grid.Column="0" Grid.ColumnSpan="3"
+                Grid.Row="2">
+                <Border.Background>
+                    <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
+                </Border.Background>
+                <StackPanel Orientation="Horizontal">
+                    <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconPostSend}" Command="{Binding PostData.Value.PostButtonCommand}">
+                        <Button.ToolTip>
+                            <ToolTip Content="投稿" />
+                        </Button.ToolTip>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PreviewMouseUp">
+                                <ri:EventToReactiveCommand Command="{Binding DataContext.PostViewPostCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}, Mode=OneWay}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                    <Button
+                        Style="{StaticResource PrimaryColorButton}"
+                        Content="{StaticResource ButtonIconPostImage}" AllowDrop="True" 
+                        Visibility="{Binding PostImageVisibility.Value, Mode=OneWay}"
+                        Tag="{Binding DataContext, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}">
+                        <Button.ToolTip>
+                            <ToolTip Content="ふたば画像" />
+                        </Button.ToolTip>
+                        <Button.ContextMenu>
+                            <ContextMenu
+                                DataContext="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                Tag="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                                <MenuItem
+                                    Header="クリップボードから貼り付け"
+                                    Command="{Binding MenuItemClickPastePostImageCommand, Mode=OneWay}"
+                                    CommandParameter="{Binding Tag,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PreviewMouseUp">
+                                <ri:EventToReactiveCommand Command="{Binding OpenImageCommand}" />
+                            </i:EventTrigger>
+
+                            <i:EventTrigger EventName="PreviewDragOver">
+                                <ri:EventToReactiveCommand Command="{Binding DataContext.ImageDragOverCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}, Mode=OneWay}" />
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="Drop">
+                                <ri:EventToReactiveCommand Command="{Binding DataContext.ImageDropCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}, Mode=OneWay}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                    <Button 
+                        Style="{StaticResource PrimaryColorButton}"
+                        Content="{StaticResource ButtonIconPostUpload}"
+                        AllowDrop="True"
+                        Tag="{Binding DataContext, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}">
+                        <Button.ToolTip>
+                            <ToolTip Content="あぷ小" />
+                        </Button.ToolTip>
+                        <Button.ContextMenu>
+                            <ContextMenu
+                                DataContext="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                Tag="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                                <MenuItem
+                                    Header="クリップボードから貼り付け"
+                                    Command="{Binding MenuItemClickPastePostUpCommand, Mode=OneWay}"
+                                    CommandParameter="{Binding Tag,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PreviewMouseUp">
+                                <ri:EventToReactiveCommand Command="{Binding DataContext.OpenUploadCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}, Mode=OneWay}" />
+                            </i:EventTrigger>
+
+                            <i:EventTrigger EventName="PreviewDragOver">
+                                <ri:EventToReactiveCommand Command="{Binding DataContext.UploadDragOverpCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}, Mode=OneWay}" />
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="Drop">
+                                <ri:EventToReactiveCommand Command="{Binding DataContext.UploadDroppCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}, Mode=OneWay}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                    <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconPostDelete}">
+                        <Button.ToolTip>
+                            <ToolTip Content="破棄" />
+                        </Button.ToolTip>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PreviewMouseUp">
+                                <ri:EventToReactiveCommand Command="{Binding DeletePostDataCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

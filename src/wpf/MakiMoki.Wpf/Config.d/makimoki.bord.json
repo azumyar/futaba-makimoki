@@ -1,0 +1,66 @@
+{
+  "version": 2020062900,
+
+  "bords": [
+    {
+      "name": "二次元裏(img)",
+      "url": "https://img.2chan.net/b/",
+      "default-comment": "ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━ !!!!!",
+      "sort-index": 101,
+      "extra": {
+        "name": false,
+        "enable-res-image": false,
+        "enable-mail-id": true,
+        "enable-res-tegaki": true,
+        "max-stored-res": 20000,
+        "max-stored-time": 3600
+      }
+    },
+    {
+      "name": "二次元裏(dec)",
+      "url": "https://dec.2chan.net/dec/",
+      "default-comment": "ｷﾀ━━━(ﾟ∀ﾟ)━━━!!",
+      "sort-index": 102,
+      "extra": {
+        "enable-res-tegaki": true,
+        "max-stored-res": 10000
+      }
+    },
+
+    {
+      "name": "二次元裏(jun)",
+      "url": "https://jun.2chan.net/jun/",
+      "default-comment": "ｷﾀ━━━(ﾟ∀ﾟ)━━━!!",
+      "sort-index": 103,
+      "extra": {
+        "enable-mail-id": true,
+        "enable-mail-ip": true,
+        "enable-res-tegaki": true,
+        "max-stored-res": 8000
+      }
+    },
+
+    {
+      "name": "二次元裏(may)",
+      "url": "https://may.2chan.net/b/",
+      "default-comment": "ｷﾀ━━━(ﾟ∀ﾟ)━━━!!",
+      "sort-index": 104,
+      "extra": {
+        "enable-mail-ip": true,
+        "enable-res-tegaki": true,
+        "max-stored-res": 80000
+      }
+    },
+    {
+      "name": "二次元裏(dat)",
+      "url": "https://dat.2chan.net/b/",
+      "default-comment": "ｷﾀ━━━(ﾟ∀ﾟ)━━━!!",
+      "sort-index": 105,
+      "extra": {
+        "name": false,
+        "enable-res-image": false,
+        "max-stored-res": 4000
+      }
+    }
+  ]
+}

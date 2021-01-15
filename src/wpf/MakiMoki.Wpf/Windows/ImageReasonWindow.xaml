@@ -1,0 +1,63 @@
+<Window x:Class="Yarukizero.Net.MakiMoki.Wpf.Windows.ImageReasonWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.NET46"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:behavior="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+        xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows"
+        mc:Ignorable="d"
+        Title="画像の登録" Height="120" Width="320"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBox
+            Grid.Row="0"
+            Width="280"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Text="{Binding ReasonText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource FindAncestor, AncestorType=local:ImageReasonWindow}}"
+            FontFamily="メイリオ"
+            FontSize="12"
+            behavior:PlaceHolderBehavior.PlaceHolderText="理由メモ(任意)"
+            />
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Margin="2" Width="64" Height="24">
+                <TextBlock>
+                    登録
+                </TextBlock>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <i:ChangePropertyAction
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:ImageReasonWindow}}" 
+                            PropertyName="DialogResult"
+                            Value="True" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+
+            <Button Margin="2" Width="64" Height="24">
+                <TextBlock>
+                    キャンセル
+                </TextBlock>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <i:ChangePropertyAction
+                            TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:ImageReasonWindow}}" 
+                            PropertyName="DialogResult"
+                            Value="False" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

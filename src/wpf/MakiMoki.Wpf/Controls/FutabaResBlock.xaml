@@ -1,0 +1,184 @@
+<UserControl x:Class="Yarukizero.Net.MakiMoki.Wpf.Controls.FutabaResBlock" x:ClassModifier="internal"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+             xmlns:util="clr-namespace:Yarukizero.Net.MakiMoki.Util;assembly=MakiMoki.Core"
+             xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
+             xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <converter:FutabaResItemIndexConverter x:Key="FutabaResItemIndexConverter" />
+            <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
+            <converter:FutabaResItemNowConverter x:Key="FutabaResItemNowConverter"/>
+            <converter:FutabaResItemIdTextConverter x:Key="FutabaResItemIdTextConverter" />
+            <converter:FutabaResItemHeaderTextConverter x:Key="FutabaResItemHeaderTextConverter" />
+
+            <Style x:Key="ResIndexStyle" TargetType="TextBlock">
+            </Style>
+            <Style x:Key="PostedResIndexStyle" TargetType="TextBlock">
+                <Setter Property="Foreground">
+                    <Setter.Value>
+                        <SolidColorBrush Color="{DynamicResource ThreadHeaderPostedColor}" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="FontWeight" Value="Bold" />
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Border 
+        x:Name="viewGrid"
+        MaxWidth="1024"
+        HorizontalAlignment="Left" 
+        Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}"                                
+        Padding="4"
+        Background="Transparent">
+        <TextBlock.Foreground>
+            <Binding Path="Foreground" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:FutabaResBlock}" Mode="OneWay" />
+        </TextBlock.Foreground>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="24" />
+            </Grid.RowDefinitions>
+            <WrapPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal"
+                    TextBlock.FontSize="{DynamicResource ThreadHeaderFontSize}"
+                    TextBlock.FontFamily="{DynamicResource ThreadHeaderFont}">
+                <!-- AlternationCount/AlternationIndexではアイテム追加時に追従してくれない -->
+                <TextBlock>
+                    <TextBlock.Style>
+                        <MultiBinding Converter="{StaticResource FutabaResItemIndexConverter}">
+                            <Binding Mode="OneWay" />
+                            <Binding Path="Value" Mode="OneWay" Source="{x:Static util:Futaba.PostItems}" />
+                            <Binding Source="{StaticResource ResIndexStyle}" />
+                            <Binding Source="{StaticResource PostedResIndexStyle}"  />
+                        </MultiBinding>
+                    </TextBlock.Style>
+                    <Run Text="{Binding Index.Value, StringFormat='\{0\} ', Mode=OneWay}" />
+                </TextBlock>
+                <TextBlock
+                    Visibility="{Binding NameVisibility.Value, Mode=OneWay}"
+                    Text="{Binding Raw.Value.ResItem.Res.Sub, StringFormat='\{0\} ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}"
+                    FontWeight="Bold" >
+                    <TextBlock.Foreground>
+                        <SolidColorBrush Color="{DynamicResource ThreadHeaderSubjectColor}" />
+                    </TextBlock.Foreground>
+                </TextBlock>
+                <TextBlock
+                    Visibility="{Binding NameVisibility.Value, Mode=OneWay}"
+                    Text="{Binding Raw.Value.ResItem.Res.Name, StringFormat='\{0\} ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}"
+                    FontWeight="Bold">
+                    <TextBlock.Foreground>
+                        <SolidColorBrush Color="{DynamicResource ThreadHeaderNameColor}" />
+                    </TextBlock.Foreground>
+                </TextBlock>
+                <emoji:TextBlock
+                    Visibility="{Binding Raw.Value.ResItem.Res.Email, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}"
+                    Text="{Binding Raw.Value.ResItem.Res.Email,  StringFormat='[\{0\}] ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}">
+                    <TextBlock.Foreground>
+                        <SolidColorBrush Color="{DynamicResource ThreadHeaderMailColor}" />
+                    </TextBlock.Foreground>
+                </emoji:TextBlock>
+                <TextBlock>
+                    <Run Text="{Binding Raw.Value.ResItem.Res.Now, StringFormat='\{0\} ', Converter={StaticResource FutabaResItemNowConverter}, Mode=OneWay}" />
+                </TextBlock>
+                <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Id, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                    <Run Text="{Binding Converter={StaticResource FutabaResItemIdTextConverter},  StringFormat='\{0\} ', Mode=OneWay}" />
+                </TextBlock>
+                <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                    <TextBlock.Foreground>
+                        <SolidColorBrush Color="{DynamicResource ThreadHeaderSoudaneColor}" />
+                    </TextBlock.Foreground>
+                    <Run Text="{Binding Raw.Value.Soudane, Mode=OneWay, StringFormat='そうだね×\{0\} '}" />
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="{Binding Raw.Value.ResItem.No,  StringFormat='No.\{0\} ', Mode=OneWay}" />
+                </TextBlock>
+            </WrapPanel>
+            <WrapPanel
+                Grid.Column="0" Grid.Row="1"
+                Orientation="Horizontal" 
+                TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
+                TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
+                <Grid
+                    Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}"
+                    TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
+                    TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        Grid.Row="0"
+                        FontSize="14"
+                        Text="{Binding ImageName.Value}" 
+                        HorizontalAlignment="Left" />
+                    <Viewbox
+                        Grid.Row="1"
+                        HorizontalAlignment="Left"
+                        StretchDirection="DownOnly">
+                        <Button
+                            x:Name="ImageButton"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            BorderBrush="Transparent"
+                            Padding="0"
+                            Margin="0 0 4 0">
+                            <Image
+                                Source="{Binding ThumbSource.Value}"
+                                RenderOptions.EdgeMode="Aliased"
+                                RenderOptions.BitmapScalingMode="Fant">
+                                <Image.CacheMode>
+                                    <BitmapCache RenderAtScale="1" />
+                                </Image.CacheMode>
+
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Loaded">
+                                        <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Image>
+
+                            <!--
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="PreviewMouseDown">
+                                    <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadImageMouseDownCommand, ElementName=_this}" />
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="PreviewMouseUp">
+                                    <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadImageClickCommand, ElementName=_this}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            -->
+                        </Button>
+                    </Viewbox>
+                </Grid>
+                <local:FutabaCommentBlock
+                    x:Name="FutabaCommentBlock"
+                    Text="{Binding CommentHtml.Value, Mode=OneWay}"
+                    TextWrapping="Wrap" Margin="4 4 0 4">
+                    <local:FutabaCommentBlock.Inline>
+                        <Binding Mode="OneWay" />
+                    </local:FutabaCommentBlock.Inline>
+                    <!--
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="LinkClick">
+                            <ri:EventToReactiveCommand Command="{Binding DataContext.LinkClickCommand, ElementName=_this}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    -->
+                </local:FutabaCommentBlock>
+            </WrapPanel>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,0 +1,10 @@
+{
+  "version": 2020070500,
+
+  "futaba-thread-get-incremental": true,
+  "futaba-response-data-save": true,
+  "futaba-post-data-expire-day": 30,
+  "futaba-post-save-subject": false,
+  "futaba-post-save-name": false,
+  "futaba-post-save-mail":  false
+}
