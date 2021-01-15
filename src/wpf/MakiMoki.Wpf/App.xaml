@@ -195,6 +195,12 @@
             </Canvas>
         </Viewbox>
 
+        <Viewbox x:Key="ButtonIconCanvas98" x:Shared="False">
+            <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
+                <Path Width="704" Height="736" Canvas.Left="160" Canvas.Top="128" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="M 448,160L 896,160L 709.333,416L 896,672L 448,672L 634.667,416L 448,160 Z M 560,224.001L 672,384L 784,224.001L 560,224.001 Z M 560,608L 784,608L 672,448L 560,608 Z M 336,288C 274.144,288 224,345.308 224,416C 224,486.693 274.144,544 336,544C 397.856,544 448,486.693 448,416C 448,345.308 397.856,288 336,288 Z M 238.949,864L 359.176,606.35C 351.592,607.439 343.856,608 336,608C 238.798,608 160,522.039 160,416C 160,309.961 238.798,224 336,224C 433.202,224 512,309.961 512,416C 512,479.817 483.46,536.361 439.545,571.273L 302.949,864L 238.949,864 Z "/>
+            </Canvas>
+        </Viewbox>
+
         <Viewbox x:Key="ButtonIconPostSend" x:Shared="False">
             <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
                 <Path Width="640" Height="704" Canvas.Left="192" Canvas.Top="160" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="F1 M 192,160L 832,512L 192,864L 192,576L 640,512L 192,448L 192,160 Z "/>
