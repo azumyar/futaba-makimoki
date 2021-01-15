@@ -40,7 +40,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class MakiMokiOptout : ConfigObject {
-		public static int CurrentVersion { get; } = -1;
+		public static int CurrentVersion { get; } = 2021011600;
 
 		[JsonProperty("optout-appcenter-crashes", Required = Required.Always)]
 		public bool AppCenterCrashes { get; private set; }

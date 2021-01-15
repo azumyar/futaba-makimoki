@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 	public class Canvas98Bookmarklet : Data.ConfigObject {
-		public static int CurrentVersion { get; } = -1;
+		public static int CurrentVersion { get; } = 2021011600;
 
 		[JsonProperty("bookmarklet", Required = Required.Always)]
 		public string Bookmarklet { get; private set; }
