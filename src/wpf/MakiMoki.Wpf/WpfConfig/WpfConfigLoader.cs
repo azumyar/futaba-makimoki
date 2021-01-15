@@ -98,22 +98,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 				Placement);
 		}
 
-		private static string GetResourcePath(string name) => $"{ typeof(WpfConfigLoader).Namespace }.{ name }";
-
 		private static void UpdateStyle() {
-			T getStream<T>(Stream path, T defaultValue) {
-				var r = defaultValue;
-				Util.FileUtil.LoadConfigHelper(path,
-					(json) => r = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json),
-					(e, m) => throw new Exceptions.InitializeFailedException(m, e));
-				return r;
-			}
-
 			if(!File.Exists(Path.Combine(InitializedSetting.UserDirectory, StyleUserConfigFile))) {
-				var asm = typeof(WpfConfigLoader).Assembly;
 				var styleFile = (SystemConfig.WindowTheme == WindowTheme.Light) ? StyleLightConfigFile : StyleDarkConfigFile;
-				Style = getStream(
-					asm.GetManifestResourceStream(GetResourcePath(styleFile)),
+				Style = Util.FileUtil.LoadMigrate(
+					new Util.ResourceLoader(typeof(WpfConfigLoader)).Get(styleFile),
 					PlatformData.StyleConfig.CreateDefault());
 			}
 		}

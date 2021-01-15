@@ -30,85 +30,42 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 			System.Diagnostics.Debug.Assert(setting != null);
 			InitializedSetting = setting;
 
-			T get<T>(string path, T defaultValue) {
-				if(File.Exists(path)) {
-					return Util.FileUtil.LoadJson<T>(path);
-				}
-				return defaultValue;
-			}
-			T getPath<T>(string path, T defaultValue, Func<string, T> convFunc = null) {
-				var r = defaultValue;
-				convFunc = convFunc ?? ((j) => Newtonsoft.Json.JsonConvert.DeserializeObject<T>(j));
-				if(File.Exists(path)) {
-					Util.FileUtil.LoadConfigHelper(path,
-						(json) => r = convFunc(json),
-						(e, m) => throw new Exceptions.InitializeFailedException(m, e));
-				}
-				return r;
-			}
-
-			try {
-				if((setting.UserDirectory != null) && Directory.Exists(setting.UserDirectory)) {
-					ConfigDirectory = setting.UserDirectory;
-					NgConfig = getPath(
-						Path.Combine(ConfigDirectory, NgConfigFile),
-						NgData.NgConfig.CreateDefault(),
-						(json) => Util.CompatUtil.Migrate<NgData.NgConfig>(json, new Dictionary<int, Type>() {
+			if((setting.UserDirectory != null) && Directory.Exists(setting.UserDirectory)) {
+				NgConfig = Util.FileUtil.LoadMigrate(
+					Path.Combine(setting.UserDirectory, NgConfigFile),
+					NgData.NgConfig.CreateDefault(),
+					new Dictionary<int, Type>() {
 							{ NgData.Compat.NgConfig2020062900.CurrentVersion, typeof(NgData.Compat.NgConfig2020062900) },
-						}));
-					NgConfig = get(Path.Combine(ConfigDirectory, NgConfigFile), NgData.NgConfig.CreateDefault());
-					NgImageConfig = get(Path.Combine(ConfigDirectory, NgImageConfigFile), NgData.NgImageConfig.CreateDefault());
-					HiddenConfig = get(Path.Combine(ConfigDirectory, HiddenConfigFile), NgData.HiddenConfig.CreateDefault());
-
-					foreach(var r in NgConfig.CatalogRegex.Concat(NgConfig.ThreadRegex)) {
-						if(!IsValidRegex(r)) {
-							throw new Exceptions.InitializeFailedException(
-								$"NG正規表現が不正です。{ Environment.NewLine }{ Environment.NewLine }{ r }");
-						}
+					});
+				NgImageConfig = Util.FileUtil.LoadMigrate(
+					Path.Combine(setting.UserDirectory, NgImageConfigFile),
+					NgData.NgImageConfig.CreateDefault());
+				HiddenConfig = Util.FileUtil.LoadMigrate(
+					Path.Combine(setting.UserDirectory, HiddenConfigFile),
+					NgData.HiddenConfig.CreateDefault());
+				foreach(var r in NgConfig.CatalogRegex.Concat(NgConfig.ThreadRegex)) {
+					if(!IsValidRegex(r)) {
+						throw new Exceptions.InitializeFailedException(
+							$"NG正規表現が不正です。{ Environment.NewLine }{ Environment.NewLine }{ r }");
 					}
+				}
 
-					// 古い非表示レス設定を削除する
-					var hiddenCount = HiddenConfig.Res.Length;
-					if(0 < hiddenCount) {
-						var d = DateTime.Now.AddDays(-HiddenConfig.ExpireDay);
-						var t = HiddenConfig.Res.Where(x => d <= x.Res.Res.NowDateTime).ToArray();
-						if(hiddenCount != t.Length) {
-							HiddenConfig.Res = t;
-							SaveConfig(HiddenConfigFile, HiddenConfig);
-						}
+				// 古い非表示レス設定を削除する
+				var hiddenCount = HiddenConfig.Res.Length;
+				if(0 < hiddenCount) {
+					var d = DateTime.Now.AddDays(-HiddenConfig.ExpireDay);
+					var t = HiddenConfig.Res.Where(x => d <= x.Res.Res.NowDateTime).ToArray();
+					if(hiddenCount != t.Length) {
+						HiddenConfig.Res = t;
+						SaveConfig(HiddenConfigFile, HiddenConfig);
 					}
-					goto end;
 				}
 			}
-			catch(JsonReaderException e) {
-				throw new Exceptions.InitializeFailedException(
-					string.Format(
-						"JSONファイルが不正な形式です{0}{0}{1}",
-						Environment.NewLine,
-						e.Message));
-			}
-			catch(JsonSerializationException e) {
-				throw new Exceptions.InitializeFailedException(
-					string.Format(
-						"JSONファイルが不正な形式です{0}{0}{1}",
-						Environment.NewLine,
-						e.Message));
-			}
-			catch(IOException e) {
-				throw new Exceptions.InitializeFailedException(
-					string.Format(
-						"ファイルの読み込みに失敗しました{0}{0}{1}",
-						Environment.NewLine,
-						e.Message));
-			}
 
-			NgConfig = NgData.NgConfig.CreateDefault();
-			NgImageConfig = NgData.NgImageConfig.CreateDefault();
-			HiddenConfig = NgData.HiddenConfig.CreateDefault();
-		end:;
+			NgConfig ??= NgData.NgConfig.CreateDefault();
+			NgImageConfig ??= NgData.NgImageConfig.CreateDefault();
+			HiddenConfig ??= NgData.HiddenConfig.CreateDefault();
 		}
-
-		private static string ConfigDirectory { get; set; }
 
 		public static Setting InitializedSetting { get; private set; }
 
@@ -323,7 +280,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 
 		private static bool IsValidRegex(string r) {
 			try {
-				new Regex(r);
+				_ = new Regex(r);
 				return true;
 			}
 			catch(ArgumentException) {
@@ -337,9 +294,9 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 
 
 		private static void SaveConfig(string fileName, object o) {
-			if(Directory.Exists(ConfigDirectory)) {
+			if((InitializedSetting.UserDirectory != null) && Directory.Exists(InitializedSetting.UserDirectory)) {
 				try {
-					Util.FileUtil.SaveJson(Path.Combine(ConfigDirectory, fileName), o);
+					Util.FileUtil.SaveJson(Path.Combine(InitializedSetting.UserDirectory, fileName), o);
 				}
 				catch(IOException e) {
 					// TODO: どうしよ

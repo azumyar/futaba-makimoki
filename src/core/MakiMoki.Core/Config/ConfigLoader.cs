@@ -92,45 +92,22 @@ namespace Yarukizero.Net.MakiMoki.Config {
 				FutabaApi.Ptua = CreatePtua();
 			}
 
-			try {
-				foreach(var confDir in new string[] { setting.SystemDirectory, setting.UserDirectory }) {
-					if(confDir != null) {
-						MakiMoki = Util.FileUtil.LoadMigrate(
-							Path.Combine(confDir, MakiMokiConfigFile),
-							MakiMoki,
-							new Dictionary<int, Type>() {
-								{ Data.Compat.MakiMokiConfig2020062900.CurrentVersion, typeof(Data.Compat.MakiMokiConfig2020062900) },
-							});
-						Optout = Util.FileUtil.LoadMigrate(
-							Path.Combine(confDir, MakiMokiOptoutConfigFile),
-							Optout);
-						addDic(bordDic,
-							Util.FileUtil.LoadMigrate(
-								Path.Combine(confDir, BordConfigFile), 
-								default(BordConfig))?.Bords);
-					}
+			foreach(var confDir in new string[] { setting.SystemDirectory, setting.UserDirectory }) {
+				if(confDir != null) {
+					MakiMoki = Util.FileUtil.LoadMigrate(
+						Path.Combine(confDir, MakiMokiConfigFile),
+						MakiMoki,
+						new Dictionary<int, Type>() {
+							{ Data.Compat.MakiMokiConfig2020062900.CurrentVersion, typeof(Data.Compat.MakiMokiConfig2020062900) },
+						});
+					Optout = Util.FileUtil.LoadMigrate(
+						Path.Combine(confDir, MakiMokiOptoutConfigFile),
+						Optout);
+					addDic(bordDic,
+						Util.FileUtil.LoadMigrate(
+							Path.Combine(confDir, BordConfigFile),
+							default(BordConfig))?.Bords);
 				}
-			}
-			catch(JsonReaderException e) {
-				throw new Exceptions.InitializeFailedException(
-					string.Format(
-						"JSONファイルが不正な形式です{0}{0}{1}",
-						Environment.NewLine,
-						e.Message), e);
-			}
-			catch(JsonSerializationException e) {
-				throw new Exceptions.InitializeFailedException(
-					string.Format(
-						"JSONファイルが不正な形式です{0}{0}{1}",
-						Environment.NewLine,
-						e.Message), e);
-			}
-			catch(IOException e) {
-				throw new Exceptions.InitializeFailedException(
-					string.Format(
-						"ファイルの読み込みに失敗しました{0}{0}{1}",
-						Environment.NewLine,
-						e.Message), e);
 			}
 
 			Bord = CoreBordConfig.CreateAppInstance(
@@ -159,7 +136,6 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		public static Data.MakiMokiConfig MakiMoki { get; private set; }
 
 		public static Data.MakiMokiOptout Optout { get; private set; }
-
 
 		public static Data.CoreBordConfig Bord { get; private set; }
 
