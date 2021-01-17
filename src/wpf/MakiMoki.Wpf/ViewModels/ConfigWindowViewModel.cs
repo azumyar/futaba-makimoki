@@ -45,6 +45,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<string> NgConfigThreadNgWordRegex { get; }
 		public ReactiveProperty<bool> NgConfigThreadNgWordRegexValid { get; }
 		public ReactiveProperty<Visibility> NgConfigThreadNgWordRegexVisibility { get; }
+		public ReactiveProperty<string> NgConfigCatalogWatchWord { get; }
+		public ReactiveProperty<string> NgConfigCatalogWatchWordRegex { get; }
+		public ReactiveProperty<bool> NgConfigCatalogWatchWordRegexValid { get; }
+		public ReactiveProperty<Visibility> NgConfigCatalogWatchWordRegexVisibility { get; }
 		public ReactiveProperty<int> NgConfigImageMethod { get; }
 		public ReactiveProperty<int> NgConfigImageThreshold { get; }
 		public ReactiveProperty<bool> NgConfigResonInput { get; }
@@ -136,6 +140,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				return true;
 			}).ToReactiveProperty();
 			NgConfigThreadNgWordRegexVisibility = NgConfigThreadNgWordRegexValid.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
+			NgConfigCatalogWatchWord = new ReactiveProperty<string>(string.Join(Environment.NewLine, Ng.NgConfig.NgConfigLoader.WatchConfig.CatalogWords));
+			NgConfigCatalogWatchWordRegex = new ReactiveProperty<string>(string.Join(Environment.NewLine, Ng.NgConfig.NgConfigLoader.WatchConfig.CatalogRegex));
+			NgConfigCatalogWatchWordRegexValid = NgConfigCatalogWatchWordRegex.Select(x => {
+				foreach(var r in x.Replace("\r", "").Split('\n')) {
+					try {
+						_ = new Regex(r);
+					}
+					catch(ArgumentException) {
+						return false;
+					}
+				}
+				return true;
+			}).ToReactiveProperty();
+			NgConfigCatalogWatchWordRegexVisibility = NgConfigCatalogWatchWordRegexValid.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
 			NgConfigImageMethod = new ReactiveProperty<int>((int)Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod);
 			NgConfigImageThreshold = new ReactiveProperty<int>(Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold);
 			NgConfigResonInput = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledNgReasonInput);
@@ -232,6 +250,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			IsEnabledOkButton = new[] {
 				NgConfigCatalogNgWordRegexValid,
 				NgConfigThreadNgWordRegexValid,
+				NgConfigCatalogWatchWordRegexValid,
 				PostItemExpireDayValid,
 				ClipbordJpegQualityValid,
 				MediaCacheExpireDayValid,
@@ -284,6 +303,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ToArray());
 			Ng.NgConfig.NgConfigLoader.ReplaceThreadNgRegex(
 				NgConfigThreadNgWordRegex.Value
+					.Replace("\r", "")
+					.Split('\n')
+					.Where(x => !string.IsNullOrEmpty(x))
+					.ToArray());
+			Ng.NgConfig.NgConfigLoader.ReplaceWatchWord(
+				NgConfigCatalogWatchWord.Value
+					.Replace("\r", "")
+					.Split('\n')
+					.Where(x => !string.IsNullOrEmpty(x))
+					.ToArray());
+			Ng.NgConfig.NgConfigLoader.ReplaceWatchRegex(
+				NgConfigCatalogWatchWordRegex.Value
 					.Replace("\r", "")
 					.Split('\n')
 					.Where(x => !string.IsNullOrEmpty(x))

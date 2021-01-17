@@ -223,6 +223,7 @@
                                                     <Binding Path="Contents.Futaba.Value.OpenedThreads.Value" Mode="OneWay" ElementName="_this" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
                                                     <Binding Path="DataContext" ElementName="CatalogBackgroundSerachHitColorGetter" Mode="OneWay" />
+                                                    <Binding Path="DataContext" ElementName="CatalogItemWatchBackgroundColorGetter" Mode="OneWay" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemOpendBackgroundColorGetter" Mode="OneWay" />
                                                 </MultiBinding>
                                             </SolidColorBrush.Color>
@@ -559,6 +560,7 @@
                                                     <Binding Path="Contents.Futaba.Value.OpenedThreads.Value" Mode="OneWay" ElementName="_this" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
                                                     <Binding Path="DataContext" ElementName="CatalogBackgroundSerachHitColorGetter" Mode="OneWay" />
+                                                    <Binding Path="DataContext" ElementName="CatalogItemWatchBackgroundColorGetter" Mode="OneWay" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemOpendBackgroundColorGetter" Mode="OneWay" />
                                                 </MultiBinding>
                                             </SolidColorBrush.Color>
@@ -781,6 +783,10 @@
             x:Name="CatalogItemOpendBackgroundColorGetter"
             Visibility="Collapsed"
             DataContext="{DynamicResource CatalogItemOpendBackgroundColor}" />
+        <FrameworkElement 
+            x:Name="CatalogItemWatchBackgroundColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource CatalogItemWatchBackgroundColor}" />
         <FrameworkElement 
             x:Name="CatalogBackgroundSerachHitColorGetter"
             Visibility="Collapsed"

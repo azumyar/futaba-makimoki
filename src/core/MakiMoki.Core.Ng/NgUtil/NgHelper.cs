@@ -32,11 +32,11 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 			}
 
 			var com = Util.TextUtil.RowComment2Text(item.ResItem.Res.Com);
-			if(word.Where(x => com.Contains(x)).Count() != 0) {
+			if(word.Where(x => com.Contains(x)).Any()) {
 				return true;
 			}
 
-			if(regex.Where(x => Regex.IsMatch(com, x, RegexOptions.IgnoreCase | RegexOptions.Multiline)).Count() != 0) {
+			if(regex.Where(x => Regex.IsMatch(com, x, RegexOptions.IgnoreCase | RegexOptions.Multiline)).Any()) {
 				return true;
 			}
 
@@ -62,6 +62,20 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 				NgConfig.NgConfigLoader.NgConfig.EnableThreadIdNg,
 				NgConfig.NgConfigLoader.NgConfig.ThreadWords,
 				NgConfig.NgConfigLoader.NgConfig.ThreadRegex);
+		}
+
+		public static bool CheckCatalogWatch(Data.FutabaContext futaba, Data.FutabaContext.Item item) {
+			if(futaba.Url.IsCatalogUrl) {
+				var com = Util.TextUtil.RowComment2Text(item.ResItem.Res.Com);
+				if(NgConfig.NgConfigLoader.WatchConfig.CatalogWords.Where(x => com.Contains(x)).Any()) {
+					return true;
+				}
+
+				if(NgConfig.NgConfigLoader.WatchConfig.CatalogRegex.Where(x => Regex.IsMatch(com, x, RegexOptions.IgnoreCase | RegexOptions.Multiline)).Any()) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		public static bool IsEnabledNgImage() {

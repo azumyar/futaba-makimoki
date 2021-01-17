@@ -233,6 +233,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public string CatalogItemBackgroundColor { get; private set; }
 		[JsonProperty("color-viewer-catalog-item-background-search-hit")]
 		public string CatalogItemSearchHitBackgroundColor { get; private set; }
+		[JsonProperty("color-viewer-catalog-item-background-watch-hit")]
+		public string CatalogItemWatchHitBackgroundColor { get; private set; }
 		[JsonProperty("color-viewer-catalog-item-background-opend")]
 		public string CatalogItemOpendBackgroundColor { get; private set; }
 		[JsonProperty("color-viewer-catalog-badge-count-foreground")]

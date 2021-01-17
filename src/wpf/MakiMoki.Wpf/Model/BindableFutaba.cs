@@ -543,6 +543,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> CommentHtml { get; }
 		public ReactiveProperty<string> OriginHtml { get; }
 		public ReactiveProperty<bool> IsNg { get; }
+		public ReactiveProperty<bool> IsWatch { get; }
 		public ReactiveProperty<bool> IsHidden { get; }
 		public ReactiveProperty<bool> IsDel { get; }
 		public ReactiveProperty<bool> IsVisibleOriginComment { get; }
@@ -578,6 +579,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		private Action<Ng.NgData.NgConfig> ngUpdateAction;
 		private Action<Ng.NgData.HiddenConfig> hiddenUpdateAction;
 		private Action<Ng.NgData.NgImageConfig> imageUpdateAction;
+		private Action<Ng.NgData.WatchConfig> watchUpdateAction;
 		private Action<PlatformData.WpfConfig> systemUpdateAction;
 
 		public BindableFutabaResItem(int index, Data.FutabaContext.Item item, string baseUrl, BindableFutaba parent) {
@@ -614,6 +616,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.IsNg = new ReactiveProperty<bool>(
 					parent.Url.IsCatalogUrl ? Ng.NgUtil.NgHelper.CheckCatalogNg(parent.Raw, item)
 						: Ng.NgUtil.NgHelper.CheckThreadNg(parent.Raw, item));
+				this.IsWatch = new ReactiveProperty<bool>(Ng.NgUtil.NgHelper.CheckCatalogWatch(parent.Raw, item));
 				this.IsHidden = new ReactiveProperty<bool>(Ng.NgUtil.NgHelper.CheckHidden(parent.Raw, item));
 				this.IsDel = new ReactiveProperty<bool>(
 					(item.ResItem.Res.IsDel || item.ResItem.Res.IsDel2)
@@ -644,6 +647,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 				ngUpdateAction = (x) => a();
 				hiddenUpdateAction = (x) => a();
+				watchUpdateAction = (x) => a();
 				imageUpdateAction = (x) => b();
 				systemUpdateAction = (x) => c();
 				Ng.NgConfig.NgConfigLoader.AddNgUpdateNotifyer(ngUpdateAction);
@@ -805,6 +809,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.IsNg.Value = this.Raw.Value.Url.IsCatalogUrl
 				? Ng.NgUtil.NgHelper.CheckCatalogNg(this.Parent.Value.Raw, this.Raw.Value)
 					: Ng.NgUtil.NgHelper.CheckThreadNg(this.Parent.Value.Raw, this.Raw.Value);
+			this.IsWatch.Value = Ng.NgUtil.NgHelper.CheckCatalogWatch(this.Parent.Value.Raw, this.Raw.Value);
 			this.IsHidden.Value = Ng.NgUtil.NgHelper.CheckHidden(this.Parent.Value.Raw, this.Raw.Value);
 			this.IsCopyMode.Value = false;
 			this.SetCommentHtml();

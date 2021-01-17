@@ -14,6 +14,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 		private static readonly string NgConfigFile = "ng.json";
 		private static readonly string NgImageConfigFile = "ng.image.json";
 		private static readonly string HiddenConfigFile = "ng.hidden.json";
+		private static readonly string WatchConfigFile = "watch.json";
 
 #pragma warning disable IDE0044
 		private static volatile object lockObj = new object();
@@ -21,6 +22,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 		private static List<WeakReference<Action<NgData.NgConfig>>> ngUpdateNotifyer = new List<WeakReference<Action<NgData.NgConfig>>>();
 		private static List<WeakReference<Action<NgData.HiddenConfig>>> hiddenUpdateNotifyer = new List<WeakReference<Action<NgData.HiddenConfig>>>();
 		private static List<WeakReference<Action<NgData.NgImageConfig>>> imageUpdateNotifyer = new List<WeakReference<Action<NgData.NgImageConfig>>>();
+		public static Helpers.UpdateNotifyer<NgData.WatchConfig> WatchUpdateNotifyer { get; } = new Helpers.UpdateNotifyer<WatchConfig>();
 
 		public class Setting {
 			public string UserDirectory { get; set; } = null;
@@ -43,10 +45,16 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 				HiddenConfig = Util.FileUtil.LoadMigrate(
 					Path.Combine(setting.UserDirectory, HiddenConfigFile),
 					NgData.HiddenConfig.CreateDefault());
-				foreach(var r in NgConfig.CatalogRegex.Concat(NgConfig.ThreadRegex)) {
+				WatchConfig = Util.FileUtil.LoadMigrate(
+					Path.Combine(setting.UserDirectory, WatchConfigFile),
+					NgData.WatchConfig.CreateDefault());
+				foreach(var r in NgConfig.CatalogRegex
+					.Concat(NgConfig.ThreadRegex)
+					.Concat(WatchConfig.CatalogRegex)) {
+
 					if(!IsValidRegex(r)) {
 						throw new Exceptions.InitializeFailedException(
-							$"NG正規表現が不正です。{ Environment.NewLine }{ Environment.NewLine }{ r }");
+							$"NG/Watch正規表現が不正です。{ Environment.NewLine }{ Environment.NewLine }{ r }");
 					}
 				}
 
@@ -65,14 +73,16 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 			NgConfig ??= NgData.NgConfig.CreateDefault();
 			NgImageConfig ??= NgData.NgImageConfig.CreateDefault();
 			HiddenConfig ??= NgData.HiddenConfig.CreateDefault();
+			WatchConfig ??= NgData.WatchConfig.CreateDefault();
 		}
 
 		public static Setting InitializedSetting { get; private set; }
 
 		public static NgData.NgConfig NgConfig { get; private set; }
 		public static NgData.NgImageConfig NgImageConfig { get; private set; }
-
 		public static NgData.HiddenConfig HiddenConfig { get; private set; }
+
+		public static NgData.WatchConfig WatchConfig { get; private set; }
 
 		public static void UpdateCatalogIdNg(bool ng) {
 			if(NgConfig.EnableCatalogIdNg != ng) {
@@ -264,6 +274,20 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 				SaveConfig(NgImageConfigFile, NgImageConfig);
 				imageUpdateNotifyer = Notify(imageUpdateNotifyer, NgImageConfig);
 			}
+		}
+
+		public static void ReplaceWatchWord(string[] words) {
+			System.Diagnostics.Debug.Assert(words != null);
+			WatchConfig.CatalogWords = words.ToArray();
+			SaveConfig(WatchConfigFile, WatchConfig);
+			WatchUpdateNotifyer.Notify(WatchConfig);
+		}
+
+		public static void ReplaceWatchRegex(string[] words) {
+			System.Diagnostics.Debug.Assert(words != null);
+			WatchConfig.CatalogRegex = words.ToArray();
+			SaveConfig(WatchConfigFile, WatchConfig);
+			WatchUpdateNotifyer.Notify(WatchConfig);
 		}
 
 		public static void AddNgUpdateNotifyer(Action<NgData.NgConfig> action) {

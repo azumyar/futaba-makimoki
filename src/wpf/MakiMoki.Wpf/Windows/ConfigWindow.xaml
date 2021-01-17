@@ -63,7 +63,7 @@
                                 <CheckBox Content="有効" IsChecked="{Binding CoreConfigSavedResponse.Value, Mode=TwoWay}" />
                             </StackPanel>
 
-                            <TextBlock Style="{StaticResource ConfigHeaderText}" Margin="0 8 0 0">NG設定</TextBlock>
+                            <TextBlock Style="{StaticResource ConfigHeaderText}" Margin="0 8 0 0">NG/Watch設定</TextBlock>
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>IDスレッドをカタログNG</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレ本文にIDが出ている場合カタログに表示しません。ただしスレッドがid表示で立てられている場合この設定は無視されます。</TextBlock>
@@ -133,6 +133,35 @@
                                 <TextBlock Foreground="Red" Visibility="{Binding NgConfigThreadNgWordRegexVisibility.Value, Mode=OneWay}">正規表現に問題があります</TextBlock>
                             </StackPanel>
 
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>カタログWatchワード</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文にこのワードが含まれる場合カタログ上位に表示します。1行1ワードとして処理します。大文字小文字は区別されます。</TextBlock>
+                                <TextBox
+                                    Width="320"
+                                    Height="128"
+                                    AcceptsReturn="True"
+                                    HorizontalAlignment="Left"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Text="{Binding NgConfigCatalogWatchWord.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    />
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>カタログWatchワード(正規表現)</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド本文にこの正規表現がマッチする場合カタログ上位に表示します。1行1正規表現として処理します。大文字小文字は区別されません。マルチラインモードで処理します。</TextBlock>
+                                <TextBox
+                                    Width="320"
+                                    Height="128"
+                                    AcceptsReturn="True"
+                                    HorizontalAlignment="Left"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Text="{Binding NgConfigCatalogWatchWordRegex.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
+                                    />
+                                <TextBlock Foreground="Red" Visibility="{Binding NgConfigCatalogWatchWordRegexVisibility.Value, Mode=OneWay}">正規表現に問題があります</TextBlock>
+                            </StackPanel>
+                            
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>NG画像処理方法</TextBlock>
                                 <ComboBox SelectedIndex="{Binding NgConfigImageMethod.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">

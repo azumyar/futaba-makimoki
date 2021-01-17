@@ -227,6 +227,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 
 				var catalogItemBackground = style.ToWpfColor(style.CatalogItemBackgroundColor);
 				var catalogItemSearchHitBackground = style.ToWpfColor(style.CatalogItemSearchHitBackgroundColor);
+				var catalogItemWatchHitBackgroundColor = style.ToWpfColor(style.CatalogItemWatchHitBackgroundColor);
 				var catalogItemOpendBackground = style.ToWpfColor(style.CatalogItemOpendBackgroundColor);
 				var catalogBadgeCountForeground = style.ToWpfColor(style.CatalogBadgeCountForegroundColor);
 				var catalogBadgeCountBackground = style.ToWpfColor(style.CatalogBadgeCountBackgroundColor);
@@ -240,6 +241,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				var catalogBadgeIsolateBackground = style.ToWpfColor(style.CatalogBadgeIsolateBackgroundColor);
 				this.Resources["CatalogItemBackgroundColor"] = catalogItemBackground;
 				this.Resources["CatalogBackgroundSerachHitColor"] = catalogItemSearchHitBackground;
+				this.Resources["CatalogItemWatchBackgroundColor"] = catalogItemWatchHitBackgroundColor;
 				this.Resources["CatalogItemOpendBackgroundColor"] = catalogItemOpendBackground;
 				this.Resources["CatalogBadgeCountForegroundColor"] = catalogBadgeCountForeground;
 				this.Resources["CatalogBadgeCountBackgroundColor"] = catalogBadgeCountBackground;
