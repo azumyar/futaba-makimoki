@@ -429,7 +429,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		private void OnDeletePostData() {
-			this.PostData.Value = new PostHolder();
+			this.PostData.Value.Reset();
 		}
 
 		private void OnFullScreenClick() {
@@ -571,6 +571,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public ReactiveProperty<string> CommentCopy { get; }
 		public ReactiveProperty<Visibility> CommandPaletteVisibility { get; }
+		public ReactiveProperty<HorizontalAlignment> CommandPaletteAlignment { get; }
 
 
 		public ReactiveProperty<Visibility> ReleaseHiddenResBuutonVisibility { get; }
@@ -621,6 +622,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ThumbHash = new ReactiveProperty<ulong?>();
 			this.CommandPaletteVisibility = new ReactiveProperty<Visibility>(
 				WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledThreadCommandPalette ? Visibility.Visible : Visibility.Collapsed);
+			this.CommandPaletteAlignment = new ReactiveProperty<HorizontalAlignment>(UiPotionToHorizontalAlignment(
+				WpfConfig.WpfConfigLoader.SystemConfig.CommandPalettePosition));
 			this.IsVisibleCatalogIdMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledIdMarker);
 
 			// delとhostの処理
@@ -903,7 +906,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.SetCommentHtml();
 			this.IsVisibleOriginComment.Value =(this.IsHidden.Value || this.IsNg.Value || this.IsDel.Value) ? false : true;
 			this.CommandPaletteVisibility.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledThreadCommandPalette ? Visibility.Visible : Visibility.Collapsed;
+			this.CommandPaletteAlignment.Value = UiPotionToHorizontalAlignment(WpfConfig.WpfConfigLoader.SystemConfig.CommandPalettePosition);
 			this.IsVisibleCatalogIdMarker.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledIdMarker;
+		}
+
+		private HorizontalAlignment UiPotionToHorizontalAlignment(PlatformData.UiPosition position) {
+			switch(position) {
+			case PlatformData.UiPosition.Left: return HorizontalAlignment.Left;
+			case PlatformData.UiPosition.Right: return HorizontalAlignment.Right;
+			default: return HorizontalAlignment.Right;
+			}
 		}
 	}
 }

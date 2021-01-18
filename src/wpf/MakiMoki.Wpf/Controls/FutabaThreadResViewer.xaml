@@ -716,7 +716,7 @@
                                     Grid.Row="1"
                                     Opacity="0.6"
                                     Orientation="Horizontal"
-                                    HorizontalAlignment="Right"
+                                    HorizontalAlignment="{Binding CommandPaletteAlignment.Value, Mode=OneWay}"
                                     Visibility="Hidden"
                                     >
                                     <StackPanel Orientation="Horizontal" Visibility="{Binding CommandPaletteVisibility.Value, Mode=OneWay}">

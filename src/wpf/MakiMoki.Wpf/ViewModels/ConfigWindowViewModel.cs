@@ -60,6 +60,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<bool> CoreConfigThreadDataIncremental { get; }
 		public ReactiveProperty<bool> CoreConfigSavedResponse { get; }
+		public ReactiveProperty<bool> CatalogFetchImageThumbnail { get; }
 
 
 		public ReactiveCollection<ConfigListBoxItem> Bords { get; } = new ReactiveCollection<ConfigListBoxItem>();
@@ -79,6 +80,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<string> NgConfigCatalogWatchWordRegex { get; }
 		public ReactiveProperty<bool> NgConfigCatalogWatchWordRegexValid { get; }
 		public ReactiveProperty<Visibility> NgConfigCatalogWatchWordRegexVisibility { get; }
+		public ReactiveCollection<ConfigListBoxItem> NgConfigWatchImages { get; } = new ReactiveCollection<ConfigListBoxItem>();
 		public ReactiveProperty<int> NgConfigImageMethod { get; }
 		public ReactiveProperty<int> NgConfigImageThreshold { get; }
 		public ReactiveProperty<bool> NgConfigResonInput { get; }
@@ -98,6 +100,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> ClipbordJpegQualityValid { get; }
 		public ReactiveProperty<bool> ClipbordIsEnabledUrl { get; }
 		public ReactiveProperty<bool> IsEnabledThreadCommandPalette { get; }
+		public ReactiveProperty<int> CommandPalettePosition { get; }
+		public ReactiveProperty<int> Canvas98Position { get; }
 
 		public ReactiveProperty<bool> PostViewSavedSubject { get; }
 		public ReactiveProperty<bool> PostViewSavedName { get; }
@@ -143,6 +147,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ConfigWindowViewModel() {
 			CoreConfigThreadDataIncremental = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental);
 			CoreConfigSavedResponse = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaResponseSave);
+			CatalogFetchImageThumbnail = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFetchThumbnail);
 
 			Bords.AddRangeOnScheduler(
 				Config.ConfigLoader.UserConfBord.Bords
@@ -199,6 +204,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				return true;
 			}).ToReactiveProperty();
 			NgConfigCatalogWatchWordRegexVisibility = NgConfigCatalogWatchWordRegexValid.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
+			NgConfigWatchImages.AddRangeOnScheduler(
+				Ng.NgConfig.NgConfigLoader.WatchImageConfig.Images
+					.Select(x => new ConfigListBoxItem(
+						NgConfigWatchImages,
+						string.IsNullOrEmpty(x.Comment) ? "<コメントなし>" : x.Comment,
+						x)));
 			NgConfigImageMethod = new ReactiveProperty<int>((int)Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod);
 			NgConfigImageThreshold = new ReactiveProperty<int>(Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold);
 			NgConfigResonInput = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledNgReasonInput);
@@ -221,6 +232,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			ThreadDelResVisibility = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility);
 			ThreadIsEnabledQuotLink = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledQuotLink);
 			IsEnabledThreadCommandPalette = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledThreadCommandPalette);
+			CommandPalettePosition = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.CommandPalettePosition);
+			Canvas98Position = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.Canvas98Position);
+
 			ClipbordJpegQuality = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.ClipbordJpegQuality.ToString());
 			ClipbordJpegQualityValid = ClipbordJpegQuality.Select(x => {
 				if(int.TryParse(x, out var v)) {
@@ -362,6 +376,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.Split('\n')
 					.Where(x => !string.IsNullOrEmpty(x))
 					.ToArray());
+			Ng.NgConfig.NgConfigLoader.ReplaceNgImage(
+				NgConfigNgImages
+					.Select(x => x.Item.Value)
+					.Cast<Ng.NgData.NgImageData>()
+					.ToArray());
 			Ng.NgConfig.NgConfigLoader.ReplaceWatchWord(
 				NgConfigCatalogWatchWord.Value
 					.Replace("\r", "")
@@ -373,6 +392,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.Replace("\r", "")
 					.Split('\n')
 					.Where(x => !string.IsNullOrEmpty(x))
+					.ToArray());
+			Ng.NgConfig.NgConfigLoader.ReplaceWatchImage(
+				NgConfigWatchImages
+					.Select(x => x.Item.Value)
+					.Cast<Ng.NgData.NgImageData>()
 					.ToArray());
 			Ng.NgConfig.NgConfigLoader.UpdateNgImageMethod((Ng.NgData.ImageNgMethod)NgConfigImageMethod.Value);
 			Ng.NgConfig.NgConfigLoader.UpdateNgImageThreshold(NgConfigImageThreshold.Value);
@@ -407,7 +431,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				//2020102900
 				windowTheme: (PlatformData.WindowTheme)WindowTheme.Value,
 				isEnabledIdMarker: CatalogIsEnabledIdMarker.Value,
-				isEnabledThreadCommandPalette: IsEnabledThreadCommandPalette.Value
+				isEnabledThreadCommandPalette: IsEnabledThreadCommandPalette.Value,
+				// vNext
+				isEnabledFetchThumbnail: CatalogFetchImageThumbnail.Value,
+				commandPalettePosition: (PlatformData.UiPosition)CommandPalettePosition.Value,
+				canvas98Position: (PlatformData.UiPosition)Canvas98Position.Value
 			);
 			WpfConfig.WpfConfigLoader.UpdateSystemConfig(s);
 			Canvas98ConfigLoader.UpdateBookmarklet(

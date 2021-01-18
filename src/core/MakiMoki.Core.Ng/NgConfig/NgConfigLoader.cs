@@ -15,6 +15,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 		private static readonly string NgImageConfigFile = "ng.image.json";
 		private static readonly string HiddenConfigFile = "ng.hidden.json";
 		private static readonly string WatchConfigFile = "watch.json";
+		private static readonly string WatchImageConfigFile = "watch.image.json";
 
 #pragma warning disable IDE0044
 		private static volatile object lockObj = new object();
@@ -23,6 +24,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 		private static List<WeakReference<Action<NgData.HiddenConfig>>> hiddenUpdateNotifyer = new List<WeakReference<Action<NgData.HiddenConfig>>>();
 		private static List<WeakReference<Action<NgData.NgImageConfig>>> imageUpdateNotifyer = new List<WeakReference<Action<NgData.NgImageConfig>>>();
 		public static Helpers.UpdateNotifyer<NgData.WatchConfig> WatchUpdateNotifyer { get; } = new Helpers.UpdateNotifyer<WatchConfig>();
+		public static Helpers.UpdateNotifyer<NgData.WatchImageConfig> WatchImageUpdateNotifyer { get; } = new Helpers.UpdateNotifyer<WatchImageConfig>();
 
 		public class Setting {
 			public string UserDirectory { get; set; } = null;
@@ -37,7 +39,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 					Path.Combine(setting.UserDirectory, NgConfigFile),
 					NgData.NgConfig.CreateDefault(),
 					new Dictionary<int, Type>() {
-							{ NgData.Compat.NgConfig2020062900.CurrentVersion, typeof(NgData.Compat.NgConfig2020062900) },
+						{ NgData.Compat.NgConfig2020062900.CurrentVersion, typeof(NgData.Compat.NgConfig2020062900) },
 					});
 				NgImageConfig = Util.FileUtil.LoadMigrate(
 					Path.Combine(setting.UserDirectory, NgImageConfigFile),
@@ -48,6 +50,9 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 				WatchConfig = Util.FileUtil.LoadMigrate(
 					Path.Combine(setting.UserDirectory, WatchConfigFile),
 					NgData.WatchConfig.CreateDefault());
+				WatchImageConfig = Util.FileUtil.LoadMigrate(
+					Path.Combine(setting.UserDirectory, WatchImageConfigFile),
+					NgData.WatchImageConfig.CreateDefault());
 				foreach(var r in NgConfig.CatalogRegex
 					.Concat(NgConfig.ThreadRegex)
 					.Concat(WatchConfig.CatalogRegex)) {
@@ -74,6 +79,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 			NgImageConfig ??= NgData.NgImageConfig.CreateDefault();
 			HiddenConfig ??= NgData.HiddenConfig.CreateDefault();
 			WatchConfig ??= NgData.WatchConfig.CreateDefault();
+			WatchImageConfig ??= NgData.WatchImageConfig.CreateDefault();
 		}
 
 		public static Setting InitializedSetting { get; private set; }
@@ -83,6 +89,7 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 		public static NgData.HiddenConfig HiddenConfig { get; private set; }
 
 		public static NgData.WatchConfig WatchConfig { get; private set; }
+		public static NgData.WatchImageConfig WatchImageConfig { get; private set; }
 
 		public static void UpdateCatalogIdNg(bool ng) {
 			if(NgConfig.EnableCatalogIdNg != ng) {
@@ -260,6 +267,13 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 			}
 		}
 
+		public static void ReplaceNgImage(NgData.NgImageData[] data) {
+			System.Diagnostics.Debug.Assert(data != null);
+			NgImageConfig.Images = data.ToArray();
+			SaveConfig(NgImageConfigFile, NgImageConfig);
+			imageUpdateNotifyer = Notify(imageUpdateNotifyer, NgImageConfig);
+		}
+
 		public static void UpdateNgImageMethod(ImageNgMethod m) {
 			if(NgImageConfig.NgMethod != m) {
 				NgImageConfig.NgMethod = m;
@@ -273,6 +287,11 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 				NgImageConfig.Threshold = t;
 				SaveConfig(NgImageConfigFile, NgImageConfig);
 				imageUpdateNotifyer = Notify(imageUpdateNotifyer, NgImageConfig);
+			}
+			if(WatchImageConfig.Threshold != t) {
+				WatchImageConfig.Threshold = t;
+				SaveConfig(WatchImageConfigFile, WatchImageConfig);
+				WatchImageUpdateNotifyer.Notify(WatchImageConfig);
 			}
 		}
 
@@ -288,6 +307,32 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgConfig {
 			WatchConfig.CatalogRegex = words.ToArray();
 			SaveConfig(WatchConfigFile, WatchConfig);
 			WatchUpdateNotifyer.Notify(WatchConfig);
+		}
+
+		public static void AddWatchImage(NgData.NgImageData data) {
+			System.Diagnostics.Debug.Assert(data != null);
+			if(!WatchImageConfig.Images.Select(x => x.Hash).Contains(data.Hash)) {
+				WatchImageConfig.Images = WatchImageConfig.Images.Concat(new NgImageData[] { data }).ToArray();
+				SaveConfig(WatchImageConfigFile, WatchImageConfig);
+				WatchImageUpdateNotifyer.Notify(WatchImageConfig);
+			}
+		}
+
+		public static void RemoveWatchImage(NgData.NgImageData data) {
+			System.Diagnostics.Debug.Assert(data != null);
+			var c = NgImageConfig.Images.Length;
+			WatchImageConfig.Images = WatchImageConfig.Images.Where(x => x.Hash != data.Hash).ToArray();
+			if(c != WatchImageConfig.Images.Length) {
+				SaveConfig(WatchImageConfigFile, WatchImageConfig);
+				WatchImageUpdateNotifyer.Notify(WatchImageConfig);
+			}
+		}
+
+		public static void ReplaceWatchImage(NgData.NgImageData[] data) {
+			System.Diagnostics.Debug.Assert(data != null);
+			WatchImageConfig.Images = data.ToArray();
+			SaveConfig(WatchImageConfigFile, WatchImageConfig);
+			WatchImageUpdateNotifyer.Notify(WatchImageConfig);
 		}
 
 		public static void AddNgUpdateNotifyer(Action<NgData.NgConfig> action) {

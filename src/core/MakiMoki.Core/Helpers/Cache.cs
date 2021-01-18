@@ -6,9 +6,9 @@ using System.Text;
 namespace Yarukizero.Net.MakiMoki.Helpers {
 	public class WeakCache<TKey, TValue> where TValue:class {
 		private Dictionary<TKey, WeakReference<TValue>> cache = new Dictionary<TKey, WeakReference<TValue>>();
-#pragma warning disable CS0067
+#pragma warning disable IDE0044
 		private volatile object lockObj = new object();
-#pragma warning restore CS0067
+#pragma warning restore IDE0044
 
 
 		public void Add(TKey key, TValue val) {

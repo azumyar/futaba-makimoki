@@ -73,10 +73,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 		public bool IsEnabledNgReasonInput { get; private set; }
 
 		public Data.ConfigObject Migrate() {
-			var t = typeof(Wpf.WpfConfig.WpfConfigLoader);
 			var conf = JsonConvert.DeserializeObject<WpfConfig>(
-				Util.FileUtil.LoadFileString(t.Assembly.GetManifestResourceStream(
-					$"{ t.Namespace }.{ Wpf.WpfConfig.WpfConfigLoader.SystemConfigFile }")));
+				Util.FileUtil.LoadFileString(new Util.ResourceLoader(
+					typeof(Wpf.WpfConfig.WpfConfigLoader))
+						.Get(Wpf.WpfConfig.WpfConfigLoader.SystemConfigFile)
+					));
 
 			return WpfConfig.Create(
 				isEnabledMovieMarker: IsEnabledMovieMarker,
@@ -103,7 +104,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				// 2020102900
 				windowTheme: conf.WindowTheme,
 				isEnabledIdMarker: conf.IsEnabledIdMarker,
-				isEnabledThreadCommandPalette: conf.IsEnabledThreadCommandPalette
+				isEnabledThreadCommandPalette: conf.IsEnabledThreadCommandPalette,
+
+				// vNext
+				isEnabledFetchThumbnail: conf.IsEnabledFetchThumbnail,
+				commandPalettePosition: conf.CommandPalettePosition,
+				canvas98Position: conf.Canvas98Position
 			);
 		}
 

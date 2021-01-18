@@ -25,7 +25,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	}
 
 	class WpfConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2020102900;
+		public static int CurrentVersion { get; } = -1;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
 		public bool IsEnabledMovieMarker { get; private set; }
@@ -99,6 +99,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("thread-enable-command-palette", Required = Required.Always)]
 		public bool IsEnabledThreadCommandPalette { get; private set; }
 
+		// vNext
+		[JsonProperty("catalog-enable-fetch-thumbnail", Required = Required.Always)]
+		public bool IsEnabledFetchThumbnail { get; private set; }
+
+		[JsonProperty("thread-command-palette-position", Required = Required.Always)]
+		public UiPosition CommandPalettePosition { get; private set; }
+
+		[JsonProperty("thread-canvas98-position", Required = Required.Always)]
+		public UiPosition Canvas98Position { get; private set; }
+
 		public static WpfConfig CreateDefault() {
 			// ここは使われない
 			return new WpfConfig() {
@@ -108,10 +118,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 
 		public static WpfConfig Create(
 			WindowTheme windowTheme,
+			bool isEnabledFetchThumbnail,
 			bool isEnabledMovieMarker, bool isEnabledIdMarker, bool isEnabledOldMarker,
 			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility, bool isEnabledQuotLink,
 			bool isVisibleCatalogIsolateThread, CatalogSearchResult catalogSearchResult,
-			bool isEnabledThreadCommandPalette,
+			bool isEnabledThreadCommandPalette, UiPosition commandPalettePosition,
+			UiPosition canvas98Position,
 			int clipbordJpegQuality, bool clipbordIsEnabledUrl,
 			int minWidthPostView, int maxWidthPostView, bool isEnabledOpacityPostView, int opacityPostView,
 			string[] mediaExportPath, int cacheExpireDay,
@@ -123,10 +135,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			System.Diagnostics.Debug.Assert(mediaExportPath != null);
 			System.Diagnostics.Debug.Assert((0 <= cacheExpireDay) && (cacheExpireDay <= 100));
 			System.Diagnostics.Debug.Assert(browserPath != null);
+			System.Diagnostics.Debug.Assert(new [] { UiPosition.Left, UiPosition.Right }.Contains(commandPalettePosition));
+			System.Diagnostics.Debug.Assert(new [] { UiPosition.Default, UiPosition.Right, UiPosition.Bottom }.Contains(canvas98Position));
 
 			return new WpfConfig() {
 				Version = CurrentVersion,
 				WindowTheme = windowTheme,
+				IsEnabledFetchThumbnail = isEnabledFetchThumbnail,
 				IsEnabledMovieMarker = isEnabledMovieMarker,
 				IsEnabledIdMarker = isEnabledIdMarker,
 				IsEnabledOldMarker = isEnabledOldMarker,
@@ -135,6 +150,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				CatalogSearchResult = catalogSearchResult,
 				ThreadDelResVisibility = threadDelResVisibility,
 				IsEnabledThreadCommandPalette = isEnabledThreadCommandPalette,
+				CommandPalettePosition = commandPalettePosition,
+				Canvas98Position = canvas98Position,
 				IsEnabledQuotLink = isEnabledQuotLink,
 				ClipbordJpegQuality = clipbordJpegQuality,
 				ClipbordIsEnabledUrl = clipbordIsEnabledUrl,
@@ -186,6 +203,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		Output,
 		Dummy,
 		Hidden,
+	}
+
+	enum UiPosition {
+		Default = 0,
+		Left,
+		Top,
+		Right,
+		Bottom
 	}
 
 	class PlacementConfig : Data.ConfigObject {

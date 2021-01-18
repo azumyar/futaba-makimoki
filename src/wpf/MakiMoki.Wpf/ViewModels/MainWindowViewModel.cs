@@ -231,22 +231,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				}
 			}
 
-			foreach(var tab in this.Catalogs) {
-				Observable.Create<object>(o => {
-					var c = tab.Futaba.Value.ResItems
-						.Where(x => (x.OriginSource.Value == null)
-							&& (0 < x.Raw.Value.ResItem.Res.Fsize))
-						.Select<BindableFutabaResItem, (BindableFutabaResItem Item, string Path)>(
-							x => (x, Util.Futaba.GetThumbImageLocalFilePath(
-								tab.Futaba.Value.Url, x.Raw.Value.ResItem.Res)))
-						.Where(x => WpfUtil.ImageUtil.GetImageCache(x.Path) == null)
-						.ToArray();
-					if(c.Any()) {
-						Task.Run(async () => {
-							var max = 4;
-							await Task.WhenAll(
-								Enumerable.Range(0, max)
-									.Select(i => Task.Run(
+			if(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFetchThumbnail) {
+				foreach(var tab in this.Catalogs) {
+					Observable.Create<object>(o => {
+						var c = tab.Futaba.Value.ResItems
+							.Where(x => (x.OriginSource.Value == null)
+								&& (0 < x.Raw.Value.ResItem.Res.Fsize))
+							.Select<BindableFutabaResItem, (BindableFutabaResItem Item, string Path)>(
+								x => (x, Util.Futaba.GetThumbImageLocalFilePath(
+									tab.Futaba.Value.Url, x.Raw.Value.ResItem.Res)))
+							.Where(x => WpfUtil.ImageUtil.GetImageCache(x.Path) == null)
+							.ToArray();
+						if(c.Any()) {
+							Task.Run(async () => {
+								var max = 4;
+								await Task.WhenAll(
+									Enumerable.Range(0, max).Select(i => Task.Run(
 										() => {
 											var items = c.Where((_, j) => j % max == i).ToArray();
 											Util.Futaba.GetThumbImages(
@@ -270,17 +270,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 													}
 													o.OnNext(x);
 												});
-	
 										})
 									).ToArray()
 							);
+								o.OnCompleted();
+							});
+						} else {
 							o.OnCompleted();
-						});
-					} else {
-						o.OnCompleted();
-					}
-					return System.Reactive.Disposables.Disposable.Empty;
-				}).Subscribe();
+						}
+						return System.Reactive.Disposables.Disposable.Empty;
+					}).Subscribe();
+				}
 			}
 		}
 

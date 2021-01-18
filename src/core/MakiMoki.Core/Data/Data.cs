@@ -6,13 +6,21 @@ using System.Text;
 namespace Yarukizero.Net.MakiMoki.Data {
 	public class JsonObject {
 		public override string ToString() {
-			return JsonConvert.SerializeObject(this, Formatting.None);
+			return this.ToString(Formatting.None);
+		}
+
+		public virtual string ToString(Formatting format, params JsonConverter[] @params) {
+			return JsonConvert.SerializeObject(this, format, @params);
 		}
 	}
 
 	public class ConfigObject : JsonObject {
 		[JsonProperty("version", Required = Required.Always)]
 		public int Version { get; protected set; }
+
+		public override string ToString() {
+			return this.ToString(Formatting.Indented);
+		}
 	}
 
 	public class Cookie : JsonObject {

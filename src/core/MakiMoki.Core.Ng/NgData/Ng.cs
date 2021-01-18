@@ -111,6 +111,25 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgData {
 		}
 	}
 
+	public class WatchImageConfig : Data.ConfigObject {
+		public static int CurrentVersion { get; } = -1;
+		private static readonly int DefaultThreshold = 10;
+
+		[JsonProperty("watch-hamming-threshold-value", Required = Required.DisallowNull)]
+		public int Threshold { get; internal set; }
+
+		[JsonProperty("watch-images", Required = Required.DisallowNull)]
+		public NgImageData[] Images { get; internal set; }
+
+		internal static WatchImageConfig CreateDefault() {
+			return new WatchImageConfig() {
+				Version = CurrentVersion,
+				Threshold = DefaultThreshold,
+				Images = Array.Empty<NgImageData>(),
+			};
+		}
+	}
+
 	public enum ImageNgMethod {
 		Hidden,
 		DummyImage,

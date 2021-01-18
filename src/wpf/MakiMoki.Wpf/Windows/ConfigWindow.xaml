@@ -68,8 +68,8 @@
                                     Width="32"
                                     Visibility="{Binding EditButtonVisibility.Value, Mode=OneWay}"
                                     Command="{Binding DataContext.ConfigEditCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:ConfigWindow}}"
-                                    CommandParameter="{Binding }">
-                                    <TextBlock>✖</TextBlock>
+                                    CommandParameter="{Binding }"
+                                    Content="{StaticResource ButtonIconViewerThreadRes}">
                                 </Button>
                                 <Button
                                     Grid.Column="2"
@@ -124,6 +124,10 @@
                                 <TextBlock>現在のふたばレスポンスデータを保存</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">現在取得しているレスポンスデータ(テキスト)を保存し次回起動時に復元します。</TextBlock>
                                 <CheckBox Content="有効" IsChecked="{Binding CoreConfigSavedResponse.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>カタログサムネイルを先行取得する(Watch画像を使用する場合有効化してください)</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding CatalogFetchImageThumbnail.Value, Mode=TwoWay}" />
                             </StackPanel>
 
                             <TextBlock Style="{StaticResource ConfigHeaderText}" Margin="0 8 0 0">板設定</TextBlock>
@@ -260,6 +264,25 @@
                                 <TextBlock Foreground="Red" Visibility="{Binding NgConfigCatalogWatchWordRegexVisibility.Value, Mode=OneWay}">正規表現に問題があります</TextBlock>
                             </StackPanel>
                             
+                            <StackPanel
+                                Style="{StaticResource ConfigContents}"
+                                HorizontalAlignment="Left">
+                                <TextBlock>Watch画像</TextBlock>
+                                <!--
+                                <Button HorizontalAlignment="Right">
+                                    <TextBlock>追加</TextBlock>
+                                </Button>
+                                -->
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding NgConfigWatchImages, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>NG画像処理方法</TextBlock>
                                 <ComboBox SelectedIndex="{Binding NgConfigImageMethod.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
@@ -431,6 +454,26 @@
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>コマンドパレットを表示</TextBlock>
                                 <CheckBox Content="有効" IsChecked="{Binding IsEnabledThreadCommandPalette.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>コマンドパレット表示位置</TextBlock>
+                                <ComboBox SelectedIndex="{Binding CommandPalettePosition.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem Visibility="Collapsed">標準</ComboBoxItem>
+                                    <ComboBoxItem>左寄せ</ComboBoxItem>
+                                    <ComboBoxItem Visibility="Collapsed">上寄せ</ComboBoxItem>
+                                    <ComboBoxItem>右寄せ</ComboBoxItem>
+                                    <ComboBoxItem Visibility="Collapsed">下寄せ</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>はっちゃんキャンバス表示位置</TextBlock>
+                                <ComboBox SelectedIndex="{Binding Canvas98Position.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>標準</ComboBoxItem>
+                                    <ComboBoxItem Visibility="Collapsed">左寄せ</ComboBoxItem>
+                                    <ComboBoxItem Visibility="Collapsed">上寄せ</ComboBoxItem>
+                                    <ComboBoxItem>右寄せ</ComboBoxItem>
+                                    <ComboBoxItem>下寄せ</ComboBoxItem>
+                                </ComboBox>
                             </StackPanel>
                             
                             <TextBlock Style="{StaticResource ConfigHeaderText}">投稿画面</TextBlock>
