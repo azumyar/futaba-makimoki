@@ -273,9 +273,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						//this.ResItems[i] = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
 						var bf = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
 						if(b.ResItem.Res.Fsize != 0) {
-							bf.ThumbSource.Value = a.ThumbSource.Value;
-							bf.ThumbHash.Value = a.ThumbHash.Value;
-							bf.OriginSource.Value = a.OriginSource.Value;
+							BindableFutabaResItem.CopyImage(a, bf);
 						}
 						updateItems.Add((i, bf));
 						disps.Add(a);
@@ -520,6 +518,28 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	}
 
 	public class BindableFutabaResItem : INotifyPropertyChanged, IDisposable {
+		private class RefValue<T> where T:struct {
+			public T Value { get; }
+
+			public RefValue(T val) {
+				this.Value = val;
+			}
+		}
+		private static Helpers.WeakCache<string, RefValue<ulong>> HashCache { get; }
+			= new Helpers.WeakCache<string, RefValue<ulong>>();
+		private static Helpers.ConnectionQueue<ulong?> HashQueue = new Helpers.ConnectionQueue<ulong?>(
+			name: "NG/Watchハッシュ計算キュー",
+			maxConcurrency: 2,
+			delayTime: 100,
+			waitTime: 100);
+
+		public static void CopyImage(BindableFutabaResItem src, BindableFutabaResItem dst) {
+			dst.ThumbSource.Value = src.ThumbSource.Value;
+			dst.ThumbHash.Value = src.ThumbHash.Value;
+			dst.OriginSource.Value = src.OriginSource.Value;
+			dst.hashValue = src.hashValue;
+		}
+
 #pragma warning disable CS0067
 		public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore CS0067
@@ -576,6 +596,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveCommand ThumbLoadCommand { get; }
 			= new ReactiveCommand();
 
+		private RefValue<ulong> hashValue;
 		private Action<Ng.NgData.NgConfig> ngUpdateAction;
 		private Action<Ng.NgData.HiddenConfig> hiddenUpdateAction;
 		private Action<Ng.NgData.NgImageConfig> imageUpdateAction;
@@ -688,13 +709,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				var bmp = WpfUtil.ImageUtil.GetImageCache(
 					Util.Futaba.GetThumbImageLocalFilePath(item.Url, item.ResItem.Res));
 				if(bmp != null) {
-					this.SetThumbSource(bmp);
-					if(this.Raw.Value.Url.IsCatalogUrl
-						&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
-						&& !object.ReferenceEquals(this.ThumbSource.Value, this.OriginSource.Value)) {
+					HashQueue.Push(Helpers.ConnectionQueueItem<ulong?>.From(
+						o => {
+							this.SetThumbSource(bmp);
+							if(this.Raw.Value.Url.IsCatalogUrl
+								&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
+								&& !object.ReferenceEquals(this.ThumbSource.Value, this.OriginSource.Value)) {
 
-						this.IsNgImageHidden.Value = true;
-					}
+								this.IsNgImageHidden.Value = true;
+							}
+							o.OnNext(null);
+						})).Subscribe();
 				}
 			} else {
 				this.ImageName = new ReactiveProperty<string>("");
@@ -773,9 +798,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}
 		}
 
-		private void SetThumbSource(BitmapImage bmp) {
-			var h = Ng.NgUtil.NgHelper.IsEnabledNgImage()
-				? WpfUtil.ImageUtil.CalculatePerceptualHash(bmp) : default(ulong?);
+		public void SetThumbSource(BitmapSource bmp) {
+			var h = default(ulong?);
+			if(Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
+				var key = this.GetCacheKey();
+				if(HashCache.TryGetTarget(key, out var hash)) {
+					h = hash.Value;
+					this.hashValue = hash;
+				} else {
+					h = WpfUtil.ImageUtil.CalculatePerceptualHash(bmp);
+					this.hashValue = new RefValue<ulong>(h.Value);
+					HashCache.Add(key, this.hashValue);
+				}
+			}
 			this.ThumbHash.Value = h;
 			this.OriginSource.Value = bmp;
 			if(h.HasValue && Ng.NgConfig.NgConfigLoader.NgImageConfig.Images.Any(
@@ -804,6 +839,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		}
 
+		private string GetCacheKey() {
+			return Util.Futaba.GetThumbImageLocalFilePath(
+				this.Parent.Value.Url,
+				this.Raw.Value.ResItem.Res);
+		}
+
 		// TODO: 名前変える
 		private void a() {
 			this.IsNg.Value = this.Raw.Value.Url.IsCatalogUrl
@@ -826,21 +867,33 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				return;
 			}
 
-			if(!ThumbHash.Value.HasValue) {
-				ThumbHash.Value = WpfUtil.ImageUtil.CalculatePerceptualHash(OriginSource.Value);
-			}
-
-			if(ThumbHash.Value.HasValue) {
+			Observable.Create<ulong>(o => {
+				Task.Run(() => {
+					if(!ThumbHash.Value.HasValue) {
+						var key = this.GetCacheKey();
+						if(HashCache.TryGetTarget(key, out var hash)) {
+							this.ThumbHash.Value = hash.Value;
+							this.hashValue = hash;
+						} else {
+							this.ThumbHash.Value = WpfUtil.ImageUtil.CalculatePerceptualHash(OriginSource.Value);
+							this.hashValue = new RefValue<ulong>(this.ThumbHash.Value.Value);
+							HashCache.Add(key, this.hashValue);
+						}						
+					}
+					o.OnNext(ThumbHash.Value ?? 0);
+				});
+				return System.Reactive.Disposables.Disposable.Empty;
+			}).Subscribe(x => {
 				if(Ng.NgConfig.NgConfigLoader.NgImageConfig.Images.Any(
-					x => Ng.NgUtil.PerceptualHash.GetHammingDistance(ThumbHash.Value.Value, x) <= Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold)) {
+					y => Ng.NgUtil.PerceptualHash.GetHammingDistance(x, y) <= Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold)) {
 
 					// NG画像
-					ThumbSource.Value = (Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod == ImageNgMethod.Hidden) 
-						? null :  WpfUtil.ImageUtil.GetNgImage();
+					ThumbSource.Value = (Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod == ImageNgMethod.Hidden)
+						? null : WpfUtil.ImageUtil.GetNgImage();
 				} else {
 					ThumbSource.Value = OriginSource.Value;
 				}
-			}
+			});
 		}
 
 		// TODO:名前考える

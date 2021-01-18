@@ -67,9 +67,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			);
 		}
 
-		public static IObservable<(bool Successed, Data.FutabaContext, string ErrorMessage)> UpdateCatalog(Data.BordData bord, Data.CatalogSortItem sort = null) {
-			return Observable.Create<(bool Successed, Data.FutabaContext, string ErrorMessage)>(async o => {
-				var f = await Task.Run<(bool Successed, Data.FutabaContext, string ErrorMessage)>(async () => {
+		public static IObservable<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)> UpdateCatalog(Data.BordData bord, Data.CatalogSortItem sort = null) {
+			return Observable.Create<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)>(async o => {
+				var f = await Task.Run<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)>(async () => {
 					lock(lockObj) {
 						if(!Catalog.Value.Select(x => x.Url.BaseUrl).Contains(bord.Url)) {
 							Catalog.Value = Catalog.Value.Concat(new Data.FutabaContext[] {
@@ -517,7 +517,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
-		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThreadResImage(Data.UrlContext url, Data.ResItem item) {
+		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThreadResImage(Data.UrlContext url, Data.ResItem item, bool isAsync = true) {
 			System.Diagnostics.Debug.Assert(url != null);
 			System.Diagnostics.Debug.Assert(item != null);
 
@@ -525,10 +525,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
 			var uri = new Uri(url.BaseUrl);
 			var u = string.Format("{0}://{1}{2}", uri.Scheme, uri.Authority, item.Src);
-			return GetUrlImage(u, localPath);
+			return GetUrlImage(u, localPath, isAsync);
 		}
 
-		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThumbImage(Data.UrlContext url, Data.ResItem item) {
+		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThumbImage(Data.UrlContext url, Data.ResItem item, bool isAsync = true) {
 			System.Diagnostics.Debug.Assert(url != null);
 			System.Diagnostics.Debug.Assert(item != null);
 
@@ -536,7 +536,25 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
 			var uri = new Uri(url.BaseUrl);
 			var u = string.Format("{0}://{1}{2}", uri.Scheme, uri.Authority, item.Thumb);
-			return GetUrlImage(u, localPath);
+			return GetUrlImage(u, localPath, isAsync);
+		}
+
+		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThumbImages(Data.UrlContext url, Data.ResItem[] items, bool isAsync = true) {
+			System.Diagnostics.Debug.Assert(url != null);
+			System.Diagnostics.Debug.Assert(items != null);
+
+			return Observable.Create<(bool Successed, string LocalPath, byte[] FileBytes)>(o => {
+				var c = new RestSharp.RestClient();
+				foreach(var item in items) {
+					var localFile = CreateLocalFileName(url.BaseUrl, item.Thumb);
+					var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
+					var uri = new Uri(url.BaseUrl);
+					var u = string.Format("{0}://{1}{2}", uri.Scheme, uri.Authority, item.Thumb);
+					GetUrlImage(u, localPath, isAsync, c)
+						.Subscribe(x => o.OnNext(x));
+				}
+				return System.Reactive.Disposables.Disposable.Empty;
+			});
 		}
 
 		public static Task<string> GetThumbImageAsync(Data.UrlContext url, Data.ResItem item) {
@@ -614,50 +632,60 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
-		private static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUrlImage(string url, string localPath) {
-			return Observable.Create<(bool Successed, string LocalPath, byte[] FileBytes)>(o => {
-				Task.Run(() => {
-					if(File.Exists(localPath)) {
-						o.OnNext((true, localPath, null));
-						o.OnCompleted();
-					} else {
-						var c = new RestSharp.RestClient();
-						var r = new RestSharp.RestRequest(url, RestSharp.Method.GET);
-						var res = c.Execute(r);
-						if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-							Observable.Create<object>(async (oo) => {
-								var b = res.RawBytes;
-								try {
-									if(!File.Exists(localPath)) {
-										using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
-											fs.Write(b, 0, b.Length);
-											fs.Flush();
-										}
+		private static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUrlImage(
+			string url, string localPath,
+			bool isAsync = true,
+			RestSharp.RestClient client = null) {
+
+			void run(IObserver<(bool Successed, string LocalPath, byte[] FileBytes)> o) {
+				if(File.Exists(localPath)) {
+					o.OnNext((true, localPath, null));
+					o.OnCompleted();
+				} else {
+					var c = client ?? new RestSharp.RestClient();
+					var r = new RestSharp.RestRequest(url, RestSharp.Method.GET);
+					var res = c.Execute(r);
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+						Observable.Create<object>(async (oo) => {
+							var b = res.RawBytes;
+							try {
+								if(!File.Exists(localPath)) {
+									using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
+										fs.Write(b, 0, b.Length);
+										fs.Flush();
 									}
-									oo.OnNext(null);
-									oo.OnCompleted();
-									return System.Reactive.Disposables.Disposable.Empty;
 								}
-								catch(IOException e) {
-									await Task.Delay(500);
-									oo.OnError(e);
-									return System.Reactive.Disposables.Disposable.Empty;
-								}
-							}).Retry(5)
-							.Subscribe(
-								s => {
-									o.OnNext((true, localPath, res.RawBytes));
-									o.OnCompleted();
-								},
-								ex => {
-									o.OnNext((false, null, null));
-								});
-						} else {
-							o.OnNext((false, null, null));
-							// TODO: o.OnError();
-						}
+								oo.OnNext(null);
+								oo.OnCompleted();
+								return System.Reactive.Disposables.Disposable.Empty;
+							}
+							catch(IOException e) {
+								await Task.Delay(500);
+								oo.OnError(e);
+								return System.Reactive.Disposables.Disposable.Empty;
+							}
+						}).Retry(5)
+						.Subscribe(
+							s => {
+								o.OnNext((true, localPath, res.RawBytes));
+								o.OnCompleted();
+							},
+							ex => {
+								o.OnNext((false, null, null));
+							});
+					} else {
+						o.OnNext((false, null, null));
+						// TODO: o.OnError();
 					}
-				});
+				}
+			};
+
+			return Observable.Create<(bool Successed, string LocalPath, byte[] FileBytes)>(o => {
+				if(isAsync) {
+					Task.Run(() => run(o));
+				} else {
+					run(o);
+				}
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
