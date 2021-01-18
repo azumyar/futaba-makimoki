@@ -38,7 +38,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		public ReactiveProperty<Data.BordData[]> Bords { get; }
+		public ReactiveProperty<Data.BoardData[]> Bords { get; }
 		public ReactiveCollection<Model.TabItem> Catalogs { get; } = new ReactiveCollection<TabItem>();
 		public ReactiveProperty<object> CatalogToken { get; } = new ReactiveProperty<object>(DateTime.Now.Ticks);
 		private Dictionary<string, ReactiveCollection<Model.TabItem>> ThreadsDic { get; } = new Dictionary<string, ReactiveCollection<TabItem>>();
@@ -49,7 +49,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Visibility> TabVisibility { get; }
 
 		public ReactiveCommand<MouseButtonEventArgs> BordListClickCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
-		public ReactiveCommand<BordData> BordOpenCommand { get; } = new ReactiveCommand<BordData>();
+		public ReactiveCommand<BoardData> BordOpenCommand { get; } = new ReactiveCommand<BoardData>();
 		public ReactiveCommand<RoutedEventArgs> ConfigButtonClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
 		public ReactiveCommand<MouseButtonEventArgs> TabClickCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
@@ -86,7 +86,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private Action<PlatformData.WpfConfig> onSystemConfigUpdateNotifyer;
 
 		public MainWindowViewModel() {
-			Bords = new ReactiveProperty<Data.BordData[]>(Config.ConfigLoader.Bord.Bords);
+			Bords = new ReactiveProperty<Data.BoardData[]>(Config.ConfigLoader.Bord.Boards);
 			foreach(var c in Util.Futaba.Catalog.Value) {
 				Catalogs.Add(new TabItem(c));
 				ThreadsDic.Add(c.Url.BaseUrl, new ReactiveCollection<TabItem>());
@@ -159,7 +159,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnBordListClick(MouseButtonEventArgs e) {
 			if((e.Source is FrameworkElement o) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
-				if(o.DataContext is Data.BordData bc) {
+				if(o.DataContext is Data.BoardData bc) {
 					if(e.ClickCount == 1) {
 						switch(e.ChangedButton) {
 						case MouseButton.Left:
@@ -180,7 +180,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}.ShowDialog();
 		}
 		
-		private void OnBordOpen(BordData bc) {
+		private void OnBordOpen(BoardData bc) {
 			var t = this.Catalogs.Where(x => x.Url.BaseUrl == bc.Url).FirstOrDefault();
 			if(t != null) {
 				this.TabControlSelectedItem.Value = t;

@@ -319,6 +319,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					m.MakeGenericMethod(t, vm).Invoke(null, Array.Empty<object>());
 				}
 			}
+
+			containerRegistry.RegisterDialog<Controls.BoardEditDialog, ViewModels.BoardEditDialogViewModel>();
 		}
 	}
 }

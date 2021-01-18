@@ -14,6 +14,7 @@ using System.Windows;
 using Yarukizero.Net.MakiMoki.Wpf.PlatformData;
 using Yarukizero.Net.MakiMoki.Wpf.WpfConfig;
 using Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config;
+using Prism.Services.Dialogs;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class ConfigWindowViewModel : BindableBase, IDisposable {
@@ -63,7 +64,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> CatalogFetchImageThumbnail { get; }
 
 
-		public ReactiveCollection<ConfigListBoxItem> Bords { get; } = new ReactiveCollection<ConfigListBoxItem>();
+		public ReactiveCollection<ConfigListBoxItem> Boards { get; } = new ReactiveCollection<ConfigListBoxItem>();
 
 		public ReactiveProperty<bool> NgConfigCatalogIdNg { get; }
 		public ReactiveProperty<bool> NgConfigThreadIdNg { get; }
@@ -134,7 +135,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<bool> IsEnabledOkButton { get; }
 
-
+		public ReactiveCommand AddBoardConfigCommand { get; } = new ReactiveCommand();
 		public ReactiveCommand<ConfigListBoxItem> ConfigEditCommand { get; } = new ReactiveCommand<ConfigListBoxItem>();
 		public ReactiveCommand<ConfigListBoxItem> ConfigRemoveCommand { get; } = new ReactiveCommand<ConfigListBoxItem>();
 
@@ -143,16 +144,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<RoutedEventArgs> CancelButtonClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<Uri> LinkClickCommand { get; } = new ReactiveCommand<Uri>();
 
+		private IDialogService DialogService { get; }
 
-		public ConfigWindowViewModel() {
+		public ConfigWindowViewModel(IDialogService dialogService) {
+			DialogService = dialogService;
 			CoreConfigThreadDataIncremental = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental);
 			CoreConfigSavedResponse = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaResponseSave);
 			CatalogFetchImageThumbnail = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFetchThumbnail);
 
-			Bords.AddRangeOnScheduler(
-				Config.ConfigLoader.UserConfBord.Bords
+			Boards.AddRangeOnScheduler(
+				Config.ConfigLoader.UserConfBord.Boards
 					.OrderBy(x => x.SortIndex)
-					.Select(x => new ConfigListBoxItem(Bords, x.Name, x, true)));
+					.Select(x => new ConfigListBoxItem(Boards, x.Name, x, true)));
 
 			NgConfigCatalogIdNg = new ReactiveProperty<bool>(Ng.NgConfig.NgConfigLoader.NgConfig.EnableCatalogIdNg);
 			NgConfigThreadIdNg = new ReactiveProperty<bool>(Ng.NgConfig.NgConfigLoader.NgConfig.EnableThreadIdNg);
@@ -317,6 +320,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				PostViewMinWidthValid,
 				PostViewOpacityValid,
 			}.CombineLatest(x => x.All(y => y)).ToReactiveProperty();
+			AddBoardConfigCommand.Subscribe(_ => OnAddBoardConfig());
 			ConfigEditCommand.Subscribe(x => OnConfigEditButtonClick(x));
 			ConfigRemoveCommand.Subscribe(x => OnConfigRemoveButtonClick(x));
 			OkButtonClickCommand.Subscribe(x => OnOkButtonClick(x));
@@ -328,7 +332,44 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
-		private void OnConfigEditButtonClick(ConfigListBoxItem _) {
+		private void OnAddBoardConfig(Data.BoardData boardData = null) {
+			var key = typeof(Data.BoardData).FullName;
+			var param = new DialogParameters();
+			if(boardData != null) {
+				param.Add(key, boardData);
+			}
+			DialogService.ShowDialog(
+				nameof(Controls.BoardEditDialog),
+				param,
+				(x) => {
+					if((x.Result == ButtonResult.OK)
+						&& x.Parameters.TryGetValue<Data.BoardData>(key, out var bd)) {
+
+						var ls = Boards
+							.Select(x => x.Item.Value)
+							.Cast<Data.BoardData>()
+							.Where(x => (boardData != null) ? (x.Name != boardData.Name) : true)
+							.ToList();
+						for(var i = 0; i < ls.Count; i++) {
+							if(ls[i].Name == bd.Name) {
+								ls[i] = bd;
+								goto end;
+							}
+						}
+						ls.Add(bd);
+					end:
+						Boards.Clear();
+						Boards.AddRangeOnScheduler(ls
+							.OrderBy(x => x.SortIndex)
+							.Select(x => new ConfigListBoxItem(Boards, x.Name, x, true)));
+					}
+				});
+		}
+
+		private void OnConfigEditButtonClick(ConfigListBoxItem x) {
+			if(x.Item.Value is Data.BoardData bd) {
+				OnAddBoardConfig(bd);
+			}
 		}
 
 		private void OnConfigRemoveButtonClick(ConfigListBoxItem x) {

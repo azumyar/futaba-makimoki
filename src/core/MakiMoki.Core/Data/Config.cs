@@ -6,43 +6,43 @@ using System.Linq;
 using System.Text;
 
 namespace Yarukizero.Net.MakiMoki.Data {
-	public class BordConfig : ConfigObject {
+	public class BoardConfig : ConfigObject {
 		public static int CurrentVersion { get; } = 2020062900;
 
 		[JsonProperty("bords", Required = Required.Always)]
-		public BordData[] Bords { get; protected set; }
+		public BoardData[] Boards { get; protected set; }
 
-		internal static BordConfig CreateDefault() {
-			return new BordConfig() {
+		internal static BoardConfig CreateDefault() {
+			return new BoardConfig() {
 				Version = CurrentVersion,
-				Bords = Array.Empty<BordData>(),
+				Boards = Array.Empty<BoardData>(),
 			};
 		}
 	}
 
-	public class CoreBordConfig : BordConfig {
-		public static new int CurrentVersion { get; } = BordConfig.CurrentVersion;
+	public class CoreBoardConfig : BoardConfig {
+		public static new int CurrentVersion { get; } = BoardConfig.CurrentVersion;
 
 		[JsonProperty("max-file-size", Required = Required.Always)]
 		public int MaxFileSize { get; private set; }
 
-		internal new static CoreBordConfig CreateDefault() {
-			return new CoreBordConfig() {
+		internal new static CoreBoardConfig CreateDefault() {
+			return new CoreBoardConfig() {
 				Version = CurrentVersion,
-				Bords = Array.Empty<BordData>(),
+				Boards = Array.Empty<BoardData>(),
 			};
 		}
 
-		internal static CoreBordConfig CreateAppInstance(CoreBordConfig config, BordData[] margeData) {
-			return new CoreBordConfig() {
+		internal static CoreBoardConfig CreateAppInstance(CoreBoardConfig config, BoardData[] margeData) {
+			return new CoreBoardConfig() {
 				Version = CurrentVersion,
 				MaxFileSize = config.MaxFileSize,
-				Bords = margeData,
+				Boards = margeData,
 			};
 		}
 	}
 
-	public class BordData : JsonObject {
+	public class BoardData : JsonObject {
 		[JsonProperty("name", Required = Required.Always)]
 		public string Name { get; set; }
 
@@ -62,10 +62,34 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public bool Display { get; set; }
 
 		[JsonProperty("extra", Required = Required.Always)]
-		public BordDataExtra Extra { get; set; }
+		public BoardDataExtra Extra { get; set; }
+
+
+		public static BoardData From(
+			string name,
+			string url,
+			string defaultComment,
+			int sortIndex,
+			BoardDataExtra extra,
+			bool display = true) {
+
+			System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(name));
+			System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(url));
+			System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(defaultComment));
+			System.Diagnostics.Debug.Assert(extra != null);
+
+			return new BoardData() {
+				Name = name,
+				Url = url,
+				DefaultComment = defaultComment,
+				SortIndex = sortIndex,
+				Extra = extra,
+				Display = display,
+			};
+		}
 	}
 
-	public class BordDataExtra : JsonObject {
+	public class BoardDataExtra : JsonObject {
 		[JsonProperty("name", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(true)]
 		public bool Name { get; set; }
@@ -101,6 +125,30 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonProperty("enable-res-tegaki", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(false)]
 		public bool ResTegaki { get; set; }
+
+		public static BoardDataExtra From(
+			bool name,
+			bool resImage,
+			bool mailIp,
+			bool mailId,
+			bool alwaysIp,
+			bool alwaysId,
+			int maxStoredRes,
+			int maxStoredTime,
+			bool resTegaki) {
+
+			return new BoardDataExtra() {
+				Name = name,
+				ResImage = resImage,
+				MailIp = mailIp,
+				MailId = mailId,
+				AlwaysIp = alwaysIp,
+				AlwaysId = alwaysId,
+				MaxStoredRes = maxStoredRes,
+				MaxStoredTime = maxStoredTime,
+				ResTegaki = resTegaki,
+			};
+		}
 
 		[JsonIgnore]
 		public bool NameValue => Name;

@@ -30,7 +30,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			if(Config.ConfigLoader.MakiMoki.FutabaResponseSave) {
 				Catalog = new ReactiveProperty<Data.FutabaContext[]>(
 					Config.ConfigLoader.SavedFutaba.Catalogs.Select(x => {
-						var b = Config.ConfigLoader.Bord.Bords.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
+						var b = Config.ConfigLoader.Bord.Boards.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
 						if(b != null) {
 							return Data.FutabaContext.FromCatalog_(b, x.Catalog, x.CatalogSortRes, x.CatalogResCounter);
 						} else {
@@ -39,7 +39,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					}).Where(x => x != null).ToArray());
 				Threads = new ReactiveProperty<Data.FutabaContext[]>(
 					Config.ConfigLoader.SavedFutaba.Threads.Select(x => {
-						var b = Config.ConfigLoader.Bord.Bords.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
+						var b = Config.ConfigLoader.Bord.Boards.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
 						if(b != null) {
 							return Data.FutabaContext.FromThread_(b, x.Url, x.Thread);
 						} else {
@@ -67,7 +67,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			);
 		}
 
-		public static IObservable<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)> UpdateCatalog(Data.BordData bord, Data.CatalogSortItem sort = null) {
+		public static IObservable<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)> UpdateCatalog(Data.BoardData bord, Data.CatalogSortItem sort = null) {
 			return Observable.Create<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)>(async o => {
 				var f = await Task.Run<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)>(async () => {
 					lock(lockObj) {
@@ -172,7 +172,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadRes(Data.BordData bord, string threadNo, bool incremental = false) {
+		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadRes(Data.BoardData bord, string threadNo, bool incremental = false) {
 			var u = new Data.UrlContext(bord.Url, threadNo);
 			Data.FutabaContext parent = null;
 			lock(lockObj) {
@@ -250,7 +250,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadResAll(Data.BordData bord, string threadNo) {
+		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadResAll(Data.BoardData bord, string threadNo) {
 			return Observable.Create<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(async o => {
 				var ctx = await Task.Run<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(() => {
 					var successed = false;
@@ -489,14 +489,14 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				if(url.IsCatalogUrl) {
 					var r = Catalog.Value.Where(x => x.Url == url).FirstOrDefault();
 					if(r == null) {
-						UpdateCatalog(Config.ConfigLoader.Bord.Bords.Where(x => x.Url == url.BaseUrl).First())
+						UpdateCatalog(Config.ConfigLoader.Bord.Boards.Where(x => x.Url == url.BaseUrl).First())
 							.Subscribe();
 					}
 				} else {
 					var r = Threads.Value.Where(x => x.Url == url).FirstOrDefault();
 					if(r == null) {
 						UpdateThreadRes(
-							Config.ConfigLoader.Bord.Bords.Where(x => x.Url == url.BaseUrl).First(),
+							Config.ConfigLoader.Bord.Boards.Where(x => x.Url == url.BaseUrl).First(),
 							url.ThreadNo)
 								.Subscribe();
 					}
@@ -584,7 +584,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string NextOrMessage)> PostThread(Data.BordData bord,
+		public static IObservable<(bool Successed, string NextOrMessage)> PostThread(Data.BoardData bord,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
@@ -602,7 +602,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostRes(Data.BordData bord, string threadNo,
+		public static IObservable<(bool Successed, string Message)> PostRes(Data.BoardData bord, string threadNo,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
@@ -731,7 +731,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return m.Groups[1].Value;
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostDeleteThreadRes(Data.BordData bord, string threadNo, bool imageOnlyDel, string passwd) {
+		public static IObservable<(bool Successed, string Message)> PostDeleteThreadRes(Data.BoardData bord, string threadNo, bool imageOnlyDel, string passwd) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
 				var r = await FutabaApi.PostDeleteThreadRes(bord.Url, threadNo, Config.ConfigLoader.FutabaApi.Cookies, imageOnlyDel, passwd);
 				if(r.Raw == null) {
@@ -744,7 +744,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostSoudane(Data.BordData bord, string threadNo) {
+		public static IObservable<(bool Successed, string Message)> PostSoudane(Data.BoardData bord, string threadNo) {
 			return SoudaneQueue.Push(Helpers.ConnectionQueueItem<(bool Successed, string Message)>.From(
 				(o) => {
 					var task = FutabaApi.PostSoudane(bord.Url, threadNo);
@@ -757,7 +757,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				}));
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostDel(Data.BordData bord, string threadNo, string resNo) {
+		public static IObservable<(bool Successed, string Message)> PostDel(Data.BoardData bord, string threadNo, string resNo) {
 			return DelQueue.Push(Helpers.ConnectionQueueItem<(bool Successed, string Message)>.From(
 				(o) => {
 					var task = FutabaApi.PostDel(bord.Url, threadNo, resNo /*, Config.ConfigLoader.FutabaApi.Cookies */);

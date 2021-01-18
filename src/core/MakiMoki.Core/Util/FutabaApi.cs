@@ -247,7 +247,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static async Task<(bool Successed, string NextOrMessage, Data.Cookie[] Cookies, string Raw)> PostThread(Data.BordData bord,
+		public static async Task<(bool Successed, string NextOrMessage, Data.Cookie[] Cookies, string Raw)> PostThread(Data.BoardData bord,
 			Data.Cookie[] cookies, string ptua,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
@@ -310,7 +310,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(bool Successed, Data.Cookie[] Cookies, string Raw)> PostRes(Data.BordData bord, string threadNo,
+		public static async Task<(bool Successed, Data.Cookie[] Cookies, string Raw)> PostRes(Data.BoardData bord, string threadNo,
 			Data.Cookie[] cookies, string ptua,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
@@ -354,7 +354,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		private static IRestRequest SetPostParameter(IRestRequest r, Data.BordData bord, string threadNo,
+		private static IRestRequest SetPostParameter(IRestRequest r, Data.BoardData bord, string threadNo,
 			string ptua,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {

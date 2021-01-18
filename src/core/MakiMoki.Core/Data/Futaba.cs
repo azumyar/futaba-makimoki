@@ -506,7 +506,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 			public string Name { get; set; }
 
-			public BordData Bord { get; private set; }
+			public BoardData Bord { get; private set; }
 			public UrlContext Url { get; private set; }
 			public FutabaResonse Raw { get; private set; }
 
@@ -518,7 +518,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				this.Token = DateTime.Now.Ticks;
 			}
 
-			public static FutabaContext FromCatalogEmpty(BordData bord) {
+			public static FutabaContext FromCatalogEmpty(BoardData bord) {
 				return new FutabaContext() {
 					Name = bord.Name,
 					Bord = bord,
@@ -528,7 +528,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				};
 			}
 
-			public static FutabaContext FromCatalogResponse(BordData bord, FutabaResonse response, Data.NumberedResItem[] sortRes, Dictionary<string, int> counter, Data.FutabaContext oldValue) {
+			public static FutabaContext FromCatalogResponse(BoardData bord, FutabaResonse response, Data.NumberedResItem[] sortRes, Dictionary<string, int> counter, Data.FutabaContext oldValue) {
 				var url = new UrlContext(bord.Url);
 				return new FutabaContext() {
 					Name = bord.Name,
@@ -544,7 +544,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				};
 			}
 
-			public static FutabaContext FromThreadEmpty(BordData bord, string threadNo) {
+			public static FutabaContext FromThreadEmpty(BoardData bord, string threadNo) {
 				return new FutabaContext() {
 					Name = string.Format("No.{0}", threadNo),
 					Bord = bord,
@@ -581,7 +581,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				};
 			}
 
-			public static FutabaContext FromThreadResResponse(BordData bord, string threadNo, FutabaResonse response, Data.NumberedResItem parent, int soudane) {
+			public static FutabaContext FromThreadResResponse(BoardData bord, string threadNo, FutabaResonse response, Data.NumberedResItem parent, int soudane) {
 				var url = new UrlContext(bord.Url, threadNo);
 				var list = new List<Item>() { Item.FromThreadRes(url, parent, soudane, new List<NumberedResItem>()) };
 				if(response.Res != null) {
@@ -713,7 +713,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			return result;
 		}
 
-		public static FutabaContext FromCatalog_(BordData bord, FutabaResonse response, string[] sortRes, Dictionary<string, int> counter) {
+		public static FutabaContext FromCatalog_(BoardData bord, FutabaResonse response, string[] sortRes, Dictionary<string, int> counter) {
 			var url = new UrlContext(bord.Url);
 			var res = new List<NumberedResItem>(response.Res);
 			var resItems = sortRes.Select(x => {
@@ -736,7 +736,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			};
 		}
 
-		public static FutabaContext FromThread_(BordData bord, UrlContext url, FutabaResonse response) {
+		public static FutabaContext FromThread_(BoardData bord, UrlContext url, FutabaResonse response) {
 			var res = response.Res.FirstOrDefault();
 			if(res == null) {
 				return FromThreadEmpty(bord, url.ThreadNo);

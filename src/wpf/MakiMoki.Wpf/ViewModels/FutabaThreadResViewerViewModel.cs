@@ -198,7 +198,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				}
 			}
 			// ふたばのリンク
-			foreach(var b in Config.ConfigLoader.Bord.Bords) {
+			foreach(var b in Config.ConfigLoader.Bord.Boards) {
 				var uu = new Uri(b.Url);
 				if(uu.Authority == e.NavigateUri.Authority) {
 					var m = Regex.Match(e.NavigateUri.LocalPath, @"^/[^/]+/res/([0-9]+)\.htm$");
@@ -518,7 +518,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnCanvas98Successed(FutabaCanvas98View.RoutedSucessEventArgs e) {
 			if(e.FormData != null) {
-				var b = Config.ConfigLoader.Bord.Bords.Where(x => x.Url == e.Url.BaseUrl).FirstOrDefault();
+				var b = Config.ConfigLoader.Bord.Boards.Where(x => x.Url == e.Url.BaseUrl).FirstOrDefault();
 				if(b != null) {
 					Config.ConfigLoader.UpdateFutabaInputData(
 						b,

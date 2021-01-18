@@ -134,12 +134,14 @@
                             <StackPanel
                                 Style="{StaticResource ConfigContents}"
                                 HorizontalAlignment="Left">
-                                <Button HorizontalAlignment="Right">
+                                <Button
+                                    HorizontalAlignment="Right"
+                                    Command="{Binding AddBoardConfigCommand, Mode=OneWay}">
                                     <TextBlock>追加</TextBlock>
                                 </Button>
                                 <ListBox
                                     Style="{StaticResource ConfigListBox}"
-                                    ItemsSource="{Binding Bords, Mode=OneWay}"
+                                    ItemsSource="{Binding Boards, Mode=OneWay}"
                                     Width="320"
                                     Height="120"
                                     HorizontalAlignment="Left"

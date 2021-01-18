@@ -321,7 +321,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				}
 			}
 
-			var bord = Config.ConfigLoader.Bord.Bords.Where(x => x.Url == futaba.Url.BaseUrl).FirstOrDefault();
+			var bord = Config.ConfigLoader.Bord.Boards.Where(x => x.Url == futaba.Url.BaseUrl).FirstOrDefault();
 			this.PostTitle = new ReactiveProperty<string>(futaba.Url.IsCatalogUrl ? "スレッド作成" : "レス投稿");
 			if(bord == null) {
 				this.PostNameVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
@@ -554,7 +554,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Visibility> NameVisibility { get; }
 		public ReactiveProperty<Visibility> ResImageVisibility { get; }
 
-		public ReactiveProperty<Data.BordData> Bord { get; }
+		public ReactiveProperty<Data.BoardData> Bord { get; }
 		public ReactiveProperty<string> ThreadResNo { get; }
 		public ReactiveProperty<Data.FutabaContext.Item> Raw { get; }
 
@@ -608,15 +608,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			System.Diagnostics.Debug.Assert(item != null);
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(parent != null);
-			var bord = Config.ConfigLoader.Bord.Bords.Where(x => x.Url == baseUrl).FirstOrDefault();
+			var bord = Config.ConfigLoader.Bord.Boards.Where(x => x.Url == baseUrl).FirstOrDefault();
 			System.Diagnostics.Debug.Assert(bord != null);
 			this.Index = new ReactiveProperty<int>(index);
-			this.Bord = new ReactiveProperty<Data.BordData>(bord);
+			this.Bord = new ReactiveProperty<Data.BoardData>(bord);
 			this.Parent = new ReactiveProperty<BindableFutaba>(parent);
 			this.ThreadResNo = new ReactiveProperty<string>(item.ResItem.No);
 			this.Raw = new ReactiveProperty<Data.FutabaContext.Item>(item);
 			this.NameVisibility = new ReactiveProperty<Visibility>(
-				(bord.Extra ?? new Data.BordDataExtra()).NameValue ? Visibility.Visible : Visibility.Collapsed);
+				(bord.Extra ?? new Data.BoardDataExtra()).NameValue ? Visibility.Visible : Visibility.Collapsed);
 			this.ThumbSource = new ReactiveProperty<BitmapSource>();
 			this.OriginSource = new ReactiveProperty<BitmapSource>();
 			this.ThumbHash = new ReactiveProperty<ulong?>();

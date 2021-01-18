@@ -41,7 +41,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			System.Diagnostics.Debug.Assert(setting.WorkDirectory != null);
 			InitializedSetting = setting;
 
-			static void addDic(Dictionary<string, Data.BordData> dic, Data.BordData[] item) {
+			static void addDic(Dictionary<string, Data.BoardData> dic, Data.BoardData[] item) {
 				if(item == null) {
 					return;
 				}
@@ -62,9 +62,9 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			var loader = new Util.ResourceLoader(typeof(ConfigLoader));
 			var bord = Util.FileUtil.LoadMigrate(
 				loader.Get(BordConfigFile),
-				CoreBordConfig.CreateDefault());
-			var bordDic = new Dictionary<string, Data.BordData>();
-			addDic(bordDic, bord.Bords);
+				CoreBoardConfig.CreateDefault());
+			var bordDic = new Dictionary<string, Data.BoardData>();
+			addDic(bordDic, bord.Boards);
 			MakiMoki = Util.FileUtil.LoadMigrate(
 				loader.Get(MakiMokiConfigFile),
 				default(MakiMokiConfig));
@@ -107,21 +107,21 @@ namespace Yarukizero.Net.MakiMoki.Config {
 						Optout);
 					var b = Util.FileUtil.LoadMigrate(
 						Path.Combine(confDir, BordConfigFile),
-						default(BordConfig));
-					addDic(bordDic, b?.Bords);
+						default(BoardConfig));
+					addDic(bordDic, b?.Boards);
  					if(confDir == setting.UserDirectory) {
 						UserConfBord = b;
 					}
 				}
 			}
 
-			Bord = CoreBordConfig.CreateAppInstance(
+			Bord = CoreBoardConfig.CreateAppInstance(
 				bord, 
 				bordDic.Select(x => x.Value)
 					.Where(x => x.Display)
 					.OrderBy(x => x.SortIndex)
 					.ToArray());
-			UserConfBord ??= BordConfig.CreateDefault();
+			UserConfBord ??= BoardConfig.CreateDefault();
 			SavedFutaba = Util.FileUtil.LoadMigrate(
 				Path.Combine(InitializedSetting.WorkDirectory, FutabaSavedFile),
 				Data.FutabaSavedConfig.CreateDefault());
@@ -145,8 +145,8 @@ namespace Yarukizero.Net.MakiMoki.Config {
 
 		public static Data.MakiMokiOptout Optout { get; private set; }
 
-		public static Data.CoreBordConfig Bord { get; private set; }
-		public static Data.BordConfig UserConfBord { get; private set; }
+		public static Data.CoreBoardConfig Bord { get; private set; }
+		public static Data.BoardConfig UserConfBord { get; private set; }
 
 		public static Data.MimeConfig MimeFutaba { get; private set; }
 
@@ -183,7 +183,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			}
 		}
 
-		public static void UpdateFutabaInputData(BordData bord, string subject, string name, string mail, string password) {
+		public static void UpdateFutabaInputData(BoardData bord, string subject, string name, string mail, string password) {
 			System.Diagnostics.Debug.Assert(subject != null);
 			System.Diagnostics.Debug.Assert(name != null);
 			System.Diagnostics.Debug.Assert(mail != null);
