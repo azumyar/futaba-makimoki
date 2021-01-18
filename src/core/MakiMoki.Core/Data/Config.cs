@@ -15,7 +15,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		internal static BordConfig CreateDefault() {
 			return new BordConfig() {
 				Version = CurrentVersion,
-				Bords = new BordData[0],
+				Bords = Array.Empty<BordData>(),
 			};
 		}
 	}
@@ -29,7 +29,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		internal new static CoreBordConfig CreateDefault() {
 			return new CoreBordConfig() {
 				Version = CurrentVersion,
-				Bords = new BordData[0],
+				Bords = Array.Empty<BordData>(),
 			};
 		}
 
@@ -66,23 +66,29 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class BordDataExtra : JsonObject {
-		[JsonProperty("name")]
-		public bool? Name { get; set; }
+		[JsonProperty("name", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(true)]
+		public bool Name { get; set; }
 
-		[JsonProperty("enable-res-image")]
-		public bool? ResImage { get; set; }
+		[JsonProperty("enable-res-image", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(true)]
+		public bool ResImage { get; set; }
 
-		[JsonProperty("enable-mail-ip")]
-		public bool? MailIp { get; set; }
+		[JsonProperty("enable-mail-ip", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(false)]
+		public bool MailIp { get; set; }
 
-		[JsonProperty("enable-mail-id")]
-		public bool? MailId { get; set; }
+		[JsonProperty("enable-mail-id", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(false)]
+		public bool MailId { get; set; }
 
-		[JsonProperty("always-ip")]
-		public bool? AlwaysIp { get; set; }
+		[JsonProperty("always-ip", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(false)]
+		public bool AlwaysIp { get; set; }
 
-		[JsonProperty("always-id")]
-		public bool? AlwaysId { get; set; }
+		[JsonProperty("always-id", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(false)]
+		public bool AlwaysId { get; set; }
 
 		[JsonProperty("max-stored-res", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(0)]
@@ -97,22 +103,22 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public bool ResTegaki { get; set; }
 
 		[JsonIgnore]
-		public bool NameValue => Name ?? true;
+		public bool NameValue => Name;
 
 		[JsonIgnore]
-		public bool ResImageValue => ResImage ?? true;
+		public bool ResImageValue => ResImage;
 
 		[JsonIgnore]
-		public bool MailIpValue => MailIp ?? false;
+		public bool MailIpValue => MailIp;
 
 		[JsonIgnore]
-		public bool MailIdValue => MailId ?? false;
+		public bool MailIdValue => MailId;
 
 		[JsonIgnore]
-		public bool AlwaysIpValue => AlwaysIp ?? false;
+		public bool AlwaysIpValue => AlwaysIp;
 
 		[JsonIgnore]
-		public bool AlwaysIdValue => AlwaysId ?? false;
+		public bool AlwaysIdValue => AlwaysId;
 	}
 
 	public class MimeConfig : ConfigObject {
@@ -219,8 +225,8 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			return new FutabaSavedConfig() {
 				Version = CurrentVersion,
 				Time = Util.TimeUtil.ToUnixTimeMilliseconds(),
-				Catalogs = new FutabaSavedCatalogData[0],
-				Threads = new FutabaSavedThreadData[0],
+				Catalogs = Array.Empty<FutabaSavedCatalogData>(),
+				Threads = Array.Empty<FutabaSavedThreadData>(),
 			};
 		}
 
@@ -296,7 +302,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public static FutabaPostItemConfig CreateDefault() {
 			return new FutabaPostItemConfig() {
 				Version = CurrentVersion,
-				Items = new PostedResItem[0],
+				Items = Array.Empty<PostedResItem>(),
 			};
 		}
 

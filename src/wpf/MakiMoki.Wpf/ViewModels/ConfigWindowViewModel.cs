@@ -17,6 +17,33 @@ using Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class ConfigWindowViewModel : BindableBase, IDisposable {
+		public class ConfigListBoxItem : IDisposable {
+			[Helpers.AutoDisposable.IgonoreDispose]
+			public ReactiveCollection<ConfigListBoxItem> Parent { get; }
+			public ReactiveProperty<string> Name { get; }
+			public ReactiveProperty<object> Item { get; }
+			public ReactiveProperty<Visibility> EditButtonVisibility { get; }
+			public ReactiveProperty<object> Tag { get; }
+
+			public ConfigListBoxItem(
+				ReactiveCollection<ConfigListBoxItem> parent,
+				string name, object item,
+				bool canEdit = false,
+				object tag = null) {
+
+				this.Parent = parent;
+				this.Name = new ReactiveProperty<string>(name);
+				this.Item = new ReactiveProperty<object>(item);
+				this.EditButtonVisibility = new ReactiveProperty<Visibility>(
+					canEdit ? Visibility.Visible : Visibility.Collapsed);
+				this.Tag = new ReactiveProperty<object>(tag);
+			}
+
+			public void Dispose() {
+				Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
+			}
+		}
+
 		public class Canvas98ExtendItem : IDisposable {
 			public ReactiveProperty<string> Name { get; }
 			public ReactiveProperty<string> Bookmarklet { get; }
@@ -35,6 +62,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> CoreConfigSavedResponse { get; }
 
 
+		public ReactiveCollection<ConfigListBoxItem> Bords { get; } = new ReactiveCollection<ConfigListBoxItem>();
+
 		public ReactiveProperty<bool> NgConfigCatalogIdNg { get; }
 		public ReactiveProperty<bool> NgConfigThreadIdNg { get; }
 		public ReactiveProperty<string> NgConfigCatalogNgWord{ get; }
@@ -45,6 +74,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<string> NgConfigThreadNgWordRegex { get; }
 		public ReactiveProperty<bool> NgConfigThreadNgWordRegexValid { get; }
 		public ReactiveProperty<Visibility> NgConfigThreadNgWordRegexVisibility { get; }
+		public ReactiveCollection<ConfigListBoxItem> NgConfigNgImages { get; } = new ReactiveCollection<ConfigListBoxItem>();
 		public ReactiveProperty<string> NgConfigCatalogWatchWord { get; }
 		public ReactiveProperty<string> NgConfigCatalogWatchWordRegex { get; }
 		public ReactiveProperty<bool> NgConfigCatalogWatchWordRegexValid { get; }
@@ -101,6 +131,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> IsEnabledOkButton { get; }
 
 
+		public ReactiveCommand<ConfigListBoxItem> ConfigEditCommand { get; } = new ReactiveCommand<ConfigListBoxItem>();
+		public ReactiveCommand<ConfigListBoxItem> ConfigRemoveCommand { get; } = new ReactiveCommand<ConfigListBoxItem>();
+
+
 		public ReactiveCommand<RoutedEventArgs> OkButtonClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<RoutedEventArgs> CancelButtonClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<Uri> LinkClickCommand { get; } = new ReactiveCommand<Uri>();
@@ -109,6 +143,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ConfigWindowViewModel() {
 			CoreConfigThreadDataIncremental = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental);
 			CoreConfigSavedResponse = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaResponseSave);
+
+			Bords.AddRangeOnScheduler(
+				Config.ConfigLoader.UserConfBord.Bords
+					.OrderBy(x => x.SortIndex)
+					.Select(x => new ConfigListBoxItem(Bords, x.Name, x, true)));
 
 			NgConfigCatalogIdNg = new ReactiveProperty<bool>(Ng.NgConfig.NgConfigLoader.NgConfig.EnableCatalogIdNg);
 			NgConfigThreadIdNg = new ReactiveProperty<bool>(Ng.NgConfig.NgConfigLoader.NgConfig.EnableThreadIdNg);
@@ -140,6 +179,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				return true;
 			}).ToReactiveProperty();
 			NgConfigThreadNgWordRegexVisibility = NgConfigThreadNgWordRegexValid.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
+			NgConfigNgImages.AddRangeOnScheduler(
+				Ng.NgConfig.NgConfigLoader.NgImageConfig.Images
+					.Select(x => new ConfigListBoxItem(
+						NgConfigNgImages,
+						string.IsNullOrEmpty(x.Comment) ? "<コメントなし>" : x.Comment,
+						x)));
 			NgConfigCatalogWatchWord = new ReactiveProperty<string>(string.Join(Environment.NewLine, Ng.NgConfig.NgConfigLoader.WatchConfig.CatalogWords));
 			NgConfigCatalogWatchWordRegex = new ReactiveProperty<string>(string.Join(Environment.NewLine, Ng.NgConfig.NgConfigLoader.WatchConfig.CatalogRegex));
 			NgConfigCatalogWatchWordRegexValid = NgConfigCatalogWatchWordRegex.Select(x => {
@@ -258,6 +303,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				PostViewMinWidthValid,
 				PostViewOpacityValid,
 			}.CombineLatest(x => x.All(y => y)).ToReactiveProperty();
+			ConfigEditCommand.Subscribe(x => OnConfigEditButtonClick(x));
+			ConfigRemoveCommand.Subscribe(x => OnConfigRemoveButtonClick(x));
 			OkButtonClickCommand.Subscribe(x => OnOkButtonClick(x));
 			CancelButtonClickCommand.Subscribe(x => OnCancelButtonClick(x));
 			LinkClickCommand.Subscribe(x => OnLinkClick(x));
@@ -266,6 +313,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public void Dispose() {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
+
+		private void OnConfigEditButtonClick(ConfigListBoxItem _) {
+		}
+
+		private void OnConfigRemoveButtonClick(ConfigListBoxItem x) {
+			x.Parent.Remove(x);
+		}
+
 
 		private void OnOkButtonClick(RoutedEventArgs _) {
 			Config.ConfigLoader.UpdateMakiMokiConfig(

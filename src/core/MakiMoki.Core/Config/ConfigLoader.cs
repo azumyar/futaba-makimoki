@@ -105,10 +105,13 @@ namespace Yarukizero.Net.MakiMoki.Config {
 					Optout = Util.FileUtil.LoadMigrate(
 						Path.Combine(confDir, MakiMokiOptoutConfigFile),
 						Optout);
-					addDic(bordDic,
-						Util.FileUtil.LoadMigrate(
-							Path.Combine(confDir, BordConfigFile),
-							default(BordConfig))?.Bords);
+					var b = Util.FileUtil.LoadMigrate(
+						Path.Combine(confDir, BordConfigFile),
+						default(BordConfig));
+					addDic(bordDic, b?.Bords);
+ 					if(confDir == setting.UserDirectory) {
+						UserConfBord = b;
+					}
 				}
 			}
 
@@ -118,6 +121,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 					.Where(x => x.Display)
 					.OrderBy(x => x.SortIndex)
 					.ToArray());
+			UserConfBord ??= BordConfig.CreateDefault();
 			SavedFutaba = Util.FileUtil.LoadMigrate(
 				Path.Combine(InitializedSetting.WorkDirectory, FutabaSavedFile),
 				Data.FutabaSavedConfig.CreateDefault());
@@ -142,6 +146,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		public static Data.MakiMokiOptout Optout { get; private set; }
 
 		public static Data.CoreBordConfig Bord { get; private set; }
+		public static Data.BordConfig UserConfBord { get; private set; }
 
 		public static Data.MimeConfig MimeFutaba { get; private set; }
 

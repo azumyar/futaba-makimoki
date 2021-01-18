@@ -9,6 +9,7 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows"
+        xmlns:vm="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.ViewModels"
         mc:Ignorable="d"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Title="設定" Height="450" Width="800">
@@ -20,6 +21,68 @@
 
         <Style x:Key="ConfigContents" TargetType="StackPanel">
             <Setter Property="Margin" Value="0 8 0 8" />
+        </Style>
+
+        <Style x:Key="ConfigListBox" TargetType="ListBox">
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style> 
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemsPanel">
+                <Setter.Value>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel
+                            Orientation="Vertical"
+                            IsItemsHost="True" 
+                            HorizontalAlignment="Stretch"
+                            />
+                    </ItemsPanelTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemTemplate">
+                <Setter.Value>
+                    <DataTemplate DataType="vm:ConfigWindowViewModel.ConfigListBoxItem">
+                        <Border Padding="2">
+                            <Grid HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    Text="{Binding Name.Value, Mode=OneWay}"
+                                    />
+                                <Button
+                                    Grid.Column="1"
+                                    Width="32"
+                                    Visibility="{Binding EditButtonVisibility.Value, Mode=OneWay}"
+                                    Command="{Binding DataContext.ConfigEditCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:ConfigWindow}}"
+                                    CommandParameter="{Binding }">
+                                    <TextBlock>✖</TextBlock>
+                                </Button>
+                                <Button
+                                    Grid.Column="2"
+                                    Width="32"
+                                    Command="{Binding DataContext.ConfigRemoveCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:ConfigWindow}}"
+                                    CommandParameter="{Binding }">
+                                    <TextBlock>✖</TextBlock>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
     <Grid>
@@ -61,6 +124,23 @@
                                 <TextBlock>現在のふたばレスポンスデータを保存</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">現在取得しているレスポンスデータ(テキスト)を保存し次回起動時に復元します。</TextBlock>
                                 <CheckBox Content="有効" IsChecked="{Binding CoreConfigSavedResponse.Value, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource ConfigHeaderText}" Margin="0 8 0 0">板設定</TextBlock>
+                            <StackPanel
+                                Style="{StaticResource ConfigContents}"
+                                HorizontalAlignment="Left">
+                                <Button HorizontalAlignment="Right">
+                                    <TextBlock>追加</TextBlock>
+                                </Button>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding Bords, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
                             </StackPanel>
 
                             <TextBlock Style="{StaticResource ConfigHeaderText}" Margin="0 8 0 0">NG/Watch設定</TextBlock>
@@ -131,6 +211,24 @@
                                     Text="{Binding NgConfigThreadNgWordRegex.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
                                     />
                                 <TextBlock Foreground="Red" Visibility="{Binding NgConfigThreadNgWordRegexVisibility.Value, Mode=OneWay}">正規表現に問題があります</TextBlock>
+                            </StackPanel>
+                            <StackPanel
+                                Style="{StaticResource ConfigContents}"
+                                HorizontalAlignment="Left">
+                                <TextBlock>NG画像</TextBlock>
+                                <!--
+                                <Button HorizontalAlignment="Right">
+                                    <TextBlock>追加</TextBlock>
+                                </Button>
+                                -->
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding NgConfigNgImages, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
                             </StackPanel>
 
                             <StackPanel Style="{StaticResource ConfigContents}">
