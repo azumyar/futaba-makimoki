@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System.Windows.Media;
 using System.IO;
 using System.Windows.Media.Imaging;
@@ -187,10 +188,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<bool> IsDie { get; }
 		public ReactiveProperty<bool> IsMaxRes { get; }
 
-		public ReactiveCommand FullScreenClickCommand { get; } = new ReactiveCommand();
-		public ReactiveProperty<bool> IsFullScreenMode { get; } = new ReactiveProperty<bool>(false);
+		public ReactiveCommand FullScreenThreadClickCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand FullScreenCatalogClickCommand { get; } = new ReactiveCommand();
+		public ReactiveProperty<bool> IsFullScreenThreadMode { get; } = new ReactiveProperty<bool>(false);
+		public ReactiveProperty<bool> IsFullScreenCatalogMode { get; } = new ReactiveProperty<bool>(false);
 		public ReactiveProperty<int> FullScreenSpan { get; }
 		public ReactiveProperty<Visibility> FullScreenVisibility { get; }
+		public ReactiveProperty<Visibility> FullScreenCatalogVisibility { get; }
+		public ReactiveProperty<Visibility> FullScreenThreadButtonVisibility { get; }
+		public ReactiveProperty<Visibility> FullScreenThreadCatalogVisibility { get; }
+		public ReactiveProperty<double> FullScreenThreadContainerWidth { get; }
+		public ReactiveProperty<int> FullScreenThreadColumn { get; }
+		public ReactiveProperty<int> FullScreenThreadColumnSpan { get; }
+		public ReactiveProperty<Visibility> FullScreenBorderVisibility { get; }
 
 		public ReactiveProperty<int> CatalogResCount { get; } = new ReactiveProperty<int>(0);
 		public ReactiveProperty<object> UpdateToken { get; } = new ReactiveProperty<object>(DateTime.Now);
@@ -205,8 +215,32 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			OpenedThreads = Util.Futaba.Threads.Select(x => x.Where(y => y.Url.BaseUrl == futaba.Url.BaseUrl).ToArray()).ToReactiveProperty();
 			CatalogListVisibility = CatalogListMode.Select(x => futaba.Url.IsCatalogUrl ? (x ? Visibility.Visible : Visibility.Hidden) :  Visibility.Hidden).ToReactiveProperty();
 			FullScreenVisibility = CatalogListMode.Select(x => futaba.Url.IsCatalogUrl ? (x ? Visibility.Hidden : Visibility.Visible) :  Visibility.Hidden).ToReactiveProperty();
-			FullScreenSpan = IsFullScreenMode.Select(x => x ? 3 : 1).ToReactiveProperty();
-			FullScreenVisibility = IsFullScreenMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
+			FullScreenSpan = IsFullScreenCatalogMode.Select(x => x ? 3 : 1).ToReactiveProperty();
+			FullScreenVisibility = IsFullScreenCatalogMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
+			FullScreenCatalogVisibility = IsFullScreenCatalogMode
+				.Select(x => x ? Visibility.Hidden : Visibility.Visible)
+				.ToReactiveProperty();
+			FullScreenThreadButtonVisibility = IsFullScreenCatalogMode
+				.Select(x => x ? Visibility.Collapsed : Visibility.Visible)
+				.ToReactiveProperty();
+			FullScreenThreadContainerWidth = IsFullScreenThreadMode
+				.Select(x => x ? 32d : 0d)
+				.ToReactiveProperty();
+			FullScreenThreadCatalogVisibility = IsFullScreenThreadMode
+				.Select(x => x ? Visibility.Hidden : Visibility.Visible)
+				.ToReactiveProperty();
+			FullScreenThreadColumn = IsFullScreenThreadMode
+				.Select(x => x ? 1 : 3)
+				.ToReactiveProperty();
+			FullScreenThreadColumnSpan = IsFullScreenThreadMode
+				.Select(x => x ? 3 : 1)
+				.ToReactiveProperty();
+			FullScreenBorderVisibility = new[] {
+				IsFullScreenCatalogMode,
+				IsFullScreenThreadMode,
+			}.CombineLatest(x => x.Any(y => y))
+				.Select(x => x ? Visibility.Collapsed : Visibility.Visible)
+				.ToReactiveProperty();
 			ngUpdateAction = (_) => UpdateToken.Value = DateTime.Now;
 			hiddenUpdateAction = (_) => UpdateToken.Value = DateTime.Now;
 			systemUpdateAction = (_) => UpdateToken.Value = DateTime.Now;
@@ -218,7 +252,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				CatalogSortItem.Value = old.CatalogSortItem.Value;
 				CatalogListMode.Value = old.CatalogListMode.Value;
 				CatalogResCount.Value = old.CatalogResCount.Value;
-				IsFullScreenMode.Value = old.IsFullScreenMode.Value;
+				IsFullScreenCatalogMode.Value = old.IsFullScreenCatalogMode.Value;
+				IsFullScreenThreadMode.Value = old.IsFullScreenThreadMode.Value;
 			}
 
 
@@ -353,7 +388,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.DeletePostDataCommand.Subscribe(() => OnDeletePostData());
 			this.ExportCommand.Subscribe(() => OnExport());
 
-			this.FullScreenClickCommand.Subscribe(() => OnFullScreenClick());
+			this.FullScreenCatalogClickCommand.Subscribe(() => OnFullScreenCatalogClick());
+			this.FullScreenThreadClickCommand.Subscribe(() => OnFullScreenThreadClick());
 
 			// 初期化がすべて終わったタイミングで書き換える
 			foreach(var it in this.ResItems) {
@@ -432,8 +468,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.PostData.Value.Reset();
 		}
 
-		private void OnFullScreenClick() {
-			this.IsFullScreenMode.Value = !this.IsFullScreenMode.Value;
+		private void OnFullScreenCatalogClick() {
+			this.IsFullScreenCatalogMode.Value = !this.IsFullScreenCatalogMode.Value;
+		}
+
+		private void OnFullScreenThreadClick() {
+			this.IsFullScreenThreadMode.Value = !this.IsFullScreenThreadMode.Value;
 		}
 
 		private void OnExport() {
@@ -529,7 +569,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			= new Helpers.WeakCache<string, RefValue<ulong>>();
 		private static Helpers.ConnectionQueue<ulong?> HashQueue = new Helpers.ConnectionQueue<ulong?>(
 			name: "NG/Watchハッシュ計算キュー",
-			maxConcurrency: 2,
+			maxConcurrency: 4,
 			delayTime: 100,
 			waitTime: 100);
 

@@ -825,11 +825,13 @@
                     <Button
                         Grid.Column="0"
                         Style="{StaticResource ToolbarButton}"
+                        Content="{DynamicResource ButtonIconCatalogExpand}"
                         DataContext="{Binding Contents.Futaba.Value, ElementName=_this}"
                         Width="16"
-                        Visibility="Collapsed">
+                        Visibility="{Binding FullScreenThreadButtonVisibility.Value}"
+                        >
                         <Button.LayoutTransform>
-                            <RotateTransform x:Name="ContractRotate" Angle="180" />
+                            <RotateTransform x:Name="FullScreenThreadRotate" Angle="180" />
                         </Button.LayoutTransform>
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
@@ -839,13 +841,13 @@
                         </Button.ToolTip>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
-                                <ri:EventToReactiveCommand Command="{Binding FullScreenClickCommand}" />
+                                <ri:EventToReactiveCommand Command="{Binding FullScreenThreadClickCommand}" />
                             </i:EventTrigger>
                             <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="Equal">
-                                <i:ChangePropertyAction TargetName="ContractRotate" PropertyName="Angle" Value="0" />
+                                <i:ChangePropertyAction TargetName="FullScreenThreadRotate" PropertyName="Angle" Value="0" />
                             </i:DataTrigger>
                             <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="NotEqual">
-                                <i:ChangePropertyAction TargetName="ContractRotate" PropertyName="Angle" Value="180" />
+                                <i:ChangePropertyAction TargetName="FullScreenThreadRotate" PropertyName="Angle" Value="180" />
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>
@@ -1002,7 +1004,7 @@
                         DataContext="{Binding Contents.Futaba.Value, ElementName=_this}"
                         Width="16">
                         <Button.LayoutTransform>
-                            <RotateTransform x:Name="FullScreenRotate" Angle="0" />
+                            <RotateTransform x:Name="FullScreenCatalogRotate" Angle="0" />
                         </Button.LayoutTransform>
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
@@ -1012,13 +1014,13 @@
                         </Button.ToolTip>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
-                                <ri:EventToReactiveCommand Command="{Binding FullScreenClickCommand}" />
+                                <ri:EventToReactiveCommand Command="{Binding FullScreenCatalogClickCommand}" />
                             </i:EventTrigger>
-                            <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="Equal">
-                                <i:ChangePropertyAction TargetName="FullScreenRotate" PropertyName="Angle" Value="180" />
+                            <i:DataTrigger Binding="{Binding IsFullScreenCatalogMode.Value, Mode=OneWay}" Value="True" Comparison="Equal">
+                                <i:ChangePropertyAction TargetName="FullScreenCatalogRotate" PropertyName="Angle" Value="180" />
                             </i:DataTrigger>
-                            <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="NotEqual">
-                                <i:ChangePropertyAction TargetName="FullScreenRotate" PropertyName="Angle" Value="0" />
+                            <i:DataTrigger Binding="{Binding IsFullScreenCatalogMode.Value, Mode=OneWay}" Value="True" Comparison="NotEqual">
+                                <i:ChangePropertyAction TargetName="FullScreenCatalogRotate" PropertyName="Angle" Value="0" />
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>

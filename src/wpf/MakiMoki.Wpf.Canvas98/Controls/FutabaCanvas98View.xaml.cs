@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Newtonsoft.Json;
+using Prism.Events;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 	/// <summary>
@@ -102,7 +103,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 					ContentsChangedEvent));
 				*/
 				// if((obj is FutabaCanvas98View fv) && (e.NewValue is Data.UrlContext c)) {}
-				el.Visibility = Visibility.Hidden;
+				//el.Visibility = Visibility.Hidden;
 			}
 		}
 
@@ -113,6 +114,121 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 
 		public FutabaCanvas98View() {
 			InitializeComponent();
+			ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaCanvas98ViewViewModel.NavigateTo>>()
+				.Subscribe(async x => {
+					var f = this.ThreadUrl != null;
+					this.ThreadUrl = x.Url;
+					await Task.WhenAll(webViewInitializeTask);
+					this.webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(
+						new StringBuilder()
+							.AppendLine("'use strict';")
+							.AppendLine("window.addEventListener('load', ()=>{")
+							// XMLHttpRequestを無効化する
+							.AppendLine("  XMLHttpRequest = class {")
+							.AppendLine("    constructor() {}")
+							.AppendLine("    onload")
+							.AppendLine("    open(method, f) {}")
+							.AppendLine("    send(data) {}")
+							.AppendLine("  };")
+							.AppendLine("  if(document.location.href.endsWith('.htm')) {")
+							.AppendLine("    if(document.body.bgColor != '') {")
+							// フォーム以外のノード全削除
+							.AppendLine("      {")
+							.AppendLine("        const rn = [];")
+							.AppendLine("        for(const n of document.body.childNodes) {")
+							.AppendLine("          if(n.id !== 'fm') {")
+							.AppendLine("            rn.push(n);")
+							.AppendLine("          }")
+							.AppendLine("        }")
+							.AppendLine("        for(const n of rn) {")
+							.AppendLine("          document.body.removeChild(n);")
+							.AppendLine("        }")
+							.AppendLine("      }")
+							// スレ説明文を削除、フォーム位置切替リンクを削除
+							.AppendLine("      {")
+							.AppendLine("        const fm = document.forms.fm;")
+							.AppendLine("        const ftb2 = fm.getElementsByClassName('ftb2');")
+							.AppendLine("        fm.removeChild(ftb2[0]);")
+							.AppendLine("        const reszb = document.getElementById('reszb');")
+							.AppendLine("        reszb.parentElement.removeChild(reszb);")
+							.AppendLine("      }")
+							// はっちゃんキャンバス起動リンク追加
+							.AppendLine("      {")
+							.AppendLine("        const ftbl = document.getElementById('ftbl');")
+							.AppendLine("        const tr = document.createElement('tr');")
+							.AppendLine("        const td = document.createElement('td');")
+							.AppendLine("        td.setAttribute('colspan', '2');")
+							.AppendLine("        td.style = 'text-align: right';")
+							.AppendLine("        const a = document.createElement('a');")
+							.AppendLine("        a.innerText = 'はっちゃんキャンバス';")
+							.AppendLine($"        a.href = '{ MakiMokiProtocol98Open }';")
+							.AppendLine("        td.appendChild(a);")
+							.AppendLine("        tr.appendChild(td);")
+							.AppendLine("        ftbl.appendChild(tr);")
+							.AppendLine("      }")
+							// Viewを閉じるリンク追加
+							.AppendLine("      {")
+							.AppendLine("        const a = document.createElement('a');")
+							.AppendLine("        a.style = 'position: fixed; top: 4px; right: 4px;';")
+							.AppendLine("        a.innerText = '閉じる';")
+							.AppendLine($"        a.href = '{ MakiMokiProtocolViewClose }';")
+							.AppendLine("        document.body.appendChild(a);")
+							.AppendLine("      }")
+							// submitボタンがajaxモードになっているので差し替える
+							.AppendLine("      {")
+							.AppendLine("        let target = null;")
+							.AppendLine("        const tr = ((document.forms.fm.sub) ? document.forms.fm.sub : document.forms.fm.email).parentNode;")
+							.AppendLine("        for(const el of tr.children) {")
+							.AppendLine("          if(el.type == 'submit') {")
+							.AppendLine("            target = el;")
+							.AppendLine("            break;")
+							.AppendLine("          }")
+							.AppendLine("        }")
+							.AppendLine("        if(target) {")
+							.AppendLine("          tr.removeChild(target);")
+							.AppendLine("          const input = document.createElement('input');")
+							.AppendLine("          input.type = 'submit';")
+							.AppendLine("          input.value = '返信する';")
+							// ptfk()を呼ばないと手書きがinputにマッピングされない
+							// そのまま送信するのでXMLHttpRequestを無効化しておく必要がある
+							.AppendLine($"          input.addEventListener('click', ()=>{{")
+							.AppendLine("             const json = JSON.stringify({")
+							.AppendLine("               name: (document.forms.fm.name) ? document.forms.fm.name.value : '',")
+							.AppendLine("               sub: (document.forms.fm.sub) ? document.forms.fm.sub.value : '',")
+							.AppendLine("               email: document.forms.fm.email.value,")
+							.AppendLine("               pwd: document.forms.fm.pwd.value,")
+							.AppendLine("             });")
+							.AppendLine($"             window.chrome.webview.postMessage('{ WebMessagePostStore }?' + encodeURI(json));")
+							.AppendLine($"             ptfk({ this.ThreadUrl.ThreadNo });")
+							.AppendLine($"             return true;")
+							.AppendLine($"           }});")
+							.AppendLine("          tr.appendChild(input);")
+							.AppendLine("        }")
+							// フォーム位置をずらす、パスワードを表示
+							.AppendLine("        document.forms.fm.style = 'margin-top: 6em;';")
+							.AppendLine("        document.forms.fm.pwd.type = 'text';")
+							.AppendLine("      }")
+							.AppendLine($"      window.chrome.webview.postMessage('{ WebMessageReady }');")
+							.AppendLine("    } else {")
+							.AppendLine($"      window.chrome.webview.postMessage('{ WebMessage404 }');")
+							.AppendLine("    }")
+							.AppendLine("  }")
+							.AppendLine("});")
+							.ToString());
+					if(Uri.TryCreate(x.Url.BaseUrl, UriKind.Absolute, out var baseUri)
+						&& Uri.TryCreate(Util.Futaba.GetFutabaThreadUrl(x.Url), UriKind.Absolute, out var targetUri)) {
+
+						if(this.webView.Source == targetUri) {
+							await this.ExecCanvas98();
+						} else {
+							this.webView.Source = targetUri;
+						}
+					}
+				});
+			if(this.DataContext is ViewModels.FutabaCanvas98ViewViewModel vm) {
+				this.ThreadUrl = vm.Url;
+			}
 			webViewInitializeTask = webView.EnsureCoreWebView2Async();
 			this.webView.NavigationStarting += async (s, e) => {
 				System.Diagnostics.Debug.Assert(!this.urlCache.ContainsKey(e.NavigationId));
@@ -125,14 +241,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				}
 				*/
 				if(e.Uri.EndsWith(".htm")) {
-					this.NavigationVisibility = Visibility.Collapsed;
+					this.NavigationVisibility = Visibility.Hidden;
 					urlCache.Add(e.NavigationId, (UrlType.ThreadHtml, this.ThreadUrl));
 				} else if(e.Uri.Contains("/futaba.php")) {
 					//e.Cancel = true;
 					urlCache.Add(e.NavigationId, (UrlType.FutbaPhp, this.ThreadUrl));
 				} else if(e.Uri.StartsWith(MakiMokiProtocolViewClose)) {
 					e.Cancel = true;
-					this.Visibility = Visibility.Hidden;
+					if(DataContext is ViewModels.FutabaCanvas98ViewViewModel vm) {
+						vm.Close();
+					}
 				} else if(e.Uri.StartsWith(MakiMokiProtocol98Open)) {
 					e.Cancel = true;
 					await this.ExecCanvas98();
@@ -191,6 +309,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				}
 			};
 			this.webView.CoreWebView2Ready += (s, e) => {
+				/*
 				this.webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(
 					new StringBuilder()
 						.AppendLine("'use strict';")
@@ -287,6 +406,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 						.AppendLine("  }")
 						.AppendLine("});")
 						.ToString());
+				*/
 			};
 			this.webView.WebMessageReceived += async (s, e) => { 
 				var message = e.TryGetWebMessageAsString();
@@ -314,12 +434,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 						.ToString());
 					await this.ExecCanvas98();
 				} else if(message == WebMessage404) {
-					if(this.Visibility == Visibility.Visible) {
-						Util.Futaba.PutInformation(new Data.Information("スレッドは落ちています"));
-						this.Visibility = Visibility.Hidden;
+					Util.Futaba.PutInformation(new Data.Information("スレッドは落ちています"));
+					if(DataContext is ViewModels.FutabaCanvas98ViewViewModel vm) {
+						vm.Close();
 					}
 					this.webView.NavigateToString("");
 				} else if(message == WebMessagePostSucessed) {
+					if(DataContext is ViewModels.FutabaCanvas98ViewViewModel vm) {
+						// TODO: 成功メッセージをリレー
+						vm.Close();
+					}
+					/*
 					if(this.Visibility == Visibility.Visible) {
 						this.Visibility = Visibility.Hidden;
 						this.RaiseEvent(new RoutedSucessEventArgs(
@@ -327,6 +452,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 							this.formCache,
 							SuccessedEvent));
 					}
+					*/
 					this.webView.NavigateToString("");
 				} else if(message.StartsWith(WebMessagePostError)) {
 					Util.Futaba.PutInformation(new Data.Information(
@@ -337,27 +463,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				}
 			};
 
-			this.IsVisibleChanged += async (s, e) => {
+			this.IsVisibleChanged += (s, e) => {
 				if(this.Visibility == Visibility.Visible) {
 					if(!Canvas98Util.Util.IsEnabledCanvas98()) {
 						Util.Futaba.PutInformation(new Data.Information("はっちゃんキャンバスの設定が不正です"));
-						this.Visibility = Visibility.Hidden;
-						return;
-					}
-
-					await Task.WhenAll(this.webViewInitializeTask);
-					var url = this.ThreadUrl;
-					if(url == null) {
-						return;
-					}
-					if(Uri.TryCreate(url.BaseUrl, UriKind.Absolute, out var baseUri)
-						&& Uri.TryCreate(Util.Futaba.GetFutabaThreadUrl(url), UriKind.Absolute, out var targetUri)) {
-
-						if(this.webView.Source == targetUri) {
-							await this.ExecCanvas98();
-						} else {
-							this.webView.Source = targetUri;
+						if(DataContext is ViewModels.FutabaCanvas98ViewViewModel vm) {
+							vm.Close();
 						}
+						return;
 					}
 				}
 			};

@@ -15,7 +15,9 @@ using System.Windows.Media;
 using System.Windows.Navigation;
 using Prism.Events;
 using Prism.Mvvm;
+using Prism.Regions;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls;
 using Yarukizero.Net.MakiMoki.Wpf.Model;
@@ -40,6 +42,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
+		public ReactiveCommand LoadedCommand { get; } = new ReactiveCommand();
 		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; } 
 			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>>();
 
@@ -102,13 +105,46 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new ReactiveCommand<BindableFutaba>();
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingCloseCommand { get; } = new ReactiveCommand<BindableFutaba>();
 
+		public ReactiveProperty<bool> IsExecuteCanvas98 { get; } = new ReactiveProperty<bool>(false);
+		public ReactiveProperty<PlatformData.UiPosition> Canvas98Position { get; }
+
+
+		public ReactiveProperty<bool> IsEnbaledCanvas98FullScreen { get; }
+		public ReactiveProperty<bool> IsEnbaledCanvas98Right { get; }
+		public ReactiveProperty<bool> IsEnbaledCanvas98Bottom { get; }
+
+		public ReactiveProperty<Visibility> GridSplitterVisibility { get; }
+		public ReactiveProperty<int> GridSplitterRow { get; }
+		public ReactiveProperty<int> GridSplitterRowSpan { get; }
+		public ReactiveProperty<int> GridSplitterColumn { get; }
+		public ReactiveProperty<int> GridSplitterColumnSpan { get; }
+		public ReactiveProperty<double> GridSplitterWidth { get; }
+		public ReactiveProperty<double> GridSplitterHeight { get; }
+
+
+		public ReactiveProperty<int> ListBoxRowSpan { get; }
+		public ReactiveProperty<int> ListBoxColumnSpan { get; }
+		public ReactiveProperty<Visibility> Canvas98FullScreenRegionVisibility { get; }
+		public ReactiveProperty<Visibility> Canvas98RightRegionVisibility { get; }
+		public ReactiveProperty<Visibility> Canvas98BottomRegionVisibility { get; }
+		
+
 		public ReactiveCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs> Canvas98SuccessedCommand { get; }
 			= new ReactiveCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs>();
 
 		private bool isThreadImageClicking = false;
+		private readonly Action<PlatformData.WpfConfig> systemConfigNotifyAction;
 		private readonly Action<Canvas98.Canvas98Data.Canvas98Bookmarklet> canvas98BookmarkletNotifyAction;
-
-		public FutabaThreadResViewerViewModel() {
+		public ReadOnlyReactiveProperty<IRegionManager> RegionManager { get; }
+		public FutabaThreadResViewerViewModel(IRegionManager regionManager) {
+			Canvas98.ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<Canvas98.ViewModels.FutabaCanvas98ViewViewModel.CloseTo>>()
+				.Subscribe(_ => {
+					IsExecuteCanvas98.Value = false;
+				});
+			RegionManager = new ReactiveProperty<IRegionManager>(regionManager.CreateRegionManager())
+				.ToReadOnlyReactiveProperty();
+			LoadedCommand.Subscribe(_ => OnLoaded());
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
 
 			FilterTextChangedCommand.Subscribe(x => OnFilterTextChanged(x));
@@ -152,7 +188,52 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			KeyBindingPostCommand.Subscribe(x => UpdatePost(x));
 			//KeyBindingCloseCommand.Subscribe(x => x);
 
+			Canvas98Position = new ReactiveProperty<PlatformData.UiPosition>(WpfConfig.WpfConfigLoader.SystemConfig.Canvas98Position);
+			IsEnbaledCanvas98FullScreen = new[] {
+				IsExecuteCanvas98,
+				Canvas98Position.Select(x => x == PlatformData.UiPosition.Default),
+			}.CombineLatestValuesAreAllTrue()
+				.ToReactiveProperty();
+			IsEnbaledCanvas98Bottom = new[] {
+				IsExecuteCanvas98,
+				Canvas98Position.Select(x => x == PlatformData.UiPosition.Bottom),
+			}.CombineLatestValuesAreAllTrue()
+				.ToReactiveProperty();
+			IsEnbaledCanvas98Right = new[] {
+				IsExecuteCanvas98,
+				Canvas98Position.Select(x => x == PlatformData.UiPosition.Right),
+			}.CombineLatestValuesAreAllTrue()
+				.ToReactiveProperty();
+
+			GridSplitterVisibility = new[] {
+				IsEnbaledCanvas98Bottom,
+				IsEnbaledCanvas98Right,
+			}.CombineLatestValuesAreAllTrue()
+				.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
+				.ToReactiveProperty();
+			GridSplitterRow = IsEnbaledCanvas98Right.Select(x => x ? 0 : 1).ToReactiveProperty();
+			GridSplitterRowSpan = IsEnbaledCanvas98Right.Select(x => x ? 3 : 1).ToReactiveProperty();
+			GridSplitterColumn = IsEnbaledCanvas98Bottom.Select(x => x ? 0 : 1).ToReactiveProperty();
+			GridSplitterColumnSpan = IsEnbaledCanvas98Bottom.Select(x => x ? 3 : 1).ToReactiveProperty();
+			GridSplitterWidth = IsEnbaledCanvas98Right.Select(x => x ? 5d : double.PositiveInfinity).ToReactiveProperty();
+			GridSplitterHeight = IsEnbaledCanvas98Bottom.Select(x => x ? 5d : double.PositiveInfinity).ToReactiveProperty();
+
+			ListBoxRowSpan = IsEnbaledCanvas98Bottom.Select(x => x ? 1 : 3).ToReactiveProperty();
+			ListBoxColumnSpan = IsEnbaledCanvas98Right.Select(x => x ? 1 : 3).ToReactiveProperty();
+			Canvas98FullScreenRegionVisibility = IsEnbaledCanvas98FullScreen.Select(x => x ? Visibility.Visible : Visibility.Hidden).ToReactiveProperty();
+			Canvas98BottomRegionVisibility = IsEnbaledCanvas98Bottom.Select(x => x ? Visibility.Visible : Visibility.Hidden).ToReactiveProperty();
+			Canvas98RightRegionVisibility = IsEnbaledCanvas98Right.Select(x => x ? Visibility.Visible : Visibility.Hidden).ToReactiveProperty();
+
+			systemConfigNotifyAction = (x) => {
+				if(Canvas98Position.Value != x.Canvas98Position) {
+					Canvas98Position.Value = x.Canvas98Position;
+					Canvas98.ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
+						.GetEvent<PubSubEvent<Canvas98.ViewModels.FutabaCanvas98ViewViewModel.CloseTo>>()
+						.Publish(new Canvas98.ViewModels.FutabaCanvas98ViewViewModel.CloseTo());
+				}
+			};
 			canvas98BookmarkletNotifyAction = (_) => Canvas98BookmarkletToken.Value = DateTime.Now;
+			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(systemConfigNotifyAction);
 			Canvas98.Canvas98Config.Canvas98ConfigLoader.BookmarkletUpdateNotifyer.AddHandler(canvas98BookmarkletNotifyAction);
 			Canvas98SuccessedCommand.Subscribe(x => OnCanvas98Successed(x));
 		}
@@ -160,6 +241,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public void Dispose() {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
+
+		private void OnLoaded() {}
 
 		private void UpdateThread(Model.BindableFutaba x) {
 			Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe();
@@ -225,6 +308,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnContentsChanged(RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents> e) {
 			this.PostViewVisibility.Value = Visibility.Hidden;
+			Canvas98.ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<Canvas98.ViewModels.FutabaCanvas98ViewViewModel.CloseTo>>()
+				.Publish(new Canvas98.ViewModels.FutabaCanvas98ViewViewModel.CloseTo());
 		}
 
 		private async void OnFilterTextChanged(TextChangedEventArgs e) {
@@ -286,7 +372,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnTegakiClick(Model.BindableFutaba x) {
 			if(x != null) {
-				this.TegakiViewVisibility.Value = (this.TegakiViewVisibility.Value == Visibility.Hidden) ? Visibility.Visible : Visibility.Hidden;
+				this.IsExecuteCanvas98.Value = true;
+				var param = new NavigationParameters();
+				param.Add(typeof(Data.UrlContext).FullName, x.Url);
+				switch(this.Canvas98Position.Value) {
+				case PlatformData.UiPosition.Default:
+					this.RegionManager.Value.RequestNavigate(
+						"Canvas98FullScreenRegion",
+						nameof(Canvas98.Controls.FutabaCanvas98View),
+						param);
+					return;
+				case PlatformData.UiPosition.Right:
+					this.RegionManager.Value.RequestNavigate(
+						"Canvas98RightRegion",
+						nameof(Canvas98.Controls.FutabaCanvas98View),
+						param);
+					return;
+				case PlatformData.UiPosition.Bottom:
+					this.RegionManager.Value.RequestNavigate(
+						"Canvas98BottomRegion",
+						nameof(Canvas98.Controls.FutabaCanvas98View),
+						param);
+					return;
+				}
 			}
 		}
 

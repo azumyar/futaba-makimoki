@@ -319,7 +319,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					m.MakeGenericMethod(t, vm).Invoke(null, Array.Empty<object>());
 				}
 			}
-
+			//ViewModelLocationProvider.Register<Canvas98.Controls.FutabaCanvas98View, Canvas98.ViewModels.FutabaCanvas98ViewViewModel>();
+			containerRegistry.RegisterForNavigation<Canvas98.Controls.FutabaCanvas98View, Canvas98.ViewModels.FutabaCanvas98ViewViewModel>();
 			containerRegistry.RegisterDialog<Controls.BoardEditDialog, ViewModels.BoardEditDialogViewModel>();
 		}
 	}
