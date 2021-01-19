@@ -797,7 +797,7 @@
                 </Grid.ColumnDefinitions>
                 <ListBox
                     Background="Transparent"
-                    ItemsSource="{Binding Bords.Value, Mode=OneWay}"
+                    ItemsSource="{Binding Boards.Value, Mode=OneWay}"
                     BorderThickness="0"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                     ScrollViewer.CanContentScroll="True"
