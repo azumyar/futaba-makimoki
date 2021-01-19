@@ -53,7 +53,8 @@ if not %errorlevel%==0 goto end
    %TARGET_PRJ%
 if not %errorlevel%==0 goto end
 
-xcopy /y /s /q src\wpf\MakiMoki.Wpf\bin\Release\net5.0-windows\%TARGET_RUNTIME%\libvlc %OUTPUT_DIR%
+mkdir %OUTPUT_DIR%\libvlc
+xcopy /y /s /q src\wpf\MakiMoki.Wpf\bin\Release\net5.0-windows\%TARGET_RUNTIME%\libvlc %OUTPUT_DIR%\libvlc
 xcopy /y %OUTPUT_DIR%\x86 %OUTPUT_DIR%\Lib\x86
 xcopy /y %OUTPUT_DIR%\x64 %OUTPUT_DIR%\Lib\x64
 xcopy /y %OUTPUT_DIR%\arm64 %OUTPUT_DIR%\Lib\arm64

@@ -26,11 +26,20 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		private static Helpers.ConnectionQueue<(bool Successed, string Message)> SoudaneQueue { get; set; }
 		private static Helpers.ConnectionQueue<(bool Successed, string Message)> DelQueue { get; set; }
 
+		private static readonly Action BoardConfigUpdateAction = () => {
+			if(Catalog != null) {
+				Catalog.Value = Catalog.Value
+					.Where(x => Config.ConfigLoader.Board.Boards.Any(y => y.Url == x.Url.BaseUrl))
+					.ToArray();
+			}
+
+		};
+
 		public static void Initialize() {
 			if(Config.ConfigLoader.MakiMoki.FutabaResponseSave) {
 				Catalog = new ReactiveProperty<Data.FutabaContext[]>(
 					Config.ConfigLoader.SavedFutaba.Catalogs.Select(x => {
-						var b = Config.ConfigLoader.Bord.Bords.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
+						var b = Config.ConfigLoader.Board.Boards.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
 						if(b != null) {
 							return Data.FutabaContext.FromCatalog_(b, x.Catalog, x.CatalogSortRes, x.CatalogResCounter);
 						} else {
@@ -39,7 +48,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					}).Where(x => x != null).ToArray());
 				Threads = new ReactiveProperty<Data.FutabaContext[]>(
 					Config.ConfigLoader.SavedFutaba.Threads.Select(x => {
-						var b = Config.ConfigLoader.Bord.Bords.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
+						var b = Config.ConfigLoader.Board.Boards.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
 						if(b != null) {
 							return Data.FutabaContext.FromThread_(b, x.Url, x.Thread);
 						} else {
@@ -47,8 +56,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						}
 					}).Where(x => x != null).ToArray());
 			} else {
-				Catalog = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
-				Threads = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
+				Catalog = new ReactiveProperty<Data.FutabaContext[]>(Array.Empty<Data.FutabaContext>());
+				Threads = new ReactiveProperty<Data.FutabaContext[]>(Array.Empty<Data.FutabaContext>());
 			}
 			PostItems = new ReactiveProperty<Data.PostedResItem[]>(Config.ConfigLoader.PostedItem.Items.ToArray());
 			Informations = new ReactiveCollection<Data.Information>(UIDispatcherScheduler.Default);
@@ -65,11 +74,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				maxConcurrency: 1,
 				waitTime: 5000
 			);
+			Config.ConfigLoader.BoardConfigUpdateNotifyer.AddHandler(BoardConfigUpdateAction);
 		}
 
-		public static IObservable<(bool Successed, Data.FutabaContext, string ErrorMessage)> UpdateCatalog(Data.BordData bord, Data.CatalogSortItem sort = null) {
-			return Observable.Create<(bool Successed, Data.FutabaContext, string ErrorMessage)>(async o => {
-				var f = await Task.Run<(bool Successed, Data.FutabaContext, string ErrorMessage)>(async () => {
+		public static IObservable<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)> UpdateCatalog(Data.BoardData bord, Data.CatalogSortItem sort = null) {
+			return Observable.Create<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)>(async o => {
+				var f = await Task.Run<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)>(async () => {
 					lock(lockObj) {
 						if(!Catalog.Value.Select(x => x.Url.BaseUrl).Contains(bord.Url)) {
 							Catalog.Value = Catalog.Value.Concat(new Data.FutabaContext[] {
@@ -172,7 +182,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadRes(Data.BordData bord, string threadNo, bool incremental = false) {
+		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadRes(Data.BoardData bord, string threadNo, bool incremental = false) {
 			var u = new Data.UrlContext(bord.Url, threadNo);
 			Data.FutabaContext parent = null;
 			lock(lockObj) {
@@ -250,7 +260,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadResAll(Data.BordData bord, string threadNo) {
+		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadResAll(Data.BoardData bord, string threadNo) {
 			return Observable.Create<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(async o => {
 				var ctx = await Task.Run<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(() => {
 					var successed = false;
@@ -412,6 +422,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								ip = "";
 							}
 							if(!string.IsNullOrEmpty(id) && bord.Extra.AlwaysIdValue) {
+								time = time + " " + id;
 								id = "";
 							}
 							var f = Data.FutabaContext.FromThreadResResponse(bord, threadNo, r.Result.Response,
@@ -489,14 +500,14 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				if(url.IsCatalogUrl) {
 					var r = Catalog.Value.Where(x => x.Url == url).FirstOrDefault();
 					if(r == null) {
-						UpdateCatalog(Config.ConfigLoader.Bord.Bords.Where(x => x.Url == url.BaseUrl).First())
+						UpdateCatalog(Config.ConfigLoader.Board.Boards.Where(x => x.Url == url.BaseUrl).First())
 							.Subscribe();
 					}
 				} else {
 					var r = Threads.Value.Where(x => x.Url == url).FirstOrDefault();
 					if(r == null) {
 						UpdateThreadRes(
-							Config.ConfigLoader.Bord.Bords.Where(x => x.Url == url.BaseUrl).First(),
+							Config.ConfigLoader.Board.Boards.Where(x => x.Url == url.BaseUrl).First(),
 							url.ThreadNo)
 								.Subscribe();
 					}
@@ -517,7 +528,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
-		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThreadResImage(Data.UrlContext url, Data.ResItem item) {
+		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThreadResImage(Data.UrlContext url, Data.ResItem item, bool isAsync = true) {
 			System.Diagnostics.Debug.Assert(url != null);
 			System.Diagnostics.Debug.Assert(item != null);
 
@@ -525,10 +536,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
 			var uri = new Uri(url.BaseUrl);
 			var u = string.Format("{0}://{1}{2}", uri.Scheme, uri.Authority, item.Src);
-			return GetUrlImage(u, localPath);
+			return GetUrlImage(u, localPath, isAsync);
 		}
 
-		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThumbImage(Data.UrlContext url, Data.ResItem item) {
+		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThumbImage(Data.UrlContext url, Data.ResItem item, bool isAsync = true) {
 			System.Diagnostics.Debug.Assert(url != null);
 			System.Diagnostics.Debug.Assert(item != null);
 
@@ -536,7 +547,25 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
 			var uri = new Uri(url.BaseUrl);
 			var u = string.Format("{0}://{1}{2}", uri.Scheme, uri.Authority, item.Thumb);
-			return GetUrlImage(u, localPath);
+			return GetUrlImage(u, localPath, isAsync);
+		}
+
+		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThumbImages(Data.UrlContext url, Data.ResItem[] items, bool isAsync = true) {
+			System.Diagnostics.Debug.Assert(url != null);
+			System.Diagnostics.Debug.Assert(items != null);
+
+			return Observable.Create<(bool Successed, string LocalPath, byte[] FileBytes)>(o => {
+				var c = new RestSharp.RestClient();
+				foreach(var item in items) {
+					var localFile = CreateLocalFileName(url.BaseUrl, item.Thumb);
+					var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
+					var uri = new Uri(url.BaseUrl);
+					var u = string.Format("{0}://{1}{2}", uri.Scheme, uri.Authority, item.Thumb);
+					GetUrlImage(u, localPath, isAsync, c)
+						.Subscribe(x => o.OnNext(x));
+				}
+				return System.Reactive.Disposables.Disposable.Empty;
+			});
 		}
 
 		public static Task<string> GetThumbImageAsync(Data.UrlContext url, Data.ResItem item) {
@@ -566,7 +595,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string NextOrMessage)> PostThread(Data.BordData bord,
+		public static IObservable<(bool Successed, string NextOrMessage)> PostThread(Data.BoardData bord,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
@@ -584,7 +613,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostRes(Data.BordData bord, string threadNo,
+		public static IObservable<(bool Successed, string Message)> PostRes(Data.BoardData bord, string threadNo,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
@@ -614,50 +643,60 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
-		private static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUrlImage(string url, string localPath) {
-			return Observable.Create<(bool Successed, string LocalPath, byte[] FileBytes)>(o => {
-				Task.Run(() => {
-					if(File.Exists(localPath)) {
-						o.OnNext((true, localPath, null));
-						o.OnCompleted();
-					} else {
-						var c = new RestSharp.RestClient();
-						var r = new RestSharp.RestRequest(url, RestSharp.Method.GET);
-						var res = c.Execute(r);
-						if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-							Observable.Create<object>(async (oo) => {
-								var b = res.RawBytes;
-								try {
-									if(!File.Exists(localPath)) {
-										using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
-											fs.Write(b, 0, b.Length);
-											fs.Flush();
-										}
+		private static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUrlImage(
+			string url, string localPath,
+			bool isAsync = true,
+			RestSharp.RestClient client = null) {
+
+			void run(IObserver<(bool Successed, string LocalPath, byte[] FileBytes)> o) {
+				if(File.Exists(localPath)) {
+					o.OnNext((true, localPath, null));
+					o.OnCompleted();
+				} else {
+					var c = client ?? new RestSharp.RestClient();
+					var r = new RestSharp.RestRequest(url, RestSharp.Method.GET);
+					var res = c.Execute(r);
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+						Observable.Create<object>(async (oo) => {
+							var b = res.RawBytes;
+							try {
+								if(!File.Exists(localPath)) {
+									using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
+										fs.Write(b, 0, b.Length);
+										fs.Flush();
 									}
-									oo.OnNext(null);
-									oo.OnCompleted();
-									return System.Reactive.Disposables.Disposable.Empty;
 								}
-								catch(IOException e) {
-									await Task.Delay(500);
-									oo.OnError(e);
-									return System.Reactive.Disposables.Disposable.Empty;
-								}
-							}).Retry(5)
-							.Subscribe(
-								s => {
-									o.OnNext((true, localPath, res.RawBytes));
-									o.OnCompleted();
-								},
-								ex => {
-									o.OnNext((false, null, null));
-								});
-						} else {
-							o.OnNext((false, null, null));
-							// TODO: o.OnError();
-						}
+								oo.OnNext(null);
+								oo.OnCompleted();
+								return System.Reactive.Disposables.Disposable.Empty;
+							}
+							catch(IOException e) {
+								await Task.Delay(500);
+								oo.OnError(e);
+								return System.Reactive.Disposables.Disposable.Empty;
+							}
+						}).Retry(5)
+						.Subscribe(
+							s => {
+								o.OnNext((true, localPath, res.RawBytes));
+								o.OnCompleted();
+							},
+							ex => {
+								o.OnNext((false, null, null));
+							});
+					} else {
+						o.OnNext((false, null, null));
+						// TODO: o.OnError();
 					}
-				});
+				}
+			};
+
+			return Observable.Create<(bool Successed, string LocalPath, byte[] FileBytes)>(o => {
+				if(isAsync) {
+					Task.Run(() => run(o));
+				} else {
+					run(o);
+				}
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
@@ -703,7 +742,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return m.Groups[1].Value;
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostDeleteThreadRes(Data.BordData bord, string threadNo, bool imageOnlyDel, string passwd) {
+		public static IObservable<(bool Successed, string Message)> PostDeleteThreadRes(Data.BoardData bord, string threadNo, bool imageOnlyDel, string passwd) {
 			return Observable.Create<(bool Successed, string Message)>(async o => {
 				var r = await FutabaApi.PostDeleteThreadRes(bord.Url, threadNo, Config.ConfigLoader.FutabaApi.Cookies, imageOnlyDel, passwd);
 				if(r.Raw == null) {
@@ -716,7 +755,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostSoudane(Data.BordData bord, string threadNo) {
+		public static IObservable<(bool Successed, string Message)> PostSoudane(Data.BoardData bord, string threadNo) {
 			return SoudaneQueue.Push(Helpers.ConnectionQueueItem<(bool Successed, string Message)>.From(
 				(o) => {
 					var task = FutabaApi.PostSoudane(bord.Url, threadNo);
@@ -729,7 +768,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				}));
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostDel(Data.BordData bord, string threadNo, string resNo) {
+		public static IObservable<(bool Successed, string Message)> PostDel(Data.BoardData bord, string threadNo, string resNo) {
 			return DelQueue.Push(Helpers.ConnectionQueueItem<(bool Successed, string Message)>.From(
 				(o) => {
 					var task = FutabaApi.PostDel(bord.Url, threadNo, resNo /*, Config.ConfigLoader.FutabaApi.Cookies */);

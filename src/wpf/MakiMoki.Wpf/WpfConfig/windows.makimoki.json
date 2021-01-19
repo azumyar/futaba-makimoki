@@ -1,6 +1,7 @@
 {
-  "version": 2020102900,
+  "version": -1,
 
+  "catalog-enable-fetch-thumbnail": false,
   "catalog-enable-movie-marker": true,
   "catalog-enable-id-marker": false,
   "catalog-enable-old-marker": true,
@@ -11,6 +12,8 @@
   "thread-visible-del-res": 1,
   "thread-enable-quot-link": true,
   "thread-enable-command-palette": false,
+  "thread-command-palette-position": "Right",
+  "thread-canvas98-position": "Default",
 
   "post-clipbord-jpeg-quality": 85,
   "post-clipbord-enable-url": true,

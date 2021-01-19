@@ -66,12 +66,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 	class FutabaCatalogItemBackgroundConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-			if((values.Length == 6) && (values[3] is System.Windows.Media.Color normalColor)) {
+			if((values.Length == 7) && (values[3] is System.Windows.Media.Color normalColor)) {
 				if((values[0] is Model.BindableFutabaResItem f)
 					&& (values[1] is string search)
 					&& (values[2] is IEnumerable<FutabaContext> threads)
 					&& (values[4] is System.Windows.Media.Color hitColor)
-					&& (values[5] is System.Windows.Media.Color opendColor)) {
+					&& (values[5] is System.Windows.Media.Color watchColor)
+					&& (values[6] is System.Windows.Media.Color opendColor)) {
 					if(threads.Select(x => x.ResItems.FirstOrDefault()?.ResItem.No)
 						.Contains(f.Raw.Value.ResItem.No)) {
 
@@ -83,6 +84,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 							.Contains(Util.TextUtil.Comment2SearchText(search))) {
 
 						return hitColor;
+					} else if(f.IsWatch.Value) {
+						return watchColor;
 					}
 				}
 				return normalColor; // スレを受信していない場合values[0]が設定されていないのでnormalColorを返す
@@ -249,10 +252,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class FutabaCatalogItemFilterConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
 			if((values.Length == 3) && (values[0] is IEnumerable<Model.BindableFutabaResItem> en)) {
-				var en2 = en.Where(x => !x.IsNg.Value && !x.IsHidden.Value && !x.IsNgImageHidden.Value).ToArray();
+				var en2 = en.Where(x => !x.IsNg.Value && !x.IsHidden.Value && !x.IsNgImageHidden.Value);
+				var en3 = en2.Where(x => x.IsWatch.Value).Concat(en2.Where(x => !x.IsWatch.Value)).ToArray();
 				if(values[1] is string filter && !string.IsNullOrEmpty(filter)) {
 					var f = Util.TextUtil.Filter2SearchText(filter);
-					var sr = en2.Select<Model.BindableFutabaResItem, (string Text, Model.BindableFutabaResItem Raw)>(
+					var sr = en3.Select<Model.BindableFutabaResItem, (string Text, Model.BindableFutabaResItem Raw)>(
 						x => (Util.TextUtil.Comment2SearchText(x.Raw.Value.ResItem.Res.Com), x))
 						.Where(x => x.Text.Contains(f))
 						.Select(x => x.Raw)
@@ -262,12 +266,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 						return sr;
 					case PlatformData.CatalogSearchResult.Nijiran: {
 							var t = sr.Select(y => y.ThreadResNo.Value).ToArray();
-							return sr.Concat(en2.Where(x => !t.Contains(x.ThreadResNo.Value))).ToArray();
+							return sr.Concat(en3.Where(x => !t.Contains(x.ThreadResNo.Value))).ToArray();
 						}
 					}
 					throw new InvalidOperationException();
 				} else {
-					return en2;
+					return en3;
 				}
 			}
 

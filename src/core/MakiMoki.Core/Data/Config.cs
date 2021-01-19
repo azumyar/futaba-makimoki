@@ -6,43 +6,58 @@ using System.Linq;
 using System.Text;
 
 namespace Yarukizero.Net.MakiMoki.Data {
-	public class BordConfig : ConfigObject {
-		public static int CurrentVersion { get; } = 2020062900;
+	public class BoardConfig : ConfigObject {
+		public static int CurrentVersion { get; } = 2021012000;
 
-		[JsonProperty("bords", Required = Required.Always)]
-		public BordData[] Bords { get; protected set; }
+		[JsonProperty("boards", Required = Required.Always)]
+		public BoardData[] Boards { get; protected set; }
 
-		internal static BordConfig CreateDefault() {
-			return new BordConfig() {
+		internal static BoardConfig CreateDefault() {
+			return new BoardConfig() {
 				Version = CurrentVersion,
-				Bords = new BordData[0],
+				Boards = Array.Empty<BoardData>(),
+			};
+		}
+
+		internal static BoardConfig From(BoardData[] boards) {
+			return new BoardConfig() {
+				Version = CurrentVersion,
+				Boards = boards.ToArray(),
 			};
 		}
 	}
 
-	public class CoreBordConfig : BordConfig {
-		public static new int CurrentVersion { get; } = BordConfig.CurrentVersion;
+	public class CoreBoardConfig : BoardConfig {
+		public static new int CurrentVersion { get; } = BoardConfig.CurrentVersion;
 
 		[JsonProperty("max-file-size", Required = Required.Always)]
 		public int MaxFileSize { get; private set; }
 
-		internal new static CoreBordConfig CreateDefault() {
-			return new CoreBordConfig() {
+		internal new static CoreBoardConfig CreateDefault() {
+			return new CoreBoardConfig() {
 				Version = CurrentVersion,
-				Bords = new BordData[0],
+				Boards = Array.Empty<BoardData>(),
 			};
 		}
 
-		internal static CoreBordConfig CreateAppInstance(CoreBordConfig config, BordData[] margeData) {
-			return new CoreBordConfig() {
+		internal static CoreBoardConfig CreateAppInstance(CoreBoardConfig config, BoardData[] margeData) {
+			return new CoreBoardConfig() {
 				Version = CurrentVersion,
 				MaxFileSize = config.MaxFileSize,
-				Bords = margeData,
+				Boards = margeData,
+			};
+		}
+
+		internal static CoreBoardConfig From(BoardData[] boards, int maxFileSize) {
+			return new CoreBoardConfig() {
+				Version = CurrentVersion,
+				MaxFileSize = maxFileSize,
+				Boards = boards.ToArray(),
 			};
 		}
 	}
 
-	public class BordData : JsonObject {
+	public class BoardData : JsonObject {
 		[JsonProperty("name", Required = Required.Always)]
 		public string Name { get; set; }
 
@@ -62,27 +77,57 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public bool Display { get; set; }
 
 		[JsonProperty("extra", Required = Required.Always)]
-		public BordDataExtra Extra { get; set; }
+		public BoardDataExtra Extra { get; set; }
+
+
+		public static BoardData From(
+			string name,
+			string url,
+			string defaultComment,
+			int sortIndex,
+			BoardDataExtra extra,
+			bool display = true) {
+
+			System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(name));
+			System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(url));
+			System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(defaultComment));
+			System.Diagnostics.Debug.Assert(extra != null);
+
+			return new BoardData() {
+				Name = name,
+				Url = url,
+				DefaultComment = defaultComment,
+				SortIndex = sortIndex,
+				Extra = extra,
+				Display = display,
+			};
+		}
 	}
 
-	public class BordDataExtra : JsonObject {
-		[JsonProperty("name")]
-		public bool? Name { get; set; }
+	public class BoardDataExtra : JsonObject {
+		[JsonProperty("name", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(true)]
+		public bool Name { get; set; }
 
-		[JsonProperty("enable-res-image")]
-		public bool? ResImage { get; set; }
+		[JsonProperty("enable-res-image", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(true)]
+		public bool ResImage { get; set; }
 
-		[JsonProperty("enable-mail-ip")]
-		public bool? MailIp { get; set; }
+		[JsonProperty("enable-mail-ip", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(false)]
+		public bool MailIp { get; set; }
 
-		[JsonProperty("enable-mail-id")]
-		public bool? MailId { get; set; }
+		[JsonProperty("enable-mail-id", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(false)]
+		public bool MailId { get; set; }
 
-		[JsonProperty("always-ip")]
-		public bool? AlwaysIp { get; set; }
+		[JsonProperty("always-ip", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(false)]
+		public bool AlwaysIp { get; set; }
 
-		[JsonProperty("always-id")]
-		public bool? AlwaysId { get; set; }
+		[JsonProperty("always-id", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(false)]
+		public bool AlwaysId { get; set; }
 
 		[JsonProperty("max-stored-res", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(0)]
@@ -96,23 +141,47 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[DefaultValue(false)]
 		public bool ResTegaki { get; set; }
 
-		[JsonIgnore]
-		public bool NameValue => Name ?? true;
+		public static BoardDataExtra From(
+			bool name,
+			bool resImage,
+			bool mailIp,
+			bool mailId,
+			bool alwaysIp,
+			bool alwaysId,
+			int maxStoredRes,
+			int maxStoredTime,
+			bool resTegaki) {
+
+			return new BoardDataExtra() {
+				Name = name,
+				ResImage = resImage,
+				MailIp = mailIp,
+				MailId = mailId,
+				AlwaysIp = alwaysIp,
+				AlwaysId = alwaysId,
+				MaxStoredRes = maxStoredRes,
+				MaxStoredTime = maxStoredTime,
+				ResTegaki = resTegaki,
+			};
+		}
 
 		[JsonIgnore]
-		public bool ResImageValue => ResImage ?? true;
+		public bool NameValue => Name;
 
 		[JsonIgnore]
-		public bool MailIpValue => MailIp ?? false;
+		public bool ResImageValue => ResImage;
 
 		[JsonIgnore]
-		public bool MailIdValue => MailId ?? false;
+		public bool MailIpValue => MailIp;
 
 		[JsonIgnore]
-		public bool AlwaysIpValue => AlwaysIp ?? false;
+		public bool MailIdValue => MailId;
 
 		[JsonIgnore]
-		public bool AlwaysIdValue => AlwaysId ?? false;
+		public bool AlwaysIpValue => AlwaysIp;
+
+		[JsonIgnore]
+		public bool AlwaysIdValue => AlwaysId;
 	}
 
 	public class MimeConfig : ConfigObject {
@@ -219,8 +288,8 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			return new FutabaSavedConfig() {
 				Version = CurrentVersion,
 				Time = Util.TimeUtil.ToUnixTimeMilliseconds(),
-				Catalogs = new FutabaSavedCatalogData[0],
-				Threads = new FutabaSavedThreadData[0],
+				Catalogs = Array.Empty<FutabaSavedCatalogData>(),
+				Threads = Array.Empty<FutabaSavedThreadData>(),
 			};
 		}
 
@@ -296,7 +365,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public static FutabaPostItemConfig CreateDefault() {
 			return new FutabaPostItemConfig() {
 				Version = CurrentVersion,
-				Items = new PostedResItem[0],
+				Items = Array.Empty<PostedResItem>(),
 			};
 		}
 

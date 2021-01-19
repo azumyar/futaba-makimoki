@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -12,6 +13,27 @@ using System.Windows.Media.Imaging;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 	static class ImageUtil {
+		[DllImport(
+			"libwebp",
+			EntryPoint = "WebPGetInfo",
+			CallingConvention = CallingConvention.Cdecl)]
+		private static extern int WebPGetInfo(
+			byte[] data,
+			IntPtr data_size,
+			ref int width,
+			ref int height);
+		[DllImport(
+			"libwebp",
+			EntryPoint = "WebPDecodeBGRAInto",
+			CallingConvention = CallingConvention.Cdecl)]
+		private static extern IntPtr WebPDecodeBGRAInto(
+			byte[] data,
+			IntPtr data_size,
+			byte[] output_buffer,
+			IntPtr output_buffer_size,
+			int output_stride);
+
+
 		private volatile static Dictionary<string, WeakReference<BitmapImage>> bitmapDic
 			= new Dictionary<string, WeakReference<BitmapImage>>();
 		private static BitmapImage NgImage { get; set; } = null;
@@ -71,84 +93,38 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		}
 
 		public static BitmapImage LoadImage(string path) {
+			var stream = default(Stream);
 			try {
 				if(TryGetImage(path, out var b)) {
 					return b;
 				}
 
 				if(Path.GetExtension(path).ToLower() == ".webp") {
-					System.Drawing.Image bitmap = null;
-					try {
-						Stream stream = null;
-						try {
-							var decoder = new Imazen.WebP.SimpleDecoder();
-							var s = CreateStream(path);
-							if(s.Sucessed) {
-								stream = s.Stream;
-								var l = new List<byte>();
-								while(s.Stream.CanRead) {
-									var bb = new byte[1024];
-									var c = s.Stream.Read(bb, 0, bb.Length);
-									if(c == 0) {
-										break;
-									}
-									l.AddRange(bb.Take(c));
-								}
-								bitmap = decoder.DecodeFromBytes(l.ToArray(), l.Count);
-							}
-						}
-						catch(IOException e) {
-							throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e);
-						}
-						catch(ArgumentException e) {
-							throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e);
-						}
-						finally {
-							stream?.Dispose();
-						}
-
-						var bitmapImage = new BitmapImage();
-						var ms = new MemoryStream();
-						bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-						ms.Position = 0;
-
-						bitmapImage.BeginInit();
-						bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-						bitmapImage.StreamSource = ms;
-						bitmapImage.EndInit();
-						bitmapImage.Freeze();
-
-						SetImage(path, bitmapImage);
-						return bitmapImage;
-					}
-					finally {
-						bitmap?.Dispose();
-					}
+					stream = LoadWebP(path, null);
 				} else {
 					var s = CreateStream(path);
-					try {
-						if(s.Sucessed) {
-							var bitmapImage = new BitmapImage();
-							bitmapImage.BeginInit();
-							bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-							bitmapImage.StreamSource = s.Stream;
-							bitmapImage.EndInit();
-							bitmapImage.Freeze();
-
-							SetImage(path, bitmapImage);
-							return bitmapImage;
-						} else {
-							System.Diagnostics.Debug.WriteLine("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-							return null; /* TODO: エラー画像を用意する */
-						}
+					if(!s.Sucessed) {
+						throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path));
 					}
-					finally {
-						// AnimationGifで再利用されるのでDisposeしてはいけない
-						// stream?.Dispose();
-					}
+					stream = s.Stream;
 				}
+				var bitmapImage = new BitmapImage();
+				bitmapImage.BeginInit();
+				bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+				bitmapImage.StreamSource = stream;
+				bitmapImage.EndInit();
+				bitmapImage.Freeze();
+
+				SetImage(path, bitmapImage);
+				return bitmapImage;
+			}
+			catch(Exceptions.ImageLoadFailedException) {
+				System.Diagnostics.Debug.WriteLine("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+				return null; /* TODO: エラー画像を用意する */
 			}
 			finally {
+				// AnimationGifで再利用されるのでDisposeしてはいけない
+				// stream?.Dispose();
 				var d = System.Windows.Threading.Dispatcher.CurrentDispatcher;
 				if(d != System.Windows.Application.Current?.Dispatcher) {
 					d.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.SystemIdle);
@@ -158,62 +134,38 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		}
 
 		public static BitmapImage LoadImage(string path, byte[] imageBytes) {
+			if(imageBytes == null) {
+				return LoadImage(path);
+			}
+
+			var stream = default(Stream);
 			try {
 				if(TryGetImage(path, out var b)) {
 					return b;
 				}
 
 				if(Path.GetExtension(path).ToLower() == ".webp") {
-					System.Drawing.Image bitmap = null;
-					try {
-						var decoder = new Imazen.WebP.SimpleDecoder();
-						bitmap = decoder.DecodeFromBytes(imageBytes, imageBytes.Length);
-
-						var bitmapImage = new BitmapImage();
-						var stream = new MemoryStream();
-						bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-						stream.Position = 0;
-
-						bitmapImage.BeginInit();
-						bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-						bitmapImage.StreamSource = stream;
-						bitmapImage.EndInit();
-						bitmapImage.Freeze();
-
-						SetImage(path, bitmapImage);
-						return bitmapImage;
-					}
-					finally {
-						bitmap?.Dispose();
-					}
+					stream = LoadWebP(path, imageBytes);
 				} else {
-					Stream stream = null;
-					try {
-						/*
-						if(Path.GetExtension(path).ToLower() == ".png") {
-							stream = LoadPng(path, imageBytes);
-						}
-						*/
-						if(stream == null) {
-							stream = new MemoryStream(imageBytes);
-						}
-						var bitmapImage = new BitmapImage();
-						bitmapImage.BeginInit();
-						bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-						bitmapImage.StreamSource = stream;
-						bitmapImage.EndInit();
-						bitmapImage.Freeze();
-
-						SetImage(path, bitmapImage);
-						return bitmapImage;
-					}
-					finally {
-						// AnimationGifで再利用されるのでDisposeしてはいけない
-						// stream?.Dispose();
-					}
+					stream = new MemoryStream(imageBytes);
 				}
+				var bitmapImage = new BitmapImage();
+				bitmapImage.BeginInit();
+				bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+				bitmapImage.StreamSource = stream;
+				bitmapImage.EndInit();
+				bitmapImage.Freeze();
+
+				SetImage(path, bitmapImage);
+				return bitmapImage;
+			}
+			catch(Exceptions.ImageLoadFailedException) {
+				System.Diagnostics.Debug.WriteLine("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+				return null; /* TODO: エラー画像を用意する */
 			}
 			finally {
+				// AnimationGifで再利用されるのでDisposeしてはいけない
+				// stream?.Dispose();
 				var d = System.Windows.Threading.Dispatcher.CurrentDispatcher;
 				if(d != System.Windows.Application.Current?.Dispatcher) {
 					d.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.SystemIdle);
@@ -240,6 +192,56 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				s => { stream = s; sucessed = true; },
 				ex => { });
 			return (sucessed, stream);
+		}
+
+		private static Stream LoadWebP(string path, byte[] imageBytes) {
+			var data = imageBytes;
+			if(data == null) {
+				var s = CreateStream(path);
+				try {
+					if(!s.Sucessed) {
+						throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path));
+					}
+					var l = new List<byte>();
+					while(s.Stream.CanRead) {
+						var bb = new byte[1024];
+						var c = s.Stream.Read(bb, 0, bb.Length);
+						if(c == 0) {
+							break;
+						}
+						l.AddRange(bb.Take(c));
+					}
+					data = l.ToArray();
+				}
+				finally {
+					s.Stream?.Dispose();
+				}
+			}
+
+			var w = 0;
+			var h = 0;
+			if(WebPGetInfo(data, (IntPtr)data.Length, ref w, ref h) == 0) {
+				throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path));
+			}
+			var stride = w * 4;
+			var output = new byte[w * h * 4];
+			if(WebPDecodeBGRAInto(
+				data, (IntPtr)data.Length,
+				output, (IntPtr)output.Length,
+				stride) == IntPtr.Zero) {
+
+				throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path));
+			}
+
+			var wb = new WriteableBitmap(w, h, 96, 96, PixelFormats.Pbgra32, null);
+			wb.WritePixels(new System.Windows.Int32Rect(0, 0, w, h), output, stride, 0);
+
+			var ms = new MemoryStream();
+			PngBitmapEncoder encoder = new PngBitmapEncoder();
+			encoder.Frames.Add(BitmapFrame.Create(wb));
+			encoder.Save(ms);
+			//ms.Position = 0;			
+			return ms;
 		}
 
 #if false

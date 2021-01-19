@@ -1,6 +1,9 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:system="clr-namespace:System;assembly=mscorlib"
+    xmlns:c="clr-namespace:System.Collections;assembly=mscorlib"
     xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
     >
     <converter:BackgroundToForegroundColorConverter x:Key="BackgroundToForegroundColorConverter" />
@@ -45,28 +48,63 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Border" Background="{TemplateBinding Background}">
+                    <Border x:Name="Border">
+                        <!--
+                        <Border.Tag>
+                            <c:Hashtable>
+                                <FrameworkElement x:Key="Background" Tag="{TemplateBinding Background}" />
+                                <FrameworkElement x:Key="StoryboardState" Tag="{x:Null}" />
+                                <system:Boolean x:Key="StoryboardState2">False</system:Boolean>
+                            </c:Hashtable>
+
+                            <x:Array Type="system:Object">
+                                <FrameworkElement Tag="{TemplateBinding Background}" />
+                                <FrameworkElement Tag="{x:Null}" />
+                            </x:Array>
+                        </Border.Tag>
+                            -->
+                            <!-- Background="{TemplateBinding Background}"-->
+                        <Border.Background>
+                            <SolidColorBrush Color="{Binding Background.Color, RelativeSource={RelativeSource FindAncestor, AncestorType=Button}}" />
+                        </Border.Background>
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
                                 <VisualState x:Name="Normal">
                                 </VisualState>
                                 <VisualState x:Name="MouseOver">
                                     <Storyboard>
-                                    <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" Storyboard.TargetName="Border">
+                                        <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" Storyboard.TargetName="Border">
                                             <EasingColorKeyFrame KeyTime="0:0:0.25" Value="{DynamicResource ViewerPrimaryColor}" />
+                                            <i:Interaction.Triggers>
+                                                <!--
+                                                <i:EventTrigger EventName="Changed">
+                                                    <i:ChangePropertyAction
+                                                        TargetName="Border"
+                                                        PropertyName="Tag"
+                                                        Value="True"
+                                                        />
+                                                </i:EventTrigger>
+                                                <i:EventTrigger EventName="Completed">
+                                                    <i:ChangePropertyAction
+                                                        TargetObject="{Binding Tag, ElementName=Border}"
+                                                        Value="False"
+                                                        />
+                                                </i:EventTrigger>
+                                                -->
+                                            </i:Interaction.Triggers>
                                         </ColorAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </VisualState>
                                 <VisualState x:Name="Pressed">
                                     <Storyboard>
-                                    <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" Storyboard.TargetName="Border">
+                                        <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" Storyboard.TargetName="Border">
                                             <EasingColorKeyFrame KeyTime="0:0:0.25" Value="{DynamicResource ViewerPrimaryDarkColor}" />
                                         </ColorAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </VisualState>
                                 <VisualState x:Name="Disabled">
                                     <Storyboard>
-                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Border">
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Border">
                                             <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0.4"/>
                                         </DoubleAnimationUsingKeyFrames>
                                     </Storyboard>
@@ -74,7 +112,25 @@
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
 
-                        <!--
+                        <Grid>
+                            <FrameworkElement 
+                x:Name="BackgroundGetter"
+                Visibility="Collapsed"
+                DataContext="{TemplateBinding Background}" />
+                            <FrameworkElement 
+                x:Name="StyleTypeGetter"
+                Visibility="Collapsed"
+                DataContext="{DynamicResource StyleType}" />
+                            <FrameworkElement 
+                x:Name="WhiteColorGetter"
+                Visibility="Collapsed"
+                DataContext="{DynamicResource ViewerBackgroundColor}" />
+                            <FrameworkElement 
+                x:Name="BlackColorGetter"
+                Visibility="Collapsed"
+                DataContext="{DynamicResource ViewerForegroundColor}" />
+
+                            <!--
                         <ContentPresenter
                             Width="{TemplateBinding Width}"
                             Height="{TemplateBinding Height}"
@@ -83,7 +139,7 @@
                             VerticalAlignment="Center"
                             />
                         -->
-                        <ContentControl
+                            <ContentControl
                             Content="{TemplateBinding Content}"
                             Width="{TemplateBinding Width}"
                             Height="{TemplateBinding Height}"
@@ -91,19 +147,29 @@
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             >
-                            <ContentControl.Foreground>
-                                <SolidColorBrush>
-                                    <SolidColorBrush.Color>
-                                        <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}">
-                                            <Binding Path="Background" ElementName="Border" />
-                                            <Binding Path="DataContext" Source="{StaticResource StyleTypeGetter}" />
-                                            <Binding Path="DataContext" Source="{StaticResource WhiteColorGetter}" />
-                                            <Binding Path="DataContext" Source="{StaticResource BlackColorGetter}" />
-                                        </MultiBinding>
-                                    </SolidColorBrush.Color>
-                                </SolidColorBrush>
-                            </ContentControl.Foreground>
-                        </ContentControl>
+                                <ContentControl.Foreground>
+                                    <SolidColorBrush>
+                                        <SolidColorBrush.Color>
+                                            <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}">
+                                                <Binding Path="Background.Color" ElementName="Border" />
+                                               
+                                                <Binding Path="DataContext" ElementName="StyleTypeGetter" />
+                                                <Binding Path="DataContext" ElementName="WhiteColorGetter" />
+                                                <Binding Path="DataContext" ElementName="BlackColorGetter" />
+                                                <!--
+                                                <Binding Path="DataContext" Source="{StaticResource StyleTypeGetter}" />
+                                                <Binding Path="DataContext" Source="{StaticResource WhiteColorGetter}" />
+                                                <Binding Path="DataContext" Source="{StaticResource BlackColorGetter}" />
+                                                -->
+                                                <Binding Path="DataContext.Color" ElementName="BackgroundGetter" />
+                                                <Binding ElementName="Border" />
+                                                <Binding ElementName="CommonStates" />
+                                            </MultiBinding>
+                                        </SolidColorBrush.Color>
+                                    </SolidColorBrush>
+                                </ContentControl.Foreground>
+                            </ContentControl>
+                        </Grid>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

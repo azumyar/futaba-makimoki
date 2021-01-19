@@ -31,10 +31,10 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgData {
 				Version = CurrentVersion,
 				EnableCatalogIdNg = false,
 				EnableThreadIdNg = false,
-				CatalogWords = new string[0],
-				CatalogRegex = new string[0],
-				ThreadWords = new string[0],
-				ThreadRegex = new string[0],
+				CatalogWords = Array.Empty<string>(),
+				CatalogRegex = Array.Empty<string>(),
+				ThreadWords = Array.Empty<string>(),
+				ThreadRegex = Array.Empty<string>(),
 			};
 		}
 		
@@ -75,8 +75,57 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgData {
 			return new NgImageConfig() {
 				Version = CurrentVersion,
 				Threshold = DefaultThreshold,
-				Images = new NgImageData[0],
+				Images = Array.Empty<NgImageData>(),
 				NgMethod = ImageNgMethod.DummyImage,
+			};
+		}
+	}
+
+	public class WatchConfig : Data.ConfigObject {
+		public static int CurrentVersion { get; } = -1;
+
+
+		[JsonProperty("watch-catalog-words", Required = Required.DisallowNull)]
+		public string[] CatalogWords { get; internal set; }
+
+		[JsonProperty("watch-catalog-regex", Required = Required.DisallowNull)]
+		public string[] CatalogRegex { get; internal set; }
+
+		internal static WatchConfig CreateDefault() {
+			return new WatchConfig() {
+				Version = CurrentVersion,
+				CatalogWords = Array.Empty<string>(),
+				CatalogRegex = Array.Empty<string>(),
+			};
+		}
+
+		internal static WatchConfig Create(
+			string[] catalogWords,
+			string[] catalogRegex) {
+
+			return new WatchConfig() {
+				Version = CurrentVersion,
+				CatalogWords = catalogWords,
+				CatalogRegex = catalogRegex,
+			};
+		}
+	}
+
+	public class WatchImageConfig : Data.ConfigObject {
+		public static int CurrentVersion { get; } = -1;
+		private static readonly int DefaultThreshold = 10;
+
+		[JsonProperty("watch-hamming-threshold-value", Required = Required.DisallowNull)]
+		public int Threshold { get; internal set; }
+
+		[JsonProperty("watch-images", Required = Required.DisallowNull)]
+		public NgImageData[] Images { get; internal set; }
+
+		internal static WatchImageConfig CreateDefault() {
+			return new WatchImageConfig() {
+				Version = CurrentVersion,
+				Threshold = DefaultThreshold,
+				Images = Array.Empty<NgImageData>(),
 			};
 		}
 	}

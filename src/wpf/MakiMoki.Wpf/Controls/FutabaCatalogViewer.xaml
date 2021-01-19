@@ -204,6 +204,10 @@
                                             <MenuItem Header="del" Click="OnCatalogMenuItemDelClickCommand" />
                                             <Separator />
                                             <MenuItem
+                                                Header="Watch画像登録"
+                                                Command="{Binding Tag.CatalogMenuItemWatchImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                            <MenuItem
                                                 Header="NG画像登録"
                                                 Visibility="{Binding IsVisibleMenuItemNgImage.Value, Mode=OneWay}"
                                                 Command="{Binding Tag.CatalogMenuItemNgImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
@@ -223,6 +227,7 @@
                                                     <Binding Path="Contents.Futaba.Value.OpenedThreads.Value" Mode="OneWay" ElementName="_this" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
                                                     <Binding Path="DataContext" ElementName="CatalogBackgroundSerachHitColorGetter" Mode="OneWay" />
+                                                    <Binding Path="DataContext" ElementName="CatalogItemWatchBackgroundColorGetter" Mode="OneWay" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemOpendBackgroundColorGetter" Mode="OneWay" />
                                                 </MultiBinding>
                                             </SolidColorBrush.Color>
@@ -540,6 +545,10 @@
                                             <MenuItem Header="del" Click="OnCatalogMenuItemDelClickCommand" />
                                             <Separator />
                                             <MenuItem
+                                                Header="Watch画像登録"
+                                                Command="{Binding Tag.CatalogMenuItemWatchImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                            <MenuItem
                                                 Header="NG画像登録"
                                                 Visibility="{Binding IsVisibleMenuItemNgImage.Value, Mode=OneWay}"
                                                 Command="{Binding Tag.CatalogMenuItemNgImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
@@ -559,6 +568,7 @@
                                                     <Binding Path="Contents.Futaba.Value.OpenedThreads.Value" Mode="OneWay" ElementName="_this" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
                                                     <Binding Path="DataContext" ElementName="CatalogBackgroundSerachHitColorGetter" Mode="OneWay" />
+                                                    <Binding Path="DataContext" ElementName="CatalogItemWatchBackgroundColorGetter" Mode="OneWay" />
                                                     <Binding Path="DataContext" ElementName="CatalogItemOpendBackgroundColorGetter" Mode="OneWay" />
                                                 </MultiBinding>
                                             </SolidColorBrush.Color>
@@ -782,6 +792,10 @@
             Visibility="Collapsed"
             DataContext="{DynamicResource CatalogItemOpendBackgroundColor}" />
         <FrameworkElement 
+            x:Name="CatalogItemWatchBackgroundColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource CatalogItemWatchBackgroundColor}" />
+        <FrameworkElement 
             x:Name="CatalogBackgroundSerachHitColorGetter"
             Visibility="Collapsed"
             DataContext="{DynamicResource CatalogBackgroundSerachHitColor}" />
@@ -819,11 +833,13 @@
                     <Button
                         Grid.Column="0"
                         Style="{StaticResource ToolbarButton}"
+                        Content="{DynamicResource ButtonIconCatalogExpand}"
                         DataContext="{Binding Contents.Futaba.Value, ElementName=_this}"
                         Width="16"
-                        Visibility="Collapsed">
+                        Visibility="{Binding FullScreenThreadButtonVisibility.Value}"
+                        >
                         <Button.LayoutTransform>
-                            <RotateTransform x:Name="ContractRotate" Angle="180" />
+                            <RotateTransform x:Name="FullScreenThreadRotate" Angle="180" />
                         </Button.LayoutTransform>
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
@@ -833,13 +849,13 @@
                         </Button.ToolTip>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
-                                <ri:EventToReactiveCommand Command="{Binding FullScreenClickCommand}" />
+                                <ri:EventToReactiveCommand Command="{Binding FullScreenThreadClickCommand}" />
                             </i:EventTrigger>
                             <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="Equal">
-                                <i:ChangePropertyAction TargetName="ContractRotate" PropertyName="Angle" Value="0" />
+                                <i:ChangePropertyAction TargetName="FullScreenThreadRotate" PropertyName="Angle" Value="0" />
                             </i:DataTrigger>
                             <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="NotEqual">
-                                <i:ChangePropertyAction TargetName="ContractRotate" PropertyName="Angle" Value="180" />
+                                <i:ChangePropertyAction TargetName="FullScreenThreadRotate" PropertyName="Angle" Value="180" />
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>
@@ -996,7 +1012,7 @@
                         DataContext="{Binding Contents.Futaba.Value, ElementName=_this}"
                         Width="16">
                         <Button.LayoutTransform>
-                            <RotateTransform x:Name="FullScreenRotate" Angle="0" />
+                            <RotateTransform x:Name="FullScreenCatalogRotate" Angle="0" />
                         </Button.LayoutTransform>
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
@@ -1006,13 +1022,13 @@
                         </Button.ToolTip>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
-                                <ri:EventToReactiveCommand Command="{Binding FullScreenClickCommand}" />
+                                <ri:EventToReactiveCommand Command="{Binding FullScreenCatalogClickCommand}" />
                             </i:EventTrigger>
-                            <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="Equal">
-                                <i:ChangePropertyAction TargetName="FullScreenRotate" PropertyName="Angle" Value="180" />
+                            <i:DataTrigger Binding="{Binding IsFullScreenCatalogMode.Value, Mode=OneWay}" Value="True" Comparison="Equal">
+                                <i:ChangePropertyAction TargetName="FullScreenCatalogRotate" PropertyName="Angle" Value="180" />
                             </i:DataTrigger>
-                            <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="NotEqual">
-                                <i:ChangePropertyAction TargetName="FullScreenRotate" PropertyName="Angle" Value="0" />
+                            <i:DataTrigger Binding="{Binding IsFullScreenCatalogMode.Value, Mode=OneWay}" Value="True" Comparison="NotEqual">
+                                <i:ChangePropertyAction TargetName="FullScreenCatalogRotate" PropertyName="Angle" Value="0" />
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>

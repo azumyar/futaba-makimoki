@@ -57,6 +57,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<RoutedEventArgs> CatalogMenuItemDelClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 		public ReactiveCommand<Model.BindableFutabaResItem> CatalogMenuItemThreadHiddenCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
+		public ReactiveCommand<Model.BindableFutabaResItem> CatalogMenuItemWatchImageCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> CatalogMenuItemNgImageCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 
 
@@ -83,6 +84,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 			CatalogMenuItemDelClickCommand.Subscribe(x => OnCatalogMenuItemDelClickCommand(x));
 			CatalogMenuItemThreadHiddenCommand.Subscribe(x => OnCatalogMenuItemThreadHidden(x));
+			CatalogMenuItemWatchImageCommand.Subscribe(x => OnCatalogMenuItemWatchImage(x));
 			CatalogMenuItemNgImageCommand.Subscribe(x => OnCatalogMenuItemNgImage(x));
 
 			KeyBindingUpdateCommand.Subscribe(x => UpdateCatalog(x));
@@ -222,6 +224,31 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnCatalogMenuItemThreadHidden(Model.BindableFutabaResItem x) {
 			Ng.NgConfig.NgConfigLoader.AddHiddenRes(Ng.NgData.HiddenData.FromResItem(
 				x.Raw.Value.Url.BaseUrl, x.Raw.Value.ResItem));
+		}
+		
+		private void OnCatalogMenuItemWatchImage(Model.BindableFutabaResItem x) {
+			if(x.OriginSource.Value != null) {
+				var v = x.ThumbHash.Value ?? WpfUtil.ImageUtil.CalculatePerceptualHash(x.OriginSource.Value);
+				var ng = Ng.NgConfig.NgConfigLoader.WatchImageConfig.Images
+					.Where(y => y.Hash == v.ToString())
+					.FirstOrDefault();
+				if(ng != null) {
+					// Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
+				} else {
+					string r = null;
+					var w = new Windows.ImageReasonWindow() {
+						Owner = App.Current.MainWindow,
+					};
+					if(w.ShowDialog() ?? false) {
+						r = w.ReasonText;
+					}
+
+					if(r != null) {
+						Ng.NgConfig.NgConfigLoader.AddWatchImage(
+							Ng.NgData.NgImageData.FromPerceptualHash(v, r));
+					}
+				}
+			}
 		}
 
 		private void OnCatalogMenuItemNgImage(Model.BindableFutabaResItem x) {

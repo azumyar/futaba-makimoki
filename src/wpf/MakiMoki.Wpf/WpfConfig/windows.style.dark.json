@@ -18,6 +18,7 @@
 
   "color-viewer-catalog-item-background": "#424242",
   "color-viewer-catalog-item-background-search-hit": "#33691E",
+  "color-viewer-catalog-item-background-watch-hit": "#311B92",
   "color-viewer-catalog-item-background-opend": "#BF360C",
   "color-viewer-catalog-badge-count-foreground": "#ffffff",
   "color-viewer-catalog-badge-count-background": "#f44336",

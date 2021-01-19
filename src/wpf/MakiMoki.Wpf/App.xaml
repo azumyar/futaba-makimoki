@@ -66,6 +66,8 @@
         <Color x:Key="CatalogItemBackgroundColor">#ffffff</Color>
         <!-- DeepOrangeの100-->
         <Color x:Key="CatalogItemOpendBackgroundColor">#FFE0B2</Color>
+        <!-- DeepPurpleの100-->
+        <Color x:Key="CatalogItemWatchBackgroundColor">#D1C4E9</Color>
 
 
         <Color x:Key="ThreadBackgroundColor">#00000000</Color>

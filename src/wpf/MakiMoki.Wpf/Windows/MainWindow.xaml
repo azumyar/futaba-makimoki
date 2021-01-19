@@ -156,14 +156,14 @@
                                             <Button.Resources>
                                                 <ContextMenu
                                                     x:Key="ContextMenu"
-                                                    ItemsSource="{Binding Tag.Bords.Value, Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                                    ItemsSource="{Binding Tag.Boards.Value, Mode=OneWay, RelativeSource={RelativeSource Self}}"
                                                     Placement="Top"
                                                     VerticalOffset="4" HorizontalOffset="0"
                                                     Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                                     <ContextMenu.ItemContainerStyle>
                                                         <Style TargetType="MenuItem">
                                                             <Setter Property="Header" Value="{Binding Name}" />
-                                                            <Setter Property="Command" Value="{Binding Tag.BordOpenCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                                            <Setter Property="Command" Value="{Binding Tag.BoardOpenCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                                             <Setter Property="CommandParameter" Value="{Binding}" />
                                                         </Style>
                                                     </ContextMenu.ItemContainerStyle>
@@ -385,7 +385,7 @@
                                         CommandTarget="{Binding ElementName=scrollViewer}"
                                         Command="ScrollBar.LineRightCommand"
                                         Visibility="Hidden"
-                                    WindowChrome.IsHitTestVisibleInChrome="True"/>
+                                        WindowChrome.IsHitTestVisibleInChrome="True"/>
                                     <StackPanel Grid.Column="6" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
                                         <Button Content="0" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
                                         <Button Content="1" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MaximizeWindowCommand}">
@@ -423,14 +423,67 @@
                                     KeyboardNavigation.DirectionalNavigation="Contained">
                                     <Grid DataContext="{TemplateBinding TabControl.DataContext}">
                                         <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="360" MinWidth="360"/>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
+                                        <Border
+                                            Grid.Column="0"
+                                            Width="{Binding DataContext.Futaba.Value.FullScreenThreadContainerWidth.Value, RelativeSource={RelativeSource Self}}"
+                                            BorderThickness="0"
+                                            BorderBrush="Transparent"
+                                            >
+                                            <Border.Background>
+                                                <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                                            </Border.Background>
+                                            <StackPanel HorizontalAlignment="Stretch" Orientation="Vertical">
+                                                <TextBlock.Foreground>
+                                                    <SolidColorBrush Color="{DynamicResource WindowTabSelectedForegroundColor}" />
+                                                </TextBlock.Foreground>
+                                                <Button
+                                                    Style="{StaticResource ToolbarButton}"
+                                                    Content="{DynamicResource ButtonIconCatalogExpand}"
+                                                    DataContext="{Binding DataContext.Futaba.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
+                                                    Width="32"
+                                                    >
+                                                    <Button.Background>
+                                                        <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                                                    </Button.Background>
+                                                    <Button.ToolTip>
+                                                        <ToolTip Content="スレッド画面最大化解除" />
+                                                    </Button.ToolTip>
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="Click">
+                                                            <ri:EventToReactiveCommand Command="{Binding FullScreenThreadClickCommand, Mode=OneWay}" />
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                </Button>
+                                                <Button
+                                                    Style="{StaticResource ToolbarButton}"
+                                                    Content="{DynamicResource ButtonIconViewerUpdate}"
+                                                    DataContext="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=FutabaCatalogViewer}"
+                                                    Width="32"
+                                                    >
+                                                    <Button.Background>
+                                                        <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
+                                                    </Button.Background>
+                                                    <Button.ToolTip>
+                                                        <ToolTip Content="更新" />
+                                                    </Button.ToolTip>
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="Click">
+                                                            <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogUpdateClickCommand, Mode=OneWay, ElementName=FutabaCatalogViewer}" />
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                </Button>
+                                            </StackPanel>
+                                        </Border>
+                                        
                                         <GridSplitter
-                                            Grid.Column="1" Width="5"
+                                            Grid.Column="2" Width="5"
                                             HorizontalAlignment="Stretch"
-                                            Visibility="{Binding DataContext.Futaba.Value.FullScreenVisibility.Value, RelativeSource={RelativeSource Self}}">
+                                            Visibility="{Binding DataContext.Futaba.Value.FullScreenBorderVisibility.Value, RelativeSource={RelativeSource Self}}">
                                             <GridSplitter.Background>
                                                 <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
                                             </GridSplitter.Background>
@@ -438,12 +491,14 @@
 
                                         <control:FutabaCatalogViewer
                                             x:Name="FutabaCatalogViewer"
-                                            Grid.Column="0" Grid.ColumnSpan="{Binding DataContext.Futaba.Value.FullScreenSpan.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
+                                            Grid.Column="1" Grid.ColumnSpan="{Binding DataContext.Futaba.Value.FullScreenSpan.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
+                                            Visibility="{Binding DataContext.Futaba.Value.FullScreenThreadCatalogVisibility.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
                                             Contents="{TemplateBinding TabControl.DataContext}" />
 
                                         <ContentPresenter
-                                            Grid.Column="2"
-                                            Visibility="{Binding DataContext.Futaba.Value.FullScreenVisibility.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
+                                            Grid.Column="{Binding DataContext.Futaba.Value.FullScreenThreadColumn.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
+                                            Grid.ColumnSpan="{Binding DataContext.Futaba.Value.FullScreenThreadColumnSpan.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
+                                            Visibility="{Binding DataContext.Futaba.Value.FullScreenCatalogVisibility.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
                                             ContentSource="SelectedContent"
                                             Content="{TemplateBinding TabControl.SelectedContent}"
                                             ContentTemplate="{TemplateBinding TabControl.SelectedContentTemplate}"

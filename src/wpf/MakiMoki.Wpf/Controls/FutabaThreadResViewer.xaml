@@ -17,6 +17,7 @@
              xmlns:util="clr-namespace:Yarukizero.Net.MakiMoki.Util;assembly=MakiMoki.Core"
              xmlns:c98="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls;assembly=MakiMoki.Wpf.Canvas98"
              mc:Ignorable="d" 
+             prism:RegionManager.RegionManager="{Binding RegionManager.Value, Mode=OneWay}"
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
@@ -94,6 +95,9 @@
                 TargetName="MediaViewer"
                 Value="{x:Null}" />
         </i:DataTrigger>
+        <i:EventTrigger EventName="Loaded">
+            <ri:EventToReactiveCommand Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
         <i:EventTrigger EventName="ContentsChanged">
             <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
         </i:EventTrigger>
@@ -486,642 +490,710 @@
                 </Grid>
             </Border>
 
-            <!-- スレッド -->
-            <ListBox
-                x:Name="ThreadResListBox"
-                Style="{StaticResource MakiMokiViewerListBoxStyle}"
-                Grid.Row="1"
-                ItemsSource="{Binding Contents.Futaba.Value.ResItems, ElementName=_this, Mode=OneWay}"
-                BorderThickness="0"
-                Visibility="{Binding Contents.Futaba.Value.Raw, ElementName=_this, Converter={StaticResource FutabaThreadResVisibleConverter}, Mode=OneWay}"
-                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                ScrollViewer.CanContentScroll="True"
-                VirtualizingPanel.ScrollUnit="Pixel"
-                VirtualizingPanel.IsVirtualizing="True"
-                VirtualizingPanel.VirtualizationMode="Recycling"
-                HorizontalContentAlignment="Stretch"
-                >
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" MinWidth="640" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" MinHeight="480" />
+                </Grid.RowDefinitions>
+
                 <!--
-                <ListBox.Style>
-                    <Style TargetType="ListBox">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListBox">
-                                    <ScrollViewer Style="{StaticResource MakiMokiScrollViewerStyle}" Margin="0" Focusable="false">
-                                        <ItemsPresenter />
-                                    </ScrollViewer>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListBox.Style>
+                <GridSplitter
+                    Grid.Row="0" Grid.RowSpan="3"
+                    Grid.Column="1" 
+                    Width="5"
+                    HorizontalAlignment="Stretch"
+                    Visibility="{Binding VerticalGridSplitterVisibility.Value, Mode=OneWay}">
+                    <GridSplitter.Background>
+                        <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                    </GridSplitter.Background>
+                </GridSplitter>
                 -->
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListBoxItem">
-                                    <ContentPresenter />
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <VirtualizingStackPanel
-                            Orientation="Vertical"
-                            IsItemsHost="True" 
-                            HorizontalAlignment="Stretch"
-                            />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="16 4 16 4" Background="Transparent">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Grid
-                                x:Name="viewGrid"
-                                Grid.Column="0" Grid.Row="0"
-                                HorizontalAlignment="Left" 
-                                Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}"
-                                Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}"
-                                >
-                                <Grid.Background>
-                                    <SolidColorBrush>
-                                        <SolidColorBrush.Color>
-                                            <MultiBinding Converter="{StaticResource FutabaResItemBackgroundConverter}">
-                                                <Binding Mode="OneWay" />
-                                                <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
-                                                <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadBackgroundColorGetter" />
-                                                <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadBackgroundSerachHitColorGetter" />
-                                            </MultiBinding>
-                                        </SolidColorBrush.Color>
-                                    </SolidColorBrush>
-                                </Grid.Background>
-                                <Grid.ContextMenu>
-                                    <ContextMenu
-                                        DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
-                                        Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
-                                        <ContextMenu.Foreground>
-                                            <SolidColorBrush Color="{x:Static SystemColors.ControlTextColor}" />
-                                        </ContextMenu.Foreground>
-                                        <!-- Interaction.Triggers使えない？ -->
-                                        <MenuItem
-                                            Header="引用"
-                                            IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}">
-                                            <MenuItem.Icon>
-                                                <ContentControl Content="{StaticResource ButtonIconComment}" />
-                                            </MenuItem.Icon>
-                                            <!--
-                                                <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="Click">
-                                                        <ri:EventToReactiveCommand Command="{Binding DataContext.MenuItemReplyClickCommand, ElementName=_this}" />
-                                                    </i:EventTrigger>
-                                                </i:Interaction.Triggers>
-                                                -->
-                                            <MenuItem
-                                                Header="本文"
-                                                Command="{Binding Tag.MenuItemReplyClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                CommandParameter="{Binding Mode=OneWay}"
-                                                />
-                                            <MenuItem
-                                                Header="発言No"
-                                                Command="{Binding Tag.MenuItemReplyResNoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                CommandParameter="{Binding Mode=OneWay}"
-                                                />
-                                            <MenuItem
-                                                Header="画像ファイル名"
-                                                Visibility="{Binding DataContext.ImageName.Value, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                Command="{Binding Tag.MenuItemReplyImageNameoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                CommandParameter="{Binding Mode=OneWay}"
-                                                />
-                                        </MenuItem>
-                                        <MenuItem
-                                            Header="レスをコピー" 
-                                            Command="{Binding Tag.MenuItemCopyClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                            CommandParameter="{Binding Mode=OneWay}"
-                                            IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}">
-                                            <MenuItem.Icon>
-                                                <ContentControl Content="{StaticResource ButtonIconCopy}" />
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <Separator />
-                                        <MenuItem 
-                                            Header="そうだね"
-                                            Command="{Binding Tag.MenuItemSoudaneClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                            CommandParameter="{Binding Mode=OneWay}">
-                                            <MenuItem.Icon>
-                                                <ContentControl Content="{StaticResource ButtonIconSoudane}" />
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <Separator />
-                                        <MenuItem
-                                            Header="del"
-                                            Command="{Binding Tag.MenuItemDelClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                            CommandParameter="{Binding Mode=OneWay}">
-                                            <MenuItem.Icon>
-                                                <ContentControl Content="{StaticResource ButtonIconDel}" />
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="削除">
-                                            <MenuItem.Icon>
-                                                <ContentControl Content="{StaticResource ButtonIconDelete}" />
-                                            </MenuItem.Icon>
-                                            <MenuItem
-                                                Header="レスを削除"
-                                                Command="{Binding Tag.MenuItemDeleteClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                CommandParameter="{Binding Mode=OneWay}" />
-                                            <MenuItem
-                                                Header="画像のみ削除"
-                                                Command="{Binding Tag.MenuItemDeleteImageClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                CommandParameter="{Binding Mode=OneWay}" />
-                                        </MenuItem>
-                                        <Separator />
-                                        <MenuItem
-                                            Header="NG画像登録"
-                                            Visibility="{Binding IsVisibleMenuItemNgImage.Value, Mode=OneWay}"
-                                            Command="{Binding Tag.MenuItemNgImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                            CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
-                                        <MenuItem
-                                            Header="{Binding MenuItemTextHidden.Value, Mode=OneWay}"
-                                            Command="{Binding Tag.MenuItemResHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                            CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
-                                    </ContextMenu>
-                                </Grid.ContextMenu>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                <GridSplitter
+                    Grid.Row="{Binding GridSplitterRow.Value, Mode=OneWay}"
+                    Grid.RowSpan="{Binding GridSplitterRowSpan.Value, Mode=OneWay}"
+                    Grid.Column="{Binding GridSplitterColumn.Value, Mode=OneWay}" 
+                    Grid.ColumnSpan="{Binding GridSplitterColumnSpan.Value, Mode=OneWay}"
+                    Width="{Binding GridSplitterWidth.Value, Mode=OneWay}"
+                    Height="{Binding GridSplitterHeight.Value, Mode=OneWay}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Visibility="{Binding VerticalGridSplitterVisibility.Value, Mode=OneWay}">
+                    <GridSplitter.Background>
+                        <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                    </GridSplitter.Background>
+                </GridSplitter>
+                
+                <!-- スレッド -->
+                <ListBox
+                    x:Name="ThreadResListBox"
+                    Grid.Row="0" Grid.RowSpan="{Binding ListBoxRowSpan.Value, Mode=OneWay}"
+                    Grid.Column="0" Grid.ColumnSpan="{Binding ListBoxColumnSpan.Value, Mode=OneWay}"
+                    Style="{StaticResource MakiMokiViewerListBoxStyle}"
+                    ItemsSource="{Binding Contents.Futaba.Value.ResItems, ElementName=_this, Mode=OneWay}"
+                    BorderThickness="0"
+                    Visibility="{Binding Contents.Futaba.Value.Raw, ElementName=_this, Converter={StaticResource FutabaThreadResVisibleConverter}, Mode=OneWay}"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    ScrollViewer.CanContentScroll="True"
+                    VirtualizingPanel.ScrollUnit="Pixel"
+                    VirtualizingPanel.IsVirtualizing="True"
+                    VirtualizingPanel.VirtualizationMode="Recycling"
+                    HorizontalContentAlignment="Stretch"
+                    >
+                    <!--
+                    <ListBox.Style>
+                        <Style TargetType="ListBox">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBox">
+                                        <ScrollViewer Style="{StaticResource MakiMokiScrollViewerStyle}" Margin="0" Focusable="false">
+                                            <ItemsPresenter />
+                                        </ScrollViewer>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.Style>
+                    -->
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <ContentPresenter />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel
+                                Orientation="Vertical"
+                                IsItemsHost="True" 
+                                HorizontalAlignment="Stretch"
+                                />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="16 4 16 4" Background="Transparent">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="24" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-
-                                <local:FutabaResBlock
+                                <Grid
+                                    x:Name="viewGrid"
                                     Grid.Column="0" Grid.Row="0"
-                                    MaxWidth="1024"
+                                    HorizontalAlignment="Left" 
+                                    Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}"
+                                    Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}"
                                     >
-                                    <local:FutabaResBlock.Resources>
-                                        <!-- 見つからないと言われることがあるのでリソースに置く -->
-                                        <ResourceDictionary>
-                                            <FrameworkElement 
-                                                x:Key="StyleTypeGetter"
-                                                x:Shared="False"
-                                                Visibility="Collapsed"
-                                                DataContext="{DynamicResource StyleType}" />
-                                            <FrameworkElement 
-                                                x:Key="WhiteColorGetter"
-                                                x:Shared="False"
-                                                Visibility="Collapsed"
-                                                DataContext="{DynamicResource ViewerBackgroundColor}" />
-                                            <FrameworkElement 
-                                                x:Key="BlackColorGetter"
-                                                x:Shared="False"
-                                                Visibility="Collapsed"
-                                                DataContext="{DynamicResource ViewerForegroundColor}" />
-                                        </ResourceDictionary>
-                                    </local:FutabaResBlock.Resources>
-                                    <local:FutabaResBlock.Foreground>
+                                    <Grid.Background>
                                         <SolidColorBrush>
                                             <SolidColorBrush.Color>
-                                                <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}">
-                                                    <Binding Path="Background" RelativeSource="{RelativeSource FindAncestor, AncestorType=Grid}" />
-                                                    <Binding Path="DataContext" Source="{StaticResource StyleTypeGetter}" />
-                                                    <Binding Path="DataContext" Source="{StaticResource WhiteColorGetter}" />
-                                                    <Binding Path="DataContext" Source="{StaticResource BlackColorGetter}" />
+                                                <MultiBinding Converter="{StaticResource FutabaResItemBackgroundConverter}">
+                                                    <Binding Mode="OneWay" />
+                                                    <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
+                                                    <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadBackgroundColorGetter" />
+                                                    <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadBackgroundSerachHitColorGetter" />
                                                 </MultiBinding>
                                             </SolidColorBrush.Color>
                                         </SolidColorBrush>
-                                    </local:FutabaResBlock.Foreground>
+                                    </Grid.Background>
+                                    <Grid.ContextMenu>
+                                        <ContextMenu
+                                            DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                            Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                                            <ContextMenu.Foreground>
+                                                <SolidColorBrush Color="{x:Static SystemColors.ControlTextColor}" />
+                                            </ContextMenu.Foreground>
+                                            <!-- Interaction.Triggers使えない？ -->
+                                            <MenuItem
+                                                Header="引用"
+                                                IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}">
+                                                <MenuItem.Icon>
+                                                    <ContentControl Content="{StaticResource ButtonIconComment}" />
+                                                </MenuItem.Icon>
+                                                <!--
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="Click">
+                                                            <ri:EventToReactiveCommand Command="{Binding DataContext.MenuItemReplyClickCommand, ElementName=_this}" />
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                    -->
+                                                <MenuItem
+                                                    Header="本文"
+                                                    Command="{Binding Tag.MenuItemReplyClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                    CommandParameter="{Binding Mode=OneWay}"
+                                                    />
+                                                <MenuItem
+                                                    Header="発言No"
+                                                    Command="{Binding Tag.MenuItemReplyResNoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                    CommandParameter="{Binding Mode=OneWay}"
+                                                    />
+                                                <MenuItem
+                                                    Header="画像ファイル名"
+                                                    Visibility="{Binding DataContext.ImageName.Value, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                    Command="{Binding Tag.MenuItemReplyImageNameoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                    CommandParameter="{Binding Mode=OneWay}"
+                                                    />
+                                            </MenuItem>
+                                            <MenuItem
+                                                Header="レスをコピー" 
+                                                Command="{Binding Tag.MenuItemCopyClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding Mode=OneWay}"
+                                                IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}">
+                                                <MenuItem.Icon>
+                                                    <ContentControl Content="{StaticResource ButtonIconCopy}" />
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <Separator />
+                                            <MenuItem 
+                                                Header="そうだね"
+                                                Command="{Binding Tag.MenuItemSoudaneClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding Mode=OneWay}">
+                                                <MenuItem.Icon>
+                                                    <ContentControl Content="{StaticResource ButtonIconSoudane}" />
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <Separator />
+                                            <MenuItem
+                                                Header="del"
+                                                Command="{Binding Tag.MenuItemDelClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding Mode=OneWay}">
+                                                <MenuItem.Icon>
+                                                    <ContentControl Content="{StaticResource ButtonIconDel}" />
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="削除">
+                                                <MenuItem.Icon>
+                                                    <ContentControl Content="{StaticResource ButtonIconDelete}" />
+                                                </MenuItem.Icon>
+                                                <MenuItem
+                                                    Header="レスを削除"
+                                                    Command="{Binding Tag.MenuItemDeleteClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                    CommandParameter="{Binding Mode=OneWay}" />
+                                                <MenuItem
+                                                    Header="画像のみ削除"
+                                                    Command="{Binding Tag.MenuItemDeleteImageClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                    CommandParameter="{Binding Mode=OneWay}" />
+                                            </MenuItem>
+                                            <Separator />
+                                            <MenuItem
+                                                Header="Watch画像登録"
+                                                Command="{Binding Tag.MenuItemWatchImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                            <MenuItem
+                                                Header="NG画像登録"
+                                                Visibility="{Binding IsVisibleMenuItemNgImage.Value, Mode=OneWay}"
+                                                Command="{Binding Tag.MenuItemNgImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                            <MenuItem
+                                                Header="{Binding MenuItemTextHidden.Value, Mode=OneWay}"
+                                                Command="{Binding Tag.MenuItemResHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                        </ContextMenu>
+                                    </Grid.ContextMenu>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="24" />
+                                    </Grid.RowDefinitions>
 
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="ImageClick">
-                                            <ri:EventToReactiveCommand Command="{Binding DataContext.ImageClickCommand, ElementName=_this}" />
-                                        </i:EventTrigger>
-                                        <i:EventTrigger EventName="LinkClick">
-                                            <ri:EventToReactiveCommand Command="{Binding DataContext.LinkClickCommand, ElementName=_this}" />
-                                        </i:EventTrigger>
-                                        <i:EventTrigger EventName="QuotClick">
-                                            <ri:EventToReactiveCommand Command="{Binding DataContext.QuotClickCommand, ElementName=_this}" />
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
-                                </local:FutabaResBlock>
-                                <StackPanel
-                                    x:Name="copyButton" 
-                                    Grid.Column="0" Grid.ColumnSpan="2"
-                                    Grid.Row="1"
-                                    Opacity="0.6"
-                                    Orientation="Horizontal"
-                                    HorizontalAlignment="Right"
-                                    Visibility="Hidden"
-                                    >
-                                    <StackPanel Orientation="Horizontal" Visibility="{Binding CommandPaletteVisibility.Value, Mode=OneWay}">
+                                    <local:FutabaResBlock
+                                        Grid.Column="0" Grid.Row="0"
+                                        MaxWidth="1024"
+                                        >
+                                        <local:FutabaResBlock.Resources>
+                                            <!-- 見つからないと言われることがあるのでリソースに置く -->
+                                            <ResourceDictionary>
+                                                <FrameworkElement 
+                                                    x:Key="StyleTypeGetter"
+                                                    x:Shared="False"
+                                                    Visibility="Collapsed"
+                                                    DataContext="{DynamicResource StyleType}" />
+                                                <FrameworkElement 
+                                                    x:Key="WhiteColorGetter"
+                                                    x:Shared="False"
+                                                    Visibility="Collapsed"
+                                                    DataContext="{DynamicResource ViewerBackgroundColor}" />
+                                                <FrameworkElement 
+                                                    x:Key="BlackColorGetter"
+                                                    x:Shared="False"
+                                                    Visibility="Collapsed"
+                                                    DataContext="{DynamicResource ViewerForegroundColor}" />
+                                            </ResourceDictionary>
+                                        </local:FutabaResBlock.Resources>
+                                        <local:FutabaResBlock.Foreground>
+                                            <SolidColorBrush>
+                                                <SolidColorBrush.Color>
+                                                    <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}">
+                                                        <Binding Path="Background" RelativeSource="{RelativeSource FindAncestor, AncestorType=Grid}" />
+                                                        <Binding Path="DataContext" Source="{StaticResource StyleTypeGetter}" />
+                                                        <Binding Path="DataContext" Source="{StaticResource WhiteColorGetter}" />
+                                                        <Binding Path="DataContext" Source="{StaticResource BlackColorGetter}" />
+                                                    </MultiBinding>
+                                                </SolidColorBrush.Color>
+                                            </SolidColorBrush>
+                                        </local:FutabaResBlock.Foreground>
+
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="ImageClick">
+                                                <ri:EventToReactiveCommand Command="{Binding DataContext.ImageClickCommand, ElementName=_this}" />
+                                            </i:EventTrigger>
+                                            <i:EventTrigger EventName="LinkClick">
+                                                <ri:EventToReactiveCommand Command="{Binding DataContext.LinkClickCommand, ElementName=_this}" />
+                                            </i:EventTrigger>
+                                            <i:EventTrigger EventName="QuotClick">
+                                                <ri:EventToReactiveCommand Command="{Binding DataContext.QuotClickCommand, ElementName=_this}" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </local:FutabaResBlock>
+                                    <StackPanel
+                                        x:Name="copyButton" 
+                                        Grid.Column="0" Grid.ColumnSpan="2"
+                                        Grid.Row="1"
+                                        Opacity="0.6"
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="{Binding CommandPaletteAlignment.Value, Mode=OneWay}"
+                                        Visibility="Hidden"
+                                        >
+                                        <StackPanel Orientation="Horizontal" Visibility="{Binding CommandPaletteVisibility.Value, Mode=OneWay}">
+                                            <Button 
+                                                Grid.Column="1" Grid.Row="1" 
+                                                Width="32" Height="24"
+                                                VerticalAlignment="Bottom"
+                                                Content="{StaticResource ButtonIconComment}"
+                                                Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}"
+                                                Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
+                                                <Button.Resources>
+                                                    <ContextMenu
+                                                        x:Key="ContextMenu"
+                                                        Placement="Top"
+                                                        DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                                        Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                                                        <MenuItem
+                                                            Header="本文"
+                                                            Command="{Binding Tag.MenuItemReplyClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                            CommandParameter="{Binding Mode=OneWay}"
+                                                            />
+                                                        <MenuItem
+                                                            Header="発言No"
+                                                            Command="{Binding Tag.MenuItemReplyResNoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                            CommandParameter="{Binding Mode=OneWay}"
+                                                            />
+                                                        <MenuItem
+                                                            Header="画像ファイル名"
+                                                            Visibility="{Binding DataContext.ImageName.Value, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                            Command="{Binding Tag.MenuItemReplyImageNameoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                            CommandParameter="{Binding Mode=OneWay}"
+                                                            />
+                                                    </ContextMenu>
+                                                </Button.Resources>
+                                                <Button.ToolTip>
+                                                    <ToolTip Content="引用" />
+                                                </Button.ToolTip>
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="Click">
+                                                        <i:ChangePropertyAction 
+                                                            TargetObject="{StaticResource ContextMenu}" 
+                                                            PropertyName="IsOpen"
+                                                            Value="True"/>
+                                                        <i:ChangePropertyAction
+                                                            TargetObject="{StaticResource ContextMenu}" 
+                                                            PropertyName="PlacementTarget" 
+                                                            Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </Button>
+                                            <Button 
+                                                Grid.Column="1" Grid.Row="1" 
+                                                Width="32" Height="24"
+                                                VerticalAlignment="Bottom"
+                                                Content="{StaticResource ButtonIconCopy}"
+                                                Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
+                                                <Button.ToolTip>
+                                                    <ToolTip Content="コピー" />
+                                                </Button.ToolTip>
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="Click">
+                                                        <ri:EventToReactiveCommand Command="{Binding DataContext.PaletteButtonCopyCommand, Mode=OneWay, ElementName=_this}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </Button>
+                                            <Button 
+                                                Grid.Column="1" Grid.Row="1" 
+                                                Width="32" Height="24"
+                                                VerticalAlignment="Bottom"
+                                                Content="{StaticResource ButtonIconSoudane}">
+                                                <Button.ToolTip>
+                                                    <ToolTip Content="そうだね" />
+                                                </Button.ToolTip>
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="Click">
+                                                        <ri:EventToReactiveCommand Command="{Binding DataContext.PaletteButtonSoudaneCommand, Mode=OneWay, ElementName=_this}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </Button>
+                                            <Button 
+                                                Grid.Column="1" Grid.Row="1" 
+                                                Width="32" Height="24"
+                                                VerticalAlignment="Bottom"
+                                                Content="{StaticResource ButtonIconDel}">
+                                                <Button.ToolTip>
+                                                    <ToolTip Content="del" />
+                                                </Button.ToolTip>
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="Click">
+                                                        <ri:EventToReactiveCommand Command="{Binding DataContext.PaletteButtonDelCommand, Mode=OneWay, ElementName=_this}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </Button>
+                                            <Button 
+                                                Grid.Column="1" Grid.Row="1" 
+                                                Width="32" Height="24"
+                                                VerticalAlignment="Bottom"
+                                                Content="{StaticResource ButtonIconDelete}"
+                                                Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
+                                                <Button.Resources>
+                                                    <ContextMenu
+                                                        x:Key="ContextMenu"
+                                                        Placement="Top"
+                                                        DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                                        Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                                                        <MenuItem
+                                                            Header="レスを削除"
+                                                            Command="{Binding Tag.MenuItemDeleteClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                            CommandParameter="{Binding Mode=OneWay}" />
+                                                        <MenuItem
+                                                            Header="画像のみ削除"
+                                                            Command="{Binding Tag.MenuItemDeleteImageClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                            CommandParameter="{Binding Mode=OneWay}" />
+                                                    </ContextMenu>
+                                                </Button.Resources>
+                                                <Button.ToolTip>
+                                                    <ToolTip Content="削除" />
+                                                </Button.ToolTip>
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="Click">
+                                                        <i:ChangePropertyAction 
+                                                            TargetObject="{StaticResource ContextMenu}" 
+                                                            PropertyName="IsOpen"
+                                                            Value="True"/>
+                                                        <i:ChangePropertyAction
+                                                            TargetObject="{StaticResource ContextMenu}" 
+                                                            PropertyName="PlacementTarget" 
+                                                            Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </Button>
+                                        </StackPanel>
                                         <Button 
                                             Grid.Column="1" Grid.Row="1" 
                                             Width="32" Height="24"
                                             VerticalAlignment="Bottom"
-                                            Content="{StaticResource ButtonIconComment}"
-                                            Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}"
-                                            Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
-                                            <Button.Resources>
-                                                <ContextMenu
-                                                    x:Key="ContextMenu"
-                                                    Placement="Top"
-                                                    DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
-                                                    Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
-                                                    <MenuItem
-                                                        Header="本文"
-                                                        Command="{Binding Tag.MenuItemReplyClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                        CommandParameter="{Binding Mode=OneWay}"
-                                                        />
-                                                    <MenuItem
-                                                        Header="発言No"
-                                                        Command="{Binding Tag.MenuItemReplyResNoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                        CommandParameter="{Binding Mode=OneWay}"
-                                                        />
-                                                    <MenuItem
-                                                        Header="画像ファイル名"
-                                                        Visibility="{Binding DataContext.ImageName.Value, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                        Command="{Binding Tag.MenuItemReplyImageNameoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                        CommandParameter="{Binding Mode=OneWay}"
-                                                        />
-                                                </ContextMenu>
-                                            </Button.Resources>
-                                            <Button.ToolTip>
-                                                <ToolTip Content="引用" />
-                                            </Button.ToolTip>
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="Click">
-                                                    <i:ChangePropertyAction 
-                                                        TargetObject="{StaticResource ContextMenu}" 
-                                                        PropertyName="IsOpen"
-                                                        Value="True"/>
-                                                    <i:ChangePropertyAction
-                                                        TargetObject="{StaticResource ContextMenu}" 
-                                                        PropertyName="PlacementTarget" 
-                                                        Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                        </Button>
-                                        <Button 
-                                            Grid.Column="1" Grid.Row="1" 
-                                            Width="32" Height="24"
-                                            VerticalAlignment="Bottom"
-                                            Content="{StaticResource ButtonIconCopy}"
+                                            Content="{StaticResource ButtonIconThreadMouse}"
                                             Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
                                             <Button.ToolTip>
-                                                <ToolTip Content="コピー" />
+                                                <ToolTip Content="コピーモード" />
                                             </Button.ToolTip>
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="Click">
-                                                    <ri:EventToReactiveCommand Command="{Binding DataContext.PaletteButtonCopyCommand, Mode=OneWay, ElementName=_this}" />
+                                                    <i:CallMethodAction
+                                                        MethodName="StartCopyMode"
+                                                        TargetObject="{Binding }" />
                                                 </i:EventTrigger>
                                             </i:Interaction.Triggers>
                                         </Button>
                                         <Button 
-                                            Grid.Column="1" Grid.Row="1" 
-                                            Width="32" Height="24"
+                                            Width="72" Height="24"
+                                            Margin="2 0 0 0"
                                             VerticalAlignment="Bottom"
-                                            Content="{StaticResource ButtonIconSoudane}">
-                                            <Button.ToolTip>
-                                                <ToolTip Content="そうだね" />
-                                            </Button.ToolTip>
+                                            Visibility="{Binding ReleaseHiddenResBuutonVisibility.Value, Mode=OneWay}">
+                                            <TextBlock>非表示を解除</TextBlock>
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="Click">
-                                                    <ri:EventToReactiveCommand Command="{Binding DataContext.PaletteButtonSoudaneCommand, Mode=OneWay, ElementName=_this}" />
+                                                    <i:CallMethodAction
+                                                        MethodName="ReleaseHiddenRes"
+                                                        TargetObject="{Binding }" />
                                                 </i:EventTrigger>
                                             </i:Interaction.Triggers>
                                         </Button>
                                         <Button 
-                                            Grid.Column="1" Grid.Row="1" 
-                                            Width="32" Height="24"
+                                            Width="72" Height="24"
+                                            Margin="2 0 0 0"
                                             VerticalAlignment="Bottom"
-                                            Content="{StaticResource ButtonIconDel}">
-                                            <Button.ToolTip>
-                                                <ToolTip Content="del" />
-                                            </Button.ToolTip>
+                                            Visibility="{Binding ShowNgResButtonVisibility.Value, Mode=OneWay}">
+                                            <TextBlock Text="{Binding ShowNgResButtonText.Value, Mode=OneWay}" />
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="Click">
-                                                    <ri:EventToReactiveCommand Command="{Binding DataContext.PaletteButtonDelCommand, Mode=OneWay, ElementName=_this}" />
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                        </Button>
-                                        <Button 
-                                            Grid.Column="1" Grid.Row="1" 
-                                            Width="32" Height="24"
-                                            VerticalAlignment="Bottom"
-                                            Content="{StaticResource ButtonIconDelete}"
-                                            Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
-                                            <Button.Resources>
-                                                <ContextMenu
-                                                    x:Key="ContextMenu"
-                                                    Placement="Top"
-                                                    DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
-                                                    Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
-                                                    <MenuItem
-                                                        Header="レスを削除"
-                                                        Command="{Binding Tag.MenuItemDeleteClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                        CommandParameter="{Binding Mode=OneWay}" />
-                                                    <MenuItem
-                                                        Header="画像のみ削除"
-                                                        Command="{Binding Tag.MenuItemDeleteImageClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                        CommandParameter="{Binding Mode=OneWay}" />
-                                                </ContextMenu>
-                                            </Button.Resources>
-                                            <Button.ToolTip>
-                                                <ToolTip Content="削除" />
-                                            </Button.ToolTip>
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="Click">
-                                                    <i:ChangePropertyAction 
-                                                        TargetObject="{StaticResource ContextMenu}" 
-                                                        PropertyName="IsOpen"
-                                                        Value="True"/>
-                                                    <i:ChangePropertyAction
-                                                        TargetObject="{StaticResource ContextMenu}" 
-                                                        PropertyName="PlacementTarget" 
-                                                        Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Mode=OneWay}"/>
+                                                    <i:CallMethodAction
+                                                        MethodName="ToggleDisplayNgRes"
+                                                        TargetObject="{Binding }" />
                                                 </i:EventTrigger>
                                             </i:Interaction.Triggers>
                                         </Button>
                                     </StackPanel>
-                                    <Button 
-                                        Grid.Column="1" Grid.Row="1" 
-                                        Width="32" Height="24"
-                                        VerticalAlignment="Bottom"
-                                        Content="{StaticResource ButtonIconThreadMouse}"
-                                        Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
-                                        <Button.ToolTip>
-                                            <ToolTip Content="コピーモード" />
-                                        </Button.ToolTip>
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="Click">
-                                                <i:CallMethodAction
-                                                    MethodName="StartCopyMode"
-                                                    TargetObject="{Binding }" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </Button>
-                                    <Button 
-                                        Width="72" Height="24"
-                                        Margin="2 0 0 0"
-                                        VerticalAlignment="Bottom"
-                                        Visibility="{Binding ReleaseHiddenResBuutonVisibility.Value, Mode=OneWay}">
-                                        <TextBlock>非表示を解除</TextBlock>
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="Click">
-                                                <i:CallMethodAction
-                                                    MethodName="ReleaseHiddenRes"
-                                                    TargetObject="{Binding }" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </Button>
-                                    <Button 
-                                        Width="72" Height="24"
-                                        Margin="2 0 0 0"
-                                        VerticalAlignment="Bottom"
-                                        Visibility="{Binding ShowNgResButtonVisibility.Value, Mode=OneWay}">
-                                        <TextBlock Text="{Binding ShowNgResButtonText.Value, Mode=OneWay}" />
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="Click">
-                                                <i:CallMethodAction
-                                                    MethodName="ToggleDisplayNgRes"
-                                                    TargetObject="{Binding }" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </Button>
-                                </StackPanel>
 
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseEnter">
-                                        <i:ChangePropertyAction PropertyName="Visibility" TargetName="copyButton" Value="Visible" />
-                                    </i:EventTrigger>
-                                    <i:EventTrigger EventName="MouseLeave">
-                                        <i:ChangePropertyAction PropertyName="Visibility" TargetName="copyButton" Value="Hidden" />
-                                    </i:EventTrigger>
-                                    <i:EventTrigger EventName="MouseDown">
-                                        <ri:EventToReactiveCommand Command="{Binding DataContext.FutabaTextBlockMouseDownCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </Grid>
-                            <Grid
-                                x:Name="copywGrid"
-                                Grid.Column="0" Grid.Row="0"
-                                MaxWidth="1024"
-                                Background="Transparent"
-                                HorizontalAlignment="Left"
-                                Visibility="{Binding CopyBlockVisibility.Value, Mode=OneWay}">
-                                <TextBox
-                                    Text="{Binding DataContext.CommentCopy.Value, Mode=OneWay, ElementName=copywGrid}"
-                                    TextWrapping="Wrap" Margin="4"
-                                    FontFamily="{DynamicResource ThreadTextFont}"
-                                    FontSize="{DynamicResource ThreadTextFontSize}"
-                                    IsReadOnly="True"
-                                    DataContext="{Binding DataContext, Mode=OneWay, ElementName=_this}"
-                                    Tag="{Binding Contents, Mode=OneWay, ElementName=_this}"
-                                    SelectionChanged="OnCopyTextboxSelectionChanged">
-                                    <TextBox.Resources>
-                                        <ContextMenu
-                                            x:Key="ContextMenu">
-                                            <MenuItem
-                                                Header="引用"
-                                                Command="{Binding CopyTextboxQuotCommand, Mode=OneWay}">
-                                                <MenuItem.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
-                                                        <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
-                                                        <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
-                                                    </MultiBinding>
-                                                </MenuItem.CommandParameter>
-                                            </MenuItem>
-                                            <MenuItem
-                                                Header="スレ内検索"
-                                                Command="{Binding CopyTextboxSearchCommand, Mode=OneWay}">
-                                                <MenuItem.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
-                                                        <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
-                                                        <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
-                                                    </MultiBinding>
-                                                </MenuItem.CommandParameter>
-                                            </MenuItem>
-                                            <MenuItem
-                                                Header="NGワード追加"
-                                                Command="{Binding CopyTextboxNgCommand, Mode=OneWay}">
-                                                <MenuItem.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
-                                                        <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
-                                                        <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
-                                                    </MultiBinding>
-                                                </MenuItem.CommandParameter>
-                                            </MenuItem>
-                                            <Separator />
-                                            <MenuItem
-                                                Header="コピー"
-                                                Command="{Binding CopyTextboxCopyCommand, Mode=OneWay}">
-                                                <MenuItem.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
-                                                        <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
-                                                        <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
-                                                    </MultiBinding>
-                                                </MenuItem.CommandParameter>
-                                            </MenuItem>
-                                            <MenuItem
-                                                Header="Google検索"
-                                                Command="{Binding CopyTextboxGoogleCommand, Mode=OneWay}">
-                                                <MenuItem.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
-                                                        <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
-                                                        <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
-                                                    </MultiBinding>
-                                                </MenuItem.CommandParameter>
-                                            </MenuItem>
-                                        </ContextMenu>
-                                    </TextBox.Resources>
-                                    <i:Interaction.Behaviors>
-                                        <behavior:FocusBehavior x:Name="copyTextBox" />
-                                    </i:Interaction.Behaviors>
-                                </TextBox>
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="LostFocus">
-                                        <i:CallMethodAction
-                                            MethodName="EndCopyMode"
-                                            TargetObject="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" />
-                                    </i:EventTrigger>
-                                    <i:DataTrigger Binding="{Binding IsVisible, Mode=OneWay, ElementName=copywGrid}"  Value="true" Comparison="Equal">
-                                        <i:CallMethodAction TargetObject="{Binding ElementName=copyTextBox, Mode=OneWay}" MethodName="Focus" />
-                                    </i:DataTrigger>
-                                </i:Interaction.Triggers>
-                            </Grid>
-                            <!-- リストビューアイテムフッタ テンプレートで何とかしたいけど無理だったよ… -->
-                            <Grid 
-                                Grid.Column="0" Grid.Row="1"
-                                Margin="0 8 0 4">
-                                <Grid.Visibility>
-                                    <MultiBinding Converter="{StaticResource FutabaResItemFooterVisibleConverter}">
-                                        <Binding Mode="OneWay" />
-                                        <Binding Path="Parent.Value" Mode="OneWay" />
-                                    </MultiBinding>
-                                </Grid.Visibility>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="4" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <Button
-                                    Grid.Column="0" 
-                                    MinWidth="160" Height="40"
-                                    IsEnabled="{Binding  Parent.Value, Mode=OneWay, Converter={StaticResource FutabaResItemNextButtonEnabledConverter}}">
-                                    <TextBlock>
-                                        続きを読む
-                                    </TextBlock>
                                     <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="Click">
-                                            <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadUpdateCommand, ElementName=_this}" />
+                                        <i:EventTrigger EventName="MouseEnter">
+                                            <i:ChangePropertyAction PropertyName="Visibility" TargetName="copyButton" Value="Visible" />
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="MouseLeave">
+                                            <i:ChangePropertyAction PropertyName="Visibility" TargetName="copyButton" Value="Hidden" />
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="MouseDown">
+                                            <ri:EventToReactiveCommand Command="{Binding DataContext.FutabaTextBlockMouseDownCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" />
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
-                                </Button>
-                                <Border Grid.Column="2" BorderThickness="1" CornerRadius="4" Padding="4">
-                                    <Border.BorderBrush>
-                                        <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
-                                    </Border.BorderBrush>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="32" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock
-                                            Grid.Column="0"
-                                            VerticalAlignment="Center"
-                                            Text="{Binding Parent.Value.DieTextLong.Value, Mode=OneWay}"
-                                            FontSize="14">
-                                            <TextBlock.Foreground>
-                                                <SolidColorBrush>
-                                                    <SolidColorBrush.Color>
-                                                        <MultiBinding Converter="{StaticResource FutabaResItemOldColorConverter}">
-                                                            <Binding Path="Parent.Value" Mode="OneWay" />
-                                                            <Binding Path="DataContext" Mode="OneWay" ElementName="ViewerForegroundColorGetter" />
-                                                            <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadTextOldColorGetter" />
+                                </Grid>
+                                <Grid
+                                    x:Name="copywGrid"
+                                    Grid.Column="0" Grid.Row="0"
+                                    MaxWidth="1024"
+                                    Background="Transparent"
+                                    HorizontalAlignment="Left"
+                                    Visibility="{Binding CopyBlockVisibility.Value, Mode=OneWay}">
+                                    <TextBox
+                                        Text="{Binding DataContext.CommentCopy.Value, Mode=OneWay, ElementName=copywGrid}"
+                                        TextWrapping="Wrap" Margin="4"
+                                        FontFamily="{DynamicResource ThreadTextFont}"
+                                        FontSize="{DynamicResource ThreadTextFontSize}"
+                                        IsReadOnly="True"
+                                        DataContext="{Binding DataContext, Mode=OneWay, ElementName=_this}"
+                                        Tag="{Binding Contents, Mode=OneWay, ElementName=_this}"
+                                        SelectionChanged="OnCopyTextboxSelectionChanged">
+                                        <TextBox.Resources>
+                                            <ContextMenu
+                                                x:Key="ContextMenu">
+                                                <MenuItem
+                                                    Header="引用"
+                                                    Command="{Binding CopyTextboxQuotCommand, Mode=OneWay}">
+                                                    <MenuItem.CommandParameter>
+                                                        <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
+                                                            <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                            <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
                                                         </MultiBinding>
-                                                    </SolidColorBrush.Color>
-                                                </SolidColorBrush>
-                                            </TextBlock.Foreground>
+                                                    </MenuItem.CommandParameter>
+                                                </MenuItem>
+                                                <MenuItem
+                                                    Header="スレ内検索"
+                                                    Command="{Binding CopyTextboxSearchCommand, Mode=OneWay}">
+                                                    <MenuItem.CommandParameter>
+                                                        <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
+                                                            <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                            <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                        </MultiBinding>
+                                                    </MenuItem.CommandParameter>
+                                                </MenuItem>
+                                                <MenuItem
+                                                    Header="NGワード追加"
+                                                    Command="{Binding CopyTextboxNgCommand, Mode=OneWay}">
+                                                    <MenuItem.CommandParameter>
+                                                        <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
+                                                            <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                            <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                        </MultiBinding>
+                                                    </MenuItem.CommandParameter>
+                                                </MenuItem>
+                                                <Separator />
+                                                <MenuItem
+                                                    Header="コピー"
+                                                    Command="{Binding CopyTextboxCopyCommand, Mode=OneWay}">
+                                                    <MenuItem.CommandParameter>
+                                                        <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
+                                                            <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                            <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                        </MultiBinding>
+                                                    </MenuItem.CommandParameter>
+                                                </MenuItem>
+                                                <MenuItem
+                                                    Header="Google検索"
+                                                    Command="{Binding CopyTextboxGoogleCommand, Mode=OneWay}">
+                                                    <MenuItem.CommandParameter>
+                                                        <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
+                                                            <Binding Path="PlacementTarget.Tag.Futaba.Value" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                            <Binding Path="PlacementTarget" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                                        </MultiBinding>
+                                                    </MenuItem.CommandParameter>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </TextBox.Resources>
+                                        <i:Interaction.Behaviors>
+                                            <behavior:FocusBehavior x:Name="copyTextBox" />
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="LostFocus">
+                                            <i:CallMethodAction
+                                                MethodName="EndCopyMode"
+                                                TargetObject="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" />
+                                        </i:EventTrigger>
+                                        <i:DataTrigger Binding="{Binding IsVisible, Mode=OneWay, ElementName=copywGrid}"  Value="true" Comparison="Equal">
+                                            <i:CallMethodAction TargetObject="{Binding ElementName=copyTextBox, Mode=OneWay}" MethodName="Focus" />
+                                        </i:DataTrigger>
+                                    </i:Interaction.Triggers>
+                                </Grid>
+                                <!-- リストビューアイテムフッタ テンプレートで何とかしたいけど無理だったよ… -->
+                                <Grid 
+                                    Grid.Column="0" Grid.Row="1"
+                                    Margin="0 8 0 4">
+                                    <Grid.Visibility>
+                                        <MultiBinding Converter="{StaticResource FutabaResItemFooterVisibleConverter}">
+                                            <Binding Mode="OneWay" />
+                                            <Binding Path="Parent.Value" Mode="OneWay" />
+                                        </MultiBinding>
+                                    </Grid.Visibility>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="4" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Button
+                                        Grid.Column="0" 
+                                        MinWidth="160" Height="40"
+                                        IsEnabled="{Binding  Parent.Value, Mode=OneWay, Converter={StaticResource FutabaResItemNextButtonEnabledConverter}}">
+                                        <TextBlock>
+                                            続きを読む
                                         </TextBlock>
-                                        <Button Grid.Column="2" Width="32" Height="32" Content="{StaticResource ButtonIconThreadSave}">
-                                            <Button.ToolTip>
-                                                <ToolTip Content="保存" />
-                                            </Button.ToolTip>
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="Click">
-                                                    <ri:EventToReactiveCommand Command="{Binding Parent.Value.ExportCommand}" />
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                        </Button>
-                                    </Grid>
-                                </Border>
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="Click">
+                                                <ri:EventToReactiveCommand Command="{Binding DataContext.ThreadUpdateCommand, ElementName=_this}" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </Button>
+                                    <Border Grid.Column="2" BorderThickness="1" CornerRadius="4" Padding="4">
+                                        <Border.BorderBrush>
+                                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                                        </Border.BorderBrush>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="32" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Text="{Binding Parent.Value.DieTextLong.Value, Mode=OneWay}"
+                                                FontSize="14">
+                                                <TextBlock.Foreground>
+                                                    <SolidColorBrush>
+                                                        <SolidColorBrush.Color>
+                                                            <MultiBinding Converter="{StaticResource FutabaResItemOldColorConverter}">
+                                                                <Binding Path="Parent.Value" Mode="OneWay" />
+                                                                <Binding Path="DataContext" Mode="OneWay" ElementName="ViewerForegroundColorGetter" />
+                                                                <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadTextOldColorGetter" />
+                                                            </MultiBinding>
+                                                        </SolidColorBrush.Color>
+                                                    </SolidColorBrush>
+                                                </TextBlock.Foreground>
+                                            </TextBlock>
+                                            <Button Grid.Column="2" Width="32" Height="32" Content="{StaticResource ButtonIconThreadSave}">
+                                                <Button.ToolTip>
+                                                    <ToolTip Content="保存" />
+                                                </Button.ToolTip>
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="Click">
+                                                        <ri:EventToReactiveCommand Command="{Binding Parent.Value.ExportCommand}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-                <i:Interaction.Behaviors>
-                    <behavior:ScrollBehavior x:Name="ListBoxScrollBehavior" />
-                    <behavior:WheelUpdateBehavior
-                        Command="{Binding WheelUpdateCommand, Mode=OneWay}"
-                        CommandParameter="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"
-                        />
-                </i:Interaction.Behaviors>
-            </ListBox>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <i:Interaction.Behaviors>
+                        <behavior:ScrollBehavior x:Name="ListBoxScrollBehavior" />
+                        <behavior:WheelUpdateBehavior
+                            Command="{Binding WheelUpdateCommand, Mode=OneWay}"
+                            CommandParameter="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"
+                            />
+                    </i:Interaction.Behaviors>
+                </ListBox>
 
-            <local:FutabaMediaViewer
-                x:Name="MediaViewer"
-                Grid.Row="1"
-                Contents="{Binding Contents.MediaContents.Value, ElementName=_this, Mode=TwoWay}"
-                />
+                <local:FutabaMediaViewer
+                    x:Name="MediaViewer"
+                    Grid.Row="0" Grid.RowSpan="{Binding DataContext.ListBoxRowSpan.Value, Mode=OneWay, ElementName=_this}"
+                    Grid.Column="0" Grid.ColumnSpan="{Binding DataContext.ListBoxColumnSpan.Value, Mode=OneWay, ElementName=_this}"
+                    Contents="{Binding Contents.MediaContents.Value, ElementName=_this, Mode=TwoWay}"
+                    />
 
-            <!-- 書き込みサブウィンドウ -->
-            <local:FutabaPostView
-                Grid.Row="1"
-                Opacity="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}"
-                Contents="{Binding Contents.Futaba.Value, ElementName=_this}"
-                Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=TwoWay}">
-                <local:FutabaPostView.MinWidth>
-                    <MultiBinding Converter="{StaticResource PostViewMinWidthConverter}">
-                        <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
-                        <Binding Mode="OneWay" Source="{StaticResource DefaultMinWidth}" />
-                        <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
-                    </MultiBinding>
-                </local:FutabaPostView.MinWidth>
-                <local:FutabaPostView.MaxWidth>
-                    <MultiBinding Converter="{StaticResource PostViewMaxWidthConverter}">
-                        <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
-                        <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
-                    </MultiBinding>
-                </local:FutabaPostView.MaxWidth>
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="MouseEnter">
-                        <i:ChangePropertyAction
+                <!-- 書き込みサブウィンドウ -->
+                <local:FutabaPostView
+                    Grid.Row="0" Grid.RowSpan="{Binding DataContext.ListBoxRowSpan.Value, Mode=OneWay, ElementName=_this}"
+                    Grid.Column="0" Grid.ColumnSpan="{Binding DataContext.ListBoxColumnSpan.Value, Mode=OneWay, ElementName=_this}"
+                    Opacity="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}"
+                    Contents="{Binding Contents.Futaba.Value, ElementName=_this}"
+                    Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=TwoWay}">
+                    <local:FutabaPostView.MinWidth>
+                        <MultiBinding Converter="{StaticResource PostViewMinWidthConverter}">
+                            <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
+                            <Binding Mode="OneWay" Source="{StaticResource DefaultMinWidth}" />
+                            <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
+                        </MultiBinding>
+                    </local:FutabaPostView.MinWidth>
+                    <local:FutabaPostView.MaxWidth>
+                        <MultiBinding Converter="{StaticResource PostViewMaxWidthConverter}">
+                            <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
+                            <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
+                        </MultiBinding>
+                    </local:FutabaPostView.MaxWidth>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseEnter">
+                            <i:ChangePropertyAction
                             PropertyName="Opacity"
                             TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
                             Value="1" />
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="MouseLeave">
-                        <i:ChangePropertyAction
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseLeave">
+                            <i:ChangePropertyAction
                             PropertyName="Opacity"
                             TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
                             Value="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}" />
-                    </i:EventTrigger>
-                    <i:DataStoreChangedTrigger Binding="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this}">
-                        <i:ChangePropertyAction
+                        </i:EventTrigger>
+                        <i:DataStoreChangedTrigger Binding="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this}">
+                            <i:ChangePropertyAction
                             PropertyName="Opacity"
                             TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
                             Value="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}" />
-                    </i:DataStoreChangedTrigger>
-                </i:Interaction.Triggers>
-            </local:FutabaPostView>
+                        </i:DataStoreChangedTrigger>
+                    </i:Interaction.Triggers>
+                </local:FutabaPostView>
 
+                <ContentControl
+                    prism:RegionManager.RegionName="Canvas98RightRegion"
+                    Grid.Row="0" Grid.RowSpan="3"
+                    Grid.Column="2"
+                    Visibility="{Binding Canvas98RightRegionVisibility.Value, Mode=OneWay}"
+                    />
+
+                <ContentControl
+                    prism:RegionManager.RegionName="Canvas98BottomRegion" 
+                    Grid.Row="2"
+                    Grid.Column="0" Grid.ColumnSpan="3"
+                    Visibility="{Binding Canvas98BottomRegionVisibility.Value, Mode=OneWay}"
+                    />
+            </Grid>
+
+            <ContentControl
+                x:Name="Canvas98FullScreen"
+                prism:RegionManager.RegionName="Canvas98FullScreenRegion" 
+                Grid.Row="0" Grid.RowSpan="2"
+                Visibility="{Binding Canvas98FullScreenRegionVisibility.Value, Mode=OneWay}"
+                />
+<!--
             <c98:FutabaCanvas98View
                 Grid.Row="0" Grid.RowSpan="2"
                 ThreadUrl="{Binding Contents.Futaba.Value.Url, ElementName=_this}"
@@ -1133,6 +1205,7 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </c98:FutabaCanvas98View>
+            -->
         </Grid>
     </Grid>
 </UserControl>

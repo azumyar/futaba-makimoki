@@ -12,7 +12,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 	public static partial class ConfigLoader {
 		internal static readonly string MakiMokiConfigFile = "makimoki.json";
 		internal static readonly string MakiMokiOptoutConfigFile = "makimoki.optout.json";
-		internal static readonly string BordConfigFile = "makimoki.bord.json";
+		internal static readonly string BoardConfigFile = "makimoki.bord.json";
 		internal static readonly string MimeFutabaConfigFile = "mime-futaba.json";
 		internal static readonly string MimeUp2ConfigFile = "mime-up2.json";
 		internal static readonly string UploderConfigFile = "uploder.json";
@@ -41,30 +41,12 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			System.Diagnostics.Debug.Assert(setting.WorkDirectory != null);
 			InitializedSetting = setting;
 
-			static void addDic(Dictionary<string, Data.BordData> dic, Data.BordData[] item) {
-				if(item == null) {
-					return;
-				}
-
-				foreach(var b in item) {
-					if(string.IsNullOrWhiteSpace(b.Name)) {
-						throw new Exceptions.InitializeFailedException(
-							string.Format("JSON{0}は不正な形式です", b.ToString()));
-					}
-
-					if(dic.ContainsKey(b.Name)) {
-						dic[b.Name] = b;
-					} else {
-						dic.Add(b.Name, b);
-					}
-				}
-			}
 			var loader = new Util.ResourceLoader(typeof(ConfigLoader));
-			var bord = Util.FileUtil.LoadMigrate(
-				loader.Get(BordConfigFile),
-				CoreBordConfig.CreateDefault());
-			var bordDic = new Dictionary<string, Data.BordData>();
-			addDic(bordDic, bord.Bords);
+			var board = Util.FileUtil.LoadMigrate(
+				loader.Get(BoardConfigFile),
+				CoreBoardConfig.CreateDefault());
+			var boardDic = new Dictionary<string, Data.BoardData>();
+			MergeDictionary(boardDic, board.Boards);
 			MakiMoki = Util.FileUtil.LoadMigrate(
 				loader.Get(MakiMokiConfigFile),
 				default(MakiMokiConfig));
@@ -105,19 +87,26 @@ namespace Yarukizero.Net.MakiMoki.Config {
 					Optout = Util.FileUtil.LoadMigrate(
 						Path.Combine(confDir, MakiMokiOptoutConfigFile),
 						Optout);
-					addDic(bordDic,
-						Util.FileUtil.LoadMigrate(
-							Path.Combine(confDir, BordConfigFile),
-							default(BordConfig))?.Bords);
+					var b = Util.FileUtil.LoadMigrate(
+						Path.Combine(confDir, BoardConfigFile),
+						default(BoardConfig),
+						new Dictionary<int, Type>() {
+							{ Data.Compat.BoardConfig2020062900.CurrentVersion, typeof(Data.Compat.BoardConfig2020062900) }
+						});
+					MergeDictionary(boardDic, b?.Boards);
+ 					if(confDir == setting.UserDirectory) {
+						UserConfBoard = b;
+					}
 				}
 			}
 
-			Bord = CoreBordConfig.CreateAppInstance(
-				bord, 
-				bordDic.Select(x => x.Value)
+			Board = CoreBoardConfig.CreateAppInstance(
+				board, 
+				boardDic.Select(x => x.Value)
 					.Where(x => x.Display)
 					.OrderBy(x => x.SortIndex)
 					.ToArray());
+			UserConfBoard ??= BoardConfig.CreateDefault();
 			SavedFutaba = Util.FileUtil.LoadMigrate(
 				Path.Combine(InitializedSetting.WorkDirectory, FutabaSavedFile),
 				Data.FutabaSavedConfig.CreateDefault());
@@ -141,7 +130,8 @@ namespace Yarukizero.Net.MakiMoki.Config {
 
 		public static Data.MakiMokiOptout Optout { get; private set; }
 
-		public static Data.CoreBordConfig Bord { get; private set; }
+		public static Data.CoreBoardConfig Board { get; private set; }
+		public static Data.BoardConfig UserConfBoard { get; private set; }
 
 		public static Data.MimeConfig MimeFutaba { get; private set; }
 
@@ -155,9 +145,27 @@ namespace Yarukizero.Net.MakiMoki.Config {
 
 		public static Data.FutabaPostItemConfig PostedItem { get; private set; }
 
+		public static Helpers.UpdateNotifyer BoardConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer();
 		public static Helpers.UpdateNotifyer PostConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer();
 
+		private static void MergeDictionary(Dictionary<string, Data.BoardData> dic, Data.BoardData[] item) {
+			if(item == null) {
+				return;
+			}
 
+			foreach(var b in item) {
+				if(string.IsNullOrWhiteSpace(b.Name)) {
+					throw new Exceptions.InitializeFailedException(
+						string.Format("JSON{0}は不正な形式です", b.ToString()));
+				}
+
+				if(dic.ContainsKey(b.Name)) {
+					dic[b.Name] = b;
+				} else {
+					dic.Add(b.Name, b);
+				}
+			}
+		}
 		public static void UpdateOptout(Data.MakiMokiOptout optout) {
 			Optout = optout;
 			lock(lockObj) {
@@ -178,7 +186,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			}
 		}
 
-		public static void UpdateFutabaInputData(BordData bord, string subject, string name, string mail, string password) {
+		public static void UpdateFutabaInputData(BoardData bord, string subject, string name, string mail, string password) {
 			System.Diagnostics.Debug.Assert(subject != null);
 			System.Diagnostics.Debug.Assert(name != null);
 			System.Diagnostics.Debug.Assert(mail != null);
@@ -235,6 +243,39 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			}
 
 			// notifyerいる？
+		}
+
+		public static void UpdateUserBoardConfig(BoardData[] boardData) {
+			UserConfBoard = BoardConfig.From(boardData.ToArray());
+			var board = Util.FileUtil.LoadMigrate(
+				new Util.ResourceLoader(typeof(ConfigLoader)).Get(BoardConfigFile),
+				CoreBoardConfig.CreateDefault());
+			var boardDic = new Dictionary<string, Data.BoardData>();
+			MergeDictionary(boardDic, board.Boards);
+			if(InitializedSetting.SystemDirectory != null) {
+				var b = Util.FileUtil.LoadMigrate(
+					Path.Combine(InitializedSetting.SystemDirectory, BoardConfigFile),
+					default(BoardConfig),
+					new Dictionary<int, Type>() {
+						{ Data.Compat.BoardConfig2020062900.CurrentVersion, typeof(Data.Compat.BoardConfig2020062900) }
+					});
+				MergeDictionary(boardDic, b?.Boards);
+			}
+			MergeDictionary(boardDic, UserConfBoard.Boards);
+			Board = CoreBoardConfig.CreateAppInstance(
+				board,
+				boardDic.Select(x => x.Value)
+					.Where(x => x.Display)
+					.OrderBy(x => x.SortIndex)
+					.ToArray());
+			lock(lockObj) {
+				if(Directory.Exists(InitializedSetting.UserDirectory)) {
+					Util.FileUtil.SaveJson(
+						Path.Combine(InitializedSetting.UserDirectory, BoardConfigFile),
+						UserConfBoard);
+				}
+			}
+			BoardConfigUpdateNotifyer.Notify();
 		}
 
 		public static void SaveFutabaResponse(Data.FutabaContext[] catalogs, Data.FutabaContext[] threads) {
