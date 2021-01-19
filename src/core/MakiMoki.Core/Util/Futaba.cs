@@ -422,6 +422,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								ip = "";
 							}
 							if(!string.IsNullOrEmpty(id) && bord.Extra.AlwaysIdValue) {
+								time = time + " " + id;
 								id = "";
 							}
 							var f = Data.FutabaContext.FromThreadResResponse(bord, threadNo, r.Result.Response,
