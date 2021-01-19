@@ -42,7 +42,7 @@ jobs:
       run: |
         echo "GITHUB_REPOSITORY=$env:GITHUB_REPOSITORY"
         echo "GITHUB_EVENT_NAME=$env:GITHUB_EVENT_NAME"
-        ech "GITHUB_REF=$env:GITHUB_REF"
+        echo "GITHUB_REF=$env:GITHUB_REF"
 
     - name: get config version(Release)
       run: |
