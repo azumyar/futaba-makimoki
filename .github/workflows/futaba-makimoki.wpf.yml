@@ -93,7 +93,6 @@ jobs:
         msbuild `
           -t:Restore `
           -p:Configuration=$env:Configuration `
-          -m `
           $env:Solution_Name
       env:
         Configuration: ${{ matrix.configuration }}
