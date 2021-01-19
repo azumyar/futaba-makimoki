@@ -91,6 +91,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemDelClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemDeleteClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemDeleteImageClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
+		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemWatchImageCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemNgImageCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemResHiddenCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
 
@@ -171,6 +172,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			MenuItemDeleteClickCommand.Subscribe(x => OnMenuItemDeleteClick(x));
 			MenuItemDeleteImageClickCommand.Subscribe(x => OnMenuItemDeleteImageClick(x));
 			MenuItemResHiddenCommand.Subscribe(x => OnMenuItemResHidden(x));
+			MenuItemWatchImageCommand.Subscribe(x => OnMenuItemWatchImage(x));
 			MenuItemNgImageCommand.Subscribe(x => OnMenuItemNgImage(x));
 
 			PaletteButtonCopyCommand.Subscribe(x => OnPaletteButtonCopy(x));
@@ -548,6 +550,31 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Ng.NgConfig.NgConfigLoader.RemoveHiddenRes(ng);
 			} else {
 				Ng.NgConfig.NgConfigLoader.AddHiddenRes(ng);
+			}
+		}
+
+		private void OnMenuItemWatchImage(Model.BindableFutabaResItem x) {
+			if(x.OriginSource.Value != null) {
+				var v = x.ThumbHash.Value ?? WpfUtil.ImageUtil.CalculatePerceptualHash(x.OriginSource.Value);
+				var watch = Ng.NgConfig.NgConfigLoader.WatchImageConfig.Images
+					.Where(y => y.Hash == v.ToString())
+					.FirstOrDefault();
+				if(watch != null) {
+					// Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
+				} else {
+					string r = null;
+					var w = new Windows.ImageReasonWindow() {
+						Owner = App.Current.MainWindow,
+					};
+					if(w.ShowDialog() ?? false) {
+						r = w.ReasonText;
+					}
+
+					if(r != null) {
+						Ng.NgConfig.NgConfigLoader.AddWatchImage(
+							Ng.NgData.NgImageData.FromPerceptualHash(v, r));
+					}
+				}
 			}
 		}
 

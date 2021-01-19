@@ -79,7 +79,8 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 		}
 
 		public static bool IsEnabledNgImage() {
-			return NgConfigLoader.NgImageConfig.Images.Length != 0;
+			return NgConfigLoader.NgImageConfig.Images.Any()
+				|| NgConfigLoader.WatchImageConfig.Images.Any();
 		}
 	}
 }

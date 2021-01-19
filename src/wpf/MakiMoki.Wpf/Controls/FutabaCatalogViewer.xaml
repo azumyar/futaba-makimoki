@@ -204,6 +204,10 @@
                                             <MenuItem Header="del" Click="OnCatalogMenuItemDelClickCommand" />
                                             <Separator />
                                             <MenuItem
+                                                Header="Watch画像登録"
+                                                Command="{Binding Tag.CatalogMenuItemWatchImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                            <MenuItem
                                                 Header="NG画像登録"
                                                 Visibility="{Binding IsVisibleMenuItemNgImage.Value, Mode=OneWay}"
                                                 Command="{Binding Tag.CatalogMenuItemNgImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
@@ -540,6 +544,10 @@
                                             Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                             <MenuItem Header="del" Click="OnCatalogMenuItemDelClickCommand" />
                                             <Separator />
+                                            <MenuItem
+                                                Header="Watch画像登録"
+                                                Command="{Binding Tag.CatalogMenuItemWatchImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                             <MenuItem
                                                 Header="NG画像登録"
                                                 Visibility="{Binding IsVisibleMenuItemNgImage.Value, Mode=OneWay}"

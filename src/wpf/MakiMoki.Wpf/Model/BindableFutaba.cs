@@ -270,6 +270,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						.Select(x => new BindableFutabaResItem(c++, x, futaba.Url.BaseUrl, this))
 						.ToArray()) {
 
+					it.IsWatch.Subscribe(x => { 
+						if(x) {
+							this.UpdateToken.Value = DateTime.Now;
+						}
+					});
 					this.ResItems.Add(it);
 				}
 
@@ -604,6 +609,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> OriginHtml { get; }
 		public ReactiveProperty<bool> IsNg { get; }
 		public ReactiveProperty<bool> IsWatch { get; }
+		public ReactiveProperty<bool> IsWatchWord { get; }
+		public ReactiveProperty<bool> IsWatchImage { get; }
 		public ReactiveProperty<bool> IsHidden { get; }
 		public ReactiveProperty<bool> IsDel { get; }
 		public ReactiveProperty<bool> IsVisibleOriginComment { get; }
@@ -624,6 +631,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Visibility> FutabaTextBlockVisibility { get; }
 		public ReactiveProperty<Visibility> CopyBlockVisibility { get; }
 
+		public ReactiveProperty<Visibility> IsVisibleMenuItemWatchImage { get; }
 		public ReactiveProperty<Visibility> IsVisibleMenuItemNgImage { get; }
 
 		public ReactiveProperty<bool> IsVisibleCatalogIdMarker{ get; }
@@ -642,6 +650,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		private Action<Ng.NgData.HiddenConfig> hiddenUpdateAction;
 		private Action<Ng.NgData.NgImageConfig> imageUpdateAction;
 		private Action<Ng.NgData.WatchConfig> watchUpdateAction;
+		private Action<Ng.NgData.WatchImageConfig> watchImageUpdateAction;
 		private Action<PlatformData.WpfConfig> systemUpdateAction;
 
 		public BindableFutabaResItem(int index, Data.FutabaContext.Item item, string baseUrl, BindableFutaba parent) {
@@ -680,7 +689,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.IsNg = new ReactiveProperty<bool>(
 					parent.Url.IsCatalogUrl ? Ng.NgUtil.NgHelper.CheckCatalogNg(parent.Raw, item)
 						: Ng.NgUtil.NgHelper.CheckThreadNg(parent.Raw, item));
-				this.IsWatch = new ReactiveProperty<bool>(Ng.NgUtil.NgHelper.CheckCatalogWatch(parent.Raw, item));
+				this.IsWatchWord = new ReactiveProperty<bool>(Ng.NgUtil.NgHelper.CheckCatalogWatch(parent.Raw, item));
+				this.IsWatchImage = this.ThumbHash
+					.Select(x => x.HasValue ? Ng.NgConfig.NgConfigLoader.WatchImageConfig.Images.Any(
+						y => Ng.NgUtil.PerceptualHash.GetHammingDistance(x.Value, y) <= Ng.NgConfig.NgConfigLoader.WatchImageConfig.Threshold
+						) : false)
+					.ToReactiveProperty();
+				this.IsWatch = new[] {
+					this.IsWatchWord,
+					this.IsWatchImage,
+				}.CombineLatest(x => x.Any(y => y))
+					.ToReactiveProperty();
 				this.IsHidden = new ReactiveProperty<bool>(Ng.NgUtil.NgHelper.CheckHidden(parent.Raw, item));
 				this.IsDel = new ReactiveProperty<bool>(
 					(item.ResItem.Res.IsDel || item.ResItem.Res.IsDel2)
@@ -706,17 +725,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					.CombineLatest(this.IsVisibleOriginComment, (x, y) => (x | y) ? Visibility.Visible : Visibility.Collapsed)
 					.ToReactiveProperty();
 				this.ShowNgResButtonText = this.IsVisibleOriginComment
-						.Select(x => x ? "非表示" : "レスを表示")
-						.ToReactiveProperty();
+					.Select(x => x ? "非表示" : "レスを表示")
+					.ToReactiveProperty();
 
 				ngUpdateAction = (x) => a();
 				hiddenUpdateAction = (x) => a();
 				watchUpdateAction = (x) => a();
 				imageUpdateAction = (x) => b();
+				watchImageUpdateAction = (x) => this.ThumbHash.ForceNotify();
 				systemUpdateAction = (x) => c();
 				Ng.NgConfig.NgConfigLoader.AddNgUpdateNotifyer(ngUpdateAction);
 				Ng.NgConfig.NgConfigLoader.AddHiddenUpdateNotifyer(hiddenUpdateAction);
 				Ng.NgConfig.NgConfigLoader.AddImageUpdateNotifyer(imageUpdateAction);
+				Ng.NgConfig.NgConfigLoader.WatchUpdateNotifyer.AddHandler(watchUpdateAction);
+				Ng.NgConfig.NgConfigLoader.WatchImageUpdateNotifyer.AddHandler(watchImageUpdateAction);
 				WpfConfig.WpfConfigLoader.AddSystemConfigUpdateNotifyer(systemUpdateAction);
 			}
 
@@ -752,17 +774,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				var bmp = WpfUtil.ImageUtil.GetImageCache(
 					Util.Futaba.GetThumbImageLocalFilePath(item.Url, item.ResItem.Res));
 				if(bmp != null) {
-					HashQueue.Push(Helpers.ConnectionQueueItem<ulong?>.From(
-						o => {
-							this.SetThumbSource(bmp);
-							if(this.Raw.Value.Url.IsCatalogUrl
-								&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
-								&& !object.ReferenceEquals(this.ThumbSource.Value, this.OriginSource.Value)) {
+					void work() {
+						this.SetThumbSource(bmp);
+						if(this.Raw.Value.Url.IsCatalogUrl
+							&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
+							&& !object.ReferenceEquals(this.ThumbSource.Value, this.OriginSource.Value)) {
 
-								this.IsNgImageHidden.Value = true;
-							}
-							o.OnNext(null);
-						})).Subscribe();
+							this.IsNgImageHidden.Value = true;
+						}
+					}
+					if(HashCache.TryGetTarget(this.GetCacheKey(), out var _)) {
+						work();
+					} else {
+						HashQueue.Push(Helpers.ConnectionQueueItem<ulong?>.From(
+							o => {
+								work();
+								o.OnNext(null);
+							})).Subscribe();
+					}
 				}
 			} else {
 				this.ImageName = new ReactiveProperty<string>("");
@@ -893,7 +922,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.IsNg.Value = this.Raw.Value.Url.IsCatalogUrl
 				? Ng.NgUtil.NgHelper.CheckCatalogNg(this.Parent.Value.Raw, this.Raw.Value)
 					: Ng.NgUtil.NgHelper.CheckThreadNg(this.Parent.Value.Raw, this.Raw.Value);
-			this.IsWatch.Value = Ng.NgUtil.NgHelper.CheckCatalogWatch(this.Parent.Value.Raw, this.Raw.Value);
+			this.IsWatchWord.Value = Ng.NgUtil.NgHelper.CheckCatalogWatch(this.Parent.Value.Raw, this.Raw.Value);
 			this.IsHidden.Value = Ng.NgUtil.NgHelper.CheckHidden(this.Parent.Value.Raw, this.Raw.Value);
 			this.IsCopyMode.Value = false;
 			this.SetCommentHtml();
