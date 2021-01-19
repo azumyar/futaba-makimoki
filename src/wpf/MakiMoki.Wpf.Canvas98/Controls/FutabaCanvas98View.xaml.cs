@@ -442,6 +442,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				} else if(message == WebMessagePostSucessed) {
 					if(DataContext is ViewModels.FutabaCanvas98ViewViewModel vm) {
 						// TODO: 成功メッセージをリレー
+						ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
+							.GetEvent<PubSubEvent<ViewModels.FutabaCanvas98ViewViewModel.PostFrom>>()
+							.Publish(new ViewModels.FutabaCanvas98ViewViewModel.PostFrom(this.ThreadUrl, this.formCache));
 						vm.Close();
 					}
 					/*

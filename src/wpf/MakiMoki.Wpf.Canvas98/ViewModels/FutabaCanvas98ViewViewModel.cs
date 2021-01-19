@@ -24,6 +24,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.ViewModels {
 
 		public class CloseTo {}
 
+		public class PostFrom {
+			public Data.UrlContext Url { get; }
+			public Canvas98Data.StoredForm Form { get; }
+
+			public PostFrom(Data.UrlContext url, Canvas98Data.StoredForm form) {
+				this.Url = url;
+				this.Form = form;
+			}
+		}
 		private IRegionNavigationService RegionNavigationService { get; set; }
 		private IDisposable Subscribe { get; }
 		
