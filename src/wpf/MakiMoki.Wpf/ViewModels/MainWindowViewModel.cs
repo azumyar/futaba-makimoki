@@ -38,7 +38,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		public ReactiveProperty<Data.BoardData[]> Bords { get; }
+		public ReactiveProperty<Data.BoardData[]> Boards { get; }
 		public ReactiveCollection<Model.TabItem> Catalogs { get; } = new ReactiveCollection<TabItem>();
 		public ReactiveProperty<object> CatalogToken { get; } = new ReactiveProperty<object>(DateTime.Now.Ticks);
 		private Dictionary<string, ReactiveCollection<Model.TabItem>> ThreadsDic { get; } = new Dictionary<string, ReactiveCollection<TabItem>>();
@@ -49,7 +49,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Visibility> TabVisibility { get; }
 
 		public ReactiveCommand<MouseButtonEventArgs> BordListClickCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
-		public ReactiveCommand<BoardData> BordOpenCommand { get; } = new ReactiveCommand<BoardData>();
+		public ReactiveCommand<BoardData> BoardOpenCommand { get; } = new ReactiveCommand<BoardData>();
 		public ReactiveCommand<RoutedEventArgs> ConfigButtonClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
 
 		public ReactiveCommand<MouseButtonEventArgs> TabClickCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
@@ -83,10 +83,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentThreadTabPostCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
 		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentThreadTabCloseCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
 
+		private Action onBoardConfigUpdateNotifyer;
 		private Action<PlatformData.WpfConfig> onSystemConfigUpdateNotifyer;
 
 		public MainWindowViewModel() {
-			Bords = new ReactiveProperty<Data.BoardData[]>(Config.ConfigLoader.Bord.Boards);
+			Boards = new ReactiveProperty<Data.BoardData[]>(Config.ConfigLoader.Board.Boards);
 			foreach(var c in Util.Futaba.Catalog.Value) {
 				Catalogs.Add(new TabItem(c));
 				ThreadsDic.Add(c.Url.BaseUrl, new ReactiveCollection<TabItem>());
@@ -115,7 +116,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			this.TabVisibility = new ReactiveProperty<Visibility>((Catalogs.Count == 0) ? Visibility.Collapsed : Visibility.Visible);
 			BordListClickCommand.Subscribe(x => OnBordListClick(x));
 			ConfigButtonClickCommand.Subscribe(x => OnConfigButtonClick(x));
-			BordOpenCommand.Subscribe(x => OnBordOpen(x));
+			BoardOpenCommand.Subscribe(x => OnBordOpen(x));
 			TabClickCommand.Subscribe(x => OnTabClick(x));
 			TabCloseButtonCommand.Subscribe(x => OnTabClose(x));
 			Util.Futaba.Catalog
@@ -148,9 +149,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			KeyBindingCurrentThreadTabPostCommand.Subscribe(x => OnKeyBindingCurrentThreadTabPost(x));
 			KeyBindingCurrentThreadTabCloseCommand.Subscribe(x => OnKeyBindingCurrentThreadTabClose(x));
 
+			onBoardConfigUpdateNotifyer = () => Boards.Value = Config.ConfigLoader.Board.Boards;
 			onSystemConfigUpdateNotifyer = (_) => {
 				Topmost.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledWindowTopmost;
 			};
+			Config.ConfigLoader.BoardConfigUpdateNotifyer.AddHandler(onBoardConfigUpdateNotifyer);
 			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(onSystemConfigUpdateNotifyer);
 		}
 		public void Dispose() {

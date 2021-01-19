@@ -361,7 +361,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				}
 			}
 
-			var bord = Config.ConfigLoader.Bord.Boards.Where(x => x.Url == futaba.Url.BaseUrl).FirstOrDefault();
+			var bord = Config.ConfigLoader.Board.Boards.Where(x => x.Url == futaba.Url.BaseUrl).FirstOrDefault();
 			this.PostTitle = new ReactiveProperty<string>(futaba.Url.IsCatalogUrl ? "スレッド作成" : "レス投稿");
 			if(bord == null) {
 				this.PostNameVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
@@ -657,7 +657,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			System.Diagnostics.Debug.Assert(item != null);
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(parent != null);
-			var bord = Config.ConfigLoader.Bord.Boards.Where(x => x.Url == baseUrl).FirstOrDefault();
+			var bord = Config.ConfigLoader.Board.Boards.Where(x => x.Url == baseUrl).FirstOrDefault();
 			System.Diagnostics.Debug.Assert(bord != null);
 			this.Index = new ReactiveProperty<int>(index);
 			this.Bord = new ReactiveProperty<Data.BoardData>(bord);

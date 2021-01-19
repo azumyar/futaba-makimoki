@@ -359,7 +359,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
 			var pthc = GetCachemtSync(bord.Url);
-			r.AddParameter("MAX_FILE_SIZE", Config.ConfigLoader.Bord.MaxFileSize, ParameterType.GetOrPost);
+			r.AddParameter("MAX_FILE_SIZE", Config.ConfigLoader.Board.MaxFileSize, ParameterType.GetOrPost);
 			r.AddParameter("com", comment, ParameterType.GetOrPost);
 			r.AddParameter("email", email, ParameterType.GetOrPost);
 			r.AddParameter("pwd", passwd, ParameterType.GetOrPost);

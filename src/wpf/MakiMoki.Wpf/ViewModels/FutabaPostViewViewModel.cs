@@ -395,7 +395,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				return;
 			}
 
-			var path = await Paste(f, Config.ConfigLoader.Bord.MaxFileSize);
+			var path = await Paste(f, Config.ConfigLoader.Board.MaxFileSize);
 			if(!string.IsNullOrEmpty(path) && File.Exists(path)) {
 				f.PostData.Value.ImagePath.Value = path;
 			}

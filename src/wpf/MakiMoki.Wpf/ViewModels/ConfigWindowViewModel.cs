@@ -153,7 +153,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			CatalogFetchImageThumbnail = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFetchThumbnail);
 
 			Boards.AddRangeOnScheduler(
-				Config.ConfigLoader.UserConfBord.Boards
+				Config.ConfigLoader.UserConfBoard.Boards
 					.OrderBy(x => x.SortIndex)
 					.Select(x => new ConfigListBoxItem(Boards, x.Name, x, true)));
 
@@ -390,6 +390,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if(!CoreConfigSavedResponse.Value) {
 				Config.ConfigLoader.RemoveSaveFutabaResponseFile();
 			}
+			Config.ConfigLoader.UpdateUserBoardConfig(Boards
+				.Select(x => x.Item.Value)
+				.Cast<Data.BoardData>()
+				.ToArray());
 
 			Ng.NgConfig.NgConfigLoader.UpdateCatalogIdNg(NgConfigCatalogIdNg.Value);
 			Ng.NgConfig.NgConfigLoader.UpdateThreadIdNg(NgConfigThreadIdNg.Value);
@@ -473,7 +477,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				windowTheme: (PlatformData.WindowTheme)WindowTheme.Value,
 				isEnabledIdMarker: CatalogIsEnabledIdMarker.Value,
 				isEnabledThreadCommandPalette: IsEnabledThreadCommandPalette.Value,
-				// vNext
+				// 2021012000
 				isEnabledFetchThumbnail: CatalogFetchImageThumbnail.Value,
 				commandPalettePosition: (PlatformData.UiPosition)CommandPalettePosition.Value,
 				canvas98Position: (PlatformData.UiPosition)Canvas98Position.Value

@@ -1,8 +1,8 @@
 {
-  "version": 2020062900,
+  "version": 2021012000,
 
   "max-file-size": 3072000,
-  "bords": [
+  "boards": [
     {
       "name": "ねこ",
       "url": "https://may.2chan.net/27/",

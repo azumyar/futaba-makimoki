@@ -7,15 +7,22 @@ using System.Text;
 
 namespace Yarukizero.Net.MakiMoki.Data {
 	public class BoardConfig : ConfigObject {
-		public static int CurrentVersion { get; } = 2020062900;
+		public static int CurrentVersion { get; } = 2021012000;
 
-		[JsonProperty("bords", Required = Required.Always)]
+		[JsonProperty("boards", Required = Required.Always)]
 		public BoardData[] Boards { get; protected set; }
 
 		internal static BoardConfig CreateDefault() {
 			return new BoardConfig() {
 				Version = CurrentVersion,
 				Boards = Array.Empty<BoardData>(),
+			};
+		}
+
+		internal static BoardConfig From(BoardData[] boards) {
+			return new BoardConfig() {
+				Version = CurrentVersion,
+				Boards = boards.ToArray(),
 			};
 		}
 	}
@@ -38,6 +45,14 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				Version = CurrentVersion,
 				MaxFileSize = config.MaxFileSize,
 				Boards = margeData,
+			};
+		}
+
+		internal static CoreBoardConfig From(BoardData[] boards, int maxFileSize) {
+			return new CoreBoardConfig() {
+				Version = CurrentVersion,
+				MaxFileSize = maxFileSize,
+				Boards = boards.ToArray(),
 			};
 		}
 	}

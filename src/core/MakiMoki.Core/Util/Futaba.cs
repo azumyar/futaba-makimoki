@@ -26,11 +26,20 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		private static Helpers.ConnectionQueue<(bool Successed, string Message)> SoudaneQueue { get; set; }
 		private static Helpers.ConnectionQueue<(bool Successed, string Message)> DelQueue { get; set; }
 
+		private static readonly Action BoardConfigUpdateAction = () => {
+			if(Catalog != null) {
+				Catalog.Value = Catalog.Value
+					.Where(x => Config.ConfigLoader.Board.Boards.Any(y => y.Url == x.Url.BaseUrl))
+					.ToArray();
+			}
+
+		};
+
 		public static void Initialize() {
 			if(Config.ConfigLoader.MakiMoki.FutabaResponseSave) {
 				Catalog = new ReactiveProperty<Data.FutabaContext[]>(
 					Config.ConfigLoader.SavedFutaba.Catalogs.Select(x => {
-						var b = Config.ConfigLoader.Bord.Boards.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
+						var b = Config.ConfigLoader.Board.Boards.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
 						if(b != null) {
 							return Data.FutabaContext.FromCatalog_(b, x.Catalog, x.CatalogSortRes, x.CatalogResCounter);
 						} else {
@@ -39,7 +48,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					}).Where(x => x != null).ToArray());
 				Threads = new ReactiveProperty<Data.FutabaContext[]>(
 					Config.ConfigLoader.SavedFutaba.Threads.Select(x => {
-						var b = Config.ConfigLoader.Bord.Boards.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
+						var b = Config.ConfigLoader.Board.Boards.Where(y => y.Url == x.Url.BaseUrl).FirstOrDefault();
 						if(b != null) {
 							return Data.FutabaContext.FromThread_(b, x.Url, x.Thread);
 						} else {
@@ -47,8 +56,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						}
 					}).Where(x => x != null).ToArray());
 			} else {
-				Catalog = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
-				Threads = new ReactiveProperty<Data.FutabaContext[]>(new Data.FutabaContext[0]);
+				Catalog = new ReactiveProperty<Data.FutabaContext[]>(Array.Empty<Data.FutabaContext>());
+				Threads = new ReactiveProperty<Data.FutabaContext[]>(Array.Empty<Data.FutabaContext>());
 			}
 			PostItems = new ReactiveProperty<Data.PostedResItem[]>(Config.ConfigLoader.PostedItem.Items.ToArray());
 			Informations = new ReactiveCollection<Data.Information>(UIDispatcherScheduler.Default);
@@ -65,6 +74,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				maxConcurrency: 1,
 				waitTime: 5000
 			);
+			Config.ConfigLoader.BoardConfigUpdateNotifyer.AddHandler(BoardConfigUpdateAction);
 		}
 
 		public static IObservable<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)> UpdateCatalog(Data.BoardData bord, Data.CatalogSortItem sort = null) {
@@ -489,14 +499,14 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				if(url.IsCatalogUrl) {
 					var r = Catalog.Value.Where(x => x.Url == url).FirstOrDefault();
 					if(r == null) {
-						UpdateCatalog(Config.ConfigLoader.Bord.Boards.Where(x => x.Url == url.BaseUrl).First())
+						UpdateCatalog(Config.ConfigLoader.Board.Boards.Where(x => x.Url == url.BaseUrl).First())
 							.Subscribe();
 					}
 				} else {
 					var r = Threads.Value.Where(x => x.Url == url).FirstOrDefault();
 					if(r == null) {
 						UpdateThreadRes(
-							Config.ConfigLoader.Bord.Boards.Where(x => x.Url == url.BaseUrl).First(),
+							Config.ConfigLoader.Board.Boards.Where(x => x.Url == url.BaseUrl).First(),
 							url.ThreadNo)
 								.Subscribe();
 					}

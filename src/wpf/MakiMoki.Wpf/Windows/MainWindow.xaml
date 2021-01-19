@@ -156,14 +156,14 @@
                                             <Button.Resources>
                                                 <ContextMenu
                                                     x:Key="ContextMenu"
-                                                    ItemsSource="{Binding Tag.Bords.Value, Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                                                    ItemsSource="{Binding Tag.Boards.Value, Mode=OneWay, RelativeSource={RelativeSource Self}}"
                                                     Placement="Top"
                                                     VerticalOffset="4" HorizontalOffset="0"
                                                     Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                                     <ContextMenu.ItemContainerStyle>
                                                         <Style TargetType="MenuItem">
                                                             <Setter Property="Header" Value="{Binding Name}" />
-                                                            <Setter Property="Command" Value="{Binding Tag.BordOpenCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                                            <Setter Property="Command" Value="{Binding Tag.BoardOpenCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                                             <Setter Property="CommandParameter" Value="{Binding}" />
                                                         </Style>
                                                     </ContextMenu.ItemContainerStyle>

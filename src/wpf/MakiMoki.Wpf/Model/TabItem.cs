@@ -44,7 +44,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.Url = f.Url;
 			this.Name = new ReactiveProperty<string>(
 				string.IsNullOrWhiteSpace(this.Url.ThreadNo)
-					? Config.ConfigLoader.Bord.Boards.Where(x => x.Url == this.Url.BaseUrl).FirstOrDefault()?.Name
+					? Config.ConfigLoader.Board.Boards.Where(x => x.Url == this.Url.BaseUrl).FirstOrDefault()?.Name
 						: "No." + this.Url.ThreadNo);
 			this.Futaba = new ReactiveProperty<BindableFutaba>(new BindableFutaba(f));
 			this.Futaba.Subscribe(x => this.Name.Value = x.Name);
