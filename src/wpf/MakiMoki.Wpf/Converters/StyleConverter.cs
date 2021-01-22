@@ -16,7 +16,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			}
 
 			//System.Diagnostics.Debug.WriteLine($"{ values.Length }");
-			{
+			if(7 == values.Length) {
 				/*
 				if(7 == values.Length) {
 					System.Diagnostics.Debug.WriteLine($"{ values[0] }");
@@ -46,6 +46,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 					var foreground = (b.A == 0) ? black : WpfUtil.ImageUtil.GetTextColor(b, white, black, type);
 					//System.Diagnostics.Debug.WriteLine($"return:{ foreground }");
 					return foreground;
+				}
+			}
+
+			{
+				if((values[0] is Color back)
+					&& (values[1] is PlatformData.StyleType type)
+					&& (values[2] is Color white)
+					&& (values[3] is Color black)) {
+
+					return (back.A == 0) ? black : WpfUtil.ImageUtil.GetTextColor(back, white, black, type);
 				}
 			}
 
