@@ -176,7 +176,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OpenFutabaUrl(Data.UrlContext url, Data.ResItem res) {
 			this.ViewVisibility.Value = Visibility.Visible;
 			Util.Futaba.GetThreadResImage(url, res)
-				.ObserveOnDispatcher()
+				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => {
 					if(x.Successed) {
 						if(this.IsImageFile(res.Src)) {
@@ -199,7 +199,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OpenExternalUrl(string u) {
 			this.ViewVisibility.Value = Visibility.Visible;
 			Util.Futaba.GetUploaderFile(u)
-				.ObserveOnDispatcher()
+				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => {
 					if(x.Successed) {
 						if(this.IsImageFile(u)) {

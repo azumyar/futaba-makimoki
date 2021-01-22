@@ -45,7 +45,7 @@
     <PackageReference Include="Microsoft.AppCenter.Analytics" Version="4.1.0" />
     <PackageReference Include="Microsoft.AppCenter.Crashes" Version="4.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="ReactiveProperty" Version="7.6.0" />
+    <PackageReference Include="ReactiveProperty" Version="7.6.1" />
     <PackageReference Include="RestSharp" Version="106.11.7" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
   </ItemGroup>

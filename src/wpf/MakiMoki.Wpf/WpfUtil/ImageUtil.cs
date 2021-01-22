@@ -340,7 +340,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						*/
 						return await Util.Futaba.GetThumbImageAsync(x.Url, x.ResItem.Res);
 					}
-				}).ObserveOnDispatcher()
+				}).ObserveOn(UIDispatcherScheduler.Default)
 				.Select(x => (x != null) ? (ImageSource)WpfUtil.ImageUtil.LoadImage(x) : null)
 				.ToReactiveProperty();
 			/*
