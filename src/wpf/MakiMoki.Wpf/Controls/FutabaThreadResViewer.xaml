@@ -737,7 +737,7 @@
                                             <SolidColorBrush>
                                                 <SolidColorBrush.Color>
                                                     <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}">
-                                                        <Binding Path="Background.Color" RelativeSource="{RelativeSource FindAncestor, AncestorType=Grid}" />
+                                                        <Binding Path="Background.Color" ElementName="viewGrid" />
                                                         <Binding Path="DataContext" Source="{StaticResource StyleTypeGetter}" />
                                                         <Binding Path="DataContext" Source="{StaticResource WhiteColorGetter}" />
                                                         <Binding Path="DataContext" Source="{StaticResource BlackColorGetter}" />
