@@ -773,7 +773,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$", "$1"));
 				var bmp = WpfUtil.ImageUtil.GetImageCache(
 					Util.Futaba.GetThumbImageLocalFilePath(item.Url, item.ResItem.Res));
-				if(bmp != null) {
+				if((bmp != null) && Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
 					void work() {
 						this.SetThumbSource(bmp);
 						if(this.Raw.Value.Url.IsCatalogUrl
