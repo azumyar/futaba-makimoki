@@ -860,6 +860,7 @@
                                             </Grid.ColumnDefinitions>
                                             <emoji:TextBlock
                                                 Grid.Column="2"
+                                                IsHitTestVisible="False"
                                                 ColorBlend="False"
                                                 Text="{Binding Name, Mode=OneWay}"
                                                 HorizontalAlignment="Right"
@@ -948,6 +949,7 @@
                             <emoji:TextBlock
                                 Grid.Column="1"
                                 ColorBlend="False"
+                                IsHitTestVisible="False"
                                 Text="{Binding Name.Value, Mode=OneWay}"
                                 TextTrimming="CharacterEllipsis"
                                 TextWrapping="NoWrap"
@@ -1069,6 +1071,7 @@
                                         <emoji:TextBlock
                                             Grid.Column="1"
                                             ColorBlend="False"
+                                            IsHitTestVisible="False"
                                             Text="{Binding Name.Value, Mode=OneWay}"
                                             VerticalAlignment="Center" Margin="4 0 4 0" />
                                     </Grid>
@@ -1132,6 +1135,7 @@
                                     Grid.Column="1" Grid.Row="1"
                                     FontSize="12"
                                     ColorBlend="False"
+                                    IsHitTestVisible="False"
                                     Text="{Binding Message, Mode=OneWay}"
                                     TextWrapping="Wrap" />
                             </Grid>
