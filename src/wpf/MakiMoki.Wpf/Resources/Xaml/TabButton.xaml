@@ -77,6 +77,8 @@
                                 <TextBlock
                                     Text="✖"
                                     FontSize="8"
+                                    Padding="0.5 0 0 0"
+                                    TextAlignment="Center"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center">
                                     <TextBlock.Foreground>
