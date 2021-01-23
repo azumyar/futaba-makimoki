@@ -115,6 +115,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						run1.Foreground = fb;
 					}
 					var run2 = new Emoji.Wpf.EmojiInline() {
+						Foreground = new SolidColorBrush(Colors.Black),
 						Text = text.Substring(m.Index, m.Length),
 						FontSize = tb.FontSize,
 						ToolTip = toolTip,

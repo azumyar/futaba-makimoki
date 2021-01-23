@@ -35,6 +35,26 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		private static readonly Encoding FutabaEncoding = Encoding.GetEncoding("Shift_JIS");
 
 		private static RestClient CreateRestClient(string baseUrl) {
+			/* 一旦お蔵入り
+			var m = Regex.Match(baseUrl, @"^(https?://)([^/]+)(/.*)$");
+			if(m.Success) {
+				try {
+					var p = m.Groups[1].Value;
+					var h = m.Groups[2].Value;
+					var b = m.Groups[3].Value;
+					var ip = System.Net.Dns.GetHostEntry(h)?.AddressList
+						?.Where(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
+						.FirstOrDefault();
+					if(ip != null) {
+						return new RestClient($"{ p }{ ip }{ b }") {
+							UserAgent = Config.ConfigLoader.InitializedSetting.RestUserAgent,
+							BaseHost = h,
+						};
+					}
+				}
+				catch(System.Net.Sockets.SocketException) { }
+			}
+			*/
 			return new RestClient(baseUrl) {
 				UserAgent = Config.ConfigLoader.InitializedSetting.RestUserAgent,
 			};
@@ -372,7 +392,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			r.AddParameter("js", "on", ParameterType.GetOrPost);
 			r.AddParameter("scsz", "1024x768x24", ParameterType.GetOrPost);
 			r.AddParameter("chrenc", "文字", ParameterType.GetOrPost);
-			if(bord.Extra?.NameValue ?? true) {
+			if(bord.Extra?.Name ?? true) {
 				r.AddParameter("name", name, ParameterType.GetOrPost);
 				r.AddParameter("sub", subject, ParameterType.GetOrPost);
 			}
@@ -387,7 +407,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				}
 			} else {
 				r.AddParameter("resto", threadNo, ParameterType.GetOrPost);
-				if(bord.Extra?.ResImageValue ?? true) {
+				if(bord.Extra?.ResImage ?? true) {
 					r.AddParameter("textonly", string.IsNullOrWhiteSpace(filePath) ? "on" : "", ParameterType.GetOrPost);
 					if(!string.IsNullOrWhiteSpace(filePath)) {
 						if(Config.ConfigLoader.MimeFutaba.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {

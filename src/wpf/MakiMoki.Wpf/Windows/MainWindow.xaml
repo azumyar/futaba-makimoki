@@ -8,6 +8,7 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+        xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows"
         xmlns:model="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Model"
         xmlns:control="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
@@ -23,6 +24,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/TabButton.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
             <converter:TabItemWidthConverter x:Key="TabItemWidthConverter"/>
@@ -269,14 +271,9 @@
                                         ClipToBounds="True"/>
                                     <Button
                                         Grid.Row="1"
-                                        Width="24"
-                                        Height="24"
-                                        Background="Transparent"
-                                        BorderBrush="Transparent"
+                                        Style="{StaticResource TabCloseButton}"
+                                        Background="{Binding Background, Mode=OneWay, ElementName=TabItemBorder}"
                                         Visibility="Collapsed">
-                                        <TextBlock>
-                                           ✖
-                                        </TextBlock>
                                         <i:Interaction.Triggers>
                                             <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="False">
                                                 <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
@@ -519,7 +516,7 @@
                 <!-- LightBlue 500 -->
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                <Setter Property="Margin" Value="0 2 0 0" />
+                <Setter Property="Margin" Value="0 4 0 0" />
                 <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
                 <Setter Property="Template">
                     <Setter.Value>
@@ -533,7 +530,7 @@
                                 Padding="{TemplateBinding Padding}"
                                 MinWidth="36"
                                 MaxWidth="164"
-                                Height="28"
+                                Height="32"
                                 VerticalAlignment="Bottom"
                                 >
                                 <Border.Width>
@@ -559,14 +556,9 @@
                                         ClipToBounds="True"/>
                                     <Button
                                         Grid.Column="1"
-                                        Width="24"
-                                        Height="24"
-                                        Background="Transparent"
-                                        BorderBrush="Transparent"
+                                        Style="{StaticResource TabCloseButton}"
+                                        Background="{Binding Background, Mode=OneWay, ElementName=TabItemBorder}"
                                         Visibility="Collapsed">
-                                        <TextBlock>
-                                           ✖
-                                        </TextBlock>
                                         <i:Interaction.Triggers>
                                             <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="False">
                                                 <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
@@ -866,8 +858,10 @@
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock
+                                            <emoji:TextBlock
                                                 Grid.Column="2"
+                                                IsHitTestVisible="False"
+                                                ColorBlend="False"
                                                 Text="{Binding Name, Mode=OneWay}"
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Bottom"/>
@@ -920,7 +914,9 @@
                 Padding="0">
                 <TabControl.ItemTemplate>
                     <DataTemplate>
-                        <Grid Tag="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}">
+                        <Grid
+                            Background="Transparent"
+                            Tag="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}">
                             <Grid.ContextMenu>
                                 <ContextMenu Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                     <MenuItem
@@ -952,8 +948,10 @@
                                 </ContextMenu>
                             </Grid.ContextMenu>
 
-                            <TextBlock
+                            <emoji:TextBlock
                                 Grid.Column="1"
+                                ColorBlend="False"
+                                IsHitTestVisible="False"
                                 Text="{Binding Name.Value, Mode=OneWay}"
                                 TextTrimming="CharacterEllipsis"
                                 TextWrapping="NoWrap"
@@ -962,7 +960,7 @@
                                 <TextBlock.LayoutTransform>
                                     <RotateTransform Angle="90"/>
                                 </TextBlock.LayoutTransform>
-                            </TextBlock>
+                            </emoji:TextBlock>
                         </Grid>
                     </DataTemplate>
                 </TabControl.ItemTemplate>
@@ -982,7 +980,9 @@
 
                             <TabControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Tag="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}">
+                                    <Grid
+                                        Background="Transparent"
+                                        Tag="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}">
                                         <Grid.Opacity>
                                             <MultiBinding Converter="{StaticResource ThreadDieOpacityConverter}" Mode="OneWay">
                                                 <MultiBinding.Bindings>
@@ -1072,7 +1072,12 @@
                                                 <SolidColorBrush Color="{DynamicResource WindowThreadTabNewColor}" />
                                             </Ellipse.Fill>
                                         </Ellipse>
-                                        <TextBlock Grid.Column="1" Text="{Binding Name.Value, Mode=OneWay}" VerticalAlignment="Center" Margin="4 0 4 0" />
+                                        <emoji:TextBlock
+                                            Grid.Column="1"
+                                            ColorBlend="False"
+                                            IsHitTestVisible="False"
+                                            Text="{Binding Name.Value, Mode=OneWay}"
+                                            VerticalAlignment="Center" Margin="4 0 4 0" />
                                     </Grid>
                                 </DataTemplate>
                             </TabControl.ItemTemplate>
@@ -1130,9 +1135,11 @@
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="4" />
                                 </Grid.RowDefinitions>
-                                <TextBlock 
+                                <emoji:TextBlock 
                                     Grid.Column="1" Grid.Row="1"
                                     FontSize="12"
+                                    ColorBlend="False"
+                                    IsHitTestVisible="False"
                                     Text="{Binding Message, Mode=OneWay}"
                                     TextWrapping="Wrap" />
                             </Grid>

@@ -710,8 +710,10 @@
                                     </Grid.RowDefinitions>
 
                                     <local:FutabaResBlock
+                                        x:Name="CommentBlock"
                                         Grid.Column="0" Grid.Row="0"
                                         MaxWidth="1024"
+                                        Visibility="Collapsed"
                                         >
                                         <local:FutabaResBlock.Resources>
                                             <!-- 見つからないと言われることがあるのでリソースに置く -->
@@ -736,8 +738,8 @@
                                         <local:FutabaResBlock.Foreground>
                                             <SolidColorBrush>
                                                 <SolidColorBrush.Color>
-                                                    <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}">
-                                                        <Binding Path="Background" RelativeSource="{RelativeSource FindAncestor, AncestorType=Grid}" />
+                                                    <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}" Mode="OneWay">
+                                                        <Binding Path="Background.Color" ElementName="viewGrid" />
                                                         <Binding Path="DataContext" Source="{StaticResource StyleTypeGetter}" />
                                                         <Binding Path="DataContext" Source="{StaticResource WhiteColorGetter}" />
                                                         <Binding Path="DataContext" Source="{StaticResource BlackColorGetter}" />
@@ -945,6 +947,13 @@
                                     </StackPanel>
 
                                     <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Loaded">
+                                            <i:ChangePropertyAction
+                                                TargetName="CommentBlock"
+                                                PropertyName="Visibility"
+                                                Value="Visible" />
+                                        </i:EventTrigger>
+
                                         <i:EventTrigger EventName="MouseEnter">
                                             <i:ChangePropertyAction PropertyName="Visibility" TargetName="copyButton" Value="Visible" />
                                         </i:EventTrigger>

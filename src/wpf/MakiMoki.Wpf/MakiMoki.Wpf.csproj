@@ -46,16 +46,10 @@
     <ApplicationIcon>App.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Lib\arm64\libwebp.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Config.d\windows.exe.json.sample">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Config.d\makimoki.bord.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <EmbeddedResource Include="WpfConfig\windows.makimoki.json" />
@@ -68,16 +62,16 @@
     <ProjectReference Include="..\MakiMoki.Wpf.Canvas98\MakiMoki.Wpf.Canvas98.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Emoji.Wpf" Version="0.1.8" />
+    <PackageReference Include="Emoji.Wpf" Version="0.2.1" />
     <PackageReference Include="LibVLCSharp.WPF" Version="3.4.9" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.31" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Prism.Unity" Version="7.2.0.1422" />
-    <PackageReference Include="ReactiveProperty" Version="7.6.0" />
-    <PackageReference Include="ReactiveProperty.WPF" Version="7.6.0" />
+    <PackageReference Include="ReactiveProperty" Version="7.6.1" />
+    <PackageReference Include="ReactiveProperty.WPF" Version="7.6.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.11" />
+    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.12" />
     <PackageReference Include="VirtualizingWrapPanel" Version="1.5.3" />
     <PackageReference Include="WpfAnimatedGif" Version="2.0.0" />
   </ItemGroup>
@@ -85,6 +79,9 @@
     <Resource Include="App.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Config.d\makimoki.board.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Lib\x64\libwebp.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -149,5 +146,10 @@
     <TrimmerRootAssembly Include="System.Net.Security" />
     <TrimmerRootAssembly Include="System.Security" />
     <TrimmerRootAssembly Include="System.Runtime" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Resources\Xaml\TabButton.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
   </ItemGroup>
 </Project>

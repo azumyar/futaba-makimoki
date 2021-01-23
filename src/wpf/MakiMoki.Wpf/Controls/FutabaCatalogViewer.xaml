@@ -237,7 +237,7 @@
                                         <SolidColorBrush>
                                             <SolidColorBrush.Color>
                                                 <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}">
-                                                    <Binding Path="Background" RelativeSource="{RelativeSource FindAncestor, AncestorType=Button}" />
+                                                    <Binding Path="Background.Color" RelativeSource="{RelativeSource FindAncestor, AncestorType=Button}" />
                                                     <Binding Path="DataContext" ElementName="StyleTypeGetter" />
                                                     <Binding Path="DataContext" ElementName="WhiteColorGetter" />
                                                     <Binding Path="DataContext" ElementName="BlackColorGetter" />
@@ -578,7 +578,7 @@
                                         <SolidColorBrush>
                                             <SolidColorBrush.Color>
                                                 <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}">
-                                                    <Binding Path="Background" RelativeSource="{RelativeSource FindAncestor, AncestorType=Button}" />
+                                                    <Binding Path="Background.Color" RelativeSource="{RelativeSource FindAncestor, AncestorType=Button}" />
                                                     <Binding Path="DataContext" ElementName="StyleTypeGetter" />
                                                     <Binding Path="DataContext" ElementName="WhiteColorGetter" />
                                                     <Binding Path="DataContext" ElementName="BlackColorGetter" />

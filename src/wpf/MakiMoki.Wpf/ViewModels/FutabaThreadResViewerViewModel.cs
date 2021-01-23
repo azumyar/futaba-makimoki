@@ -459,7 +459,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			var sb = new StringBuilder()
 				.Append("No.")
 				.Append(item.Raw.Value.ResItem.No);
-			if(item.Bord.Value.Extra?.NameValue ?? true) {
+			if(item.Bord.Value.Extra?.Name ?? true) {
 				sb.Append(" ")
 					.Append(item.Raw.Value.ResItem.Res.Sub)
 					.Append(" ")

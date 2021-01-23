@@ -164,24 +164,6 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				ResTegaki = resTegaki,
 			};
 		}
-
-		[JsonIgnore]
-		public bool NameValue => Name;
-
-		[JsonIgnore]
-		public bool ResImageValue => ResImage;
-
-		[JsonIgnore]
-		public bool MailIpValue => MailIp;
-
-		[JsonIgnore]
-		public bool MailIdValue => MailId;
-
-		[JsonIgnore]
-		public bool AlwaysIpValue => AlwaysIp;
-
-		[JsonIgnore]
-		public bool AlwaysIdValue => AlwaysId;
 	}
 
 	public class MimeConfig : ConfigObject {

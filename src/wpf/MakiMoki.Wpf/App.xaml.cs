@@ -24,10 +24,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 	public partial class App : PrismApplication {
 		private static readonly string ExeConfig = "windows.exe.json";
 
+		public static System.Net.Http.HttpClient HttpClient  { get; }
+
 		static App() {
 #if CANARY
 #warning カナリアビルド設定です
 #endif
+			HttpClient = new System.Net.Http.HttpClient();
+			HttpClient.DefaultRequestHeaders.Add(
+				"User-Agent",
+				WpfUtil.PlatformUtil.GetContentType());
+
 			System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 		}
 
@@ -117,7 +124,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					WorkDirectory = AppWorkDirectory,
 					AppCenterSecrets = AppCenterSecrets,
 				});
-				Util.Futaba.Initialize();
+				Util.Futaba.Initialize(HttpClient);
 				Ng.NgConfig.NgConfigLoader.Initialize(new Ng.NgConfig.NgConfigLoader.Setting() {
 					UserDirectory = UserConfigDirectory,
 				});
@@ -144,8 +151,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				Environment.Exit(1);
 			}
 
-			//Util.TaskUtil.Initialize();
-			WpfConfig.WpfConfigLoader.Style.Validate();
+			{
+				var v = WpfConfig.WpfConfigLoader.Style.Validate();
+				if(!v.Successed) {
+					MessageBox.Show(v.ErrorText, "初期化エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+					Environment.Exit(1);
+				}
+			}
 			ApplyStyle();
 			PlatformUtil.RemoveOldCache(AppCacheDirectory);
 			//WpfConfig.WpfConfigLoader.AddSystemConfigUpdateNotifyer(systemUpdateAction = (x) => ApplyStyle());

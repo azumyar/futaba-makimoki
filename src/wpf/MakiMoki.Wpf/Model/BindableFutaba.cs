@@ -370,16 +370,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.PostIdOptionVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
 			} else {
 				this.PostNameVisibility = new ReactiveProperty<Visibility>(
-					(bord.Extra.NameValue) ? Visibility.Visible : Visibility.Collapsed);
+					(bord.Extra.Name) ? Visibility.Visible : Visibility.Collapsed);
 				if(futaba.Url.IsCatalogUrl) {
 					this.PostImageVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
 					this.PostIpOptionVisibility = new ReactiveProperty<Visibility>(
-						bord.Extra.MailIpValue ? Visibility.Visible : Visibility.Collapsed);
+						bord.Extra.MailIp ? Visibility.Visible : Visibility.Collapsed);
 					this.PostIdOptionVisibility = new ReactiveProperty<Visibility>(
-						bord.Extra.MailIdValue ? Visibility.Visible : Visibility.Collapsed);
+						bord.Extra.MailId ? Visibility.Visible : Visibility.Collapsed);
 				} else {
 					this.PostImageVisibility = new ReactiveProperty<Visibility>(
-						bord.Extra.ResImageValue ? Visibility.Visible : Visibility.Collapsed);
+						bord.Extra.ResImage ? Visibility.Visible : Visibility.Collapsed);
 					this.PostIpOptionVisibility = new ReactiveProperty<Visibility>(Visibility.Collapsed);
 					this.PostIdOptionVisibility = new ReactiveProperty<Visibility>(Visibility.Collapsed);
 				}
@@ -528,7 +528,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					using(var sf = new FileStream(sfd.FileName, fm)) {
 						Util.ExportUtil.ExportHtml(sf,
 							new Data.ExportHolder(
-								this.Raw.Bord.Name, this.Raw.Bord.Extra.NameValue,
+								this.Raw.Bord.Name, this.Raw.Bord.Extra.Name,
 								this.ResItems.Select(x => {
 									var ngRes = x.IsHidden.Value || x.IsNg.Value;
 									var ngImage = !object.ReferenceEquals(x.ThumbSource.Value, x.OriginSource.Value)
@@ -665,7 +665,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ThreadResNo = new ReactiveProperty<string>(item.ResItem.No);
 			this.Raw = new ReactiveProperty<Data.FutabaContext.Item>(item);
 			this.NameVisibility = new ReactiveProperty<Visibility>(
-				(bord.Extra ?? new Data.BoardDataExtra()).NameValue ? Visibility.Visible : Visibility.Collapsed);
+				(bord.Extra ?? new Data.BoardDataExtra()).Name ? Visibility.Visible : Visibility.Collapsed);
 			this.ThumbSource = new ReactiveProperty<BitmapSource>();
 			this.OriginSource = new ReactiveProperty<BitmapSource>();
 			this.ThumbHash = new ReactiveProperty<ulong?>();
@@ -746,7 +746,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			{
 				var sb = new StringBuilder()
 					.Append(Index.Value);
-				if(Bord.Value.Extra?.NameValue ?? true) {
+				if(Bord.Value.Extra?.Name ?? true) {
 					sb.Append($" {Raw.Value.ResItem.Res.Sub} {Raw.Value.ResItem.Res.Name}");
 				}
 				if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Email)) {
@@ -773,7 +773,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$", "$1"));
 				var bmp = WpfUtil.ImageUtil.GetImageCache(
 					Util.Futaba.GetThumbImageLocalFilePath(item.Url, item.ResItem.Res));
-				if(bmp != null) {
+				if((bmp != null) && Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
 					void work() {
 						this.SetThumbSource(bmp);
 						if(this.Raw.Value.Url.IsCatalogUrl

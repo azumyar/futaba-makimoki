@@ -42,13 +42,40 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public TabItem(Data.FutabaContext f) {
 			this.Url = f.Url;
-			this.Name = new ReactiveProperty<string>(
-				string.IsNullOrWhiteSpace(this.Url.ThreadNo)
-					? Config.ConfigLoader.Board.Boards.Where(x => x.Url == this.Url.BaseUrl).FirstOrDefault()?.Name
-						: "No." + this.Url.ThreadNo);
+			this.ThumbSource = new ReactiveProperty<ImageSource>();
 			this.Futaba = new ReactiveProperty<BindableFutaba>(new BindableFutaba(f));
-			this.Futaba.Subscribe(x => this.Name.Value = x.Name);
-			this.ThumbSource = WpfUtil.ImageUtil.ToThumbProperty(this.Futaba);
+			this.Name = this.Futaba
+				.Select(x => {
+					if(this.Url.IsCatalogUrl) {
+						return Config.ConfigLoader.Board.Boards
+							.Where(x => x.Url == this.Url.BaseUrl)
+							.FirstOrDefault()?.Name ?? "";
+					} else {
+						return string.IsNullOrEmpty(x?.Name) ? $"No.{ this.Url.ThreadNo }" : x.Name;
+					}
+				}).ToReactiveProperty();
+			this.Futaba.Subscribe(x => {
+				var res = x?.ResItems.FirstOrDefault();
+				if(res == null) {
+					this.ThumbSource.Value = null;
+					return;
+				}
+
+				if(res.ThumbSource.Value != null) {
+					this.ThumbSource.Value = res.ThumbSource.Value;
+				}
+
+				if(res.Raw.Value.ResItem.Res.Fsize == 0) {
+					return;
+				}
+
+				Util.Futaba.GetThumbImage(this.Url, res.Raw.Value.ResItem.Res)
+					.Select(x => x.Successed ? WpfUtil.ImageUtil.LoadImage(x.LocalPath, x.FileBytes) : null)
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(x => {
+						this.ThumbSource.Value = x;
+					});
+			});
 			this.ThumbVisibility = this.ThumbSource
 				.Select(x => (x != null) ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
