@@ -12,7 +12,8 @@ namespace Yarukizero.Net.MakiMoki.Config {
 	public static partial class ConfigLoader {
 		internal static readonly string MakiMokiConfigFile = "makimoki.json";
 		internal static readonly string MakiMokiOptoutConfigFile = "makimoki.optout.json";
-		internal static readonly string BoardConfigFile = "makimoki.bord.json";
+		internal static readonly string BoardConfigFileOld = "makimoki.bord.json";
+		internal static readonly string BoardConfigFile = "makimoki.board.json";
 		internal static readonly string MimeFutabaConfigFile = "mime-futaba.json";
 		internal static readonly string MimeUp2ConfigFile = "mime-up2.json";
 		internal static readonly string UploderConfigFile = "uploder.json";
@@ -78,6 +79,20 @@ namespace Yarukizero.Net.MakiMoki.Config {
 
 			foreach(var confDir in new string[] { setting.SystemDirectory, setting.UserDirectory }) {
 				if(confDir != null) {
+					{
+						var src = Path.Combine(confDir, BoardConfigFileOld);
+						var dst = Path.Combine(confDir, BoardConfigFile);
+						if(File.Exists(src) && !File.Exists(dst)) {
+							try {
+								File.Move(src, dst);
+							}
+							catch(IOException e) {
+								new Exceptions.InitializeFailedException(
+									$"ファイルの移動に失敗しました{ Environment.NewLine }{ dst }", e);
+							}
+						}
+					}
+
 					MakiMoki = Util.FileUtil.LoadMigrate(
 						Path.Combine(confDir, MakiMokiConfigFile),
 						MakiMoki,

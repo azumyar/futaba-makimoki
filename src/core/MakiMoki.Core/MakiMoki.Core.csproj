@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Config\makimoki.bord.json" />
+    <None Remove="Config\makimoki.board.json" />
     <None Remove="Config\makimoki.json" />
     <None Remove="Config\makimoki.optout.json" />
     <None Remove="Config\mime-futaba.json" />
@@ -29,7 +29,7 @@
     <EmbeddedResource Include="Config\uploder.json" />
     <EmbeddedResource Include="Config\makimoki.json" />
     <EmbeddedResource Include="Config\mime-futaba.json" />
-    <EmbeddedResource Include="Config\makimoki.bord.json" />
+    <EmbeddedResource Include="Config\makimoki.board.json" />
   </ItemGroup>
 
   <ItemGroup>

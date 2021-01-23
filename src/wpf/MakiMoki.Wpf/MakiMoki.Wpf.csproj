@@ -46,16 +46,10 @@
     <ApplicationIcon>App.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Lib\arm64\libwebp.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Config.d\windows.exe.json.sample">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Config.d\makimoki.bord.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <EmbeddedResource Include="WpfConfig\windows.makimoki.json" />
@@ -85,6 +79,9 @@
     <Resource Include="App.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Config.d\makimoki.board.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Lib\x64\libwebp.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
