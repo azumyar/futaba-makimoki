@@ -52,7 +52,7 @@ jobs:
         echo "VERSION=$v" | Add-Content -Path $env:GITHUB_ENV
         echo "App_Center_Version=$b" | Add-Content -Path $env:GITHUB_ENV
         echo "build version for $b($v)"
-      if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
+      if: ${{ startsWith(github.ref,'refs/tags/period-') }}
 
     - name: get config version(Canary)
       run: |
@@ -65,7 +65,7 @@ jobs:
         echo "VERSION=$v" | Add-Content -Path $env:GITHUB_ENV
         echo "App_Center_Version=$b" | Add-Content -Path $env:GITHUB_ENV
         echo "build version for $b($v)"
-      if: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' }}
+      if: ${{ !startsWith(github.ref,'refs/tags/period-') }}
 
     - name: Put AppCenter Secrets
       run: |
