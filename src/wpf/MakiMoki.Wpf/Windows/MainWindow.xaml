@@ -8,6 +8,7 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+        xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows"
         xmlns:model="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Model"
         xmlns:control="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
@@ -857,8 +858,9 @@
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock
+                                            <emoji:TextBlock
                                                 Grid.Column="2"
+                                                ColorBlend="False"
                                                 Text="{Binding Name, Mode=OneWay}"
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Bottom"/>
@@ -943,8 +945,9 @@
                                 </ContextMenu>
                             </Grid.ContextMenu>
 
-                            <TextBlock
+                            <emoji:TextBlock
                                 Grid.Column="1"
+                                ColorBlend="False"
                                 Text="{Binding Name.Value, Mode=OneWay}"
                                 TextTrimming="CharacterEllipsis"
                                 TextWrapping="NoWrap"
@@ -953,7 +956,7 @@
                                 <TextBlock.LayoutTransform>
                                     <RotateTransform Angle="90"/>
                                 </TextBlock.LayoutTransform>
-                            </TextBlock>
+                            </emoji:TextBlock>
                         </Grid>
                     </DataTemplate>
                 </TabControl.ItemTemplate>
@@ -1063,7 +1066,11 @@
                                                 <SolidColorBrush Color="{DynamicResource WindowThreadTabNewColor}" />
                                             </Ellipse.Fill>
                                         </Ellipse>
-                                        <TextBlock Grid.Column="1" Text="{Binding Name.Value, Mode=OneWay}" VerticalAlignment="Center" Margin="4 0 4 0" />
+                                        <emoji:TextBlock
+                                            Grid.Column="1"
+                                            ColorBlend="False"
+                                            Text="{Binding Name.Value, Mode=OneWay}"
+                                            VerticalAlignment="Center" Margin="4 0 4 0" />
                                     </Grid>
                                 </DataTemplate>
                             </TabControl.ItemTemplate>
@@ -1121,9 +1128,10 @@
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="4" />
                                 </Grid.RowDefinitions>
-                                <TextBlock 
+                                <emoji:TextBlock 
                                     Grid.Column="1" Grid.Row="1"
                                     FontSize="12"
+                                    ColorBlend="False"
                                     Text="{Binding Message, Mode=OneWay}"
                                     TextWrapping="Wrap" />
                             </Grid>
