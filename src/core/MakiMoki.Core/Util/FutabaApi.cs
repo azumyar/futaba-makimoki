@@ -392,7 +392,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			r.AddParameter("js", "on", ParameterType.GetOrPost);
 			r.AddParameter("scsz", "1024x768x24", ParameterType.GetOrPost);
 			r.AddParameter("chrenc", "文字", ParameterType.GetOrPost);
-			if(bord.Extra?.NameValue ?? true) {
+			if(bord.Extra?.Name ?? true) {
 				r.AddParameter("name", name, ParameterType.GetOrPost);
 				r.AddParameter("sub", subject, ParameterType.GetOrPost);
 			}
@@ -407,7 +407,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				}
 			} else {
 				r.AddParameter("resto", threadNo, ParameterType.GetOrPost);
-				if(bord.Extra?.ResImageValue ?? true) {
+				if(bord.Extra?.ResImage ?? true) {
 					r.AddParameter("textonly", string.IsNullOrWhiteSpace(filePath) ? "on" : "", ParameterType.GetOrPost);
 					if(!string.IsNullOrWhiteSpace(filePath)) {
 						if(Config.ConfigLoader.MimeFutaba.MimeTypes.TryGetValue(Path.GetExtension(filePath).ToLower(), out var m)) {

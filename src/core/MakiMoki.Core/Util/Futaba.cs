@@ -422,10 +422,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							}
 							var com = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > blockquote", threadNo))?.InnerHtml ?? "";
 							// 常時IP/ID表示の板はJSONのidが常に空なので破棄する
-							if(!string.IsNullOrEmpty(ip) && bord.Extra.AlwaysIpValue) {
+							if(!string.IsNullOrEmpty(ip) && bord.Extra.AlwaysIp) {
 								ip = "";
 							}
-							if(!string.IsNullOrEmpty(id) && bord.Extra.AlwaysIdValue) {
+							if(!string.IsNullOrEmpty(id) && bord.Extra.AlwaysId) {
 								time = time + " " + id;
 								id = "";
 							}

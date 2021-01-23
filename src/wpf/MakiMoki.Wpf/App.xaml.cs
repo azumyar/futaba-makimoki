@@ -146,8 +146,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				Environment.Exit(1);
 			}
 
-			//Util.TaskUtil.Initialize();
-			WpfConfig.WpfConfigLoader.Style.Validate();
+			{
+				var v = WpfConfig.WpfConfigLoader.Style.Validate();
+				if(!v.Successed) {
+					MessageBox.Show(v.ErrorText, "初期化エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+					Environment.Exit(1);
+				}
+			}
 			ApplyStyle();
 			PlatformUtil.RemoveOldCache(AppCacheDirectory);
 			//WpfConfig.WpfConfigLoader.AddSystemConfigUpdateNotifyer(systemUpdateAction = (x) => ApplyStyle());

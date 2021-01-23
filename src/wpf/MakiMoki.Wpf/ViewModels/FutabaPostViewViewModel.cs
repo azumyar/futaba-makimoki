@@ -391,7 +391,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private async void OnMenuItemClickPastePostImage(Model.BindableFutaba f) {
-			if(f.Raw.Url.IsThreadUrl && !f.Raw.Bord.Extra.ResImageValue) {
+			if(f.Raw.Url.IsThreadUrl && !f.Raw.Bord.Extra.ResImage) {
 				return;
 			}
 

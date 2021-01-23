@@ -207,7 +207,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			System.Diagnostics.Debug.Assert(mail != null);
 			System.Diagnostics.Debug.Assert(password != null);
 
-			if(bord.Extra?.NameValue ?? true) {
+			if(bord.Extra?.Name ?? true) {
 				FutabaApi.SavedSubject = MakiMoki.FutabaPostSavedSubject ? subject : "";
 				FutabaApi.SavedName = MakiMoki.FutabaPostSavedName ? name : "";
 			}
