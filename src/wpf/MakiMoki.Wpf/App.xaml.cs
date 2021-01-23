@@ -24,6 +24,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 	public partial class App : PrismApplication {
 		private static readonly string ExeConfig = "windows.exe.json";
 
+		public static System.Net.Http.HttpClient HttpClient  { get; } = new System.Net.Http.HttpClient();
+
 		static App() {
 #if CANARY
 #warning カナリアビルド設定です
@@ -117,7 +119,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					WorkDirectory = AppWorkDirectory,
 					AppCenterSecrets = AppCenterSecrets,
 				});
-				Util.Futaba.Initialize();
+				Util.Futaba.Initialize(HttpClient);
 				Ng.NgConfig.NgConfigLoader.Initialize(new Ng.NgConfig.NgConfigLoader.Setting() {
 					UserDirectory = UserConfigDirectory,
 				});

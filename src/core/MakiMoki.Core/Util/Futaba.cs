@@ -4,6 +4,7 @@ using System.Text;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive;
+using System.Net.Http;
 using Reactive.Bindings;
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
@@ -17,6 +18,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 #pragma warning disable IDE0044
 		private static volatile object lockObj = new object();
 #pragma warning restore IDE0044
+
+		private static HttpClient HttpClient { get; set; }
 
 		public static ReactiveProperty<Data.FutabaContext[]> Catalog { get; private set; }
 		public static ReactiveProperty<Data.FutabaContext[]> Threads { get; private set; }
@@ -35,7 +38,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 		};
 
-		public static void Initialize() {
+		public static void Initialize(HttpClient client = null) {
+			HttpClient = client ?? new HttpClient();
 			if(Config.ConfigLoader.MakiMoki.FutabaResponseSave) {
 				Catalog = new ReactiveProperty<Data.FutabaContext[]>(
 					Config.ConfigLoader.SavedFutaba.Catalogs.Select(x => {
@@ -555,54 +559,27 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(items != null);
 
 			return Observable.Create<(bool Successed, string LocalPath, byte[] FileBytes)>(o => {
-				// 使いまわすからDisposeしちゃダメみたいだけど今のところここでしか使ってないのでDisposeしとく
-				using(var client = new System.Net.Http.HttpClient()) {
-					foreach(var item in items) {
-						var localFile = CreateLocalFileName(url.BaseUrl, item.Thumb);
-						var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
-						var uri = new Uri(url.BaseUrl);
-						var url2 = string.Format("{0}://{1}{2}", uri.Scheme, uri.Authority, item.Thumb);
-						GetUrlImage(
-							client,
-							(c, u) => {
-								var t1 = c.GetAsync(u);
-								t1.Wait();
-								var t2 = t1.Result.Content.ReadAsByteArrayAsync();
-								t2.Wait();
-								return (t1.Result.StatusCode, t2.Result);
-							},
-							url2, localPath, isAsync)
-							.Subscribe(x => o.OnNext(x));
-					}
+				foreach(var item in items) {
+					var localFile = CreateLocalFileName(url.BaseUrl, item.Thumb);
+					var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
+					var uri = new Uri(url.BaseUrl);
+					var url2 = string.Format("{0}://{1}{2}", uri.Scheme, uri.Authority, item.Thumb);
+					GetUrlImage(
+						HttpClient,
+						async (c, u) => {
+							try {
+								var t1 = await c.GetAsync(u);
+								var t2 = t1.IsSuccessStatusCode ? await t1.Content.ReadAsByteArrayAsync() : default;
+								return (true, t1.StatusCode, t2);
+							}
+							catch(HttpRequestException) {
+								return (false, default, default);
+							}
+						},
+						url2, localPath, isAsync)
+						.Subscribe(x => o.OnNext(x));
 				}
 				return System.Reactive.Disposables.Disposable.Empty;
-			});
-		}
-
-		public static Task<string> GetThumbImageAsync(Data.UrlContext url, Data.ResItem item) {
-			System.Diagnostics.Debug.Assert(url != null);
-			System.Diagnostics.Debug.Assert(item != null);
-
-			return Task.Run(() => {
-				byte[] b = null;
-				var localFile = CreateLocalFileName(url.BaseUrl, item.Thumb);
-				var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
-				if(!File.Exists(localPath)) {
-					Task<byte[]> t = FutabaApi.GetThumbImage(url.BaseUrl, item);
-					t.Wait();
-					b = t.Result;
-					if(b == null) {
-						return null;
-					}
-					// lockしたほうがいい？
-					if(!File.Exists(localPath)) {
-						using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
-							fs.Write(b, 0, b.Length);
-							fs.Flush();
-						}
-					}
-				}
-				return localPath;
 			});
 		}
 
@@ -655,7 +632,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 		private static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUrlImage<T>(
-			T client, Func<T, string, (System.Net.HttpStatusCode StatusCode, byte[] Content)> request,
+			T client, Func<T, string, (bool IsSucceeded, System.Net.HttpStatusCode StatusCode, byte[] Content)> request,
 			string url, string localPath,
 			bool isAsync = true) {
 
@@ -665,7 +642,63 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					o.OnCompleted();
 				} else {
 					var res = request(client, url);
-					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+					if(res.IsSucceeded && res.StatusCode == System.Net.HttpStatusCode.OK) {
+						Observable.Create<byte[]>(async (oo) => {
+							var b = res.Content;
+							try {
+								if(!File.Exists(localPath)) {
+									using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
+										fs.Write(b, 0, b.Length);
+										fs.Flush();
+									}
+								}
+								oo.OnNext(b);
+								oo.OnCompleted();
+								return System.Reactive.Disposables.Disposable.Empty;
+							}
+							catch(IOException e) {
+								await Task.Delay(500);
+								oo.OnError(e);
+								return System.Reactive.Disposables.Disposable.Empty;
+							}
+						}).Retry(5)
+						.Subscribe(
+							s => {
+								o.OnNext((true, localPath, s));
+								o.OnCompleted();
+							},
+							ex => {
+								o.OnNext((false, null, null));
+							});
+					} else {
+						o.OnNext((false, null, null));
+						// TODO: o.OnError();
+					}
+				}
+			};
+
+			return Observable.Create<(bool Successed, string LocalPath, byte[] FileBytes)>(o => {
+				if(isAsync) {
+					Task.Run(() => run(o));
+				} else {
+					run(o);
+				}
+				return System.Reactive.Disposables.Disposable.Empty;
+			});
+		}
+
+		private static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUrlImage<T>(
+			T client, Func<T, string, Task<(bool IsSucceeded, System.Net.HttpStatusCode StatusCode, byte[] Content)>> request,
+			string url, string localPath,
+			bool isAsync = true) {
+
+			async void run(IObserver<(bool Successed, string LocalPath, byte[] FileBytes)> o) {
+				if(File.Exists(localPath)) {
+					o.OnNext((true, localPath, null));
+					o.OnCompleted();
+				} else {
+					var res = await request(client, url);
+					if(res.IsSucceeded && res.StatusCode == System.Net.HttpStatusCode.OK) {
 						Observable.Create<byte[]>(async (oo) => {
 							var b = res.Content;
 							try {
@@ -717,12 +750,28 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			Action<RestSharp.RestRequest> requestSetter = null) {
 
 			return GetUrlImage(
-				client ?? new RestSharp.RestClient(),
-				(c, u) => {
-					var r = new RestSharp.RestRequest(u, RestSharp.Method.GET);
-					requestSetter?.Invoke(r);
-					var res = c.Execute(r);
-					return (res.StatusCode, res.RawBytes);
+				HttpClient,
+				async (c, u) => {
+					try {
+						if(isAsync) {
+							var t1 = await c.GetAsync(u);
+							var t2 = t1.IsSuccessStatusCode ? await t1.Content.ReadAsByteArrayAsync() : default;
+							return (true, t1.StatusCode, t2);
+						} else {
+							var t1 = c.GetAsync(u);
+							t1.Wait();
+							if(t1.IsCompleted) {
+								var t2 = t1.Result.Content.ReadAsByteArrayAsync();
+								t2.Wait();
+								return (true, t1.Result.StatusCode, t2.Result);
+							} else {
+								return (true, t1.Result.StatusCode, default);
+							}
+						}
+					}
+					catch(HttpRequestException) {
+						return (false, default, default);
+					}
 				}, url, localPath,
 				isAsync);
 		}
