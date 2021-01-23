@@ -546,6 +546,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThumbImage(Data.UrlContext url, Data.ResItem item, bool isAsync = true) {
 			System.Diagnostics.Debug.Assert(url != null);
 			System.Diagnostics.Debug.Assert(item != null);
+			System.Diagnostics.Debug.Assert(0 < item.Fsize);
 
 			var localFile = CreateLocalFileName(url.BaseUrl, item.Thumb);
 			var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);

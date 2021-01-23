@@ -65,6 +65,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					this.ThumbSource.Value = res.ThumbSource.Value;
 				}
 
+				if(res.Raw.Value.ResItem.Res.Fsize == 0) {
+					return;
+				}
+
 				Util.Futaba.GetThumbImage(this.Url, res.Raw.Value.ResItem.Res)
 					.Select(x => x.Successed ? WpfUtil.ImageUtil.LoadImage(x.LocalPath, x.FileBytes) : null)
 					.ObserveOn(UIDispatcherScheduler.Default)
