@@ -24,12 +24,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 	public partial class App : PrismApplication {
 		private static readonly string ExeConfig = "windows.exe.json";
 
-		public static System.Net.Http.HttpClient HttpClient  { get; } = new System.Net.Http.HttpClient();
+		public static System.Net.Http.HttpClient HttpClient  { get; }
 
 		static App() {
 #if CANARY
 #warning カナリアビルド設定です
 #endif
+			HttpClient = new System.Net.Http.HttpClient();
+			HttpClient.DefaultRequestHeaders.Add(
+				"User-Agent",
+				WpfUtil.PlatformUtil.GetContentType());
+
 			System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 		}
 
