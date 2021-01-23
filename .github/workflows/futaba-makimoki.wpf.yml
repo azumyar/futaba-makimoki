@@ -52,7 +52,7 @@ jobs:
         echo "VERSION=$v" | Add-Content -Path $env:GITHUB_ENV
         echo "App_Center_Version=$b" | Add-Content -Path $env:GITHUB_ENV
         echo "build version for $b($v)"
-      if: ${{ github.repository == 'master' || github.repository == 'main' }}
+      if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
 
     - name: get config version(Canary)
       run: |
@@ -65,7 +65,7 @@ jobs:
         echo "VERSION=$v" | Add-Content -Path $env:GITHUB_ENV
         echo "App_Center_Version=$b" | Add-Content -Path $env:GITHUB_ENV
         echo "build version for $b($v)"
-      if: ${{ github.repository != 'master' && github.repository != 'main' }}
+      if: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' }}
 
     - name: Put AppCenter Secrets
       run: |
@@ -78,7 +78,7 @@ jobs:
       run: |
         echo "setup canary build"
         echo "App_Center_Group=Canary" | Add-Content -Path $env:GITHUB_ENV
-      if: ${{ github.repository != 'master' && github.repository != 'main' }}
+      if: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' }}
 
     # Install the .NET Core workload
     - name: Install .NET
