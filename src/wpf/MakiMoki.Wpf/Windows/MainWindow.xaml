@@ -914,7 +914,9 @@
                 Padding="0">
                 <TabControl.ItemTemplate>
                     <DataTemplate>
-                        <Grid Tag="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}">
+                        <Grid
+                            Background="Transparent"
+                            Tag="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}">
                             <Grid.ContextMenu>
                                 <ContextMenu Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                     <MenuItem
@@ -978,7 +980,9 @@
 
                             <TabControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Tag="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}">
+                                    <Grid
+                                        Background="Transparent"
+                                        Tag="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}">
                                         <Grid.Opacity>
                                             <MultiBinding Converter="{StaticResource ThreadDieOpacityConverter}" Mode="OneWay">
                                                 <MultiBinding.Bindings>
