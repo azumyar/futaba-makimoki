@@ -555,14 +555,25 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(items != null);
 
 			return Observable.Create<(bool Successed, string LocalPath, byte[] FileBytes)>(o => {
-				var c = new RestSharp.RestClient();
-				foreach(var item in items) {
-					var localFile = CreateLocalFileName(url.BaseUrl, item.Thumb);
-					var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
-					var uri = new Uri(url.BaseUrl);
-					var u = string.Format("{0}://{1}{2}", uri.Scheme, uri.Authority, item.Thumb);
-					GetUrlImage(u, localPath, isAsync, c)
-						.Subscribe(x => o.OnNext(x));
+				// 使いまわすからDisposeしちゃダメみたいだけど今のところここでしか使ってないのでDisposeしとく
+				using(var client = new System.Net.Http.HttpClient()) {
+					foreach(var item in items) {
+						var localFile = CreateLocalFileName(url.BaseUrl, item.Thumb);
+						var localPath = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, localFile);
+						var uri = new Uri(url.BaseUrl);
+						var url2 = string.Format("{0}://{1}{2}", uri.Scheme, uri.Authority, item.Thumb);
+						GetUrlImage(
+							client,
+							(c, u) => {
+								var t1 = c.GetAsync(u);
+								t1.Wait();
+								var t2 = t1.Result.Content.ReadAsByteArrayAsync();
+								t2.Wait();
+								return (t1.Result.StatusCode, t2.Result);
+							},
+							url2, localPath, isAsync)
+							.Subscribe(x => o.OnNext(x));
+					}
 				}
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
@@ -643,22 +654,20 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
-		private static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUrlImage(
+		private static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUrlImage<T>(
+			T client, Func<T, string, (System.Net.HttpStatusCode StatusCode, byte[] Content)> request,
 			string url, string localPath,
-			bool isAsync = true,
-			RestSharp.RestClient client = null) {
+			bool isAsync = true) {
 
 			void run(IObserver<(bool Successed, string LocalPath, byte[] FileBytes)> o) {
 				if(File.Exists(localPath)) {
 					o.OnNext((true, localPath, null));
 					o.OnCompleted();
 				} else {
-					var c = client ?? new RestSharp.RestClient();
-					var r = new RestSharp.RestRequest(url, RestSharp.Method.GET);
-					var res = c.Execute(r);
+					var res = request(client, url);
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-						Observable.Create<object>(async (oo) => {
-							var b = res.RawBytes;
+						Observable.Create<byte[]>(async (oo) => {
+							var b = res.Content;
 							try {
 								if(!File.Exists(localPath)) {
 									using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
@@ -666,7 +675,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 										fs.Flush();
 									}
 								}
-								oo.OnNext(null);
+								oo.OnNext(b);
 								oo.OnCompleted();
 								return System.Reactive.Disposables.Disposable.Empty;
 							}
@@ -678,7 +687,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						}).Retry(5)
 						.Subscribe(
 							s => {
-								o.OnNext((true, localPath, res.RawBytes));
+								o.OnNext((true, localPath, s));
 								o.OnCompleted();
 							},
 							ex => {
@@ -699,6 +708,23 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				}
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
+		}
+
+		private static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUrlImage(
+			string url, string localPath,
+			bool isAsync = true,
+			RestSharp.RestClient client = null,
+			Action<RestSharp.RestRequest> requestSetter = null) {
+
+			return GetUrlImage(
+				client ?? new RestSharp.RestClient(),
+				(c, u) => {
+					var r = new RestSharp.RestRequest(u, RestSharp.Method.GET);
+					requestSetter?.Invoke(r);
+					var res = c.Execute(r);
+					return (res.StatusCode, res.RawBytes);
+				}, url, localPath,
+				isAsync);
 		}
 
 		public static string GetThreadResImageLocalFilePath(Data.UrlContext url, Data.ResItem item) {

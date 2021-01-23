@@ -35,6 +35,26 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		private static readonly Encoding FutabaEncoding = Encoding.GetEncoding("Shift_JIS");
 
 		private static RestClient CreateRestClient(string baseUrl) {
+			/* 一旦お蔵入り
+			var m = Regex.Match(baseUrl, @"^(https?://)([^/]+)(/.*)$");
+			if(m.Success) {
+				try {
+					var p = m.Groups[1].Value;
+					var h = m.Groups[2].Value;
+					var b = m.Groups[3].Value;
+					var ip = System.Net.Dns.GetHostEntry(h)?.AddressList
+						?.Where(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
+						.FirstOrDefault();
+					if(ip != null) {
+						return new RestClient($"{ p }{ ip }{ b }") {
+							UserAgent = Config.ConfigLoader.InitializedSetting.RestUserAgent,
+							BaseHost = h,
+						};
+					}
+				}
+				catch(System.Net.Sockets.SocketException) { }
+			}
+			*/
 			return new RestClient(baseUrl) {
 				UserAgent = Config.ConfigLoader.InitializedSetting.RestUserAgent,
 			};
