@@ -23,6 +23,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/TabButton.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
             <converter:TabItemWidthConverter x:Key="TabItemWidthConverter"/>
@@ -269,14 +270,9 @@
                                         ClipToBounds="True"/>
                                     <Button
                                         Grid.Row="1"
-                                        Width="24"
-                                        Height="24"
-                                        Background="Transparent"
-                                        BorderBrush="Transparent"
+                                        Style="{StaticResource TabCloseButton}"
+                                        Background="{Binding Background, Mode=OneWay, ElementName=TabItemBorder}"
                                         Visibility="Collapsed">
-                                        <TextBlock>
-                                           ✖
-                                        </TextBlock>
                                         <i:Interaction.Triggers>
                                             <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="False">
                                                 <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
@@ -519,7 +515,7 @@
                 <!-- LightBlue 500 -->
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                <Setter Property="Margin" Value="0 2 0 0" />
+                <Setter Property="Margin" Value="0 4 0 0" />
                 <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
                 <Setter Property="Template">
                     <Setter.Value>
@@ -533,7 +529,7 @@
                                 Padding="{TemplateBinding Padding}"
                                 MinWidth="36"
                                 MaxWidth="164"
-                                Height="28"
+                                Height="32"
                                 VerticalAlignment="Bottom"
                                 >
                                 <Border.Width>
@@ -559,14 +555,9 @@
                                         ClipToBounds="True"/>
                                     <Button
                                         Grid.Column="1"
-                                        Width="24"
-                                        Height="24"
-                                        Background="Transparent"
-                                        BorderBrush="Transparent"
+                                        Style="{StaticResource TabCloseButton}"
+                                        Background="{Binding Background, Mode=OneWay, ElementName=TabItemBorder}"
                                         Visibility="Collapsed">
-                                        <TextBlock>
-                                           ✖
-                                        </TextBlock>
                                         <i:Interaction.Triggers>
                                             <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="False">
                                                 <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />

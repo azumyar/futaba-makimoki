@@ -150,4 +150,9 @@
     <TrimmerRootAssembly Include="System.Security" />
     <TrimmerRootAssembly Include="System.Runtime" />
   </ItemGroup>
+  <ItemGroup>
+    <Page Update="Resources\Xaml\TabButton.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+  </ItemGroup>
 </Project>
