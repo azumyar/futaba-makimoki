@@ -125,6 +125,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			this.Unloaded += (s, e) => {
 				if(this.isDisposed) {
 					disposable.Dispose();
+					if(this.DataContext is IDisposable d) {
+						d.Dispose();
+					}
 					isDisposed = true;
 				}
 			};
