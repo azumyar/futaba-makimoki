@@ -713,7 +713,6 @@
                                         x:Name="CommentBlock"
                                         Grid.Column="0" Grid.Row="0"
                                         MaxWidth="1024"
-                                        Visibility="Collapsed"
                                         >
                                         <local:FutabaResBlock.Resources>
                                             <!-- 見つからないと言われることがあるのでリソースに置く -->
@@ -947,12 +946,14 @@
                                     </StackPanel>
 
                                     <i:Interaction.Triggers>
+                                        <!--
                                         <i:EventTrigger EventName="Loaded">
                                             <i:ChangePropertyAction
                                                 TargetName="CommentBlock"
                                                 PropertyName="Visibility"
                                                 Value="Visible" />
                                         </i:EventTrigger>
+                                        -->
 
                                         <i:EventTrigger EventName="MouseEnter">
                                             <i:ChangePropertyAction PropertyName="Visibility" TargetName="copyButton" Value="Visible" />
