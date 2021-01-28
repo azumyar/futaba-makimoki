@@ -13,18 +13,13 @@
              mc:Ignorable="d" 
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DesignHeight="450" d:DesignWidth="800"
-             Background="#88000000"
-             Visibility="{Binding ViewVisibility.Value, Mode=OneWay}">
+             Background="#88000000">
     <UserControl.Resources>
         <ResourceDictionary>
             <converter:MediaEnumQuickSaveItemConverter x:Key="MediaEnumQuickSaveItemConverter" />
         </ResourceDictionary>
     </UserControl.Resources>
     <i:Interaction.Triggers>
-        <i:EventTrigger EventName="ContentsChanged">
-            <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
-        </i:EventTrigger>
-
         <i:EventTrigger EventName="VideoViewPlaying">
             <ri:EventToReactiveCommand Command="{Binding VideoViewPlayingCommand}" />
         </i:EventTrigger>
@@ -310,11 +305,7 @@
                     </Button.Content>
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
-                            <i:ChangePropertyAction
-                                PropertyName="Contents"
-                                TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}"
-                                Value="{x:Null}"
-                                />
+                            <ri:EventToReactiveCommand Command="{Binding CloseCommand}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </Button>
@@ -339,11 +330,7 @@
             </Button.Content>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
-                    <i:ChangePropertyAction
-                        PropertyName="Contents"
-                        TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}"
-                        Value="{x:Null}"
-                        />
+                    <ri:EventToReactiveCommand Command="{Binding CloseCommand}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </Button>

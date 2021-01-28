@@ -55,6 +55,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			InitializeComponent();
 
 			disposable = new Helpers.AutoDisposable()
+				/*
 				.Add(ViewModels.FutabaThreadResViewerViewModel.Messenger.Instance
 					.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.MediaViewerOpenMessage>>()
 					.Subscribe(x => {
@@ -62,7 +63,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 							this.Contents.MediaContents.Value = x.Media;
 						}
 					})
-				).Add(ViewModels.FutabaThreadResViewerViewModel.Messenger.Instance
+				)*/
+				.Add(ViewModels.FutabaThreadResViewerViewModel.Messenger.Instance
 					.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.ScrollResMessage>>()
 					.Subscribe(async x => {
 						if(this.Contents != null) {
@@ -96,6 +98,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				);
 
 			this.ThreadResListBox.Loaded += (s, e) => {
+				this.scrollViewerThreadRes = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.ThreadResListBox);
+#if false
 				if((this.scrollViewerThreadRes = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.ThreadResListBox)) != null) {
 					this.scrollViewerThreadRes.ScrollChanged += async (ss, arg) => {
 						if((this.Contents != null) && this.Contents.Futaba.Value.Url.IsThreadUrl) {
@@ -120,6 +124,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						}
 					};
 				}
+#endif
 			};
 
 			this.Unloaded += (s, e) => {
@@ -169,6 +174,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					e.OldValue as Model.IFutabaViewerContents,
 					e.NewValue as Model.IFutabaViewerContents,
 					ContentsChangedEvent));
+#if fasle
 				if((obj is FutabaThreadResViewer fv) && (e.NewValue is Model.IFutabaViewerContents c)) {
 					if(c.Futaba.Value.Url.IsThreadUrl) {
 						if(c.LastVisibleItem.Value != null) {
@@ -178,6 +184,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						}
 					}
 				}
+#endif
 			}
 		}
 

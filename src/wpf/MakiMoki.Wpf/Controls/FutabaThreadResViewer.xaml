@@ -17,7 +17,7 @@
              xmlns:util="clr-namespace:Yarukizero.Net.MakiMoki.Util;assembly=MakiMoki.Core"
              xmlns:c98="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls;assembly=MakiMoki.Wpf.Canvas98"
              mc:Ignorable="d" 
-             prism:RegionManager.RegionManager="{Binding RegionManager.Value, Mode=OneWay}"
+             prism:RegionManager.RegionManager="{Binding ThreadViewRegionManager.Value, Mode=OneWay}"
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
@@ -229,7 +229,7 @@
                     <Button
                         Grid.Column="3"
                         Style="{StaticResource ToolbarButton}"
-                        Content="{StaticResource ButtonIconViewerUpdate}"
+                        Content="{DynamicResource ButtonIconViewerUpdate}"
                         DataContext="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
                         Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
                         <!--
@@ -356,7 +356,7 @@
                     <Button
                         x:Name="SearchButton" Grid.Column="4"
                         Style="{StaticResource ToolbarButton}"
-                        Content="{StaticResource ButtonIconViewerSearch}"    
+                        Content="{DynamicResource ButtonIconViewerSearch}"    
                         Visibility="{Binding Contents.SearchButtonVisibility.Value, Mode=OneWay, ElementName=_this}">
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
@@ -376,7 +376,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="5" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerArrow}">
+                    <Button Grid.Column="5" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconViewerArrow}">
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                         </Button.Background>
@@ -389,7 +389,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="6" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerArrow}">
+                    <Button Grid.Column="6" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconViewerArrow}">
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                         </Button.Background>
@@ -405,7 +405,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="7" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconCanvas98}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="7" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconCanvas98}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <!--
                         <Button.Style>
                             <Style TargetType="Button">
@@ -442,7 +442,7 @@
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="8" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="8" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                         </Button.Background>
@@ -1133,12 +1133,21 @@
                     </i:Interaction.Behaviors>
                 </ListBox>
 
+                <!--
                 <local:FutabaMediaViewer
                     x:Name="MediaViewer"
                     Grid.Row="0" Grid.RowSpan="{Binding DataContext.ListBoxRowSpan.Value, Mode=OneWay, ElementName=_this}"
                     Grid.Column="0" Grid.ColumnSpan="{Binding DataContext.ListBoxColumnSpan.Value, Mode=OneWay, ElementName=_this}"
                     Contents="{Binding Contents.MediaContents.Value, ElementName=_this, Mode=TwoWay}"
                     />
+                -->
+                <ContentControl
+                    prism:RegionManager.RegionManager="{Binding ThreadViewRegionManager.Value, Mode=OneWay}"
+                    prism:RegionManager.RegionName="{Binding MediaViewerRegion.Value, Mode=OneWay}"
+                    Grid.Row="0" Grid.RowSpan="{Binding DataContext.ListBoxRowSpan.Value, Mode=OneWay, ElementName=_this}"
+                    Grid.Column="0" Grid.ColumnSpan="{Binding DataContext.ListBoxColumnSpan.Value, Mode=OneWay, ElementName=_this}"
+                    />
+
 
                 <!-- 書き込みサブウィンドウ -->
                 <local:FutabaPostView
@@ -1183,14 +1192,16 @@
                 </local:FutabaPostView>
 
                 <ContentControl
-                    prism:RegionManager.RegionName="Canvas98RightRegion"
+                    prism:RegionManager.RegionManager="{Binding ThreadViewRegionManager.Value, Mode=OneWay}"
+                    prism:RegionManager.RegionName="{Binding Canvas98RightRegion.Value, Mode=OneWay}"
                     Grid.Row="0" Grid.RowSpan="3"
                     Grid.Column="2"
                     Visibility="{Binding Canvas98RightRegionVisibility.Value, Mode=OneWay}"
                     />
 
                 <ContentControl
-                    prism:RegionManager.RegionName="Canvas98BottomRegion" 
+                    prism:RegionManager.RegionManager="{Binding ThreadViewRegionManager.Value, Mode=OneWay}"
+                    prism:RegionManager.RegionName="{Binding Canvas98BottomRegion.Value, Mode=OneWay}" 
                     Grid.Row="2"
                     Grid.Column="0" Grid.ColumnSpan="3"
                     Visibility="{Binding Canvas98BottomRegionVisibility.Value, Mode=OneWay}"
@@ -1199,7 +1210,8 @@
 
             <ContentControl
                 x:Name="Canvas98FullScreen"
-                prism:RegionManager.RegionName="Canvas98FullScreenRegion" 
+                prism:RegionManager.RegionManager="{Binding ThreadViewRegionManager.Value, Mode=OneWay}"
+                prism:RegionManager.RegionName="{Binding Canvas98FullScreenRegion.Value, Mode=OneWay}" 
                 Grid.Row="0" Grid.RowSpan="2"
                 Visibility="{Binding Canvas98FullScreenRegionVisibility.Value, Mode=OneWay}"
                 />

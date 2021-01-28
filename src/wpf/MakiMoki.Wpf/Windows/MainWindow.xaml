@@ -1085,7 +1085,13 @@
                             <TabControl.ContentTemplate>
                                 <DataTemplate>
                                     <Grid x:Name="container">
-                                        <control:FutabaThreadResViewer Contents="{Binding DataContext, Mode=OneWay, ElementName=container}" />
+                                        <control:FutabaThreadRegionContainer Contents="{Binding DataContext, Mode=OneWay, ElementName=container}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ContentsChanged">
+                                                    <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </control:FutabaThreadRegionContainer>
                                     </Grid>
                                 </DataTemplate>
                             </TabControl.ContentTemplate>

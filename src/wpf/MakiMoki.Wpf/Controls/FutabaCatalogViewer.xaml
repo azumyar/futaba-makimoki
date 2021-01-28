@@ -859,7 +859,7 @@
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="2" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerUpdate}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="2" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconViewerUpdate}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                         </Button.Background>
@@ -929,7 +929,7 @@
                         x:Name="CatalogSearchButton"
                         Grid.Column="3"
                         Style="{StaticResource ToolbarButton}"
-                        Content="{StaticResource ButtonIconViewerSearch}"
+                        Content="{DynamicResource ButtonIconViewerSearch}"
                         Visibility="{Binding Contents.SearchButtonVisibility.Value, Mode=OneWay, ElementName=_this}">
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
@@ -950,7 +950,7 @@
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Grid.Column="4" Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconCatalogSort}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="4" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconCatalogSort}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                         </Button.Background>
@@ -978,7 +978,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="5"  Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconCatalogMode}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="5"  Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconCatalogMode}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                         </Button.Background>
@@ -991,7 +991,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="6"  Style="{StaticResource ToolbarButton}" Content="{StaticResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="6"  Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                         </Button.Background>

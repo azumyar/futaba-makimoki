@@ -332,8 +332,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				}
 			}
 			//ViewModelLocationProvider.Register<Canvas98.Controls.FutabaCanvas98View, Canvas98.ViewModels.FutabaCanvas98ViewViewModel>();
+			containerRegistry.RegisterForNavigation<Controls.FutabaMediaViewer, ViewModels.FutabaMediaViewerViewModel>();
 			containerRegistry.RegisterForNavigation<Canvas98.Controls.FutabaCanvas98View, Canvas98.ViewModels.FutabaCanvas98ViewViewModel>();
 			containerRegistry.RegisterDialog<Controls.BoardEditDialog, ViewModels.BoardEditDialogViewModel>();
+
+			containerRegistry.RegisterInstance(this.Container);
 		}
 	}
 }

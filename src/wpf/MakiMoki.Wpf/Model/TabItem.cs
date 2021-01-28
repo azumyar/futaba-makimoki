@@ -40,9 +40,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Visibility> SearchButtonVisibility { get; }
 		public ReactiveProperty<GridLength> SearchColumnWidth { get; }
 
+		public ReactiveProperty<Prism.Regions.IRegion> Region { get; }
+
+		public ReactiveProperty<object> ThreadView { get; }
+
 		public TabItem(Data.FutabaContext f) {
 			this.Url = f.Url;
 			this.ThumbSource = new ReactiveProperty<ImageSource>();
+			this.Region = new ReactiveProperty<Prism.Regions.IRegion>();
+			this.ThreadView = new ReactiveProperty<object>();
 			this.Futaba = new ReactiveProperty<BindableFutaba>(new BindableFutaba(f));
 			this.Name = this.Futaba
 				.Select(x => {
@@ -89,6 +95,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		public void Dispose() {
+			if(this.Region.Value != null) {
+				this.Region.Value.Remove(this.ThreadView.Value);
+				this.ThreadView.Dispose();
+				this.Region.Value = null;
+				this.ThreadView.Value = null;
+			}
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 

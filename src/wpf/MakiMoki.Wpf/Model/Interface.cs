@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
-	public interface IFutabaViewerContents {
+	public interface IFutabaViewerContents: IDisposable {
 		ReactiveProperty<BindableFutaba> Futaba { get; }
 
 		ReactiveProperty<PlatformData.FutabaMedia> MediaContents { get; }
@@ -20,6 +20,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		ReactiveProperty<Visibility> SearchBoxVisibility { get; }
 		ReactiveProperty<Visibility> SearchButtonVisibility { get; }
 		ReactiveProperty<GridLength> SearchColumnWidth { get; }
+
+		ReactiveProperty<Prism.Regions.IRegion> Region { get; }
+		ReactiveProperty<object> ThreadView { get; }
+
 
 		void ShowSearchBox();
 		void HideSearchBox();

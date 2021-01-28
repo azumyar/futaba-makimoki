@@ -373,6 +373,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 				foreach(var rm in rl) {
 					collection.Remove(rm);
+					rm.Dispose();
 				}
 			}
 			return r;
