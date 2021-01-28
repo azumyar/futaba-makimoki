@@ -208,7 +208,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					// イベントが飛ばない
 					this.SafeRaiseEvent(new RoutedPositionEventArgs(0, VideoViewPositionChangedEvent));
 				});
-				this.VideoView.MediaPlayer.EndReached += (s, e) => this.Dispatcher.Invoke(() => {
+				this.VideoView.MediaPlayer.EndReached += (s, e) => this.Dispatcher.Invoke(async () => {
+					await Task.Delay(1); // これをいれると安定する気がする
 					this.SafeRaiseEvent(new RoutedEventArgs(VideoViewEndReachedEvent));
 					// イベントが飛ばない
 					this.SafeRaiseEvent(new RoutedPositionEventArgs(0, VideoViewPositionChangedEvent));
