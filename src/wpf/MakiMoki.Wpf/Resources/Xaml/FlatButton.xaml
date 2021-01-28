@@ -49,23 +49,8 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Border">
-                        <!--
-                        <Border.Tag>
-                            <c:Hashtable>
-                                <FrameworkElement x:Key="Background" Tag="{TemplateBinding Background}" />
-                                <FrameworkElement x:Key="StoryboardState" Tag="{x:Null}" />
-                                <system:Boolean x:Key="StoryboardState2">False</system:Boolean>
-                            </c:Hashtable>
-
-                            <x:Array Type="system:Object">
-                                <FrameworkElement Tag="{TemplateBinding Background}" />
-                                <FrameworkElement Tag="{x:Null}" />
-                            </x:Array>
-                        </Border.Tag>
-                            -->
-                            <!-- Background="{TemplateBinding Background}"-->
                         <Border.Background>
-                            <SolidColorBrush Color="{Binding Background.Color, RelativeSource={RelativeSource FindAncestor, AncestorType=Button}}" />
+                            <SolidColorBrush Color="{Binding Background.Color, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=Button}}" />
                         </Border.Background>
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
@@ -75,23 +60,6 @@
                                     <Storyboard>
                                         <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" Storyboard.TargetName="Border">
                                             <EasingColorKeyFrame KeyTime="0:0:0.25" Value="{DynamicResource ViewerPrimaryColor}" />
-                                            <i:Interaction.Triggers>
-                                                <!--
-                                                <i:EventTrigger EventName="Changed">
-                                                    <i:ChangePropertyAction
-                                                        TargetName="Border"
-                                                        PropertyName="Tag"
-                                                        Value="True"
-                                                        />
-                                                </i:EventTrigger>
-                                                <i:EventTrigger EventName="Completed">
-                                                    <i:ChangePropertyAction
-                                                        TargetObject="{Binding Tag, ElementName=Border}"
-                                                        Value="False"
-                                                        />
-                                                </i:EventTrigger>
-                                                -->
-                                            </i:Interaction.Triggers>
                                         </ColorAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </VisualState>
@@ -114,21 +82,29 @@
 
                         <Grid>
                             <FrameworkElement 
-                x:Name="BackgroundGetter"
-                Visibility="Collapsed"
-                DataContext="{TemplateBinding Background}" />
+                                x:Name="BackgroundGetter"
+                                Visibility="Collapsed"
+                                DataContext="{TemplateBinding Background}" />
                             <FrameworkElement 
-                x:Name="StyleTypeGetter"
-                Visibility="Collapsed"
-                DataContext="{DynamicResource StyleType}" />
+                                x:Name="BackgroundOverGetter"
+                                Visibility="Collapsed"
+                                DataContext="{DynamicResource ViewerPrimaryColor}" />
                             <FrameworkElement 
-                x:Name="WhiteColorGetter"
-                Visibility="Collapsed"
-                DataContext="{DynamicResource ViewerBackgroundColor}" />
+                                x:Name="BackgroundPressGetter"
+                                Visibility="Collapsed"
+                                DataContext="{DynamicResource ViewerPrimaryDarkColor}" />
                             <FrameworkElement 
-                x:Name="BlackColorGetter"
-                Visibility="Collapsed"
-                DataContext="{DynamicResource ViewerForegroundColor}" />
+                                x:Name="StyleTypeGetter"
+                                Visibility="Collapsed"
+                                DataContext="{DynamicResource StyleType}" />
+                            <FrameworkElement 
+                                x:Name="WhiteColorGetter"
+                                Visibility="Collapsed"
+                                DataContext="{DynamicResource ViewerBackgroundColor}" />
+                            <FrameworkElement 
+                                x:Name="BlackColorGetter"
+                                Visibility="Collapsed"
+                                DataContext="{DynamicResource ViewerForegroundColor}" />
 
                             <!--
                         <ContentPresenter
@@ -140,13 +116,13 @@
                             />
                         -->
                             <ContentControl
-                            Content="{TemplateBinding Content}"
-                            Width="{TemplateBinding Width}"
-                            Height="{TemplateBinding Height}"
-                            Margin="{TemplateBinding Margin}"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            >
+                                Content="{TemplateBinding Content}"
+                                Width="{TemplateBinding Width}"
+                                Height="{TemplateBinding Height}"
+                                Margin="{TemplateBinding Margin}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                >
                                 <ContentControl.Foreground>
                                     <SolidColorBrush>
                                         <SolidColorBrush.Color>
@@ -162,6 +138,8 @@
                                                 <Binding Path="DataContext" Source="{StaticResource BlackColorGetter}" />
                                                 -->
                                                 <Binding Path="DataContext.Color" ElementName="BackgroundGetter" />
+                                                <Binding Path="DataContext.Color" ElementName="BackgroundOverGetter" />
+                                                <Binding Path="DataContext.Color" ElementName="BackgroundPressGetter" />
                                                 <Binding ElementName="Border" />
                                                 <Binding ElementName="CommonStates" />
                                             </MultiBinding>
@@ -174,7 +152,6 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-
     </Style>
 
     <Style x:Key="ToolbarButtonHarf" TargetType="Button">

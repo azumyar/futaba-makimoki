@@ -23,9 +23,9 @@
                         Width="{TemplateBinding Width}" Height="{TemplateBinding Height}"
                         BorderThickness="0"
                         BorderBrush="Transparent"
-                        Background="TransParent">
+                        Background="Transparent">
                         <Border.Tag>
-                            <SolidColorBrush Color="{Binding Background.Color, RelativeSource={RelativeSource FindAncestor, AncestorType=Button}}" />
+                            <SolidColorBrush Color="{Binding Background.Color, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=Button}}" />
                         </Border.Tag>
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
@@ -62,6 +62,14 @@
                                     Visibility="Collapsed"
                                     DataContext="{TemplateBinding Background}" />
                                 <FrameworkElement 
+                                    x:Name="BackgroundOverGetter"
+                                    Visibility="Collapsed"
+                                    DataContext="{DynamicResource ViewerPrimaryColor}" />
+                                <FrameworkElement 
+                                    x:Name="BackgroundPressGetter"
+                                    Visibility="Collapsed"
+                                    DataContext="{DynamicResource ViewerPrimaryDarkColor}" />
+                                <FrameworkElement 
                                     x:Name="StyleTypeGetter"
                                     Visibility="Collapsed"
                                     DataContext="{DynamicResource StyleType}" />
@@ -85,13 +93,15 @@
                                         <SolidColorBrush>
                                             <SolidColorBrush.Color>
                                                 <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}">
-                                                    <Binding Path="Background.Color" ElementName="Border" />
+                                                    <Binding Path="Tag.Color" ElementName="Border" />
 
                                                     <Binding Path="DataContext" ElementName="StyleTypeGetter" />
                                                     <Binding Path="DataContext" ElementName="WhiteColorGetter" />
                                                     <Binding Path="DataContext" ElementName="BlackColorGetter" />
 
                                                     <Binding Path="DataContext.Color" ElementName="BackgroundGetter" />
+                                                    <Binding Path="DataContext.Color" ElementName="BackgroundOverGetter" />
+                                                    <Binding Path="DataContext.Color" ElementName="BackgroundPressGetter" />
                                                     <Binding ElementName="Border" />
                                                     <Binding ElementName="CommonStates" />
                                                 </MultiBinding>
