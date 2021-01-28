@@ -494,12 +494,12 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" MinWidth="640" />
+                    <ColumnDefinition Width="Auto" MinWidth="{Binding Canvas98RightGridMinWidth.Value, Mode=OneWay}" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" MinHeight="480" />
+                    <RowDefinition Height="Auto" MinHeight="{Binding Canvas98BottomGridMinHeight.Value, Mode=OneWay}" />
                 </Grid.RowDefinitions>
 
                 <!--
@@ -594,14 +594,29 @@
                                     Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}"
                                     Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}"
                                     >
+                                    <Grid.Resources>
+                                        <!-- 見つからないと言われることがあるのでリソースに置く -->
+                                        <ResourceDictionary>
+                                            <FrameworkElement 
+                                                x:Key="ThreadBackgroundColorGetter"
+                                                x:Shared="False"
+                                                Visibility="Collapsed"
+                                                DataContext="{DynamicResource ThreadBackgroundColor}" />
+                                            <FrameworkElement 
+                                                x:Key="ThreadBackgroundSerachHitColorGetter"
+                                                x:Shared="False"
+                                                Visibility="Collapsed"
+                                                DataContext="{DynamicResource ThreadBackgroundSerachHitColor}" />
+                                        </ResourceDictionary>
+                                    </Grid.Resources>
                                     <Grid.Background>
                                         <SolidColorBrush>
                                             <SolidColorBrush.Color>
                                                 <MultiBinding Converter="{StaticResource FutabaResItemBackgroundConverter}">
                                                     <Binding Mode="OneWay" />
                                                     <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
-                                                    <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadBackgroundColorGetter" />
-                                                    <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadBackgroundSerachHitColorGetter" />
+                                                    <Binding Path="DataContext" Mode="OneWay" Source="{StaticResource ThreadBackgroundColorGetter}" />
+                                                    <Binding Path="DataContext" Mode="OneWay" Source="{StaticResource ThreadBackgroundSerachHitColorGetter}" />
                                                 </MultiBinding>
                                             </SolidColorBrush.Color>
                                         </SolidColorBrush>
@@ -1133,14 +1148,6 @@
                     </i:Interaction.Behaviors>
                 </ListBox>
 
-                <!--
-                <local:FutabaMediaViewer
-                    x:Name="MediaViewer"
-                    Grid.Row="0" Grid.RowSpan="{Binding DataContext.ListBoxRowSpan.Value, Mode=OneWay, ElementName=_this}"
-                    Grid.Column="0" Grid.ColumnSpan="{Binding DataContext.ListBoxColumnSpan.Value, Mode=OneWay, ElementName=_this}"
-                    Contents="{Binding Contents.MediaContents.Value, ElementName=_this, Mode=TwoWay}"
-                    />
-                -->
                 <ContentControl
                     prism:RegionManager.RegionManager="{Binding ThreadViewRegionManager.Value, Mode=OneWay}"
                     prism:RegionManager.RegionName="{Binding MediaViewerRegion.Value, Mode=OneWay}"

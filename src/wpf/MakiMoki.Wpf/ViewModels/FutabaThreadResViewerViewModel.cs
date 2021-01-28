@@ -129,6 +129,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Visibility> Canvas98FullScreenRegionVisibility { get; }
 		public ReactiveProperty<Visibility> Canvas98RightRegionVisibility { get; }
 		public ReactiveProperty<Visibility> Canvas98BottomRegionVisibility { get; }
+		public ReactiveProperty<double> Canvas98RightGridMinWidth { get; }
+		public ReactiveProperty<double> Canvas98BottomGridMinHeight { get; }
 
 
 		public ReactiveCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs> Canvas98SuccessedCommand { get; }
@@ -237,6 +239,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				IsExecuteCanvas98,
 				Canvas98Position.Select(x => x == PlatformData.UiPosition.Right),
 			}.CombineLatestValuesAreAllTrue()
+				.ToReactiveProperty();
+			Canvas98RightGridMinWidth = IsEnbaledCanvas98Right
+				.Select(x => x ? 640d : 0d)
+				.ToReactiveProperty();
+			Canvas98BottomGridMinHeight = IsEnbaledCanvas98Bottom
+				.Select(x => x ? 480d : 0d)
 				.ToReactiveProperty();
 
 			GridSplitterVisibility = new[] {
