@@ -78,7 +78,7 @@ jobs:
       run: |
         echo "setup canary build"
         echo "App_Center_Group=Canary" | Add-Content -Path $env:GITHUB_ENV
-      if: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' }}
+      if: ${{ !startsWith(github.ref,'refs/tags/period-') }}
 
     # Install the .NET Core workload
     - name: Install .NET

@@ -15,7 +15,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListBox">
-                    <Border Name="Border" BorderThickness="0" Background="{TemplateBinding Background}">
+                    <Border x:Name="Border" BorderThickness="0" Background="{TemplateBinding Background}">
                         <ScrollViewer
                             Style="{StaticResource MakiMokiScrollViewerStyle}"
                             CanContentScroll="True"

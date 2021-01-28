@@ -28,7 +28,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		internal class Messenger : EventAggregator {
 			public static Messenger Instance { get; } = new Messenger();
 		}
-		internal class MediaViewerOpenMessage { 
+		internal class MediaViewerOpenMessage {
 			public PlatformData.FutabaMedia Media { get; }
 
 			public MediaViewerOpenMessage(PlatformData.FutabaMedia media) {
@@ -44,7 +44,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		public ReactiveCommand LoadedCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; } 
+		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; }
 			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>>();
 
 		public ReactiveCommand<RoutedEventArgs> PostClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
@@ -129,7 +129,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Visibility> Canvas98FullScreenRegionVisibility { get; }
 		public ReactiveProperty<Visibility> Canvas98RightRegionVisibility { get; }
 		public ReactiveProperty<Visibility> Canvas98BottomRegionVisibility { get; }
-		
+		public ReactiveProperty<double> Canvas98RightGridMinWidth { get; }
+		public ReactiveProperty<double> Canvas98BottomGridMinHeight { get; }
+
 
 		public ReactiveCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs> Canvas98SuccessedCommand { get; }
 			= new ReactiveCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs>();
@@ -139,7 +141,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private bool isThreadImageClicking = false;
 		private readonly Action<PlatformData.WpfConfig> systemConfigNotifyAction;
 		private readonly Action<Canvas98.Canvas98Data.Canvas98Bookmarklet> canvas98BookmarkletNotifyAction;
-		public ReadOnlyReactiveProperty<IRegionManager> RegionManager { get; }
+		public ReadOnlyReactiveProperty<IRegionManager> ThreadViewRegionManager { get; }
+		public ReactiveProperty<string> MediaViewerRegion { get; }
+		public ReactiveProperty<string> Canvas98FullScreenRegion { get; }
+		public ReactiveProperty<string> Canvas98RightRegion { get; }
+		public ReactiveProperty<string> Canvas98BottomRegion { get; }
+
 		public FutabaThreadResViewerViewModel(IRegionManager regionManager) {
 			CloseToSubscriber = Canvas98.ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<Canvas98.ViewModels.FutabaCanvas98ViewViewModel.CloseTo>>()
@@ -164,8 +171,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							.Subscribe();
 					}
 				});
-			RegionManager = new ReactiveProperty<IRegionManager>(regionManager.CreateRegionManager())
+			ThreadViewRegionManager = new ReactiveProperty<IRegionManager>(regionManager.CreateRegionManager())
 				.ToReadOnlyReactiveProperty();
+			var id = Guid.NewGuid().ToString();
+			MediaViewerRegion = new ReactiveProperty<string>($"MediaViewerRegion-{ id }");
+			Canvas98FullScreenRegion = new ReactiveProperty<string>($"Canvas98FullScreenRegion-{ id }");
+			Canvas98RightRegion = new ReactiveProperty<string>($"Canvas98RightRegion-{ id }");
+			Canvas98BottomRegion = new ReactiveProperty<string>($"Canvas98BottomRegion-{ id }");
+
 			LoadedCommand.Subscribe(_ => OnLoaded());
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
 
@@ -227,6 +240,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Canvas98Position.Select(x => x == PlatformData.UiPosition.Right),
 			}.CombineLatestValuesAreAllTrue()
 				.ToReactiveProperty();
+			Canvas98RightGridMinWidth = IsEnbaledCanvas98Right
+				.Select(x => x ? 640d : 0d)
+				.ToReactiveProperty();
+			Canvas98BottomGridMinHeight = IsEnbaledCanvas98Bottom
+				.Select(x => x ? 480d : 0d)
+				.ToReactiveProperty();
 
 			GridSplitterVisibility = new[] {
 				IsEnbaledCanvas98Bottom,
@@ -278,10 +297,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnImageClick(RoutedEventArgs e) {
 			if((e.Source is FrameworkElement o) && (o.DataContext is Model.BindableFutabaResItem it)) {
 				if(object.ReferenceEquals(it.ThumbSource.Value, it.OriginSource.Value)) {
-					Messenger.Instance.GetEvent<PubSubEvent<MediaViewerOpenMessage>>()
-						.Publish(new MediaViewerOpenMessage(
-							PlatformData.FutabaMedia.FromFutabaUrl(
-								it.Raw.Value.Url, it.Raw.Value.ResItem.Res)));
+					this.OpenMediaViewer(PlatformData.FutabaMedia.FromFutabaUrl(
+						it.Raw.Value.Url, it.Raw.Value.ResItem.Res));
 				}
 				e.Handled = true;
 			}
@@ -296,9 +313,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				var ext = Regex.Match(u, @"\.[a-zA-Z0-9]+$");
 				if(ext.Success) {
 					if(Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext).Contains(ext.Value.ToLower())) {
-						Messenger.Instance.GetEvent<PubSubEvent<MediaViewerOpenMessage>>()
-							.Publish(new MediaViewerOpenMessage(
-								PlatformData.FutabaMedia.FromExternalUrl(u)));
+						this.OpenMediaViewer(PlatformData.FutabaMedia.FromExternalUrl(u));
 						goto end;
 					}
 				}
@@ -364,10 +379,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					case MouseButton.Left:
 					case MouseButton.Middle:
 						if(this.isThreadImageClicking) {
-							Messenger.Instance.GetEvent<PubSubEvent<MediaViewerOpenMessage>>()
-								.Publish(new MediaViewerOpenMessage(
-									PlatformData.FutabaMedia.FromFutabaUrl(
-										it.Raw.Value.Url, it.Raw.Value.ResItem.Res)));
+							this.OpenMediaViewer(
+								PlatformData.FutabaMedia.FromFutabaUrl(
+									it.Raw.Value.Url, it.Raw.Value.ResItem.Res));
 							this.isThreadImageClicking = false;
 						}
 						e.Handled = true;
@@ -396,24 +410,25 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnTegakiClick(Model.BindableFutaba x) {
 			if(x != null) {
 				this.IsExecuteCanvas98.Value = true;
-				var param = new NavigationParameters();
-				param.Add(typeof(Data.UrlContext).FullName, x.Url);
+				var param = new NavigationParameters {
+					{ typeof(Data.UrlContext).FullName, x.Url }
+				};
 				switch(this.Canvas98Position.Value) {
 				case PlatformData.UiPosition.Default:
-					this.RegionManager.Value.RequestNavigate(
-						"Canvas98FullScreenRegion",
+					this.ThreadViewRegionManager.Value.RequestNavigate(
+						Canvas98FullScreenRegion.Value,
 						nameof(Canvas98.Controls.FutabaCanvas98View),
 						param);
 					return;
 				case PlatformData.UiPosition.Right:
-					this.RegionManager.Value.RequestNavigate(
-						"Canvas98RightRegion",
+					this.ThreadViewRegionManager.Value.RequestNavigate(
+						Canvas98RightRegion.Value,
 						nameof(Canvas98.Controls.FutabaCanvas98View),
 						param);
 					return;
 				case PlatformData.UiPosition.Bottom:
-					this.RegionManager.Value.RequestNavigate(
-						"Canvas98BottomRegion",
+					this.ThreadViewRegionManager.Value.RequestNavigate(
+						Canvas98BottomRegion.Value,
 						nameof(Canvas98.Controls.FutabaCanvas98View),
 						param);
 					return;
@@ -686,6 +701,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe();
 				}
 			}
+		}
+
+		private void OpenMediaViewer(PlatformData.FutabaMedia media) {
+			this.ThreadViewRegionManager.Value.RequestNavigate(
+				this.MediaViewerRegion.Value,
+				nameof(Controls.FutabaMediaViewer),
+				new NavigationParameters {
+					{ typeof(PlatformData.FutabaMedia).FullName, media }
+				});
 		}
 
 		public void Destroy() {

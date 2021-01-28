@@ -25,6 +25,12 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			this.ThreadNo = threadNo;
 		}
 
+		public string ToUrlString() {
+			return this.IsCatalogUrl
+				? $"{ this.BaseUrl }futaba.php?mode=cat"
+					: $"{ this.BaseUrl }res/{ this.ThreadNo }.htm";
+		}
+
 		public override bool Equals(object obj) {
 			if(obj is UrlContext u) {
 				return (u.BaseUrl == this.BaseUrl)

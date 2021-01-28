@@ -16,6 +16,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 
 		private FutabaMedia() { }
 
+		public string GetToken() {
+			if(this.IsExternalUrl) {
+				return this.ExternalUrl;
+			} else {
+				return $"{ this.BaseUrl.ToUrlString() }+{ this.Res.Src }";
+			}
+		}
+
 		public static FutabaMedia FromFutabaUrl(Data.UrlContext baseUrl, Data.ResItem res) {
 			return new FutabaMedia() {
 				IsExternalUrl = false,

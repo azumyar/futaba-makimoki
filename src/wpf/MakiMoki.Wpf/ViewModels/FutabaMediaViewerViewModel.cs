@@ -17,52 +17,68 @@ using Yarukizero.Net.MakiMoki.Wpf.Controls;
 using System.IO;
 using Yarukizero.Net.MakiMoki.Util;
 using Yarukizero.Net.MakiMoki.Wpf.WpfUtil;
+using Prism.Regions;
+using Prism.Navigation;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
-	class FutabaMediaViewerViewModel : BindableBase, IDisposable {
+	class FutabaMediaViewerViewModel : BindableBase, IDisposable, INavigationAware, IJournalAware, IDestructible {
 		internal class Messenger : EventAggregator {
 			public static Messenger Instance { get; } = new Messenger();
 		}
 
-		internal class ViewerCloseMessage {
-			public ViewerCloseMessage() { }
+		internal class BaseMessage {
+			public PlatformData.FutabaMedia Media { get; }
+
+			public BaseMessage(PlatformData.FutabaMedia media) {
+				this.Media = media;
+			}
 		}
 
-		internal class VideoLoadMessage {
+		internal class ViewerCloseMessage : BaseMessage {
+			public ViewerCloseMessage(PlatformData.FutabaMedia media) : base(media) { }
+		}
+
+		internal class VideoLoadMessage : BaseMessage {
 			public string Path { get; }
 
-			public VideoLoadMessage(string path ) {
+			public VideoLoadMessage(PlatformData.FutabaMedia media, string path ) : base(media) {
 				this.Path = path;
 			}
 		}
 
-		internal class VideoPlayMessage { }
-		internal class VideoPauseMessage { }
-		internal class VideoStopMessage { }
+		internal class VideoPlayMessage : BaseMessage {
+			public VideoPlayMessage(PlatformData.FutabaMedia media) : base(media) {}
+		}
+		internal class VideoPauseMessage : BaseMessage {
+			public VideoPauseMessage(PlatformData.FutabaMedia media) : base(media) { }
+		}
+		internal class VideoStopMessage : BaseMessage {
+			public VideoStopMessage(PlatformData.FutabaMedia media) : base(media) { }
+		}
 
-		internal class VideoPositionMessage {
+		internal class VideoPositionMessage : BaseMessage {
 			public float Position { get; }
 
-			public VideoPositionMessage(float position) {
+			public VideoPositionMessage(PlatformData.FutabaMedia media, float position) : base(media) {
 				this.Position = position;
 			}
 		}
 
-		public ReactiveCommand<RoutedPropertyChangedEventArgs<PlatformData.FutabaMedia>> ContentsChangedCommand { get; } 
-			= new ReactiveCommand<RoutedPropertyChangedEventArgs<PlatformData.FutabaMedia>>();
-
+		[Helpers.AutoDisposable.IgonoreDispose]
 		public ReactiveCommand<MouseButtonEventArgs> MouseLeftButtonDownCommand { get; }
 			= new ReactiveCommand<MouseButtonEventArgs>();
+		[Helpers.AutoDisposable.IgonoreDispose]
 		public ReactiveCommand<MouseButtonEventArgs> MouseLeftButtonUpCommand { get; }
 			= new ReactiveCommand<MouseButtonEventArgs>();
+		[Helpers.AutoDisposable.IgonoreDispose]
 		public ReactiveCommand<MouseEventArgs> MouseMoveCommand { get; }
 			= new ReactiveCommand<MouseEventArgs>();
+		[Helpers.AutoDisposable.IgonoreDispose]
 		public ReactiveCommand<MouseEventArgs> MouseLeaveCommand { get; }
 			= new ReactiveCommand<MouseEventArgs>();
+		[Helpers.AutoDisposable.IgonoreDispose]
 		public ReactiveCommand<MouseWheelEventArgs> MouseWheelCommand { get; }
 			= new ReactiveCommand<MouseWheelEventArgs>();
-
-		public ReactiveProperty<Visibility> ViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Hidden);
 
 		public ReactiveProperty<ImageSource> ImageSource { get; } = new ReactiveProperty<ImageSource>();
 		public ReactiveProperty<ImageSource> AnimationGifImageSource { get; } = new ReactiveProperty<ImageSource>();
@@ -75,6 +91,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Visibility> VideoPauseButtonVisibility { get; }
 		public ReactiveProperty<double> VideoSliderValue { get; } = new ReactiveProperty<double>(0);
 
+		public ReactiveCommand CloseCommand { get; } = new ReactiveCommand();
 		public ReactiveCommand VideoPlayCommand { get; } = new ReactiveCommand();
 		public ReactiveCommand VideoPauseCommand { get; } = new ReactiveCommand();
 		public ReactiveCommand VideoStopCommand { get; } = new ReactiveCommand();
@@ -105,9 +122,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private double prevPosition = double.NaN;
 
 		private Action<PlatformData.WpfConfig> onSystemConfigUpdateNotifyer;
+		public IRegionNavigationService RegionNavigationService { get; private set; }
+		public PlatformData.FutabaMedia Media { get; private set; }
 
 		public FutabaMediaViewerViewModel() {
-			this.ContentsChangedCommand.Subscribe(x => this.OnContentsChanged(x));
+			this.CloseCommand.Subscribe(_ => this.OnClose());
 
 			this.MouseLeftButtonDownCommand.Subscribe(x => this.OnMouseLeftButtonDown(x));
 			this.MouseLeftButtonUpCommand.Subscribe(x => this.OnMouseLeftButtonUp(x));
@@ -151,30 +170,48 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		public void Dispose() {
-			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
+			// VLCが非同期で動いているのでここで削除してはいけない
+			//Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
+			Messenger.Instance.GetEvent<PubSubEvent<ViewerCloseMessage>>()
+				.Publish(new ViewerCloseMessage(this.Media));
 		}
 
-		private void OnContentsChanged(RoutedPropertyChangedEventArgs<PlatformData.FutabaMedia> e) {
-			if(e.NewValue == null) {
-				this.ViewVisibility.Value = Visibility.Collapsed;
-				this.ImageViewVisibility.Value = Visibility.Hidden;
-				this.VideoViewVisibility.Value = Visibility.Hidden;
-				this.ImageSource.Value = null;
-				this.AnimationGifImageSource.Value = null;
-				Messenger.Instance.GetEvent<PubSubEvent<VideoStopMessage>>()
-					.Publish(new VideoStopMessage());
-			} else {
+		public void OnNavigatedTo(NavigationContext navigationContext) {
+			RegionNavigationService = navigationContext.NavigationService;
+			if(navigationContext.Parameters.TryGetValue<PlatformData.FutabaMedia>(
+				typeof(PlatformData.FutabaMedia).FullName,
+				out var fm)) {
+
+				this.Media = fm;
 				this.ImageMatrix.Value = new MatrixTransform(Matrix.Identity);
-				if(e.NewValue.IsExternalUrl) {
-					OpenExternalUrl(e.NewValue.ExternalUrl);
+				if(fm.IsExternalUrl) {
+					this.OpenExternalUrl(fm.ExternalUrl);
 				} else {
-					OpenFutabaUrl(e.NewValue.BaseUrl, e.NewValue.Res);
+					this.OpenFutabaUrl(fm.BaseUrl, fm.Res);
 				}
 			}
 		}
 
+		public bool IsNavigationTarget(NavigationContext navigationContext) { return true; }
+
+		public void OnNavigatedFrom(NavigationContext navigationContext) { }
+
+		public bool PersistInHistory() { return false; }
+
+		public void Destroy() {
+			this.Dispose();
+		}
+
+		private void OnClose() {
+			this.ImageViewVisibility.Value = Visibility.Hidden;
+			this.VideoViewVisibility.Value = Visibility.Hidden;
+			this.ImageSource.Value = null;
+			this.AnimationGifImageSource.Value = null;
+
+			this.RegionNavigationService.Region.RemoveAll();
+		}
+
 		private void OpenFutabaUrl(Data.UrlContext url, Data.ResItem res) {
-			this.ViewVisibility.Value = Visibility.Visible;
 			Util.Futaba.GetThreadResImage(url, res)
 				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => {
@@ -187,7 +224,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						} else if(this.IsMovieFile(res.Src)) {
 							this.VideoViewVisibility.Value = Visibility.Visible;
 							Messenger.Instance.GetEvent<PubSubEvent<VideoLoadMessage>>()
-								.Publish(new VideoLoadMessage(x.LocalPath));
+								.Publish(new VideoLoadMessage(this.Media, x.LocalPath));
 						}
 						// TODO: 不明なファイル
 					} else {
@@ -197,7 +234,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OpenExternalUrl(string u) {
-			this.ViewVisibility.Value = Visibility.Visible;
 			Util.Futaba.GetUploaderFile(u)
 				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => {
@@ -210,7 +246,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						} else if(this.IsMovieFile(u)) {
 							this.VideoViewVisibility.Value = Visibility.Visible;
 							Messenger.Instance.GetEvent<PubSubEvent<VideoLoadMessage>>()
-								.Publish(new VideoLoadMessage(x.LocalPath));
+								.Publish(new VideoLoadMessage(this.Media, x.LocalPath));
 						}
 						// TODO: 不明なファイル
 					} else {
@@ -275,8 +311,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			this.isMouseLeftButtonDown = false;
 			if(this.isMouseLeftClick) {
 				this.isMouseLeftClick = false;
-				Messenger.Instance.GetEvent<PubSubEvent<ViewerCloseMessage>>()
-					.Publish(new ViewerCloseMessage());
+				this.CloseCommand.Execute(null);
 			}
 		}
 
@@ -328,21 +363,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnVideoPlay() {
 			Messenger.Instance.GetEvent<PubSubEvent<VideoPlayMessage>>()
-				.Publish(new VideoPlayMessage());
+				.Publish(new VideoPlayMessage(this.Media));
 		}
 		private void OnVideoPause() {
 			Messenger.Instance.GetEvent<PubSubEvent<VideoPauseMessage>>()
-				.Publish(new VideoPauseMessage());
+				.Publish(new VideoPauseMessage(this.Media));
 		}
 		private void OnVideoStop() {
 			Messenger.Instance.GetEvent<PubSubEvent<VideoStopMessage>>()
-				.Publish(new VideoStopMessage());
+				.Publish(new VideoStopMessage(this.Media));
 		}
 
 		private void OnVideoSliderValueChanged(RoutedPropertyChangedEventArgs<double> e) {
 			if(e.NewValue != this.prevPosition) {
 				Messenger.Instance.GetEvent<PubSubEvent<VideoPositionMessage>>()
-					.Publish(new VideoPositionMessage((float)e.NewValue));
+					.Publish(new VideoPositionMessage(this.Media, (float)e.NewValue));
 			}
 		}
 
@@ -353,7 +388,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnVideoViewEndReached() {
 			this.VideoPlayButtonVisibility.Value = Visibility.Visible;
 			Messenger.Instance.GetEvent<PubSubEvent<VideoStopMessage>>()
-				.Publish(new VideoStopMessage());
+				.Publish(new VideoStopMessage(this.Media));
 		}
 
 		private void OnVideoViewPositionChanged(FutabaMediaViewer.RoutedPositionEventArgs e) {

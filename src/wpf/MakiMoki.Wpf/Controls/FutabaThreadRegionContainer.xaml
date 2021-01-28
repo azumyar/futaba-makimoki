@@ -1,0 +1,26 @@
+<UserControl x:Class="Yarukizero.Net.MakiMoki.Wpf.Controls.FutabaThreadRegionContainer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+             mc:Ignorable="d" 
+             prism:RegionManager.RegionManager="{Binding RegionManager.Value, Mode=OneWay}"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="ContentsChanged">
+            <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <ContentControl
+            prism:RegionManager.RegionName="{Binding RegionName.Value, Mode=OneWay}" 
+            Grid.Row="2"
+            Grid.Column="0" Grid.ColumnSpan="3"
+            />
+    </Grid>
+</UserControl>
