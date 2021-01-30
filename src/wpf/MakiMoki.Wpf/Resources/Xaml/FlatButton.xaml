@@ -138,8 +138,8 @@
                                                 <Binding Path="DataContext" Source="{StaticResource BlackColorGetter}" />
                                                 -->
                                                 <Binding Path="DataContext.Color" ElementName="BackgroundGetter" />
-                                                <Binding Path="DataContext.Color" ElementName="BackgroundOverGetter" />
-                                                <Binding Path="DataContext.Color" ElementName="BackgroundPressGetter" />
+                                                <Binding Path="DataContext" ElementName="BackgroundOverGetter" />
+                                                <Binding Path="DataContext" ElementName="BackgroundPressGetter" />
                                                 <Binding ElementName="Border" />
                                                 <Binding ElementName="CommonStates" />
                                             </MultiBinding>

@@ -25,7 +25,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 					&& (values[4] is Color orig)
 					&& (values[5] is Color origMouseOver)
 					&& (values[6] is Color origMousePress)
-					&& (values[7] is Control el)
+					&& (values[7] is FrameworkElement el)
 					&& (values[8] is VisualStateGroup g)) {
 
 					Color GetColor() {
@@ -37,14 +37,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 							return orig;
 						}
 					}
+					double GetThreshold() {
+						if(el.IsMouseCaptured && (System.Windows.Input.Mouse.LeftButton == System.Windows.Input.MouseButtonState.Pressed)) {
+							return (type == PlatformData.StyleType.Light) ? 0.4 : 0.6;
+						} else if(el.IsMouseOver) {
+							return (type == PlatformData.StyleType.Light) ? 0.4 : 0.6;
+						} else {
+							return 0.5;
+						}
+					}
 					var isAnimate = false;
 					try {
 						isAnimate = g.CurrentState?.Storyboard?.GetCurrentState(el) == System.Windows.Media.Animation.ClockState.Active;
 					}
 					catch(InvalidOperationException) { }
 
+					var t = GetThreshold();
 					var b = ((back.A == 0) || isAnimate) ? GetColor() : back;
-					var foreground = (b.A == 0) ? black : WpfUtil.ImageUtil.GetTextColor(b, white, black, type);
+					var foreground = (b.A == 0) ? black : WpfUtil.ImageUtil.GetTextColor(b, white, black, type, t);
 					//System.Diagnostics.Debug.WriteLine($"return:{ foreground }");
 					return foreground;
 				}
