@@ -25,7 +25,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	}
 
 	class WpfConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2021012000;
+		public static int CurrentVersion { get; } = 2021020100;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
 		public bool IsEnabledMovieMarker { get; private set; }
@@ -99,7 +99,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("thread-enable-command-palette", Required = Required.Always)]
 		public bool IsEnabledThreadCommandPalette { get; private set; }
 
-		// vNext
+		// 2021012000
 		[JsonProperty("catalog-enable-fetch-thumbnail", Required = Required.Always)]
 		public bool IsEnabledFetchThumbnail { get; private set; }
 
@@ -108,6 +108,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 
 		[JsonProperty("thread-canvas98-position", Required = Required.Always)]
 		public UiPosition Canvas98Position { get; private set; }
+
+		// 2021020100
+		[JsonProperty("thread-enable-failsafe-mistake-post", Required = Required.Always)]
+		public bool IsEnabledFailsafeMistakePost { get; private set; }
 
 		public static WpfConfig CreateDefault() {
 			// ここは使われない
@@ -124,6 +128,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			bool isVisibleCatalogIsolateThread, CatalogSearchResult catalogSearchResult,
 			bool isEnabledThreadCommandPalette, UiPosition commandPalettePosition,
 			UiPosition canvas98Position,
+			bool isEnabledFailsafeMistakePost,
 			int clipbordJpegQuality, bool clipbordIsEnabledUrl,
 			int minWidthPostView, int maxWidthPostView, bool isEnabledOpacityPostView, int opacityPostView,
 			string[] mediaExportPath, int cacheExpireDay,
@@ -152,6 +157,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				IsEnabledThreadCommandPalette = isEnabledThreadCommandPalette,
 				CommandPalettePosition = commandPalettePosition,
 				Canvas98Position = canvas98Position,
+				IsEnabledFailsafeMistakePost = isEnabledFailsafeMistakePost,
 				IsEnabledQuotLink = isEnabledQuotLink,
 				ClipbordJpegQuality = clipbordJpegQuality,
 				ClipbordIsEnabledUrl = clipbordIsEnabledUrl,

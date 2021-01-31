@@ -446,6 +446,10 @@
                                 <CheckBox Content="有効" IsChecked="{Binding ThreadIsEnabledQuotLink.Value, Mode=TwoWay}" />
                             </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>誤爆防止として背景にスレ画を表示</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding IsEnabledFailsafeMistakePost.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>削除されたレス</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッドを建てた人に削除されたレスとユーザが隔離したレスの初期表示を設定します。</TextBlock>
                                 <ComboBox SelectedIndex="{Binding ThreadDelResVisibility.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">

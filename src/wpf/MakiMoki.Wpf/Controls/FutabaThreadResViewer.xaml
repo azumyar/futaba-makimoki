@@ -553,9 +553,7 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="ListBox">
-                                        <Grid
-                                            
-                                            >
+                                        <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="2*" />
@@ -573,6 +571,7 @@
                                                 Opacity="0.4"
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Bottom"
+                                                Visibility="{Binding FailsafeMistakePostVisibility.Value, Mode=OneWay}"
                                                 >
                                                 <Image
                                                     Source="{Binding Contents.ThumbSource.Value, Mode=OneWay, ElementName=_this}"

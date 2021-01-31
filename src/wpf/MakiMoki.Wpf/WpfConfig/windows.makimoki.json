@@ -1,5 +1,5 @@
 {
-  "version": -1,
+  "version": 2021020100,
 
   "catalog-enable-fetch-thumbnail": false,
   "catalog-enable-movie-marker": true,
@@ -14,6 +14,7 @@
   "thread-enable-command-palette": false,
   "thread-command-palette-position": "Right",
   "thread-canvas98-position": "Default",
+  "thread-enable-failsafe-mistake-post": false,
 
   "post-clipbord-jpeg-quality": 85,
   "post-clipbord-enable-url": true,

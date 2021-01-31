@@ -154,6 +154,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> IsEnabledThreadCommandPalette { get; }
 		public ReactiveProperty<int> CommandPalettePosition { get; }
 		public ReactiveProperty<int> Canvas98Position { get; }
+		public ReactiveProperty<bool> IsEnabledFailsafeMistakePost { get; }
 
 		public ReactiveProperty<bool> PostViewSavedSubject { get; }
 		public ReactiveProperty<bool> PostViewSavedName { get; }
@@ -310,6 +311,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			IsEnabledThreadCommandPalette = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledThreadCommandPalette);
 			CommandPalettePosition = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.CommandPalettePosition);
 			Canvas98Position = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.Canvas98Position);
+			IsEnabledFailsafeMistakePost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFailsafeMistakePost);
 
 			ClipbordJpegQuality = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.ClipbordJpegQuality.ToString());
 			ClipbordJpegQualityValid = ClipbordJpegQuality.Select(x => {
@@ -596,7 +598,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				// 2021012000
 				isEnabledFetchThumbnail: CatalogFetchImageThumbnail.Value,
 				commandPalettePosition: (PlatformData.UiPosition)CommandPalettePosition.Value,
-				canvas98Position: (PlatformData.UiPosition)Canvas98Position.Value
+				canvas98Position: (PlatformData.UiPosition)Canvas98Position.Value,
+				// 2021020100
+				isEnabledFailsafeMistakePost: IsEnabledFailsafeMistakePost.Value
 			));
 			WpfConfig.WpfConfigLoader.UpdateGestureConfig(PlatformData.GestureConfig.From(
 				keyGestureCatalogUpdate: GestureMainWindowCatalogUpdate.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
