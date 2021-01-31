@@ -576,6 +576,7 @@
                             <VirtualizingStackPanel
                                 Orientation="Vertical"
                                 IsItemsHost="True" 
+                                UseLayoutRounding="False"
                                 HorizontalAlignment="Stretch"
                                 />
                         </ItemsPanelTemplate>
