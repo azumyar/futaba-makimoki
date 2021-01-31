@@ -568,7 +568,7 @@
                                                 Grid.Row="1"
                                                 Grid.Column="1"
                                                 Margin="48"
-                                                Opacity="0.4"
+                                                Opacity="{DynamicResource FailsafeThreadImageOpacity}"
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Bottom"
                                                 Visibility="{Binding FailsafeMistakePostVisibility.Value, Mode=OneWay}"
@@ -581,7 +581,7 @@
                                                         <BitmapCache RenderAtScale="1" />
                                                     </Image.CacheMode>
                                                     <Image.Effect>
-                                                        <BlurEffect Radius="15" />
+                                                        <BlurEffect Radius="{DynamicResource FailsafeThreadImageBlurRadius}" />
                                                     </Image.Effect>
 
                                                     <!--

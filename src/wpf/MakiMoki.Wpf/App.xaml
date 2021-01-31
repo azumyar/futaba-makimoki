@@ -95,6 +95,10 @@
         <sys:Double x:Key="PostFontSize">16</sys:Double>
         <FontFamily x:Key="PostFont">メイリオ</FontFamily>
 
+        <sys:Double x:Key="FailsafeThreadImageOpacity">0.4</sys:Double>
+        <sys:Double x:Key="FailsafeThreadImageBlurRadius">15</sys:Double>
+
+
         <!-- スクロールバーの色-->
         <!-- Grayの500 -->
         <Color x:Key="ViewerScrollBarColor">#9E9E9E</Color>

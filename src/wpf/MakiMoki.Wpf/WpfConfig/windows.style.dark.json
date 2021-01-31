@@ -61,5 +61,8 @@
   "font-catalog-badge": "Segoe UI,メイリオ",
   "font-thread-header": "メイリオ",
   "font-thread-text": "メイリオ",
-  "font-post": "メイリオ"
+  "font-post": "メイリオ",
+
+  "opacity-failsafe-thread-image": 0.15,
+  "blur-radius-failsafe-thread-image": 15
 }
