@@ -117,6 +117,10 @@
             Visibility="Collapsed"
             DataContext="{DynamicResource ViewerForegroundColor}" />
         <FrameworkElement 
+            x:Name="ViewerBorderColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource ViewerBorderColor}" />
+        <FrameworkElement 
             x:Name="CatalogItemBackgroundColorGetter"
             Visibility="Collapsed"
             DataContext="{DynamicResource CatalogItemBackgroundColor}" />
@@ -156,7 +160,7 @@
                     <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                 </Border.Background>
                 <Border.BorderBrush>
-                    <SolidColorBrush Color="{DynamicResource ViewerBorderColor}" />
+                    <SolidColorBrush Color="{Binding DataContext, Mode=OneWay, ElementName=ViewerBorderColorGetter}" />
                 </Border.BorderBrush>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -534,7 +538,6 @@
                     x:Name="ThreadResListBox"
                     Grid.Row="0" Grid.RowSpan="{Binding ListBoxRowSpan.Value, Mode=OneWay}"
                     Grid.Column="0" Grid.ColumnSpan="{Binding ListBoxColumnSpan.Value, Mode=OneWay}"
-                    Style="{StaticResource MakiMokiViewerListBoxStyle}"
                     ItemsSource="{Binding Contents.Futaba.Value.ResItems, ElementName=_this, Mode=OneWay}"
                     BorderThickness="0"
                     Visibility="{Binding Contents.Futaba.Value.Raw, ElementName=_this, Converter={StaticResource FutabaThreadResVisibleConverter}, Mode=OneWay}"
@@ -545,21 +548,68 @@
                     VirtualizingPanel.VirtualizationMode="Recycling"
                     HorizontalContentAlignment="Stretch"
                     >
-                    <!--
                     <ListBox.Style>
                         <Style TargetType="ListBox">
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="ListBox">
-                                        <ScrollViewer Style="{StaticResource MakiMokiScrollViewerStyle}" Margin="0" Focusable="false">
-                                            <ItemsPresenter />
-                                        </ScrollViewer>
+                                        <Grid
+                                            
+                                            >
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="2*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="2*" />
+                                            </Grid.RowDefinitions>
+
+                                            <Viewbox
+                                                x:Name="ThumbView"
+                                                Grid.Row="1"
+                                                Grid.Column="1"
+                                                Margin="48"
+                                                Opacity="0.4"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Bottom"
+                                                >
+                                                <Image
+                                                    Source="{Binding Contents.ThumbSource.Value, Mode=OneWay, ElementName=_this}"
+                                                    RenderOptions.EdgeMode="Aliased"
+                                                    RenderOptions.BitmapScalingMode="Fant">
+                                                    <Image.CacheMode>
+                                                        <BitmapCache RenderAtScale="1" />
+                                                    </Image.CacheMode>
+                                                    <Image.Effect>
+                                                        <BlurEffect Radius="15" />
+                                                    </Image.Effect>
+
+                                                    <!--
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="Loaded">
+                                                            <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                    -->
+                                                </Image>
+                                            </Viewbox>
+
+                                            <ScrollViewer
+                                                Grid.Row="0" Grid.RowSpan="2"
+                                                Grid.Column="0" Grid.ColumnSpan="2"
+                                                Style="{StaticResource MakiMokiScrollViewerStyle}"
+                                                CanContentScroll="True"
+                                                Margin="0"
+                                                Focusable="false">
+                                                <ItemsPresenter />
+                                            </ScrollViewer>
+                                        </Grid>
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>
                         </Style>
                     </ListBox.Style>
-                    -->
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
                             <Setter Property="Template">
@@ -588,6 +638,20 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
+
+                                <FrameworkElement 
+                                    x:Name="StyleTypeGetter"
+                                    Visibility="Collapsed"
+                                    DataContext="{DynamicResource StyleType}" />
+                                <FrameworkElement 
+                                    x:Name="WhiteColorGetter"
+                                    Visibility="Collapsed"
+                                    DataContext="{DynamicResource ViewerBackgroundColor}" />
+                                <FrameworkElement 
+                                    x:Name="BlackColorGetter"
+                                    Visibility="Collapsed"
+                                    DataContext="{DynamicResource ViewerForegroundColor}" />
+
                                 <Grid
                                     x:Name="viewGrid"
                                     Grid.Column="0" Grid.Row="0"
@@ -730,34 +794,14 @@
                                         Grid.Column="0" Grid.Row="0"
                                         MaxWidth="1024"
                                         >
-                                        <local:FutabaResBlock.Resources>
-                                            <!-- 見つからないと言われることがあるのでリソースに置く -->
-                                            <ResourceDictionary>
-                                                <FrameworkElement 
-                                                    x:Key="StyleTypeGetter"
-                                                    x:Shared="False"
-                                                    Visibility="Collapsed"
-                                                    DataContext="{DynamicResource StyleType}" />
-                                                <FrameworkElement 
-                                                    x:Key="WhiteColorGetter"
-                                                    x:Shared="False"
-                                                    Visibility="Collapsed"
-                                                    DataContext="{DynamicResource ViewerBackgroundColor}" />
-                                                <FrameworkElement 
-                                                    x:Key="BlackColorGetter"
-                                                    x:Shared="False"
-                                                    Visibility="Collapsed"
-                                                    DataContext="{DynamicResource ViewerForegroundColor}" />
-                                            </ResourceDictionary>
-                                        </local:FutabaResBlock.Resources>
                                         <local:FutabaResBlock.Foreground>
                                             <SolidColorBrush>
                                                 <SolidColorBrush.Color>
                                                     <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}" Mode="OneWay">
-                                                        <Binding Path="Background.Color" ElementName="viewGrid" />
-                                                        <Binding Path="DataContext" Source="{StaticResource StyleTypeGetter}" />
-                                                        <Binding Path="DataContext" Source="{StaticResource WhiteColorGetter}" />
-                                                        <Binding Path="DataContext" Source="{StaticResource BlackColorGetter}" />
+                                                        <Binding Path="Background.Color" ElementName="viewGrid" Mode="OneWay" />
+                                                        <Binding Path="DataContext" ElementName="StyleTypeGetter" Mode="OneWay" />
+                                                        <Binding Path="DataContext" ElementName="WhiteColorGetter" Mode="OneWay" />
+                                                        <Binding Path="DataContext" ElementName="BlackColorGetter" Mode="OneWay" />
                                                     </MultiBinding>
                                                 </SolidColorBrush.Color>
                                             </SolidColorBrush>
@@ -1099,7 +1143,7 @@
                                     </Button>
                                     <Border Grid.Column="2" BorderThickness="1" CornerRadius="4" Padding="4">
                                         <Border.BorderBrush>
-                                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                                            <SolidColorBrush Color="{Binding DataContext, Mode=OneWay,ElementName=BlackColorGetter}" />
                                         </Border.BorderBrush>
                                         <Grid>
                                             <Grid.ColumnDefinitions>

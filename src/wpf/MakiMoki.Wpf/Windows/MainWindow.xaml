@@ -53,9 +53,10 @@
                         <ControlTemplate TargetType="local:MainWindow">
                             <Border
                                 x:Name="border"
-                                BorderThickness="2 0 2 2">
+                                BorderThickness="2 0 2 2"
+                                Tag="{DynamicResource WindowFrameBorderColor}">
                                 <Border.BorderBrush>
-                                    <SolidColorBrush Color="{DynamicResource WindowFrameBorderColor}" />
+                                    <SolidColorBrush Color="{Binding Tag, Mode=OneWay, RelativeSource={RelativeSource Self}}" />
                                 </Border.BorderBrush>
                                 <Border.Background>
                                     <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />

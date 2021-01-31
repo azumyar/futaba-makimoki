@@ -39,9 +39,11 @@
         Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}"                                
         Padding="4"
         Background="Transparent">
+<!--
         <TextBlock.Foreground>
             <Binding Path="Foreground" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:FutabaResBlock}" Mode="OneWay" />
         </TextBlock.Foreground>
+        -->
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -136,7 +138,7 @@
                             Padding="0"
                             Margin="0 0 4 0">
                             <Image
-                                Source="{Binding ThumbSource.Value}"
+                                Source="{Binding ThumbSource.Value, Mode=OneWay}"
                                 RenderOptions.EdgeMode="Aliased"
                                 RenderOptions.BitmapScalingMode="Fant">
                                 <Image.CacheMode>
