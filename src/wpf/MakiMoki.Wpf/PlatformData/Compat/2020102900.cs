@@ -106,10 +106,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				isEnabledIdMarker: conf.IsEnabledIdMarker,
 				isEnabledThreadCommandPalette: conf.IsEnabledThreadCommandPalette,
 
-				// vNext
+				// 2021012000
 				isEnabledFetchThumbnail: conf.IsEnabledFetchThumbnail,
 				commandPalettePosition: conf.CommandPalettePosition,
-				canvas98Position: conf.Canvas98Position
+				canvas98Position: conf.Canvas98Position,
+
+				// 2021020100
+				isEnabledFailsafeMistakePost: conf.IsEnabledFailsafeMistakePost
 			);
 		}
 

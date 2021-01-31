@@ -65,6 +65,39 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					})
 				)*/
 				.Add(ViewModels.FutabaThreadResViewerViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.ThreadUpdateCommandMessage>>()
+					.Subscribe(x => {
+						if(x?.Futaba == null) {
+							return;
+						}
+
+						if((x.Futaba.Url == this.Contents?.Futaba.Value?.Url) && (this.DataContext is ViewModels.FutabaThreadResViewerViewModel vm)) {
+							vm.KeyBindingUpdateCommand.Execute(x.Futaba);
+						}
+					})
+				).Add(ViewModels.FutabaThreadResViewerViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.ThreadSearchCommandMessage>>()
+					.Subscribe(x => {
+						if(x?.Futaba == null) {
+							return;
+						}
+
+						if((x.Futaba.Url == this.Contents?.Futaba.Value?.Url) && (this.DataContext is ViewModels.FutabaThreadResViewerViewModel vm)) {
+							vm.KeyBindingSearchCommand.Execute(x.Futaba);
+						}
+					})
+				).Add(ViewModels.FutabaThreadResViewerViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.ThreadOpenPostCommandMessage>>()
+					.Subscribe(x => {
+						if(x?.Futaba == null) {
+							return;
+						}
+
+						if((x.Futaba.Url == this.Contents?.Futaba.Value?.Url) && (this.DataContext is ViewModels.FutabaThreadResViewerViewModel vm)) {
+							vm.KeyBindingPostCommand.Execute(x.Futaba);
+						}
+					})
+				).Add(ViewModels.FutabaThreadResViewerViewModel.Messenger.Instance
 					.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.ScrollResMessage>>()
 					.Subscribe(async x => {
 						if(this.Contents != null) {
@@ -93,6 +126,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 									}
 								}
 							}
+						}
+					})
+				).Add(Canvas98.ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<Canvas98.ViewModels.FutabaCanvas98ViewViewModel.PostFrom>>()
+					.Subscribe(x => {
+						if(x?.Url == this.Contents.Futaba.Value?.Url) {
+							var b = this.Contents.Futaba.Value.Raw.Bord;
+							Config.ConfigLoader.UpdateFutabaInputData(
+								b,
+								x.Form.Subject, x.Form.Name,
+								x.Form.Email, x.Form.Password);
+							Util.Futaba.UpdateThreadRes(
+								b,
+								x.Url.ThreadNo,
+								Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
+								.Subscribe();
 						}
 					})
 				);

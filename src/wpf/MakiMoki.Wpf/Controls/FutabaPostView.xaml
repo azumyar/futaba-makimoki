@@ -15,6 +15,7 @@
              d:DesignHeight="450" d:DesignWidth="800"
              HorizontalAlignment="Right"
              VerticalAlignment="Top"
+             local:InputBindingsBehavior.Source="{Binding KeyGestures.Value, Mode=OneWay}"
              >
     <!--
                  MinWidth="360"
@@ -30,38 +31,6 @@
             <sys:Double x:Key="DefaultMinWidth">360</sys:Double>
         </ResourceDictionary>
     </UserControl.Resources>
-    <UserControl.InputBindings>
-        <KeyBinding
-            Gesture="Ctrl+Enter"
-            Command="{Binding KeyBindingPostCommand, Mode=OneWay}"
-            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+P"
-            Command="{Binding KeyBindingOpenImageCommand, Mode=OneWay}"
-            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+L"
-            Command="{Binding KeyBindingOpenUploadCommand, Mode=OneWay}"
-            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+D"
-            Command="{Binding KeyBindingDeleteCommand, Mode=OneWay}"
-            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
-            />
-        <KeyBinding
-            Gesture="Esc"
-            Command="{Binding KeyBindingCloseCommand, Mode=OneWay}"
-            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+Shift+V"
-            Command="{Binding KeyBindingClipbordCommand,Mode=OneWay}"
-            CommandParameter="{Binding Contents, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"  
-            />
-    </UserControl.InputBindings>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="ContentsChanged">
             <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />

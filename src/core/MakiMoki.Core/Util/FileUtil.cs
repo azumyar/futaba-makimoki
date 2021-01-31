@@ -38,7 +38,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				throw new ArgumentNullException(nameof(o));
 			}
 
-			SaveFileString(path, JsonConvert.SerializeObject(o));
+			SaveFileString(path, (o is Data.JsonObject) ? o.ToString() : JsonConvert.SerializeObject(o));
 		}
 
 		public static T LoadJson<T>(string path) {

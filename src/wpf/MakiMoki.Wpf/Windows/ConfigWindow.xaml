@@ -446,6 +446,10 @@
                                 <CheckBox Content="有効" IsChecked="{Binding ThreadIsEnabledQuotLink.Value, Mode=TwoWay}" />
                             </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>誤爆防止として背景にスレ画を表示</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding IsEnabledFailsafeMistakePost.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>削除されたレス</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッドを建てた人に削除されたレスとユーザが隔離したレスの初期表示を設定します。</TextBlock>
                                 <ComboBox SelectedIndex="{Binding ThreadDelResVisibility.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
@@ -509,6 +513,824 @@
                                 <TextBlock>クリップボードビットマップの品質</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">クリップボードからビットマップ画像を投稿した場合のJPEG保存品質を設定します。(1-100)</TextBlock>
                                 <TextBox Text="{Binding ClipbordJpegQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="ショートカット">
+                <Grid>
+                    <ScrollViewer
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Visible"
+                        >
+                        <StackPanel
+                            Margin="4"
+                            TextBlock.FontFamily="メイリオ"
+                            TextBlock.FontSize="14"
+                            >
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">メインウィンドウ</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowCatalogUpdate.Value, Mode=OneWay}">
+                                <TextBlock>カタログ更新</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Visibility="Collapsed" Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowCatalogSearch.Value, Mode=OneWay}">
+                                <TextBlock>カタログ検索</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowCatalogModeToggleUpdate.Value, Mode=OneWay}">
+                                <TextBlock>カタログモード切替</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowCatalogOpenPost.Value, Mode=OneWay}">
+                                <TextBlock>スレ立て画面表示</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowCatalogClose.Value, Mode=OneWay}">
+                                <TextBlock>カタログを閉じる</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowCatalogNext.Value, Mode=OneWay}">
+                                <TextBlock>次の板に移動</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowCatalogPrevious.Value, Mode=OneWay}">
+                                <TextBlock>前の板に移動</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowThreadUpdate.Value, Mode=OneWay}">
+                                <TextBlock>スレッド更新</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Visibility="Collapsed" Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowThreadSearch.Value, Mode=OneWay}">
+                                <TextBlock>スレッド検索</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowThreadOpenTegaki.Value, Mode=OneWay}">
+                                <TextBlock>はっちゃん起動</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowThreadOpenPost.Value, Mode=OneWay}">
+                                <TextBlock>レス投稿画面表示</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowThreadClose.Value, Mode=OneWay}">
+                                <TextBlock>スレッドを閉じる</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowThreadNext.Value, Mode=OneWay}">
+                                <TextBlock>次のスレッドへ</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowThreadPrevious.Value, Mode=OneWay}">
+                                <TextBlock>前のスレッドへ</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+
+                            
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">投稿画面</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GesturePostViewPost.Value, Mode=OneWay}">
+                                <TextBlock>スレ立て/レス送信</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GesturePostViewOpenImage.Value, Mode=OneWay}">
+                                <TextBlock>添付画像を選択</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GesturePostViewOpenUploader.Value, Mode=OneWay}">
+                                <TextBlock>あぷ小アップロードファイルを選択</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GesturePostViewDelete.Value, Mode=OneWay}">
+                                <TextBlock>投稿をリセット</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GesturePostViewClose.Value, Mode=OneWay}">
+                                <TextBlock>投稿画面を閉じる</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GesturePostViewPasteImage.Value, Mode=OneWay}">
+                                <TextBlock>添付画像を貼り付け</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GesturePostViewPasteUploader.Value, Mode=OneWay}">
+                                <TextBlock>アップロードフィルを張り付け</TextBlock>
+                                <Grid HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" Width="320">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox
+                                            Grid.Column="0"
+                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            MaxLines="1" />
+                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
+                                            <TextBlock>
+                                                追加
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Foreground="Red"
+                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
+                                        不正
+                                    </TextBlock>
+                                </Grid>
+                                <ListBox
+                                    Style="{StaticResource ConfigListBox}"
+                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
+                                    Width="320"
+                                    Height="120"
+                                    HorizontalAlignment="Left"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>

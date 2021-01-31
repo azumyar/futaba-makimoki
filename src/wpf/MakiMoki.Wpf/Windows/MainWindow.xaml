@@ -19,6 +19,7 @@
         prism:ViewModelLocator.AutoWireViewModel="True"
         d:DesignHeight="450" d:DesignWidth="800"
         Topmost="{Binding Topmost.Value, Mode=OneWay}"
+        control:InputBindingsBehavior.Source="{Binding KeyGestures.Value, Mode=OneWay}"
         Title="ふたマキ">
     <Window.Resources>
         <ResourceDictionary>
@@ -52,9 +53,10 @@
                         <ControlTemplate TargetType="local:MainWindow">
                             <Border
                                 x:Name="border"
-                                BorderThickness="2 0 2 2">
+                                BorderThickness="2 0 2 2"
+                                Tag="{DynamicResource WindowFrameBorderColor}">
                                 <Border.BorderBrush>
-                                    <SolidColorBrush Color="{DynamicResource WindowFrameBorderColor}" />
+                                    <SolidColorBrush Color="{Binding Tag, Mode=OneWay, RelativeSource={RelativeSource Self}}" />
                                 </Border.BorderBrush>
                                 <Border.Background>
                                     <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
@@ -149,7 +151,7 @@
                                         CommandTarget="{Binding ElementName=scrollViewer}"
                                         Command="ScrollBar.LineDownCommand"
                                         Visibility="Hidden" />
-                                        <StackPanel Grid.Column="1" Grid.Row="6" Orientation="Vertical">
+                                    <StackPanel Grid.Column="1" Grid.Row="6" Orientation="Vertical">
                                         <Button
                                             x:Name="bordButton"
                                             Style="{StaticResource PrimaryColorButton}"
@@ -476,7 +478,7 @@
                                                 </Button>
                                             </StackPanel>
                                         </Border>
-                                        
+
                                         <GridSplitter
                                             Grid.Column="2" Width="5"
                                             HorizontalAlignment="Stretch"
@@ -669,75 +671,6 @@
             </Style>
         </ResourceDictionary>
     </Window.Resources>
-    <Window.InputBindings>
-        <KeyBinding
-            Gesture="Ctrl+U"
-            Command="{Binding KeyBindingCurrentThreadTabUpdateCommand, Mode=OneWay}"
-            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+F"
-            Command="{Binding KeyBindingCurrentThreadTabSearchCommand, Mode=OneWay}"
-            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+Enter"
-            Command="{Binding KeyBindingCurrentThreadTabPostCommand, Mode=OneWay}"
-            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+Alt+U"
-            Command="{Binding KeyBindingCurrentCatalogTabUpdateCommand, Mode=OneWay}"
-            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+Alt+F"
-            Command="{Binding KeyBindingCurrentCatalogTabSearchCommand, Mode=OneWay}"
-            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+Alt+S"
-            Command="{Binding KeyBindingCurrentCatalogTabSortCommand, Mode=OneWay}"
-            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+Alt+M"
-            Command="{Binding KeyBindingCurrentCatalogTabModeCommand, Mode=OneWay}"
-            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+Alt+Enter"
-            Command="{Binding KeyBindingCurrentCatalogTabPostCommand, Mode=OneWay}"
-            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
-            />        
-        
-        
-        <KeyBinding
-            Gesture="F5"
-            Command="{Binding KeyBindingCurrentThreadTabUpdateCommand, Mode=OneWay}"
-            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+F5"
-            Command="{Binding KeyBindingCurrentThreadTabUpdateCommand, Mode=OneWay}"
-            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+Alt+F5"
-            Command="{Binding KeyBindingCurrentCatalogTabUpdateCommand, Mode=OneWay}"
-            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+W"
-            Command="{Binding KeyBindingCurrentThreadTabCloseCommand, Mode=OneWay}"
-            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
-            />
-        <KeyBinding
-            Gesture="Ctrl+F4"
-            Command="{Binding KeyBindingCurrentThreadTabCloseCommand, Mode=OneWay}"
-            CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"  
-            />
-    </Window.InputBindings>
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static SystemCommands.MinimizeWindowCommand}" CanExecute="SystemCommandsCanExecute" Executed="CommandBindingMinimizeWindowCommand" />
         <CommandBinding Command="{x:Static SystemCommands.RestoreWindowCommand}" CanExecute="SystemCommandsCanExecute" Executed="CommandBindingRestoreWindowCommand" />

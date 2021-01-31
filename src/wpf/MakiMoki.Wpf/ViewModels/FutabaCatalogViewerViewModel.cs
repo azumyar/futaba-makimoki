@@ -26,6 +26,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		internal class Messenger : EventAggregator {
 			public static Messenger Instance { get; } = new Messenger();
 		}
+		internal class BaseCommandMessage {
+			public Model.BindableFutaba Futaba { get; }
+
+			public BaseCommandMessage(Model.BindableFutaba futaba) {
+				this.Futaba = futaba;
+			}
+		}
+		internal class CatalogUpdateCommandMessage : BaseCommandMessage {
+			public CatalogUpdateCommandMessage(Model.BindableFutaba futaba) : base(futaba) { }
+		}
+		internal class CatalogSearchCommandMessage : BaseCommandMessage {
+			public CatalogSearchCommandMessage(Model.BindableFutaba futaba) : base(futaba) { }
+		}
+		internal class CatalogModeCommandMessage : BaseCommandMessage {
+			public CatalogModeCommandMessage(Model.BindableFutaba futaba) : base(futaba) { }
+		}
+		internal class CatalogOpenPostCommandMessage : BaseCommandMessage {
+			public CatalogOpenPostCommandMessage(Model.BindableFutaba futaba) : base(futaba) { }
+		}
+
 		internal class CatalogSortContextMenuMessage { }
 
 		internal class CatalogListboxUpdatedMessage { }
@@ -68,7 +88,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new ReactiveCommand<BindableFutaba>();
 
 		private bool isCatalogItemClicking = false;
-
 		public FutabaCatalogViewerViewModel() {
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
 

@@ -784,6 +784,10 @@
             Visibility="Collapsed"
             DataContext="{DynamicResource ViewerForegroundColor}" />
         <FrameworkElement 
+            x:Name="ViewerBorderColorGetter"
+            Visibility="Collapsed"
+            DataContext="{DynamicResource ViewerBorderColor}" />
+        <FrameworkElement 
             x:Name="CatalogItemBackgroundColorGetter"
             Visibility="Collapsed"
             DataContext="{DynamicResource CatalogItemBackgroundColor}" />
@@ -810,7 +814,7 @@
                     <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                 </Border.Background>
                 <Border.BorderBrush>
-                    <SolidColorBrush Color="{DynamicResource ViewerBorderColor}" />
+                    <SolidColorBrush Color="{Binding DataContext, Mode=OneWay, ElementName=ViewerBorderColorGetter}" />
                 </Border.BorderBrush>
                 <Grid>
                     <Grid.ColumnDefinitions>

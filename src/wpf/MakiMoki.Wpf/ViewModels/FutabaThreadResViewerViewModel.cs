@@ -28,6 +28,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		internal class Messenger : EventAggregator {
 			public static Messenger Instance { get; } = new Messenger();
 		}
+		internal class BaseCommandMessage {
+			public Model.BindableFutaba Futaba { get; }
+
+			public BaseCommandMessage(Model.BindableFutaba futaba) {
+				this.Futaba = futaba;
+			}
+		}
+		internal class ThreadUpdateCommandMessage : BaseCommandMessage {
+			public ThreadUpdateCommandMessage(Model.BindableFutaba futaba) : base(futaba) { }
+		}
+		internal class ThreadSearchCommandMessage : BaseCommandMessage {
+			public ThreadSearchCommandMessage(Model.BindableFutaba futaba) : base(futaba) { }
+		}
+		internal class ThreadOpenTegakiCommandMessage : BaseCommandMessage {
+			public ThreadOpenTegakiCommandMessage(Model.BindableFutaba futaba) : base(futaba) { }
+		}
+		internal class ThreadOpenPostCommandMessage : BaseCommandMessage {
+			public ThreadOpenPostCommandMessage(Model.BindableFutaba futaba) : base(futaba) { }
+		}
+
 		internal class MediaViewerOpenMessage {
 			public PlatformData.FutabaMedia Media { get; }
 
@@ -69,6 +89,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<object> Canvas98BookmarkletToken { get; } = new ReactiveProperty<object>(DateTime.Now);
 
+		private ReactiveProperty<bool> IsEnabledFailsafeMistakePost { get; }
+		public ReactiveProperty<Visibility> FailsafeMistakePostVisibility { get; }
+
 
 		public ReactiveProperty<string> FilterText { get; } = new ReactiveProperty<string>("");
 
@@ -104,8 +127,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingUpdateCommand { get; } = new ReactiveCommand<BindableFutaba>();
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingSearchCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public ReactiveCommand<Model.BindableFutaba> KeyBindingTegakiCommand { get; } = new ReactiveCommand<BindableFutaba>();
 		public ReactiveCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new ReactiveCommand<BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingCloseCommand { get; } = new ReactiveCommand<BindableFutaba>();
 
 		public ReactiveProperty<bool> IsExecuteCanvas98 { get; } = new ReactiveProperty<bool>(false);
 		public ReactiveProperty<PlatformData.UiPosition> Canvas98Position { get; }
@@ -137,7 +160,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			= new ReactiveCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs>();
 
 		private IDisposable CloseToSubscriber { get; }
-		private IDisposable PostFromSubscriber { get; }
 		private bool isThreadImageClicking = false;
 		private readonly Action<PlatformData.WpfConfig> systemConfigNotifyAction;
 		private readonly Action<Canvas98.Canvas98Data.Canvas98Bookmarklet> canvas98BookmarkletNotifyAction;
@@ -152,24 +174,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				.GetEvent<PubSubEvent<Canvas98.ViewModels.FutabaCanvas98ViewViewModel.CloseTo>>()
 				.Subscribe(_ => {
 					IsExecuteCanvas98.Value = false;
-				});
-			PostFromSubscriber = Canvas98.ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
-				.GetEvent<PubSubEvent<Canvas98.ViewModels.FutabaCanvas98ViewViewModel.PostFrom>>()
-				.Subscribe(x => {
-					var b = Config.ConfigLoader.Board.Boards
-						.Where(y => y.Url == x.Url.BaseUrl)
-						.FirstOrDefault();
-					if(b != null) {
-						Config.ConfigLoader.UpdateFutabaInputData(
-							b,
-							x.Form.Subject, x.Form.Name,
-							x.Form.Email, x.Form.Password);
-						Util.Futaba.UpdateThreadRes(
-							b,
-							x.Url.ThreadNo,
-							Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
-							.Subscribe();
-					}
 				});
 			ThreadViewRegionManager = new ReactiveProperty<IRegionManager>(regionManager.CreateRegionManager())
 				.ToReadOnlyReactiveProperty();
@@ -221,8 +225,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 			KeyBindingUpdateCommand.Subscribe(x => UpdateThread(x));
 			//KeyBindingSearchCommand.Subscribe(x => x);
+			KeyBindingTegakiCommand.Subscribe(x => OnTegakiClick(x));
 			KeyBindingPostCommand.Subscribe(x => UpdatePost(x));
-			//KeyBindingCloseCommand.Subscribe(x => x);
 
 			Canvas98Position = new ReactiveProperty<PlatformData.UiPosition>(WpfConfig.WpfConfigLoader.SystemConfig.Canvas98Position);
 			IsEnbaledCanvas98FullScreen = new[] {
@@ -246,6 +250,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Canvas98BottomGridMinHeight = IsEnbaledCanvas98Bottom
 				.Select(x => x ? 480d : 0d)
 				.ToReactiveProperty();
+			IsEnabledFailsafeMistakePost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFailsafeMistakePost);
+			FailsafeMistakePostVisibility = IsEnabledFailsafeMistakePost
+				.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
+				.ToReactiveProperty();
 
 			GridSplitterVisibility = new[] {
 				IsEnbaledCanvas98Bottom,
@@ -267,6 +275,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Canvas98RightRegionVisibility = IsEnbaledCanvas98Right.Select(x => x ? Visibility.Visible : Visibility.Hidden).ToReactiveProperty();
 
 			systemConfigNotifyAction = (x) => {
+				IsEnabledFailsafeMistakePost.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFailsafeMistakePost;
 				if(Canvas98Position.Value != x.Canvas98Position) {
 					Canvas98Position.Value = x.Canvas98Position;
 					Canvas98.ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
@@ -408,6 +417,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnTegakiClick(Model.BindableFutaba x) {
+			if(!Canvas98.Canvas98Util.Util.IsEnabledCanvas98()) {
+				return;
+			}
+
 			if(x != null) {
 				this.IsExecuteCanvas98.Value = true;
 				var param = new NavigationParameters {

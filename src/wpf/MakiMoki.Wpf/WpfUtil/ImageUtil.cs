@@ -358,11 +358,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 		}
 
-		public static Color GetTextColor(Color background, Color white, Color black, PlatformData.StyleType styleType) {
+		public static Color GetTextColor(Color background, Color white, Color black, PlatformData.StyleType styleType, double threshold = 0.5) {
 			var w = (styleType == PlatformData.StyleType.Light) ? white : black;
 			var b = (styleType == PlatformData.StyleType.Light) ? black : white;
 
-			return (ToHsl(background).Lightness < 0.5) ? w : b;
+			return (ToHsl(background).Lightness < threshold) ? w : b;
 		}
 
 		public static (double H, double S, double V) ToHsv(Color c) {

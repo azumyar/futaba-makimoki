@@ -46,12 +46,18 @@
     <ApplicationIcon>App.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Config.d\windows.makimoki.gesture.json" />
+  </ItemGroup>
+  <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Config.d\windows.exe.json.sample">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <EmbeddedResource Include="WpfConfig\windows.makimoki.gesture.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="WpfConfig\windows.makimoki.json" />
     <EmbeddedResource Include="WpfConfig\windows.style.light.json" />
     <EmbeddedResource Include="WpfConfig\windows.style.dark.json" />
