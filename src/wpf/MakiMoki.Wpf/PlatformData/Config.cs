@@ -20,7 +20,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("custom-data-path", Required = Required.AllowNull)]
 		public string CustomDataPathRoot { get; private set; }
 
-		[JsonProperty("custom-config-path", Required =Required.AllowNull)]
+		[JsonProperty("custom-config-path", Required = Required.AllowNull)]
 		public string CustomConfigPathRoot { get; private set; }
 	}
 
@@ -135,8 +135,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			System.Diagnostics.Debug.Assert(mediaExportPath != null);
 			System.Diagnostics.Debug.Assert((0 <= cacheExpireDay) && (cacheExpireDay <= 100));
 			System.Diagnostics.Debug.Assert(browserPath != null);
-			System.Diagnostics.Debug.Assert(new [] { UiPosition.Left, UiPosition.Right }.Contains(commandPalettePosition));
-			System.Diagnostics.Debug.Assert(new [] { UiPosition.Default, UiPosition.Right, UiPosition.Bottom }.Contains(canvas98Position));
+			System.Diagnostics.Debug.Assert(new[] { UiPosition.Left, UiPosition.Right }.Contains(commandPalettePosition));
+			System.Diagnostics.Debug.Assert(new[] { UiPosition.Default, UiPosition.Right, UiPosition.Bottom }.Contains(canvas98Position));
 
 			return new WpfConfig() {
 				Version = CurrentVersion,
@@ -417,5 +417,164 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	public class ColorMap {
 		public Color Target { get; set; }
 		public Color Value { get; set; }
+	}
+
+	public class GestureConfig : Data.ConfigObject {
+		public static int CurrentVersion { get; } = -1;
+
+		[JsonProperty("gesture-key-catalog-update", Required = Required.Always)]
+		public string[] KeyGestureCatalogUpdate { get; private set; }
+		[JsonProperty("gesture-key-catalog-search", Required = Required.Always)]
+		public string[] KeyGestureCatalogSearch { get; private set; }
+		[JsonProperty("gesture-key-catalog-mode-change-toggle", Required = Required.Always)]
+		public string[] KeyGestureCatalogModeToggleUpdate { get; private set; }
+		[JsonProperty("gesture-key-catalog-open-post", Required = Required.Always)]
+		public string[] KeyGestureCatalogOpenPost { get; private set; }
+		[JsonProperty("gesture-key-catalog-close", Required = Required.Always)]
+		public string[] KeyGestureCatalogClose { get; private set; }
+		[JsonProperty("gesture-key-catalog-next", Required = Required.Always)]
+		public string[] KeyGestureCatalogNext { get; private set; }
+		[JsonProperty("gesture-key-catalog-previous", Required = Required.Always)]
+		public string[] KeyGestureCatalogPrevious { get; private set; }
+
+
+		[JsonProperty("gesture-key-thread-update", Required = Required.Always)]
+		public string[] KeyGestureThreadUpdate { get; private set; }
+		[JsonProperty("gesture-key-thread-search", Required = Required.Always)]
+		public string[] KeyGestureThreadSearch { get; private set; }
+		[JsonProperty("gesture-key-thread-open-tegaki", Required = Required.Always)]
+		public string[] KeyGestureThreadOpenTegaki { get; private set; }
+		[JsonProperty("gesture-key-thread-open-post", Required = Required.Always)]
+		public string[] KeyGestureThreadOpenPost { get; private set; }
+		[JsonProperty("gesture-key-thread-tab-close", Required = Required.Always)]
+		public string[] KeyGestureThreadTabClose { get; private set; }
+		[JsonProperty("gesture-key-thread-tab-next", Required = Required.Always)]
+		public string[] KeyGestureThreadTabNext { get; private set; }
+		[JsonProperty("gesture-key-thread-tab-previous", Required = Required.Always)]
+		public string[] KeyGestureThreadTabPrevious { get; private set; }
+
+		[JsonProperty("gesture-key-post-view-post", Required = Required.Always)]
+		public string[] KeyGesturePostViewPost { get; private set; }
+		[JsonProperty("gesture-key-post-view-open-image", Required = Required.Always)]
+		public string[] KeyGesturePostViewOpenImage { get; private set; }
+		[JsonProperty("gesture-key-post-view-open-uploader", Required = Required.Always)]
+		public string[] KeyGesturePostViewOpenUploader { get; private set; }
+		[JsonProperty("gesture-key-post-view-delete", Required = Required.Always)]
+		public string[] KeyGesturePostViewDelete { get; private set; }
+		[JsonProperty("gesture-key-post-view-close", Required = Required.Always)]
+		public string[] KeyGesturePostViewClose { get; private set; }
+		[JsonProperty("gesture-key-post-view-paste-image", Required = Required.Always)]
+		public string[] KeyGesturePostViewPasteImage { get; private set; }
+		[JsonProperty("gesture-key-post-view-paste-uploader", Required = Required.Always)]
+		public string[] KeyGesturePostViewPasteUploader { get; private set; }
+
+		public static GestureConfig CreateDefault() {
+			return new GestureConfig() {
+				Version = CurrentVersion,
+
+				KeyGestureCatalogUpdate = Array.Empty<string>(),
+				KeyGestureCatalogSearch = Array.Empty<string>(),
+				KeyGestureCatalogModeToggleUpdate = Array.Empty<string>(),
+				KeyGestureCatalogOpenPost = Array.Empty<string>(),
+				KeyGestureCatalogClose = Array.Empty<string>(),
+				KeyGestureCatalogNext = Array.Empty<string>(),
+				KeyGestureCatalogPrevious = Array.Empty<string>(),
+
+				KeyGestureThreadUpdate = Array.Empty<string>(),
+				KeyGestureThreadSearch = Array.Empty<string>(),
+				KeyGestureThreadOpenTegaki = Array.Empty<string>(),
+				KeyGestureThreadOpenPost = Array.Empty<string>(),
+				KeyGestureThreadTabClose = Array.Empty<string>(),
+				KeyGestureThreadTabNext = Array.Empty<string>(),
+				KeyGestureThreadTabPrevious = Array.Empty<string>(),
+
+				KeyGesturePostViewPost = Array.Empty<string>(),
+				KeyGesturePostViewOpenImage = Array.Empty<string>(),
+				KeyGesturePostViewOpenUploader = Array.Empty<string>(),
+				KeyGesturePostViewDelete = Array.Empty<string>(),
+				KeyGesturePostViewClose = Array.Empty<string>(),
+				KeyGesturePostViewPasteImage = Array.Empty<string>(),
+				KeyGesturePostViewPasteUploader = Array.Empty<string>(),
+			};
+		}
+
+		public static GestureConfig From(
+			string[] keyGestureCatalogUpdate,
+			string[] keyGestureCatalogSearch,
+			string[] keyGestureCatalogModeToggleUpdate,
+			string[] keyGestureCatalogOpenPost,
+			string[] keyGestureCatalogClose,
+			string[] keyGestureCatalogNext,
+			string[] keyGestureCatalogPrevious,
+
+			string[] keyGestureThreadUpdate,
+			string[] keyGestureThreadSearch,
+			string[] keyGestureThreadOpenTegaki,
+			string[] keyGestureThreadOpenPost,
+			string[] keyGestureThreadTabClose,
+			string[] keyGestureThreadTabNext,
+			string[] keyGestureThreadTabPrevious,
+
+			string[] keyGesturePostViewPost,
+			string[] keyGesturePostViewOpenImage,
+			string[] keyGesturePostViewOpenUploader,
+			string[] keyGesturePostViewDelete,
+			string[] keyGesturePostViewClose,
+			string[] keyGesturePostViewPasteImage,
+			string[] keyGesturePostViewPasteUploader
+			) {
+
+			System.Diagnostics.Debug.Assert(keyGestureCatalogUpdate != null);
+			System.Diagnostics.Debug.Assert(keyGestureCatalogSearch != null);
+			System.Diagnostics.Debug.Assert(keyGestureCatalogModeToggleUpdate != null);
+			System.Diagnostics.Debug.Assert(keyGestureCatalogOpenPost != null);
+			System.Diagnostics.Debug.Assert(keyGestureCatalogClose != null);
+			System.Diagnostics.Debug.Assert(keyGestureCatalogNext != null);
+			System.Diagnostics.Debug.Assert(keyGestureCatalogPrevious != null);
+
+			System.Diagnostics.Debug.Assert(keyGestureThreadUpdate != null);
+			System.Diagnostics.Debug.Assert(keyGestureThreadSearch != null);
+			System.Diagnostics.Debug.Assert(keyGestureThreadOpenTegaki != null);
+			System.Diagnostics.Debug.Assert(keyGestureThreadOpenPost != null);
+			System.Diagnostics.Debug.Assert(keyGestureThreadTabClose != null);
+			System.Diagnostics.Debug.Assert(keyGestureThreadTabNext != null);
+			System.Diagnostics.Debug.Assert(keyGestureThreadTabPrevious != null);
+
+			System.Diagnostics.Debug.Assert(keyGesturePostViewPost != null);
+			System.Diagnostics.Debug.Assert(keyGesturePostViewOpenImage != null);
+			System.Diagnostics.Debug.Assert(keyGesturePostViewOpenUploader != null);
+			System.Diagnostics.Debug.Assert(keyGesturePostViewDelete != null);
+			System.Diagnostics.Debug.Assert(keyGesturePostViewClose != null);
+			System.Diagnostics.Debug.Assert(keyGesturePostViewPasteImage != null);
+			System.Diagnostics.Debug.Assert(keyGesturePostViewPasteUploader != null);
+
+			return new GestureConfig() {
+				Version = CurrentVersion,
+
+				KeyGestureCatalogUpdate = keyGestureCatalogUpdate,
+				KeyGestureCatalogSearch = keyGestureCatalogSearch,
+				KeyGestureCatalogModeToggleUpdate = keyGestureCatalogModeToggleUpdate,
+				KeyGestureCatalogOpenPost = keyGestureCatalogOpenPost,
+				KeyGestureCatalogClose = keyGestureCatalogClose,
+				KeyGestureCatalogNext = keyGestureCatalogNext,
+				KeyGestureCatalogPrevious = keyGestureCatalogPrevious,
+
+				KeyGestureThreadUpdate = keyGestureThreadUpdate,
+				KeyGestureThreadSearch = keyGestureThreadSearch,
+				KeyGestureThreadOpenTegaki = keyGestureThreadOpenTegaki,
+				KeyGestureThreadOpenPost = keyGestureThreadOpenPost,
+				KeyGestureThreadTabClose = keyGestureThreadTabClose,
+				KeyGestureThreadTabNext = keyGestureThreadTabNext,
+				KeyGestureThreadTabPrevious = keyGestureThreadTabPrevious,
+
+				KeyGesturePostViewPost = keyGesturePostViewPost,
+				KeyGesturePostViewOpenImage = keyGesturePostViewOpenImage,
+				KeyGesturePostViewOpenUploader = keyGesturePostViewOpenUploader,
+				KeyGesturePostViewDelete = keyGesturePostViewDelete,
+				KeyGesturePostViewClose = keyGesturePostViewClose,
+				KeyGesturePostViewPasteImage = keyGesturePostViewPasteImage,
+				KeyGesturePostViewPasteUploader = keyGesturePostViewPasteUploader,
+			};
+		}
 	}
 }

@@ -51,6 +51,56 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			InitializeComponent();
 
 			ViewModels.FutabaPostViewViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.PostCommandMessage>>()
+				.Subscribe(x => {
+					if((this.DataContext is ViewModels.FutabaPostViewViewModel vm) && (x.Token == vm.Token)) {
+						vm.OnPostViewPostClick(this.Contents);
+					}
+				});
+			ViewModels.FutabaPostViewViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.OpenImageCommandMessage>>()
+				.Subscribe(x => {
+					if((this.DataContext is ViewModels.FutabaPostViewViewModel vm) && (x.Token == vm.Token)) {
+						_ = vm.OpenImage(this.Contents);
+					}
+				});
+			ViewModels.FutabaPostViewViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.OpenLoaderCommandMessage>>()
+				.Subscribe(x => {
+					if((this.DataContext is ViewModels.FutabaPostViewViewModel vm) && (x.Token == vm.Token)) {
+						_ = vm.OpenUpload(this.Contents);
+					}
+				});
+			ViewModels.FutabaPostViewViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.DeleteCommandMessage>>()
+				.Subscribe(x => {
+					if((this.DataContext is ViewModels.FutabaPostViewViewModel vm) && (x.Token == vm.Token)) {
+						this.Contents?.PostData.Value.Reset();
+					}
+				});
+			ViewModels.FutabaPostViewViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.CloseCommandMessage>>()
+				.Subscribe(x => {
+					if((this.DataContext is ViewModels.FutabaPostViewViewModel vm) && (x.Token == vm.Token)) {
+						this.Visibility = Visibility.Hidden;
+					}
+				});
+			ViewModels.FutabaPostViewViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.PasteImageCommandMessage>>()
+				.Subscribe(x => {
+					if((this.DataContext is ViewModels.FutabaPostViewViewModel vm) && (x.Token == vm.Token)) {
+						_ = vm.PasteImage(this.Contents);
+					}
+				});
+			ViewModels.FutabaPostViewViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.PasteLoaderCommandMessage>>()
+				.Subscribe(x => {
+					if((this.DataContext is ViewModels.FutabaPostViewViewModel vm) && (x.Token == vm.Token)) {
+						_ = vm.PaseteUploader2(this.Contents);
+					}
+				});
+
+			ViewModels.FutabaPostViewViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.PostCloseMessage>>()
 				.Subscribe(x => {
 					if(x.Url == this.Contents?.Url) {

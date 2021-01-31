@@ -15,6 +15,7 @@ using Yarukizero.Net.MakiMoki.Wpf.PlatformData;
 using Yarukizero.Net.MakiMoki.Wpf.WpfConfig;
 using Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config;
 using Prism.Services.Dialogs;
+using System.Windows.Input;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class ConfigWindowViewModel : BindableBase, IDisposable {
@@ -56,6 +57,56 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 			public void Dispose() {
 				Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
+			}
+		}
+		public class GestureItem : IDisposable {
+			private KeyGestureConverter Converter { get; } = new KeyGestureConverter();
+
+			public ReactiveProperty<string> Input { get; } = new ReactiveProperty<string>("");
+			public ReactiveProperty<bool> InputValid { get; }
+			public ReactiveProperty<bool> AddCommandEnabled { get; }
+			public ReactiveProperty<Visibility> InputVisibility { get; }
+			public ReactiveCollection<ConfigListBoxItem> GestureCollection { get; } = new ReactiveCollection<ConfigListBoxItem>();
+			public ReactiveCommand AddCommand { get; } = new ReactiveCommand();
+
+			public GestureItem(string[] items) {
+				GestureCollection.AddRangeOnScheduler(
+					items.Select(x => new ConfigListBoxItem(GestureCollection, x, x)));
+				AddCommandEnabled = Input.Select(x => {
+					try {
+						if(!string.IsNullOrEmpty(x)) {
+							if(Converter.ConvertFromString(x) != null) {
+								return true;
+							}
+						}
+					}
+					catch(NotSupportedException) { }
+					catch(ArgumentException) { }
+					return false;
+				}).ToReactiveProperty();
+				AddCommand = AddCommandEnabled.ToReactiveCommand();
+				InputValid = new[] {
+					Input.Select(x => string.IsNullOrEmpty(x)).ToReactiveProperty(),
+					AddCommandEnabled,
+				}.CombineLatest(x => x.Any(y => y))
+					.ToReactiveProperty();
+				InputVisibility = InputValid
+					.Select(x => x ? Visibility.Collapsed : Visibility.Visible)
+					.ToReactiveProperty();
+				AddCommand.Subscribe(_ => OnAdd());
+			}
+
+			public void Dispose() {
+				Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
+			}
+
+			private void OnAdd() {
+				GestureCollection.AddOnScheduler(
+					new ConfigListBoxItem(
+						GestureCollection,
+						Input.Value,
+						Input.Value));
+				Input.Value = "";
 			}
 		}
 
@@ -122,6 +173,28 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> WindowTopmost { get; }
 		public ReactiveProperty<string> BrowserPath { get; }
 		public ReactiveProperty<int> WindowTheme { get; }
+
+		public ReactiveProperty<GestureItem> GestureMainWindowCatalogUpdate { get; }
+		public ReactiveProperty<GestureItem> GestureMainWindowCatalogSearch { get; }
+		public ReactiveProperty<GestureItem> GestureMainWindowCatalogModeToggleUpdate { get; }
+		public ReactiveProperty<GestureItem> GestureMainWindowCatalogOpenPost { get; }
+		public ReactiveProperty<GestureItem> GestureMainWindowCatalogClose { get; }
+		public ReactiveProperty<GestureItem> GestureMainWindowCatalogNext { get; }
+		public ReactiveProperty<GestureItem> GestureMainWindowCatalogPrevious { get; }
+		public ReactiveProperty<GestureItem> GestureMainWindowThreadUpdate { get; }
+		public ReactiveProperty<GestureItem> GestureMainWindowThreadSearch { get; }
+		public ReactiveProperty<GestureItem> GestureMainWindowThreadOpenTegaki { get; }
+		public ReactiveProperty<GestureItem> GestureMainWindowThreadOpenPost { get; }
+		public ReactiveProperty<GestureItem> GestureMainWindowThreadClose { get; }
+		public ReactiveProperty<GestureItem> GestureMainWindowThreadNext { get; }
+		public ReactiveProperty<GestureItem> GestureMainWindowThreadPrevious { get; }
+		public ReactiveProperty<GestureItem> GesturePostViewPost { get; }
+		public ReactiveProperty<GestureItem> GesturePostViewOpenImage { get; }
+		public ReactiveProperty<GestureItem> GesturePostViewOpenUploader { get; }
+		public ReactiveProperty<GestureItem> GesturePostViewDelete { get; }
+		public ReactiveProperty<GestureItem> GesturePostViewClose { get; }
+		public ReactiveProperty<GestureItem> GesturePostViewPasteImage { get; }
+		public ReactiveProperty<GestureItem> GesturePostViewPasteUploader { get; }
 
 		public ReactiveProperty<string> Canvas98Bookmarklet { get; }
 		public ReactiveProperty<string> Canvas98ExtendsName { get; } = new ReactiveProperty<string>(initialValue: "");
@@ -294,6 +367,49 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 			WindowTheme = new ReactiveProperty<int>((int)WpfConfigLoader.SystemConfig.WindowTheme);
 
+			GestureMainWindowCatalogUpdate = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogUpdate));
+			GestureMainWindowCatalogSearch = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogSearch));
+			GestureMainWindowCatalogModeToggleUpdate = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogModeToggleUpdate));
+			GestureMainWindowCatalogOpenPost = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogOpenPost));
+			GestureMainWindowCatalogClose = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogClose));
+			GestureMainWindowCatalogNext = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogNext));
+			GestureMainWindowCatalogPrevious = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogPrevious));
+			GestureMainWindowThreadUpdate = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureThreadUpdate));
+			GestureMainWindowThreadSearch = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureThreadSearch));
+			GestureMainWindowThreadOpenTegaki = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureThreadOpenTegaki));
+			GestureMainWindowThreadOpenPost = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureThreadOpenPost));
+			GestureMainWindowThreadClose = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureThreadTabClose));
+			GestureMainWindowThreadNext = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureThreadTabNext));
+			GestureMainWindowThreadPrevious = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureThreadTabPrevious));
+			GesturePostViewPost = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewPost));
+			GesturePostViewOpenImage = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewOpenImage));
+			GesturePostViewOpenUploader = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewOpenUploader));
+			GesturePostViewDelete = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewDelete));
+			GesturePostViewClose = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewClose));
+			GesturePostViewPasteImage = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewPasteImage));
+			GesturePostViewPasteUploader = new ReactiveProperty<GestureItem>(
+				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewPasteUploader));
+
 			Canvas98Bookmarklet = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.Bookmarklet ?? "");
 			Canvas98Extends.AddRangeOnScheduler(
 				Canvas98.Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ExtendBookmarklet
@@ -446,7 +562,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Ng.NgConfig.NgConfigLoader.UpdateNgImageMethod((Ng.NgData.ImageNgMethod)NgConfigImageMethod.Value);
 			Ng.NgConfig.NgConfigLoader.UpdateNgImageThreshold(NgConfigImageThreshold.Value);
 
-			var s = PlatformData.WpfConfig.Create(
+			WpfConfig.WpfConfigLoader.UpdateSystemConfig(PlatformData.WpfConfig.Create(
 				isEnabledMovieMarker: CatalogIsEnabledMovieMarker.Value,
 				isEnabledOldMarker: CatalogIsEnabledOldMarker.Value,
 				catalogNgImage: (PlatformData.CatalogNgImage)CatalogNgImageAction.Value,
@@ -481,8 +597,32 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				isEnabledFetchThumbnail: CatalogFetchImageThumbnail.Value,
 				commandPalettePosition: (PlatformData.UiPosition)CommandPalettePosition.Value,
 				canvas98Position: (PlatformData.UiPosition)Canvas98Position.Value
-			);
-			WpfConfig.WpfConfigLoader.UpdateSystemConfig(s);
+			));
+			WpfConfig.WpfConfigLoader.UpdateGestureConfig(PlatformData.GestureConfig.From(
+				keyGestureCatalogUpdate: GestureMainWindowCatalogUpdate.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGestureCatalogSearch: GestureMainWindowCatalogSearch.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGestureCatalogModeToggleUpdate: GestureMainWindowCatalogModeToggleUpdate.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGestureCatalogOpenPost: GestureMainWindowCatalogOpenPost.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGestureCatalogClose: GestureMainWindowCatalogClose.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGestureCatalogNext: GestureMainWindowCatalogNext.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGestureCatalogPrevious: GestureMainWindowCatalogPrevious.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+
+				keyGestureThreadUpdate: GestureMainWindowThreadUpdate.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGestureThreadSearch: GestureMainWindowThreadSearch.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGestureThreadOpenTegaki: GestureMainWindowThreadOpenTegaki.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGestureThreadOpenPost: GestureMainWindowThreadOpenPost.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGestureThreadTabClose: GestureMainWindowThreadClose.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGestureThreadTabNext: GestureMainWindowThreadNext.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGestureThreadTabPrevious: GestureMainWindowThreadPrevious.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+
+				keyGesturePostViewPost: GesturePostViewPost.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGesturePostViewOpenImage: GesturePostViewOpenImage.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGesturePostViewOpenUploader: GesturePostViewOpenUploader.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGesturePostViewDelete: GesturePostViewDelete.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGesturePostViewClose: GesturePostViewClose.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGesturePostViewPasteImage: GesturePostViewPasteImage.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+				keyGesturePostViewPasteUploader: GesturePostViewPasteUploader.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray()
+			));
 			Canvas98ConfigLoader.UpdateBookmarklet(
 				Canvas98Bookmarklet.Value,
 				Canvas98Extends

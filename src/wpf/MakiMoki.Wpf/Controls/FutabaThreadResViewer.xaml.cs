@@ -65,6 +65,39 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					})
 				)*/
 				.Add(ViewModels.FutabaThreadResViewerViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.ThreadUpdateCommandMessage>>()
+					.Subscribe(x => {
+						if(x?.Futaba == null) {
+							return;
+						}
+
+						if((x.Futaba.Url == this.Contents?.Futaba.Value?.Url) && (this.DataContext is ViewModels.FutabaThreadResViewerViewModel vm)) {
+							vm.KeyBindingUpdateCommand.Execute(x.Futaba);
+						}
+					})
+				).Add(ViewModels.FutabaThreadResViewerViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.ThreadSearchCommandMessage>>()
+					.Subscribe(x => {
+						if(x?.Futaba == null) {
+							return;
+						}
+
+						if((x.Futaba.Url == this.Contents?.Futaba.Value?.Url) && (this.DataContext is ViewModels.FutabaThreadResViewerViewModel vm)) {
+							vm.KeyBindingSearchCommand.Execute(x.Futaba);
+						}
+					})
+				).Add(ViewModels.FutabaThreadResViewerViewModel.Messenger.Instance
+					.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.ThreadOpenPostCommandMessage>>()
+					.Subscribe(x => {
+						if(x?.Futaba == null) {
+							return;
+						}
+
+						if((x.Futaba.Url == this.Contents?.Futaba.Value?.Url) && (this.DataContext is ViewModels.FutabaThreadResViewerViewModel vm)) {
+							vm.KeyBindingPostCommand.Execute(x.Futaba);
+						}
+					})
+				).Add(ViewModels.FutabaThreadResViewerViewModel.Messenger.Instance
 					.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.ScrollResMessage>>()
 					.Subscribe(async x => {
 						if(this.Contents != null) {

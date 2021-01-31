@@ -1,0 +1,61 @@
+{
+  "version": -1,
+
+  "gesture-key-catalog-update": [
+    "Ctrl+Alt+U",
+    "Ctrl+Alt+F5"
+  ],
+  "gesture-key-catalog-search": [
+    "Ctrl+Alt+F"
+  ],
+  "gesture-key-catalog-mode-change-toggle": [
+    "Ctrl+Alt+M"
+  ],
+  "gesture-key-catalog-open-post": [
+    "Ctrl+Alt+Enter"
+  ],
+  "gesture-key-catalog-close": [
+    "Ctrl+Alt+W"
+  ],
+  "gesture-key-catalog-next": [],
+  "gesture-key-catalog-previous": [],
+
+  "gesture-key-thread-update": [
+    "Ctrl+U",
+    "Ctrl+F5",
+    "F5"
+  ],
+  "gesture-key-thread-search": [
+    "Ctrl+F"
+  ],
+  "gesture-key-thread-open-tegaki": [],
+  "gesture-key-thread-open-post": [
+    "Ctrl+Enter"
+  ],
+  "gesture-key-thread-tab-close": [
+    "Ctrl+W",
+    "Ctrl+F4"
+  ],
+  "gesture-key-thread-tab-next": [],
+  "gesture-key-thread-tab-previous": [],
+
+  "gesture-key-post-view-post": [
+    "Ctrl+Enter"
+  ],
+  "gesture-key-post-view-open-image": [
+    "Ctrl+P"
+  ],
+  "gesture-key-post-view-open-uploader": [
+    "Ctrl+L"
+  ],
+  "gesture-key-post-view-close": [
+    "Esc"
+  ],
+  "gesture-key-post-view-delete": [
+    "Ctrl+D"
+  ],
+  "gesture-key-post-view-paste-image": [
+    "Ctrl+Shift+V"
+  ],
+  "gesture-key-post-view-paste-uploader": []
+}

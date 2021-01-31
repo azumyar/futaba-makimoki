@@ -48,9 +48,56 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 
 		private ScrollViewer scrollViewerCatalog;
+		private IDisposable CatalogUpdateCommandSubscriber { get; }
 
 		public FutabaCatalogViewer() {
 			InitializeComponent();
+
+			ViewModels.FutabaCatalogViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaCatalogViewerViewModel.CatalogUpdateCommandMessage>>()
+				.Subscribe(x => {
+					if(x?.Futaba == null) {
+						return;
+					}
+
+					if((x.Futaba.Url == this.Contents?.Futaba.Value?.Url) && (this.DataContext is ViewModels.FutabaCatalogViewerViewModel vm)) {
+						vm.KeyBindingUpdateCommand.Execute(x.Futaba);
+					}
+				});
+			ViewModels.FutabaCatalogViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaCatalogViewerViewModel.CatalogSearchCommandMessage>>()
+				.Subscribe(x => {
+					if(x?.Futaba == null) {
+						return;
+					}
+
+					if((x.Futaba.Url == this.Contents?.Futaba.Value?.Url) && (this.DataContext is ViewModels.FutabaCatalogViewerViewModel vm)) {
+						vm.KeyBindingSearchCommand.Execute(x.Futaba);
+					}
+				});
+			ViewModels.FutabaCatalogViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaCatalogViewerViewModel.CatalogModeCommandMessage>>()
+				.Subscribe(x => {
+					if(x?.Futaba == null) {
+						return;
+					}
+
+					if((x.Futaba.Url == this.Contents?.Futaba.Value?.Url) && (this.DataContext is ViewModels.FutabaCatalogViewerViewModel vm)) {
+						vm.KeyBindingModeCommand.Execute(x.Futaba);
+					}
+				});
+			ViewModels.FutabaCatalogViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaCatalogViewerViewModel.CatalogOpenPostCommandMessage>>()
+				.Subscribe(x => {
+					if(x?.Futaba == null) {
+						return;
+					}
+
+					if((x.Futaba.Url == this.Contents?.Futaba.Value?.Url) && (this.DataContext is ViewModels.FutabaCatalogViewerViewModel vm)) {
+						vm.KeyBindingPostCommand.Execute(x.Futaba);
+					}
+				});
+
 
 			ViewModels.FutabaCatalogViewerViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaCatalogViewerViewModel.CatalogListboxUpdatedMessage>>()

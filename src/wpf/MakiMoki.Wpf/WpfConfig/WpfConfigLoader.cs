@@ -17,11 +17,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 		internal static readonly string StyleLightConfigFile = "windows.style.light.json";
 		internal static readonly string StyleDarkConfigFile = "windows.style.dark.json";
 		internal static readonly string StyleUserConfigFile = "windows.style.user.json";
+		internal static readonly string GestureConfigFile = "windows.makimoki.gesture.json";
 #pragma warning disable IDE0044, IDE0052
 		private static volatile object lockObj = new object();
 #pragma warning restore IDE0052, IDE0044
 
 		public static Helpers.UpdateNotifyer<PlatformData.WpfConfig> SystemConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer<PlatformData.WpfConfig>();
+		public static Helpers.UpdateNotifyer<PlatformData.GestureConfig> GestureConfigUpdateNotifyer { get; } = new Helpers.UpdateNotifyer<PlatformData.GestureConfig>();
 
 		public class Setting {
 			public string WorkDirectory { get; set; } = null;
@@ -39,6 +41,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 			Placement = Util.FileUtil.LoadMigrate(
 				Path.Combine(InitializedSetting.WorkDirectory, PlacementConfigFile),
 				PlatformData.PlacementConfig.CreateDefault());
+			Gesture = Util.FileUtil.LoadMigrate(
+				Path.Combine(InitializedSetting.SystemDirectory, GestureConfigFile),
+				PlatformData.GestureConfig.CreateDefault());
 			if(Directory.Exists(InitializedSetting.UserDirectory)) {
 				SystemConfig = Util.FileUtil.LoadMigrate(
 					Path.Combine(InitializedSetting.UserDirectory, SystemConfigFile),
@@ -58,6 +63,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 						throw new Exceptions.InitializeFailedException(r.ErrorText);
 					}
 				}
+				if(File.Exists(Path.Combine(InitializedSetting.UserDirectory, GestureConfigFile))) {
+					Gesture = Util.FileUtil.LoadMigrate(
+						Path.Combine(InitializedSetting.WorkDirectory, GestureConfigFile),
+						Gesture);
+				}
 			}
 			UpdateStyle();
 		}
@@ -68,6 +78,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 		public static PlatformData.PlacementConfig Placement { get; private set; }
 
 		public static PlatformData.StyleConfig Style { get; private set; }
+
+		public static PlatformData.GestureConfig Gesture { get; private set; }
 
 		public static void AddSystemConfigUpdateNotifyer(Action<PlatformData.WpfConfig> action) {
 			SystemConfigUpdateNotifyer.AddHandler(action);
@@ -82,6 +94,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 			if(Directory.Exists(InitializedSetting.UserDirectory)) {
 				Util.FileUtil.SaveJson(
 					Path.Combine(InitializedSetting.UserDirectory, SystemConfigFile),
+					conf);
+			}
+		}
+
+		public static void UpdateGestureConfig(PlatformData.GestureConfig conf) {
+			System.Diagnostics.Debug.Assert(conf != null);
+
+			Gesture = conf;
+			GestureConfigUpdateNotifyer.Notify(conf);
+			if(Directory.Exists(InitializedSetting.UserDirectory)) {
+				Util.FileUtil.SaveJson(
+					Path.Combine(InitializedSetting.UserDirectory, GestureConfigFile),
 					conf);
 			}
 		}

@@ -26,6 +26,36 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		internal class Messenger : EventAggregator {
 			public static Messenger Instance { get; } = new Messenger();
 		}
+		internal class BaseCommandMessage {
+			public string Token { get; }
+
+			public BaseCommandMessage(string token) {
+				this.Token = token;
+			}
+		}
+		internal class PostCommandMessage : BaseCommandMessage {
+			public PostCommandMessage(string token) : base(token) { }
+		}
+		internal class OpenImageCommandMessage : BaseCommandMessage {
+			public OpenImageCommandMessage(string token) : base(token) { }
+		}
+		internal class OpenLoaderCommandMessage : BaseCommandMessage {
+			public OpenLoaderCommandMessage(string token) : base(token) { }
+		}
+		internal class DeleteCommandMessage : BaseCommandMessage {
+			public DeleteCommandMessage(string token) : base(token) { }
+		}
+		internal class CloseCommandMessage : BaseCommandMessage {
+			public CloseCommandMessage(string token) : base(token) { }
+		}
+		internal class PasteImageCommandMessage : BaseCommandMessage {
+			public PasteImageCommandMessage(string token) : base(token) { }
+		}
+		internal class PasteLoaderCommandMessage : BaseCommandMessage {
+			public PasteLoaderCommandMessage(string token) : base(token) { }
+		}
+
+
 		internal class PostCloseMessage {
 			public UrlContext Url { get; }
 
@@ -53,6 +83,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				this.Text = text;
 			}
 		}
+		public ReactiveProperty<KeyBinding[]> KeyGestures { get; } = new ReactiveProperty<KeyBinding[]>();
 
 		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>> ContentsChangedCommand { get; }
 			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>>();
@@ -68,14 +99,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<BindableFutaba> MenuItemClickPastePostImageCommand { get; } = new ReactiveCommand<BindableFutaba>();
 		public ReactiveCommand<BindableFutaba> MenuItemClickPastePostUpCommand { get; } = new ReactiveCommand<BindableFutaba>();
 
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingOpenImageCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingOpenUploadCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingDeleteCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingCloseCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingClipbordCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public ReactiveCommand KeyBindingPostCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingOpenImageCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingOpenLoaderCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingDeleteCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingCloseCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingPasteImageCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingPaseteLoaderCommand { get; } = new ReactiveCommand();
 
+		public string Token { get; } = Guid.NewGuid().ToString();
+
+		private Action<PlatformData.GestureConfig> onGestureConfigUpdateNotifyer;
 		public FutabaPostViewViewModel() {
+			UpdateKeyBindings();
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
 
 			OpenUploadCommand.Subscribe(x => OnOpenUpload(x));
@@ -88,16 +124,53 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			MenuItemClickPastePostImageCommand.Subscribe(x => OnMenuItemClickPastePostImage(x));
 			MenuItemClickPastePostUpCommand.Subscribe(x => OnMenuItemClickPastePostUp(x));
 
-			KeyBindingPostCommand.Subscribe(x => OnKeyBindingPost(x));
-			KeyBindingOpenImageCommand.Subscribe(x => OnKeyBindingOpenImage(x));
-			KeyBindingOpenUploadCommand.Subscribe(x => OnKeyBindingOpenUpload(x));
-			KeyBindingDeleteCommand.Subscribe(x => OnKeyBindingDelete(x));
-			KeyBindingCloseCommand.Subscribe(x => OnKeyBindingClose(x));
-			KeyBindingClipbordCommand.Subscribe(x => OnKeyBindingClipbord(x));
+			KeyBindingPostCommand.Subscribe(_ => OnKeyBindingPost());
+			KeyBindingOpenImageCommand.Subscribe(_ => OnKeyBindingOpenImage());
+			KeyBindingOpenLoaderCommand.Subscribe(_ => OnKeyBindingOpenUpload());
+			KeyBindingDeleteCommand.Subscribe(_ => OnKeyBindingDelete());
+			KeyBindingCloseCommand.Subscribe(_ => OnKeyBindingClose());
+			KeyBindingPasteImageCommand.Subscribe(_ => OnKeyBindingPasteImage());
+			KeyBindingPaseteLoaderCommand.Subscribe(_ => OnKeyBindingPasteLoader());
+
+			onGestureConfigUpdateNotifyer = (_) => UpdateKeyBindings();
+			WpfConfig.WpfConfigLoader.GestureConfigUpdateNotifyer.AddHandler(onGestureConfigUpdateNotifyer);
 		}
 
 		public void Dispose() {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
+		}
+
+		private void UpdateKeyBindings() {
+			var kg = new List<KeyBinding>();
+			var kc = new KeyGestureConverter();
+			KeyBinding GetKeyBinding(string s, ICommand c) {
+				if(kc.ConvertFromString(s) is KeyGesture kg) {
+					return new KeyBinding(c, kg);
+				}
+				return null;
+			}
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewPost
+				.Select(x => GetKeyBinding(x, this.KeyBindingPostCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewOpenImage
+				.Select(x => GetKeyBinding(x, this.KeyBindingOpenImageCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewOpenUploader
+				.Select(x => GetKeyBinding(x, this.KeyBindingOpenLoaderCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewDelete
+				.Select(x => GetKeyBinding(x, this.KeyBindingDeleteCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewClose
+				.Select(x => GetKeyBinding(x, this.KeyBindingCloseCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewPasteImage
+				.Select(x => GetKeyBinding(x, this.KeyBindingPasteImageCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewPasteUploader
+				.Select(x => GetKeyBinding(x, this.KeyBindingPaseteLoaderCommand))
+				.Where(x => x != null));
+			this.KeyGestures.Value = kg.ToArray();
 		}
 
 		private void UploadUp2(Model.BindableFutaba f, string path) {
@@ -112,7 +185,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				});
 		}
 
-		private async Task OpenUpload(Model.BindableFutaba f) {
+		public async Task OpenUpload(Model.BindableFutaba f) {
+			if(f == null) {
+				return;
+			}
+
 			try {
 				Application.Current.MainWindow.IsEnabled = false;
 				var ext = Config.ConfigLoader.MimeUp2.Types.Select(x => x.Ext);
@@ -171,7 +248,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private async Task OpenImage(Model.BindableFutaba f) {
+		public async Task OpenImage(Model.BindableFutaba f) {
+			if(f == null) {
+				return;
+			}
+
 			try {
 				Application.Current.MainWindow.IsEnabled = false;
 				var ext = Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext);
@@ -222,7 +303,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				&& ext.Contains(Path.GetExtension(files[0]).ToLower()));
 		}
 
-		private void OnPostViewPostClick(Model.BindableFutaba x) {
+		public void OnPostViewPostClick(Model.BindableFutaba x) {
 			if(x != null) {
 				if(!x.PostData.Value.PostButtonCommand.CanExecute()) {
 					return;
@@ -391,6 +472,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private async void OnMenuItemClickPastePostImage(Model.BindableFutaba f) {
+			await PasteImage(f);
+		}
+
+		private async void OnMenuItemClickPastePostUp(Model.BindableFutaba f) {
+			await PaseteUploader2(f);
+		}
+		
+		public async Task PasteImage(Model.BindableFutaba f) {
 			if(f.Raw.Url.IsThreadUrl && !f.Raw.Bord.Extra.ResImage) {
 				return;
 			}
@@ -400,36 +489,38 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				f.PostData.Value.ImagePath.Value = path;
 			}
 		}
+		public async Task PaseteUploader2(Model.BindableFutaba f) {
+			if(f == null) {
+				return;
+			}
 
-		private async void OnMenuItemClickPastePostUp(Model.BindableFutaba f) {
 			var path = await Paste(f, 3072000); // TODO: 設定ファイルに移動
 			if(!string.IsNullOrEmpty(path) && File.Exists(path)) {
 				this.UploadUp2(f, path);
 			}
 		}
-		
-		private void OnKeyBindingPost(Model.BindableFutaba f) {
-			this.OnPostViewPostClick(f);
-		}
 
-		private async void OnKeyBindingOpenImage(Model.BindableFutaba f) {
-			await this.OpenImage(f);
-		}
+		private void OnKeyBindingPost()
+			=> Messenger.Instance.GetEvent<PubSubEvent<PostCommandMessage>>()
+				.Publish(new PostCommandMessage(this.Token));
+		private void OnKeyBindingOpenImage()
+			=> Messenger.Instance.GetEvent<PubSubEvent<OpenImageCommandMessage>>()
+				.Publish(new OpenImageCommandMessage(this.Token));
+		private void OnKeyBindingOpenUpload()
+			=> Messenger.Instance.GetEvent<PubSubEvent<OpenLoaderCommandMessage>>()
+				.Publish(new OpenLoaderCommandMessage(this.Token));
+		private void OnKeyBindingDelete()
+			=> Messenger.Instance.GetEvent<PubSubEvent<DeleteCommandMessage>>()
+				.Publish(new DeleteCommandMessage(this.Token));
+		private void OnKeyBindingClose()
+			=> Messenger.Instance.GetEvent<PubSubEvent<CloseCommandMessage>>()
+				.Publish(new CloseCommandMessage(this.Token));
+		private void OnKeyBindingPasteImage()
+			=> Messenger.Instance.GetEvent<PubSubEvent<PasteImageCommandMessage>>()
+				.Publish(new PasteImageCommandMessage(this.Token));
+		private void OnKeyBindingPasteLoader()
+			=> Messenger.Instance.GetEvent<PubSubEvent<PasteLoaderCommandMessage>>()
+				.Publish(new PasteLoaderCommandMessage(this.Token));
 
-		private async void OnKeyBindingOpenUpload(Model.BindableFutaba f) {
-			await this.OpenUpload(f);
-		}
-
-		private void OnKeyBindingDelete(Model.BindableFutaba f) {
-			f.PostData.Value.Reset();
-		}
-
-		private void OnKeyBindingClose(Model.BindableFutaba f) {
-			Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(f.Url));
-		}
-
-		private void OnKeyBindingClipbord(Model.BindableFutaba f) {
-			OnMenuItemClickPastePostImage(f);
-		}
 	}
 }

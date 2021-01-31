@@ -47,6 +47,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<bool> Topmost { get; }
 		public ReactiveProperty<Visibility> TabVisibility { get; }
+		public ReactiveProperty<KeyBinding[]> KeyGestures { get; } = new ReactiveProperty<KeyBinding[]>(Array.Empty<KeyBinding>());
 
 		public ReactiveCommand<MouseButtonEventArgs> BordListClickCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
 		public ReactiveCommand<BoardData> BoardOpenCommand { get; } = new ReactiveCommand<BoardData>();
@@ -72,7 +73,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<Model.BindableFutaba> ThreadCloseDieCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
 		public ReactiveCommand<Model.BindableFutaba> ThreadCloseRightCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
 
-
+		/*
 		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentCatalogTabUpdateCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
 		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentCatalogTabSearchCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
 		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentCatalogTabSortCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
@@ -82,9 +83,25 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentThreadTabSearchCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
 		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentThreadTabPostCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
 		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentThreadTabCloseCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
+		*/
+		public ReactiveCommand KeyBindingCurrentCatalogTabUpdateCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingCurrentCatalogTabSearchCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingCurrentCatalogTabSortCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingCurrentCatalogTabModeCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingCurrentCatalogTabPostCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingCurrentCatalogTabCloseCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingNextCatalogTabCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingPreviouseCatalogTabCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingCurrentThreadTabUpdateCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingCurrentThreadTabSearchCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingCurrentThreadTabPostCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingCurrentThreadTabCloseCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingNextThreadTabCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand KeyBindingPreviouseThreadTabCommand { get; } = new ReactiveCommand();
 
 		private Action onBoardConfigUpdateNotifyer;
 		private Action<PlatformData.WpfConfig> onSystemConfigUpdateNotifyer;
+		private Action<PlatformData.GestureConfig> onGestureConfigUpdateNotifyer;
 
 		public MainWindowViewModel() {
 			Boards = new ReactiveProperty<Data.BoardData[]>(Config.ConfigLoader.Board.Boards);
@@ -114,6 +131,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}).ToReactiveProperty();
 			this.Topmost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledWindowTopmost);
 			this.TabVisibility = new ReactiveProperty<Visibility>((Catalogs.Count == 0) ? Visibility.Collapsed : Visibility.Visible);
+			this.UpdateKeyBindings();
 			BordListClickCommand.Subscribe(x => OnBordListClick(x));
 			ConfigButtonClickCommand.Subscribe(x => OnConfigButtonClick(x));
 			BoardOpenCommand.Subscribe(x => OnBordOpen(x));
@@ -139,25 +157,79 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			ThreadCloseAllCommand.Subscribe(x => OnThreadCloseAll(x));
 			ThreadCloseDieCommand.Subscribe(x => OnThreadCloseDie(x));
 
-			KeyBindingCurrentCatalogTabUpdateCommand.Subscribe(x => OnKeyBindingCurrentCatalogTabUpdate(x));
-			KeyBindingCurrentCatalogTabSearchCommand.Subscribe(x => OnKeyBindingCurrentCatalogTabSearch(x));
-			KeyBindingCurrentCatalogTabSortCommand.Subscribe(x => OnKeyBindingCurrentCatalogTabSort(x));
-			KeyBindingCurrentCatalogTabModeCommand.Subscribe(x => OnKeyBindingCurrentCatalogTabMode(x));
-			KeyBindingCurrentCatalogTabPostCommand.Subscribe(x => OnKeyBindingCurrentCatalogTabPost(x));
-			KeyBindingCurrentThreadTabUpdateCommand.Subscribe(x => OnKeyBindingCurrentThreadTabUpdate(x));
-			KeyBindingCurrentThreadTabSearchCommand.Subscribe(x => OnKeyBindingCurrentThreadTabSearch(x));
-			KeyBindingCurrentThreadTabPostCommand.Subscribe(x => OnKeyBindingCurrentThreadTabPost(x));
-			KeyBindingCurrentThreadTabCloseCommand.Subscribe(x => OnKeyBindingCurrentThreadTabClose(x));
+			KeyBindingCurrentCatalogTabUpdateCommand.Subscribe(_ => OnKeyBindingCurrentCatalogTabUpdate());
+			KeyBindingCurrentCatalogTabSearchCommand.Subscribe(_ => OnKeyBindingCurrentCatalogTabSearch());
+			KeyBindingCurrentCatalogTabModeCommand.Subscribe(_ => OnKeyBindingCurrentCatalogTabMode());
+			KeyBindingCurrentCatalogTabPostCommand.Subscribe(_ => OnKeyBindingCurrentCatalogTabPost());
+			KeyBindingCurrentCatalogTabCloseCommand.Subscribe(_ => OnKeyBindingCurrentCatalogTabClose());
+			KeyBindingNextCatalogTabCommand.Subscribe(_ => OnKeyBindingNextCatalogTab());
+			KeyBindingPreviouseCatalogTabCommand.Subscribe(_ => OnKeyBindingPreviouseCatalogTab());
+			KeyBindingCurrentThreadTabUpdateCommand.Subscribe(_ => OnKeyBindingCurrentThreadTabUpdate());
+			KeyBindingCurrentThreadTabSearchCommand.Subscribe(_ => OnKeyBindingCurrentThreadTabSearch());
+			KeyBindingCurrentThreadTabPostCommand.Subscribe(_ => OnKeyBindingCurrentThreadTabPost());
+			KeyBindingCurrentThreadTabCloseCommand.Subscribe(_ => OnKeyBindingCurrentThreadTabClose());
+			KeyBindingNextThreadTabCommand.Subscribe(_ => OnKeyBindingNextThreadTab());
+			KeyBindingPreviouseThreadTabCommand.Subscribe(_ => OnKeyBindingPreviouseThreadTab());
 
 			onBoardConfigUpdateNotifyer = () => Boards.Value = Config.ConfigLoader.Board.Boards;
 			onSystemConfigUpdateNotifyer = (_) => {
 				Topmost.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledWindowTopmost;
 			};
+			onGestureConfigUpdateNotifyer = (_) => UpdateKeyBindings();
 			Config.ConfigLoader.BoardConfigUpdateNotifyer.AddHandler(onBoardConfigUpdateNotifyer);
 			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(onSystemConfigUpdateNotifyer);
+			WpfConfig.WpfConfigLoader.GestureConfigUpdateNotifyer.AddHandler(onGestureConfigUpdateNotifyer);
 		}
 		public void Dispose() {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
+		}
+
+		private void UpdateKeyBindings() {
+			var kg = new List<KeyBinding>();
+			var kc = new KeyGestureConverter();
+			KeyBinding GetKeyBinding(string s, ICommand c) {
+				if(kc.ConvertFromString(s) is KeyGesture kg) {
+					return new KeyBinding(c, kg);
+				}
+				return null;
+			}
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogUpdate
+				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentCatalogTabUpdateCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogSearch
+				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentCatalogTabSearchCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogModeToggleUpdate
+				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentCatalogTabModeCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogClose
+				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentCatalogTabCloseCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogNext
+				.Select(x => GetKeyBinding(x, this.KeyBindingNextCatalogTabCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogPrevious
+				.Select(x => GetKeyBinding(x, this.KeyBindingPreviouseCatalogTabCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureThreadUpdate
+				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentThreadTabUpdateCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureThreadSearch
+				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentThreadTabSearchCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureThreadOpenPost
+				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentThreadTabPostCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureThreadTabClose
+				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentThreadTabCloseCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureThreadTabNext
+				.Select(x => GetKeyBinding(x, this.KeyBindingNextThreadTabCommand))
+				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureThreadTabPrevious
+				.Select(x => GetKeyBinding(x, this.KeyBindingPreviouseThreadTabCommand))
+				.Where(x => x != null));
+			this.KeyGestures.Value = kg.ToArray();
 		}
 
 		private void OnBordListClick(MouseButtonEventArgs e) {
@@ -412,6 +484,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnCatalogThreadClose(Model.BindableFutaba futaba) {
+			if(futaba == null) {
+				return;
+			}
+
 			Util.Futaba.Remove(futaba.Raw.Url);
 		}
 
@@ -466,112 +542,117 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Util.Futaba.Remove(f.Url);
 			}
 		}
-
-		private System.Windows.Controls.TabControl GetCatalogTab(Windows.MainWindow w) {
-			System.Diagnostics.Debug.Assert(w != null);
-
-			return WpfUtil.WpfHelper.FindFirstChild<System.Windows.Controls.TabControl>(w);
-		}
-		private Controls.FutabaCatalogViewer GetCatalogView(System.Windows.Controls.TabControl t) {
-			if(t == null) {
-				return null;
+		private void OnKeyBindingCurrentCatalogTabUpdate()
+			=> FutabaCatalogViewerViewModel.Messenger.Instance.GetEvent<PubSubEvent<ViewModels.FutabaCatalogViewerViewModel.CatalogUpdateCommandMessage>>()
+				.Publish(new FutabaCatalogViewerViewModel.CatalogUpdateCommandMessage(
+					this.TabControlSelectedItem.Value?.Futaba.Value));
+		private void OnKeyBindingCurrentCatalogTabSearch()
+			=> FutabaCatalogViewerViewModel.Messenger.Instance.GetEvent<PubSubEvent<ViewModels.FutabaCatalogViewerViewModel.CatalogSearchCommandMessage>>()
+				.Publish(new FutabaCatalogViewerViewModel.CatalogSearchCommandMessage(
+					this.TabControlSelectedItem.Value?.Futaba.Value));
+		private void OnKeyBindingCurrentCatalogTabMode()
+			=> FutabaCatalogViewerViewModel.Messenger.Instance.GetEvent<PubSubEvent<ViewModels.FutabaCatalogViewerViewModel.CatalogModeCommandMessage>>()
+				.Publish(new FutabaCatalogViewerViewModel.CatalogModeCommandMessage(
+					this.TabControlSelectedItem.Value?.Futaba.Value));
+		private void OnKeyBindingCurrentCatalogTabPost()
+			=> FutabaCatalogViewerViewModel.Messenger.Instance.GetEvent<PubSubEvent<ViewModels.FutabaCatalogViewerViewModel.CatalogOpenPostCommandMessage>>()
+				.Publish(new FutabaCatalogViewerViewModel.CatalogOpenPostCommandMessage(
+					this.TabControlSelectedItem.Value?.Futaba.Value));
+		private void OnKeyBindingCurrentCatalogTabClose()
+			=> OnCatalogThreadClose(this.TabControlSelectedItem.Value?.Futaba.Value);
+		private void OnKeyBindingNextCatalogTab() {
+			if(this.Catalogs.Count <= 1) {
+				return;
+			}
+			if(TabControlSelectedItem.Value == null) {
+				TabControlSelectedItem.Value = this.Catalogs.First();
 			}
 
-			return WpfUtil.WpfHelper.FindFirstChild<Controls.FutabaCatalogViewer>(t);
+			for(var i = 0; i < this.Catalogs.Count; i++) {
+				if(this.Catalogs[i].Url == TabControlSelectedItem.Value.Url) {
+					var p = i + 1;
+					if(this.Catalogs.Count <= p) {
+						TabControlSelectedItem.Value = this.Catalogs.First();
+					} else {
+						TabControlSelectedItem.Value = this.Catalogs.Skip(p).First();
+					}
+					break;
+				}
+			}
 		}
-		private System.Windows.Controls.TabControl GetThreadTab(Windows.MainWindow w) {
-			System.Diagnostics.Debug.Assert(w != null);
+		private void OnKeyBindingPreviouseCatalogTab() {
+			if(this.Catalogs.Count <= 1) {
+				return;
+			}
+			if(TabControlSelectedItem.Value == null) {
+				TabControlSelectedItem.Value = this.Catalogs.Last();
+			}
 
-			var t = GetCatalogTab(w);
-			if(t != null) {
-				return WpfUtil.WpfHelper.FindFirstChild<System.Windows.Controls.TabControl>(t);
+			for(var i = 0; i < this.Catalogs.Count; i++) {
+				if(this.Catalogs[i].Url == TabControlSelectedItem.Value.Url) {
+					var p = i - 1;
+					if(p < 0) {
+						TabControlSelectedItem.Value = this.Catalogs.Last();
+					} else {
+						TabControlSelectedItem.Value = this.Catalogs.Skip(p).First();
+					}
+					break;
+				}
 			}
-			return null;
 		}
-		private Controls.FutabaThreadResViewer GetThreadView(System.Windows.Controls.TabControl t) {
-			if(t == null) {
-				return null;
+		private void OnKeyBindingCurrentThreadTabUpdate()
+			=> FutabaThreadResViewerViewModel.Messenger.Instance.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.ThreadUpdateCommandMessage>>()
+				.Publish(new FutabaThreadResViewerViewModel.ThreadUpdateCommandMessage(
+					this.ThreadTabSelectedItem.Value?.Futaba.Value));
+
+		private void OnKeyBindingCurrentThreadTabSearch()
+			=> FutabaThreadResViewerViewModel.Messenger.Instance.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.ThreadSearchCommandMessage>>()
+				.Publish(new FutabaThreadResViewerViewModel.ThreadSearchCommandMessage(
+					this.ThreadTabSelectedItem.Value?.Futaba.Value));
+		private void OnKeyBindingCurrentThreadTabPost()
+			=> FutabaThreadResViewerViewModel.Messenger.Instance.GetEvent<PubSubEvent<ViewModels.FutabaThreadResViewerViewModel.ThreadOpenPostCommandMessage>>()
+				.Publish(new FutabaThreadResViewerViewModel.ThreadOpenPostCommandMessage(
+					this.ThreadTabSelectedItem.Value?.Futaba.Value));
+		private void OnKeyBindingCurrentThreadTabClose()
+			=> OnCatalogThreadClose(this.ThreadTabSelectedItem.Value?.Futaba.Value);
+		private void OnKeyBindingNextThreadTab() {
+			if(this.Threads.Value.Count <= 1) {
+				return;
+			}
+			if(ThreadTabSelectedItem.Value == null) {
+				ThreadTabSelectedItem.Value = this.Threads.Value.First();
 			}
 
-			return WpfUtil.WpfHelper.FindFirstChild<Controls.FutabaThreadResViewer>(t);
+			for(var i = 0; i < this.Threads.Value.Count; i++) {
+				if(this.Threads.Value[i].Url == ThreadTabSelectedItem.Value.Url) {
+					var p = i + 1;
+					if(this.Threads.Value.Count <= p) {
+						ThreadTabSelectedItem.Value = this.Threads.Value.First();
+					} else {
+						ThreadTabSelectedItem.Value = this.Threads.Value.Skip(p).First();
+					}
+					break;
+				}
+			}
 		}
+		private void OnKeyBindingPreviouseThreadTab() {
+			if(this.Threads.Value.Count <= 1) {
+				return;
+			}
+			if(ThreadTabSelectedItem.Value == null) {
+				ThreadTabSelectedItem.Value = this.Threads.Value.Last();
+			}
 
-		private (bool Successed, Model.BindableFutaba Futaba, ViewModels.FutabaCatalogViewerViewModel ViewModel) GetCatalog(Windows.MainWindow w) {
-			System.Diagnostics.Debug.Assert(w != null);
-
-			var ct = GetCatalogTab(w);
-			var cv = GetCatalogView(ct);
-			if(ct?.SelectedItem is TabItem ti && cv?.DataContext is ViewModels.FutabaCatalogViewerViewModel vm) {
-				return (true, ti.Futaba.Value, vm);
-			} else {
-				return (false, null, null);
-			}
-		}
-
-		private (bool Successed, Model.BindableFutaba Futaba, ViewModels.FutabaThreadResViewerViewModel ViewModel) GetThread(Windows.MainWindow w) {
-			System.Diagnostics.Debug.Assert(w != null);
-
-			var tt = GetThreadTab(w);
-			var tv = GetThreadView(tt);
-			if(tt?.SelectedItem is TabItem ti && tv?.DataContext is ViewModels.FutabaThreadResViewerViewModel vm) {
-				return (true, ti.Futaba.Value, vm);
-			} else {
-				return (false, null, null);
-			}
-		}
-
-		private void OnKeyBindingCurrentCatalogTabUpdate(Windows.MainWindow w) {
-			var c = GetCatalog(w);
-			if(c.Successed) {
-				c.ViewModel.KeyBindingUpdateCommand.Execute(c.Futaba);
-			}
-		}
-		private void OnKeyBindingCurrentCatalogTabSearch(Windows.MainWindow w) {
-			var c = GetCatalog(w);
-			if(c.Successed) {
-				c.ViewModel.KeyBindingSearchCommand.Execute(c.Futaba);
-			}
-		}
-		private void OnKeyBindingCurrentCatalogTabSort(Windows.MainWindow w) {
-			var c = GetCatalog(w);
-			if(c.Successed) {
-				c.ViewModel.KeyBindingSortCommand.Execute(c.Futaba);
-			}
-		}
-		private void OnKeyBindingCurrentCatalogTabMode(Windows.MainWindow w) {
-			var c = GetCatalog(w);
-			if(c.Successed) {
-				c.ViewModel.KeyBindingModeCommand.Execute(c.Futaba);
-			}
-		}
-		private void OnKeyBindingCurrentCatalogTabPost(Windows.MainWindow w) {
-			var c = GetCatalog(w);
-			if(c.Successed) {
-				c.ViewModel.KeyBindingPostCommand.Execute(c.Futaba);
-			}
-		}
-		private void OnKeyBindingCurrentThreadTabUpdate(Windows.MainWindow w) {
-			var t = GetThread(w);
-			if(t.Successed) {
-				t.ViewModel.KeyBindingUpdateCommand.Execute(t.Futaba);
-			}
-		}
-		private void OnKeyBindingCurrentThreadTabSearch(Windows.MainWindow w) {
-			var t = GetThread(w);
-			if(t.Successed) {
-				t.ViewModel.KeyBindingSearchCommand.Execute(t.Futaba);
-			}
-		}
-		private void OnKeyBindingCurrentThreadTabPost(Windows.MainWindow w) {
-			var t = GetThread(w);
-			if(t.Successed) {
-				t.ViewModel.KeyBindingPostCommand.Execute(t.Futaba);
-			}
-		}
-		private void OnKeyBindingCurrentThreadTabClose(Windows.MainWindow w) {
-			var t = GetThread(w);
-			if(t.Successed) {
-				OnCatalogThreadClose(t.Futaba);
+			for(var i =0; i< this.Threads.Value.Count; i++) {
+				if(this.Threads.Value[i].Url == ThreadTabSelectedItem.Value.Url) {
+					var p = i - 1;
+					if(p < 0) {
+						ThreadTabSelectedItem.Value = this.Threads.Value.Last();
+					} else {
+						ThreadTabSelectedItem.Value = this.Threads.Value.Skip(p).First();
+					}
+					break;
+				}
 			}
 		}
 	}
