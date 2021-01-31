@@ -231,7 +231,7 @@
                         Margin="0 4 0 4" Padding="1"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
                         Text="{Binding PostData.Value.Password.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        local:PlaceHolderBehavior.PlaceHolderText="削除キー">
+                        local:PlaceHolderBehavior.PlaceHolderText="削除キー(必須)">
                         <TextBox.Foreground>
                             <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                         </TextBox.Foreground>
