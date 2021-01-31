@@ -157,7 +157,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			= new ReactiveCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs>();
 
 		private IDisposable CloseToSubscriber { get; }
-		private IDisposable PostFromSubscriber { get; }
 		private bool isThreadImageClicking = false;
 		private readonly Action<PlatformData.WpfConfig> systemConfigNotifyAction;
 		private readonly Action<Canvas98.Canvas98Data.Canvas98Bookmarklet> canvas98BookmarkletNotifyAction;
@@ -172,24 +171,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				.GetEvent<PubSubEvent<Canvas98.ViewModels.FutabaCanvas98ViewViewModel.CloseTo>>()
 				.Subscribe(_ => {
 					IsExecuteCanvas98.Value = false;
-				});
-			PostFromSubscriber = Canvas98.ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
-				.GetEvent<PubSubEvent<Canvas98.ViewModels.FutabaCanvas98ViewViewModel.PostFrom>>()
-				.Subscribe(x => {
-					var b = Config.ConfigLoader.Board.Boards
-						.Where(y => y.Url == x.Url.BaseUrl)
-						.FirstOrDefault();
-					if(b != null) {
-						Config.ConfigLoader.UpdateFutabaInputData(
-							b,
-							x.Form.Subject, x.Form.Name,
-							x.Form.Email, x.Form.Password);
-						Util.Futaba.UpdateThreadRes(
-							b,
-							x.Url.ThreadNo,
-							Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
-							.Subscribe();
-					}
 				});
 			ThreadViewRegionManager = new ReactiveProperty<IRegionManager>(regionManager.CreateRegionManager())
 				.ToReadOnlyReactiveProperty();
