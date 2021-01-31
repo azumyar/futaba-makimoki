@@ -420,7 +420,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	}
 
 	public class GestureConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = -1;
+		public static int CurrentVersion { get; } = 2021020100;
 
 		[JsonProperty("gesture-key-catalog-update", Required = Required.Always)]
 		public string[] KeyGestureCatalogUpdate { get; private set; }

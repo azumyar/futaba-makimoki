@@ -38,12 +38,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 			SystemConfig = Util.FileUtil.LoadMigrate(
 				loader.Get(SystemConfigFile),
 				PlatformData.WpfConfig.CreateDefault());
+			Gesture = Util.FileUtil.LoadMigrate(
+				loader.Get(GestureConfigFile),
+				PlatformData.GestureConfig.CreateDefault());
 			Placement = Util.FileUtil.LoadMigrate(
 				Path.Combine(InitializedSetting.WorkDirectory, PlacementConfigFile),
 				PlatformData.PlacementConfig.CreateDefault());
-			Gesture = Util.FileUtil.LoadMigrate(
-				Path.Combine(InitializedSetting.SystemDirectory, GestureConfigFile),
-				PlatformData.GestureConfig.CreateDefault());
 			if(Directory.Exists(InitializedSetting.UserDirectory)) {
 				SystemConfig = Util.FileUtil.LoadMigrate(
 					Path.Combine(InitializedSetting.UserDirectory, SystemConfigFile),

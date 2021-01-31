@@ -55,9 +55,9 @@
     <None Include="Config.d\windows.exe.json.sample">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Content Include="Config.d\windows.makimoki.gesture.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <EmbeddedResource Include="WpfConfig\windows.makimoki.gesture.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="WpfConfig\windows.makimoki.json" />
     <EmbeddedResource Include="WpfConfig\windows.style.light.json" />
     <EmbeddedResource Include="WpfConfig\windows.style.dark.json" />
