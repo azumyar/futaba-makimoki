@@ -123,7 +123,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 							if(!this.isDisposed && this.IsThisMedia(x.Media)) {
 								this.isDisposed = true;
 								GetMediaPlayer()
-									.Finally(async () => {
+									.Finally(() => {
 										//this.VideoView.MediaPlayer.Dispose();
 										this.VideoView.Dispose();
 										disposable.Dispose();
@@ -220,7 +220,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 
 		private bool IsThisMedia(PlatformData.FutabaMedia media) {
 			if((media != null) && (this.DataContext is ViewModels.FutabaMediaViewerViewModel vm)) {
-				if(vm.Media?.GetToken() == media.GetToken()) {
+				if(vm.Media.Value?.GetToken() == media.GetToken()) {
 					return true;
 				}
 			}

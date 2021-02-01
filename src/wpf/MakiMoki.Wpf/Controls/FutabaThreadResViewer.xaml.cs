@@ -217,7 +217,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			return default(T);
 		}
 
-		private static async void OnContentsChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
+		private static void OnContentsChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
 			if(obj is UIElement el) {
 				el.RaiseEvent(new RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>(
 					e.OldValue as Model.IFutabaViewerContents,

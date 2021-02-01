@@ -133,7 +133,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> IsExecuteCanvas98 { get; } = new ReactiveProperty<bool>(false);
 		public ReactiveProperty<PlatformData.UiPosition> Canvas98Position { get; }
 
-
+		public ReactiveProperty<Visibility> MediaViewerVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Hidden);
 		public ReactiveProperty<bool> IsEnbaledCanvas98FullScreen { get; }
 		public ReactiveProperty<bool> IsEnbaledCanvas98Right { get; }
 		public ReactiveProperty<bool> IsEnbaledCanvas98Bottom { get; }
@@ -170,6 +170,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<string> Canvas98BottomRegion { get; }
 
 		public FutabaThreadResViewerViewModel(IRegionManager regionManager) {
+			ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.ViewerCloseMessage>>()
+				.Subscribe(x => {
+					if(x.RegionName == this.MediaViewerRegion.Value) {
+						this.MediaViewerVisibility.Value = Visibility.Hidden;
+					}
+				});
 			CloseToSubscriber = Canvas98.ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<Canvas98.ViewModels.FutabaCanvas98ViewViewModel.CloseTo>>()
 				.Subscribe(_ => {
@@ -717,11 +724,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OpenMediaViewer(PlatformData.FutabaMedia media) {
+			this.MediaViewerVisibility.Value = Visibility.Visible;
 			this.ThreadViewRegionManager.Value.RequestNavigate(
 				this.MediaViewerRegion.Value,
 				nameof(Controls.FutabaMediaViewer),
 				new NavigationParameters {
-					{ typeof(PlatformData.FutabaMedia).FullName, media }
+					{
+						typeof(FutabaMediaViewerViewModel.NavigationParameters).FullName,
+						new FutabaMediaViewerViewModel.NavigationParameters(
+							this.MediaViewerRegion.Value,
+							media)
+					}
 				});
 		}
 
