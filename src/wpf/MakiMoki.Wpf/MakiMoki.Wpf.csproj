@@ -66,6 +66,7 @@
     <ProjectReference Include="..\..\core\MakiMoki.Core.Ng\MakiMoki.Core.Ng.csproj" />
     <ProjectReference Include="..\..\core\MakiMoki.Core\MakiMoki.Core.csproj" />
     <ProjectReference Include="..\MakiMoki.Wpf.Canvas98\MakiMoki.Wpf.Canvas98.csproj" />
+    <ProjectReference Include="..\MakiMoki.Wpf.Reactive\MakiMoki.Wpf.Reactive.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Emoji.Wpf" Version="0.2.1" />
