@@ -548,16 +548,19 @@
                     VirtualizingPanel.VirtualizationMode="Recycling"
                     HorizontalContentAlignment="Stretch"
                     >
+                    <ListBox.Effect>
+                        <BlurEffect Radius="0" />
+                    </ListBox.Effect>
                     <ListBox.Style>
                         <Style TargetType="ListBox">
                             <Setter Property="Template">
                                 <Setter.Value>
-                                    <ControlTemplate TargetType="ListBox">
+                                   <ControlTemplate TargetType="ListBox">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="2*" />
-                                            </Grid.ColumnDefinitions>
+                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="*" />
                                                 <RowDefinition Height="2*" />
@@ -568,7 +571,7 @@
                                                 Grid.Row="1"
                                                 Grid.Column="1"
                                                 Margin="48"
-                                                Opacity="0.4"
+                                                Opacity="{DynamicResource FailsafeThreadImageOpacity}"
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Bottom"
                                                 Visibility="{Binding FailsafeMistakePostVisibility.Value, Mode=OneWay}"
@@ -581,7 +584,7 @@
                                                         <BitmapCache RenderAtScale="1" />
                                                     </Image.CacheMode>
                                                     <Image.Effect>
-                                                        <BlurEffect Radius="15" />
+                                                        <BlurEffect Radius="{DynamicResource FailsafeThreadImageBlurRadius}" />
                                                     </Image.Effect>
 
                                                     <!--
@@ -1197,7 +1200,45 @@
                     prism:RegionManager.RegionName="{Binding MediaViewerRegion.Value, Mode=OneWay}"
                     Grid.Row="0" Grid.RowSpan="{Binding DataContext.ListBoxRowSpan.Value, Mode=OneWay, ElementName=_this}"
                     Grid.Column="0" Grid.ColumnSpan="{Binding DataContext.ListBoxColumnSpan.Value, Mode=OneWay, ElementName=_this}"
-                    />
+                    Visibility="{Binding MediaViewerVisibility.Value, Mode=OneWay}"
+                    >
+                    <ContentControl.Resources>
+                        <Storyboard x:Key="StartBlur">
+                            <DoubleAnimationUsingKeyFrames
+                                BeginTime="00:00:00"
+                                Storyboard.TargetName="ThreadResListBox"
+                                Storyboard.TargetProperty="(UIElement.Effect).(BlurEffect.Radius)">
+                                
+                                <SplineDoubleKeyFrame KeyTime="00:00:00.5000000" Value="10" />
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <Storyboard x:Key="EndBlur">
+                            <DoubleAnimationUsingKeyFrames
+                                BeginTime="00:00:00"
+                                Storyboard.TargetName="ThreadResListBox"
+                                Storyboard.TargetProperty="(UIElement.Effect).(BlurEffect.Radius)">
+
+                                <SplineDoubleKeyFrame KeyTime="00:00:00.2500000" Value="0" />
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </ContentControl.Resources>
+                    <i:Interaction.Triggers>
+                        <i:DataTrigger
+                            Binding="{Binding Visibility, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}"
+                            Value="Visible"
+                            Comparison="Equal">
+
+                            <i:ControlStoryboardAction Storyboard="{StaticResource StartBlur}" />
+                        </i:DataTrigger>
+                        <i:DataTrigger
+                            Binding="{Binding Visibility, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}"
+                            Value="Visible"
+                            Comparison="NotEqual">
+
+                            <i:ControlStoryboardAction Storyboard="{StaticResource EndBlur}" />
+                        </i:DataTrigger>
+                    </i:Interaction.Triggers>
+                </ContentControl>
 
 
                 <!-- 書き込みサブウィンドウ -->

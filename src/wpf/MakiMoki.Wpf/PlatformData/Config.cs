@@ -343,7 +343,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("font-post", Required = Required.Always)]
 		public string PostFont { get; private set; }
 
-
+		[JsonProperty("opacity-failsafe-thread-image", Required = Required.Always)]
+		public double FailsafeThreadImageOpacity { get; private set; }
+		[JsonProperty("blur-radius-failsafe-thread-image", Required = Required.Always)]
+		public double FailsafeThreadImageBlurRadius { get; private set; }
 
 		public (bool Successed, string ErrorText) Validate() {
 			if(!((this.StyleType == StyleType.Light) || (this.StyleType == StyleType.Dark))) {

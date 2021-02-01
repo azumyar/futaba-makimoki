@@ -54,8 +54,7 @@
             Visibility="{Binding ImageViewVisibility.Value, Mode=OneWay}"
             HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled"
             ClipToBounds="True"
-            IsManipulationEnabled="True"
-            Tag="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}">
+            IsManipulationEnabled="True">
             <Viewbox 
                 StretchDirection="DownOnly"
                 RenderTransform="{Binding ImageMatrix.Value, Mode=TwoWay}">
@@ -63,8 +62,8 @@
                     x:Name="image"
                     gif:ImageBehavior.RepeatBehavior="Forever"
                     gif:ImageBehavior.AnimatedSource="{Binding ImageSource.Value, Mode=OneWay}"
-                    Width="{Binding DataContext.ImageSource.Value.PixelWidth, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}"
-                    Height="{Binding DataContext.ImageSource.Value.PixelHeight, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}"
+                    Width="{Binding ImageSource.Value.PixelWidth, Mode=OneWay}"
+                    Height="{Binding ImageSource.Value.PixelHeight, Mode=OneWay}"
                     IsHitTestVisible="False"
                     RenderOptions.EdgeMode="Aliased"
                     RenderOptions.BitmapScalingMode="Fant">
@@ -76,17 +75,16 @@
             <ScrollViewer.ContextMenu>
                 <ContextMenu
                     DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
-                    Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}"
                     IsOpen="{Binding PlacementTarget.DataContext.ImageContextMenuOpened.Value, Mode=TwoWay, RelativeSource={RelativeSource Self}}">
                     <MenuItem
                         Header="保存"
                         Command="{Binding MenuItemClickSaveCommand, Mode=OneWay}"
-                        CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                        CommandParameter="{Binding Media.Value, Mode=OneWay}" />
                     <MenuItem Header="クイック保存">
                         <MenuItem.ItemsSource>
                             <!-- UpdateTokenいらないかも -->
                             <MultiBinding Converter="{StaticResource MediaEnumQuickSaveItemConverter}">
-                                <Binding Path="Tag.Contents" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                <Binding Path="Media.Value" Mode="OneWay" />
                                 <Binding Path="UpdateToken.Value" Mode="OneWay" />
                             </MultiBinding>
                         </MenuItem.ItemsSource>
@@ -94,7 +92,7 @@
                             <Style TargetType="MenuItem">
                                 <Setter Property="Header" Value="{Binding Name.Value}" />
                                 <Setter Property="IsEnabled" Value="{Binding IsEnabled.Value}" />
-                                <Setter Property="Command" Value="{Binding DataContext.MenuItemClickQuickSaveCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                <Setter Property="Command" Value="{Binding DataContext.MenuItemClickQuickSaveCommand, Mode=OneWay,  RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                 <Setter Property="CommandParameter" Value="{Binding}" />
                             </Style>
                         </MenuItem.ItemContainerStyle>
@@ -103,16 +101,16 @@
                     <MenuItem
                         Header="google画像検索"
                         Command="{Binding MenuItemClickImageSearchGoogleCommand,Mode=OneWay}"
-                        CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                        CommandParameter="{Binding Media.Value, Mode=OneWay}" />
                     <MenuItem
                         Header="二次元画像詳細検索"
                         Command="{Binding MenuItemClickImageSearchAscii2dCommand,Mode=OneWay}"
-                        CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                        CommandParameter="{Binding Media.Value, Mode=OneWay}" />
                     <Separator />
                     <MenuItem
                         Header="ブラウザで開く"
                         Command="{Binding MenuItemClickQuickOpenBrowserCommand,Mode=OneWay}"
-                        CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                        CommandParameter="{Binding Media.Value, Mode=OneWay}" />
                 </ContextMenu>
             </ScrollViewer.ContextMenu>
             <i:Interaction.Triggers>
@@ -195,16 +193,15 @@
                         <ContextMenu
                             x:Key="ContextMenu"
                             Placement="Top"
-                            DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
-                            Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                            DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                             <MenuItem
                                 Header="保存"
                                 Command="{Binding MenuItemClickSaveCommand, Mode=OneWay}"
-                                CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                CommandParameter="{Binding Media.Value, Mode=OneWay}" />
                             <MenuItem Header="クイック保存">
                                 <MenuItem.ItemsSource>
                                     <MultiBinding Converter="{StaticResource MediaEnumQuickSaveItemConverter}">
-                                        <Binding Path="Tag.Contents" Mode="OneWay" RelativeSource="{RelativeSource FindAncestor, AncestorType=ContextMenu}" />
+                                        <Binding Path="Media.Value" Mode="OneWay" />
                                         <Binding Path="UpdateToken.Value" Mode="OneWay" />
                                     </MultiBinding>
                                 </MenuItem.ItemsSource>
@@ -221,7 +218,7 @@
                             <MenuItem
                                 Header="ブラウザで開く"
                                 Command="{Binding MenuItemClickQuickOpenBrowserCommand,Mode=OneWay}"
-                                CommandParameter="{Binding Tag.Contents,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                CommandParameter="{Binding Media.Value, Mode=OneWay}" />
                         </ContextMenu>
                     </Button.Resources>
                     <Button.Content>

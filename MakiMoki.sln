@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakiMoki.Core.Ng", "src\cor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakiMoki.Wpf.Canvas98", "src\wpf\MakiMoki.Wpf.Canvas98\MakiMoki.Wpf.Canvas98.csproj", "{72B70F93-45D8-42AE-A24A-CF5D4722E82A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MakiMoki.Wpf.Reactive", "src\wpf\MakiMoki.Wpf.Reactive\MakiMoki.Wpf.Reactive.csproj", "{04A36847-194C-4325-9683-91A9D540AB6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{72B70F93-45D8-42AE-A24A-CF5D4722E82A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72B70F93-45D8-42AE-A24A-CF5D4722E82A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72B70F93-45D8-42AE-A24A-CF5D4722E82A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04A36847-194C-4325-9683-91A9D540AB6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04A36847-194C-4325-9683-91A9D540AB6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04A36847-194C-4325-9683-91A9D540AB6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04A36847-194C-4325-9683-91A9D540AB6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
