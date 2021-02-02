@@ -15,6 +15,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Wpf.Model;
+using Yarukizero.Net.MakiMoki.Wpf.Reactive;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class MainWindowViewModel : BindableBase, IDisposable {
@@ -49,55 +50,45 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Visibility> TabVisibility { get; }
 		public ReactiveProperty<KeyBinding[]> KeyGestures { get; } = new ReactiveProperty<KeyBinding[]>(Array.Empty<KeyBinding>());
 
-		public ReactiveCommand<MouseButtonEventArgs> BordListClickCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
-		public ReactiveCommand<BoardData> BoardOpenCommand { get; } = new ReactiveCommand<BoardData>();
-		public ReactiveCommand<RoutedEventArgs> ConfigButtonClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> BordListClickCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<BoardData> BoardOpenCommand { get; } = new MakiMokiCommand<BoardData>();
+		public MakiMokiCommand<RoutedEventArgs> ConfigButtonClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
-		public ReactiveCommand<MouseButtonEventArgs> TabClickCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
-		public ReactiveCommand<MouseButtonEventArgs> TabCloseButtonCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> TabClickCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> TabCloseButtonCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
 
 		private Dictionary<string, Model.TabItem> SelectedTabItem { get; } = new Dictionary<string, TabItem>();
 		public ReactiveProperty<Model.TabItem> TabControlSelectedItem { get; } = new ReactiveProperty<Model.TabItem>();
 		public ReactiveProperty<Model.TabItem> ThreadTabSelectedItem { get; } = new ReactiveProperty<Model.TabItem>();
 
-		public ReactiveCommand<Model.BindableFutaba> CatalogUpdateCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> CatalogCloseCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> CatalogCloseOtherCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> CatalogCloseRightCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> CatalogUpdateCommand { get; } = new MakiMokiCommand<Model.BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> CatalogCloseCommand { get; } = new MakiMokiCommand<Model.BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> CatalogCloseOtherCommand { get; } = new MakiMokiCommand<Model.BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> CatalogCloseRightCommand { get; } = new MakiMokiCommand<Model.BindableFutaba>();
 
 
-		public ReactiveCommand<Model.BindableFutaba> ThreadUpdateCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> ThreadCloseCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> ThreadCloseAllCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> ThreadCloseOtherCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> ThreadCloseDieCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> ThreadCloseRightCommand { get; } = new ReactiveCommand<Model.BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> ThreadUpdateCommand { get; } = new MakiMokiCommand<Model.BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> ThreadCloseCommand { get; } = new MakiMokiCommand<Model.BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> ThreadCloseAllCommand { get; } = new MakiMokiCommand<Model.BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> ThreadCloseOtherCommand { get; } = new MakiMokiCommand<Model.BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> ThreadCloseDieCommand { get; } = new MakiMokiCommand<Model.BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> ThreadCloseRightCommand { get; } = new MakiMokiCommand<Model.BindableFutaba>();
 
-		/*
-		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentCatalogTabUpdateCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
-		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentCatalogTabSearchCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
-		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentCatalogTabSortCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
-		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentCatalogTabModeCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
-		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentCatalogTabPostCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
-		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentThreadTabUpdateCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
-		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentThreadTabSearchCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
-		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentThreadTabPostCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
-		public ReactiveCommand<Windows.MainWindow> KeyBindingCurrentThreadTabCloseCommand { get; } = new ReactiveCommand<Windows.MainWindow>();
-		*/
-		public ReactiveCommand KeyBindingCurrentCatalogTabUpdateCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingCurrentCatalogTabSearchCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingCurrentCatalogTabSortCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingCurrentCatalogTabModeCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingCurrentCatalogTabPostCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingCurrentCatalogTabCloseCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingNextCatalogTabCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingPreviouseCatalogTabCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingCurrentThreadTabUpdateCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingCurrentThreadTabSearchCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingCurrentThreadTabPostCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingCurrentThreadTabCloseCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingNextThreadTabCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingPreviouseThreadTabCommand { get; } = new ReactiveCommand();
+
+		public MakiMokiCommand KeyBindingCurrentCatalogTabUpdateCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingCurrentCatalogTabSearchCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingCurrentCatalogTabSortCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingCurrentCatalogTabModeCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingCurrentCatalogTabPostCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingCurrentCatalogTabCloseCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingNextCatalogTabCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingPreviouseCatalogTabCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingCurrentThreadTabUpdateCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingCurrentThreadTabSearchCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingCurrentThreadTabPostCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingCurrentThreadTabCloseCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingNextThreadTabCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingPreviouseThreadTabCommand { get; } = new MakiMokiCommand();
 
 		private Action onBoardConfigUpdateNotifyer;
 		private Action<PlatformData.WpfConfig> onSystemConfigUpdateNotifyer;

@@ -14,6 +14,7 @@ using System.Windows;
 using Yarukizero.Net.MakiMoki.Wpf.PlatformData;
 using Yarukizero.Net.MakiMoki.Wpf.WpfConfig;
 using Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config;
+using Yarukizero.Net.MakiMoki.Wpf.Reactive;
 using Prism.Services.Dialogs;
 using System.Windows.Input;
 
@@ -67,7 +68,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			public ReactiveProperty<bool> AddCommandEnabled { get; }
 			public ReactiveProperty<Visibility> InputVisibility { get; }
 			public ReactiveCollection<ConfigListBoxItem> GestureCollection { get; } = new ReactiveCollection<ConfigListBoxItem>();
-			public ReactiveCommand AddCommand { get; } = new ReactiveCommand();
+			public MakiMokiCommand AddCommand { get; } = new MakiMokiCommand();
 
 			public GestureItem(string[] items) {
 				GestureCollection.AddRangeOnScheduler(
@@ -84,7 +85,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					catch(ArgumentException) { }
 					return false;
 				}).ToReactiveProperty();
-				AddCommand = AddCommandEnabled.ToReactiveCommand();
+				AddCommand = AddCommandEnabled.ToMakiMokiCommand();
 				InputValid = new[] {
 					Input.Select(x => string.IsNullOrEmpty(x)).ToReactiveProperty(),
 					AddCommandEnabled,
@@ -201,22 +202,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<string> Canvas98ExtendsName { get; } = new ReactiveProperty<string>(initialValue: "");
 		public ReactiveProperty<string> Canvas98ExtendsBookmarklet { get; } = new ReactiveProperty<string>(initialValue: "");
 		public ReactiveCollection<Canvas98ExtendItem> Canvas98Extends { get; } = new ReactiveCollection<Canvas98ExtendItem>();
-		public ReactiveCommand Canvas98ExtendAddCommand { get; }
-		public ReactiveCommand<Canvas98ExtendItem> Canvas98ExtendRemoveCommand  { get; } = new ReactiveCommand<Canvas98ExtendItem>();
+		public MakiMokiCommand Canvas98ExtendAddCommand { get; }
+		public MakiMokiCommand<Canvas98ExtendItem> Canvas98ExtendRemoveCommand  { get; } = new MakiMokiCommand<Canvas98ExtendItem>();
 		public ReactiveProperty<Visibility> WebView2RuntimeVisiblity { get; }
 
 		public ReactiveProperty<bool> OptoutAppCenterCrashes { get; }
 
 		public ReactiveProperty<bool> IsEnabledOkButton { get; }
 
-		public ReactiveCommand AddBoardConfigCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand<ConfigListBoxItem> ConfigEditCommand { get; } = new ReactiveCommand<ConfigListBoxItem>();
-		public ReactiveCommand<ConfigListBoxItem> ConfigRemoveCommand { get; } = new ReactiveCommand<ConfigListBoxItem>();
+		public MakiMokiCommand AddBoardConfigCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand<ConfigListBoxItem> ConfigEditCommand { get; } = new MakiMokiCommand<ConfigListBoxItem>();
+		public MakiMokiCommand<ConfigListBoxItem> ConfigRemoveCommand { get; } = new MakiMokiCommand<ConfigListBoxItem>();
 
 
-		public ReactiveCommand<RoutedEventArgs> OkButtonClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
-		public ReactiveCommand<RoutedEventArgs> CancelButtonClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
-		public ReactiveCommand<Uri> LinkClickCommand { get; } = new ReactiveCommand<Uri>();
+		public MakiMokiCommand<RoutedEventArgs> OkButtonClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
+		public MakiMokiCommand<RoutedEventArgs> CancelButtonClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
+		public MakiMokiCommand<Uri> LinkClickCommand { get; } = new MakiMokiCommand<Uri>();
 
 		private IDialogService DialogService { get; }
 
@@ -420,7 +421,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Canvas98ExtendsName.Select(x => !string.IsNullOrWhiteSpace(x)),
 				Canvas98ExtendsBookmarklet.Select(x => !string.IsNullOrWhiteSpace(x)),
 			}.CombineLatestValuesAreAllTrue()
-				.ToReactiveCommand();
+				.ToMakiMokiCommand();
 			Canvas98ExtendAddCommand.Subscribe(_ => OnCanvas98ExtendAdd());
 			Canvas98ExtendRemoveCommand.Subscribe(x => OnCanvas98ExtendAdd(x));
 			WebView2RuntimeVisiblity = new ReactiveProperty<Visibility>(Canvas98.Canvas98Util.Util.IsInstalledWebView2Runtime() ? Visibility.Collapsed : Visibility.Visible);

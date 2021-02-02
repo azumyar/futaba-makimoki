@@ -606,19 +606,57 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 			if(thread.ResItems.Length == 0) {
 				var c = catalog?.ResItems?.Where(x => x.ResItem.No == thread.Url.ThreadNo).FirstOrDefault()?.ResItem;
-				var sub = "MakiMoki";
-				var name = "MakiMoki";
-				var com = "<font color=\"#ff0000\">取得できませんでした</font>";
-				var date = DateTime.Now;
-				var now = string.Format("{0}({1}){2}",
-					date.ToString("yy/MM/dd", System.Globalization.CultureInfo.InvariantCulture),
-					date.ToString("ddd"),
-					date.ToString("HH:mm:ss"));
-				var tim = Util.TimeUtil.ToUnixTimeMilliseconds(date).ToString();
 				if(c == null) {
-					c = new NumberedResItem(thread.Url.ThreadNo, ResItem.From(
-						sub, name, "", com,
-						"", "", "", "", "", "", 0, 0, 0, now, tim, 0));
+					var sub = "MakiMoki";
+					var name = "MakiMoki";
+					var com = "<font color=\"#ff0000\">取得できませんでした</font>";
+					var date = DateTime.Now;
+					var now = string.Format("{0}({1}){2}",
+						date.ToString("yy/MM/dd", System.Globalization.CultureInfo.InvariantCulture),
+						date.ToString("ddd"),
+						date.ToString("HH:mm:ss"));
+					var tim = Util.TimeUtil.ToUnixTimeMilliseconds(date).ToString();
+					c = new NumberedResItem(
+						thread.Url.ThreadNo,
+						ResItem.From(
+							sub: sub,
+							name: name,
+							email: "",
+							com: com,
+							id: "",
+							host: "",
+							del: "",
+							src: "",
+							thumb: "",
+							ext: "",
+							fsize: 0,
+							w: 0,
+							h: 0,
+							now: now,
+							tim: tim,
+							rsc: 0));
+				} else {
+					// rscを振りなおす
+					c = new NumberedResItem(
+						c.No,
+						ResItem.From(
+							sub: c.Res.Sub,
+							name: c.Res.Name,
+							email: c.Res.Email,
+							com: c.Res.Com,
+							id: c.Res.Id,
+							host: c.Res.Host,
+							del: c.Res.Del,
+							src: c.Res.Src,
+							thumb: c.Res.Thumb,
+							ext: c.Res.Ext,
+							fsize: c.Res.Fsize,
+							w: c.Res.W,
+							h: c.Res.H,
+							now: c.Res.Now,
+							tim: c.Res.Tim,
+							rsc: 0),
+						c.Isolate);
 				}
 				var ad = new List<Item>() { Item.FromThreadRes(thread.Url, c, 0, new List<NumberedResItem>()) };
 				if((response.Res != null) && (0 < response.Res.Length)) {

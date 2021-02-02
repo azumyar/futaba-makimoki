@@ -20,6 +20,7 @@ using Reactive.Bindings;
 using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Wpf.Controls;
 using Yarukizero.Net.MakiMoki.Wpf.Model;
+using Yarukizero.Net.MakiMoki.Wpf.Reactive;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class FutabaCatalogViewerViewModel : BindableBase, IDisposable {
@@ -51,41 +52,41 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		internal class CatalogListboxUpdatedMessage { }
 
 
-		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; }
-			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>>();
+		public MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; }
+			= new MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>>();
 
-		public ReactiveCommand<RoutedEventArgs> CatalogUpdateClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
-		public ReactiveCommand CatalogSortClickCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand<RoutedEventArgs> CatalogListWrapClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
-		public ReactiveCommand<RoutedEventArgs> PostClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public MakiMokiCommand<RoutedEventArgs> CatalogUpdateClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
+		public MakiMokiCommand CatalogSortClickCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand<RoutedEventArgs> CatalogListWrapClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
+		public MakiMokiCommand<RoutedEventArgs> PostClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
 
-		public ReactiveCommand<MouseButtonEventArgs> CatalogItemMouseDownCommand { get; }
-			= new ReactiveCommand<MouseButtonEventArgs>();
-		public ReactiveCommand<MouseButtonEventArgs> CatalogItemClickCommand { get; }
-			= new ReactiveCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> CatalogItemMouseDownCommand { get; }
+			= new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> CatalogItemClickCommand { get; }
+			= new MakiMokiCommand<MouseButtonEventArgs>();
 
 		public ReactiveProperty<Visibility> PostViewVisibility { get; }
 			= new ReactiveProperty<Visibility>(Visibility.Hidden);
 
-		public ReactiveCommand<TextChangedEventArgs> FilterTextChangedCommand { get; } = new ReactiveCommand<TextChangedEventArgs>();
+		public MakiMokiCommand<TextChangedEventArgs> FilterTextChangedCommand { get; } = new MakiMokiCommand<TextChangedEventArgs>();
 
 		public ReactiveProperty<Data.CatalogSortItem[]> CatalogSortItem { get; } = new ReactiveProperty<CatalogSortItem[]>(Data.CatalogSort.Items);
-		public ReactiveCommand<(Data.CatalogSortItem Item, Model.BindableFutaba Futaba)> CatalogSortItemClickCommand { get; } = new ReactiveCommand<(Data.CatalogSortItem Item, Model.BindableFutaba Futaba)>();
+		public MakiMokiCommand<(Data.CatalogSortItem Item, Model.BindableFutaba Futaba)> CatalogSortItemClickCommand { get; } = new MakiMokiCommand<(Data.CatalogSortItem Item, Model.BindableFutaba Futaba)>();
 
-		public ReactiveCommand<Model.BindableFutaba> WheelUpdateCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> WheelUpdateCommand { get; } = new MakiMokiCommand<BindableFutaba>();
 
-		public ReactiveCommand<RoutedEventArgs> CatalogMenuItemDelClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
-		public ReactiveCommand<Model.BindableFutabaResItem> CatalogMenuItemThreadHiddenCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
-		public ReactiveCommand<Model.BindableFutabaResItem> CatalogMenuItemWatchImageCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
-		public ReactiveCommand<Model.BindableFutabaResItem> CatalogMenuItemNgImageCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand<RoutedEventArgs> CatalogMenuItemDelClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
+		public MakiMokiCommand<Model.BindableFutabaResItem> CatalogMenuItemThreadHiddenCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand<Model.BindableFutabaResItem> CatalogMenuItemWatchImageCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand<Model.BindableFutabaResItem> CatalogMenuItemNgImageCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
 
 
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingUpdateCommand { get; } = new ReactiveCommand<BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingSearchCommand { get; } = new ReactiveCommand<BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingSortCommand { get; } = new ReactiveCommand<BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingModeCommand { get; } = new ReactiveCommand<BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> KeyBindingUpdateCommand { get; } = new MakiMokiCommand<BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> KeyBindingSearchCommand { get; } = new MakiMokiCommand<BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> KeyBindingSortCommand { get; } = new MakiMokiCommand<BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> KeyBindingModeCommand { get; } = new MakiMokiCommand<BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new MakiMokiCommand<BindableFutaba>();
 
 		private bool isCatalogItemClicking = false;
 		public FutabaCatalogViewerViewModel() {

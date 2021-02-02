@@ -14,11 +14,11 @@ using System.Text.RegularExpressions;
 using System.Windows.Input;
 using System.ComponentModel;
 using System.Reactive.Disposables;
-using Reactive.Bindings.Extensions;
 using System.Reactive.Concurrency;
 using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Ng.NgData;
 using Yarukizero.Net.MakiMoki.Util;
+using Yarukizero.Net.MakiMoki.Wpf.Reactive;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	public class BindableFutaba : INotifyPropertyChanged, IDisposable {
@@ -59,7 +59,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			public ReactiveProperty<bool> CommentImageValidFlag { get; }
 			public ReactiveProperty<bool> PasswordValidFlag { get; }
 
-			public ReactiveCommand PostButtonCommand { get; }
+			public MakiMokiCommand PostButtonCommand { get; }
 
 			public PostHolder() {
 				this.ImageName = this.ImagePath.Select(x => {
@@ -117,7 +117,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.PasswordValidFlag = this.Password.Select(x => x.Length != 0).ToReactiveProperty();
 				this.PostButtonCommand = new[] { CommentImageValidFlag, PasswordValidFlag }
 					.CombineLatestValuesAreAllTrue()
-					.ToReactiveCommand();
+					.ToMakiMokiCommand();
 
 				Config.ConfigLoader.PostConfigUpdateNotifyer.AddHandler(this.UpdateFromConfig);
 			}
@@ -159,16 +159,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Visibility> PostIpOptionVisibility { get; }
 		public ReactiveProperty<Visibility> PostIdOptionVisibility { get; }
 
-		public ReactiveCommand<MouseButtonEventArgs> OpenImageCommand { get; }
-			= new ReactiveCommand<MouseButtonEventArgs>();
-		public ReactiveCommand<MouseButtonEventArgs> DeleteImageCommand { get; }
-			= new ReactiveCommand<MouseButtonEventArgs>();
-		public ReactiveCommand DeletePostDataCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand MailSageClickCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand MailIdClickCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand MailIpClickCommand { get; } = new ReactiveCommand();
+		public MakiMokiCommand<MouseButtonEventArgs> OpenImageCommand { get; }
+			= new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> DeleteImageCommand { get; }
+			= new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand DeletePostDataCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand MailSageClickCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand MailIdClickCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand MailIpClickCommand { get; } = new MakiMokiCommand();
 
-		public ReactiveCommand ExportCommand { get; } = new ReactiveCommand();
+		public MakiMokiCommand ExportCommand { get; } = new MakiMokiCommand();
 
 		public ReactiveProperty<Data.CatalogSortItem> CatalogSortItem { get; } = new ReactiveProperty<Data.CatalogSortItem>(Data.CatalogSort.Catalog);
 
@@ -188,8 +188,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<bool> IsDie { get; }
 		public ReactiveProperty<bool> IsMaxRes { get; }
 
-		public ReactiveCommand FullScreenThreadClickCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand FullScreenCatalogClickCommand { get; } = new ReactiveCommand();
+		public MakiMokiCommand FullScreenThreadClickCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand FullScreenCatalogClickCommand { get; } = new MakiMokiCommand();
 		public ReactiveProperty<bool> IsFullScreenThreadMode { get; } = new ReactiveProperty<bool>(false);
 		public ReactiveProperty<bool> IsFullScreenCatalogMode { get; } = new ReactiveProperty<bool>(false);
 		public ReactiveProperty<int> FullScreenSpan { get; }
@@ -640,10 +640,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public ReactiveProperty<BindableFutaba> Parent { get; }
 
-		public ReactiveCommand<MouseButtonEventArgs> FutabaTextBlockMouseDownCommand { get; }
-			= new ReactiveCommand<MouseButtonEventArgs>();
-		public ReactiveCommand ThumbLoadCommand { get; }
-			= new ReactiveCommand();
+		public MakiMokiCommand<MouseButtonEventArgs> FutabaTextBlockMouseDownCommand { get; }
+			= new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand ThumbLoadCommand { get; }
+			= new MakiMokiCommand();
 
 		private RefValue<ulong> hashValue;
 		private Action<Ng.NgData.NgConfig> ngUpdateAction;

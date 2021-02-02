@@ -14,14 +14,15 @@ using Prism.Regions;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using Yarukizero.Net.MakiMoki.Wpf.Model;
+using Yarukizero.Net.MakiMoki.Wpf.Reactive;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class FutabaThreadRegionContainerViewModel : BindableBase, IDisposable, IDestructible {
 		public ReactiveProperty<string> RegionName { get; } = new ReactiveProperty<string>(
 			$"ThreadViewerRegion-{ Guid.NewGuid() }");
 
-		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; }
-			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>>();
+		public MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; }
+			= new MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>>();
 
 		public ReadOnlyReactiveProperty<IRegionManager> RegionManager { get; }
 		private IContainerProvider ContainerProvider { get; }

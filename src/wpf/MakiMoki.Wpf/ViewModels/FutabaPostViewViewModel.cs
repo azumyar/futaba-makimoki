@@ -20,6 +20,7 @@ using Reactive.Bindings;
 using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Wpf.Controls;
 using Yarukizero.Net.MakiMoki.Wpf.Model;
+using Yarukizero.Net.MakiMoki.Wpf.Reactive;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class FutabaPostViewViewModel : BindableBase, IDisposable {
@@ -85,27 +86,27 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 		public ReactiveProperty<KeyBinding[]> KeyGestures { get; } = new ReactiveProperty<KeyBinding[]>();
 
-		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>> ContentsChangedCommand { get; }
-			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>>();
+		public MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>> ContentsChangedCommand { get; }
+			= new MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>>();
 
-		public ReactiveCommand<DragEventArgs> ImageDragOverCommand { get; } = new ReactiveCommand<DragEventArgs>();
-		public ReactiveCommand<DragEventArgs> ImageDropCommand { get; } = new ReactiveCommand<DragEventArgs>();
-		public ReactiveCommand<MouseButtonEventArgs> OpenUploadCommand { get; } = new ReactiveCommand<MouseButtonEventArgs>();
-		public ReactiveCommand<DragEventArgs> UploadDragOverpCommand { get; } = new ReactiveCommand<DragEventArgs>();
-		public ReactiveCommand<DragEventArgs> UploadDroppCommand { get; } = new ReactiveCommand<DragEventArgs>();
+		public MakiMokiCommand<DragEventArgs> ImageDragOverCommand { get; } = new MakiMokiCommand<DragEventArgs>();
+		public MakiMokiCommand<DragEventArgs> ImageDropCommand { get; } = new MakiMokiCommand<DragEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> OpenUploadCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<DragEventArgs> UploadDragOverpCommand { get; } = new MakiMokiCommand<DragEventArgs>();
+		public MakiMokiCommand<DragEventArgs> UploadDroppCommand { get; } = new MakiMokiCommand<DragEventArgs>();
 
-		public ReactiveCommand<RoutedEventArgs> PostViewPostCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public MakiMokiCommand<RoutedEventArgs> PostViewPostCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
-		public ReactiveCommand<BindableFutaba> MenuItemClickPastePostImageCommand { get; } = new ReactiveCommand<BindableFutaba>();
-		public ReactiveCommand<BindableFutaba> MenuItemClickPastePostUpCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public MakiMokiCommand<BindableFutaba> MenuItemClickPastePostImageCommand { get; } = new MakiMokiCommand<BindableFutaba>();
+		public MakiMokiCommand<BindableFutaba> MenuItemClickPastePostUpCommand { get; } = new MakiMokiCommand<BindableFutaba>();
 
-		public ReactiveCommand KeyBindingPostCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingOpenImageCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingOpenLoaderCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingDeleteCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingCloseCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingPasteImageCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand KeyBindingPaseteLoaderCommand { get; } = new ReactiveCommand();
+		public MakiMokiCommand KeyBindingPostCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingOpenImageCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingOpenLoaderCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingDeleteCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingCloseCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingPasteImageCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand KeyBindingPaseteLoaderCommand { get; } = new MakiMokiCommand();
 
 		public string Token { get; } = Guid.NewGuid().ToString();
 

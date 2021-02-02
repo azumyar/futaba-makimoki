@@ -69,5 +69,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Reactive {
 		internal MakiMokiCommand(ReactiveCommand command) : base(command) {
 			this.NativeCommand = command;
 		}
+
+		public IDisposable Subscribe(Action onNext) => this.NativeCommand?.Subscribe(onNext) ?? System.Reactive.Disposables.Disposable.Empty;
 	}
 }
