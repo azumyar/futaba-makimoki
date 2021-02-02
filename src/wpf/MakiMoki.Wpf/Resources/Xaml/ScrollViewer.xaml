@@ -138,20 +138,20 @@
                                         <VisualState x:Name="Normal">
                                             <Storyboard>
                                                 <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Opacity)" Storyboard.TargetName="Border">
-                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="0" />
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.10" Value="0" />
                                                 </DoubleAnimationUsingKeyFrames>
                                                 <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Width)" Storyboard.TargetName="Border">
-                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="{StaticResource ScrollBarSizeMin}" />
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.10" Value="{StaticResource ScrollBarSizeMin}" />
                                                 </DoubleAnimationUsingKeyFrames>
                                             </Storyboard>
                                         </VisualState>
                                         <VisualState x:Name="MouseOver">
                                             <Storyboard>
                                                 <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Opacity)" Storyboard.TargetName="Border">
-                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="1" />
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.10" Value="1" />
                                                 </DoubleAnimationUsingKeyFrames>
                                                 <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Width)" Storyboard.TargetName="Border">
-                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="{StaticResource ScrollBarSize}" />
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.10" Value="{StaticResource ScrollBarSize}" />
                                                 </DoubleAnimationUsingKeyFrames>
                                             </Storyboard>
                                         </VisualState>
@@ -232,20 +232,20 @@
                                         <VisualState x:Name="Normal">
                                             <Storyboard>
                                                 <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Opacity)" Storyboard.TargetName="Border">
-                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="0" />
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.10" Value="0" />
                                                 </DoubleAnimationUsingKeyFrames>
                                                 <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Height)" Storyboard.TargetName="Border">
-                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="{StaticResource ScrollBarSizeMin}" />
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.10" Value="{StaticResource ScrollBarSizeMin}" />
                                                 </DoubleAnimationUsingKeyFrames>
                                             </Storyboard>
                                         </VisualState>
                                         <VisualState x:Name="MouseOver">
                                             <Storyboard>
                                                 <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Opacity)" Storyboard.TargetName="Border">
-                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="1" />
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.10" Value="1" />
                                                 </DoubleAnimationUsingKeyFrames>
                                                 <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Height)" Storyboard.TargetName="Border">
-                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="{StaticResource ScrollBarSize}" />
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.10" Value="{StaticResource ScrollBarSize}" />
                                                 </DoubleAnimationUsingKeyFrames>
                                             </Storyboard>
                                         </VisualState>
