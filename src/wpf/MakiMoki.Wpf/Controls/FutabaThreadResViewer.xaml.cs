@@ -130,13 +130,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					})
 				).Add(Canvas98.ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
 					.GetEvent<PubSubEvent<Canvas98.ViewModels.FutabaCanvas98ViewViewModel.PostFrom>>()
-					.Subscribe(x => {
+					.Subscribe(async x => {
 						if(x?.Url == this.Contents.Futaba.Value?.Url) {
 							var b = this.Contents.Futaba.Value.Raw.Bord;
 							Config.ConfigLoader.UpdateFutabaInputData(
 								b,
 								x.Form.Subject, x.Form.Name,
 								x.Form.Email, x.Form.Password);
+							await Task.Delay(2000); // サムネが生成されてないっぽいので2秒待つ
 							Util.Futaba.UpdateThreadRes(
 								b,
 								x.Url.ThreadNo,
