@@ -44,6 +44,28 @@ table th, table td {
     padding: 4px;
 }
 
+#screenshot-sction {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-left: var(--base-margin);
+}
+
+#screenshot-sction div {
+    width: 360px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+
+#screenshot-sction div.orig {
+    width: initial;
+}
+
+#screenshot-sction div img {
+    width: 100%;
+    height: auto;
+}
+
 
 #qa-section p, #qa-section table {
     margin-bottom: var(--font-size-normal);

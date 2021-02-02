@@ -10,34 +10,54 @@
 </head>
 <body>
     <h1>ふたマキ</h1>
-    <div>
-        <p>
-            某掲示板ブラウザです。
-        </p>
-        <ul>
-            <li class="checked" id="futamaki-bin-link"><a href="/futamaki/">ダウンロード</a></li>
-            <li class="checked"><a href="https://install.appcenter.ms/users/azumyar/apps/futamaki/distribution_groups/canary/">カナリアビルド(人柱向け)</a></li>
-            <li class="checked"><a href="https://github.com/azumyar/futaba-makimoki">ソースコード</a></li>
-            <li class="checked"><a href="https://marshmallow-qa.com/yarukizero_dev">マシュマロ(連絡先)</a></li>
-        </ul>
+    <ul>
+        <li class="checked" id="futamaki-bin-link"><a href="/futamaki/">ダウンロード</a></li>
+        <li class="checked"><a href="https://install.appcenter.ms/users/azumyar/apps/futamaki/distribution_groups/canary/">カナリアビルド(人柱向け)</a></li>
+        <li class="checked"><a href="https://github.com/azumyar/futaba-makimoki">ソースコード</a></li>
+        <li class="checked"><a href="https://marshmallow-qa.com/yarukizero_dev">マシュマロ(連絡先)</a></li>
+    </ul>
 
-        <h2>動作環境</h2>
-        <ul>
-            <li class="checked">Windows 10(x64)</li>
-            <li class="checked"><a href="https://aka.ms/vs/16/release/vc_redist.x64.exe">Visual Studio 2019 の Microsoft Visual C++ 再頒布可能パッケージ(x64)</a></li>
-            <li class="checked"><a href="https://go.microsoft.com/fwlink/p/?LinkId=2124703">WebView2ランタイム</a>(はっちゃんキャンバス使用時のみ)</li>
-        </ul>
-
-        <h3>インストールについて</h3>
-        <p>
-            ダウンロードしたZIPを適当なディレクトリに展開してください。futamaki.exeが実行ファイルです。
-        </p>
-
-        <h3>アンインストールについて</h3>
-        <p>
-            ふたマキは標準で%userprofile%\Documents\FutaMakiと%appdata%\FutaMakiにファイルを生成します。アンインストール時はこれらのフォルダも削除してください。レジストリは使用していません。
-        </p>
+    <h2>なにこれ</h2>
+    <p>
+        某掲示板ブラウザです。
+    </p>
+    <div id="screenshot-sction">
+        <div>
+            <img src="img/ss01.jpg" loading="lazy" />
+        </div>
+        <div>
+            <img src="img/ss02.jpg" loading="lazy" />
+        </div>
+        <div>
+            <img src="img/ss03.jpg" loading="lazy" />
+        </div>
+        <div>
+            <img src="img/ss04.jpg" loading="lazy" />
+        </div>
+        <div>
+            <img src="img/ss05.jpg" loading="lazy" />
+        </div>
+        <div>
+            <img src="img/ss06.jpg" loading="lazy" />
+        </div>
     </div>
+
+    <h2>動作環境</h2>
+    <ul>
+        <li class="checked">Windows 10(x64)</li>
+        <li class="checked"><a href="https://aka.ms/vs/16/release/vc_redist.x64.exe">Visual Studio 2019 の Microsoft Visual C++ 再頒布可能パッケージ(x64)</a></li>
+        <li class="checked"><a href="https://go.microsoft.com/fwlink/p/?LinkId=2124703">WebView2ランタイム</a>(はっちゃんキャンバス使用時のみ)</li>
+    </ul>
+
+    <h3>インストールについて</h3>
+    <p>
+        ダウンロードしたZIPを適当なディレクトリに展開してください。futamaki.exeが実行ファイルです。
+    </p>
+
+    <h3>アンインストールについて</h3>
+    <p>
+        ふたマキは標準で%userprofile%\Documents\FutaMakiと%appdata%\FutaMakiにファイルを生成します。アンインストール時はこれらのフォルダも削除してください。レジストリは使用していません。
+    </p>
 
     <div id="task-section">
         <h2>リリースに向けて</h2>
@@ -217,7 +237,7 @@
                 <ul>
                     <li class="checked">アニメーションGIFの再生</li>
                     <li class="checked"><del>WebPのライブラリがx86オンリーになってるので自前で再実装する</del>勘違い.NET 4.5のビルドオプションが原因</li>
-                    <li class="checked">メディアビュー@画像で右上の✖ボタンは遠いのでクリックとかで閉じたい</li>
+                    <li class="checked">メディアビュー@画像で右上の笨麻{タンは遠いのでクリックとかで閉じたい</li>
                 </ul>
             </li>
             <li class="checked">
@@ -593,6 +613,17 @@ if(fetch && String.prototype.padStart) {
             a.textContent = "period." + json.period.toString().padStart(2, "0");
             target.append("(最新:", a, ")");
         });
+}
+
+const el = document.getElementById("screenshot-sction");
+for(const div of el.getElementsByTagName("div")) {
+    div.addEventListener("click", () => {
+        if(div.classList.contains("orig")) {
+            div.classList.remove("orig");
+        } else {
+            div.classList.add("orig");
+        }
+    });
 }
 </script>
 </body>
