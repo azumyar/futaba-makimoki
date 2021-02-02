@@ -51,26 +51,51 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="local:MainWindow">
-                            <Border
-                                x:Name="border"
-                                BorderThickness="2 0 2 2"
-                                Tag="{DynamicResource WindowFrameBorderColor}">
-                                <Border.BorderBrush>
-                                    <SolidColorBrush Color="{Binding Tag, Mode=OneWay, RelativeSource={RelativeSource Self}}" />
-                                </Border.BorderBrush>
-                                <Border.Background>
-                                    <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
-                                </Border.Background>
-                                <ContentPresenter
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch" />
-                            </Border>
+                            <!--
+                                BorderThickness="2 0 2 2" をやりたいけど
+                                BorderのBorderBrushはDynamicResourceが動かないのでGridで強引に作る
+                            -->
+                            <Grid>
+                                <Grid.Background>
+                                    <SolidColorBrush Color="{DynamicResource WindowFrameBorderColor}" />
+                                </Grid.Background>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition x:Name="BorderTop" Height="0" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition x:Name="BorderBottom" Height="2" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition x:Name="BorderLeft" Width="2" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition x:Name="BorderRight" Width="2" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Row="1" Grid.Column="1" BorderBrush="Transparent" BorderThickness="0">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                                    </Border.Background>
+                                    <ContentPresenter
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch" />
+                                </Border>
+                            </Grid>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="WindowState" Value="Maximized">
+                                    <!--
                                     <Setter TargetName="border" Property="BorderThickness" Value="8" />
+                                    -->
+                                    <Setter TargetName="BorderTop" Property="Height" Value="8" />
+                                    <Setter TargetName="BorderBottom" Property="Height" Value="8" />
+                                    <Setter TargetName="BorderLeft" Property="Width" Value="8" />
+                                    <Setter TargetName="BorderRight" Property="Width" Value="8" />
                                 </Trigger>
                                 <Trigger Property="WindowState" Value="Normal">
+                                    <!--
                                     <Setter TargetName="border" Property="BorderThickness" Value="2 0 2 2" />
+                                    -->
+                                    <Setter TargetName="BorderTop" Property="Height" Value="0" />
+                                    <Setter TargetName="BorderBottom" Property="Height" Value="2" />
+                                    <Setter TargetName="BorderLeft" Property="Width" Value="2" />
+                                    <Setter TargetName="BorderRight" Property="Width" Value="2" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
