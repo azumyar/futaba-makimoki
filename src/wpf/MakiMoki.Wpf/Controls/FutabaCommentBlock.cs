@@ -192,6 +192,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 								Tag = item,
 							};
 							link.Loaded += OnLoadedLink;
+							link.Unloaded += OnUnloadedLink;
 							link.Inlines.Add(System.Net.WebUtility.HtmlDecode(m.Value));
 							if(0 < outputVal.Length) {
 								EvalEmoji(outputVal.ToString(), null);
@@ -428,6 +429,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			}
 		}
 
+		private static void OnUnloadedLink(object sender, RoutedEventArgs e) {
+			if((e.Source is Hyperlink link) && (link.Tag is Model.BindableFutabaResItem)) {
+				link.RequestNavigate -= OnRequestNavigate;
+				link.MouseEnter -= OnMouseEnterLink;
+				link.MouseLeave -= OnMouseLeaveLink;
+			}
+		}
+		
 		private static void OnMouseEnterLink(object sender, MouseEventArgs e) {
 			if(sender is Hyperlink link) {
 				link.TextDecorations = System.Windows.TextDecorations.Underline;
