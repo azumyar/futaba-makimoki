@@ -22,6 +22,7 @@ using Reactive.Bindings.Extensions;
 using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls;
 using Yarukizero.Net.MakiMoki.Wpf.Model;
+using Yarukizero.Net.MakiMoki.Wpf.Reactive;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class FutabaThreadResViewerViewModel : BindableBase, IDisposable, IDestructible {
@@ -63,24 +64,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		public ReactiveCommand LoadedCommand { get; } = new ReactiveCommand();
-		public ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; }
-			= new ReactiveCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>>();
+		public MakiMokiCommand LoadedCommand { get; } = new MakiMokiCommand();
+		public MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>> ContentsChangedCommand { get; }
+			= new MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>>();
 
-		public ReactiveCommand<RoutedEventArgs> PostClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public MakiMokiCommand<RoutedEventArgs> PostClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
-		public ReactiveCommand<RoutedEventArgs> TegakiClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public MakiMokiCommand<RoutedEventArgs> TegakiClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
-		public ReactiveCommand<RoutedEventArgs> ThreadUpdateCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public MakiMokiCommand<RoutedEventArgs> ThreadUpdateCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
-		public ReactiveCommand<RoutedEventArgs> ImageClickCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
-		public ReactiveCommand<PlatformData.HyperLinkEventArgs> LinkClickCommand { get; } = new ReactiveCommand<PlatformData.HyperLinkEventArgs>();
-		public ReactiveCommand<PlatformData.QuotClickEventArgs> QuotClickCommand { get; } = new ReactiveCommand<PlatformData.QuotClickEventArgs>();
+		public MakiMokiCommand<RoutedEventArgs> ImageClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
+		public MakiMokiCommand<PlatformData.HyperLinkEventArgs> LinkClickCommand { get; } = new MakiMokiCommand<PlatformData.HyperLinkEventArgs>();
+		public MakiMokiCommand<PlatformData.QuotClickEventArgs> QuotClickCommand { get; } = new MakiMokiCommand<PlatformData.QuotClickEventArgs>();
 
-		public ReactiveCommand<MouseButtonEventArgs> ThreadImageMouseDownCommand { get; }
-			= new ReactiveCommand<MouseButtonEventArgs>();
-		public ReactiveCommand<MouseButtonEventArgs> ThreadImageClickCommand { get; }
-			= new ReactiveCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> ThreadImageMouseDownCommand { get; }
+			= new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> ThreadImageClickCommand { get; }
+			= new MakiMokiCommand<MouseButtonEventArgs>();
 
 		public ReactiveProperty<Visibility> PostViewVisibility { get; }
 			= new ReactiveProperty<Visibility>(Visibility.Hidden);
@@ -95,40 +96,40 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<string> FilterText { get; } = new ReactiveProperty<string>("");
 
-		public ReactiveCommand<TextChangedEventArgs> FilterTextChangedCommand { get; } = new ReactiveCommand<TextChangedEventArgs>();
+		public MakiMokiCommand<TextChangedEventArgs> FilterTextChangedCommand { get; } = new MakiMokiCommand<TextChangedEventArgs>();
 
-		public ReactiveCommand<Model.IFutabaViewerContents> ThreadResHamburgerItemCopyUrlClickCommand { get; } = new ReactiveCommand<Model.IFutabaViewerContents>();
-		public ReactiveCommand<Model.IFutabaViewerContents> ThreadResHamburgerItemOpenUrlClickCommand { get; } = new ReactiveCommand<Model.IFutabaViewerContents>();
+		public MakiMokiCommand<Model.IFutabaViewerContents> ThreadResHamburgerItemCopyUrlClickCommand { get; } = new MakiMokiCommand<Model.IFutabaViewerContents>();
+		public MakiMokiCommand<Model.IFutabaViewerContents> ThreadResHamburgerItemOpenUrlClickCommand { get; } = new MakiMokiCommand<Model.IFutabaViewerContents>();
 
-		public ReactiveCommand<Model.BindableFutaba> WheelUpdateCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> WheelUpdateCommand { get; } = new MakiMokiCommand<BindableFutaba>();
 
-		public ReactiveCommand<RoutedEventArgs> PaletteButtonCopyCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
-		public ReactiveCommand<RoutedEventArgs> PaletteButtonSoudaneCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
-		public ReactiveCommand<RoutedEventArgs> PaletteButtonDelCommand { get; } = new ReactiveCommand<RoutedEventArgs>();
+		public MakiMokiCommand<RoutedEventArgs> PaletteButtonCopyCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
+		public MakiMokiCommand<RoutedEventArgs> PaletteButtonSoudaneCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
+		public MakiMokiCommand<RoutedEventArgs> PaletteButtonDelCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
-		public ReactiveCommand<BindableFutaba> MenuItemFullUpdateClickCommand { get; } = new ReactiveCommand<BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemCopyClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
-		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemReplyClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
-		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemReplyResNoClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
-		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemReplyImageNameoClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
-		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemSoudaneClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
-		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemDelClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
-		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemDeleteClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
-		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemDeleteImageClickCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
-		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemWatchImageCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
-		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemNgImageCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
-		public ReactiveCommand<Model.BindableFutabaResItem> MenuItemResHiddenCommand { get; } = new ReactiveCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand<BindableFutaba> MenuItemFullUpdateClickCommand { get; } = new MakiMokiCommand<BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutabaResItem> MenuItemCopyClickCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand<Model.BindableFutabaResItem> MenuItemReplyClickCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand<Model.BindableFutabaResItem> MenuItemReplyResNoClickCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand<Model.BindableFutabaResItem> MenuItemReplyImageNameoClickCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand<Model.BindableFutabaResItem> MenuItemSoudaneClickCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand<Model.BindableFutabaResItem> MenuItemDelClickCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand<Model.BindableFutabaResItem> MenuItemDeleteClickCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand<Model.BindableFutabaResItem> MenuItemDeleteImageClickCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand<Model.BindableFutabaResItem> MenuItemWatchImageCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand<Model.BindableFutabaResItem> MenuItemNgImageCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand<Model.BindableFutabaResItem> MenuItemResHiddenCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
 
-		public ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxQuotCommand { get; } = new ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)>();
-		public ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxSearchCommand { get; } = new ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)>();
-		public ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxNgCommand { get; } = new ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)>();
-		public ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxCopyCommand { get; } = new ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)>();
-		public ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxGoogleCommand { get; } = new ReactiveCommand<(BindableFutaba Futaba, TextBox TextBox)>();
+		public MakiMokiCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxQuotCommand { get; } = new MakiMokiCommand<(BindableFutaba Futaba, TextBox TextBox)>();
+		public MakiMokiCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxSearchCommand { get; } = new MakiMokiCommand<(BindableFutaba Futaba, TextBox TextBox)>();
+		public MakiMokiCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxNgCommand { get; } = new MakiMokiCommand<(BindableFutaba Futaba, TextBox TextBox)>();
+		public MakiMokiCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxCopyCommand { get; } = new MakiMokiCommand<(BindableFutaba Futaba, TextBox TextBox)>();
+		public MakiMokiCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxGoogleCommand { get; } = new MakiMokiCommand<(BindableFutaba Futaba, TextBox TextBox)>();
 
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingUpdateCommand { get; } = new ReactiveCommand<BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingSearchCommand { get; } = new ReactiveCommand<BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingTegakiCommand { get; } = new ReactiveCommand<BindableFutaba>();
-		public ReactiveCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new ReactiveCommand<BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> KeyBindingUpdateCommand { get; } = new MakiMokiCommand<BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> KeyBindingSearchCommand { get; } = new MakiMokiCommand<BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> KeyBindingTegakiCommand { get; } = new MakiMokiCommand<BindableFutaba>();
+		public MakiMokiCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new MakiMokiCommand<BindableFutaba>();
 
 		public ReactiveProperty<bool> IsExecuteCanvas98 { get; } = new ReactiveProperty<bool>(false);
 		public ReactiveProperty<PlatformData.UiPosition> Canvas98Position { get; }
@@ -156,8 +157,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<double> Canvas98BottomGridMinHeight { get; }
 
 
-		public ReactiveCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs> Canvas98SuccessedCommand { get; }
-			= new ReactiveCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs>();
+		public MakiMokiCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs> Canvas98SuccessedCommand { get; }
+			= new MakiMokiCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs>();
 
 		private IDisposable CloseToSubscriber { get; }
 		private bool isThreadImageClicking = false;
