@@ -3,7 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <!-- 参考元：http://gootara.org/library/2016/06/wpf-scb.html -->
-    
+
+    <sys:Double x:Key="ScrollBarSizeMin">2</sys:Double>
     <!-- スクロールバーの幅 -->
     <sys:Double x:Key="ScrollBarSize">12</sys:Double>
     <!-- ボタンの長さ -->
@@ -131,13 +132,43 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate>
-                            <Grid>
+                            <Grid Background="Transparent">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal">
+                                            <Storyboard>
+                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Opacity)" Storyboard.TargetName="Border">
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="0" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Width)" Storyboard.TargetName="Border">
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="{StaticResource ScrollBarSizeMin}" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="MouseOver">
+                                            <Storyboard>
+                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Opacity)" Storyboard.TargetName="Border">
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="1" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Width)" Storyboard.TargetName="Border">
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="{StaticResource ScrollBarSize}" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+
                                 <Grid.RowDefinitions>
                                     <RowDefinition MaxHeight="{StaticResource ScrollBarRepeatButtonSize}"/>
                                     <RowDefinition/>
                                     <RowDefinition MaxHeight="{StaticResource ScrollBarRepeatButtonSize}"/>
                                 </Grid.RowDefinitions>
-                                <Border Grid.RowSpan="3" CornerRadius="0">
+                                <Border
+                                    x:Name="Border" 
+                                    Grid.RowSpan="3"
+                                    CornerRadius="0"
+                                    Width="{StaticResource ScrollBarSizeMin}"
+                                    Opacity="0">
                                     <Border.Background>
                                         <SolidColorBrush Color="{DynamicResource ViewerScrollBarTrackColor}" />
                                     </Border.Background>
@@ -145,10 +176,17 @@
                                 <RepeatButton
                                     Grid.Row="0"
                                     Style="{StaticResource ScrollBarRepeatButtonStyle}"
+                                    Width="{StaticResource ScrollBarRepeatButtonSize}"
                                     Height="{StaticResource ScrollBarRepeatButtonSize}"
+                                    Opacity="{Binding Opacity, Mode=OneWay, ElementName=Border}"
                                     Command="ScrollBar.LineUpCommand"
                                     Content="M 0 4 L 8 4 L 4 0 Z" />
-                                <Track x:Name="PART_Track" Grid.Row="1" IsDirectionReversed="true">
+                                <Track
+                                    x:Name="PART_Track"
+                                    Grid.Row="1"
+                                    Width="{Binding Width, Mode=OneWay, ElementName=Border}"
+                                    IsDirectionReversed="true"
+                                    HorizontalAlignment="Right">
                                     <Track.DecreaseRepeatButton>
                                         <RepeatButton Style="{StaticResource ScrollBarTrackStyle}"  Command="ScrollBar.PageUpCommand" />
                                     </Track.DecreaseRepeatButton>
@@ -161,7 +199,9 @@
                                 </Track>
                                 <RepeatButton
                                     Grid.Row="2"
+                                    Opacity="{Binding Opacity, Mode=OneWay, ElementName=Border}"
                                     Style="{StaticResource ScrollBarRepeatButtonStyle}"
+                                    Width="{StaticResource ScrollBarRepeatButtonSize}"
                                     Height="{StaticResource ScrollBarRepeatButtonSize}"
                                     Command="ScrollBar.LineDownCommand"
                                     Content="M 0 0 L 4 4 L 8 0 Z"/>
@@ -186,13 +226,43 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate>
-                            <Grid>
+                            <Grid Background="Transparent">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal">
+                                            <Storyboard>
+                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Opacity)" Storyboard.TargetName="Border">
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="0" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Height)" Storyboard.TargetName="Border">
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="{StaticResource ScrollBarSizeMin}" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="MouseOver">
+                                            <Storyboard>
+                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Opacity)" Storyboard.TargetName="Border">
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="1" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Height)" Storyboard.TargetName="Border">
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="{StaticResource ScrollBarSize}" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                                
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition MaxWidth="{StaticResource ScrollBarRepeatButtonSize}"/>
                                     <ColumnDefinition/>
                                     <ColumnDefinition MaxWidth="{StaticResource ScrollBarRepeatButtonSize}"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.ColumnSpan="3" CornerRadius="0">
+                                <Border
+                                    x:Name="Border"
+                                    Grid.ColumnSpan="3"
+                                    CornerRadius="0"
+                                    Height="{StaticResource ScrollBarSizeMin}"
+                                    Opacity="0">
                                     <Border.Background>
                                         <SolidColorBrush Color="{DynamicResource ViewerScrollBarTrackColor}" />
                                     </Border.Background>
@@ -200,10 +270,17 @@
                                 <RepeatButton
                                     Grid.Column="0"
                                     Style="{StaticResource ScrollBarRepeatButtonStyle}"
+                                    Height="{StaticResource ScrollBarRepeatButtonSize}"
                                     Width="{StaticResource ScrollBarRepeatButtonSize}"
+                                    Opacity="{Binding Opacity, Mode=OneWay, ElementName=Border}"
                                     Command="ScrollBar.LineLeftCommand"
                                     Content="M 4 0 L 4 8 L 0 4 Z" />
-                                <Track x:Name="PART_Track" Grid.Column="1" IsDirectionReversed="false">
+                                <Track
+                                    x:Name="PART_Track"
+                                    Grid.Column="1"
+                                    Height="{Binding Height, Mode=OneWay, ElementName=Border}"
+                                    IsDirectionReversed="false"
+                                    VerticalAlignment="Bottom">
                                     <Track.DecreaseRepeatButton>
                                         <RepeatButton Style="{StaticResource ScrollBarTrackStyle}"  Command="ScrollBar.PageLeftCommand" />
                                     </Track.DecreaseRepeatButton>
@@ -217,7 +294,9 @@
                                 <RepeatButton
                                     Grid.Column="2"
                                     Style="{StaticResource ScrollBarRepeatButtonStyle}"
+                                    Height="{StaticResource ScrollBarRepeatButtonSize}"
                                     Width="{StaticResource ScrollBarRepeatButtonSize}"
+                                    Opacity="{Binding Opacity, Mode=OneWay, ElementName=Border}"
                                     Command="ScrollBar.LineRightCommand"
                                     Content="M 0 0 L 4 4 L 0 8 Z"/>
                             </Grid>
