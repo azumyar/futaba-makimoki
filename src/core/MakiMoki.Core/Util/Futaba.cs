@@ -18,7 +18,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 #pragma warning disable IDE0044
 		private static volatile object lockObj = new object();
 #pragma warning restore IDE0044
-
+		private static readonly Dictionary<string, string> ShiokaraThumbMap = new Dictionary<string, string>() {
+			{ "sa", "http://www.nijibox6.com/futabafiles/001/misc/{0}.thumb.jpg" },
+			{ "sp", "http://www.nijibox2.com/futabafiles/003/misc/{0}.thumb.jpg" },
+			{ "sq", "http://www.nijibox6.com/futabafiles/mid/misc/{0}.thumb.jpg" },
+			{ "ss", "http://www.nijibox5.com/futabafiles/kobin/misc/{0}.thumb.jpg" },
+			{ "su", "http://www.nijibox5.com/futabafiles/tubu/misc/{0}.thumb.jpg" },
+		};
 		private static HttpClient HttpClient { get; set; }
 
 		public static ReactiveProperty<Data.FutabaContext[]> Catalog { get; private set; }
@@ -35,7 +41,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					.Where(x => Config.ConfigLoader.Board.Boards.Any(y => y.Url == x.Url.BaseUrl))
 					.ToArray();
 			}
-
 		};
 
 		public static void Initialize(HttpClient client = null) {
@@ -746,9 +751,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 		private static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUrlImage(
 			string url, string localPath,
-			bool isAsync = true,
-			RestSharp.RestClient client = null,
-			Action<RestSharp.RestRequest> requestSetter = null) {
+			bool isAsync = true) {
 
 			return GetUrlImage(
 				HttpClient,
@@ -868,6 +871,50 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				o.OnNext((r.Successed, r.Message));
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
+		}
+
+		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThumbImageUp(Data.UrlContext threadUrl, string fileName) {
+			var f = Path.GetFileNameWithoutExtension(fileName);
+			var cache = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, $"{ f }.thumb.png");
+			if(File.Exists(cache)) {
+				return Observable.Create<(bool Successed, string LocalPath, byte[] FileBytes)>(async o => {
+					await Task.Delay(1);
+					o.OnNext((true, cache, null));
+					return System.Reactive.Disposables.Disposable.Empty;
+				});
+			} else {
+				return GetCompleteUrlUp(threadUrl, f)
+					.Select(x => {
+						if(File.Exists(cache)) {
+							return (true, cache, default(byte[]));
+						} else {
+							if(x.Successed
+								&& (x.Raw is Data.AppsweetsThumbnailCompleteResponse r)
+								&& !string.IsNullOrEmpty(r.Content)) {
+
+								return (true, cache, Convert.FromBase64String(
+									r.Content.Substring("data:image/png;base64,".Length)));
+							}
+						}
+						return (false, default(string), default(byte[]));
+					});
+			}
+		}
+
+
+		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThumbImageShiokara(Data.UrlContext threadUrl, string fileName) {
+			var f = Path.GetFileNameWithoutExtension(fileName);
+			var cache = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, $"{ f }.thumb.jpg");
+			var m = Regex.Match(f, @"^([a-zA-Z]+)\d+$");
+			if(m.Success && ShiokaraThumbMap.TryGetValue(m.Groups[1].Value, out var format)) {
+				return GetUrlImage(string.Format(format, f), cache);
+			} else {
+				return Observable.Create<(bool Successed, string LocalPath, byte[] FileBytes)>(async o => {
+					await Task.Delay(1);
+					o.OnNext((true, cache, null));
+					return System.Reactive.Disposables.Disposable.Empty;
+				});
+			}
 		}
 
 		public static IObservable<(bool Successed, string UrlOrMessage, object Raw)> GetCompleteUrlUp(Data.UrlContext threadUrl, string fileNameWitfOutExtension) {
