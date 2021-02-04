@@ -626,7 +626,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				if(!string.IsNullOrEmpty(r)) {
 					try {
 						var response = JsonConvert.DeserializeObject<Data.AppsweetsThumbnailCompleteResponse>(r);
-						return (false, response, null, r);
+						return (true, response, null, r);
 					}
 					catch(JsonSerializationException) {
 						try {
