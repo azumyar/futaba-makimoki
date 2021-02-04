@@ -195,6 +195,9 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public bool IsDel2 => (Del == "del2");
 
 		[JsonIgnore]
+		public bool IsSelfDel=> (Del == "selfdel");
+
+		[JsonIgnore]
 		public DateTime NowDateTime {
 			get {
 				if(long.TryParse(Tim, out var v)) {
@@ -486,6 +489,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 					+ ResItem.Res.Host
 					+ ResItem.Res.Com
 					+ ResItem.Res.Thumb
+					+ ResItem.Res.Src
 					+ ResItem.Res.Fsize
 					+ Soudane;
 			}

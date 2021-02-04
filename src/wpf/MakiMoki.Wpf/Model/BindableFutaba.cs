@@ -312,7 +312,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						// 画面から参照されているので this の初期化が終わっていないこのタイミングで書き換えてはいけない
 						//this.ResItems[i] = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
 						var bf = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
-						if(b.ResItem.Res.Fsize != 0) {
+						if((b.ResItem.Res.Fsize != 0)
+							&& Regex.IsMatch(b.ResItem.Res.Src, @"^.*/[0-9]+\..+$")) {
+
 							BindableFutabaResItem.CopyImage(a, bf);
 						}
 						updateItems.Add((i, bf));
@@ -769,29 +771,34 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}
 
 			if(item.ResItem.Res.Fsize != 0) {
-				this.ImageName = new ReactiveProperty<string>(Regex.Replace(
-					item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$", "$1"));
-				var bmp = WpfUtil.ImageUtil.GetImageCache(
-					Util.Futaba.GetThumbImageLocalFilePath(item.Url, item.ResItem.Res));
-				if((bmp != null) && Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
-					void work() {
-						this.SetThumbSource(bmp);
-						if(this.Raw.Value.Url.IsCatalogUrl
-							&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
-							&& !object.ReferenceEquals(this.ThumbSource.Value, this.OriginSource.Value)) {
+				// 削除された場合srcの拡張子が消える
+				var m = Regex.Match(item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$");
+				if(m.Success) {
+					this.ImageName = new ReactiveProperty<string>(m.Groups[1].Value);
+					var bmp = WpfUtil.ImageUtil.GetImageCache(
+						Util.Futaba.GetThumbImageLocalFilePath(item.Url, item.ResItem.Res));
+					if((bmp != null) && Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
+						void work() {
+							this.SetThumbSource(bmp);
+							if(this.Raw.Value.Url.IsCatalogUrl
+								&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
+								&& !object.ReferenceEquals(this.ThumbSource.Value, this.OriginSource.Value)) {
 
-							this.IsNgImageHidden.Value = true;
+								this.IsNgImageHidden.Value = true;
+							}
+						}
+						if(HashCache.TryGetTarget(this.GetCacheKey(), out var _)) {
+							work();
+						} else {
+							HashQueue.Push(Helpers.ConnectionQueueItem<ulong?>.From(
+								o => {
+									work();
+									o.OnNext(null);
+								})).Subscribe();
 						}
 					}
-					if(HashCache.TryGetTarget(this.GetCacheKey(), out var _)) {
-						work();
-					} else {
-						HashQueue.Push(Helpers.ConnectionQueueItem<ulong?>.From(
-							o => {
-								work();
-								o.OnNext(null);
-							})).Subscribe();
-					}
+				} else {
+					this.ImageName = new ReactiveProperty<string>("");
 				}
 			} else {
 				this.ImageName = new ReactiveProperty<string>("");
@@ -846,7 +853,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		private void OnThumbLoad() {
-			if((Raw.Value.ResItem.Res.Fsize != 0) && (ThumbSource.Value == null)) {
+			if((Raw.Value.ResItem.Res.Fsize != 0)
+				&& (!string.IsNullOrEmpty(ImageName.Value))
+				&& (ThumbSource.Value == null)) {
 				Util.Futaba.GetThumbImage(Raw.Value.Url, Raw.Value.ResItem.Res)
 					.Select(x => {
 						if(x.Successed) {
