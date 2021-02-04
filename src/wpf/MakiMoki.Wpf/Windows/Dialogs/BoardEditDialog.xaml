@@ -1,4 +1,4 @@
-<UserControl x:Class="Yarukizero.Net.MakiMoki.Wpf.Controls.BoardEditDialog"
+<UserControl x:Class="Yarukizero.Net.MakiMoki.Wpf.Windows.Dialogs.BoardEditDialog"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -6,7 +6,8 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
              xmlns:prism="http://prismlibrary.com/"
-             xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+             xmlns:c="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+             xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows.Dialogs"
              mc:Ignorable="d"
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -81,7 +82,7 @@
                 <TextBox
                     Grid.Row="2" Grid.Column="2"
                     Text="{Binding Url.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    local:PlaceHolderBehavior.PlaceHolderText="https://***.2chan.net/***/"/>
+                    c:PlaceHolderBehavior.PlaceHolderText="https://***.2chan.net/***/"/>
                 <TextBlock
                     Grid.Row="2" Grid.Column="3"
                     Foreground="Red"

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
+namespace Yarukizero.Net.MakiMoki.Wpf.Windows.Dialogs {
 	/// <summary>
 	/// BoardEditDialog.xaml の相互作用ロジック
 	/// </summary>
