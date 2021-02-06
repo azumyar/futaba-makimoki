@@ -408,7 +408,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						} else if(link.NavigateUri.Authority == SharadConst.MkiMokiCompleteUrlAuthorityShiokara) {
 							o = Futaba.GetCompleteUrlShiokara(ri.Parent.Value.Url, link.NavigateUri.AbsolutePath.Substring(1));
 						} else {
-							Futaba.PutInformation(new Data.Information($"不明なURL{ link.NavigateUri }"));
+							Futaba.PutInformation(new Data.Information($"不明なURL{ link.NavigateUri }", ri.Parent.Value));
 						}
 						o?.Subscribe(x => {
 							if(x.Successed) {
@@ -421,7 +421,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 									// エラーオブジェクトは返却されているので通信エラーではないと判断する
 									uriCache.Add(link.NavigateUri, new Uri($"{ SharadConst.MkiMokiSchemeNull }://"));
 								}
-								Futaba.PutInformation(new Data.Information($"アップロードファイル補完エラー:{ x.UrlOrMessage }"));
+								Futaba.PutInformation(new Data.Information($"アップロードファイル補完エラー:{ x.UrlOrMessage }", ri.Parent.Value));
 							}
 						});
 					}

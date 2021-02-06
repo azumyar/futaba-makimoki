@@ -35,6 +35,7 @@
             <converter:ThreadDieOpacityConverter x:Key="ThreadDieOpacityConverter" />
             <converter:ThreadNewResVisibleConverter x:Key="ThreadNewResVisibleConverter" />
             <converter:InformationItemConverter x:Key="InformationItemConverter" />
+            <converter:InformationObjectConverter x:Key="InformationObjectConverter" />
 
             <system:Double x:Key="WindowCaptionHeight">36</system:Double>
 
@@ -1080,32 +1081,63 @@
                 ScrollViewer.CanContentScroll="False">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border Padding="8 0 8 8">
-                            <Grid MinWidth="240" MinHeight="64">
+                        <Border Padding="8 0 8 8" IsHitTestVisible="False">
+                            <Grid MinWidth="{DynamicResource InformationMinWidth}" MinHeight="{DynamicResource InformationMinHeight}">
                                 <Grid.Background>
-                                    <SolidColorBrush Color="#99000000" />
+                                    <SolidColorBrush Color="{DynamicResource InformationBackpoundColor}" />
                                 </Grid.Background>
                                 <TextBlock.Foreground>
-                                    <SolidColorBrush Color="#ffffff" />
+                                    <SolidColorBrush Color="{DynamicResource InformationForegroundColor}" />
                                 </TextBlock.Foreground>
 
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="4" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="4" />
                                 </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="4" />
-                                    <RowDefinition Height="*" />
-                                    <RowDefinition Height="4" />
-                                </Grid.RowDefinitions>
-                                <emoji:TextBlock 
-                                    Grid.Column="1" Grid.Row="1"
-                                    FontSize="12"
-                                    ColorBlend="False"
-                                    IsHitTestVisible="False"
-                                    Text="{Binding Message, Mode=OneWay}"
-                                    TextWrapping="Wrap" />
+                                <Border
+                                    Grid.RowSpan="3"
+                                    Grid.Column="0"
+                                    DataContext="{Binding ExObject, Mode=OneWay, Converter={StaticResource InformationObjectConverter}}">
+                                    <Grid Visibility="{Binding ObjectVisibility.Value, Mode=OneWay}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="1" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="1" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="1" />
+                                        </Grid.RowDefinitions>
+                                        <Viewbox
+                                            Grid.Row="1"
+                                            Grid.Column="1"
+                                            Width="{DynamicResource InformationImageSize}" Height="{DynamicResource InformationImageSize}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Stretch="Uniform"
+                                            >
+                                            <Image
+                                                Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                                RenderOptions.EdgeMode="Aliased"
+                                                RenderOptions.BitmapScalingMode="Fant">
+                                                <Image.CacheMode>
+                                                    <BitmapCache RenderAtScale="1" />
+                                                </Image.CacheMode>
+                                            </Image>
+                                        </Viewbox>
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Column="2" Padding="0 1 0 1">
+                                    <emoji:TextBlock 
+                                        ColorBlend="False"
+                                        Text="{Binding Message, Mode=OneWay}"
+                                        TextWrapping="Wrap"
+                                        FontFamily="{DynamicResource InformationFont}"
+                                        FontSize="{DynamicResource InformationFontSize}" />
+                                </Border>
                             </Grid>
                         </Border>
                     </DataTemplate>

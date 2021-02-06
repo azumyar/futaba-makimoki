@@ -233,9 +233,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
 						if(x.Successed) {
-							Util.Futaba.PutInformation(new Information("del送信"));
+							Util.Futaba.PutInformation(new Information("del送信", ri.ThumbSource.Value));
 						} else {
-							Util.Futaba.PutInformation(new Information(x.Message));
+							Util.Futaba.PutInformation(new Information(x.Message, ri.ThumbSource.Value));
 						}
 					});
 			}

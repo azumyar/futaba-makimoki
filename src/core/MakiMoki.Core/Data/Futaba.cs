@@ -822,9 +822,11 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 	public class Information { 
 		public string Message { get; }
+		public object ExObject { get; }
 
-		public Information(string message) {
+		public Information(string message, object exObject = null) {
 			this.Message = message;
+			this.ExObject = exObject;
 		}
 	}
 }

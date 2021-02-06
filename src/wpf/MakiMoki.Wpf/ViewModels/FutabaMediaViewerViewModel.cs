@@ -442,7 +442,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			};
 			if(sfd.ShowDialog() ?? false) {
 				File.Copy(GetPath(media), sfd.FileName);
-				Util.Futaba.PutInformation(new Data.Information("保存しました"));
+				Util.Futaba.PutInformation(new Data.Information("保存しました", this.AnimationGifImageSource.Value));
 			}
 		}
 		private void OnMenuItemClickQuickSave(PlatformData.MediaQuickSaveItem media) {
@@ -451,7 +451,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if(m.Success) {
 				File.Copy(GetPath(media.Media.Value), GetSavePath(Path.Combine(media.Path.Value, m.Groups[1].Value)));
 
-				Util.Futaba.PutInformation(new Data.Information("保存しました"));
+				Util.Futaba.PutInformation(new Data.Information("保存しました", this.AnimationGifImageSource.Value));
 			}
 		}
 		private void OnMenuItemClickImageSearchGoogle(PlatformData.FutabaMedia media) {

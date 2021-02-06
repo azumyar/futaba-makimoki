@@ -480,7 +480,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 		private static void PutThreadResResult(Data.FutabaContext newFutaba, Data.FutabaContext oldFutaba, string error) {
 			if(newFutaba == null) {
-				PutInformation(new Data.Information(string.IsNullOrEmpty(error) ? "スレ取得エラー" : error));
+				PutInformation(new Data.Information(string.IsNullOrEmpty(error) ? "スレ取得エラー" : error, newFutaba));
 			} else {
 				if(oldFutaba == null) {
 					// 何もしない
@@ -488,14 +488,23 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					var c = newFutaba.ResItems.Length - oldFutaba.ResItems.Length;
 					if(c <= 0) {
 						if(newFutaba.Raw.IsDie) {
-							PutInformation(new Data.Information("スレッドは落ちています"));
+							PutInformation(new Data.Information("スレッドは落ちています", newFutaba));
 						} else {
-							PutInformation(new Data.Information("新着レスなし"));
+							PutInformation(new Data.Information("新着レスなし", newFutaba));
 						}
 					} else {
-						PutInformation(new Data.Information($"{c}件の新着レス"));
+						if(oldFutaba.ResItems.Any()) {
+							PutInformation(new Data.Information($"{c}件の新着レス", newFutaba));
+						} else {
+							c = c - 1;
+							if(c == 0) {
+								PutInformation(new Data.Information("新着レスなし", newFutaba));
+							} else {
+								PutInformation(new Data.Information($"{c}件の新着レス", newFutaba));
+							}
+						}
 						if(newFutaba.Raw.IsDie) {
-							PutInformation(new Data.Information("スレッドは落ちています"));
+							PutInformation(new Data.Information("スレッドは落ちています", newFutaba));
 						}
 					}
 				}
