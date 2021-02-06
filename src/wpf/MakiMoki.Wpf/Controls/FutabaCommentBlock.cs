@@ -447,8 +447,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					// TODO: 設定ファイルに退避
 					var up = new[] { @"f\d+(\.[a-zA-Z]+)$", @"fu\d+(\.[a-zA-Z]+)$" };
 					var shio = new[] { @"sa\d+(\.[a-zA-Z]+)$", @"sp\d+(\.[a-zA-Z]+)$", @"sq\d+(\.[a-zA-Z]+)$", @"ss\d+(\.[a-zA-Z]+)$", @"su\d+(\.[a-zA-Z]+)$" };
-					var upExt = new[] { ".png", ".jpg", ".jpeg", ".webp", ".mp4", ".webm" };
-					var shioExt = new[] { ".png", ".jpg", ".jpeg", ".webp" };
+					var upExt = new[] { ".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".webm" };
+					var shioExt = new[] { ".png", ".jpg", ".jpeg", ".gif", ".webp" };
 					var url = link.NavigateUri.ToString();
 					foreach(var r in up) {
 						var m = Regex.Match(url, r, RegexOptions.IgnoreCase);
