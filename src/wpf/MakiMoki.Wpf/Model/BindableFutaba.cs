@@ -313,7 +313,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						//this.ResItems[i] = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
 						var bf = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
 						if(b.ResItem.Res.IsHavedImage) {
-
 							BindableFutabaResItem.CopyImage(a, bf);
 						}
 						updateItems.Add((i, bf));
