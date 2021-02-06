@@ -198,6 +198,9 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public bool IsSelfDel=> (Del == "selfdel");
 
 		[JsonIgnore]
+		public bool IsHavedImage => !string.IsNullOrEmpty(this.Ext);
+
+		[JsonIgnore]
 		public DateTime NowDateTime {
 			get {
 				if(long.TryParse(Tim, out var v)) {

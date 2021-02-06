@@ -71,7 +71,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					this.ThumbSource.Value = res.ThumbSource.Value;
 				}
 
-				if(res.Raw.Value.ResItem.Res.Fsize == 0) {
+				if(res.Raw.Value.ResItem.Res.IsHavedImage) {
 					return;
 				}
 

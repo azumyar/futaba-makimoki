@@ -312,8 +312,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						// 画面から参照されているので this の初期化が終わっていないこのタイミングで書き換えてはいけない
 						//this.ResItems[i] = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
 						var bf = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
-						if((b.ResItem.Res.Fsize != 0)
-							&& Regex.IsMatch(b.ResItem.Res.Src, @"^.*/[0-9]+\..+$")) {
+						if(b.ResItem.Res.IsHavedImage) {
 
 							BindableFutabaResItem.CopyImage(a, bf);
 						}
