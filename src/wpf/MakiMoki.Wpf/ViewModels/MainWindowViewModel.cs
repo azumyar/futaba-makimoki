@@ -56,7 +56,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<RoutedEventArgs> ConfigButtonClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
 		public MakiMokiCommand<MouseButtonEventArgs> TabClickCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
-		public MakiMokiCommand<MouseButtonEventArgs> TabCloseButtonCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<RoutedEventArgs> TabCloseClickButtonCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
 		private Dictionary<string, Model.TabItem> SelectedTabItem { get; } = new Dictionary<string, TabItem>();
 		public ReactiveProperty<Model.TabItem> TabControlSelectedItem { get; } = new ReactiveProperty<Model.TabItem>();
@@ -131,7 +131,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			ConfigButtonClickCommand.Subscribe(x => OnConfigButtonClick(x));
 			BoardOpenCommand.Subscribe(x => OnBordOpen(x));
 			TabClickCommand.Subscribe(x => OnTabClick(x));
-			TabCloseButtonCommand.Subscribe(x => OnTabClose(x));
+			TabCloseClickButtonCommand.Subscribe(x => OnTabCloseClick(x));
 			Util.Futaba.Catalog
 				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => OnUpdateCatalog(x));
@@ -269,18 +269,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private void OnTabClose(MouseButtonEventArgs e) {
-			if(e.ClickCount == 1) {
-				switch(e.ChangedButton) {
-				case MouseButton.Left:
-					if((e.Source is FrameworkElement o) && (o.DataContext is Model.TabItem ti)) {
-						Util.Futaba.Remove(ti.Url);
-					}
-					e.Handled = true;
-					break;
-				}
+		private void OnTabCloseClick(RoutedEventArgs e) {
+			if((e.Source is FrameworkElement o) && (o.DataContext is Model.TabItem ti)) {
+				Util.Futaba.Remove(ti.Url);
 			}
-			System.Diagnostics.Debug.WriteLine(e);
+			e.Handled = true;
 		}
 
 		private async void OnUpdateCatalog(Data.FutabaContext[] catalog) {

@@ -308,8 +308,8 @@
                                             <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="True">
                                                 <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
                                             </i:DataTrigger>
-                                            <i:EventTrigger EventName="PreviewMouseUp">
-                                                <ri:EventToReactiveCommand Command="{Binding DataContext.TabCloseButtonCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" />
+                                            <i:EventTrigger EventName="Click">
+                                                <ri:EventToReactiveCommand Command="{Binding DataContext.TabCloseClickButtonCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" />
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                     </Button>
@@ -593,8 +593,8 @@
                                             <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="True">
                                                 <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
                                             </i:DataTrigger>
-                                            <i:EventTrigger EventName="PreviewMouseUp">
-                                                <ri:EventToReactiveCommand Command="{Binding DataContext.TabCloseButtonCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" />
+                                            <i:EventTrigger EventName="Click">
+                                                <ri:EventToReactiveCommand Command="{Binding DataContext.TabCloseClickButtonCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" />
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                     </Button>
