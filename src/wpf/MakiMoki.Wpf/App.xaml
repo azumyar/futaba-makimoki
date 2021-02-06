@@ -98,6 +98,14 @@
         <sys:Double x:Key="FailsafeThreadImageOpacity">0.4</sys:Double>
         <sys:Double x:Key="FailsafeThreadImageBlurRadius">15</sys:Double>
 
+        <Color x:Key="InformationBackpoundColor">#99000000</Color>
+        <Color x:Key="InformationForegroundColor">#ffffffff</Color>
+        <sys:Double x:Key="InformationMinWidth">240</sys:Double>
+        <sys:Double x:Key="InformationMinHeight">66</sys:Double>
+        <sys:Double x:Key="InformationImageSize">64</sys:Double>
+        <FontFamily x:Key="InformationFont">メイリオ</FontFamily>
+        <sys:Double x:Key="InformationFontSize">12</sys:Double>
+
 
         <!-- スクロールバーの色-->
         <!-- Grayの500 -->

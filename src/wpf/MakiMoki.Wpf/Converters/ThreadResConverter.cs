@@ -339,18 +339,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 	class FutabaResItemBackgroundConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-			if((values.Length == 4) && (values[2] is System.Windows.Media.Color normalColor)) {
-				if((values[0] is Model.BindableFutabaResItem f)
-					&& (values[1] is string search)
-					&& (values[3] is System.Windows.Media.Color hitColor)) {
-					return (!string.IsNullOrEmpty(search) && Util.TextUtil.Comment2SearchText(f.Raw.Value.ResItem.Res.Com).Contains(Util.TextUtil.Comment2SearchText(search)))
-							? hitColor : normalColor;
-				}
-				return normalColor; // スレを受信していない場合values[0]が設定されていないのでnormalColorを返す
+			if(values.Length != 4) {
+				throw new ArgumentException("型不正。", nameof(values));
 			}
 
-			throw new ArgumentException("型不正。", nameof(values));
+			if((values[0] is Model.BindableFutabaResItem f)
+				&& (values[1] is string search)
+				&& (values[2] is System.Windows.Media.Color normalColor)
+				&& (values[3] is System.Windows.Media.Color hitColor)) {
+
+				return (!string.IsNullOrEmpty(search) && Util.TextUtil.Comment2SearchText(f.Raw.Value.ResItem.Res.Com).Contains(Util.TextUtil.Comment2SearchText(search)))
+					? hitColor : normalColor;
+			}
+			return values[2]; // スレを受信していない場合values[0]が設定されていないのでnormalColorを返す
 		}
+		
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
 			throw new NotImplementedException();
 		}

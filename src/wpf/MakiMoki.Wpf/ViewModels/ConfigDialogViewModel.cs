@@ -19,7 +19,7 @@ using Prism.Services.Dialogs;
 using System.Windows.Input;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
-	class ConfigWindowViewModel : BindableBase, IDisposable {
+	class ConfigDialogViewModel : BindableBase, IDialogAware, IDisposable {
 		public class ConfigListBoxItem : IDisposable {
 			[Helpers.AutoDisposable.IgonoreDispose]
 			public ReactiveCollection<ConfigListBoxItem> Parent { get; }
@@ -110,6 +110,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Input.Value = "";
 			}
 		}
+
+		public string Title { get { return "設定"; } }
+
+		public event Action<IDialogResult> RequestClose;
 
 		public ReactiveProperty<bool> CoreConfigThreadDataIncremental { get; }
 		public ReactiveProperty<bool> CoreConfigSavedResponse { get; }
@@ -221,7 +225,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private IDialogService DialogService { get; }
 
-		public ConfigWindowViewModel(IDialogService dialogService) {
+		public ConfigDialogViewModel(IDialogService dialogService) {
 			DialogService = dialogService;
 			CoreConfigThreadDataIncremental = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental);
 			CoreConfigSavedResponse = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaResponseSave);
@@ -451,6 +455,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
+		public bool CanCloseDialog() {
+			return true;
+		}
+
+		public void OnDialogOpened(IDialogParameters parameters) {
+		}
+
+		public void OnDialogClosed() {}
+
 		private void OnAddBoardConfig(Data.BoardData boardData = null) {
 			var key = typeof(Data.BoardData).FullName;
 			var param = new DialogParameters();
@@ -458,7 +471,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				param.Add(key, boardData);
 			}
 			DialogService.ShowDialog(
-				nameof(Controls.BoardEditDialog),
+				nameof(Windows.Dialogs.BoardEditDialog),
 				param,
 				(x) => {
 					if((x.Result == ButtonResult.OK)
@@ -639,9 +652,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					appcenterCrashes: OptoutAppCenterCrashes.Value
 				));
 			}
+			RequestClose?.Invoke(new DialogResult(ButtonResult.OK));
 		}
 
-		private void OnCancelButtonClick(RoutedEventArgs _) { }
+		private void OnCancelButtonClick(RoutedEventArgs _) { 
+			RequestClose?.Invoke(new DialogResult(ButtonResult.Cancel));
+		}
 
 		private void OnLinkClick(Uri e) {
 			WpfUtil.PlatformUtil.StartBrowser(e);

@@ -181,7 +181,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						Messenger.Instance.GetEvent<PubSubEvent<AppendTextMessage>>()
 							.Publish(new AppendTextMessage(f.Url, x.FileNameOrMessage));
 					} else {
-						Util.Futaba.PutInformation(new Information($"アップロード失敗：{ x.FileNameOrMessage }"));
+						Util.Futaba.PutInformation(new Information($"アップロード失敗：{ x.FileNameOrMessage }", f));
 					}
 				});
 		}
@@ -412,7 +412,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									}
 								});
 						} else {
-							Util.Futaba.PutInformation(new Information(y.Message));
+							Util.Futaba.PutInformation(new Information(y.Message, x));
 						}
 					});
 				}
@@ -460,11 +460,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									}
 									return path;
 								} else {
-									Util.Futaba.PutInformation(new Information("URLの画像取得に失敗"));
+									Util.Futaba.PutInformation(new Information("URLの画像取得に失敗", f));
 								}
 							}
 						} else {
-							Util.Futaba.PutInformation(new Information("URLの情報取得に失敗"));
+							Util.Futaba.PutInformation(new Information("URLの情報取得に失敗", f));
 						}
 					}
 				}

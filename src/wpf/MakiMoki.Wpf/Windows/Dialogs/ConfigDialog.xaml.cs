@@ -13,13 +13,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
+namespace Yarukizero.Net.MakiMoki.Wpf.Windows.Dialogs {
 	/// <summary>
-	/// ConfigWindow.xaml の相互作用ロジック
+	/// ConfigDialog.xaml の相互作用ロジック
 	/// </summary>
-	public partial class ConfigWindow : Window {
+	public partial class ConfigDialog : UserControl {
 
-		public ConfigWindow() {
+		public ConfigDialog() {
 			InitializeComponent();
 		}
 	}

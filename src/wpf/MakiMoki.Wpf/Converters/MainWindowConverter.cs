@@ -131,4 +131,25 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			throw new NotImplementedException();
 		}
 	}
+
+	class InformationObjectConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value is Model.BindableFutaba bf) {
+				return new Model.InformationBindableExObject(bf);
+			} else if((value is Data.FutabaContext fc) && fc.Url.IsThreadUrl) {
+				var it = fc.ResItems.FirstOrDefault();
+				if(it != null) {
+					return new Model.InformationBindableExObject(
+						WpfUtil.ImageUtil.GetImageCache(
+							Util.Futaba.GetThumbImageLocalFilePath(fc.Url, it.ResItem.Res)));
+				}
+			}
+
+			return new Model.InformationBindableExObject();
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
 }

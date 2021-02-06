@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
@@ -13,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Navigation;
 using Yarukizero.Net.MakiMoki.Util;
 using System.Runtime.CompilerServices;
+using Reactive.Bindings;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	class FutabaCommentBlock : TextBlock {
@@ -406,7 +408,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						} else if(link.NavigateUri.Authority == SharadConst.MkiMokiCompleteUrlAuthorityShiokara) {
 							o = Futaba.GetCompleteUrlShiokara(ri.Parent.Value.Url, link.NavigateUri.AbsolutePath.Substring(1));
 						} else {
-							Futaba.PutInformation(new Data.Information($"不明なURL{ link.NavigateUri }"));
+							Futaba.PutInformation(new Data.Information($"不明なURL{ link.NavigateUri }", ri.Parent.Value));
 						}
 						o?.Subscribe(x => {
 							if(x.Successed) {
@@ -419,7 +421,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 									// エラーオブジェクトは返却されているので通信エラーではないと判断する
 									uriCache.Add(link.NavigateUri, new Uri($"{ SharadConst.MkiMokiSchemeNull }://"));
 								}
-								Futaba.PutInformation(new Data.Information($"アップロードファイル補完エラー:{ x.UrlOrMessage }"));
+								Futaba.PutInformation(new Data.Information($"アップロードファイル補完エラー:{ x.UrlOrMessage }", ri.Parent.Value));
 							}
 						});
 					}
@@ -438,9 +440,32 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 		
 		private static void OnMouseEnterLink(object sender, MouseEventArgs e) {
-			if(sender is Hyperlink link) {
+			if((sender is Hyperlink link) && (link.Tag is Model.BindableFutabaResItem ri)) {
 				link.TextDecorations = System.Windows.TextDecorations.Underline;
 				link.Foreground = new SolidColorBrush(GetLinkActiveColor());
+				if(link.ToolTip == null) {
+					// TODO: 設定ファイルに退避
+					var up = new[] { @"f\d+(\.[a-zA-Z]+)$", @"fu\d+(\.[a-zA-Z]+)$" };
+					var shio = new[] { @"sa\d+(\.[a-zA-Z]+)$", @"sp\d+(\.[a-zA-Z]+)$", @"sq\d+(\.[a-zA-Z]+)$", @"ss\d+(\.[a-zA-Z]+)$", @"su\d+(\.[a-zA-Z]+)$" };
+					var upExt = new[] { ".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".webm" };
+					var shioExt = new[] { ".png", ".jpg", ".jpeg", ".gif", ".webp" };
+					var url = link.NavigateUri.ToString();
+					foreach(var r in up) {
+						var m = Regex.Match(url, r, RegexOptions.IgnoreCase);
+						if(m.Success && upExt.Contains(m.Groups[1].Value.ToLower())) {
+							link.ToolTip = new ThumbToolTip(() => Futaba.GetThumbImageUp(ri.Raw.Value.Url, m.Value));
+							goto end;
+						}
+					}
+					foreach(var r in shio) {
+						var m = Regex.Match(url, r, RegexOptions.IgnoreCase);
+						if(m.Success && shioExt.Contains(m.Groups[1].Value.ToLower())) {
+							link.ToolTip = new ThumbToolTip(() => Futaba.GetThumbImageShiokara(ri.Raw.Value.Url, m.Value));
+							goto end;
+						}
+					}
+				end:;
+				}
 			}
 		}
 

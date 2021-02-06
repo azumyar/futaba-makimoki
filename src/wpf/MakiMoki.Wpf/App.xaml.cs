@@ -318,13 +318,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			ViewModelLocationProvider.Register<Controls.FutabaCatalogViewer, ViewModels.FutabaCatalogViewerViewModel>();
 			ViewModelLocationProvider.Register<Controls.FutabaMediaViewer, ViewModels.FutabaMediaViewerViewModel>();
 			*/
-			var windowType = typeof(Windows.MainWindow);
-			var controlType = typeof(Controls.FutabaCatalogViewer);
+			var nm = new[] {
+				typeof(Windows.MainWindow).Namespace,
+				typeof(Windows.Dialogs.ConfigDialog).Namespace,
+				typeof(Controls.FutabaCatalogViewer).Namespace,
+			};
 			var vmType = typeof(ViewModels.MainWindowViewModel);
 			var va = vmType.Assembly.GetTypes().Where(x => x.Namespace == vmType.Namespace).ToArray();
 			var m = typeof(ViewModelLocationProvider).GetMethod(nameof(ViewModelLocationProvider.Register), Array.Empty<Type>());
 			System.Diagnostics.Debug.Assert(m != null);
-			foreach(var t in controlType.Assembly.GetTypes().Where(x => (x.Namespace == windowType.Namespace) || (x.Namespace == controlType.Namespace))) {
+			foreach(var t in typeof(App).Assembly.GetTypes().Where(x => nm.Contains(x.Namespace))) {
 				var vm = va.Where(x => x.FullName == $"{ x.Namespace }.{ t.Name }ViewModel").FirstOrDefault();
 				if(vm != null) {
 					System.Diagnostics.Debug.WriteLine($"Register: { vm.Name }");
@@ -334,7 +337,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			//ViewModelLocationProvider.Register<Canvas98.Controls.FutabaCanvas98View, Canvas98.ViewModels.FutabaCanvas98ViewViewModel>();
 			containerRegistry.RegisterForNavigation<Controls.FutabaMediaViewer, ViewModels.FutabaMediaViewerViewModel>();
 			containerRegistry.RegisterForNavigation<Canvas98.Controls.FutabaCanvas98View, Canvas98.ViewModels.FutabaCanvas98ViewViewModel>();
-			containerRegistry.RegisterDialog<Controls.BoardEditDialog, ViewModels.BoardEditDialogViewModel>();
+			containerRegistry.RegisterDialog<Windows.Dialogs.ConfigDialog, ViewModels.ConfigDialogViewModel>();
+			containerRegistry.RegisterDialog<Windows.Dialogs.BoardEditDialog, ViewModels.BoardEditDialogViewModel>();
 
 			containerRegistry.RegisterInstance(this.Container);
 		}

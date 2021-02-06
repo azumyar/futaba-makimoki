@@ -549,7 +549,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					var m = x.Message;
 					if(x.Successed) {
 						if(int.TryParse(x.Message, out var i)) {
-							Util.Futaba.PutInformation(new Information($"そうだねx{ i }"));
+							Util.Futaba.PutInformation(new Information($"そうだねx{ i }", item.Parent.Value));
 							if(item.Raw.Value.Soudane != i) {
 								Util.Futaba.UpdateThreadRes(
 									item.Bord.Value,
@@ -561,7 +561,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						}
 						m = "不明なエラー";
 					}
-					Util.Futaba.PutInformation(new Information(m));
+					Util.Futaba.PutInformation(new Information(m, item.Parent.Value));
 				exit:;
 				});
 		}
@@ -573,9 +573,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => {
 					if(x.Successed) {
-						Util.Futaba.PutInformation(new Information("del送信"));
+						Util.Futaba.PutInformation(new Information("del送信", item.Parent.Value));
 					} else {
-						Util.Futaba.PutInformation(new Information(x.Message));
+						Util.Futaba.PutInformation(new Information(x.Message, item.Parent.Value));
 					}
 				});
 		}
@@ -585,10 +585,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => {
 					if(x.Successed) {
-						Util.Futaba.PutInformation(new Information("削除しました"));
+						Util.Futaba.PutInformation(new Information("削除しました", item.Parent.Value));
 						Util.Futaba.UpdateThreadRes(item.Bord.Value, item.Raw.Value.Url.ThreadNo).Subscribe();
 					} else {
-						Util.Futaba.PutInformation(new Information(x.Message));
+						Util.Futaba.PutInformation(new Information(x.Message, item.Parent.Value));
 					}
 				});
 		}

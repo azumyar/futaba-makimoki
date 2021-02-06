@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Prism.Events;
 using Prism.Mvvm;
+using Prism.Services.Dialogs;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using Yarukizero.Net.MakiMoki.Data;
@@ -55,7 +56,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<RoutedEventArgs> ConfigButtonClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
 		public MakiMokiCommand<MouseButtonEventArgs> TabClickCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
-		public MakiMokiCommand<MouseButtonEventArgs> TabCloseButtonCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<RoutedEventArgs> TabCloseClickButtonCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
 		private Dictionary<string, Model.TabItem> SelectedTabItem { get; } = new Dictionary<string, TabItem>();
 		public ReactiveProperty<Model.TabItem> TabControlSelectedItem { get; } = new ReactiveProperty<Model.TabItem>();
@@ -94,7 +95,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private Action<PlatformData.WpfConfig> onSystemConfigUpdateNotifyer;
 		private Action<PlatformData.GestureConfig> onGestureConfigUpdateNotifyer;
 
-		public MainWindowViewModel() {
+		private IDialogService DialogService { get; }
+
+		public MainWindowViewModel(IDialogService dialogService) {
+			DialogService = dialogService;
 			Boards = new ReactiveProperty<Data.BoardData[]>(Config.ConfigLoader.Board.Boards);
 			foreach(var c in Util.Futaba.Catalog.Value) {
 				Catalogs.Add(new TabItem(c));
@@ -127,7 +131,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			ConfigButtonClickCommand.Subscribe(x => OnConfigButtonClick(x));
 			BoardOpenCommand.Subscribe(x => OnBordOpen(x));
 			TabClickCommand.Subscribe(x => OnTabClick(x));
-			TabCloseButtonCommand.Subscribe(x => OnTabClose(x));
+			TabCloseClickButtonCommand.Subscribe(x => OnTabCloseClick(x));
 			Util.Futaba.Catalog
 				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => OnUpdateCatalog(x));
@@ -240,10 +244,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnConfigButtonClick(RoutedEventArgs e) {
-			new Windows.ConfigWindow() {
-				Owner = App.Current.MainWindow,
-				ShowInTaskbar = false,
-			}.ShowDialog();
+			DialogService.ShowDialog(
+				nameof(Windows.Dialogs.ConfigDialog),
+				new DialogParameters(),
+				(x) => { });
 		}
 		
 		private void OnBordOpen(BoardData bc) {
@@ -265,18 +269,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private void OnTabClose(MouseButtonEventArgs e) {
-			if(e.ClickCount == 1) {
-				switch(e.ChangedButton) {
-				case MouseButton.Left:
-					if((e.Source is FrameworkElement o) && (o.DataContext is Model.TabItem ti)) {
-						Util.Futaba.Remove(ti.Url);
-					}
-					e.Handled = true;
-					break;
-				}
+		private void OnTabCloseClick(RoutedEventArgs e) {
+			if((e.Source is FrameworkElement o) && (o.DataContext is Model.TabItem ti)) {
+				Util.Futaba.Remove(ti.Url);
 			}
-			System.Diagnostics.Debug.WriteLine(e);
+			e.Handled = true;
 		}
 
 		private async void OnUpdateCatalog(Data.FutabaContext[] catalog) {
@@ -552,11 +549,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnKeyBindingCurrentCatalogTabClose()
 			=> OnCatalogThreadClose(this.TabControlSelectedItem.Value?.Futaba.Value);
 		private void OnKeyBindingNextCatalogTab() {
-			if(this.Catalogs.Count <= 1) {
+			if(TabControlSelectedItem.Value == null) {
+				TabControlSelectedItem.Value = this.Catalogs.FirstOrDefault();
 				return;
 			}
-			if(TabControlSelectedItem.Value == null) {
-				TabControlSelectedItem.Value = this.Catalogs.First();
+			if(this.Catalogs.Count <= 1) {
+				return;
 			}
 
 			for(var i = 0; i < this.Catalogs.Count; i++) {
@@ -572,11 +570,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 		private void OnKeyBindingPreviouseCatalogTab() {
-			if(this.Catalogs.Count <= 1) {
+			if(TabControlSelectedItem.Value == null) {
+				TabControlSelectedItem.Value = this.Catalogs.LastOrDefault();
 				return;
 			}
-			if(TabControlSelectedItem.Value == null) {
-				TabControlSelectedItem.Value = this.Catalogs.Last();
+			if(this.Catalogs.Count <= 1) {
+				return;
 			}
 
 			for(var i = 0; i < this.Catalogs.Count; i++) {
@@ -607,11 +606,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnKeyBindingCurrentThreadTabClose()
 			=> OnCatalogThreadClose(this.ThreadTabSelectedItem.Value?.Futaba.Value);
 		private void OnKeyBindingNextThreadTab() {
-			if(this.Threads.Value.Count <= 1) {
+			if(ThreadTabSelectedItem.Value == null) {
+				ThreadTabSelectedItem.Value = this.Threads.Value.FirstOrDefault();
 				return;
 			}
-			if(ThreadTabSelectedItem.Value == null) {
-				ThreadTabSelectedItem.Value = this.Threads.Value.First();
+			if(this.Threads.Value.Count <= 1) {
+				return;
 			}
 
 			for(var i = 0; i < this.Threads.Value.Count; i++) {
@@ -627,11 +627,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 		private void OnKeyBindingPreviouseThreadTab() {
-			if(this.Threads.Value.Count <= 1) {
+			if(ThreadTabSelectedItem.Value == null) {
+				ThreadTabSelectedItem.Value = this.Threads.Value.LastOrDefault();
 				return;
 			}
-			if(ThreadTabSelectedItem.Value == null) {
-				ThreadTabSelectedItem.Value = this.Threads.Value.Last();
+			if(this.Threads.Value.Count <= 1) {
+				return;
 			}
 
 			for(var i =0; i< this.Threads.Value.Count; i++) {
