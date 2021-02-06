@@ -49,6 +49,7 @@ table th, table td {
     flex-direction: row;
     flex-wrap: wrap;
     margin-left: var(--base-margin);
+    max-width: 1024px;
 }
 
 #screenshot-sction div {
