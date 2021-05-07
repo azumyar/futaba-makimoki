@@ -709,7 +709,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.CommentHtml = new ReactiveProperty<string>("");
 				this.OriginHtml = new ReactiveProperty<string>(Raw.Value.ResItem.Res.Com);
 				this.SetCommentHtml();
-				this.IsVisibleOriginComment = new ReactiveProperty<bool>((this.IsHidden.Value || this.IsNg.Value || this.IsDel.Value) ? false : true);
+				this.IsVisibleOriginComment = this.IsHidden
+					.CombineLatest(
+						this.IsNg, this.IsDel,
+						(x, y, z) => !(x || y || z))
+					.ToReactiveProperty();
 				this.DisplayHtml = IsVisibleOriginComment
 					.Select(x => x ? this.OriginHtml.Value : this.CommentHtml.Value)
 					.ToReactiveProperty();
@@ -937,7 +941,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.IsHidden.Value = Ng.NgUtil.NgHelper.CheckHidden(this.Parent.Value.Raw, this.Raw.Value);
 			this.IsCopyMode.Value = false;
 			this.SetCommentHtml();
-			this.IsVisibleOriginComment.Value = (this.IsHidden.Value || this.IsNg.Value || this.IsDel.Value) ? false : true;
 		}
 
 		// TODO: 名前変える
@@ -984,7 +987,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.IsDel.Value = (this.Raw.Value.ResItem.Res.IsDel || this.Raw.Value.ResItem.Res.IsDel2)
 				&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden);
 			this.SetCommentHtml();
-			this.IsVisibleOriginComment.Value =(this.IsHidden.Value || this.IsNg.Value || this.IsDel.Value) ? false : true;
 			this.CommandPaletteVisibility.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledThreadCommandPalette ? Visibility.Visible : Visibility.Collapsed;
 			this.CommandPaletteAlignment.Value = UiPotionToHorizontalAlignment(WpfConfig.WpfConfigLoader.SystemConfig.CommandPalettePosition);
 			this.IsVisibleCatalogIdMarker.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledIdMarker;
