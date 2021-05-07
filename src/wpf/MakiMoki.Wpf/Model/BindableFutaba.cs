@@ -775,24 +775,28 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					this.ImageName = new ReactiveProperty<string>(m.Groups[1].Value);
 					var bmp = WpfUtil.ImageUtil.GetImageCache(
 						Util.Futaba.GetThumbImageLocalFilePath(item.Url, item.ResItem.Res));
-					if((bmp != null) && Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
-						void work() {
-							this.SetThumbSource(bmp);
-							if(this.Raw.Value.Url.IsCatalogUrl
-								&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
-								&& !object.ReferenceEquals(this.ThumbSource.Value, this.OriginSource.Value)) {
+					if(bmp != null) {
+						if(Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
+							void work() {
+								this.SetThumbSource(bmp);
+								if(this.Raw.Value.Url.IsCatalogUrl
+									&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
+									&& !object.ReferenceEquals(this.ThumbSource.Value, this.OriginSource.Value)) {
 
-								this.IsNgImageHidden.Value = true;
+									this.IsNgImageHidden.Value = true;
+								}
 							}
-						}
-						if(HashCache.TryGetTarget(this.GetCacheKey(), out var _)) {
-							work();
+							if(HashCache.TryGetTarget(this.GetCacheKey(), out var _)) {
+								work();
+							} else {
+								HashQueue.Push(Helpers.ConnectionQueueItem<ulong?>.From(
+									o => {
+										work();
+										o.OnNext(null);
+									})).Subscribe();
+							}
 						} else {
-							HashQueue.Push(Helpers.ConnectionQueueItem<ulong?>.From(
-								o => {
-									work();
-									o.OnNext(null);
-								})).Subscribe();
+							this.SetThumbSource(bmp);
 						}
 					}
 				} else {
