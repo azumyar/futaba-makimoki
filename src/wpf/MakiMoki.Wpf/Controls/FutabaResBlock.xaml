@@ -10,7 +10,9 @@
              xmlns:util="clr-namespace:Yarukizero.Net.MakiMoki.Util;assembly=MakiMoki.Core"
              xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
              xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
-             mc:Ignorable="d" 
+             xmlns:model="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Model"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=model:BindableFutabaResItem}"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <ResourceDictionary>
