@@ -299,7 +299,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					Observable.Create<object>(o => {
 						var c = tab.Futaba.Value.ResItems
 							.Where(x => (x.OriginSource.Value == null)
-								&& (0 < x.Raw.Value.ResItem.Res.Fsize))
+								&& x.Raw.Value.ResItem.Res.IsHavedImage)
 							.Select<BindableFutabaResItem, (BindableFutabaResItem Item, string Path)>(
 								x => (x, Util.Futaba.GetThumbImageLocalFilePath(
 									tab.Futaba.Value.Url, x.Raw.Value.ResItem.Res)))

@@ -304,6 +304,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnLoaded() {}
 
 		private void UpdateThread(Model.BindableFutaba x) {
+			if(x.IsDie.Value) {
+				return;
+			}
+
 			Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe();
 		}
 

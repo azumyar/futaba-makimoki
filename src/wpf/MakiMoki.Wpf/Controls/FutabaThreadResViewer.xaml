@@ -545,7 +545,7 @@
                     ScrollViewer.CanContentScroll="True"
                     VirtualizingPanel.ScrollUnit="Pixel"
                     VirtualizingPanel.IsVirtualizing="True"
-                    VirtualizingPanel.VirtualizationMode="Recycling"
+                    VirtualizingPanel.VirtualizationMode="Standard"
                     HorizontalContentAlignment="Stretch"
                     >
                     <ListBox.Effect>
