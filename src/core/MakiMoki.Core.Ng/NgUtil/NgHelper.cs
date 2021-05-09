@@ -8,25 +8,17 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 	public static partial class NgHelper {
 		
 		private static bool CheckNg(Data.FutabaContext futaba, Data.FutabaContext.Item item, bool idNg, string[] word, string[] regex) {
+			bool CheckId(Data.FutabaContext.Item it) {
+				var m = it?.ResItem.Res.Email.ToLower() ?? "";
+				return (m != "id表示") && (m != "ip表示");
+			}
 			var id = idNg;
 
 			// ID表示スレはID NG機能は無効化
 			if(id && futaba.Url.IsCatalogUrl) {
-				var first = item;
-				if(first != null) {
-					var m = first.ResItem.Res.Email.ToLower();
-					if((m == "id表示") || (m == "ip表示")) {
-						id = false;
-					}
-				}
+				id = CheckId(item);
 			} else if(id && futaba.Url.IsThreadUrl) {
-				var first = futaba.ResItems.FirstOrDefault();
-				if(first != null) {
-					var m = first.ResItem.Res.Email.ToLower();
-					if((m == "id表示") || (m == "ip表示")) {
-						id = false;
-					}
-				}
+				id = CheckId(futaba.ResItems.FirstOrDefault());
 			}
 
 			if(id && !string.IsNullOrEmpty(item.ResItem.Res.Id)) {
