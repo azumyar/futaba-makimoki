@@ -14,14 +14,16 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 			if(id && futaba.Url.IsCatalogUrl) {
 				var first = item;
 				if(first != null) {
-					if((first.ResItem.Res.Email == "id表示") || (first.ResItem.Res.Email == "ip表示")) {
+					var m = first.ResItem.Res.Email.ToLower();
+					if((m == "id表示") || (m == "ip表示")) {
 						id = false;
 					}
 				}
 			} else if(id && futaba.Url.IsThreadUrl) {
 				var first = futaba.ResItems.FirstOrDefault();
 				if(first != null) {
-					if((first.ResItem.Res.Email == "id表示") || (first.ResItem.Res.Email == "ip表示")) {
+					var m = first.ResItem.Res.Email.ToLower();
+					if((m == "id表示") || (m == "ip表示")) {
 						id = false;
 					}
 				}
