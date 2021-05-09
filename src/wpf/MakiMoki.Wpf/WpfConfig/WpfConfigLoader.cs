@@ -66,7 +66,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 				}
 				if(File.Exists(Path.Combine(InitializedSetting.UserDirectory, GestureConfigFile))) {
 					Gesture = Util.FileUtil.LoadMigrate(
-						Path.Combine(InitializedSetting.WorkDirectory, GestureConfigFile),
+						Path.Combine(InitializedSetting.UserDirectory, GestureConfigFile),
 						Gesture);
 				}
 			}
