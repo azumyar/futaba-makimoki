@@ -769,6 +769,7 @@
                                             <Separator />
                                             <MenuItem
                                                 Header="Watch画像登録"
+                                                Visibility="{Binding IsVisibleMenuItemWatchImage.Value, Mode=OneWay}"
                                                 Command="{Binding Tag.MenuItemWatchImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                             <MenuItem

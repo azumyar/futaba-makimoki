@@ -633,7 +633,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public ReactiveProperty<Visibility> IsVisibleMenuItemWatchImage { get; }
 		public ReactiveProperty<Visibility> IsVisibleMenuItemNgImage { get; }
-
+		
 		public ReactiveProperty<bool> IsVisibleCatalogIdMarker{ get; }
 
 		public ReactiveProperty<string> MenuItemTextHidden { get; }
@@ -691,9 +691,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						: Ng.NgUtil.NgHelper.CheckThreadNg(parent.Raw, item));
 				this.IsWatchWord = new ReactiveProperty<bool>(Ng.NgUtil.NgHelper.CheckCatalogWatch(parent.Raw, item));
 				this.IsWatchImage = this.ThumbHash
-					.Select(x => x.HasValue ? Ng.NgConfig.NgConfigLoader.WatchImageConfig.Images.Any(
-						y => Ng.NgUtil.PerceptualHash.GetHammingDistance(x.Value, y) <= Ng.NgConfig.NgConfigLoader.WatchImageConfig.Threshold
-						) : false)
+					.Select(x => x.HasValue ? Ng.NgUtil.NgHelper.CheckImageWatch(x.Value) : false)
 					.ToReactiveProperty();
 				this.IsWatch = new[] {
 					this.IsWatchWord,
@@ -816,8 +814,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ResImageVisibility = this.ThumbSource
 				.CombineLatest(IsVisibleOriginComment, (x, y) => ((x != null) && y) ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
-			this.IsVisibleMenuItemNgImage = this.ImageName.Select(x => !string.IsNullOrEmpty(x))
+			this.IsVisibleMenuItemNgImage = this.ImageName
+				.Select(x => !string.IsNullOrEmpty(x))
 				.CombineLatest(this.OriginSource, this.ThumbSource, (x, y, z) => x && (y == null || object.ReferenceEquals(y, z)))
+				.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
+				.ToReactiveProperty();
+			this.IsVisibleMenuItemWatchImage = this.ImageName
+				.Select(x => !string.IsNullOrEmpty(x))
+				.CombineLatest(this.ThumbHash, (x, y) => (x && y.HasValue) ? !Ng.NgUtil.NgHelper.CheckImageWatch(y.Value, 0) : false)
 				.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
 			this.MenuItemTextHidden = this.IsHidden.Select(x => x ? "非表示を解除" : "非表示").ToReactiveProperty();
@@ -900,8 +904,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}
 			this.ThumbHash.Value = h;
 			this.OriginSource.Value = bmp;
-			if(h.HasValue && Ng.NgConfig.NgConfigLoader.NgImageConfig.Images.Any(
-				y => Ng.NgUtil.PerceptualHash.GetHammingDistance(h.Value, y) <= Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold)) {
+			if(h.HasValue && Ng.NgUtil.NgHelper.CheckImageNg(h.Value)) {
 
 				ThumbSource.Value = (Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod == ImageNgMethod.Hidden)
 					? null : WpfUtil.ImageUtil.GetNgImage();
@@ -970,9 +973,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				});
 				return System.Reactive.Disposables.Disposable.Empty;
 			}).Subscribe(x => {
-				if(Ng.NgConfig.NgConfigLoader.NgImageConfig.Images.Any(
-					y => Ng.NgUtil.PerceptualHash.GetHammingDistance(x, y) <= Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold)) {
-
+				if(Ng.NgUtil.NgHelper.CheckImageNg(x)) {
 					// NG画像
 					ThumbSource.Value = (Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod == ImageNgMethod.Hidden)
 						? null : WpfUtil.ImageUtil.GetNgImage();

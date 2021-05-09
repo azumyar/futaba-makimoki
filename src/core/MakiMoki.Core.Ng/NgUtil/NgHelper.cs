@@ -80,6 +80,17 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 			return false;
 		}
 
+		public static bool CheckImageNg(ulong hash, int? threshold = null) {
+			var tv = threshold ?? NgConfigLoader.NgImageConfig.Threshold;
+			return NgConfigLoader.NgImageConfig.Images.Any(x => PerceptualHash.GetHammingDistance(hash, x) <= tv);
+		}
+
+
+		public static bool CheckImageWatch(ulong hash, int? threshold = null) {
+			var tv = threshold ?? NgConfigLoader.WatchImageConfig.Threshold;
+			return NgConfigLoader.WatchImageConfig.Images.Any(x => PerceptualHash.GetHammingDistance(hash, x) <= tv);
+		}
+
 		public static bool IsEnabledNgImage() {
 			return NgConfigLoader.NgImageConfig.Images.Any()
 				|| NgConfigLoader.WatchImageConfig.Images.Any();
