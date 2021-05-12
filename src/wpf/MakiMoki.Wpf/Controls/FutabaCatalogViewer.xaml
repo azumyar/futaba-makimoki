@@ -201,19 +201,26 @@
                                         <ContextMenu
                                             DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
                                             Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
-                                            <MenuItem Header="del" Click="OnCatalogMenuItemDelClickCommand" />
+                                            <MenuItem Header="del(_D)" Click="OnCatalogMenuItemDelClickCommand" />
                                             <Separator />
                                             <MenuItem
-                                                Header="Watch画像登録"
+                                                Header="Watch画像登録(_W)"
+                                                Visibility="{Binding IsVisibleMenuItemWatchImage.Value, Mode=OneWay}"
                                                 Command="{Binding Tag.CatalogMenuItemWatchImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                             <MenuItem
-                                                Header="NG画像登録"
+                                                Header="NG画像登録(_N)"
                                                 Visibility="{Binding IsVisibleMenuItemNgImage.Value, Mode=OneWay}"
                                                 Command="{Binding Tag.CatalogMenuItemNgImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                             <MenuItem
-                                                Header="{Binding MenuItemTextHidden.Value, Mode=OneWay}"
+                                                Header="非表示(_H)"
+                                                Visibility="{Binding MenuItemRegisterHiddenVisibility.Value, Mode=OneWay}"
+                                                Command="{Binding Tag.CatalogMenuItemThreadHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                            <MenuItem
+                                                Header="非表示を解除(_V)"
+                                                Visibility="{Binding MenuItemUnregisterHiddenVisibility.Value, Mode=OneWay}"
                                                 Command="{Binding Tag.CatalogMenuItemThreadHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                         </ContextMenu>
@@ -542,21 +549,29 @@
                                         <ContextMenu
                                             DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
                                             Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
-                                            <MenuItem Header="del" Click="OnCatalogMenuItemDelClickCommand" />
+                                            <MenuItem Header="del(_D)" Click="OnCatalogMenuItemDelClickCommand" />
                                             <Separator />
                                             <MenuItem
-                                                Header="Watch画像登録"
+                                                Header="Watch画像登録(_W)"
+                                                Visibility="{Binding IsVisibleMenuItemWatchImage.Value, Mode=OneWay}"
                                                 Command="{Binding Tag.CatalogMenuItemWatchImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                             <MenuItem
-                                                Header="NG画像登録"
+                                                Header="NG画像登録(_N)"
                                                 Visibility="{Binding IsVisibleMenuItemNgImage.Value, Mode=OneWay}"
                                                 Command="{Binding Tag.CatalogMenuItemNgImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                             <MenuItem
-                                                Header="{Binding MenuItemTextHidden.Value, Mode=OneWay}"
+                                                Header="非表示(_H)"
+                                                Visibility="{Binding MenuItemRegisterHiddenVisibility.Value, Mode=OneWay}"
                                                 Command="{Binding Tag.CatalogMenuItemThreadHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                            <MenuItem
+                                                Header="非表示を解除(_V)"
+                                                Visibility="{Binding MenuItemUnregisterHiddenVisibility.Value, Mode=OneWay}"
+                                                Command="{Binding Tag.CatalogMenuItemThreadHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+
                                         </ContextMenu>
                                     </Button.ContextMenu>
                                     <Button.Background>

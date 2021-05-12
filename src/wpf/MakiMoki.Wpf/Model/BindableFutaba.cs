@@ -636,7 +636,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		
 		public ReactiveProperty<bool> IsVisibleCatalogIdMarker{ get; }
 
+		[Obsolete]
 		public ReactiveProperty<string> MenuItemTextHidden { get; }
+		public ReactiveProperty<Visibility> MenuItemRegisterHiddenVisibility { get; }
+		public ReactiveProperty<Visibility> MenuItemUnregisterHiddenVisibility { get; }
 
 		public ReactiveProperty<BindableFutaba> Parent { get; }
 
@@ -821,10 +824,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				.ToReactiveProperty();
 			this.IsVisibleMenuItemWatchImage = this.ImageName
 				.Select(x => !string.IsNullOrEmpty(x))
-				.CombineLatest(this.ThumbHash, (x, y) => (x && y.HasValue) ? !Ng.NgUtil.NgHelper.CheckImageWatch(y.Value, 0) : false)
-				.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
+				.CombineLatest(this.ThumbHash, (x, y) => {
+					if(x) {
+						if(y.HasValue) {
+							return !Ng.NgUtil.NgHelper.CheckImageWatch(y.Value, 0);
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				}).Select(x => x ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
 			this.MenuItemTextHidden = this.IsHidden.Select(x => x ? "非表示を解除" : "非表示").ToReactiveProperty();
+			this.MenuItemRegisterHiddenVisibility = this.IsHidden.Select(x => x ? Visibility.Collapsed : Visibility.Visible).ToReactiveProperty();
+			this.MenuItemUnregisterHiddenVisibility = this.IsHidden.Select(x => x ? Visibility.Visible : Visibility.Collapsed).ToReactiveProperty();
+
 			this.FutabaTextBlockMouseDownCommand.Subscribe(x => OnFutabaTextBlockMouseDown(x));
 			this.ThumbLoadCommand.Subscribe(_ => OnThumbLoad());
 		}

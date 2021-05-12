@@ -879,12 +879,12 @@
                             <Grid.ContextMenu>
                                 <ContextMenu Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                     <MenuItem
-                                        Header="更新"
+                                        Header="更新(_U)"
                                         Command="{Binding Tag.ThreadUpdateCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                         CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
                                     <Separator />
                                     <MenuItem
-                                        Header="閉じる"
+                                        Header="閉じる(_C)"
                                         Command="{Binding Tag.ThreadCloseCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                         CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
                                     <MenuItem
@@ -953,12 +953,12 @@
                                         <Grid.ContextMenu>
                                             <ContextMenu Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                                 <MenuItem
-                                                    Header="更新"
+                                                    Header="更新(_U)"
                                                     Command="{Binding Tag.ThreadUpdateCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                     CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
                                                 <Separator />
                                                 <MenuItem
-                                                    Header="閉じる"
+                                                    Header="閉じる(_C)"
                                                     Command="{Binding Tag.ThreadCloseCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                     CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
                                                 <MenuItem

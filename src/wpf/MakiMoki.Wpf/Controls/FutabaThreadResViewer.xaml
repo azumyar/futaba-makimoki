@@ -65,11 +65,11 @@
                 Placement="Bottom"
                 VerticalOffset="4" HorizontalOffset="0">
                 <MenuItem 
-                    Header="URLをコピー"
+                    Header="URLをコピー(_C)"
                     Command="{Binding DataContext.ThreadResHamburgerItemCopyUrlClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                     CommandParameter="{Binding Tag, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"/>
                 <MenuItem 
-                    Header="ブラウザで開く"
+                    Header="ブラウザで開く(_B)"
                     Command="{Binding DataContext.ThreadResHamburgerItemOpenUrlClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                     CommandParameter="{Binding Tag, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"/>
             </ContextMenu>
@@ -253,7 +253,7 @@
                                 DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}, Mode=OneWay}"
                                 Tag="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}, Mode=OneWay}">
                                 <MenuItem
-                                    Header="全更新"
+                                    Header="全更新(_A)"
                                     Command="{Binding Tag.MenuItemFullUpdateClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                     CommandParameter="{Binding Mode=OneWay}"/>
                             </ContextMenu>
@@ -697,7 +697,7 @@
                                             </ContextMenu.Foreground>
                                             <!-- Interaction.Triggers使えない？ -->
                                             <MenuItem
-                                                Header="引用"
+                                                Header="引用(_Q)"
                                                 IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}">
                                                 <MenuItem.Icon>
                                                     <ContentControl Content="{StaticResource ButtonIconComment}" />
@@ -710,24 +710,24 @@
                                                     </i:Interaction.Triggers>
                                                     -->
                                                 <MenuItem
-                                                    Header="本文"
+                                                    Header="本文(_C)"
                                                     Command="{Binding Tag.MenuItemReplyClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                     CommandParameter="{Binding Mode=OneWay}"
                                                     />
                                                 <MenuItem
-                                                    Header="発言No"
+                                                    Header="発言No(_N)"
                                                     Command="{Binding Tag.MenuItemReplyResNoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                     CommandParameter="{Binding Mode=OneWay}"
                                                     />
                                                 <MenuItem
-                                                    Header="画像ファイル名"
+                                                    Header="画像ファイル名(_I)"
                                                     Visibility="{Binding DataContext.ImageName.Value, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                     Command="{Binding Tag.MenuItemReplyImageNameoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                     CommandParameter="{Binding Mode=OneWay}"
                                                     />
                                             </MenuItem>
                                             <MenuItem
-                                                Header="レスをコピー" 
+                                                Header="レスをコピー(_C)" 
                                                 Command="{Binding Tag.MenuItemCopyClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding Mode=OneWay}"
                                                 IsEnabled="{Binding IsVisibleOriginComment.Value, Mode=OneWay}">
@@ -737,7 +737,7 @@
                                             </MenuItem>
                                             <Separator />
                                             <MenuItem 
-                                                Header="そうだね"
+                                                Header="そうだね(_S)"
                                                 Command="{Binding Tag.MenuItemSoudaneClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding Mode=OneWay}">
                                                 <MenuItem.Icon>
@@ -746,39 +746,45 @@
                                             </MenuItem>
                                             <Separator />
                                             <MenuItem
-                                                Header="del"
+                                                Header="del(_D)"
                                                 Command="{Binding Tag.MenuItemDelClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding Mode=OneWay}">
                                                 <MenuItem.Icon>
                                                     <ContentControl Content="{StaticResource ButtonIconDel}" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="削除">
+                                            <MenuItem Header="削除(_R)">
                                                 <MenuItem.Icon>
                                                     <ContentControl Content="{StaticResource ButtonIconDelete}" />
                                                 </MenuItem.Icon>
                                                 <MenuItem
-                                                    Header="レスを削除"
+                                                    Header="レスを削除(_C)"
                                                     Command="{Binding Tag.MenuItemDeleteClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                     CommandParameter="{Binding Mode=OneWay}" />
                                                 <MenuItem
-                                                    Header="画像のみ削除"
+                                                    Header="画像のみ削除(_I)"
                                                     Command="{Binding Tag.MenuItemDeleteImageClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                     CommandParameter="{Binding Mode=OneWay}" />
                                             </MenuItem>
                                             <Separator />
                                             <MenuItem
-                                                Header="Watch画像登録"
+                                                Header="Watch画像登録(_W)"
                                                 Visibility="{Binding IsVisibleMenuItemWatchImage.Value, Mode=OneWay}"
                                                 Command="{Binding Tag.MenuItemWatchImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                             <MenuItem
-                                                Header="NG画像登録"
+                                                Header="NG画像登録(_N)"
                                                 Visibility="{Binding IsVisibleMenuItemNgImage.Value, Mode=OneWay}"
                                                 Command="{Binding Tag.MenuItemNgImageCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                             <MenuItem
-                                                Header="{Binding MenuItemTextHidden.Value, Mode=OneWay}"
+                                                Header="非表示(_H)"
+                                                Visibility="{Binding MenuItemRegisterHiddenVisibility.Value, Mode=OneWay}"
+                                                Command="{Binding Tag.MenuItemResHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                            <MenuItem
+                                                Header="非表示を解除(_V)"
+                                                Visibility="{Binding MenuItemUnregisterHiddenVisibility.Value, Mode=OneWay}"
                                                 Command="{Binding Tag.MenuItemResHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                         </ContextMenu>
@@ -846,17 +852,17 @@
                                                         DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
                                                         Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                                         <MenuItem
-                                                            Header="本文"
+                                                            Header="本文(_C)"
                                                             Command="{Binding Tag.MenuItemReplyClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                             CommandParameter="{Binding Mode=OneWay}"
                                                             />
                                                         <MenuItem
-                                                            Header="発言No"
+                                                            Header="発言No(_N)"
                                                             Command="{Binding Tag.MenuItemReplyResNoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                             CommandParameter="{Binding Mode=OneWay}"
                                                             />
                                                         <MenuItem
-                                                            Header="画像ファイル名"
+                                                            Header="画像ファイル名(_I)"
                                                             Visibility="{Binding DataContext.ImageName.Value, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                             Command="{Binding Tag.MenuItemReplyImageNameoClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                             CommandParameter="{Binding Mode=OneWay}"
@@ -935,11 +941,11 @@
                                                         DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
                                                         Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                                         <MenuItem
-                                                            Header="レスを削除"
+                                                            Header="レスを削除(_C)"
                                                             Command="{Binding Tag.MenuItemDeleteClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                             CommandParameter="{Binding Mode=OneWay}" />
                                                         <MenuItem
-                                                            Header="画像のみ削除"
+                                                            Header="画像のみ削除(_I)"
                                                             Command="{Binding Tag.MenuItemDeleteImageClickCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                             CommandParameter="{Binding Mode=OneWay}" />
                                                     </ContextMenu>
@@ -1049,7 +1055,7 @@
                                             <ContextMenu
                                                 x:Key="ContextMenu">
                                                 <MenuItem
-                                                    Header="引用"
+                                                    Header="引用(_Q)"
                                                     Command="{Binding CopyTextboxQuotCommand, Mode=OneWay}">
                                                     <MenuItem.CommandParameter>
                                                         <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
@@ -1059,7 +1065,7 @@
                                                     </MenuItem.CommandParameter>
                                                 </MenuItem>
                                                 <MenuItem
-                                                    Header="スレ内検索"
+                                                    Header="スレ内検索(_S)"
                                                     Command="{Binding CopyTextboxSearchCommand, Mode=OneWay}">
                                                     <MenuItem.CommandParameter>
                                                         <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
@@ -1069,7 +1075,7 @@
                                                     </MenuItem.CommandParameter>
                                                 </MenuItem>
                                                 <MenuItem
-                                                    Header="NGワード追加"
+                                                    Header="NGワード追加(_N)"
                                                     Command="{Binding CopyTextboxNgCommand, Mode=OneWay}">
                                                     <MenuItem.CommandParameter>
                                                         <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
@@ -1080,7 +1086,7 @@
                                                 </MenuItem>
                                                 <Separator />
                                                 <MenuItem
-                                                    Header="コピー"
+                                                    Header="コピー(_C)"
                                                     Command="{Binding CopyTextboxCopyCommand, Mode=OneWay}">
                                                     <MenuItem.CommandParameter>
                                                         <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">
@@ -1090,7 +1096,7 @@
                                                     </MenuItem.CommandParameter>
                                                 </MenuItem>
                                                 <MenuItem
-                                                    Header="Google検索"
+                                                    Header="Google検索(_G)"
                                                     Command="{Binding CopyTextboxGoogleCommand, Mode=OneWay}">
                                                     <MenuItem.CommandParameter>
                                                         <MultiBinding Converter="{StaticResource FutabaResItemCopyTextBoxEventConverter}">

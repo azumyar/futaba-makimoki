@@ -268,7 +268,7 @@
                                 DataContext="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}"
                                 Tag="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                 <MenuItem
-                                    Header="クリップボードから貼り付け"
+                                    Header="クリップボードから貼り付け(_P)"
                                     Command="{Binding MenuItemClickPastePostImageCommand, Mode=OneWay}"
                                     CommandParameter="{Binding Tag,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                             </ContextMenu>
@@ -299,7 +299,7 @@
                                 DataContext="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}"
                                 Tag="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                 <MenuItem
-                                    Header="クリップボードから貼り付け"
+                                    Header="クリップボードから貼り付け(_P)"
                                     Command="{Binding MenuItemClickPastePostUpCommand, Mode=OneWay}"
                                     CommandParameter="{Binding Tag,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                             </ContextMenu>
