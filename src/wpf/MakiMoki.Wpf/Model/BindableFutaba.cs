@@ -332,6 +332,40 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				}
 			}
 
+			if(futaba.Url.IsThreadUrl) {
+				var d = new Dictionary<string, (int Count, List<BindableFutabaResItem> Res)>();
+				foreach(var it in this.ResItems) {
+					if(!d.TryGetValue(it.ThreadResNo.Value, out _)) {
+						d.Add(it.ThreadResNo.Value, (0, new List<BindableFutabaResItem>()));
+					}
+
+					foreach(var q in it.Raw.Value.QuotLines
+						.Where(x => x.IsHit)
+						.Select(x => x.ResNo)
+						.Distinct()) {
+
+						var r = this.ResItems.Where(x => x.ThreadResNo.Value == q).FirstOrDefault();
+						if(r != null) {
+							if(d.TryGetValue(q, out var t)) {
+								t.Res.Add(r);
+
+								d[q] = (t.Count + 1, t.Res);
+							} else {
+								d.Add(q, (1, new List<BindableFutabaResItem>() { r }));
+							}
+						}
+					}
+				}
+
+				foreach(var it in this.ResItems) {
+					var t = default((int Count, List<BindableFutabaResItem> Res));
+					if(!d.TryGetValue(it.ThreadResNo.Value, out t)) {
+						t = (0, null);
+					}
+					it.SetResCount(t.Count, t.Res?.Distinct().ToArray() ?? Array.Empty<BindableFutabaResItem>());
+				}
+			}
+
 			this.ResCount = new ReactiveProperty<int>(futaba.Url.IsCatalogUrl ? this.ResItems.Count : (this.ResItems.Count - 1));
 			this.IsDie = new ReactiveProperty<bool>(futaba.Raw?.IsDie ?? false);
 			this.IsOld = new ReactiveProperty<bool>(futaba.Raw?.IsOld ?? false || this.IsDie.Value);
@@ -603,6 +637,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> ThreadResNo { get; }
 		public ReactiveProperty<Data.FutabaContext.Item> Raw { get; }
 
+		public ReactiveProperty<int> ResCount { get; } = new ReactiveProperty<int>(0);
+		public ReactiveProperty<string> ResCountText { get; }
+
+
 		public ReactiveProperty<string> HeadLineHtml { get; }
 		public ReactiveProperty<string> DisplayHtml { get; }
 		public ReactiveProperty<string> CommentHtml { get; }
@@ -677,6 +715,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.CommandPaletteAlignment = new ReactiveProperty<HorizontalAlignment>(UiPotionToHorizontalAlignment(
 				WpfConfig.WpfConfigLoader.SystemConfig.CommandPalettePosition));
 			this.IsVisibleCatalogIdMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledIdMarker);
+
+			this.ResCountText = this.ResCount.Select(x => (0 < x) ? $"{ x }レス" : "").ToReactiveProperty();
 
 			// delとhostの処理
 			{
@@ -926,6 +966,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			} else {
 				ThumbSource.Value = bmp;
 			}
+		}
+
+		public void SetResCount(int count, BindableFutabaResItem[] res) {
+			this.ResCount.Value = count;
+			// TODO: 非参照レスの処理
 		}
 
 		private void SetCommentHtml() {
