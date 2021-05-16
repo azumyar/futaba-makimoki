@@ -84,7 +84,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				this.Text = text;
 			}
 		}
+		private ReactiveProperty<bool> IsUpplading2 { get; } = new ReactiveProperty<bool>(false);
+		private ReactiveProperty<bool> IsPosting { get; } = new ReactiveProperty<bool>(false);
 		public ReactiveProperty<KeyBinding[]> KeyGestures { get; } = new ReactiveProperty<KeyBinding[]>();
+		public ReactiveProperty<Visibility> PostProgressVisibility { get; }
 
 		public MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>> ContentsChangedCommand { get; }
 			= new MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>>();
@@ -112,6 +115,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private Action<PlatformData.GestureConfig> onGestureConfigUpdateNotifyer;
 		public FutabaPostViewViewModel() {
+			PostProgressVisibility = this.IsPosting
+				.Select(x => x ? Visibility.Visible : Visibility.Hidden)
+				.ToReactiveProperty();
+
 			UpdateKeyBindings();
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
 
@@ -175,7 +182,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void UploadUp2(Model.BindableFutaba f, string path) {
+			if(this.IsPosting.Value || this.IsUpplading2.Value) {
+				return;
+			}
+
+			this.IsUpplading2.Value = true;
 			Util.Futaba.UploadUp2(path, f.PostData.Value.Password.Value)
+				.ObserveOn(UIDispatcherScheduler.Default)
+				.Finally(() => { this.IsUpplading2.Value = false; })
 				.Subscribe(x => {
 					if(x.Successed) {
 						Messenger.Instance.GetEvent<PubSubEvent<AppendTextMessage>>()
@@ -187,6 +201,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		public async Task OpenUpload(Model.BindableFutaba f) {
+			if(this.IsPosting.Value) {
+				return;
+			}
 			if(f == null) {
 				return;
 			}
@@ -250,6 +267,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		public async Task OpenImage(Model.BindableFutaba f) {
+			if(this.IsPosting.Value) {
+				return;
+			}
 			if(f == null) {
 				return;
 			}
@@ -285,6 +305,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnUploadDrop(DragEventArgs e) {
+			if(this.IsPosting.Value) {
+				return;
+			}
+
 			if((e.Source as FrameworkElement)?.DataContext is Model.BindableFutaba f) {
 				if(IsValidDragFile(e, Config.ConfigLoader.MimeUp2.Types.Select(x => x.Ext).ToArray())
 					&& e.Data.GetData(DataFormats.FileDrop) is string[] files) {
@@ -305,11 +329,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		public void OnPostViewPostClick(Model.BindableFutaba x) {
+			if(this.IsPosting.Value) {
+				return;
+			}
+
 			if(x != null) {
 				if(!x.PostData.Value.PostButtonCommand.CanExecute()) {
 					return;
 				}
 
+				this.IsPosting.Value = true;
 				if(x.Url.IsCatalogUrl) {
 					Util.Futaba.PostThread(x.Raw.Bord,
 						x.PostData.Value.NameEncoded.Value,
@@ -319,6 +348,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						x.PostData.Value.ImagePath.Value,
 						x.PostData.Value.Password.Value)
 					.ObserveOn(UIDispatcherScheduler.Default)
+					.Finally(() => { this.IsPosting.Value = false; })
 					.Subscribe(y => {
 						if(y.Successed) {
 							Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(x.Url));
@@ -350,6 +380,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						x.PostData.Value.ImagePath.Value,
 						x.PostData.Value.Password.Value)
 					.ObserveOn(UIDispatcherScheduler.Default)
+					.Finally(() => { this.IsPosting.Value = false; })
 					.Subscribe(y => {
 						if(y.Successed) {
 							var com = x.PostData.Value.CommentEncoded.Value;
