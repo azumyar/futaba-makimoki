@@ -384,11 +384,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.Subscribe(y => {
 						if(y.Successed) {
 							var com = x.PostData.Value.CommentEncoded.Value;
-							/*
 							if(string.IsNullOrEmpty(com)) {
-								// TODO: cに板のデフォルトテキストを
+								var b = Config.ConfigLoader.Board.Boards
+									.Where(z => z.Display && (z.Url == x.Url.BaseUrl))
+									.FirstOrDefault();
+								if(b != null) {
+									com = b.DefaultComment;
+								}
 							}
-							*/
 							Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(x.Url));
 							x.PostData.Value.Reset();
 							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
