@@ -1,0 +1,153 @@
+<Page
+    x:Class="Yarukizero.Net.MakiMoki.Uno.Views.PostPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Yarukizero.Net.MakiMoki.Uno.Views"
+    xmlns:iv="using:Microsoft.Xaml.Interactivity"
+    xmlns:is="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="48" />
+        </Grid.RowDefinitions>
+
+        <ScrollViewer
+            VerticalScrollBarVisibility="Auto"
+            HorizontalScrollMode="Disabled">
+
+            <StackPanel
+                Orientation="Vertical"
+                Padding="12, 4, 12, 4">
+                <TextBlock
+                    Text="{Binding Title.Value, Mode=OneWay}"
+                    FontSize="20"
+                    Margin="0, 0, 0, 8"
+                    />
+
+                <TextBox
+                    TextWrapping="Wrap"
+                    AcceptsReturn="True"
+                    VerticalScrollBarVisibility="Visible"
+                    Text="{Binding PostHolder.Value.Comment.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                    FontSize="14"
+                    PlaceholderText="コメント"
+                    Margin="0, 0, 0, 8"
+                    />
+                <Button
+                    Visibility="{Binding ImageDeleteButtonVisibirity.Value, Mode=OneWay}"
+                    Width="92"
+                    Height="32"
+                    Content="添付削除"
+                    Margin="0, 0, 0, 8">
+                    <iv:Interaction.Behaviors>
+                        <is:EventTriggerBehavior EventName="Click">
+                            <is:InvokeCommandAction Command="{Binding CancelImageClickCommand}" />
+                        </is:EventTriggerBehavior>
+                    </iv:Interaction.Behaviors>
+                </Button>
+
+                <Grid Margin="0, 0, 0, 8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBox
+                        Grid.Row="0"
+                        Text="{Binding PostHolder.Value.Mail.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                        FontSize="14"
+                        PlaceholderText="メール"
+                        />
+                    <StackPanel
+                        Grid.Row="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                        <Button
+                            Style="{StaticResource MaterialTextButtonStyle}"
+                            Visibility="{Binding IdButtonVisibirity.Value, Mode=OneWay}"
+                            Width="72"
+                            Height="32"
+                            Content="ID表示">
+                            <iv:Interaction.Behaviors>
+                                <is:EventTriggerBehavior EventName="Click">
+                                    <is:InvokeCommandAction Command="{Binding IdClickCommand}" />
+                                </is:EventTriggerBehavior>
+                            </iv:Interaction.Behaviors>
+                        </Button>
+                        <Button
+                            Style="{StaticResource MaterialTextButtonStyle}"
+                            Width="72"
+                            Height="32"
+                            Content="sage">
+                            <iv:Interaction.Behaviors>
+                                <is:EventTriggerBehavior EventName="Click">
+                                    <is:InvokeCommandAction Command="{Binding SageClickCommand}" />
+                                </is:EventTriggerBehavior>
+                            </iv:Interaction.Behaviors>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <TextBox
+                    Text="{Binding PostHolder.Value.Password.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                    FontSize="14"
+                    PlaceholderText="削除キー"
+                    Margin="0, 0, 0, 8"
+                    />
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="1">
+            <Border.Background>
+                <SolidColorBrush Color="{StaticResource MaterialPrimaryColor}" />
+            </Border.Background>
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <Button
+                    Width="72"
+                    Height="48"
+                    FontSize="11"
+                    Content="送信"
+                    Command="{Binding PostHolder.Value.PostButtonCommand, Mode=OneWay}"
+                    />
+                <Button
+                    Visibility="{Binding ImageButtonVisibirity.Value, Mode=OneWay}"
+                    Width="72"
+                    Height="48"
+                    FontSize="11"
+                    Content="画像添付">
+                    <iv:Interaction.Behaviors>
+                        <is:EventTriggerBehavior EventName="Click">
+                            <is:InvokeCommandAction Command="{Binding ImageClickCommand}" />
+                        </is:EventTriggerBehavior>
+                    </iv:Interaction.Behaviors>
+                </Button>
+                <Button
+                    Width="72"
+                    Height="48"
+                    FontSize="11"
+                    Content="あぷ小">
+                    <iv:Interaction.Behaviors>
+                        <is:EventTriggerBehavior EventName="Click">
+                            <is:InvokeCommandAction Command="{Binding UploadClickCommand}" />
+                        </is:EventTriggerBehavior>
+                    </iv:Interaction.Behaviors>
+                </Button>
+                <Button
+                    Width="72"
+                    Height="48"
+                    FontSize="11"
+                    Content="削除">
+                    <iv:Interaction.Behaviors>
+                        <is:EventTriggerBehavior EventName="Click">
+                            <is:InvokeCommandAction Command="{Binding DeleteClickCommand}" />
+                        </is:EventTriggerBehavior>
+                    </iv:Interaction.Behaviors>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

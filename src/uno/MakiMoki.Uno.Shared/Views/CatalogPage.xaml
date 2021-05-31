@@ -1,0 +1,153 @@
+<Page
+    x:Class="Yarukizero.Net.MakiMoki.Uno.Views.CatalogPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Yarukizero.Net.MakiMoki.Uno.Views"
+    xmlns:m="using:Yarukizero.Net.MakiMoki.Uno.Models"
+    xmlns:iv="using:Microsoft.Xaml.Interactivity"
+    xmlns:is="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="48" />
+        </Grid.RowDefinitions>
+        <!--
+        <Border Grid.Row="0" Style="{StaticResource HeaderContainerStyle}">
+            <AutoSuggestBox
+                VerticalAlignment="Stretch"
+                HorizontalAlignment="Stretch"
+                Margin="16,8,16,8"
+                QueryIcon="Find"
+                PlaceholderText="カタログ検索文字">
+                <iv:Interaction.Behaviors>
+                    <is:EventTriggerBehavior EventName="QuerySubmitted">
+                        <is:InvokeCommandAction Command="{Binding QuerySubmittedCommand}" />
+                    </is:EventTriggerBehavior>
+                </iv:Interaction.Behaviors>
+            </AutoSuggestBox>
+        </Border>
+        -->
+        <ListView
+            Grid.Row="1"
+            ItemsSource="{Binding CatalogItems.Value, Mode=OneWay}"
+            SelectionMode="None"
+            IsItemClickEnabled="True"
+            >
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="m:BindableFutabaResItem">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="4" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="4" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
+                            <!--
+                            <TextBlock
+                                Visibility="{Binding NameVisibility.Value, Mode=OneWay}"
+                                Text="{Binding Raw.Value.ResItem.Res.Sub, Mode=OneWay}"
+                                FontSize="11" 
+                                FontWeight="Bold"
+                                Margin="0,0,4,0"
+                                />
+                            <TextBlock
+                                Visibility="{Binding NameVisibility.Value, Mode=OneWay}"
+                                Text="{Binding Raw.Value.ResItem.Res.Name, Mode=OneWay}"
+                                FontSize="11" 
+                                FontWeight="Bold"
+                                Margin="0,0,4,0"
+                                />
+                            -->
+                            <!--
+                           <emoji:TextBlock
+                                Visibility="{Binding Raw.Value.ResItem.Res.Email, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}"
+                                Text="{Binding Raw.Value.ResItem.Res.Email,  StringFormat='[\{0\}] ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}">
+                                        <TextBlock.Foreground>
+                                            <SolidColorBrush Color="{DynamicResource ThreadHeaderMailColor}" />
+                                        </TextBlock.Foreground>
+                              </emoji:TextBlock>
+                         -->
+                            <TextBlock
+                                Text="{Binding Raw.Value.ResItem.Res.Now, Mode=OneWay}"
+                                FontSize="11" 
+                                Margin="0,0,4,0"
+                                />
+                            <!--
+                            <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Id, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                                <Run Text="{Binding Converter={StaticResource FutabaResItemIdTextConverter},  StringFormat='\{0\} ', Mode=OneWay}" />
+                            </TextBlock>
+                            <TextBlock
+                                Visibility="{Binding ResCountText.Value, Mode=OneWay, Converter={StaticResource FutabaResItemVisibleConverter}}"
+                                Text="{Binding ResCountText.Value, Mode=OneWay, StringFormat='\{0\} '}">
+                            </TextBlock>
+                            <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                                <Run Text="{Binding Raw.Value.Soudane, Mode=OneWay, StringFormat='そうだね×\{0\} '}" />
+                            </TextBlock>
+                             -->
+                            <TextBlock
+                                Text="{Binding Raw.Value.ResItem.No, Mode=OneWay}"
+                                FontSize="11" 
+                                Margin="0,0,4,0"
+                                />
+                        </StackPanel>
+                        
+                        <TextBlock
+                            Grid.Row="2"
+                            Text="{Binding DisplayText.Value, Mode=OneWay}"
+                            TextWrapping="Wrap"
+                            FontSize="14" 
+                            />
+
+                        <TextBlock
+                            Grid.Row="4"
+                            HorizontalAlignment="Right"
+                            Text="{Binding CatalogResCountText.Value, Mode=OneWay}"
+                            FontSize="11" 
+                            />
+                    </Grid>
+                </DataTemplate>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView.ItemTemplate>
+            <iv:Interaction.Behaviors>
+                <is:EventTriggerBehavior EventName="ItemClick">
+                    <is:InvokeCommandAction Command="{Binding CatalogClickCommand}" />
+                </is:EventTriggerBehavior>
+            </iv:Interaction.Behaviors>
+        </ListView>
+        <Border Grid.Row="2" Style="{StaticResource FooterContainerStyle}">
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <Button
+                    Style="{StaticResource FooterButtonStyle}"
+                    Content="スレ立て">
+                    <iv:Interaction.Behaviors>
+                        <is:EventTriggerBehavior EventName="Click">
+                            <is:InvokeCommandAction Command="{Binding WriteClickCommand}" />
+                        </is:EventTriggerBehavior>
+                    </iv:Interaction.Behaviors>
+                </Button>
+
+                <Button
+                    Style="{StaticResource FooterButtonStyle}"
+                    Content="更新">
+                    <iv:Interaction.Behaviors>
+                        <is:EventTriggerBehavior EventName="Click">
+                            <is:InvokeCommandAction Command="{Binding UpdateClickCommand}" />
+                        </is:EventTriggerBehavior>
+                    </iv:Interaction.Behaviors>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

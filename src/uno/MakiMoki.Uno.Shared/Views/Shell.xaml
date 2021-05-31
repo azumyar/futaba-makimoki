@@ -1,0 +1,28 @@
+<Page
+    x:Class="Yarukizero.Net.MakiMoki.Uno.Views.Shell"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Yarukizero.Net.MakiMoki.Uno.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:iv="using:Microsoft.Xaml.Interactivity"
+    xmlns:is="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:prismRegions="using:Prism.Regions"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <iv:Interaction.Behaviors>
+        <is:EventTriggerBehavior EventName="Loaded">
+            <is:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </is:EventTriggerBehavior>
+    </iv:Interaction.Behaviors>
+
+    <Grid>
+        <ContentControl
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            HorizontalContentAlignment="Stretch"
+            VerticalContentAlignment="Stretch"
+            prismRegions:RegionManager.RegionName="ContentRegion"
+            />
+    </Grid>
+</Page>

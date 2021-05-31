@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>fc038c3f-ae25-4a24-be1f-a5595c6729f3</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Yarukizero.Net.MakiMoki.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Bindings\BindingData\PostHolder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Bindings\Extension.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Bindings\MakiMokiCommand.cs" />
+  </ItemGroup>
+</Project>

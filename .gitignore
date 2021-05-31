@@ -10,3 +10,5 @@ src/core/MakiMoki.Core/Helpers/UpdateNotifyer_Tx.cs
 src/wpf/MakiMoki.Wpf/Properties/AssemblyInfoDebug.cs
 src/wpf/MakiMoki.Wpf/Properties/appcenter-secrets.json
 src/wpf/MakiMoki.Wpf/App.AppCenter.cs
+src/uno/MakiMoki.Uno/
+src/uno/MakiMoki.Uno.UWP/MakiMoki.Uno.Uwp_temporarykey.pfx
