@@ -2,7 +2,7 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')" />
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
     <RootNamespace>Yarukizero.Net.MakiMoki</RootNamespace>
@@ -77,4 +77,9 @@
       <DependentUpon>UpdateNotifyer_Tx.tt</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <!-- UWPが.NET Standard2.1をサポートしていないので暫定 -->
+  <PropertyGroup>
+    <LangVersion>8</LangVersion>
+  </PropertyGroup>
 </Project>
