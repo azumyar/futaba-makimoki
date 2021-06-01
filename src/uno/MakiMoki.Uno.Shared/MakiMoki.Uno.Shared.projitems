@@ -22,6 +22,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\PostHolder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnoConst.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnoHelpers\Toast.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DialogViewModelBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MessageDialogViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ResPostPageViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ThreadPostPageViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ThreadPageViewModel.cs" />
@@ -31,6 +33,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ViewModelBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\CatalogPage.xaml.cs">
       <DependentUpon>CatalogPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Views\MessageDialog.xaml.cs">
+      <DependentUpon>MessageDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Views\PostPage.xaml.cs">
       <DependentUpon>PostPage.xaml</DependentUpon>
@@ -50,6 +55,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="$(MSBuildThisFileDirectory)Views\CatalogPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\MessageDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

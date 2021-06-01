@@ -51,6 +51,14 @@
                     </iv:Interaction.Behaviors>
                 </Button>
 
+                <Border Margin="8" />
+
+                <TextBox
+                    Visibility="Collapsed"
+                    Text="{Binding PostHolder.Value.Name.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                    FontSize="14"
+                    PlaceholderText="おなまえ"
+                    />
                 <Grid Margin="0, 0, 0, 8">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -92,10 +100,18 @@
                     </StackPanel>
                 </Grid>
 
+                <Border Margin="8" />
+
+                <TextBox
+                    Visibility="Collapsed"
+                    Text="{Binding PostHolder.Value.Subject.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                    FontSize="14"
+                    PlaceholderText="おなまえ"
+                    />
                 <TextBox
                     Text="{Binding PostHolder.Value.Password.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                     FontSize="14"
-                    PlaceholderText="削除キー"
+                    PlaceholderText="削除キー(必須)"
                     Margin="0, 0, 0, 8"
                     />
             </StackPanel>
@@ -131,8 +147,11 @@
                     FontSize="11"
                     Content="あぷ小">
                     <iv:Interaction.Behaviors>
-                        <is:EventTriggerBehavior EventName="Click">
+                        <is:EventTriggerBehavior EventName="Tapped">
                             <is:InvokeCommandAction Command="{Binding UploadClickCommand}" />
+                        </is:EventTriggerBehavior>
+                        <is:EventTriggerBehavior EventName="RightTapped">
+                            <is:InvokeCommandAction Command="{Binding UploadRightTappedCommand}" />
                         </is:EventTriggerBehavior>
                     </iv:Interaction.Behaviors>
                 </Button>

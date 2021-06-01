@@ -9,7 +9,7 @@ namespace Yarukizero.Net.MakiMoki.Uno.Droid {
 	[Activity(
 		MainLauncher = true,
 		ConfigurationChanges = global::Uno.UI.ActivityHelper.AllConfigChanges,
-		WindowSoftInputMode = SoftInput.AdjustPan | SoftInput.StateHidden)]
+		WindowSoftInputMode = SoftInput.AdjustResize | SoftInput.StateHidden)]
 	/*
 	[IntentFilter(
 		new[] { Intent.ActionView },

@@ -214,6 +214,7 @@ namespace Yarukizero.Net.MakiMoki.Uno {
 				System.Diagnostics.Debug.WriteLine("Register:" + type.Name);
 				rn.MakeGenericMethod(type).Invoke(null, p);
 			}
+			containerRegistry.RegisterDialog<Views.MessageDialog, ViewModels.MessageDialogViewModel>();
 		}
 
 		protected override void OnSuspending(SuspendingEventArgs e) {

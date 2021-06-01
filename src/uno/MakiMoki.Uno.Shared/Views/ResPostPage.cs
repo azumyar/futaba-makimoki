@@ -4,6 +4,5 @@ using System.Text;
 
 namespace Yarukizero.Net.MakiMoki.Uno.Views {
 	// よくわからないバグが出ているので暫定
-	partial class ResPostPage : PostPage {
-	}
+	partial class ResPostPage : PostPage {}
 }

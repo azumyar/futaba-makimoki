@@ -4,11 +4,13 @@ using System.Text;
 using System.Linq;
 using System.Reactive.Linq;
 using Prism.Regions;
+using Prism.Events;
+using Prism.Services.Dialogs;
 using Reactive.Bindings;
 using Yarukizero.Net.MakiMoki.Data;
 using Windows.UI.Xaml;
-using Prism.Events;
 using System.IO;
+using Windows.UI.Input;
 
 #if __ANDROID__
 using Android.Content;
@@ -85,6 +87,7 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 		}
 
 		private readonly IRegionManager regionManager;
+		private readonly IDialogService dialogService;
 		public ReactiveProperty<Models.PostHolder> PostHolder { get; } = new ReactiveProperty<Models.PostHolder>(new Models.PostHolder());
 		public ReactiveProperty<string> Title { get; } = new ReactiveProperty<string>("");
 		public ReactiveProperty<Visibility> ImageButtonVisibirity { get; } = new ReactiveProperty<Visibility>(Visibility.Visible);
@@ -95,6 +98,7 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 		public ReactiveCommand BackClickCommand { get; } = new ReactiveCommand();
 		public ReactiveCommand ImageClickCommand { get; } = new ReactiveCommand();
 		public ReactiveCommand UploadClickCommand { get; } = new ReactiveCommand();
+		public ReactiveCommand UploadRightTappedCommand { get; } = new ReactiveCommand();
 		public ReactiveCommand DeleteClickCommand { get; } = new ReactiveCommand();
 		public ReactiveCommand CancelImageClickCommand { get; } = new ReactiveCommand();
 		public ReactiveCommand SageClickCommand { get; } = new ReactiveCommand();
@@ -105,8 +109,9 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 		protected ReactiveProperty<bool> IsPosting { get; } = new ReactiveProperty<bool>(false);
 		public IDisposable DroidPostChoseResultEvent { get; }
 
-		public PostPageViewModel(IRegionManager regionManager) {
+		public PostPageViewModel(IRegionManager regionManager, IDialogService dialogService) {
 			this.regionManager = regionManager;
+			this.dialogService = dialogService;
 
 			this.ImageDeleteButtonVisibirity = this.PostHolder.Value.ImagePath
 				.Select(x => string.IsNullOrEmpty(x) ? Visibility.Collapsed : Visibility.Visible)
@@ -116,6 +121,7 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 			this.PostHolder.Value.PostButtonCommand.Subscribe(() => this.OnPostClick());
 			this.ImageClickCommand.Subscribe(() => this.OnImageClick());
 			this.UploadClickCommand.Subscribe(() => this.OnUploadClick());
+			this.UploadRightTappedCommand.Subscribe(() => this.OnUploadRightTapped());
 			this.DeleteClickCommand.Subscribe(() => this.OnDeleteClick());
 			this.CancelImageClickCommand.Subscribe(() => this.OnCancelImageClick());
 
@@ -161,44 +167,29 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 					}
 
 					if(x.ResultCode == global::Android.App.Result.Ok) {
-						var uri = x.Intent.Data; 
-						var filePath = GetPath(uri);
-						var fileName = Util.TimeUtil.ToUnixTimeMilliseconds().ToString();
-						var path = Path.Combine(
-							Config.ConfigLoader.InitializedSetting.CacheDirectory,
-							$"{ fileName }.{ Path.GetExtension(filePath) }");
-						try {
-							Copy(uri, path);
-							if(x.RequestCode == Droid.MainActivity.RequestCodeChoosePostImage) {
-								this.PostHolder.Value.ImagePath.Value = path;
-							} else if(x.RequestCode == Droid.MainActivity.RequestCodeChooseUploadItem) {
-								if(this.IsPosting.Value || this.IsUpplading2.Value) {
-									return;
-								}
-
-								this.IsUpplading2.Value = true;
-								Util.Futaba.UploadUp2(path, this.PostHolder.Value.Password.Value)
-									.ObserveOn(UIDispatcherScheduler.Default)
-									.Finally(() => { this.IsUpplading2.Value = false; })
-									.Subscribe(x => {
-										if(x.Successed) {
-											//Messenger.Instance.GetEvent<PubSubEvent<AppendTextMessage>>()
-											//	.Publish(new AppendTextMessage(f.Url, x.FileNameOrMessage));
-											if(string.IsNullOrEmpty(this.PostHolder.Value.Comment.Value)) {
-												this.PostHolder.Value.Comment.Value = x.FileNameOrMessage;
-											} else {
-												this.PostHolder.Value.Comment.Value += $"{ Environment.NewLine }{ x.FileNameOrMessage }";
-											}
-										} else {
-											//Util.Futaba.PutInformation(new Information($"アップロード失敗：{ x.FileNameOrMessage }", f));
-											UnoHelpers.Toast.Show($"アップロード失敗：{ x.FileNameOrMessage }");
+						MessageDialogViewModel.ShowDialog(
+							this.dialogService,
+							(r) => {
+								if(r.Result == ButtonResult.OK) {
+									var uri = x.Intent.Data;
+									var filePath = GetPath(uri);
+									var fileName = Util.TimeUtil.ToUnixTimeMilliseconds().ToString();
+									var path = Path.Combine(
+										Config.ConfigLoader.InitializedSetting.CacheDirectory,
+										$"{ fileName }.{ Path.GetExtension(filePath) }");
+									try {
+										Copy(uri, path);
+										if(x.RequestCode == Droid.MainActivity.RequestCodeChoosePostImage) {
+											this.PostHolder.Value.ImagePath.Value = path;
+										} else if(x.RequestCode == Droid.MainActivity.RequestCodeChooseUploadItem) {
+											this.Upload(path);
 										}
-									});
-							}
-						}
-						catch(IOException e) {
-							UnoHelpers.Toast.Show($"ファイルコピー失敗");
-						}
+									}
+									catch(IOException e) {
+										UnoHelpers.Toast.Show($"ファイルコピー失敗");
+									}
+								}
+							});
 					}
 				});
 #endif
@@ -235,6 +226,18 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 #endif
 		}
 
+		private void OnUploadRightTapped() {
+#if __ANDROID__
+			Droid.MainActivity.ActivityContext.StartActivityForResult(
+				Intent.CreateChooser(
+					new Intent()
+						.SetAction(Intent.ActionOpenDocument)
+						.SetType("file/*"),
+					"添付ファイルの選択"),
+				Droid.MainActivity.RequestCodeChooseUploadItem);
+#endif
+		}
+
 		private void OnDeleteClick() {
 			this.PostHolder.Value.Reset();
 		}
@@ -252,5 +255,31 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 		private void OnIpClick() {
 			this.PostHolder.Value.Mail.Value = "ip表示";
 		}
+
+		private void Upload(string path) {
+			if(this.IsPosting.Value || this.IsUpplading2.Value) {
+				return;
+			}
+
+			this.IsUpplading2.Value = true;
+			Util.Futaba.UploadUp2(path, this.PostHolder.Value.Password.Value)
+				.ObserveOn(UIDispatcherScheduler.Default)
+				.Finally(() => { this.IsUpplading2.Value = false; })
+				.Subscribe(x => {
+					if(x.Successed) {
+						//Messenger.Instance.GetEvent<PubSubEvent<AppendTextMessage>>()
+						//	.Publish(new AppendTextMessage(f.Url, x.FileNameOrMessage));
+						if(string.IsNullOrEmpty(this.PostHolder.Value.Comment.Value)) {
+							this.PostHolder.Value.Comment.Value = x.FileNameOrMessage;
+						} else {
+							this.PostHolder.Value.Comment.Value += $"{ Environment.NewLine }{ x.FileNameOrMessage }";
+						}
+					} else {
+						//Util.Futaba.PutInformation(new Information($"アップロード失敗：{ x.FileNameOrMessage }", f));
+						UnoHelpers.Toast.Show($"アップロード失敗：{ x.FileNameOrMessage }");
+					}
+				});
+		}
+
 	}
 }

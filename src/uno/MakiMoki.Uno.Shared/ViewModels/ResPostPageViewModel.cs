@@ -4,6 +4,7 @@ using System.Text;
 using System.Linq;
 using System.Reactive.Linq;
 using Prism.Regions;
+using Prism.Services.Dialogs;
 using Reactive.Bindings;
 using Yarukizero.Net.MakiMoki.Data;
 using Windows.UI.Xaml.Controls;
@@ -13,7 +14,7 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 	class ResPostPageViewModel : PostPageViewModel {
 		private Navigation navigation;
 
-		public ResPostPageViewModel(IRegionManager regionManager) : base(regionManager) {}
+		public ResPostPageViewModel(IRegionManager regionManager, IDialogService dialogService) : base(regionManager, dialogService) {}
 
 		public override void OnNavigatedTo(NavigationContext navigationContext) {
 			base.OnNavigatedTo(navigationContext);
