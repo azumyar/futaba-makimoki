@@ -195,7 +195,16 @@ namespace Yarukizero.Net.MakiMoki.Uno {
 					vm.BackCommand.Execute();
 				} else {
 #if __ANDROID__
-					Droid.MainActivity.ActivityContext.Finish();
+					var root = string.IsNullOrEmpty(Droid.MainActivity.ActivityContext.Intent
+						?.GetStringExtra(Droid.IntentActivity.IntentExtraFilterUri));
+					if(global::Android.OS.BuildVersionCodes.Lollipop <= global::Android.OS.Build.VERSION.SdkInt) {
+						Droid.MainActivity.ActivityContext.FinishAndRemoveTask();
+					} else {
+						Droid.MainActivity.ActivityContext.Finish();
+					}
+					if(root) {
+						Environment.Exit(0);
+					}
 #endif
 				}
 			};

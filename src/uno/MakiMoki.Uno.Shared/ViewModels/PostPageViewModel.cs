@@ -11,6 +11,7 @@ using Yarukizero.Net.MakiMoki.Data;
 using Windows.UI.Xaml;
 using System.IO;
 using Windows.UI.Input;
+using Android.Provider;
 
 #if __ANDROID__
 using Android.Content;
@@ -208,7 +209,8 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 				Intent.CreateChooser(
 					new Intent()
 						.SetAction(Intent.ActionOpenDocument)
-						.SetType("image/*"),
+						.SetType("image/* video/*")
+						.AddCategory(Intent.CategoryOpenable),
 					"添付画像の選択"),
 				Droid.MainActivity.RequestCodeChoosePostImage);
 #endif
@@ -220,8 +222,10 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 				Intent.CreateChooser(
 					new Intent()
 						.SetAction(Intent.ActionOpenDocument)
-						.SetType("image/*"),
-					"添付ファイルの選択"),
+						.SetType("image/* video/*")
+						.AddCategory(Intent.CategoryOpenable),
+					//.SetData(MediaStore.Images.Media.ExternalContentUri),
+					"添付画像の選択"),
 				Droid.MainActivity.RequestCodeChooseUploadItem);
 #endif
 		}

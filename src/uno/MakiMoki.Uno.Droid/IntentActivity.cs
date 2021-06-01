@@ -37,14 +37,24 @@ namespace Yarukizero.Net.MakiMoki.Uno.Droid {
 						.PutExtra(IntentExtraFilterUri, this.Intent.Data.ToString()),
 					0);
 			} else {
-				this.Finish();
+				if(BuildVersionCodes.Lollipop <= Build.VERSION.SdkInt) {
+					this.FinishAndRemoveTask();
+				} else {
+					this.Finish();
+				}
+				global::System.Environment.Exit(0);
 			}
 		}
 
 		protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data) {
 			base.OnActivityResult(requestCode, resultCode, data);
 
-			this.Finish();
+			if(BuildVersionCodes.Lollipop <= Build.VERSION.SdkInt) {
+				this.FinishAndRemoveTask();
+			} else {
+				this.Finish();
+			}
+			global::System.Environment.Exit(0);
 		}
 	}
 }
