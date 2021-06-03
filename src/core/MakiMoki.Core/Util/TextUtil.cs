@@ -48,7 +48,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static string ConvertUnicodeTextToFutabaComment(string input) {
 			var sb = new StringBuilder();
 			// Unicode8.0相当だけど今回の要件的には大丈夫なはず…
-			var tee =System.Globalization.StringInfo.GetTextElementEnumerator(input);
+			// \r\nが合字判断されるので\rを取り除く(Windows用)
+			var tee =System.Globalization.StringInfo.GetTextElementEnumerator(input.Replace("\r", ""));
 			tee.Reset();
 			while(tee.MoveNext()) {
 				var te = tee.GetTextElement();
