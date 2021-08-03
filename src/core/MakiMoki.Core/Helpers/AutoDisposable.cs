@@ -9,7 +9,7 @@ using Reactive.Bindings;
 namespace Yarukizero.Net.MakiMoki.Helpers {
 	public class AutoDisposable : IDisposable {
 		public class IgonoreDisposeAttribute : Attribute { }
-		public class IgonoreDisposeReactiveBindingsValueAttribute : Attribute { }
+		public class IgonoreDisposeBindingsValueAttribute : Attribute { }
 
 		private class BindingsProxy : IDisposable {
 			private object target;
@@ -61,19 +61,23 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 		}
 
 		public AutoDisposable Add(IDisposable disposable, bool processBindingsProperty = true) {
-			if(processBindingsProperty) {
-				if(disposable is IReactiveProperty rp) {
-					this.disposables.Add(new BindingsProxy(rp));
+			if(disposable != null) {
+				if(processBindingsProperty) {
+					if(disposable is IReactiveProperty rp) {
+						this.disposables.Add(new BindingsProxy(rp));
+					}
 				}
+				this.disposables.Add(disposable);
 			}
-			this.disposables.Add(disposable);
 
 			return this;
 		}
 		public AutoDisposable AddEnumerable(IEnumerable<IDisposable> disposable) {
-			this.disposables.Add(new BindingsProxy(disposable));
-			if(disposable is IDisposable d) {
-				this.disposables.Add(d);
+			if(disposable != null) {
+				this.disposables.Add(new BindingsProxy(disposable));
+				if(disposable is IDisposable d) {
+					this.disposables.Add(d);
+				}
 			}
 
 			return this;
@@ -91,7 +95,7 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 			foreach(var d in target.GetType()
 				.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)
 				.Where(x => typeof(IReactiveProperty).IsAssignableFrom(x.PropertyType))
-				.Where(x => !x.GetCustomAttributes(typeof(IgonoreDisposeReactiveBindingsValueAttribute), true).Any())
+				.Where(x => !x.GetCustomAttributes(typeof(IgonoreDisposeBindingsValueAttribute), true).Any())
 				.Select(x => new BindingsProxy(target, x))
 				.Cast<IDisposable>()) {
 
@@ -101,13 +105,12 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 			foreach(var e in target.GetType()
 				.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)
 				.Where(x => typeof(IEnumerable<IDisposable>).IsAssignableFrom(x.PropertyType))
-				.Where(x => !x.GetCustomAttributes(typeof(IgonoreDisposeAttribute), true).Any())
+				.Where(x => !x.GetCustomAttributes(typeof(IgonoreDisposeBindingsValueAttribute), true).Any())
 				.Select(x => x.GetValue(target))
 				.Where(x => x != null)
 				.Cast<IEnumerable<IDisposable>>()) {
-				foreach(var d in e) {
-					r.Add(d);
-				}
+
+				r.Add(new BindingsProxy(e));
 			}
 
 			foreach(var d in target.GetType()
