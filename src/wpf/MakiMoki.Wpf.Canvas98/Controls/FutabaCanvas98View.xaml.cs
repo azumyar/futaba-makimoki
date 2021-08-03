@@ -89,7 +89,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 		private static string WebMessagePostSucessed { get; } = "x-makimoki-canvas98-message://post-ok";
 		private static string WebMessagePostError { get; } = "x-makimoki-canvas98-message://post-error";
 		private static string WebMessagePostStore { get; } = "x-makimoki-canvas98-message://post-store";
-
+		private static string WebMessageDebug { get; } = "x-makimoki-canvas98-message://debug";
+		
 		private static string MakiMokiProtocolViewClose { get; } = "x-makimoki-canvas98://close";
 		private static string MakiMokiProtocol98Open { get; } = "x-makimoki-canvas98://open98";
 
@@ -131,7 +132,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 							.AppendLine("    open(method, f) {}")
 							.AppendLine("    send(data) {}")
 							.AppendLine("  };")
-							.AppendLine("  if(document.location.href.endsWith('.htm')) {")
+							.AppendLine($"  if(document.location.href.startsWith('{ x.Url.BaseUrl }') && document.location.href.endsWith('.htm')) {{")
 							.AppendLine("    if(document.body.bgColor != '') {")
 							// フォーム以外のノード全削除
 							.AppendLine("      {")
@@ -211,6 +212,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 							.AppendLine("      }")
 							.AppendLine($"      window.chrome.webview.postMessage('{ WebMessageReady }');")
 							.AppendLine("    } else {")
+							//.AppendLine($"      window.chrome.webview.postMessage('{ WebMessageDebug }?' + encodeURI(document.location.href));")
 							.AppendLine($"      window.chrome.webview.postMessage('{ WebMessage404 }');")
 							.AppendLine("    }")
 							.AppendLine("  }")
@@ -463,6 +465,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				} else if(message.StartsWith(WebMessagePostStore)) {
 					this.formCache = JsonConvert.DeserializeObject<Canvas98Data.StoredForm>(
 						System.Web.HttpUtility.UrlDecode(message.Substring(WebMessagePostStore.Length + 1)));
+				} else if(message.StartsWith(WebMessageDebug)) {
+#if DEBUG
+					System.Diagnostics.Debug.WriteLine(
+						System.Web.HttpUtility.UrlDecode(message.Substring(WebMessageDebug.Length + 1)));
+#endif
 				}
 			};
 
