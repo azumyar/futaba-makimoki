@@ -430,12 +430,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 	class FutabaResItemFooterVisibleConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-			if(values.Length == 2) {
+			if(values.Length == 3) {
 				// BindableFutabaResItemは使いまわされるので更新時検知されない親のBindableFutabaもパラメータにもってくる
 				if((values[0] is Model.BindableFutabaResItem r)
-					&& (values[1] is Model.BindableFutaba f)) {
+					&& (values[1] is IEnumerable<Model.BindableFutabaResItem> f)) {
 
-					return r.Index.Value == f.ResCount.Value ? Visibility.Visible : Visibility.Collapsed;
+					return (r == f.LastOrDefault()) ? Visibility.Visible : Visibility.Collapsed;
 				}
 				return Visibility.Collapsed;
 			}

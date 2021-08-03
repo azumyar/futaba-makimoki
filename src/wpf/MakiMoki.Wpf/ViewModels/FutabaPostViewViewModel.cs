@@ -371,7 +371,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						}
 					});
 				} else {
-					var resCount = x.ResCount.Value;
+					var resCount = x.ResItems.Count;
 					Util.Futaba.PostRes(x.Raw.Bord, x.Url.ThreadNo,
 						x.PostData.Value.NameEncoded.Value,
 						x.PostData.Value.MailEncoded.Value,
@@ -399,7 +399,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 								.Subscribe(z => {
 									// TODO: utilでやる
 									if(z.New != null) {
-										foreach(var res in z.New.ResItems.Skip(resCount + 1).Reverse()) {
+										foreach(var res in z.New.ResItems.Skip(resCount).Reverse()) {
 											var cLine = com.Replace("\r", "").Split('\n');
 											var rLine = Regex.Split(res.ResItem.Res.Com, "<br>");
 											if(cLine.Length == rLine.Length) {

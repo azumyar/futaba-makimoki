@@ -371,7 +371,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			var tt = t.Except(c);
 			var r = default(Model.TabItem);
 			var rl = new List<Model.TabItem>();
-			using(var disp = new System.Reactive.Disposables.CompositeDisposable()) {
+			using(var disp = new Helpers.AutoDisposable()) {
 				if(cc.Any()) {
 					foreach(var it in cc) {
 						collection.Add(new Model.TabItem(catalog.Where(x => x.Url == it).First()));
@@ -388,7 +388,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							}
 							var rm = collection.Where(x => x.Url == it).First();
 							disp.Add(rm);
-							disp.Add(rm.Futaba.Value.ResItems);
 							copy.Remove(rm);
 							rl.Add(rm);
 						}
@@ -420,7 +419,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					if(futaba != null) {
 						if(futaba.Token != it.Futaba.Value.Raw.Token) {
 							disp.Add(it.Futaba.Value);
-							disp.Add(it.Futaba.Value.ResItems);
 							it.Futaba.Value = new BindableFutaba(futaba, it.Futaba.Value);
 						}
 					}
@@ -433,7 +431,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 				foreach(var rm in rl) {
 					collection.Remove(rm);
-					rm.Dispose();
 				}
 			}
 			return r;
