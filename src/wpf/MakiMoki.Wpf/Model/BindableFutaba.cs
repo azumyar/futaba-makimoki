@@ -145,7 +145,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 #pragma warning disable CS0067
 		public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore CS0067
-		//[Helpers.AutoDisposable.IgonoreDispose]
+		[Helpers.AutoDisposable.IgonoreDispose]
+		[Helpers.AutoDisposable.IgonoreDisposeBindingsValue]
 		public ReactiveCollection<BindableFutabaResItem> ResItems { get; }
 		public ReactiveProperty<FutabaContext[]> OpenedThreads { get; }
 		public ReactiveProperty<int> ResCount { get; }
@@ -262,117 +263,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.Url = futaba.Url;
 
 			var disps = new Helpers.AutoDisposable();
-			this.ResItems = new ReactiveCollection<BindableFutabaResItem>();
-			if((old == null) || old.Raw.Url.IsCatalogUrl) { // カタログはそうとっかえする
-				int c = 0;
-				foreach(var it in futaba.ResItems
-						.Select(x => new BindableFutabaResItem(c++, x, futaba.Url.BaseUrl, this))
-						.ToArray()) {
-
-					it.IsWatch.Subscribe(x => { 
-						if(x) {
-							this.UpdateToken.Value = DateTime.Now;
-						}
-					});
-					this.ResItems.Add(it);
-				}
-
-				if(old?.ResItems != null) {
-					disps.Add(old.ResItems);
-				}
-			} else {
-				var tmpList = new List<BindableFutabaResItem>();
-				tmpList.AddRange(old.ResItems);
-				var i = 0;
-				var prevId = tmpList.Select(x => x.Raw.Value.ResItem.No).ToArray();
-				var newId = futaba.ResItems.Select(x => x.ResItem.No).ToArray();
-				var ep = prevId.Except(newId).ToArray();
-				foreach(var it in ep) {
-					for(var ii=0; ii< tmpList.Count;ii++) {
-						if(it == tmpList[ii].Raw.Value.ResItem.No) {
-							disps.Add(this.ResItems[ii]);
-							tmpList.RemoveAt(ii);
-							break;
-						}
-					}
-				}
-
-				while((i < tmpList.Count) && (i < futaba.ResItems.Length)) {
-					var a = tmpList[i];
-					var b = futaba.ResItems[i];
-					if(a.Raw.Value.ResItem.No != b.ResItem.No) {
-						// 普通は来ない
-						System.Diagnostics.Debug.WriteLine("%%%%%%%%%%%%%%%%%%%%%%%%%% this.ResItems.RemoveAt(i) %%%%%%%%%%%%%%%%%%%%%%%");
-						disps.Add(tmpList[i]);
-						tmpList.RemoveAt(i);
-						continue;
-					}
-
-					if(a.Raw.Value.HashText != b.HashText) {
-						// 画面から参照されているので this の初期化が終わっていないこのタイミングで書き換えてはいけない
-						//this.ResItems[i] = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
-						var bf = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
-						if(b.ResItem.Res.IsHavedImage) {
-							BindableFutabaResItem.CopyImage(a, bf);
-						}
-						tmpList[i] = bf;
-						disps.Add(a);
-					}
-					i++;
-				} 
-
-				if(i < futaba.ResItems.Length) {
-					foreach(var it in futaba.ResItems
-							.Skip(i)
-							.Select(x => new BindableFutabaResItem(i++, x, futaba.Url.BaseUrl, this))
-							.ToArray()) {
-
-						tmpList.Add(it);
-					}
-				}
-				old.ResItems.Clear();
-				foreach(var it in tmpList) {
-					this.ResItems.Add(it);
-				}
-				//遅延するので副作用が出る
-				//this.ResItems.AddRangeOnScheduler(tmpList);
-			}
-
-			if(futaba.Url.IsThreadUrl) {
-				var d = new Dictionary<string, (int Count, List<BindableFutabaResItem> Res)>();
-				foreach(var it in this.ResItems) {
-					if(!d.TryGetValue(it.ThreadResNo.Value, out _)) {
-						d.Add(it.ThreadResNo.Value, (0, new List<BindableFutabaResItem>()));
-					}
-
-					foreach(var q in it.Raw.Value.QuotLines
-						.Where(x => x.IsHit)
-						.Select(x => x.ResNo)
-						.Distinct()) {
-
-						var r = this.ResItems.Where(x => x.ThreadResNo.Value == q).FirstOrDefault();
-						if(r != null) {
-							if(d.TryGetValue(q, out var t)) {
-								t.Res.Add(r);
-
-								d[q] = (t.Count + 1, t.Res);
-							} else {
-								d.Add(q, (1, new List<BindableFutabaResItem>() { r }));
-							}
-						}
-					}
-				}
-
-				foreach(var it in this.ResItems) {
-					var t = default((int Count, List<BindableFutabaResItem> Res));
-					if(!d.TryGetValue(it.ThreadResNo.Value, out t)) {
-						t = (0, null);
-					}
-					it.SetResCount(t.Count, t.Res?.Distinct().ToArray() ?? Array.Empty<BindableFutabaResItem>());
-				}
-			}
-
-			this.ResCount = new ReactiveProperty<int>(futaba.Url.IsCatalogUrl ? this.ResItems.Count : (this.ResItems.Count - 1));
 			this.IsDie = new ReactiveProperty<bool>(futaba.Raw?.IsDie ?? false);
 			this.IsOld = new ReactiveProperty<bool>(futaba.Raw?.IsOld ?? false || this.IsDie.Value);
 			this.IsMaxRes = new ReactiveProperty<bool>(futaba.Raw?.IsMaxRes ?? false);
@@ -436,6 +326,110 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.FullScreenCatalogClickCommand.Subscribe(() => OnFullScreenCatalogClick());
 			this.FullScreenThreadClickCommand.Subscribe(() => OnFullScreenThreadClick());
 
+			if((old == null) || old.Raw.Url.IsCatalogUrl) { // カタログはそうとっかえする
+				this.ResItems = new ReactiveCollection<BindableFutabaResItem>();
+				int c = 0;
+				foreach(var it in futaba.ResItems
+						.Select(x => new BindableFutabaResItem(c++, x, futaba.Url.BaseUrl, this))
+						.ToArray()) {
+
+					it.IsWatch.Subscribe(x => {
+						if(x) {
+							this.UpdateToken.Value = DateTime.Now;
+						}
+					});
+					this.ResItems.Add(it);
+				}
+
+				if(old?.ResItems != null) {
+					disps.Add(old.ResItems);
+				}
+			} else {
+				this.ResItems = old.ResItems;
+				var i = 0;
+				var prevId = this.ResItems.Select(x => x.Raw.Value.ResItem.No).ToArray();
+				var newId = futaba.ResItems.Select(x => x.ResItem.No).ToArray();
+				var ep = prevId.Except(newId).ToArray();
+				foreach(var it in ep) {
+					for(var ii = 0; ii < this.ResItems.Count; ii++) {
+						if(it == this.ResItems[ii].Raw.Value.ResItem.No) {
+							disps.Add(this.ResItems[ii]);
+							this.ResItems.RemoveAt(ii);
+							break;
+						}
+					}
+				}
+
+				while((i < this.ResItems.Count) && (i < futaba.ResItems.Length)) {
+					var a = this.ResItems[i];
+					var b = futaba.ResItems[i];
+					if(a.Raw.Value.ResItem.No != b.ResItem.No) {
+						// 普通は来ない
+						System.Diagnostics.Debug.WriteLine("%%%%%%%%%%%%%%%%%%%%%%%%%% this.ResItems.RemoveAt(i) %%%%%%%%%%%%%%%%%%%%%%%");
+						disps.Add(this.ResItems[i]);
+						this.ResItems.RemoveAt(i);
+						continue;
+					}
+
+					if(a.Raw.Value.HashText != b.HashText) {
+						// 画面から参照されているので this の初期化が終わっていないこのタイミングで書き換えてはいけない
+						//this.ResItems[i] = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
+						var bf = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
+						if(b.ResItem.Res.IsHavedImage) {
+							BindableFutabaResItem.CopyImage(a, bf);
+						}
+						this.ResItems[i] = bf;
+						disps.Add(a);
+					}
+					i++;
+				}
+
+				if(i < futaba.ResItems.Length) {
+					foreach(var it in futaba.ResItems
+							.Skip(i)
+							.Select(x => new BindableFutabaResItem(i++, x, futaba.Url.BaseUrl, this))
+							.ToArray()) {
+
+						this.ResItems.Add(it);
+					}
+				}
+			}
+
+			if(futaba.Url.IsThreadUrl) {
+				var d = new Dictionary<string, (int Count, List<BindableFutabaResItem> Res)>();
+				foreach(var it in this.ResItems) {
+					if(!d.TryGetValue(it.ThreadResNo.Value, out _)) {
+						d.Add(it.ThreadResNo.Value, (0, new List<BindableFutabaResItem>()));
+					}
+
+					foreach(var q in it.Raw.Value.QuotLines
+						.Where(x => x.IsHit)
+						.Select(x => x.ResNo)
+						.Distinct()) {
+
+						var r = this.ResItems.Where(x => x.ThreadResNo.Value == q).FirstOrDefault();
+						if(r != null) {
+							if(d.TryGetValue(q, out var t)) {
+								t.Res.Add(r);
+
+								d[q] = (t.Count + 1, t.Res);
+							} else {
+								d.Add(q, (1, new List<BindableFutabaResItem>() { r }));
+							}
+						}
+					}
+				}
+
+				foreach(var it in this.ResItems) {
+					var t = default((int Count, List<BindableFutabaResItem> Res));
+					if(!d.TryGetValue(it.ThreadResNo.Value, out t)) {
+						t = (0, null);
+					}
+					it.SetResCount(t.Count, t.Res?.Distinct().ToArray() ?? Array.Empty<BindableFutabaResItem>());
+				}
+			}
+			this.ResCount = new ReactiveProperty<int>(futaba.Url.IsCatalogUrl ? this.ResItems.Count : (this.ResItems.Count - 1));
+
 			// 初期化がすべて終わったタイミングで書き換える
 			foreach(var it in this.ResItems) {
 				it.Parent.Value = this;
@@ -446,9 +440,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		public void Dispose() {
-			if(this.Raw.Url.IsCatalogUrl) {
-				this.ResItems.Dispose();
-			}
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
@@ -682,7 +673,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Visibility> MenuItemRegisterHiddenVisibility { get; }
 		public ReactiveProperty<Visibility> MenuItemUnregisterHiddenVisibility { get; }
 
-		[Helpers.AutoDisposable.IgonoreDisposeReactiveBindingsValueAttribute]
+		[Helpers.AutoDisposable.IgonoreDisposeBindingsValueAttribute]
 		public ReactiveProperty<BindableFutaba> Parent { get; }
 
 		public MakiMokiCommand<MouseButtonEventArgs> FutabaTextBlockMouseDownCommand { get; }
