@@ -428,7 +428,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 														}
 													}
 
-													if(Regex.Replace(r, @"<[^>]*>", "") == c) {
+													if(System.Web.HttpUtility.HtmlDecode(Regex.Replace(r, @"<[^>]*>", "")) == c) {
 														success++;
 													} else {
 														break;
