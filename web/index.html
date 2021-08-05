@@ -10,6 +10,7 @@
 </head>
 <body>
     <h1>ふたマキ</h1>
+    <p style="font-weight: bold;">2021/06/17 現在/futamaki/配下が参照できない問>題が発生しているため設定を変更してます。/futamaki/は403ですが配下のzip,apkファイルにはアクセスできるようになっています。最新の安定版以外をお探しの方はカナリアビルドからお探しください。</p>
     <ul>
         <li class="checked" id="futamaki-bin-link"><a href="/futamaki/">ダウンロード</a></li>
         <li class="checked"><a href="https://install.appcenter.ms/users/azumyar/apps/futamaki/distribution_groups/canary/">カナリアビルド(人柱向け)</a></li>
@@ -89,6 +90,19 @@
 
         <h3>Done</h3>
         <ul>
+            <li class="checked">
+                period.21 バグ修正を主に機能追加
+                <ul>
+                    <li class="checked">コンテキストメニューにショートカットキー追加</li>
+                    <li class="checked">被参照レス数を表示(今回はここまで)</li>
+                    <li class="checked">HTML5保存(フルセット)試験追加</li>
+                    <li class="checked">自レス判定にデフォルトコメントを考慮するように変更</li>
+                    <li class="checked">メール欄判定が小文字しか考慮していなかった問題を修正</li>
+                    <li class="checked">はっちゃん連携が動作しなくなっていた問題修正</li>
+                    <li class="checked">メモリ解放周り強化</li>
+                </ul>
+            </li>
+
             <li class="checked">
                 period.20 バグ修正
                 <ul>
@@ -476,6 +490,21 @@
         </ul>
 
         <h3>返信</h3>
+        <p>
+            <q>
+                トップの最新版がDLできないです<br />
+            </q>
+            サーバがエラーを返していたので設定を変更してみました。障害情報は乗っていないので原因はよくわからないですね…
+        </p>
+
+        <p>
+            <q>
+                カタログとスレッドの右クリックメニューに引用（C)、非表示（N)みたいにキーボードで操作できるキー設定を付けてほいい…<br />
+                できれば自分で設定いじれるようにさせてもらえれば…<br />
+            </q>
+            period.21で対応しました。カスタマイズは今回見送りです。
+        </p>
+
         <p>
             <q>
                 板追加がカタログ、掲示板トップどちらでも不正と出てしまいます。<br />
