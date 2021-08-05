@@ -101,7 +101,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.Region.Value = null;
 				this.ThreadView.Value = null;
 			}
-			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
+			new Helpers.AutoDisposable(this)
+				.Add(this.Futaba.Value?.PostData)
+				.AddEnumerable(this.Futaba.Value?.ResItems)
+				.Dispose();
 		}
 
 		public void ShowSearchBox() {

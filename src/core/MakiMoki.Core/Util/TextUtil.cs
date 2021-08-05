@@ -46,40 +46,27 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 		public static string ConvertUnicodeTextToFutabaComment(string input) {
-			// System.Net.WebUtility.HtmlEncode(x) ♡などをスルーするので自前で解析もする
-			var sb = new StringBuilder(System.Net.WebUtility.HtmlEncode(input));
-			for(var i = 0; i < sb.Length; i++) {
-				var c = sb[i];
-
-				// 念のためサローゲートペアの処理を入れる
-				if(char.IsHighSurrogate(c)) {
-					if(sb.Length <= (i + 1)) {
-						// 変な文字が渡されてるので削除して終了
-						sb.Remove(i, 1);
-						break;
-					} else {
-						var c2 = sb[i + 1];
-						var b = FutabaEncoding.GetBytes(new string(new[] { c, c2 }));
-						var s = FutabaEncoding.GetString(b);
-						if(s == FallbackUnicodeString) {
-							var ss = ConvertHtmlEntityFromhSurrogateChars(c, c2);
-							sb.Remove(i, 2);
-							sb.Insert(i, ss);
-							i += ss.Length;
-						} else {
-							sb.Remove(i, 2);
-							sb.Insert(i, s);
-							i++;
-						}
+			var sb = new StringBuilder();
+			// Unicode8.0相当だけど今回の要件的には大丈夫なはず…
+			// \r\nが合字判断されるので\rを取り除く(Windows用)
+			var tee =System.Globalization.StringInfo.GetTextElementEnumerator(input.Replace("\r", ""));
+			tee.Reset();
+			while(tee.MoveNext()) {
+				var te = tee.GetTextElement();
+				if(1 < te.Length) {
+					// 合字なのでまとめてエスケープする
+					foreach(var c in te.ToCharArray()) {
+						sb.Append($"&#{ (uint)c };");
 					}
 				} else {
-					var b = FutabaEncoding.GetBytes(c.ToString());
+					// 変換して失敗すればエスケープする
+					// HTMLエスケープはふたば側に任せる
+					var b = FutabaEncoding.GetBytes(te);
 					var s = FutabaEncoding.GetString(b);
 					if(s == FallbackUnicodeString) {
-						var ss = $"&#{ (uint)c };";
-						sb.Remove(i, 1);
-						sb.Insert(i, ss);
-						i += ss.Length;
+						sb.Append($"&#{ (uint)te[0] };");
+					} else {
+						sb.Append(te);
 					}
 				}
 			}

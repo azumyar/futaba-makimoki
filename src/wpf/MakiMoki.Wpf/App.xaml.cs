@@ -274,6 +274,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				var threadHeaderSubjectForeground = style.ToWpfColor(style.ThreadHeaerSubjectForegroundColor);
 				var threadHeaderNameForeground = style.ToWpfColor(style.ThreadHeaerNameForegroundColor);
 				var threadHeaderMailForeground = style.ToWpfColor(style.ThreadHeaerMailForegroundColor);
+				var threadHeaerResCountForegroundColor = style.ToWpfColor(style.ThreadHeaerResCountForegroundColor);
 				var threadHeaderSoudaneForeground = style.ToWpfColor(style.ThreadHeaerSoudaneForegroundColor);
 				this.Resources["ThreadBackgroundColor"] = threadBackground;
 				this.Resources["ThreadBackgroundSerachHitColor"] = threadSearchHitBackground;
@@ -283,6 +284,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				this.Resources["ThreadHeaderSubjectColor"] = threadHeaderSubjectForeground;
 				this.Resources["ThreadHeaderNameColor"] = threadHeaderNameForeground;
 				this.Resources["ThreadHeaderMailColor"] = threadHeaderMailForeground;
+				this.Resources["ThreadHeaderResCountColor"] = threadHeaerResCountForegroundColor;
 				this.Resources["ThreadHeaderSoudaneColor"] = threadHeaderSoudaneForeground;
 
 				var mapArray = style.ViewerFutabaColorMap

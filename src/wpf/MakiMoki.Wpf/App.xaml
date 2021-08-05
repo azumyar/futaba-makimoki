@@ -85,6 +85,8 @@
         <Color x:Key="ThreadHeaderNameColor">#c62828</Color>
         <!-- Blueの800 -->
         <Color x:Key="ThreadHeaderMailColor">#1565C0</Color>
+        <!-- Redの800 -->
+        <Color x:Key="ThreadHeaderResCountColor">#c62828</Color>
         <!-- Deep Orangeの800 -->
         <Color x:Key="ThreadHeaderSoudaneColor">#D84315</Color>
         <sys:Double x:Key="ThreadHeaderFontSize">14</sys:Double>

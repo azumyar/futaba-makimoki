@@ -39,6 +39,7 @@
   "color-viewer-thread-header-subject-foreground": "#2E7D32",
   "color-viewer-thread-header-name-foreground": "#c62828",
   "color-viewer-thread-header-mail-foreground": "#1565C0",
+  "color-viewer-thread-header-res-count-foreground": "#c62828",
   "color-viewer-thread-header-soudane-foreground": "#D84315",
 
   "color-viewer-scrollbar-thumb": "#9E9E9E",

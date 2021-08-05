@@ -77,10 +77,10 @@
                     DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
                     IsOpen="{Binding PlacementTarget.DataContext.ImageContextMenuOpened.Value, Mode=TwoWay, RelativeSource={RelativeSource Self}}">
                     <MenuItem
-                        Header="保存"
+                        Header="保存(_S)"
                         Command="{Binding MenuItemClickSaveCommand, Mode=OneWay}"
                         CommandParameter="{Binding Media.Value, Mode=OneWay}" />
-                    <MenuItem Header="クイック保存">
+                    <MenuItem Header="クイック保存(_Q)">
                         <MenuItem.ItemsSource>
                             <!-- UpdateTokenいらないかも -->
                             <MultiBinding Converter="{StaticResource MediaEnumQuickSaveItemConverter}">
@@ -99,16 +99,16 @@
                     </MenuItem>
                     <Separator />
                     <MenuItem
-                        Header="google画像検索"
+                        Header="google画像検索(_G)"
                         Command="{Binding MenuItemClickImageSearchGoogleCommand,Mode=OneWay}"
                         CommandParameter="{Binding Media.Value, Mode=OneWay}" />
                     <MenuItem
-                        Header="二次元画像詳細検索"
+                        Header="二次元画像詳細検索(_A)"
                         Command="{Binding MenuItemClickImageSearchAscii2dCommand,Mode=OneWay}"
                         CommandParameter="{Binding Media.Value, Mode=OneWay}" />
                     <Separator />
                     <MenuItem
-                        Header="ブラウザで開く"
+                        Header="ブラウザで開く(_B)"
                         Command="{Binding MenuItemClickQuickOpenBrowserCommand,Mode=OneWay}"
                         CommandParameter="{Binding Media.Value, Mode=OneWay}" />
                 </ContextMenu>
@@ -195,10 +195,10 @@
                             Placement="Top"
                             DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                             <MenuItem
-                                Header="保存"
+                                Header="保存(_S)"
                                 Command="{Binding MenuItemClickSaveCommand, Mode=OneWay}"
                                 CommandParameter="{Binding Media.Value, Mode=OneWay}" />
-                            <MenuItem Header="クイック保存">
+                            <MenuItem Header="クイック保存(_Q)">
                                 <MenuItem.ItemsSource>
                                     <MultiBinding Converter="{StaticResource MediaEnumQuickSaveItemConverter}">
                                         <Binding Path="Media.Value" Mode="OneWay" />
@@ -216,7 +216,7 @@
                             </MenuItem>
                             <Separator />
                             <MenuItem
-                                Header="ブラウザで開く"
+                                Header="ブラウザで開く(_B)"
                                 Command="{Binding MenuItemClickQuickOpenBrowserCommand,Mode=OneWay}"
                                 CommandParameter="{Binding Media.Value, Mode=OneWay}" />
                         </ContextMenu>

@@ -59,6 +59,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				} else {
 					bitmapDic.Add(file, r);
 				}
+
+				foreach(var k in bitmapDic
+					.Select(x => (Key: x.Key, Value: x.Value.TryGetTarget(out _)))
+					.Where(x => !x.Value)) {
+
+					bitmapDic.Remove(k.Key);
+				}
 			}
 		}
 

@@ -8,23 +8,17 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 	public static partial class NgHelper {
 		
 		private static bool CheckNg(Data.FutabaContext futaba, Data.FutabaContext.Item item, bool idNg, string[] word, string[] regex) {
+			bool CheckId(Data.FutabaContext.Item it) {
+				var m = it?.ResItem.Res.Email.ToLower() ?? "";
+				return (m != "id表示") && (m != "ip表示");
+			}
 			var id = idNg;
 
 			// ID表示スレはID NG機能は無効化
 			if(id && futaba.Url.IsCatalogUrl) {
-				var first = item;
-				if(first != null) {
-					if((first.ResItem.Res.Email == "id表示") || (first.ResItem.Res.Email == "ip表示")) {
-						id = false;
-					}
-				}
+				id = CheckId(item);
 			} else if(id && futaba.Url.IsThreadUrl) {
-				var first = futaba.ResItems.FirstOrDefault();
-				if(first != null) {
-					if((first.ResItem.Res.Email == "id表示") || (first.ResItem.Res.Email == "ip表示")) {
-						id = false;
-					}
-				}
+				id = CheckId(futaba.ResItems.FirstOrDefault());
 			}
 
 			if(id && !string.IsNullOrEmpty(item.ResItem.Res.Id)) {
@@ -76,6 +70,17 @@ namespace Yarukizero.Net.MakiMoki.Ng.NgUtil {
 				}
 			}
 			return false;
+		}
+
+		public static bool CheckImageNg(ulong hash, int? threshold = null) {
+			var tv = threshold ?? NgConfigLoader.NgImageConfig.Threshold;
+			return NgConfigLoader.NgImageConfig.Images.Any(x => PerceptualHash.GetHammingDistance(hash, x) <= tv);
+		}
+
+
+		public static bool CheckImageWatch(ulong hash, int? threshold = null) {
+			var tv = threshold ?? NgConfigLoader.WatchImageConfig.Threshold;
+			return NgConfigLoader.WatchImageConfig.Images.Any(x => PerceptualHash.GetHammingDistance(hash, x) <= tv);
 		}
 
 		public static bool IsEnabledNgImage() {

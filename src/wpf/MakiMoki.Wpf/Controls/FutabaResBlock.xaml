@@ -100,6 +100,13 @@
                 <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Id, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
                     <Run Text="{Binding Converter={StaticResource FutabaResItemIdTextConverter},  StringFormat='\{0\} ', Mode=OneWay}" />
                 </TextBlock>
+                <TextBlock
+                    Visibility="{Binding ResCountText.Value, Mode=OneWay, Converter={StaticResource FutabaResItemVisibleConverter}}"
+                    Text="{Binding ResCountText.Value, Mode=OneWay, StringFormat='\{0\} '}">
+                    <TextBlock.Foreground>
+                        <SolidColorBrush Color="{DynamicResource ThreadHeaderResCountColor}" />
+                    </TextBlock.Foreground>
+                </TextBlock>
                 <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderSoudaneColor}" />

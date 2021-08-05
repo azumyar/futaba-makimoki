@@ -305,6 +305,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public string ThreadHeaerNameForegroundColor { get; private set; }
 		[JsonProperty("color-viewer-thread-header-mail-foreground")]
 		public string ThreadHeaerMailForegroundColor { get; private set; }
+		[JsonProperty("color-viewer-thread-header-res-count-foreground")]
+		public string ThreadHeaerResCountForegroundColor { get; private set; }
 		[JsonProperty("color-viewer-thread-header-soudane-foreground")]
 		public string ThreadHeaerSoudaneForegroundColor { get; private set; }
 

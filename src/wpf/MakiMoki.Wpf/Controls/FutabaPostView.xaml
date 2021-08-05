@@ -90,7 +90,7 @@
                 </Border.Background>
                 <TextBlock FontSize="16" Margin="2" Text="{Binding PostTitle.Value, Mode=OneWay}" VerticalAlignment="Center">
                     <TextBlock.Foreground>
-                        <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                        <SolidColorBrush Color="{DynamicResource WindowTabForegroundColor}" />
                     </TextBlock.Foreground>
                 </TextBlock>
             </Border>
@@ -268,7 +268,7 @@
                                 DataContext="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}"
                                 Tag="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                 <MenuItem
-                                    Header="クリップボードから貼り付け"
+                                    Header="クリップボードから貼り付け(_P)"
                                     Command="{Binding MenuItemClickPastePostImageCommand, Mode=OneWay}"
                                     CommandParameter="{Binding Tag,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                             </ContextMenu>
@@ -299,7 +299,7 @@
                                 DataContext="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}"
                                 Tag="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                 <MenuItem
-                                    Header="クリップボードから貼り付け"
+                                    Header="クリップボードから貼り付け(_P)"
                                     Command="{Binding MenuItemClickPastePostUpCommand, Mode=OneWay}"
                                     CommandParameter="{Binding Tag,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                             </ContextMenu>
@@ -329,6 +329,28 @@
                     </Button>
                 </StackPanel>
             </Border>
+
+            <Grid
+                Grid.ColumnSpan="3"
+                Grid.RowSpan="3"
+                Visibility="{Binding DataContext.PostProgressVisibility.Value, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}">
+                <Grid.Background>
+                    <SolidColorBrush Color="Black" Opacity="0.4" />
+                </Grid.Background>
+
+                <!-- TODO:プログレスリング置きたいけどまた今度 -->
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Text="送信中…"
+                    FontFamily="{DynamicResource PostFont}"
+                    FontSize="{DynamicResource PostFontSize}"
+                    >
+                    <TextBlock.Foreground>
+                        <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
+                    </TextBlock.Foreground>
+                </TextBlock>
+            </Grid>
         </Grid>
     </Border>
 </UserControl>

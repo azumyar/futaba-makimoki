@@ -277,13 +277,13 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public static class CatalogSort {
-		public static CatalogSortItem Catalog => new CatalogSortItem("カタログ", "0");
-		public static CatalogSortItem New => new CatalogSortItem("新順", "1");
-		public static CatalogSortItem Old => new CatalogSortItem("古順", "2");
-		public static CatalogSortItem Many => new CatalogSortItem("多順", "3");
-		public static CatalogSortItem Momentum => new CatalogSortItem("勢順", "6");
-		public static CatalogSortItem Few => new CatalogSortItem("少順", "4");
-		public static CatalogSortItem Soudane => new CatalogSortItem("そ順", "8");
+		public static CatalogSortItem Catalog => new CatalogSortItem("カタログ(_C)", "0");
+		public static CatalogSortItem New => new CatalogSortItem("新順(_N)", "1");
+		public static CatalogSortItem Old => new CatalogSortItem("古順(_O)", "2");
+		public static CatalogSortItem Many => new CatalogSortItem("多順(_M)", "3"); // Mustch
+		public static CatalogSortItem Momentum => new CatalogSortItem("勢順(_E)", "6"); // Energish
+		public static CatalogSortItem Few => new CatalogSortItem("少順(_F)", "4"); // Few
+		public static CatalogSortItem Soudane => new CatalogSortItem("そ順(_S)", "8");
 
 		public static CatalogSortItem[] Items => new[] {
 				Catalog,

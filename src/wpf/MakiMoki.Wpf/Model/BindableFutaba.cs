@@ -146,12 +146,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore CS0067
 		[Helpers.AutoDisposable.IgonoreDispose]
+		[Helpers.AutoDisposable.IgonoreDisposeBindingsValue]
 		public ReactiveCollection<BindableFutabaResItem> ResItems { get; }
 		public ReactiveProperty<FutabaContext[]> OpenedThreads { get; }
 		public ReactiveProperty<int> ResCount { get; }
 		public ReactiveProperty<string> DieTextLong { get; }
 
 		public ReactiveProperty<string> PostTitle { get; }
+		[Helpers.AutoDisposable.IgonoreDispose]
+		[Helpers.AutoDisposable.IgonoreDisposeBindingsValue]
 		public ReactiveProperty<PostHolder> PostData { get; }
 
 		public ReactiveProperty<Visibility> PostNameVisibility { get; }
@@ -261,78 +264,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.Name = futaba.Name;
 			this.Url = futaba.Url;
 
-			var updateItems = new List<(int Index, BindableFutabaResItem Item)>();
-			var disps = new CompositeDisposable();
-			if((old == null) || old.Raw.Url.IsCatalogUrl) { // カタログはそうとっかえする
-				this.ResItems = new ReactiveCollection<BindableFutabaResItem>();
-				int c = 0;
-				foreach(var it in futaba.ResItems
-						.Select(x => new BindableFutabaResItem(c++, x, futaba.Url.BaseUrl, this))
-						.ToArray()) {
-
-					it.IsWatch.Subscribe(x => { 
-						if(x) {
-							this.UpdateToken.Value = DateTime.Now;
-						}
-					});
-					this.ResItems.Add(it);
-				}
-
-				if(old?.ResItems != null) {
-					disps.Add(old.ResItems);
-				}
-			} else {
-				this.ResItems = old.ResItems;
-				var i = 0;
-				var prevId = this.ResItems.Select(x => x.Raw.Value.ResItem.No).ToArray();
-				var newId = futaba.ResItems.Select(x => x.ResItem.No).ToArray();
-				var ep = prevId.Except(newId).ToArray();
-				foreach(var it in ep) {
-					for(var ii=0; ii<this.ResItems.Count;ii++) {
-						if(it == this.ResItems[ii].Raw.Value.ResItem.No) {
-							disps.Add(this.ResItems[ii]);
-							this.ResItems.RemoveAt(ii);
-							break;
-						}
-					}
-				}
-
-				while((i < this.ResItems.Count) && (i < futaba.ResItems.Length)) {
-					var a = this.ResItems[i];
-					var b = futaba.ResItems[i];
-					if(a.Raw.Value.ResItem.No != b.ResItem.No) {
-						// 普通は来ない
-						System.Diagnostics.Debug.WriteLine("%%%%%%%%%%%%%%%%%%%%%%%%%% this.ResItems.RemoveAt(i) %%%%%%%%%%%%%%%%%%%%%%%");
-						disps.Add(this.ResItems[i]);
-						this.ResItems.RemoveAt(i);
-						continue;
-					}
-
-					if(a.Raw.Value.HashText != b.HashText) {
-						// 画面から参照されているので this の初期化が終わっていないこのタイミングで書き換えてはいけない
-						//this.ResItems[i] = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
-						var bf = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
-						if(b.ResItem.Res.IsHavedImage) {
-							BindableFutabaResItem.CopyImage(a, bf);
-						}
-						updateItems.Add((i, bf));
-						disps.Add(a);
-					}
-					i++;
-				} 
-
-				if(i < futaba.ResItems.Length) {
-					foreach(var it in futaba.ResItems
-							.Skip(i)
-							.Select(x => new BindableFutabaResItem(i++, x, futaba.Url.BaseUrl, this))
-							.ToArray()) {
-
-						this.ResItems.Add(it);
-					}
-				}
-			}
-
-			this.ResCount = new ReactiveProperty<int>(futaba.Url.IsCatalogUrl ? this.ResItems.Count : (this.ResItems.Count - 1));
+			var disps = new Helpers.AutoDisposable();
 			this.IsDie = new ReactiveProperty<bool>(futaba.Raw?.IsDie ?? false);
 			this.IsOld = new ReactiveProperty<bool>(futaba.Raw?.IsOld ?? false || this.IsDie.Value);
 			this.IsMaxRes = new ReactiveProperty<bool>(futaba.Raw?.IsMaxRes ?? false);
@@ -396,12 +328,113 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.FullScreenCatalogClickCommand.Subscribe(() => OnFullScreenCatalogClick());
 			this.FullScreenThreadClickCommand.Subscribe(() => OnFullScreenThreadClick());
 
+			if((old == null) || old.Raw.Url.IsCatalogUrl) { // カタログはそうとっかえする
+				this.ResItems = new ReactiveCollection<BindableFutabaResItem>();
+				int c = 0;
+				foreach(var it in futaba.ResItems
+						.Select(x => new BindableFutabaResItem(c++, x, futaba.Url.BaseUrl, this))
+						.ToArray()) {
+
+					it.IsWatch.Subscribe(x => {
+						if(x) {
+							this.UpdateToken.Value = DateTime.Now;
+						}
+					});
+					this.ResItems.Add(it);
+				}
+
+				if(old?.ResItems != null) {
+					disps.Add(old.ResItems);
+				}
+			} else {
+				this.ResItems = old.ResItems;
+				var i = 0;
+				var prevId = this.ResItems.Select(x => x.Raw.Value.ResItem.No).ToArray();
+				var newId = futaba.ResItems.Select(x => x.ResItem.No).ToArray();
+				var ep = prevId.Except(newId).ToArray();
+				foreach(var it in ep) {
+					for(var ii = 0; ii < this.ResItems.Count; ii++) {
+						if(it == this.ResItems[ii].Raw.Value.ResItem.No) {
+							disps.Add(this.ResItems[ii]);
+							this.ResItems.RemoveAt(ii);
+							break;
+						}
+					}
+				}
+
+				while((i < this.ResItems.Count) && (i < futaba.ResItems.Length)) {
+					var a = this.ResItems[i];
+					var b = futaba.ResItems[i];
+					if(a.Raw.Value.ResItem.No != b.ResItem.No) {
+						// 普通は来ない
+						System.Diagnostics.Debug.WriteLine("%%%%%%%%%%%%%%%%%%%%%%%%%% this.ResItems.RemoveAt(i) %%%%%%%%%%%%%%%%%%%%%%%");
+						disps.Add(this.ResItems[i]);
+						this.ResItems.RemoveAt(i);
+						continue;
+					}
+
+					if(a.Raw.Value.HashText != b.HashText) {
+						// 画面から参照されているので this の初期化が終わっていないこのタイミングで書き換えてはいけない
+						//this.ResItems[i] = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
+						var bf = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
+						if(b.ResItem.Res.IsHavedImage) {
+							BindableFutabaResItem.CopyImage(a, bf);
+						}
+						this.ResItems[i] = bf;
+						disps.Add(a);
+					}
+					i++;
+				}
+
+				if(i < futaba.ResItems.Length) {
+					foreach(var it in futaba.ResItems
+							.Skip(i)
+							.Select(x => new BindableFutabaResItem(i++, x, futaba.Url.BaseUrl, this))
+							.ToArray()) {
+
+						this.ResItems.Add(it);
+					}
+				}
+			}
+
+			if(futaba.Url.IsThreadUrl) {
+				var d = new Dictionary<string, (int Count, List<BindableFutabaResItem> Res)>();
+				foreach(var it in this.ResItems) {
+					if(!d.TryGetValue(it.ThreadResNo.Value, out _)) {
+						d.Add(it.ThreadResNo.Value, (0, new List<BindableFutabaResItem>()));
+					}
+
+					foreach(var q in it.Raw.Value.QuotLines
+						.Where(x => x.IsHit)
+						.Select(x => x.ResNo)
+						.Distinct()) {
+
+						var r = this.ResItems.Where(x => x.ThreadResNo.Value == q).FirstOrDefault();
+						if(r != null) {
+							if(d.TryGetValue(q, out var t)) {
+								t.Res.Add(r);
+
+								d[q] = (t.Count + 1, t.Res);
+							} else {
+								d.Add(q, (1, new List<BindableFutabaResItem>() { r }));
+							}
+						}
+					}
+				}
+
+				foreach(var it in this.ResItems) {
+					var t = default((int Count, List<BindableFutabaResItem> Res));
+					if(!d.TryGetValue(it.ThreadResNo.Value, out t)) {
+						t = (0, null);
+					}
+					it.SetResCount(t.Count, t.Res?.Distinct().ToArray() ?? Array.Empty<BindableFutabaResItem>());
+				}
+			}
+			this.ResCount = new ReactiveProperty<int>(futaba.Url.IsCatalogUrl ? this.ResItems.Count : (this.ResItems.Count - 1));
+
 			// 初期化がすべて終わったタイミングで書き換える
 			foreach(var it in this.ResItems) {
 				it.Parent.Value = this;
-			}
-			foreach(var it in updateItems) {
-				this.ResItems[it.Index] = it.Item;
 			}
 
 			// 古いインスタンスを削除
@@ -409,9 +442,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		public void Dispose() {
-			if(this.Raw.Url.IsCatalogUrl) {
-				this.ResItems.Dispose();
-			}
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
@@ -488,10 +518,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 			var sfd= new Microsoft.Win32.SaveFileDialog() {
 				AddExtension = true,
-				Filter = "HTML5ファイル|*.html;*.htm", 
+				Filter = "HTML5ファイル|*.html;*.htm|HTML5ファイル(フルセット-試験中)|*.html;*.htm", 
 			};
 			if(sfd.ShowDialog() ?? false) {
-				string getImageBase64(BindableFutabaResItem bfi) {
+				string getImageBase64(
+					BindableFutabaResItem bfi,
+					Func<Data.UrlContext, Data.ResItem, IObservable<(bool Successed, string LocalPath, byte[] FileBytes)>> getImageFunc = null
+				) {
+					getImageFunc ??= ((url, item) => Util.Futaba.GetThumbImage(url, item));
+
 					var url = bfi.Raw.Value.Url;
 					var item = bfi.Raw.Value.ResItem.Res;
 					if(string.IsNullOrEmpty(item.Ext)) {
@@ -510,7 +545,41 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					}
 
 					// TODO: 基本的にキャッシュされているはずだけど良くないのでメソッドの変更を考える
-					return Util.Futaba.GetThumbImage(url, item)
+					return getImageFunc(url, item)
+						.Select(x => {
+							if(x.Successed) {
+								if(Config.ConfigLoader.MimeFutaba.MimeTypes.TryGetValue(Path.GetExtension(x.LocalPath).ToLower(), out var mime)) {
+									using(var stream = new FileStream(x.LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+										return "data:" + mime + ";base64," + FileUtil.ToBase64(stream);
+									}
+								}
+							}
+							return "";
+						}).Wait();
+				}
+				string getImageBase64TestImpl(
+					FutabaContext.Item it,
+					Func<Data.UrlContext, Data.ResItem, IObservable<(bool Successed, string LocalPath, byte[] FileBytes)>> getImageFunc = null
+				) {
+					var url = it.Url;
+					var item = it.ResItem.Res;
+					if(string.IsNullOrEmpty(item.Ext)) {
+						return "";
+					}
+					/*
+					var ngImage = !object.ReferenceEquals(bfi.ThumbSource.Value, bfi.OriginSource.Value);
+					if(ngImage && WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Hidden) {
+						return "";
+					} else if(ngImage && WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Dummy) {
+						if(Config.ConfigLoader.MimeFutaba.MimeTypes.TryGetValue(".png", out var mime)) {
+							return "data:" + mime + ";base64," + WpfUtil.ImageUtil.GetNgImageBase64();
+						} else {
+							return "";
+						}
+					}
+					*/
+					// TODO: 基本的にキャッシュされているはずだけど良くないのでメソッドの変更を考える
+					return getImageFunc(url, item)
 						.Select(x => {
 							if(x.Successed) {
 								if(Config.ConfigLoader.MimeFutaba.MimeTypes.TryGetValue(Path.GetExtension(x.LocalPath).ToLower(), out var mime)) {
@@ -523,40 +592,117 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						}).Wait();
 				}
 
-				try {
-					var fm = File.Exists(sfd.FileName) ? FileMode.Truncate : FileMode.OpenOrCreate;
-					using(var sf = new FileStream(sfd.FileName, fm)) {
-						Util.ExportUtil.ExportHtml(sf,
-							new Data.ExportHolder(
-								this.Raw.Bord.Name, this.Raw.Bord.Extra.Name,
-								this.ResItems.Select(x => {
-									var ngRes = x.IsHidden.Value || x.IsNg.Value;
-									var ngImage = !object.ReferenceEquals(x.ThumbSource.Value, x.OriginSource.Value)
-										&& (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Hidden);
-									if(ngRes && (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes == PlatformData.ExportNgRes.Hidden)) {
-										return null;
-									}
-									return new Data.ExportData() {
-										Subject = x.Raw.Value.ResItem.Res.Sub,
-										Name = x.Raw.Value.ResItem.Res.Name,
-										Email = x.Raw.Value.ResItem.Res.Email,
-										Comment = (ngRes && (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes == PlatformData.ExportNgRes.Mask))
-											? x.CommentHtml.Value : x.OriginHtml.Value,
-										No = x.Raw.Value.ResItem.No,
-										Date = string.Format("{0}{1}", x.Raw.Value.ResItem.Res.Now, string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Id) ? "" : (" " + x.Raw.Value.ResItem.Res.Id)),
-										Soudane = x.Raw.Value.Soudane,
-										Host = x.Raw.Value.ResItem.Res.Host,
-										OriginalImageName = (ngImage || string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Ext)) ? "" : x.ImageName.Value,
-										ThumbnailImageData = getImageBase64(x),
-									};
-								}).Where(x => x != null).ToArray()
-							));
-						sf.Flush();
+
+				if(sfd.FilterIndex == 2) {
+					Task.Run(async () => {
+						var futaba = this.Raw;
+						var resitems = this.Raw.ResItems;
+						var img = resitems
+							.Where(x => (x.ResItem.Res.Fsize != 0) && !string.IsNullOrEmpty(x.ResItem.Res.Ext))
+							.ToArray();
+						foreach(var it in img) {
+							if(Util.Futaba.GetThumbImage(it.Url, it.ResItem.Res)
+								.Wait()
+								.FileBytes != null) {
+
+								// ダウンロードした場合は待つ
+								await Task.Delay(100);
+							}
+						}
+						foreach(var it in img) {
+							if(Util.Futaba.GetThreadResImage(it.Url, it.ResItem.Res)
+								.Wait()
+								.FileBytes != null) {
+
+								// ダウンロードした場合は待つ
+								await Task.Delay(100);
+							}
+						}
+
+						var fm = File.Exists(sfd.FileName) ? FileMode.Truncate : FileMode.OpenOrCreate;
+						using(var sf = new FileStream(sfd.FileName, fm)) {
+							Util.ExportUtil.ExportHtmlTestImpl(sf,
+								new Data.ExportHolder(
+									futaba.Bord.Name, futaba.Bord.Extra.Name,
+									resitems.Select(x => {
+										var ngRes = false; // x.IsHidden.Value || x.IsNg.Value;
+										var ngImage = false;
+										/*
+										if((WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Hidden)
+											&& Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
+
+											var h = WpfUtil.ImageUtil.CalculatePerceptualHash(WpfUtil.ImageUtil.LoadImage(x.LocalPath, x.FileBytes));
+											if(Ng.NgUtil.NgHelper.CheckImageNg(h)) {
+												ngImage = true;
+											}
+										}
+										*/
+										if(ngRes && (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes == PlatformData.ExportNgRes.Hidden)) {
+											return null;
+										}
+										var imageName = "";
+										var m = Regex.Match(x.ResItem.Res.Src, @"^.+/([^\.]+\..+)$");
+										if(m.Success) {
+											imageName = m.Groups[1].Value;
+										}
+
+										return new Data.ExportData() {
+											Subject = x.ResItem.Res.Sub,
+											Name = x.ResItem.Res.Name,
+											Email = x.ResItem.Res.Email,
+											//Comment = (ngRes && (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes == PlatformData.ExportNgRes.Mask))
+											//	? x.CommentHtml.Value : x.OriginHtml.Value,
+											Comment = x.ResItem.Res.Com,
+											No = x.ResItem.No,
+											Date = string.Format("{0}{1}", x.ResItem.Res.Now, string.IsNullOrEmpty(x.ResItem.Res.Id) ? "" : (" " + x.ResItem.Res.Id)),
+											Soudane = x.Soudane,
+											Host = x.ResItem.Res.Host,
+											OriginalImageName = (ngImage || string.IsNullOrEmpty(x.ResItem.Res.Ext)) ? "" : imageName,
+											OriginalImageData = getImageBase64TestImpl(x, (url, item) => Util.Futaba.GetThreadResImage(url, item)),
+											ThumbnailImageData = getImageBase64TestImpl(x, (url, item) => Util.Futaba.GetThumbImage(url, item)),
+										};
+									}).Where(x => x != null).ToArray()
+								));
+							sf.Flush();
+							Futaba.PutInformation(new Information("HTML保存が完了しました", futaba));
+						}
+					});
+				} else {
+					try {
+						var fm = File.Exists(sfd.FileName) ? FileMode.Truncate : FileMode.OpenOrCreate;
+						using(var sf = new FileStream(sfd.FileName, fm)) {
+							Util.ExportUtil.ExportHtml(sf,
+								new Data.ExportHolder(
+									this.Raw.Bord.Name, this.Raw.Bord.Extra.Name,
+									this.ResItems.Select(x => {
+										var ngRes = x.IsHidden.Value || x.IsNg.Value;
+										var ngImage = !object.ReferenceEquals(x.ThumbSource.Value, x.OriginSource.Value)
+											&& (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Hidden);
+										if(ngRes && (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes == PlatformData.ExportNgRes.Hidden)) {
+											return null;
+										}
+										return new Data.ExportData() {
+											Subject = x.Raw.Value.ResItem.Res.Sub,
+											Name = x.Raw.Value.ResItem.Res.Name,
+											Email = x.Raw.Value.ResItem.Res.Email,
+											Comment = (ngRes && (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes == PlatformData.ExportNgRes.Mask))
+												? x.CommentHtml.Value : x.OriginHtml.Value,
+											No = x.Raw.Value.ResItem.No,
+											Date = string.Format("{0}{1}", x.Raw.Value.ResItem.Res.Now, string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Id) ? "" : (" " + x.Raw.Value.ResItem.Res.Id)),
+											Soudane = x.Raw.Value.Soudane,
+											Host = x.Raw.Value.ResItem.Res.Host,
+											OriginalImageName = (ngImage || string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Ext)) ? "" : x.ImageName.Value,
+											ThumbnailImageData = getImageBase64(x),
+										};
+									}).Where(x => x != null).ToArray()
+								));
+							sf.Flush();
+						}
 					}
-				}
-				catch(IOException) {
-					// TODO: いい感じにする
-					MessageBox.Show("保存に失敗");
+					catch(IOException) {
+						// TODO: いい感じにする
+						MessageBox.Show("保存に失敗");
+					}
 				}
 			}
 		}
@@ -603,6 +749,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> ThreadResNo { get; }
 		public ReactiveProperty<Data.FutabaContext.Item> Raw { get; }
 
+		public ReactiveProperty<int> ResCount { get; } = new ReactiveProperty<int>(0);
+		public ReactiveProperty<string> ResCountText { get; }
+
+
 		public ReactiveProperty<string> HeadLineHtml { get; }
 		public ReactiveProperty<string> DisplayHtml { get; }
 		public ReactiveProperty<string> CommentHtml { get; }
@@ -633,11 +783,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public ReactiveProperty<Visibility> IsVisibleMenuItemWatchImage { get; }
 		public ReactiveProperty<Visibility> IsVisibleMenuItemNgImage { get; }
-
+		
 		public ReactiveProperty<bool> IsVisibleCatalogIdMarker{ get; }
 
+		[Obsolete]
 		public ReactiveProperty<string> MenuItemTextHidden { get; }
+		public ReactiveProperty<Visibility> MenuItemRegisterHiddenVisibility { get; }
+		public ReactiveProperty<Visibility> MenuItemUnregisterHiddenVisibility { get; }
 
+		[Helpers.AutoDisposable.IgonoreDisposeBindingsValueAttribute]
 		public ReactiveProperty<BindableFutaba> Parent { get; }
 
 		public MakiMokiCommand<MouseButtonEventArgs> FutabaTextBlockMouseDownCommand { get; }
@@ -675,6 +829,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				WpfConfig.WpfConfigLoader.SystemConfig.CommandPalettePosition));
 			this.IsVisibleCatalogIdMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledIdMarker);
 
+			this.ResCountText = this.ResCount.Select(x => (0 < x) ? $"{ x }レス" : "").ToReactiveProperty();
+
 			// delとhostの処理
 			{
 				var headLine = new StringBuilder();
@@ -691,9 +847,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						: Ng.NgUtil.NgHelper.CheckThreadNg(parent.Raw, item));
 				this.IsWatchWord = new ReactiveProperty<bool>(Ng.NgUtil.NgHelper.CheckCatalogWatch(parent.Raw, item));
 				this.IsWatchImage = this.ThumbHash
-					.Select(x => x.HasValue ? Ng.NgConfig.NgConfigLoader.WatchImageConfig.Images.Any(
-						y => Ng.NgUtil.PerceptualHash.GetHammingDistance(x.Value, y) <= Ng.NgConfig.NgConfigLoader.WatchImageConfig.Threshold
-						) : false)
+					.Select(x => x.HasValue ? Ng.NgUtil.NgHelper.CheckImageWatch(x.Value) : false)
 					.ToReactiveProperty();
 				this.IsWatch = new[] {
 					this.IsWatchWord,
@@ -816,11 +970,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ResImageVisibility = this.ThumbSource
 				.CombineLatest(IsVisibleOriginComment, (x, y) => ((x != null) && y) ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
-			this.IsVisibleMenuItemNgImage = this.ImageName.Select(x => !string.IsNullOrEmpty(x))
+			this.IsVisibleMenuItemNgImage = this.ImageName
+				.Select(x => !string.IsNullOrEmpty(x))
 				.CombineLatest(this.OriginSource, this.ThumbSource, (x, y, z) => x && (y == null || object.ReferenceEquals(y, z)))
 				.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
+			this.IsVisibleMenuItemWatchImage = this.ImageName
+				.Select(x => !string.IsNullOrEmpty(x))
+				.CombineLatest(this.ThumbHash, (x, y) => {
+					if(x) {
+						if(y.HasValue) {
+							return !Ng.NgUtil.NgHelper.CheckImageWatch(y.Value, 0);
+						} else {
+							return true;
+						}
+					} else {
+						return false;
+					}
+				}).Select(x => x ? Visibility.Visible : Visibility.Collapsed)
+				.ToReactiveProperty();
 			this.MenuItemTextHidden = this.IsHidden.Select(x => x ? "非表示を解除" : "非表示").ToReactiveProperty();
+			this.MenuItemRegisterHiddenVisibility = this.IsHidden.Select(x => x ? Visibility.Collapsed : Visibility.Visible).ToReactiveProperty();
+			this.MenuItemUnregisterHiddenVisibility = this.IsHidden.Select(x => x ? Visibility.Visible : Visibility.Collapsed).ToReactiveProperty();
+
 			this.FutabaTextBlockMouseDownCommand.Subscribe(x => OnFutabaTextBlockMouseDown(x));
 			this.ThumbLoadCommand.Subscribe(_ => OnThumbLoad());
 		}
@@ -900,14 +1072,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}
 			this.ThumbHash.Value = h;
 			this.OriginSource.Value = bmp;
-			if(h.HasValue && Ng.NgConfig.NgConfigLoader.NgImageConfig.Images.Any(
-				y => Ng.NgUtil.PerceptualHash.GetHammingDistance(h.Value, y) <= Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold)) {
+			if(h.HasValue && Ng.NgUtil.NgHelper.CheckImageNg(h.Value)) {
 
 				ThumbSource.Value = (Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod == ImageNgMethod.Hidden)
 					? null : WpfUtil.ImageUtil.GetNgImage();
 			} else {
 				ThumbSource.Value = bmp;
 			}
+		}
+
+		public void SetResCount(int count, BindableFutabaResItem[] res) {
+			this.ResCount.Value = count;
+			// TODO: 非参照レスの処理
 		}
 
 		private void SetCommentHtml() {
@@ -970,9 +1146,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				});
 				return System.Reactive.Disposables.Disposable.Empty;
 			}).Subscribe(x => {
-				if(Ng.NgConfig.NgConfigLoader.NgImageConfig.Images.Any(
-					y => Ng.NgUtil.PerceptualHash.GetHammingDistance(x, y) <= Ng.NgConfig.NgConfigLoader.NgImageConfig.Threshold)) {
-
+				if(Ng.NgUtil.NgHelper.CheckImageNg(x)) {
 					// NG画像
 					ThumbSource.Value = (Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod == ImageNgMethod.Hidden)
 						? null : WpfUtil.ImageUtil.GetNgImage();

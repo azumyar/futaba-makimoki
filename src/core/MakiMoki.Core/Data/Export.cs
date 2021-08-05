@@ -32,5 +32,6 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 		public string OriginalImageName { get; set; }
 		public string ThumbnailImageData { get; set; }
+		public string OriginalImageData { get; set; }
 	}
 }
