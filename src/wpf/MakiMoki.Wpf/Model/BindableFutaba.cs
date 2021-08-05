@@ -153,6 +153,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> DieTextLong { get; }
 
 		public ReactiveProperty<string> PostTitle { get; }
+		[Helpers.AutoDisposable.IgonoreDispose]
+		[Helpers.AutoDisposable.IgonoreDisposeBindingsValue]
 		public ReactiveProperty<PostHolder> PostData { get; }
 
 		public ReactiveProperty<Visibility> PostNameVisibility { get; }

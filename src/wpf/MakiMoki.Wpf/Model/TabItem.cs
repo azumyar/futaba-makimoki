@@ -102,6 +102,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.ThreadView.Value = null;
 			}
 			new Helpers.AutoDisposable(this)
+				.Add(this.Futaba.Value?.PostData)
 				.AddEnumerable(this.Futaba.Value?.ResItems)
 				.Dispose();
 		}
