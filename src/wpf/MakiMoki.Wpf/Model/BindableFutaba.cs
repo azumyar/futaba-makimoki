@@ -518,10 +518,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 			var sfd= new Microsoft.Win32.SaveFileDialog() {
 				AddExtension = true,
-				Filter = "HTML5ファイル|*.html;*.htm", 
+				Filter = "HTML5ファイル|*.html;*.htm|HTML5ファイル(フルセット-試験中)|*.html;*.htm", 
 			};
 			if(sfd.ShowDialog() ?? false) {
-				string getImageBase64(BindableFutabaResItem bfi) {
+				string getImageBase64(
+					BindableFutabaResItem bfi,
+					Func<Data.UrlContext, Data.ResItem, IObservable<(bool Successed, string LocalPath, byte[] FileBytes)>> getImageFunc = null
+				) {
+					getImageFunc ??= ((url, item) => Util.Futaba.GetThumbImage(url, item));
+
 					var url = bfi.Raw.Value.Url;
 					var item = bfi.Raw.Value.ResItem.Res;
 					if(string.IsNullOrEmpty(item.Ext)) {
@@ -540,7 +545,41 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					}
 
 					// TODO: 基本的にキャッシュされているはずだけど良くないのでメソッドの変更を考える
-					return Util.Futaba.GetThumbImage(url, item)
+					return getImageFunc(url, item)
+						.Select(x => {
+							if(x.Successed) {
+								if(Config.ConfigLoader.MimeFutaba.MimeTypes.TryGetValue(Path.GetExtension(x.LocalPath).ToLower(), out var mime)) {
+									using(var stream = new FileStream(x.LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+										return "data:" + mime + ";base64," + FileUtil.ToBase64(stream);
+									}
+								}
+							}
+							return "";
+						}).Wait();
+				}
+				string getImageBase64TestImpl(
+					FutabaContext.Item it,
+					Func<Data.UrlContext, Data.ResItem, IObservable<(bool Successed, string LocalPath, byte[] FileBytes)>> getImageFunc = null
+				) {
+					var url = it.Url;
+					var item = it.ResItem.Res;
+					if(string.IsNullOrEmpty(item.Ext)) {
+						return "";
+					}
+					/*
+					var ngImage = !object.ReferenceEquals(bfi.ThumbSource.Value, bfi.OriginSource.Value);
+					if(ngImage && WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Hidden) {
+						return "";
+					} else if(ngImage && WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Dummy) {
+						if(Config.ConfigLoader.MimeFutaba.MimeTypes.TryGetValue(".png", out var mime)) {
+							return "data:" + mime + ";base64," + WpfUtil.ImageUtil.GetNgImageBase64();
+						} else {
+							return "";
+						}
+					}
+					*/
+					// TODO: 基本的にキャッシュされているはずだけど良くないのでメソッドの変更を考える
+					return getImageFunc(url, item)
 						.Select(x => {
 							if(x.Successed) {
 								if(Config.ConfigLoader.MimeFutaba.MimeTypes.TryGetValue(Path.GetExtension(x.LocalPath).ToLower(), out var mime)) {
@@ -553,40 +592,117 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						}).Wait();
 				}
 
-				try {
-					var fm = File.Exists(sfd.FileName) ? FileMode.Truncate : FileMode.OpenOrCreate;
-					using(var sf = new FileStream(sfd.FileName, fm)) {
-						Util.ExportUtil.ExportHtml(sf,
-							new Data.ExportHolder(
-								this.Raw.Bord.Name, this.Raw.Bord.Extra.Name,
-								this.ResItems.Select(x => {
-									var ngRes = x.IsHidden.Value || x.IsNg.Value;
-									var ngImage = !object.ReferenceEquals(x.ThumbSource.Value, x.OriginSource.Value)
-										&& (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Hidden);
-									if(ngRes && (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes == PlatformData.ExportNgRes.Hidden)) {
-										return null;
-									}
-									return new Data.ExportData() {
-										Subject = x.Raw.Value.ResItem.Res.Sub,
-										Name = x.Raw.Value.ResItem.Res.Name,
-										Email = x.Raw.Value.ResItem.Res.Email,
-										Comment = (ngRes && (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes == PlatformData.ExportNgRes.Mask))
-											? x.CommentHtml.Value : x.OriginHtml.Value,
-										No = x.Raw.Value.ResItem.No,
-										Date = string.Format("{0}{1}", x.Raw.Value.ResItem.Res.Now, string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Id) ? "" : (" " + x.Raw.Value.ResItem.Res.Id)),
-										Soudane = x.Raw.Value.Soudane,
-										Host = x.Raw.Value.ResItem.Res.Host,
-										OriginalImageName = (ngImage || string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Ext)) ? "" : x.ImageName.Value,
-										ThumbnailImageData = getImageBase64(x),
-									};
-								}).Where(x => x != null).ToArray()
-							));
-						sf.Flush();
+
+				if(sfd.FilterIndex == 2) {
+					Task.Run(async () => {
+						var futaba = this.Raw;
+						var resitems = this.Raw.ResItems;
+						var img = resitems
+							.Where(x => (x.ResItem.Res.Fsize != 0) && !string.IsNullOrEmpty(x.ResItem.Res.Ext))
+							.ToArray();
+						foreach(var it in img) {
+							if(Util.Futaba.GetThumbImage(it.Url, it.ResItem.Res)
+								.Wait()
+								.FileBytes != null) {
+
+								// ダウンロードした場合は待つ
+								await Task.Delay(100);
+							}
+						}
+						foreach(var it in img) {
+							if(Util.Futaba.GetThreadResImage(it.Url, it.ResItem.Res)
+								.Wait()
+								.FileBytes != null) {
+
+								// ダウンロードした場合は待つ
+								await Task.Delay(100);
+							}
+						}
+
+						var fm = File.Exists(sfd.FileName) ? FileMode.Truncate : FileMode.OpenOrCreate;
+						using(var sf = new FileStream(sfd.FileName, fm)) {
+							Util.ExportUtil.ExportHtmlTestImpl(sf,
+								new Data.ExportHolder(
+									futaba.Bord.Name, futaba.Bord.Extra.Name,
+									resitems.Select(x => {
+										var ngRes = false; // x.IsHidden.Value || x.IsNg.Value;
+										var ngImage = false;
+										/*
+										if((WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Hidden)
+											&& Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
+
+											var h = WpfUtil.ImageUtil.CalculatePerceptualHash(WpfUtil.ImageUtil.LoadImage(x.LocalPath, x.FileBytes));
+											if(Ng.NgUtil.NgHelper.CheckImageNg(h)) {
+												ngImage = true;
+											}
+										}
+										*/
+										if(ngRes && (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes == PlatformData.ExportNgRes.Hidden)) {
+											return null;
+										}
+										var imageName = "";
+										var m = Regex.Match(x.ResItem.Res.Src, @"^.+/([^\.]+\..+)$");
+										if(m.Success) {
+											imageName = m.Groups[1].Value;
+										}
+
+										return new Data.ExportData() {
+											Subject = x.ResItem.Res.Sub,
+											Name = x.ResItem.Res.Name,
+											Email = x.ResItem.Res.Email,
+											//Comment = (ngRes && (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes == PlatformData.ExportNgRes.Mask))
+											//	? x.CommentHtml.Value : x.OriginHtml.Value,
+											Comment = x.ResItem.Res.Com,
+											No = x.ResItem.No,
+											Date = string.Format("{0}{1}", x.ResItem.Res.Now, string.IsNullOrEmpty(x.ResItem.Res.Id) ? "" : (" " + x.ResItem.Res.Id)),
+											Soudane = x.Soudane,
+											Host = x.ResItem.Res.Host,
+											OriginalImageName = (ngImage || string.IsNullOrEmpty(x.ResItem.Res.Ext)) ? "" : imageName,
+											OriginalImageData = getImageBase64TestImpl(x, (url, item) => Util.Futaba.GetThreadResImage(url, item)),
+											ThumbnailImageData = getImageBase64TestImpl(x, (url, item) => Util.Futaba.GetThumbImage(url, item)),
+										};
+									}).Where(x => x != null).ToArray()
+								));
+							sf.Flush();
+							Futaba.PutInformation(new Information("HTML保存が完了しました", futaba));
+						}
+					});
+				} else {
+					try {
+						var fm = File.Exists(sfd.FileName) ? FileMode.Truncate : FileMode.OpenOrCreate;
+						using(var sf = new FileStream(sfd.FileName, fm)) {
+							Util.ExportUtil.ExportHtml(sf,
+								new Data.ExportHolder(
+									this.Raw.Bord.Name, this.Raw.Bord.Extra.Name,
+									this.ResItems.Select(x => {
+										var ngRes = x.IsHidden.Value || x.IsNg.Value;
+										var ngImage = !object.ReferenceEquals(x.ThumbSource.Value, x.OriginSource.Value)
+											&& (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgImage == PlatformData.ExportNgImage.Hidden);
+										if(ngRes && (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes == PlatformData.ExportNgRes.Hidden)) {
+											return null;
+										}
+										return new Data.ExportData() {
+											Subject = x.Raw.Value.ResItem.Res.Sub,
+											Name = x.Raw.Value.ResItem.Res.Name,
+											Email = x.Raw.Value.ResItem.Res.Email,
+											Comment = (ngRes && (WpfConfig.WpfConfigLoader.SystemConfig.ExportNgRes == PlatformData.ExportNgRes.Mask))
+												? x.CommentHtml.Value : x.OriginHtml.Value,
+											No = x.Raw.Value.ResItem.No,
+											Date = string.Format("{0}{1}", x.Raw.Value.ResItem.Res.Now, string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Id) ? "" : (" " + x.Raw.Value.ResItem.Res.Id)),
+											Soudane = x.Raw.Value.Soudane,
+											Host = x.Raw.Value.ResItem.Res.Host,
+											OriginalImageName = (ngImage || string.IsNullOrEmpty(x.Raw.Value.ResItem.Res.Ext)) ? "" : x.ImageName.Value,
+											ThumbnailImageData = getImageBase64(x),
+										};
+									}).Where(x => x != null).ToArray()
+								));
+							sf.Flush();
+						}
 					}
-				}
-				catch(IOException) {
-					// TODO: いい感じにする
-					MessageBox.Show("保存に失敗");
+					catch(IOException) {
+						// TODO: いい感じにする
+						MessageBox.Show("保存に失敗");
+					}
 				}
 			}
 		}
