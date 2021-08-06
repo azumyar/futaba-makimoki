@@ -327,6 +327,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 			this.FullScreenCatalogClickCommand.Subscribe(() => OnFullScreenCatalogClick());
 			this.FullScreenThreadClickCommand.Subscribe(() => OnFullScreenThreadClick());
+			this.ResCount = new ReactiveProperty<int>(futaba.ResItems?.LastOrDefault()?.ResItem.Res.Rsc ?? 0);
 
 			if((old == null) || old.Raw.Url.IsCatalogUrl) { // カタログはそうとっかえする
 				this.ResItems = new ReactiveCollection<BindableFutabaResItem>();
@@ -430,7 +431,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					it.SetResCount(t.Count, t.Res?.Distinct().ToArray() ?? Array.Empty<BindableFutabaResItem>());
 				}
 			}
-			this.ResCount = new ReactiveProperty<int>(futaba.Url.IsCatalogUrl ? this.ResItems.Count : (this.ResItems.Count - 1));
 
 			// 初期化がすべて終わったタイミングで書き換える
 			foreach(var it in this.ResItems) {
