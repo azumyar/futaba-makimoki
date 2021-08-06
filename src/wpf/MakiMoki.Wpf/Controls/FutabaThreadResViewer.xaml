@@ -1129,7 +1129,6 @@
                                     <Grid.Visibility>
                                         <MultiBinding Converter="{StaticResource FutabaResItemFooterVisibleConverter}">
                                             <Binding Mode="OneWay" />
-                                            <Binding Path="Parent.Value.ResItems" Mode="OneWay" />
                                             <Binding Path="Parent.Value" Mode="OneWay" />
                                         </MultiBinding>
                                     </Grid.Visibility>

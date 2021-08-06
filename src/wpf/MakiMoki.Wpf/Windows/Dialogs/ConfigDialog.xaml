@@ -1373,77 +1373,54 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="92" />
                                         <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="60" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBox
-                                        Grid.Column="0"
-                                        Text="{Binding Canvas98ExtendsName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        MaxLines="1"
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock
+                                        Grid.Column="0" Grid.Row="0"
+                                        Text="レイヤー"
                                         HorizontalAlignment="Stretch"
-                                        c:PlaceHolderBehavior.PlaceHolderText="名前"
+                                        VerticalAlignment="Center"
                                         />
                                     <TextBox 
-                                        Grid.Column="1"
-                                        Text="{Binding Canvas98ExtendsBookmarklet.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        Grid.Column="1" Grid.Row="0"
+                                        Text="{Binding Canvas98ExtendsLayer.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         MaxLines="1"
                                         HorizontalAlignment="Stretch"
-                                        c:PlaceHolderBehavior.PlaceHolderText="ブックマークレット"
+                                        c:PlaceHolderBehavior.PlaceHolderText="はっちゃん拡張：レイヤー"
                                         />
-                                    <Button Grid.Column="2" Command="{Binding Canvas98ExtendAddCommand}">
-                                        <TextBlock>追加</TextBlock>
-                                    </Button>
+
+                                    <TextBlock
+                                        Grid.Column="0" Grid.Row="1"
+                                        Text="アルバム"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        />
+                                    <TextBox 
+                                        Grid.Column="1" Grid.Row="1"
+                                        Text="{Binding Canvas98ExtendsAlbam.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        MaxLines="1"
+                                        HorizontalAlignment="Stretch"
+                                        c:PlaceHolderBehavior.PlaceHolderText="はっちゃん拡張：アルバム"
+                                        />
+
+                                    <TextBlock
+                                        Grid.Column="0" Grid.Row="2"
+                                        Text="メニュー"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        />
+                                    <TextBox 
+                                        Grid.Column="1" Grid.Row="2"
+                                        Text="{Binding Canvas98ExtendsMenu.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        MaxLines="1"
+                                        HorizontalAlignment="Stretch"
+                                        c:PlaceHolderBehavior.PlaceHolderText="はっちゃん拡張：メニュー"
+                                        />
                                 </Grid>
-                                <ListBox
-                                    ItemsSource="{Binding Canvas98Extends, Mode=OneWay}"
-                                    Width="320"
-                                    Height="120"
-                                    HorizontalAlignment="Left"
-                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                    ScrollViewer.VerticalScrollBarVisibility="Auto">
-                                    <ListBox.ItemContainerStyle>
-                                        <Style TargetType="ListBoxItem">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="ListBoxItem">
-                                                        <ContentPresenter />
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Style>
-                                    </ListBox.ItemContainerStyle>
-                                    <ListBox.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <VirtualizingStackPanel
-                                                Orientation="Vertical"
-                                                IsItemsHost="True" 
-                                                HorizontalAlignment="Stretch"
-                                                />
-                                        </ItemsPanelTemplate>
-                                    </ListBox.ItemsPanel>
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Padding="2">
-                                                <Grid HorizontalAlignment="Stretch">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="32" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock
-                                                        Grid.Column="0"
-                                                        VerticalAlignment="Center"
-                                                        Text="{Binding Name.Value, Mode=OneWay}"
-                                                        />
-                                                    <Button
-                                                        Grid.Column="1"
-                                                        Command="{Binding DataContext.Canvas98ExtendRemoveCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:ConfigDialog}}"
-                                                        CommandParameter="{Binding }">
-                                                        <TextBlock>✖</TextBlock>
-                                                    </Button>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
                             </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}" Visibility="{Binding WebView2RuntimeVisiblity.Value, Mode=OneWay}">
                                 <TextBlock>

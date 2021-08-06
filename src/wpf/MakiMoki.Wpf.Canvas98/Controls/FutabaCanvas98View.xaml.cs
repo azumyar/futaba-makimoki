@@ -85,6 +85,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 		}
 
 		private static string WebMessageReady { get; } = "x-makimoki-canvas98-message://ready";
+		private static string WebMessageExecuteAlbam { get; } = "x-makimoki-canvas98-message://albam";
 		private static string WebMessage404 { get; } = "x-makimoki-canvas98-message://404";
 		private static string WebMessagePostSucessed { get; } = "x-makimoki-canvas98-message://post-ok";
 		private static string WebMessagePostError { get; } = "x-makimoki-canvas98-message://post-error";
@@ -133,7 +134,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 							.AppendLine("    send(data) {}")
 							.AppendLine("  };")
 							.AppendLine($"  if(document.location.href.startsWith('{ x.Url.BaseUrl }') && document.location.href.endsWith('.htm')) {{")
-							.AppendLine("    if(document.body.bgColor != '') {")
+							.AppendLine("    if(document.body.bgColor !== '') {")
 							// フォーム以外のノード全削除
 							.AppendLine("      {")
 							.AppendLine("        const rn = [];")
@@ -181,7 +182,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 							.AppendLine("        let target = null;")
 							.AppendLine("        const tr = ((document.forms.fm.sub) ? document.forms.fm.sub : document.forms.fm.email).parentNode;")
 							.AppendLine("        for(const el of tr.children) {")
-							.AppendLine("          if(el.type == 'submit') {")
+							.AppendLine("          if(el.type === 'submit') {")
 							.AppendLine("            target = el;")
 							.AppendLine("            break;")
 							.AppendLine("          }")
@@ -211,7 +212,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 							.AppendLine("        document.forms.fm.pwd.type = 'text';")
 							.AppendLine("      }")
 							// 独自ボタンを仕込む
-							.AppendLine("      if(false) {")
+							.AppendLine($"      if({ (!string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptAlbam)).ToString().ToLower() }) {{")
 							.AppendLine("        const callback = function(mutationsList, observer) {")
 							.AppendLine("          for(const mutation of mutationsList) {")
 							.AppendLine("            if(mutation.type === 'childList') {")
@@ -220,9 +221,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 							.AppendLine("                const el = document.createElement('li');")
 							.AppendLine("                el.id = 'makimokiCanvas98Extension';")
 							.AppendLine("                el.className = 'canvas98MenuItem material-icons';")
-							.AppendLine("                el.text = 'test';")
+							.AppendLine("                el.title = 'アルバム';")
+							.AppendLine("                el.innerText = 'save';")
 							.AppendLine("                el.addEventListener('click', _ => {")
-							.AppendLine($"                  window.chrome.webview.postMessage('{ WebMessageDebug }?click');")
+							.AppendLine($"                  window.chrome.webview.postMessage('{ WebMessageExecuteAlbam }');")
 							.AppendLine("                });")
 							.AppendLine("                n.parentNode.insertBefore(el, n.parentNode.firstNode);")
 							.AppendLine("                break;")
@@ -309,7 +311,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 							.AppendLine("  let div = null;")
 							.AppendLine("  let firstDiv = false;")
 							.AppendLine("  for(const el of document.body.children) {")
-							.AppendLine("    if(el.localName.toLowerCase() == 'div') {")
+							.AppendLine("    if(el.localName.toLowerCase() === 'div') {")
 							.AppendLine("      if(!firstDiv) {")
 							.AppendLine("        firstDiv = true;")
 							.AppendLine("      } else {")
@@ -458,6 +460,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 						.AppendLine("document.forms.fm.pwd.value = form.pwd;")
 						.ToString());
 					await this.ExecCanvas98();
+				} else if(message == WebMessageExecuteAlbam) {
+					await this.webView.ExecuteScriptAsync(new StringBuilder()
+						.AppendLine("if(document.getElementById('canvas98Element') !== null) {")
+						.AppendLine(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptAlbam)
+						.AppendLine("}")
+						.ToString());
 				} else if(message == WebMessage404) {
 					Util.Futaba.PutInformation(new Data.Information("スレッドは落ちています"));
 					if(DataContext is ViewModels.FutabaCanvas98ViewViewModel vm) {

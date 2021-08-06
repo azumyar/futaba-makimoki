@@ -1,6 +1,8 @@
 {
-  "version": 2021011600,
+  "version": 2021080700,
 
   "bookmarklet": "",
-  "bookmarklet-extends": {}
+  "bookmarklet-layer": "",
+  "bookmarklet-albam": "",
+  "bookmarklet-menu": ""
 }

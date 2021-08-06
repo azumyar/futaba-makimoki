@@ -6,19 +6,26 @@ using Newtonsoft.Json;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 	public class Canvas98Bookmarklet : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2021011600;
+		public static int CurrentVersion { get; } = 2021080700;
 
 		[JsonProperty("bookmarklet", Required = Required.Always)]
 		public string Bookmarklet { get; private set; }
 
-		[JsonProperty("bookmarklet-extends", Required = Required.Always)]
-		public Dictionary<string, string> ExtendBookmarklet { get; private set; }
+		[JsonProperty("bookmarklet-layer", Required = Required.Always)]
+		public string BookmarkletLayer { get; private set; }
+		[JsonProperty("bookmarklet-albam", Required = Required.Always)]
+		public string BookmarkletAlbam { get; private set; }
+		[JsonProperty("bookmarklet-menu", Required = Required.Always)]
+		public string BookmarkletMenu { get; private set; }
+
+
 
 		[JsonIgnore]
 		private string CacheScript { get; set; }
 		[JsonIgnore]
 		private string[] CacheExtendScripts { get; set; }
-
+		[JsonIgnore]
+		private string CacheScriptAlbam { get; set; }
 
 		[JsonIgnore]
 		public string Script {
@@ -36,14 +43,33 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 		}
 
 		[JsonIgnore]
+		public string ScriptAlbam {
+			get {
+				if(this.CacheScriptAlbam != null) {
+					return this.CacheScriptAlbam;
+				}
+
+				if(this.BookmarkletAlbam == null) {
+					return this.CacheScriptAlbam = "";
+				}
+
+				return this.CacheScriptAlbam = RemovePrefix(this.BookmarkletAlbam);
+			}
+		}
+
+
+		[JsonIgnore]
 		public string[] ExtendScripts {
 			get {
 				if(this.CacheExtendScripts != null) {
 					return this.CacheExtendScripts;
 				}
 
-				return this.CacheExtendScripts = this.ExtendBookmarklet
-					.Select(x => RemovePrefix(x.Value))
+				return this.CacheExtendScripts = new [] {
+					this.BookmarkletLayer,
+					this.BookmarkletMenu,
+				}.Where(x => !string.IsNullOrEmpty(x))
+					.Select(x => RemovePrefix(x))
 					.ToArray();
 			}
 		}
@@ -56,12 +82,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 
 		public static Canvas98Bookmarklet From(
 			string bookmarklet,
-			Dictionary<string, string> extends = null) {
+			string bookmarkletLayer = null,
+			string bookmarkletAlbam = null,
+			string bookmarkletMenu = null) {
 
 			return new Canvas98Bookmarklet() {
 				Version = CurrentVersion,
 				Bookmarklet = bookmarklet ?? "",
-				ExtendBookmarklet = extends ?? new Dictionary<string, string>()
+				BookmarkletLayer = bookmarkletLayer ?? "",
+				BookmarkletAlbam = bookmarkletAlbam ?? "",
+				BookmarkletMenu = bookmarkletMenu ?? "",
 			};
 		}
 	}
