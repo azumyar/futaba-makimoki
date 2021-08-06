@@ -47,19 +47,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		public class Canvas98ExtendItem : IDisposable {
-			public ReactiveProperty<string> Name { get; }
-			public ReactiveProperty<string> Bookmarklet { get; }
-
-			public Canvas98ExtendItem(string name, string bookmarklet) {
-				this.Name = new ReactiveProperty<string>(name);
-				this.Bookmarklet = new ReactiveProperty<string>(bookmarklet);
-			}
-
-			public void Dispose() {
-				Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
-			}
-		}
 		public class GestureItem : IDisposable {
 			private KeyGestureConverter Converter { get; } = new KeyGestureConverter();
 
@@ -203,11 +190,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<GestureItem> GesturePostViewPasteUploader { get; }
 
 		public ReactiveProperty<string> Canvas98Bookmarklet { get; }
-		public ReactiveProperty<string> Canvas98ExtendsName { get; } = new ReactiveProperty<string>(initialValue: "");
-		public ReactiveProperty<string> Canvas98ExtendsBookmarklet { get; } = new ReactiveProperty<string>(initialValue: "");
-		public ReactiveCollection<Canvas98ExtendItem> Canvas98Extends { get; } = new ReactiveCollection<Canvas98ExtendItem>();
-		public MakiMokiCommand Canvas98ExtendAddCommand { get; }
-		public MakiMokiCommand<Canvas98ExtendItem> Canvas98ExtendRemoveCommand  { get; } = new MakiMokiCommand<Canvas98ExtendItem>();
+		public ReactiveProperty<string> Canvas98ExtendsLayer { get; }
+		public ReactiveProperty<string> Canvas98ExtendsAlbam { get; }
+		public ReactiveProperty<string> Canvas98ExtendsMenu { get; }
 		public ReactiveProperty<Visibility> WebView2RuntimeVisiblity { get; }
 
 		public ReactiveProperty<bool> OptoutAppCenterCrashes { get; }
@@ -418,16 +403,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewPasteUploader));
 
 			Canvas98Bookmarklet = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.Bookmarklet ?? "");
-			Canvas98Extends.AddRangeOnScheduler(
-				Canvas98.Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ExtendBookmarklet
-					.Select(x => new Canvas98ExtendItem(x.Key, x.Value)));
-			Canvas98ExtendAddCommand = new[] {
-				Canvas98ExtendsName.Select(x => !string.IsNullOrWhiteSpace(x)),
-				Canvas98ExtendsBookmarklet.Select(x => !string.IsNullOrWhiteSpace(x)),
-			}.CombineLatestValuesAreAllTrue()
-				.ToMakiMokiCommand();
-			Canvas98ExtendAddCommand.Subscribe(_ => OnCanvas98ExtendAdd());
-			Canvas98ExtendRemoveCommand.Subscribe(x => OnCanvas98ExtendAdd(x));
+			Canvas98ExtendsLayer = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletLayer ?? "");
+			Canvas98ExtendsAlbam = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletAlbam ?? "");
+			Canvas98ExtendsMenu = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletMenu ?? "");
+
 			WebView2RuntimeVisiblity = new ReactiveProperty<Visibility>(Canvas98.Canvas98Util.Util.IsInstalledWebView2Runtime() ? Visibility.Collapsed : Visibility.Visible);
 
 			OptoutAppCenterCrashes = new ReactiveProperty<bool>(Config.ConfigLoader.Optout.AppCenterCrashes);
@@ -643,9 +622,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			));
 			Canvas98ConfigLoader.UpdateBookmarklet(
 				Canvas98Bookmarklet.Value,
-				Canvas98Extends
-					.Select(x => (x.Name.Value, x.Bookmarklet.Value))
-					.ToArray());
+				Canvas98ExtendsLayer.Value,
+				Canvas98ExtendsAlbam.Value,
+				Canvas98ExtendsMenu.Value);
 			// 今のところひとつしかないので不用意に設定ファイルを作らない
 			if(Config.ConfigLoader.Optout.AppCenterCrashes != OptoutAppCenterCrashes.Value) {
 				Config.ConfigLoader.UpdateOptout(Data.MakiMokiOptout.From(
@@ -661,21 +640,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnLinkClick(Uri e) {
 			WpfUtil.PlatformUtil.StartBrowser(e);
-		}
-
-		private void OnCanvas98ExtendAdd() {
-			if(!string.IsNullOrWhiteSpace(Canvas98ExtendsName.Value)
-				&& !string.IsNullOrWhiteSpace(Canvas98ExtendsBookmarklet.Value)) {
-
-				Canvas98Extends.AddOnScheduler(
-					new Canvas98ExtendItem(
-						Canvas98ExtendsName.Value, Canvas98ExtendsBookmarklet.Value));
-				Canvas98ExtendsName.Value = Canvas98ExtendsBookmarklet.Value = "";
-			}
-		}
-
-		private void OnCanvas98ExtendAdd(Canvas98ExtendItem x) {
-			Canvas98Extends.Remove(x);
 		}
 	}
 }
