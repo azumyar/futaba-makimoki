@@ -328,17 +328,6 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		}
 	}
 
-	public class ShiokaraCompleteResponse : JsonObject {
-		[JsonProperty("url")]
-		public string Url { get; private set; }
-
-		[JsonProperty("id")]
-		public string Id { get; private set; }
-
-		[JsonProperty("error")]
-		public string Error { get; private set; }
-	}
-
 	public class AppsweetsThumbnailCompleteResponse : JsonObject {
 		[JsonProperty("content", Required = Required.Always)]
 		public string Content { get; private set; } // BASE64されたサムネデータが格納される/サムネがない場合は空文字列

@@ -11,52 +11,12 @@
       "file": "^fu\\d+\\.[a-zA-Z0-9]+"
     },
     {
-      "root": "http://www.nijibox6.com/futabafiles/001/src/",
-      "file": "^sa\\d+\\.[a-zA-Z0-9]+"
-    },
-    {
-      "root": "http://www.nijibox2.com/futabafiles/003/src/",
-      "file": "^sp\\d+\\.[a-zA-Z0-9]+"
-    },
-    {
-      "root": "http://www.nijibox6.com/futabafiles/mid/src/",
-      "file": "^sq\\d+\\.[a-zA-Z0-9]+"
-    },
-    {
-      "root": "http://www.nijibox5.com/futabafiles/kobin/src/",
-      "file": "^ss\\d+\\.[a-zA-Z0-9]+"
-    },
-    {
-      "root": "http://www.nijibox5.com/futabafiles/tubu/src/",
-      "file": "^su\\d+\\.[a-zA-Z0-9]+"
-    },
-    {
       "root": "x-makimoki-complete-url://up/",
       "file": "^f\\d+"
     },
     {
       "root": "x-makimoki-complete-url://up/",
       "file": "^fu\\d+"
-    },
-    {
-      "root": "x-makimoki-complete-url://shiokara/",
-      "file": "^sa\\d+"
-    },
-    {
-      "root": "x-makimoki-complete-url://shiokara/",
-      "file": "^sp\\d+"
-    },
-    {
-      "root": "x-makimoki-complete-url://shiokara/",
-      "file": "^sq\\d+"
-    },
-    {
-      "root": "x-makimoki-complete-url://shiokara/",
-      "file": "^ss\\d+"
-    },
-    {
-      "root": "x-makimoki-complete-url://shiokara/",
-      "file": "^su\\d+"
     }
   ]
 }

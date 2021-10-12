@@ -405,8 +405,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						IObservable<(bool Successed, string UrlOrMessage, object Raw)> o = null;
 						if(link.NavigateUri.Authority == SharadConst.MkiMokiCompleteUrlAuthorityUp) {
 							o = Futaba.GetCompleteUrlUp(ri.Parent.Value.Url, link.NavigateUri.AbsolutePath.Substring(1));
-						} else if(link.NavigateUri.Authority == SharadConst.MkiMokiCompleteUrlAuthorityShiokara) {
-							o = Futaba.GetCompleteUrlShiokara(ri.Parent.Value.Url, link.NavigateUri.AbsolutePath.Substring(1));
 						} else {
 							Futaba.PutInformation(new Data.Information($"不明なURL{ link.NavigateUri }", ri.Parent.Value));
 						}
@@ -446,21 +444,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				if(link.ToolTip == null) {
 					// TODO: 設定ファイルに退避
 					var up = new[] { @"f\d+(\.[a-zA-Z]+)$", @"fu\d+(\.[a-zA-Z]+)$" };
-					var shio = new[] { @"sa\d+(\.[a-zA-Z]+)$", @"sp\d+(\.[a-zA-Z]+)$", @"sq\d+(\.[a-zA-Z]+)$", @"ss\d+(\.[a-zA-Z]+)$", @"su\d+(\.[a-zA-Z]+)$" };
 					var upExt = new[] { ".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".webm" };
-					var shioExt = new[] { ".png", ".jpg", ".jpeg", ".gif", ".webp" };
 					var url = link.NavigateUri.ToString();
 					foreach(var r in up) {
 						var m = Regex.Match(url, r, RegexOptions.IgnoreCase);
 						if(m.Success && upExt.Contains(m.Groups[1].Value.ToLower())) {
 							link.ToolTip = new ThumbToolTip(() => Futaba.GetThumbImageUp(ri.Raw.Value.Url, m.Value));
-							goto end;
-						}
-					}
-					foreach(var r in shio) {
-						var m = Regex.Match(url, r, RegexOptions.IgnoreCase);
-						if(m.Success && shioExt.Contains(m.Groups[1].Value.ToLower())) {
-							link.ToolTip = new ThumbToolTip(() => Futaba.GetThumbImageShiokara(ri.Raw.Value.Url, m.Value));
 							goto end;
 						}
 					}
