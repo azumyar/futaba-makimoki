@@ -783,13 +783,13 @@ namespace Yarukizero.Net.MakiMoki.Data {
 					Bord = bord,
 					Url = url,
 					// ResItems = response.Res.Reverse().Select(x => {
-					ResItems = response.Res.Select(x => {
+					ResItems = response.Res.Select((x, i) => {
 						var soudane = 0;
 						if(response.Sd.TryGetValue(x.No, out var sd) && int.TryParse(sd, out soudane)) {
 							// なにもすることがない
 						}
 
-						return Item.FromThreadRes(url, x, soudane, response.Res.ToList());
+						return Item.FromThreadRes(url, x, soudane, response.Res.Take(i).ToList());
 					}).Where(x => x != null).ToArray(),
 					Raw = response,
 				};
