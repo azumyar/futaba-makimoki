@@ -54,7 +54,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows.Popups {
 			switch(msg) {
 			case WM_ACTIVATE:
 				if((wParam.ToInt32() & 0xffff) != 0) {
-					if(IsMouseCaptured) {
+					if(!this.IsMouseCaptured) {
 						this.CaptureMouse();
 					}
 				}
