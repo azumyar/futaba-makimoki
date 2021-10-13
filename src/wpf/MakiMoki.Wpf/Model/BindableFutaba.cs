@@ -410,14 +410,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						.Select(x => x.ResNo)
 						.Distinct()) {
 
-						var r = this.ResItems.Where(x => x.ThreadResNo.Value == q).FirstOrDefault();
-						if(r != null) {
+						if(this.ResItems.Where(x => x.ThreadResNo.Value == q).Any()) {
 							if(d.TryGetValue(q, out var t)) {
-								t.Res.Add(r);
+								t.Res.Add(it);
 
 								d[q] = (t.Count + 1, t.Res);
 							} else {
-								d.Add(q, (1, new List<BindableFutabaResItem>() { r }));
+								d.Add(q, (1, new List<BindableFutabaResItem>() { it }));
 							}
 						}
 					}
@@ -750,6 +749,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Data.FutabaContext.Item> Raw { get; }
 
 		public ReactiveProperty<int> ResCount { get; } = new ReactiveProperty<int>(0);
+		public ReactiveProperty<BindableFutabaResItem[]> ResCitedSource { get; } = new ReactiveProperty<BindableFutabaResItem[]>(Array.Empty<BindableFutabaResItem>());
 		public ReactiveProperty<string> ResCountText { get; }
 
 
@@ -1083,7 +1083,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public void SetResCount(int count, BindableFutabaResItem[] res) {
 			this.ResCount.Value = count;
-			// TODO: 非参照レスの処理
+			this.ResCitedSource.Value = res;
 		}
 
 		private void SetCommentHtml() {

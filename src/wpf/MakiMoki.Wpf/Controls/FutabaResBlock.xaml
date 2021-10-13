@@ -7,6 +7,7 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+             xmlns:popup="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows.Popups"
              xmlns:util="clr-namespace:Yarukizero.Net.MakiMoki.Util;assembly=MakiMoki.Core"
              xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
              xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
@@ -100,13 +101,28 @@
                 <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Id, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
                     <Run Text="{Binding Converter={StaticResource FutabaResItemIdTextConverter},  StringFormat='\{0\} ', Mode=OneWay}" />
                 </TextBlock>
-                <TextBlock
-                    Visibility="{Binding ResCountText.Value, Mode=OneWay, Converter={StaticResource FutabaResItemVisibleConverter}}"
-                    Text="{Binding ResCountText.Value, Mode=OneWay, StringFormat='\{0\} '}">
-                    <TextBlock.Foreground>
-                        <SolidColorBrush Color="{DynamicResource ThreadHeaderResCountColor}" />
-                    </TextBlock.Foreground>
-                </TextBlock>
+                <Grid Visibility="{Binding ResCountText.Value, Mode=OneWay, Converter={StaticResource FutabaResItemVisibleConverter}}">
+                    <TextBlock
+                        Text="{Binding ResCountText.Value, Mode=OneWay, StringFormat='\{0\} '}"
+                        Background="Transparent">
+                        <TextBlock.Foreground>
+                            <SolidColorBrush Color="{DynamicResource ThreadHeaderResCountColor}" />
+                        </TextBlock.Foreground>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PreviewMouseUp">
+                                <i:ChangePropertyAction
+                                    TargetName="citedPopup"
+                                    PropertyName="IsOpen"
+                                    Value="True"
+                                    />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </TextBlock>
+                    <popup:QuotePopup
+                        x:Name="citedPopup"
+                        ResSource="{Binding ResCitedSource.Value, Mode=OneWay}"
+                        />
+                </Grid>
                 <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderSoudaneColor}" />
