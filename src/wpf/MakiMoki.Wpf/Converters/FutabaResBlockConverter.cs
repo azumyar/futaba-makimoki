@@ -22,8 +22,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 	class FutabaResItemCommentHtmlConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-			if(values.Any() && values[0] is Model.BindableFutabaResItem ri) {
-				return new Controls.FutabaCommentBlock.CommentItem() { Value = ri };
+			if(values.Any()) {
+				if(values[0] is Model.BindableFutabaResItem ri) {
+					return new Controls.FutabaCommentBlock.CommentItem() { Value = ri };
+				} else if(values[0] == null) { // まだインスタンス生成されていない場合nullが来る
+					return null;
+				}
 			}
 
 			throw new ArgumentException("型不正。", nameof(values));

@@ -113,6 +113,18 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		[JsonIgnore]
 		public bool IsOld => (Old != 0);
 
+		[JsonIgnore]
+		public DateTime? NowDateTime {
+			get { // 現行C#だと3項演算子で書けない？
+				if(NowTime == 0L) {
+					return null;
+				} else {
+					return Util.TimeUtil.FromUnixTimeMilliseconds(NowTime);
+				}
+			}
+		}
+
+
 		// DieLongは RFC 1123 形式で格納されている cf: Sun, 15 Dec 2019 18:02:07 GMT
 		[JsonIgnore]
 		public DateTime? DieDateTime => DateTime.TryParse(DieLong,
