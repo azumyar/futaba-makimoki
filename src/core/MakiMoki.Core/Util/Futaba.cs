@@ -18,13 +18,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 #pragma warning disable IDE0044
 		private static volatile object lockObj = new object();
 #pragma warning restore IDE0044
-		private static readonly Dictionary<string, string> ShiokaraThumbMap = new Dictionary<string, string>() {
-			{ "sa", "http://www.nijibox6.com/futabafiles/001/misc/{0}.thumb.jpg" },
-			{ "sp", "http://www.nijibox2.com/futabafiles/003/misc/{0}.thumb.jpg" },
-			{ "sq", "http://www.nijibox6.com/futabafiles/mid/misc/{0}.thumb.jpg" },
-			{ "ss", "http://www.nijibox5.com/futabafiles/kobin/misc/{0}.thumb.jpg" },
-			{ "su", "http://www.nijibox5.com/futabafiles/tubu/misc/{0}.thumb.jpg" },
-		};
 		private static HttpClient HttpClient { get; set; }
 
 		public static ReactiveProperty<Data.FutabaContext[]> Catalog { get; private set; }
@@ -977,27 +970,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
-
-		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThumbImageShiokara(Data.UrlContext threadUrl, string fileName) {
-			var f = Path.GetFileNameWithoutExtension(fileName);
-			var cache = Path.Combine(Config.ConfigLoader.InitializedSetting.CacheDirectory, $"{ f }.thumb.jpg");
-			var m = Regex.Match(f, @"^([a-zA-Z]+)\d+$");
-			if(m.Success && ShiokaraThumbMap.TryGetValue(m.Groups[1].Value, out var format)) {
-				return GetUrlImage(string.Format(format, f), cache);
-			} else {
-				return Observable.Create<(bool Successed, string LocalPath, byte[] FileBytes)>(async o => {
-					try {
-						await Task.Delay(1);
-						o.OnNext((true, cache, null));
-					}
-					finally {
-						o.OnCompleted();
-					}
-					return System.Reactive.Disposables.Disposable.Empty;
-				});
-			}
-		}
-
 		public static IObservable<(bool Successed, string UrlOrMessage, object Raw)> GetCompleteUrlUp(Data.UrlContext threadUrl, string fileNameWitfOutExtension) {
 			return Observable.Create<(bool Successed, string Message, object Raw)>(async o => {
 				try {
@@ -1024,26 +996,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					o.OnCompleted();
 				}
 			end:
-				return System.Reactive.Disposables.Disposable.Empty;
-			});
-		}
-
-		public static IObservable<(bool Successed, string UrlOrMessage, object Raw)> GetCompleteUrlShiokara(Data.UrlContext threadUrl, string fileNameWitfOutExtension) {
-			return Observable.Create<(bool Successed, string Message, object Raw)>(async o => {
-				try {
-					var r = await FutabaApi.GetCompleteUrlShiokara(GetFutabaThreadUrl(threadUrl), fileNameWitfOutExtension);
-					if(r.Successed) {
-						System.Diagnostics.Debug.Assert(r.Response != null);
-						o.OnNext((true, r.Response.Url, r.Response));
-					} else if(r.Response != null) {
-						o.OnNext((true, r.Response.Error, r.Response));
-					} else {
-						o.OnNext((false, "不明なエラー", null));
-					}
-				}
-				finally {
-					o.OnCompleted();
-				}
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}

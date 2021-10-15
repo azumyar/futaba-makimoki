@@ -25,13 +25,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			{ "F", "https://appsweets.net/thumbnail/up/{0}s.js" },
 			{ "fu", "https://appsweets.net/thumbnail/up2/{0}s.js" },
 		};
-		private static readonly Dictionary<string, string> ShiokaraCompletMap = new Dictionary<string, string>() {
-			{ "sa", "http://www.nijibox6.com/futabafiles/001/jsonp/_/{0}/complete/{0}" },
-			{ "sp", "http://www.nijibox2.com/futabafiles/003/jsonp/_/{0}/complete/{0}" },
-			{ "sq", "http://www.nijibox6.com/futabafiles/mid/jsonp/_/{0}/complete/{0}" },
-			{ "ss", "http://www.nijibox5.com/futabafiles/kobin/jsonp/_/{0}/complete/{0}" },
-			{ "su", "http://www.nijibox5.com/futabafiles/tubu/jsonp/_/{0}/complete/{0}" },
-		};
 		private static readonly Encoding FutabaEncoding = Encoding.GetEncoding("Shift_JIS");
 
 		private static RestClient CreateRestClient(string baseUrl) {
@@ -638,28 +631,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					catch(JsonReaderException) { /* 何もしない */ }
 				}
 				return (false, default(Data.AppsweetsThumbnailCompleteResponse), default(Data.AppsweetsThumbnailErrorResponse), r);
-			});
-		}
-
-		public static async Task<(bool Successed, Data.ShiokaraCompleteResponse Response, string Raw)> GetCompleteUrlShiokara(string threadUrl, string fileNameWitfOutExtension) {
-			System.Diagnostics.Debug.Assert(fileNameWitfOutExtension != null);
-			return await Task.Run(() => {
-				var r = GetCompleteUrl(threadUrl, fileNameWitfOutExtension, ShiokaraCompletMap);
-				if(!string.IsNullOrEmpty(r)) {
-					// 塩はJSONNP形式なので前後の余分なものを除去する
-					try {
-						var response = JsonConvert.DeserializeObject<Data.ShiokaraCompleteResponse>(r.Substring(2, r.Length - 4));
-						if(!string.IsNullOrEmpty(response.Url)) {
-							return (true, response, r);
-						} else {
-							return (false, response, r);
-						}
-					}
-					catch(JsonSerializationException) { /* 何もしない */ }
-					catch(JsonReaderException) { /* 何もしない */ }
-
-				}
-				return (false, null, r);
 			});
 		}
 

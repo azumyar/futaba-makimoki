@@ -18,14 +18,18 @@ using Reactive.Bindings;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	class FutabaCommentBlock : TextBlock {
+		// インスタンスが同じだと更新が発火されないのでラップする
+		public class CommentItem {
+			public Model.BindableFutabaResItem Value { get; set; }
+		}
 		private static readonly Helpers.TimerCache<Uri, Uri> uriCache = new Helpers.TimerCache<Uri, Uri>();
 
-		public static readonly DependencyProperty ArticleContentProperty =
+		public static readonly DependencyProperty InlineProperty =
 			DependencyProperty.Register(
 				"Inline",
-				typeof(Model.BindableFutabaResItem),
+				typeof(CommentItem),
 				typeof(FutabaCommentBlock),
-				new PropertyMetadata(null, OnInlinePropertyChanged));
+				new PropertyMetadata(default(CommentItem), OnInlinePropertyChanged));
 		public static readonly DependencyProperty MaxLinesProperty =
 			DependencyProperty.Register(
 				nameof(MaxLines),
@@ -63,24 +67,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 
 		public static Model.BindableFutabaResItem GetInline(TextBlock element) {
-			return (element != null) ? element.GetValue(ArticleContentProperty) as Model.BindableFutabaResItem : null;
+			return (element != null) ? element.GetValue(InlineProperty) as Model.BindableFutabaResItem : null;
 		}
 
 		public static void SetInline(TextBlock element, Model.BindableFutabaResItem value) {
 			if(element != null) {
-				element.SetValue(ArticleContentProperty, value);
+				element.SetValue(InlineProperty, value);
 			}
 		}
 
 
 		private static void OnInlinePropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
-			if((obj is TextBlock tb) && (e.NewValue is Model.BindableFutabaResItem item)) {
-				ParseComment(tb, item, (tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue);
-				// メモリリークする気がする
-				item?.DisplayHtml.Subscribe(x => ParseComment(
-					tb,
-					GetInline(tb),
-					(tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue));
+			if((obj is TextBlock tb) && (e.NewValue is CommentItem item)) {
+				ParseComment(tb, item.Value, (tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue);
 			}
 		}
 		private static void OnMaxLinesPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
@@ -107,7 +106,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			void EvalEmoji(string text, Color? color, Model.BindableFutabaResItem quotRes = null, ToolTip toolTip = null) {
 				var fb = (color.HasValue) ? new SolidColorBrush(color.Value) : null;
 				var pos = 0;
-				foreach(Match m in Emoji.Wpf.EmojiData.MatchMultiple.Matches(text)) {
+				foreach(Match m in Emoji.Wpf.EmojiData.MatchOne.Matches(text)) {
 					var run1 = new Run(text.Substring(pos, m.Index - pos)) {
 						ToolTip = toolTip,
 						Tag = quotRes,
@@ -260,6 +259,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 										.Where(x => x.Raw.Value.ResItem.No == q.ResNo)
 										.FirstOrDefault();
 								} else {
+									/* いったんコメントアウトで対応。要検討
 									toolTip = new ToolTip() {
 										Background = new SolidColorBrush((Color)App.Current.Resources["ViewerBackgroundColor"]),
 										Content = new TextBlock() {
@@ -269,6 +269,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 											FontSize = tb.FontSize,
 										}
 									};
+									*/
 								}
 							}
 						}
@@ -351,17 +352,23 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		private static void OnMouseLeftButtonUpQuot(object sender, MouseButtonEventArgs e) {
 			if((e.Source is Run run) && (run.Tag is Model.BindableFutabaResItem ri)) {
 				if(e.ClickCount == 1) {
+					Windows.Popups.QuotePopup.Show(
+						ri,
+						e.Source);
+					/* いったんイベントの送出を抑止
 					if(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledQuotLink) {
 						GetUIElement(run)?.RaiseEvent(
 							new PlatformData.QuotClickEventArgs(
 								QuotClickEvent, e.Source, ri));
 					}
+					*/
 				}
 			}
 		}
 
 		private static void OnMouseEnterQuot(object sender, MouseEventArgs e) {
 			if((e.Source is Run run) && (run.Tag is Model.BindableFutabaResItem ri)) {
+				/* いったんコメントアウトで対応。需要次第で考える。
 				if(run.ToolTip == null) {
 					run.ToolTip = new ToolTip() {
 						Background = new SolidColorBrush((Color)App.Current.Resources["ViewerBackgroundColor"]),
@@ -373,6 +380,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						}
 					};
 				}
+				*/
 
 				if(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledQuotLink) {
 					run.TextDecorations = System.Windows.TextDecorations.Underline;
@@ -405,8 +413,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						IObservable<(bool Successed, string UrlOrMessage, object Raw)> o = null;
 						if(link.NavigateUri.Authority == SharadConst.MkiMokiCompleteUrlAuthorityUp) {
 							o = Futaba.GetCompleteUrlUp(ri.Parent.Value.Url, link.NavigateUri.AbsolutePath.Substring(1));
-						} else if(link.NavigateUri.Authority == SharadConst.MkiMokiCompleteUrlAuthorityShiokara) {
-							o = Futaba.GetCompleteUrlShiokara(ri.Parent.Value.Url, link.NavigateUri.AbsolutePath.Substring(1));
 						} else {
 							Futaba.PutInformation(new Data.Information($"不明なURL{ link.NavigateUri }", ri.Parent.Value));
 						}
@@ -446,21 +452,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				if(link.ToolTip == null) {
 					// TODO: 設定ファイルに退避
 					var up = new[] { @"f\d+(\.[a-zA-Z]+)$", @"fu\d+(\.[a-zA-Z]+)$" };
-					var shio = new[] { @"sa\d+(\.[a-zA-Z]+)$", @"sp\d+(\.[a-zA-Z]+)$", @"sq\d+(\.[a-zA-Z]+)$", @"ss\d+(\.[a-zA-Z]+)$", @"su\d+(\.[a-zA-Z]+)$" };
 					var upExt = new[] { ".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".webm" };
-					var shioExt = new[] { ".png", ".jpg", ".jpeg", ".gif", ".webp" };
 					var url = link.NavigateUri.ToString();
 					foreach(var r in up) {
 						var m = Regex.Match(url, r, RegexOptions.IgnoreCase);
 						if(m.Success && upExt.Contains(m.Groups[1].Value.ToLower())) {
 							link.ToolTip = new ThumbToolTip(() => Futaba.GetThumbImageUp(ri.Raw.Value.Url, m.Value));
-							goto end;
-						}
-					}
-					foreach(var r in shio) {
-						var m = Regex.Match(url, r, RegexOptions.IgnoreCase);
-						if(m.Success && shioExt.Contains(m.Groups[1].Value.ToLower())) {
-							link.ToolTip = new ThumbToolTip(() => Futaba.GetThumbImageShiokara(ri.Raw.Value.Url, m.Value));
 							goto end;
 						}
 					}

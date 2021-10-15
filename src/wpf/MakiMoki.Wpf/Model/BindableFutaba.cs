@@ -410,14 +410,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						.Select(x => x.ResNo)
 						.Distinct()) {
 
-						var r = this.ResItems.Where(x => x.ThreadResNo.Value == q).FirstOrDefault();
-						if(r != null) {
+						if(this.ResItems.Where(x => x.ThreadResNo.Value == q).Any()) {
 							if(d.TryGetValue(q, out var t)) {
-								t.Res.Add(r);
+								t.Res.Add(it);
 
 								d[q] = (t.Count + 1, t.Res);
 							} else {
-								d.Add(q, (1, new List<BindableFutabaResItem>() { r }));
+								d.Add(q, (1, new List<BindableFutabaResItem>() { it }));
 							}
 						}
 					}
@@ -750,6 +749,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Data.FutabaContext.Item> Raw { get; }
 
 		public ReactiveProperty<int> ResCount { get; } = new ReactiveProperty<int>(0);
+		public ReactiveProperty<BindableFutabaResItem[]> ResCitedSource { get; } = new ReactiveProperty<BindableFutabaResItem[]>(Array.Empty<BindableFutabaResItem>());
 		public ReactiveProperty<string> ResCountText { get; }
 
 
@@ -1083,14 +1083,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public void SetResCount(int count, BindableFutabaResItem[] res) {
 			this.ResCount.Value = count;
-			// TODO: 非参照レスの処理
+			this.ResCitedSource.Value = res;
 		}
 
-		private void SetCommentHtml() {
+		private void SetCommentHtml(bool? ng = null, bool? hidden = null) {
 			var del = WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden;
-			if(this.IsNg.Value) {
+			if(ng ?? this.IsNg.Value) {
 				this.CommentHtml.Value = "<font color=\"#ff0000\">NG設定に抵触しています</font>";
-			} else if(this.IsHidden.Value) {
+			} else if(hidden ?? this.IsHidden.Value) {
 				this.CommentHtml.Value = "<font color=\"#ff0000\">非表示に設定されています</font>";
 			} else if(this.Raw.Value.ResItem.Res.IsDel && del) {
 				this.CommentHtml.Value = "<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font>";
@@ -1110,13 +1110,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		// TODO: 名前変える
 		private void a() {
-			this.IsNg.Value = this.Raw.Value.Url.IsCatalogUrl
+			// NGとHiddenの設定前にコメントを更新する
+			var ng = this.Raw.Value.Url.IsCatalogUrl
 				? Ng.NgUtil.NgHelper.CheckCatalogNg(this.Parent.Value.Raw, this.Raw.Value)
 					: Ng.NgUtil.NgHelper.CheckThreadNg(this.Parent.Value.Raw, this.Raw.Value);
+			var hidden = Ng.NgUtil.NgHelper.CheckHidden(this.Parent.Value.Raw, this.Raw.Value);
 			this.IsWatchWord.Value = Ng.NgUtil.NgHelper.CheckCatalogWatch(this.Parent.Value.Raw, this.Raw.Value);
-			this.IsHidden.Value = Ng.NgUtil.NgHelper.CheckHidden(this.Parent.Value.Raw, this.Raw.Value);
 			this.IsCopyMode.Value = false;
-			this.SetCommentHtml();
+			this.SetCommentHtml(ng, hidden);
+			this.IsNg.Value = ng;
+			this.IsHidden.Value = hidden;
 		}
 
 		// TODO: 名前変える

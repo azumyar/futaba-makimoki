@@ -328,46 +328,33 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		}
 	}
 
-	public class ShiokaraCompleteResponse : JsonObject {
-		[JsonProperty("url")]
-		public string Url { get; private set; }
-
-		[JsonProperty("id")]
-		public string Id { get; private set; }
-
-		[JsonProperty("error")]
-		public string Error { get; private set; }
-	}
-
 	public class AppsweetsThumbnailCompleteResponse : JsonObject {
-		[JsonProperty("content", Required = Required.Always)]
+		[JsonProperty("content", Required = Required.Default)]
 		public string Content { get; private set; } // BASE64されたサムネデータが格納される/サムネがない場合は空文字列
-
-		[JsonProperty("width", Required = Required.Always)]
-		public int Width { get; private set; }
-
-		[JsonProperty("height", Required = Required.Always)]
-		public int Height { get; private set; }
-
-		[JsonProperty("board", Required = Required.Always)]
+		
+		[JsonProperty("board", Required = Required.Default)]
 		public string Board { get; private set; }
 
-		[JsonProperty("name", Required = Required.Always)]
+		[JsonProperty("name", Required = Required.Default)]
 		public string Name { get; private set; }
 
-		[JsonProperty("base", Required = Required.Always)]
+		[JsonProperty("base", Required = Required.Default)]
 		public string Base { get; private set; }
 
-		[JsonProperty("mime", Required = Required.Always)]
+		[JsonProperty("mime", Required = Required.Default)]
 		public string Mime { get; private set; }
 
-		[JsonProperty("size", Required = Required.Always)]
+		[JsonProperty("size", Required = Required.Default)]
 		public int Size { get; private set; }
 
-		[JsonProperty("comment", Required = Required.Always)]
+		[JsonProperty("comment", Required = Required.Default)]
 		public string Comment { get; private set; }
+			
 
-		[JsonProperty("dimensions", Required = Required.Always)]
+		[JsonProperty("createdAt", Required = Required.Default)]
+		public int CreatedAt { get; private set; }
+
+		[JsonProperty("dimensions", Required = Required.Default)]
 		public AppsweetsThumbnailDimensionData Dimensions { get; private set; }
 	}
 
@@ -794,13 +781,13 @@ namespace Yarukizero.Net.MakiMoki.Data {
 					Bord = bord,
 					Url = url,
 					// ResItems = response.Res.Reverse().Select(x => {
-					ResItems = response.Res.Select(x => {
+					ResItems = response.Res.Select((x, i) => {
 						var soudane = 0;
 						if(response.Sd.TryGetValue(x.No, out var sd) && int.TryParse(sd, out soudane)) {
 							// なにもすることがない
 						}
 
-						return Item.FromThreadRes(url, x, soudane, response.Res.ToList());
+						return Item.FromThreadRes(url, x, soudane, response.Res.Take(i).ToList());
 					}).Where(x => x != null).ToArray(),
 					Raw = response,
 				};

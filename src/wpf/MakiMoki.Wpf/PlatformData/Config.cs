@@ -81,6 +81,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public int OpacityPostView { get; private set; }
 
 		// 2020071900
+		[Obsolete] // 定義を変えるとめどいのでなんか増やすまで残しておく
 		[JsonProperty("thread-enable-quot-link", Required = Required.Always)]
 		public bool IsEnabledQuotLink { get; private set; }
 

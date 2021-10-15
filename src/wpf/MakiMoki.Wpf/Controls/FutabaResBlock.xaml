@@ -7,6 +7,7 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+             xmlns:popup="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows.Popups"
              xmlns:util="clr-namespace:Yarukizero.Net.MakiMoki.Util;assembly=MakiMoki.Core"
              xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
              xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
@@ -21,7 +22,8 @@
             <converter:FutabaResItemNowConverter x:Key="FutabaResItemNowConverter"/>
             <converter:FutabaResItemIdTextConverter x:Key="FutabaResItemIdTextConverter" />
             <converter:FutabaResItemHeaderTextConverter x:Key="FutabaResItemHeaderTextConverter" />
-
+            <converter:FutabaResItemCommentHtmlConverter x:Key="FutabaResItemCommentHtmlConverter" />
+            
             <Style x:Key="ResIndexStyle" TargetType="TextBlock">
             </Style>
             <Style x:Key="PostedResIndexStyle" TargetType="TextBlock">
@@ -101,11 +103,29 @@
                     <Run Text="{Binding Converter={StaticResource FutabaResItemIdTextConverter},  StringFormat='\{0\} ', Mode=OneWay}" />
                 </TextBlock>
                 <TextBlock
+                    x:Name="ResCountTextBlock"
                     Visibility="{Binding ResCountText.Value, Mode=OneWay, Converter={StaticResource FutabaResItemVisibleConverter}}"
-                    Text="{Binding ResCountText.Value, Mode=OneWay, StringFormat='\{0\} '}">
+                    Text="{Binding ResCountText.Value, Mode=OneWay, StringFormat='\{0\} '}"
+                    Background="Transparent">
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderResCountColor}" />
                     </TextBlock.Foreground>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseEnter">
+                            <i:ChangePropertyAction
+                                TargetName="ResCountTextBlock"
+                                PropertyName="TextDecorations"
+                                Value="Underline"
+                                />
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseLeave">
+                            <i:ChangePropertyAction
+                                TargetName="ResCountTextBlock"
+                                PropertyName="TextDecorations"
+                                Value=""
+                                />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                 </TextBlock>
                 <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
                     <TextBlock.Foreground>
@@ -176,10 +196,13 @@
                 </Grid>
                 <local:FutabaCommentBlock
                     x:Name="FutabaCommentBlock"
-                    Text="{Binding CommentHtml.Value, Mode=OneWay}"
                     TextWrapping="Wrap" Margin="4 4 0 4">
                     <local:FutabaCommentBlock.Inline>
-                        <Binding Mode="OneWay" />
+                        <MultiBinding Converter="{StaticResource FutabaResItemCommentHtmlConverter}">
+                            <Binding Mode="OneWay" />
+                            <!-- 非表示などでインスタンスが更新されないので追加しておく -->
+                            <Binding Path="DisplayHtml.Value" Mode="OneWay" />
+                        </MultiBinding>
                     </local:FutabaCommentBlock.Inline>
                     <!--
                     <i:Interaction.Triggers>

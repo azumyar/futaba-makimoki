@@ -270,5 +270,11 @@
                 <Path Width="576" Height="768" Canvas.Left="224" Canvas.Top="128" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="F1 M 224,256L 384,256L 384,128L 640,128L 640,256L 800,256L 800,288L 224,288L 224,256 Z M 416,384L 448,384L 448,704L 416,704L 416,384 Z M 576,384L 608,384L 608,704L 576,704L 576,384 Z M 288,320L 320,320L 320,864L 704,864L 704,320L 736,320L 736,896L 288,896L 288,320 Z M 608,256L 608,160L 416,160L 416,256L 608,256 Z "/>
             </Canvas>
         </Viewbox>
+
+        <Viewbox x:Key="ButtonIconPin" x:Shared="False">
+            <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
+                <Path Width="512" Height="768" Canvas.Left="256" Canvas.Top="128" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="F1 M 256,480L 320,480L 320,160L 320,128L 352,128L 704,128L 704,160L 704,480L 768,480L 768,512L 704,512L 576,512L 544,512L 544,864L 512.014,896L 480,864L 480,512L 352,512L 320,512L 256,512L 256,480 Z M 352,160L 352,480L 576,480L 576,160L 352,160 Z "/>
+            </Canvas>
+        </Viewbox>
     </Application.Resources>
 </prism:PrismApplication>
