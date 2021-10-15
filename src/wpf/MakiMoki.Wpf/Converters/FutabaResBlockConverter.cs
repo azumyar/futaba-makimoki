@@ -19,4 +19,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			throw new NotImplementedException();
 		}
 	}
+
+	class FutabaResItemCommentHtmlConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(values.Any() && values[0] is Model.BindableFutabaResItem ri) {
+				return new Controls.FutabaCommentBlock.CommentItem() { Value = ri };
+			}
+
+			throw new ArgumentException("型不正。", nameof(values));
+		}
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
 }

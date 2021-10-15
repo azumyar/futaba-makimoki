@@ -18,14 +18,18 @@ using Reactive.Bindings;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	class FutabaCommentBlock : TextBlock {
+		// インスタンスが同じだと更新が発火されないのでラップする
+		public class CommentItem {
+			public Model.BindableFutabaResItem Value { get; set; }
+		}
 		private static readonly Helpers.TimerCache<Uri, Uri> uriCache = new Helpers.TimerCache<Uri, Uri>();
 
-		public static readonly DependencyProperty ArticleContentProperty =
+		public static readonly DependencyProperty InlineProperty =
 			DependencyProperty.Register(
 				"Inline",
-				typeof(Model.BindableFutabaResItem),
+				typeof(CommentItem),
 				typeof(FutabaCommentBlock),
-				new PropertyMetadata(null, OnInlinePropertyChanged));
+				new PropertyMetadata(default(CommentItem), OnInlinePropertyChanged));
 		public static readonly DependencyProperty MaxLinesProperty =
 			DependencyProperty.Register(
 				nameof(MaxLines),
@@ -63,24 +67,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 
 		public static Model.BindableFutabaResItem GetInline(TextBlock element) {
-			return (element != null) ? element.GetValue(ArticleContentProperty) as Model.BindableFutabaResItem : null;
+			return (element != null) ? element.GetValue(InlineProperty) as Model.BindableFutabaResItem : null;
 		}
 
 		public static void SetInline(TextBlock element, Model.BindableFutabaResItem value) {
 			if(element != null) {
-				element.SetValue(ArticleContentProperty, value);
+				element.SetValue(InlineProperty, value);
 			}
 		}
 
 
 		private static void OnInlinePropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
-			if((obj is TextBlock tb) && (e.NewValue is Model.BindableFutabaResItem item)) {
-				ParseComment(tb, item, (tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue);
-				// メモリリークする気がする
-				item?.DisplayHtml.Subscribe(x => ParseComment(
-					tb,
-					GetInline(tb),
-					(tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue));
+			if((obj is TextBlock tb) && (e.NewValue is CommentItem item)) {
+				ParseComment(tb, item.Value, (tb as FutabaCommentBlock)?.MaxLines ?? int.MaxValue);
 			}
 		}
 		private static void OnMaxLinesPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
