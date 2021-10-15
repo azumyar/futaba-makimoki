@@ -106,7 +106,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			void EvalEmoji(string text, Color? color, Model.BindableFutabaResItem quotRes = null, ToolTip toolTip = null) {
 				var fb = (color.HasValue) ? new SolidColorBrush(color.Value) : null;
 				var pos = 0;
-				foreach(Match m in Emoji.Wpf.EmojiData.MatchMultiple.Matches(text)) {
+				foreach(Match m in Emoji.Wpf.EmojiData.MatchOne.Matches(text)) {
 					var run1 = new Run(text.Substring(pos, m.Index - pos)) {
 						ToolTip = toolTip,
 						Tag = quotRes,

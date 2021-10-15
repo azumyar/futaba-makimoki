@@ -69,8 +69,8 @@
     <ProjectReference Include="..\MakiMoki.Wpf.Reactive\MakiMoki.Wpf.Reactive.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Emoji.Wpf" Version="0.2.1" />
-    <PackageReference Include="LibVLCSharp.WPF" Version="3.5.0" />
+    <PackageReference Include="Emoji.Wpf" Version="0.3.3" />
+    <PackageReference Include="LibVLCSharp.WPF" Version="3.6.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.31" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
@@ -78,9 +78,9 @@
     <PackageReference Include="ReactiveProperty" Version="7.6.0" />
     <PackageReference Include="ReactiveProperty.WPF" Version="7.6.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.12" />
-    <PackageReference Include="VirtualizingWrapPanel" Version="1.5.3" />
-    <PackageReference Include="WpfAnimatedGif" Version="2.0.0" />
+    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.16" />
+    <PackageReference Include="VirtualizingWrapPanel" Version="1.5.4" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.1" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="App.ico" />
