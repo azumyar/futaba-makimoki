@@ -45,9 +45,9 @@
 
     <h2>動作環境</h2>
     <ul>
-        <li class="checked">Windows 10(x64)</li>
+        <li class="checked">Windows 11/10/8.1(x64)</li>
         <li class="checked"><a href="https://aka.ms/vs/16/release/vc_redist.x64.exe">Visual Studio 2019 の Microsoft Visual C++ 再頒布可能パッケージ(x64)</a></li>
-        <li class="checked"><a href="https://go.microsoft.com/fwlink/p/?LinkId=2124703">WebView2ランタイム</a>(はっちゃんキャンバス使用時のみ)</li>
+        <li class="checked"><a href="https://go.microsoft.com/fwlink/p/?LinkId=2124703">WebView2ランタイム</a>(はっちゃんキャンバス使用時のみ/Windows 11は標準でインストール済み)</li>
     </ul>
 
     <h3>インストールについて</h3>
@@ -91,7 +91,19 @@
         <h3>Done</h3>
         <ul>
             <li class="checked">
-                period.21 はっちゃんアルバム対応
+                period.23 引用のポップアップウインドウ実装
+                <ul>
+                    <li class="checked">引用レスをポップアップに変更</li>
+                    <li class="checked">被引用レス一覧を表示を追加</li>
+                    <li class="checked">引用判定に未来のレスが含まれていた問題を修正</li>
+                    <li class="checked">非表示レス設定が再読み込みしないと適用されない問題を修正</li>
+                    <li class="checked">あぷ小のサムネ表示が機能しなくなっていた問題を修正</li>
+                    <li class="checked">塩辛鯖へのリンク機能を削除</li>
+                </ul>
+            </li>
+
+            <li class="checked">
+                period.22 はっちゃんアルバム対応
                 <ul>
                     <li class="checked">はっちゃんとの連携設定を変更しアルバム機能に対応</li>
                     <li class="checked">スレビュー末尾の消滅時間表示部分が複数でることがある問題の対策</li>
@@ -338,8 +350,6 @@
             <li>ListBoxのスクロール量を変更(できるのか？)</li>
             <li>ListBoxのホイールクリックでオートスクロールモードに(できるのか？)</li>
             <li>タスクバーを隠す設定にしてウィンドウを最大化するとタスクバーが出てこない(SourceTreeも出てこないしWindowChromeの問題？)</li>
-            <li>引用ポップアップをツールチップじゃなくてウィンドウにしたい、引用の引用が表示できるように</li>
-            <li>レスの引用カウント表示と引用先レスのポップアップ表示</li>
             <li>カタログのタイトル文字数を設定できる機能</li>
             <li>開いたスレの履歴</li>
             <li>なーされたスレをキャッシュしている場合以前の書き込みを表示できる機能</li>
@@ -498,6 +508,23 @@
         </ul>
 
         <h3>返信</h3>
+        <p>
+            <q>
+                バージョンは1個か2個前の奴だと思うんスけど、久々に立ち上げたらTrojan:Script/Wacatac.B!ml扱いされてディフェんだリニンに消されたっす。
+ご検知かも知れないけれど、一応報告っす<br />
+            </q>
+            アップロードしているファイルにVirusTotalかけてみました(2021/10/15)けど検知されなかったので誤検知だと思われます。
+        </p>
+
+
+        <p>
+            <q>
+                自動更新的な機能の搭載予定はありますか？<br />
+            </q>
+            予定はないです。申し訳ないです。
+        </p>
+
+
         <p>
             <q>
                 トップの最新版がDLできないです<br />
