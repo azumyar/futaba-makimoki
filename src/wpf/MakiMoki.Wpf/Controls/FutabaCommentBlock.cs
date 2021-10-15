@@ -260,6 +260,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 										.Where(x => x.Raw.Value.ResItem.No == q.ResNo)
 										.FirstOrDefault();
 								} else {
+									/* いったんコメントアウトで対応。要検討
 									toolTip = new ToolTip() {
 										Background = new SolidColorBrush((Color)App.Current.Resources["ViewerBackgroundColor"]),
 										Content = new TextBlock() {
@@ -269,6 +270,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 											FontSize = tb.FontSize,
 										}
 									};
+									*/
 								}
 							}
 						}
@@ -351,17 +353,23 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		private static void OnMouseLeftButtonUpQuot(object sender, MouseButtonEventArgs e) {
 			if((e.Source is Run run) && (run.Tag is Model.BindableFutabaResItem ri)) {
 				if(e.ClickCount == 1) {
+					Windows.Popups.QuotePopup.Show(
+						ri,
+						e.Source);
+					/* いったんイベントの送出を抑止
 					if(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledQuotLink) {
 						GetUIElement(run)?.RaiseEvent(
 							new PlatformData.QuotClickEventArgs(
 								QuotClickEvent, e.Source, ri));
 					}
+					*/
 				}
 			}
 		}
 
 		private static void OnMouseEnterQuot(object sender, MouseEventArgs e) {
 			if((e.Source is Run run) && (run.Tag is Model.BindableFutabaResItem ri)) {
+				/* いったんコメントアウトで対応。需要次第で考える。
 				if(run.ToolTip == null) {
 					run.ToolTip = new ToolTip() {
 						Background = new SolidColorBrush((Color)App.Current.Resources["ViewerBackgroundColor"]),
@@ -373,6 +381,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						}
 					};
 				}
+				*/
 
 				if(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledQuotLink) {
 					run.TextDecorations = System.Windows.TextDecorations.Underline;

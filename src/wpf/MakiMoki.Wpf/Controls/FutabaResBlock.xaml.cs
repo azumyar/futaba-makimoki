@@ -58,6 +58,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			this.ImageButton.Click += (s, e) => this.RaiseEvent(new RoutedEventArgs(ImageClickEvent, e.Source));
 			this.FutabaCommentBlock.LinkClick += (s, e) => this.RaiseEvent(new PlatformData.HyperLinkEventArgs(LinkClickEvent, e.Source, e.NavigateUri));
 			this.FutabaCommentBlock.QuotClick += (s, e) => this.RaiseEvent(new PlatformData.QuotClickEventArgs(QuotClickEvent, e.Source, e.TargetRes));
+			this.ResCountTextBlock.PreviewMouseUp += (s, e) => {
+				if((e.ChangedButton == MouseButton.Left) && (e.ClickCount == 1)) {
+					if(this.DataContext is Model.BindableFutabaResItem it) {
+						Windows.Popups.QuotePopup.Show(
+							it.ResCitedSource.Value,
+							e.Source);
+					}
+				}
+			};
 		}
 	}
 }

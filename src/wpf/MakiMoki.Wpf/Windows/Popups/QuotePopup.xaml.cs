@@ -23,68 +23,69 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows.Popups {
 		public static readonly DependencyProperty ResSourceProperty =
 			DependencyProperty.Register(
 				nameof(ResSource),
-				typeof(IEnumerable<Model.BindableFutabaResItem>),
+				typeof(object),
 				typeof(QuotePopup),
 				new PropertyMetadata(null));
-		public IEnumerable<Model.BindableFutabaResItem> ResSource {
-			get => (IEnumerable<Model.BindableFutabaResItem>)this.GetValue(ResSourceProperty);
-			set {
-				this.SetValue(ResSourceProperty, value);
-			}
+		public static readonly DependencyProperty CommandPaletteAlignmentProperty =
+			DependencyProperty.Register(
+				nameof(CommandPaletteAlignment),
+				typeof(HorizontalAlignment),
+				typeof(QuotePopup),
+				new PropertyMetadata(HorizontalAlignment.Right));
+
+		public object ResSource {
+			get { return this.GetValue(ResSourceProperty); }
+			set { this.SetValue(ResSourceProperty, value); }
+		}
+		public HorizontalAlignment CommandPaletteAlignment {
+			get { return (HorizontalAlignment)this.GetValue(ResSourceProperty); }
+			set { this.SetValue(ResSourceProperty, value); }
 		}
 
-
-		public QuotePopup() {
-			InitializeComponent();
-
-			this.Loaded += (s, e) => {
-				if(HwndSource.FromVisual(this) is HwndSource hs) {
-					hs.AddHook(new HwndSourceHook(WndProc));
-				}
-			};
-			this.closeButton.Click += (s, e) => {
-				this.IsOpen = false;
-			};
+		public static void Show(Model.BindableFutabaResItem source, object element, UIElement placementTarget = null) {
+			ShowImpliment(source, element, placementTarget);
 		}
-
-		private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
-			const int WM_ACTIVATE = 0x0006;
-			const int WM_LBUTTONDOWN = 0x0201;
-			const int WM_RBUTTONDOWN = 0x0204;
-			switch(msg) {
-			case WM_ACTIVATE:
-				if((wParam.ToInt32() & 0xffff) != 0) {
-					if(!this.IsMouseCaptured) {
-						this.CaptureMouse();
-					}
-				}
-				break;
-			case WM_LBUTTONDOWN:
-			case WM_RBUTTONDOWN: { 
-					var x = lParam.ToInt32() & 0xFFFF;
-					var y = (lParam.ToInt32() >> 16) & 0xFFFF;
-					if((x < 0) || (this.ActualWidth < x) || (y < 0) || (this.ActualHeight < y)) {
-						if(!(this.pinnedButton.IsChecked ?? false)) {
-							this.IsOpen = false;
+		public static void Show(IEnumerable<Model.BindableFutabaResItem> source, object element, UIElement placementTarget = null) {
+			ShowImpliment(source, element, placementTarget);
+		}
+		
+		private static void ShowImpliment(object source, object element, UIElement placementTarget=null) {
+			if(Application.Current.MainWindow is MainWindow w) {
+				foreach(var el in w.PopupContainer.Children) {
+					if(el is FrameworkElement fel) {
+						if(fel.Tag == element) {
+							goto end;
 						}
 					}
 				}
-				break;
+				var p = new QuotePopup() {
+					Placement = PlacementMode.MousePoint,
+					PlacementTarget = placementTarget,
+					ResSource = source,
+					Tag = element,
+				};
+				p.Closed += (_, _) => {
+					w.PopupContainer.Children.Remove(p);
+				};
+				w.PopupContainer.Children.Add(p);
+				p.IsOpen = true;
+			end:;
 			}
-			return IntPtr.Zero;
+
 		}
 
-		protected override async void OnOpened(EventArgs e) {
-			base.OnOpened(e);
+		public QuotePopup() {
+			InitializeComponent();
+			this.HorizontalAlignment = (WpfConfig.WpfConfigLoader.SystemConfig.CommandPalettePosition == PlatformData.UiPosition.Left)
+				? HorizontalAlignment.Left : HorizontalAlignment.Right;
+			this.StaysOpen = false;
 
-			await Task.Delay(1);
-			this.CaptureMouse();
-		}
-
-		protected override void OnClosed(EventArgs e) {
-			base.OnClosed(e);
-
-			this.ReleaseMouseCapture();
+			this.pinnedButton.Click += (_, _) => { 
+				this.StaysOpen = true;
+				this.pinnedButton.Visibility = Visibility.Hidden;
+				this.closeButton.Visibility = Visibility.Visible;
+			};
+			this.closeButton.Click += (_, _) => { this.IsOpen = false; };
 		}
 	}
 }

@@ -9,6 +9,8 @@
     xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
     xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows.Popups"
     xmlns:c="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+    xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
+    xmlns:behavior="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Behaviors"
     mc:Ignorable="d" 
     d:DesignHeight="450" d:DesignWidth="800">
     <Popup.Resources>
@@ -18,27 +20,26 @@
                 <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ViewerListBox.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <converter:QuotePopupSourceConverter x:Key="QuotePopupSourceConverter" />
+            <converter:FutabaResItemCopyTextBoxEventConverter x:Key="FutabaResItemCopyTextBoxEventConverter" />
         </ResourceDictionary>
     </Popup.Resources>
-    <Border>
+    <Border x:Name="border" BorderThickness="1">
         <Border.Background>
             <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
         </Border.Background>
+        <Border.BorderBrush>
+            <SolidColorBrush Color="{DynamicResource ViewerBorderColor}" />
+        </Border.BorderBrush>
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="24" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="240" MaxWidth="640" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <Button x:Name="closeButton" Content="閉じる" FontSize="8" />
-                <ToggleButton x:Name="pinnedButton" Content="ピン" FontSize="8" />
-            </StackPanel>
-            
             <ListBox
                 x:Name="ThreadResListBox"
-                Grid.Row="1"
-                ItemsSource="{Binding ResSource, ElementName=_this, Mode=OneWay}"
+                ItemsSource="{Binding ResSource, Converter={StaticResource QuotePopupSourceConverter}, ElementName=_this, Mode=OneWay}"
                 BorderThickness="0"
                 Background="Transparent"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -75,11 +76,6 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="16 4 16 4" Background="Transparent">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
                             <FrameworkElement 
                                 x:Name="StyleTypeGetter"
                                 Visibility="Collapsed"
@@ -95,7 +91,6 @@
 
                             <Grid
                                 x:Name="viewGrid"
-                                Grid.Column="0" Grid.Row="0"
                                 HorizontalAlignment="Left" 
                                 Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}"
                                 Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}"
@@ -135,12 +130,12 @@
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="24" />
                                 </Grid.RowDefinitions>
 
                                 <c:FutabaResBlock
                                     x:Name="CommentBlock"
                                     Grid.Column="0" Grid.Row="0"
-                                    MaxWidth="1024"
                                     >
                                     <c:FutabaResBlock.Foreground>
                                         <SolidColorBrush>
@@ -174,6 +169,29 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
+
+            <Button
+                x:Name="pinnedButton"
+                Grid.Column="1" Grid.Row="0"
+                Width="24" Height="24"
+                Visibility="Visible"
+                VerticalAlignment="Top"
+                Content="{StaticResource ButtonIconPin}"
+                />
+            <Button 
+                x:Name="closeButton"
+                Grid.Column="1" Grid.Row="0"
+                Width="24" Height="24"
+                Visibility="Hidden"
+                VerticalAlignment="Top">
+                <TextBlock
+                    Foreground="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Text="✖"
+                    FontSize="8"                    
+                    />
+            </Button>
         </Grid>
     </Border>
 </Popup>

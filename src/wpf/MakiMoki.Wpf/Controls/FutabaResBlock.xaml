@@ -101,28 +101,31 @@
                 <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Id, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
                     <Run Text="{Binding Converter={StaticResource FutabaResItemIdTextConverter},  StringFormat='\{0\} ', Mode=OneWay}" />
                 </TextBlock>
-                <Grid Visibility="{Binding ResCountText.Value, Mode=OneWay, Converter={StaticResource FutabaResItemVisibleConverter}}">
-                    <TextBlock
-                        Text="{Binding ResCountText.Value, Mode=OneWay, StringFormat='\{0\} '}"
-                        Background="Transparent">
-                        <TextBlock.Foreground>
-                            <SolidColorBrush Color="{DynamicResource ThreadHeaderResCountColor}" />
-                        </TextBlock.Foreground>
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseUp">
-                                <i:ChangePropertyAction
-                                    TargetName="citedPopup"
-                                    PropertyName="IsOpen"
-                                    Value="True"
-                                    />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </TextBlock>
-                    <popup:QuotePopup
-                        x:Name="citedPopup"
-                        ResSource="{Binding ResCitedSource.Value, Mode=OneWay}"
-                        />
-                </Grid>
+                <TextBlock
+                    x:Name="ResCountTextBlock"
+                    Visibility="{Binding ResCountText.Value, Mode=OneWay, Converter={StaticResource FutabaResItemVisibleConverter}}"
+                    Text="{Binding ResCountText.Value, Mode=OneWay, StringFormat='\{0\} '}"
+                    Background="Transparent">
+                    <TextBlock.Foreground>
+                        <SolidColorBrush Color="{DynamicResource ThreadHeaderResCountColor}" />
+                    </TextBlock.Foreground>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseEnter">
+                            <i:ChangePropertyAction
+                                TargetName="ResCountTextBlock"
+                                PropertyName="TextDecorations"
+                                Value="Underline"
+                                />
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseLeave">
+                            <i:ChangePropertyAction
+                                TargetName="ResCountTextBlock"
+                                PropertyName="TextDecorations"
+                                Value=""
+                                />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </TextBlock>
                 <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderSoudaneColor}" />

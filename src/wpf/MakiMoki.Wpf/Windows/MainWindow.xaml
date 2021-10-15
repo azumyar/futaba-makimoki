@@ -716,6 +716,7 @@
                 x:Name="WindowThreadTabDieOpacityGetter"
                 Visibility="Collapsed"
                 DataContext="{DynamicResource WindowThreadTabDieOpacity}" />
+            <Grid x:Name="PopupContainer" />
 
             <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button Content="0" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
