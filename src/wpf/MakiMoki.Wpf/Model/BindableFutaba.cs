@@ -273,23 +273,28 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			} else if(futaba.Raw.IsDie) {
 				this.DieTextLong = new ReactiveProperty<string>("スレッドは落ちました");
 			} else {
-				var t = futaba.Raw.DieDateTime ?? DateTime.Now;
-				var ts = t - DateTime.Now;
-				if(ts.TotalSeconds < 0){
-					this.DieTextLong = new ReactiveProperty<string>(
-						string.Format("スレ消滅：{0}(消滅時間を過ぎました)", t.ToString("mm:ss")));
-				} else if(0 < ts.Days) {
-					this.DieTextLong = new ReactiveProperty<string>(
-						string.Format("スレ消滅：{0}(あと{1})", t.ToString("MM/dd"), ts.ToString(@"dd\日hh\時\間")));
-				} else if(0 < ts.Hours) {
-					this.DieTextLong = new ReactiveProperty<string>(
-						string.Format("スレ消滅：{0}(あと{1})", t.ToString("HH:mm"), ts.ToString(@"hh\時\間mm\分")));
-				} else if(0 < ts.Minutes) {
-					this.DieTextLong = new ReactiveProperty<string>(
-						string.Format("スレ消滅：{0}(あと{1})", t.ToString("HH:mm"), ts.ToString(@"mm\分ss\秒")));
+				var t = futaba.Raw.DieDateTime;
+				if(t.HasValue) {
+					var ts = t.Value - (futaba.Raw.NowDateTime ?? DateTime.Now);
+					var tt = DateTime.Now.Add(ts); // 消滅時間表示はPCの時計を使用
+					if(ts.TotalSeconds < 0) {
+						this.DieTextLong = new ReactiveProperty<string>(
+							string.Format("スレ消滅：{0}(消滅時間を過ぎました)", tt.ToString("mm:ss")));
+					} else if(0 < ts.Days) {
+						this.DieTextLong = new ReactiveProperty<string>(
+							string.Format("スレ消滅：{0}(あと{1})", tt.ToString("MM/dd"), ts.ToString(@"dd\日hh\時\間")));
+					} else if(0 < ts.Hours) {
+						this.DieTextLong = new ReactiveProperty<string>(
+							string.Format("スレ消滅：{0}(あと{1})", tt.ToString("HH:mm"), ts.ToString(@"hh\時\間mm\分")));
+					} else if(0 < ts.Minutes) {
+						this.DieTextLong = new ReactiveProperty<string>(
+							string.Format("スレ消滅：{0}(あと{1})", tt.ToString("HH:mm"), ts.ToString(@"mm\分ss\秒")));
+					} else {
+						this.DieTextLong = new ReactiveProperty<string>(
+							string.Format("スレ消滅：{0}(あと{1})", tt.ToString("HH:mm"), ts.ToString(@"ss\秒")));
+					}
 				} else {
-					this.DieTextLong = new ReactiveProperty<string>(
-						string.Format("スレ消滅：{0}(あと{1})", t.ToString("HH:mm"), ts.ToString(@"ss\秒")));
+					this.DieTextLong = new ReactiveProperty<string>("スレ消滅：不明");
 				}
 			}
 
