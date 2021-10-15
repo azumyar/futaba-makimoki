@@ -49,6 +49,7 @@
             <converter:FutabaResItemNextButtonEnabledConverter x:Key="FutabaResItemNextButtonEnabledConverter" />
             <converter:FutabaResItemOldColorConverter x:Key="FutabaResItemOldColorConverter" />
             <converter:FutabaResItemResCountColorConverter x:Key="FutabaResItemResCountColorConverter" />
+            <converter:FutabaResItemCommentHtmlConverter x:Key="FutabaResItemCommentHtmlConverter" />
             <converter:PostViewOpacityConverter x:Key="PostViewOpacityConverter" />
             <converter:PostViewMinWidthConverter x:Key="PostViewMinWidthConverter" />
             <converter:PostViewMaxWidthConverter x:Key="PostViewMaxWidthConverter" />
@@ -106,11 +107,14 @@
 
                         <local:FutabaCommentBlock
                             Grid.Column="1"
-                            Text="{Binding CommentHtml.Value, Mode=OneWay}"
                             TextWrapping="Wrap"
                             Margin="4 4 0 4">
                             <local:FutabaCommentBlock.Inline>
-                                <Binding Mode="OneWay" />
+                                <MultiBinding Converter="{StaticResource FutabaResItemCommentHtmlConverter}">
+                                    <Binding Mode="OneWay" />
+                                    <!-- 非表示などでインスタンスが更新されないので追加しておく -->
+                                    <Binding Path="DisplayHtml.Value" Mode="OneWay" />
+                                </MultiBinding>
                             </local:FutabaCommentBlock.Inline>
                         </local:FutabaCommentBlock>
                     </Grid>
@@ -713,14 +717,17 @@
                                         <local:FutabaCommentBlock
                                             Grid.Column="1"
                                             Foreground="{Binding Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType=Button}}"
-                                            Text="{Binding CommentHtml.Value, Mode=OneWay}"
                                             TextTrimming="CharacterEllipsis"
                                             TextWrapping="NoWrap"
                                             MaxLines="1"
                                             VerticalAlignment="Center"
                                             Margin="4 4 0 4">
                                             <local:FutabaCommentBlock.Inline>
-                                                <Binding Mode="OneWay" />
+                                                <MultiBinding Converter="{StaticResource FutabaResItemCommentHtmlConverter}">
+                                                    <Binding Mode="OneWay" />
+                                                    <!-- 非表示などでインスタンスが更新されないので追加しておく -->
+                                                    <Binding Path="DisplayHtml.Value" Mode="OneWay" />
+                                                </MultiBinding>
                                             </local:FutabaCommentBlock.Inline>
                                         </local:FutabaCommentBlock>
                                         <TextBlock
