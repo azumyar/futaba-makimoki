@@ -329,34 +329,32 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class AppsweetsThumbnailCompleteResponse : JsonObject {
-		[JsonProperty("content", Required = Required.Always)]
+		[JsonProperty("content", Required = Required.Default)]
 		public string Content { get; private set; } // BASE64されたサムネデータが格納される/サムネがない場合は空文字列
-
-		[JsonProperty("width", Required = Required.Always)]
-		public int Width { get; private set; }
-
-		[JsonProperty("height", Required = Required.Always)]
-		public int Height { get; private set; }
-
-		[JsonProperty("board", Required = Required.Always)]
+		
+		[JsonProperty("board", Required = Required.Default)]
 		public string Board { get; private set; }
 
-		[JsonProperty("name", Required = Required.Always)]
+		[JsonProperty("name", Required = Required.Default)]
 		public string Name { get; private set; }
 
-		[JsonProperty("base", Required = Required.Always)]
+		[JsonProperty("base", Required = Required.Default)]
 		public string Base { get; private set; }
 
-		[JsonProperty("mime", Required = Required.Always)]
+		[JsonProperty("mime", Required = Required.Default)]
 		public string Mime { get; private set; }
 
-		[JsonProperty("size", Required = Required.Always)]
+		[JsonProperty("size", Required = Required.Default)]
 		public int Size { get; private set; }
 
-		[JsonProperty("comment", Required = Required.Always)]
+		[JsonProperty("comment", Required = Required.Default)]
 		public string Comment { get; private set; }
+			
 
-		[JsonProperty("dimensions", Required = Required.Always)]
+		[JsonProperty("createdAt", Required = Required.Default)]
+		public int CreatedAt { get; private set; }
+
+		[JsonProperty("dimensions", Required = Required.Default)]
 		public AppsweetsThumbnailDimensionData Dimensions { get; private set; }
 	}
 
