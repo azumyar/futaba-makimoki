@@ -216,12 +216,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			DateTime get((bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage) x) {
 				var fireDate = DateTime.MinValue;
 				if(x.Successed) {
-					if(x.New.Raw.IsDie) {
-						// スレ落ち
+					if(x.New.Raw.IsDie || x.New.Raw.IsMaxRes) {
+						// スレ落ち or 最大レス
 					} else {
 						if(x.New.ResItems.Any()) {
 							// レスあり
-							if(x.Old.ResItems.Any()) {
+							if(x.Old.ResItems.Any() && (x.Old.ResItems.Length != x.New.ResItems.Length)) {
 								var span = x.New.ResItems.Last().ResItem.Res.NowDateTime - x.Old.ResItems.Last().ResItem.Res.NowDateTime;
 								var sec = Math.Max(span.TotalSeconds / 2, MinWaitSec);
 								fireDate = DateTime.Now.AddSeconds(sec);
@@ -238,6 +238,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							var span = time - x.New.ResItems.Last().ResItem.Res.NowDateTime;
 							var sec = Math.Max(span.TotalSeconds / 2, MinWaitSec);
 							fireDate = DateTime.Now.AddSeconds(sec);
+						}
+						// スレ落ち予測時間に補正する
+						if(x.New.Raw.DieDateTime.HasValue && (x.New.Raw.DieDateTime.Value.AddSeconds(60) < fireDate)) {
+							fireDate = x.New.Raw.DieDateTime.Value;
 						}
 					}
 				} else {
