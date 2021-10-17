@@ -255,7 +255,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					action: (_) => {
 						UpdateThreadResInternal(board, threadNo, incremental)
 							.Subscribe(x => {
-								if(x.Successed && x.New.Raw.IsDie) {
+								if(x.Successed && (x.New.Raw.IsDie || x.New.Raw.IsMaxRes)) {
 									o.OnNext(x);
 									o.OnCompleted();
 								} else {
