@@ -28,7 +28,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 #pragma warning disable CS0067
 		public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore CS0067
-		public object Token { get; } = new object();
 		public BoardData Board { get; }
 		public UrlContext Url { get; }
 

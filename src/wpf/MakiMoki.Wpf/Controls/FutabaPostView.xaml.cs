@@ -103,14 +103,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			ViewModels.FutabaPostViewViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.PostCloseMessage>>()
 				.Subscribe(x => {
-					if(x.Token == this.Contents?.Token) {
+					if(x.Url == this.Contents?.Url) {
 						this.Visibility = Visibility.Hidden;
 					}
 				});
 			ViewModels.FutabaPostViewViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.ReplaceTextMessage>>()
 				.Subscribe(x => {
-					if(x.Token == this.Contents?.Token) {
+					if(x.Url == this.Contents?.Url) {
 						this.PostCommentTextBox.Text = x.Text;
 						this.PostCommentTextBox.SelectionStart = x.Text.Length;
 						this.PostCommentTextBox.SelectionLength = 0;
@@ -120,7 +120,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			ViewModels.FutabaPostViewViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.AppendTextMessage>>()
 				.Subscribe(x => {
-					if((x.Token == this.Contents?.Token) && !string.IsNullOrEmpty(x.Text)) {
+					if((x.Url == this.Contents?.Url) && !string.IsNullOrEmpty(x.Text)) {
 						var s = x.Text + ((x.Text.Last() == '\n') ? "" : Environment.NewLine);
 						var ss = this.PostCommentTextBox.SelectionStart;
 						var sb = new StringBuilder(this.PostCommentTextBox.Text);

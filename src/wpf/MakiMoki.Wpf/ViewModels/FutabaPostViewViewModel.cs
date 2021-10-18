@@ -58,29 +58,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 
 		internal class PostCloseMessage {
-			public object Token { get; }
+			public UrlContext Url { get; }
 
-			public PostCloseMessage(object token) {
-				this.Token = token;
+			public PostCloseMessage(UrlContext url) {
+				this.Url = url;
 			}
 		}
 
 		internal class ReplaceTextMessage {
-			public object Token { get; }
+			public UrlContext Url { get; }
 			public string Text { get; }
 
-			public ReplaceTextMessage(object token, string text) {
-				this.Token = token;
+			public ReplaceTextMessage(UrlContext url, string text) {
+				this.Url = url;
 				this.Text = text;
 			}
 		}
 
 		internal class AppendTextMessage {
-			public object Token { get; }
+			public UrlContext Url { get; }
 			public string Text { get; }
 
-			public AppendTextMessage(object token, string text) {
-				this.Token = token;
+			public AppendTextMessage(UrlContext url, string text) {
+				this.Url = url;
 				this.Text = text;
 			}
 		}
@@ -210,7 +210,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				.Subscribe(x => {
 					if(x.Successed) {
 						Messenger.Instance.GetEvent<PubSubEvent<AppendTextMessage>>()
-							.Publish(new AppendTextMessage(postData.Token, x.FileNameOrMessage));
+							.Publish(new AppendTextMessage(postData.Url, x.FileNameOrMessage));
 					} else {
 						Util.Futaba.PutInformation(new Information($"アップロード失敗：{ x.FileNameOrMessage }", postData));
 					}
@@ -426,7 +426,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.Finally(() => { this.IsPosting.Value = false; })
 					.Subscribe(y => {
 						if(y.Successed) {
-							Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(x.Token));
+							Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(x.Url));
 							x.Reset();
 							Task.Run(async () => {
 								await Task.Delay(1000); // すぐにスレが作られないので1秒くらい待つ
@@ -466,7 +466,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									com = b.DefaultComment;
 								}
 							}
-							Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(x.Token));
+							Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(x.Url));
 							x.Reset();
 							Util.Futaba.UpdateThreadRes(x.Board, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
 								.ObserveOn(UIDispatcherScheduler.Default)
