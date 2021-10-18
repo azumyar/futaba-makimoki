@@ -188,13 +188,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					case MouseButton.Left:
 						if(this.isCatalogItemClicking) {
 							Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
+								.FirstAsync()
 								.ObserveOn(UIDispatcherScheduler.Default)
 								.Subscribe(x => {
-										if(x.New != null) {
-											MainWindowViewModel.Messenger.Instance.GetEvent<PubSubEvent<MainWindowViewModel.CurrentThreadChanged>>()
-												.Publish(new MainWindowViewModel.CurrentThreadChanged(x.New));
-										}
-									});
+									if(x.New != null) {
+										MainWindowViewModel.Messenger.Instance.GetEvent<PubSubEvent<MainWindowViewModel.CurrentThreadChanged>>()
+											.Publish(new MainWindowViewModel.CurrentThreadChanged(x.New));
+									}
+								});
 							this.isCatalogItemClicking = false;
 						}
 						e.Handled = true;
