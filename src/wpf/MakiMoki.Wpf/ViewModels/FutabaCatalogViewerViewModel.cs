@@ -81,7 +81,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<Model.BindableFutabaResItem> CatalogMenuItemWatchImageCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
 		public MakiMokiCommand<Model.BindableFutabaResItem> CatalogMenuItemNgImageCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
 
-
 		public MakiMokiCommand<Model.BindableFutaba> KeyBindingUpdateCommand { get; } = new MakiMokiCommand<BindableFutaba>();
 		public MakiMokiCommand<Model.BindableFutaba> KeyBindingSearchCommand { get; } = new MakiMokiCommand<BindableFutaba>();
 		public MakiMokiCommand<Model.BindableFutaba> KeyBindingSortCommand { get; } = new MakiMokiCommand<BindableFutaba>();
@@ -107,11 +106,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			CatalogMenuItemWatchImageCommand.Subscribe(x => OnCatalogMenuItemWatchImage(x));
 			CatalogMenuItemNgImageCommand.Subscribe(x => OnCatalogMenuItemNgImage(x));
 
+			/*
 			KeyBindingUpdateCommand.Subscribe(x => UpdateCatalog(x));
 			//KeyBindingSearchCommand.Subscribe(x => x);
 			//KeyBindingSortCommand.Subscribe(x => x);
 			KeyBindingModeCommand.Subscribe(x => UpdateCatalogListWrap(x));
 			KeyBindingPostCommand.Subscribe(x => OnPostClick(x));
+			*/
 		}
 
 		public void Dispose() {
@@ -186,13 +187,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					switch(e.ChangedButton) {
 					case MouseButton.Left:
 						if(this.isCatalogItemClicking) {
-							Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe(
-								x => {
-									if(x.New != null) {
-										MainWindowViewModel.Messenger.Instance.GetEvent<PubSubEvent<MainWindowViewModel.CurrentThreadChanged>>()
-											.Publish(new MainWindowViewModel.CurrentThreadChanged(x.New));
-									}
-								});
+							Util.Futaba.UpdateThreadRes(it.Bord.Value, it.ThreadResNo.Value, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
+								.ObserveOn(UIDispatcherScheduler.Default)
+								.Subscribe(x => {
+										if(x.New != null) {
+											MainWindowViewModel.Messenger.Instance.GetEvent<PubSubEvent<MainWindowViewModel.CurrentThreadChanged>>()
+												.Publish(new MainWindowViewModel.CurrentThreadChanged(x.New));
+										}
+									});
 							this.isCatalogItemClicking = false;
 						}
 						e.Handled = true;

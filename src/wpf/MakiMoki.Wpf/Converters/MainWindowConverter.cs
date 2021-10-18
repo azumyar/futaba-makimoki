@@ -143,6 +143,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 						WpfUtil.ImageUtil.GetImageCache(
 							Util.Futaba.GetThumbImageLocalFilePath(fc.Url, it.ResItem.Res)));
 				}
+			} else if(value is Data.UrlContext c) {
+				if(c.IsThreadUrl) {
+					var f = Util.Futaba.Threads.Value
+						.Where(x => x.Url == c)
+						.FirstOrDefault();
+					if((f != null) && f.ResItems.Any()) {
+						return new Model.InformationBindableExObject(
+							WpfUtil.ImageUtil.GetImageCache(
+								Util.Futaba.GetThumbImageLocalFilePath(c, f.ResItems.First().ResItem.Res)));
+					}
+				}
 			}
 
 			return new Model.InformationBindableExObject();

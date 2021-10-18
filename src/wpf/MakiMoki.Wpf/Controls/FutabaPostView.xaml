@@ -1,22 +1,24 @@
-<UserControl x:Class="Yarukizero.Net.MakiMoki.Wpf.Controls.FutabaPostView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
-             xmlns:prism="http://prismlibrary.com/"
-             xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
-             xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
-             xmlns:behavior="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Behaviors"
-             mc:Ignorable="d" 
-             prism:ViewModelLocator.AutoWireViewModel="True"
-             d:DesignHeight="450" d:DesignWidth="800"
-             HorizontalAlignment="Right"
-             VerticalAlignment="Top"
-             local:InputBindingsBehavior.Source="{Binding KeyGestures.Value, Mode=OneWay}"
-             >
+<UserControl
+    x:Name="_this"
+    x:Class="Yarukizero.Net.MakiMoki.Wpf.Controls.FutabaPostView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
+    xmlns:behavior="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Behaviors"
+    mc:Ignorable="d" 
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    d:DesignHeight="450" d:DesignWidth="800"
+    HorizontalAlignment="Right"
+    VerticalAlignment="Top"
+    local:InputBindingsBehavior.Source="{Binding KeyGestures.Value, Mode=OneWay}"
+    >
     <!--
                  MinWidth="360"
              MaxWidth="{Binding Parent.ActualWidth, RelativeSource={RelativeSource Self}}"
@@ -106,7 +108,7 @@
                     <TextBox 
                         x:Name="PostCommentTextBox"
                         AcceptsReturn="True"
-                        Text="{Binding PostData.Value.Comment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Text="{Binding Comment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Margin="0 4 0 4" Padding="1"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -125,17 +127,17 @@
                         </i:Interaction.Triggers>
                     </TextBox>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <TextBlock Margin="2 2 0 2" Text="{Binding PostData.Value.CommentBytes.Value, StringFormat='たぶん\{0\}byte', Mode=OneWay}" />
-                        <TextBlock Margin="2 2 0 2" Text="{Binding PostData.Value.CommentLines.Value, StringFormat='\{0\}行', Mode=OneWay}" />
+                        <TextBlock Margin="2 2 0 2" Text="{Binding CommentBytes.Value, StringFormat='たぶん\{0\}byte', Mode=OneWay}" />
+                        <TextBlock Margin="2 2 0 2" Text="{Binding CommentLines.Value, StringFormat='\{0\}行', Mode=OneWay}" />
                     </StackPanel>
                     <Grid Visibility="Collapsed">
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                             <TextBlock
                                 Margin="0 4 0 4"
-                                Text="{Binding PostData.Value.ImageName.Value, Mode=OneWay}" />
+                                Text="{Binding ImageName.Value, Mode=OneWay}" />
                             <Viewbox Width="128" Height="128"  StretchDirection="DownOnly">
                                 <Image 
-                                    Source="{Binding PostData.Value.ImagePreview.Value, Mode=OneWay}"
+                                    Source="{Binding ImagePreview.Value, Mode=OneWay}"
                                     RenderOptions.EdgeMode="Aliased"
                                     RenderOptions.BitmapScalingMode="Fant">
                                     <Image.CacheMode>
@@ -153,15 +155,15 @@
                             </TextBlock>
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="PreviewMouseUp">
-                                    <ri:EventToReactiveCommand Command="{Binding DeleteImageCommand, Mode=OneWay}" />
+                                    <ri:EventToReactiveCommand Command="{Binding DataContext.DeleteImageCommand, Mode=OneWay, ElementName=_this}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
                         <i:Interaction.Triggers>
-                            <i:DataTrigger Binding="{Binding PostData.Value.ImagePath.Value.Length, Mode=OneWay}" Value="0" Comparison="Equal">
+                            <i:DataTrigger Binding="{Binding ImagePath.Value.Length, Mode=OneWay}" Value="0" Comparison="Equal">
                                 <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
                             </i:DataTrigger>
-                            <i:DataTrigger Binding="{Binding PostData.Value.ImagePath.Value.Length, Mode=OneWay}" Value="0" Comparison="NotEqual">
+                            <i:DataTrigger Binding="{Binding ImagePath.Value.Length, Mode=OneWay}" Value="0" Comparison="NotEqual">
                                 <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
@@ -170,7 +172,7 @@
                         Margin="0 4 0 4" Padding="1"
                         Visibility="{Binding PostNameVisibility.Value, Mode=OneWay}"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
-                        Text="{Binding PostData.Value.Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Text="{Binding Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         local:PlaceHolderBehavior.PlaceHolderText="おなまえ">
                         <TextBox.Foreground>
                             <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
@@ -179,7 +181,7 @@
                     <TextBox 
                         Margin="0 4 0 4" Padding="1"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
-                        Text="{Binding PostData.Value.Mail.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Text="{Binding Mail.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         local:PlaceHolderBehavior.PlaceHolderText="メールアドレス">
                         <TextBox.Foreground>
                             <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
@@ -192,7 +194,10 @@
                             </Button.Content>
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
-                                    <ri:EventToReactiveCommand Command="{Binding MailIdClickCommand, Mode=OneWay}" />
+                                    <i:InvokeCommandAction
+                                        Command="{Binding DataContext.MailIdClickCommand, Mode=OneWay, ElementName=_this}"
+                                        CommandParameter="{Binding Mode=OneWay}"
+                                        />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
@@ -202,7 +207,10 @@
                             </Button.Content>
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
-                                    <ri:EventToReactiveCommand Command="{Binding MailIpClickCommand, Mode=OneWay}" />
+                                    <i:InvokeCommandAction
+                                        Command="{Binding DataContext.MailIpClickCommand, Mode=OneWay, ElementName=_this}"
+                                        CommandParameter="{Binding Mode=OneWay}"
+                                        />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
@@ -212,7 +220,10 @@
                             </Button.Content>
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
-                                    <ri:EventToReactiveCommand Command="{Binding MailSageClickCommand, Mode=OneWay}" />
+                                    <i:InvokeCommandAction
+                                        Command="{Binding DataContext.MailSageClickCommand, Mode=OneWay, ElementName=_this}"
+                                        CommandParameter="{Binding Mode=OneWay}"
+                                        />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
@@ -221,7 +232,7 @@
                         Margin="0 4 0 4" Padding="1"
                         Visibility="{Binding PostNameVisibility.Value, Mode=OneWay}"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
-                        Text="{Binding PostData.Value.Subject.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Text="{Binding Subject.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         local:PlaceHolderBehavior.PlaceHolderText="題名">
                         <TextBox.Foreground>
                             <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
@@ -230,7 +241,7 @@
                     <TextBox
                         Margin="0 4 0 4" Padding="1"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
-                        Text="{Binding PostData.Value.Password.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Text="{Binding Password.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         local:PlaceHolderBehavior.PlaceHolderText="削除キー(必須)">
                         <TextBox.Foreground>
                             <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
@@ -245,7 +256,7 @@
                     <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
                 </Border.Background>
                 <StackPanel Orientation="Horizontal">
-                    <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconPostSend}" Command="{Binding PostData.Value.PostButtonCommand}">
+                    <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconPostSend}" Command="{Binding PostButtonCommand}">
                         <Button.ToolTip>
                             <ToolTip Content="投稿" />
                         </Button.ToolTip>
@@ -275,7 +286,7 @@
                         </Button.ContextMenu>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="PreviewMouseUp">
-                                <ri:EventToReactiveCommand Command="{Binding OpenImageCommand}" />
+                                <ri:EventToReactiveCommand Command="{Binding DataContext.OpenImageCommand, ElementName=_this}" />
                             </i:EventTrigger>
 
                             <i:EventTrigger EventName="PreviewDragOver">
@@ -323,7 +334,10 @@
                         </Button.ToolTip>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="PreviewMouseUp">
-                                <ri:EventToReactiveCommand Command="{Binding DeletePostDataCommand}" />
+                                <i:InvokeCommandAction
+                                    Command="{Binding DataContext.DeletePostDataCommand, Mode=OneWay, ElementName=_this}"
+                                    CommandParameter="{Binding Mode=OneWay}"
+                                    />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>

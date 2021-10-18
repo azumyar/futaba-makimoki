@@ -24,6 +24,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<ImageSource> ThumbSource { get; }
 		public ReactiveProperty<Visibility> ThumbVisibility { get; }
 		public ReactiveProperty<BindableFutaba> Futaba { get; }
+		public ReactiveProperty<PostHolder> PostData { get; }
 
 		public ReactiveProperty<PlatformData.FutabaMedia> MediaContents { get; } 
 			= new ReactiveProperty<PlatformData.FutabaMedia>();
@@ -50,6 +51,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.Region = new ReactiveProperty<Prism.Regions.IRegion>();
 			this.ThreadView = new ReactiveProperty<object>();
 			this.Futaba = new ReactiveProperty<BindableFutaba>(new BindableFutaba(f));
+			this.PostData = new ReactiveProperty<PostHolder>(new PostHolder(f.Bord, f.Url));
 			this.Name = this.Futaba
 				.Select(x => {
 					if(this.Url.IsCatalogUrl) {
@@ -102,7 +104,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.ThreadView.Value = null;
 			}
 			new Helpers.AutoDisposable(this)
-				.Add(this.Futaba.Value?.PostData)
 				.AddEnumerable(this.Futaba.Value?.ResItems)
 				.Dispose();
 		}
