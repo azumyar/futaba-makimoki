@@ -253,7 +253,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			void fire(IObserver<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> o, bool incremental, int priority, DateTime fireTime, object tag) {
 				PassiveReloadQueue.Push(Helpers.ConnectionQueueItem<object>.From(
 					action: (_) => {
-						UpdateThreadResInternal(board, threadNo, incremental)
+						UpdateThreadResInternal(board, threadNo, incremental, passive)
 							.Subscribe(x => {
 								if(x.Successed && (x.New.Raw.IsDie || x.New.Raw.IsMaxRes)) {
 									o.OnNext(x);
@@ -280,7 +280,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
-		private static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadResInternal(Data.BoardData bord, string threadNo, bool incremental) {
+		private static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadResInternal(Data.BoardData bord, string threadNo, bool incremental, bool autoReload) {
 			var u = new Data.UrlContext(bord.Url, threadNo);
 			Data.FutabaContext parent = null;
 			lock(lockObj) {
@@ -352,7 +352,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					end:
 						return (successed, result, prev, error);
 					});
-					PutThreadResResult(ctx.New, ctx.Old, ctx.ErrorMessage);
+					PutThreadResResult(ctx.New, ctx.Old, ctx.ErrorMessage, autoReload);
 					o.OnNext(ctx);
 				}
 				finally {
@@ -567,7 +567,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					end:
 						return (successed, result, prev, error);
 					});
-					PutThreadResResult(ctx.New, ctx.Old, ctx.ErrorMessage);
+					PutThreadResResult(ctx.New, ctx.Old, ctx.ErrorMessage, false);
 					o.OnNext(ctx);
 				}
 				finally {
@@ -577,9 +577,15 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		private static void PutThreadResResult(Data.FutabaContext newFutaba, Data.FutabaContext oldFutaba, string error) {
+		private static void PutThreadResResult(Data.FutabaContext newFutaba, Data.FutabaContext oldFutaba, string error, bool autoReload) {
 			if(newFutaba == null) {
-				PutInformation(new Data.Information(string.IsNullOrEmpty(error) ? "スレ取得エラー" : error, newFutaba));
+				if(!autoReload
+#if DEBUG
+					|| true
+#endif
+					) {
+					PutInformation(new Data.Information(string.IsNullOrEmpty(error) ? "スレ取得エラー" : error, newFutaba));
+				}
 			} else {
 				if(oldFutaba == null) {
 					// 何もしない
@@ -589,7 +595,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						if(newFutaba.Raw.IsDie) {
 							PutInformation(new Data.Information("スレッドは落ちています", newFutaba));
 						} else {
-							PutInformation(new Data.Information("新着レスなし", newFutaba));
+							if(!autoReload
+#if DEBUG
+								|| true
+#endif
+								) {
+								PutInformation(new Data.Information("新着レスなし", newFutaba));
+							}
 						}
 					} else {
 						if(oldFutaba.ResItems.Any()) {
@@ -597,7 +609,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						} else {
 							c = c - 1;
 							if(c == 0) {
-								PutInformation(new Data.Information("新着レスなし", newFutaba));
+								if(!autoReload
+#if DEBUG
+									|| true
+#endif
+									) {
+									PutInformation(new Data.Information("新着レスなし", newFutaba));
+								}
 							} else {
 								PutInformation(new Data.Information($"{c}件の新着レス", newFutaba));
 							}
