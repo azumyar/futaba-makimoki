@@ -57,7 +57,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public MakiMokiCommand<MouseButtonEventArgs> TabClickCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
 		public MakiMokiCommand<RoutedEventArgs> TabCloseClickButtonCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
-
+		
 		private Dictionary<string, Model.TabItem> SelectedTabItem { get; } = new Dictionary<string, TabItem>();
 		public ReactiveProperty<Model.TabItem> TabControlSelectedItem { get; } = new ReactiveProperty<Model.TabItem>();
 		public ReactiveProperty<Model.TabItem> ThreadTabSelectedItem { get; } = new ReactiveProperty<Model.TabItem>();
@@ -175,6 +175,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(onSystemConfigUpdateNotifyer);
 			WpfConfig.WpfConfigLoader.GestureConfigUpdateNotifyer.AddHandler(onGestureConfigUpdateNotifyer);
 		}
+
 		public void Dispose() {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
@@ -352,8 +353,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			await Update(
 				this.Threads.Value,
 				threads.Where(x => x.Url.BaseUrl == url).ToArray(),
-				true,
-				(x) => this.ThreadTabSelectedItem.Value = x);
+				true);
 			this.ThreadToken.Value = DateTime.Now.Ticks;
 		}
 
@@ -361,7 +361,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			ReactiveCollection<Model.TabItem> collection,
 			Data.FutabaContext[] catalog,
 			bool isThreadUpdated,
-			Action<Model.TabItem> applay = null) {
+			Action<Model.TabItem> apply = null) {
 
 			var act = isThreadUpdated ? this.ThreadTabSelectedItem.Value : this.TabControlSelectedItem.Value;
 
@@ -425,7 +425,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				}
 
 				if(r != null) {
-					applay?.Invoke(r);
+					apply?.Invoke(r);
 					await Task.Delay(1);
 				}
 
@@ -455,6 +455,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				} else {
 					this.SelectedTabItem.Add(this.TabControlSelectedItem.Value.Futaba.Value.Url.BaseUrl, tabItem);
 				}
+				foreach(var tab in this.ThreadsDic.ToArray()) {
+					foreach(var it in tab.Value) {
+						it.Deactivate();
+					}
+				}
+				tabItem.Activate();
 			}
 		}
 
@@ -527,6 +533,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Util.Futaba.Remove(f.Url);
 			}
 		}
+
 		private void OnKeyBindingCurrentCatalogTabUpdate()
 			=> FutabaCatalogViewerViewModel.Messenger.Instance.GetEvent<PubSubEvent<ViewModels.FutabaCatalogViewerViewModel.CatalogUpdateCommandMessage>>()
 				.Publish(new FutabaCatalogViewerViewModel.CatalogUpdateCommandMessage(

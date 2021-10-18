@@ -1025,6 +1025,7 @@
                                                     <MultiBinding.Bindings>
                                                         <Binding Path="Futaba.Value.ResCount.Value" />
                                                         <Binding Path="Futaba.Value.CatalogResCount.Value" />
+                                                        <Binding Path="LastRescount.Value" />
                                                     </MultiBinding.Bindings>
                                                 </MultiBinding>
                                             </Ellipse.Visibility>
@@ -1058,15 +1059,6 @@
                         </TabControl>
                     </DataTemplate>
                 </TabControl.ContentTemplate>
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="SelectedItemChanged">
-                        <!--@
-                        <ri:EventToReactiveCommand Command="{Binding TreeViewSelectedCommand}">
-                            <converter:TreeViewSelectedConverter />
-                        </ri:EventToReactiveCommand>
-                        -->
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
             </TabControl>
 
             <ListBox

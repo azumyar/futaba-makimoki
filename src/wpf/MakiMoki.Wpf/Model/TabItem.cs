@@ -44,6 +44,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Prism.Regions.IRegion> Region { get; }
 
 		public ReactiveProperty<object> ThreadView { get; }
+		public ReactiveProperty<int> LastRescount { get; }
+		private bool isActivated = false;
 
 		public TabItem(Data.FutabaContext f) {
 			this.Url = f.Url;
@@ -51,6 +53,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.Region = new ReactiveProperty<Prism.Regions.IRegion>();
 			this.ThreadView = new ReactiveProperty<object>();
 			this.Futaba = new ReactiveProperty<BindableFutaba>(new BindableFutaba(f));
+			this.LastRescount = new ReactiveProperty<int>(this.Futaba.Value.ResCount.Value);
 			this.PostData = new ReactiveProperty<PostHolder>(new PostHolder(f.Bord, f.Url));
 			this.Name = this.Futaba
 				.Select(x => {
@@ -63,7 +66,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					}
 				}).ToReactiveProperty();
 			this.Futaba.Subscribe(x => {
-				var res = x?.ResItems.FirstOrDefault();
+				if(x == null) {
+					this.ThumbSource.Value = null;
+					return;
+				}
+				if(this.isActivated) {
+					this.LastRescount.Value = x.ResCount.Value;
+				}
+
+				var res = x.ResItems.FirstOrDefault();
 				if(res == null) {
 					this.ThumbSource.Value = null;
 					return;
@@ -114,6 +125,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public void HideSearchBox() {
 			SearchBoxVisibility.Value = Visibility.Collapsed;
+		}
+
+		public void Activate() {
+			this.isActivated = true;
+			this.LastRescount.Value = this.Futaba.Value.ResCount.Value;
+		}
+
+
+		public void Deactivate() {
+			this.isActivated = false;
 		}
 	}
 }
