@@ -23,24 +23,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		public static readonly DependencyProperty ContentsProperty
 			= DependencyProperty.Register(
 				nameof(Contents),
-				typeof(Model.BindableFutaba),
+				typeof(Model.PostHolder),
 				typeof(FutabaPostView),
 				new PropertyMetadata(OnContentsChanged));
 		public static RoutedEvent ContentsChangedEvent
 			= EventManager.RegisterRoutedEvent(
 				nameof(ContentsChanged),
 				RoutingStrategy.Tunnel,
-				typeof(RoutedPropertyChangedEventHandler<Model.BindableFutaba>),
+				typeof(RoutedPropertyChangedEventHandler<Model.PostHolder>),
 				typeof(FutabaPostView));
 
-		public Model.BindableFutaba Contents {
-			get => (Model.BindableFutaba)this.GetValue(ContentsProperty);
+		public Model.PostHolder Contents {
+			get => (Model.PostHolder)this.GetValue(ContentsProperty);
 			set {
 				this.SetValue(ContentsProperty, value);
 			}
 		}
 
-		public event RoutedPropertyChangedEventHandler<Model.BindableFutaba> ContentsChanged {
+		public event RoutedPropertyChangedEventHandler<Model.PostHolder> ContentsChanged {
 			add { AddHandler(ContentsChangedEvent, value); }
 			remove { RemoveHandler(ContentsChangedEvent, value); }
 		}
@@ -75,7 +75,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.DeleteCommandMessage>>()
 				.Subscribe(x => {
 					if((this.DataContext is ViewModels.FutabaPostViewViewModel vm) && (x.Token == vm.Token)) {
-						this.Contents?.PostData.Value.Reset();
+						this.Contents?.Reset();
 					}
 				});
 			ViewModels.FutabaPostViewViewModel.Messenger.Instance
@@ -135,9 +135,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 
 		private static void OnContentsChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
 			if(obj is UIElement el) {
-				el.RaiseEvent(new RoutedPropertyChangedEventArgs<Model.BindableFutaba>(
-					e.OldValue as Model.BindableFutaba,
-					e.NewValue as Model.BindableFutaba,
+				el.RaiseEvent(new RoutedPropertyChangedEventArgs<Model.PostHolder>(
+					e.OldValue as Model.PostHolder,
+					e.NewValue as Model.PostHolder,
 					ContentsChangedEvent));
 			}
 		}

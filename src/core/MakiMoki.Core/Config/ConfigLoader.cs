@@ -106,7 +106,8 @@ namespace Yarukizero.Net.MakiMoki.Config {
 						Path.Combine(confDir, BoardConfigFile),
 						default(BoardConfig),
 						new Dictionary<int, Type>() {
-							{ Data.Compat.BoardConfig2020062900.CurrentVersion, typeof(Data.Compat.BoardConfig2020062900) }
+							{ Data.Compat.BoardConfig2020062900.CurrentVersion, typeof(Data.Compat.BoardConfig2020062900) },
+							{ Data.Compat.BoardConfig2021012000.CurrentVersion, typeof(Data.Compat.BoardConfig2021012000) },
 						});
 					MergeDictionary(boardDic, b?.Boards);
  					if(confDir == setting.UserDirectory) {
@@ -272,7 +273,8 @@ namespace Yarukizero.Net.MakiMoki.Config {
 					Path.Combine(InitializedSetting.SystemDirectory, BoardConfigFile),
 					default(BoardConfig),
 					new Dictionary<int, Type>() {
-						{ Data.Compat.BoardConfig2020062900.CurrentVersion, typeof(Data.Compat.BoardConfig2020062900) }
+						{ Data.Compat.BoardConfig2020062900.CurrentVersion, typeof(Data.Compat.BoardConfig2020062900) },
+						{ Data.Compat.BoardConfig2021012000.CurrentVersion, typeof(Data.Compat.BoardConfig2021012000) },
 					});
 				MergeDictionary(boardDic, b?.Boards);
 			}

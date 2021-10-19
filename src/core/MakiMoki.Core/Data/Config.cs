@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Yarukizero.Net.MakiMoki.Data {
 	public class BoardConfig : ConfigObject {
-		public static int CurrentVersion { get; } = 2021012000;
+		public static int CurrentVersion { get; } = 2021102000;
 
 		[JsonProperty("boards", Required = Required.Always)]
 		public BoardData[] Boards { get; protected set; }
@@ -80,18 +80,24 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public BoardDataExtra Extra { get; set; }
 
 
+		[JsonProperty("makimoki-extra", Required = Required.Always)]
+		public MakiMokiBoardDataExtra MakiMokiExtra { get; set; }
+
+
 		public static BoardData From(
 			string name,
 			string url,
 			string defaultComment,
 			int sortIndex,
 			BoardDataExtra extra,
+			MakiMokiBoardDataExtra makimokiExtra,
 			bool display = true) {
 
 			System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(name));
 			System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(url));
 			System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(defaultComment));
 			System.Diagnostics.Debug.Assert(extra != null);
+			System.Diagnostics.Debug.Assert(makimokiExtra != null);
 
 			return new BoardData() {
 				Name = name,
@@ -99,6 +105,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				DefaultComment = defaultComment,
 				SortIndex = sortIndex,
 				Extra = extra,
+				MakiMokiExtra = makimokiExtra,
 				Display = display,
 			};
 		}
@@ -107,7 +114,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	public class BoardDataExtra : JsonObject {
 		[JsonProperty("name", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(true)]
-		public bool Name { get; set; }
+		public bool Name { get; private set; }
 
 		[JsonProperty("enable-res-image", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(true)]
@@ -115,31 +122,31 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 		[JsonProperty("enable-mail-ip", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(false)]
-		public bool MailIp { get; set; }
+		public bool MailIp { get; private set; }
 
 		[JsonProperty("enable-mail-id", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(false)]
-		public bool MailId { get; set; }
+		public bool MailId { get; private set; }
 
 		[JsonProperty("always-ip", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(false)]
-		public bool AlwaysIp { get; set; }
+		public bool AlwaysIp { get; private set; }
 
 		[JsonProperty("always-id", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(false)]
-		public bool AlwaysId { get; set; }
+		public bool AlwaysId { get; private set; }
 
 		[JsonProperty("max-stored-res", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(0)]
-		public int MaxStoredRes { get; set; }
+		public int MaxStoredRes { get; private set; }
 
 		[JsonProperty("max-stored-time", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(0)]
-		public int MaxStoredTime { get; set; }
+		public int MaxStoredTime { get; private set; }
 
 		[JsonProperty("enable-res-tegaki", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(false)]
-		public bool ResTegaki { get; set; }
+		public bool ResTegaki { get; private set; }
 
 		public static BoardDataExtra From(
 			bool name,
@@ -162,6 +169,21 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				MaxStoredRes = maxStoredRes,
 				MaxStoredTime = maxStoredTime,
 				ResTegaki = resTegaki,
+			};
+		}
+	}
+
+
+	public class MakiMokiBoardDataExtra {
+		[JsonProperty("enable-passive-reload", DefaultValueHandling = DefaultValueHandling.Populate)]
+		[DefaultValue(false)]
+		public bool IsEnabledPassiveReload { get; private set; }
+
+		public static MakiMokiBoardDataExtra From(
+			bool isEnabledPassiveReload) {
+
+			return new MakiMokiBoardDataExtra() {
+				IsEnabledPassiveReload = isEnabledPassiveReload,
 			};
 		}
 	}

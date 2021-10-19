@@ -25,14 +25,34 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static ReactiveProperty<Data.PostedResItem[]> PostItems { get; private set; }
 		public static ReactiveCollection<Data.Information> Informations { get; private set; }
 
+		private static Helpers.ConnectionQueue<object> PassiveReloadQueue { get; set; }
 		private static Helpers.ConnectionQueue<(bool Successed, string Message)> SoudaneQueue { get; set; }
 		private static Helpers.ConnectionQueue<(bool Successed, string Message)> DelQueue { get; set; }
 
 		private static readonly Action BoardConfigUpdateAction = () => {
+			var dic = Config.ConfigLoader.Board.Boards.ToDictionary(x => x.Url);
 			if(Catalog != null) {
 				Catalog.Value = Catalog.Value
-					.Where(x => Config.ConfigLoader.Board.Boards.Any(y => y.Url == x.Url.BaseUrl))
+					.Where(x => dic.Keys.Any(y => y == x.Url.BaseUrl))
 					.ToArray();
+			}
+			if(Threads != null) {
+				Threads.Value = Threads.Value
+					.Where(x => dic.Keys.Any(y => y == x.Url.BaseUrl))
+					.ToArray();
+				var d2 = dic
+					.Where(x => x.Value.MakiMokiExtra.IsEnabledPassiveReload)
+					.ToDictionary(x => x.Key, x => x.Value);
+				var d3 = Threads.Value
+					.Where(x => !x.Raw.IsDie && !x.Raw.IsMaxRes && d2.Keys.Any(y => y == x.Url.BaseUrl))
+					.ToDictionary(x => CreatePassiveReloadQueueTag(x.Url.BaseUrl, x.Url.ThreadNo));
+				foreach(var it in PassiveReloadQueue.ExceptTag(d3.Keys)) {
+					if(d3.TryGetValue(it, out var v)) {
+						// TODO: 直後発火で本当に良いのか？
+						UpdateThreadRes(v.Bord, v.Url.ThreadNo, true, true)
+							.Subscribe();
+					}
+				}
 			}
 		};
 
@@ -68,6 +88,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			Threads.Subscribe(x => Config.ConfigLoader.SaveFutabaResponse(Catalog.Value.ToArray(), Threads.Value.ToArray()));
 			PostItems.Subscribe(x => Config.ConfigLoader.SavePostItems(PostItems.Value.ToArray()));
 
+			PassiveReloadQueue = new Helpers.ConnectionQueue<object>(
+				name: "パッシブリロードキュー",
+				maxConcurrency: 4,
+				waitTime: 5000,
+				sleepTime: 60 * 1000
+			);
 			SoudaneQueue = new Helpers.ConnectionQueue<(bool Successed, string Message)>(
 				name: "そうだねAPIキュー"
 			);
@@ -77,6 +103,20 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				waitTime: 5000
 			);
 			Config.ConfigLoader.BoardConfigUpdateNotifyer.AddHandler(BoardConfigUpdateAction);
+			foreach(var it in Threads.Value) {
+				if(!it.Raw.IsDie) {
+					UpdateThreadRes(
+						it.Bord,
+						it.Url.ThreadNo,
+						true,
+						true)
+						.Subscribe();
+				}
+			}
+		}
+
+		private static object CreatePassiveReloadQueueTag(string boardUrl, string threadNo) {
+			return $"{ boardUrl }+{ threadNo }";
 		}
 
 		public static IObservable<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)> UpdateCatalog(Data.BoardData bord, Data.CatalogSortItem sort = null) {
@@ -188,8 +228,89 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
+		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadRes(Data.BoardData board, string threadNo, bool incremental = false, bool passive = false) {
+			const int MinWaitSec = 30;
+			const int ErrorWaitSec = 60;
+			const int PassivePriority = 100;
+			var url = board.Url; // 設定が変わる場合に備えてURLを保持
+			DateTime get((bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage) x) {
+				var fireDate = DateTime.MinValue;
+				if(x.Successed) {
+					if(x.New.Raw.IsDie || x.New.Raw.IsMaxRes) {
+						// スレ落ち or 最大レス
+					} else {
+						if(x.New.ResItems.Any()) {
+							// レスあり
+							if(x.Old.ResItems.Any() && (x.Old.ResItems.Length != x.New.ResItems.Length)) {
+								var span = x.New.ResItems.Last().ResItem.Res.NowDateTime - x.Old.ResItems.Last().ResItem.Res.NowDateTime;
+								var sec = Math.Max(span.TotalSeconds / 2, MinWaitSec);
+								fireDate = DateTime.Now.AddSeconds(sec);
+							} else {
+								// 古いレスなし
+								var time = x.New.Raw.NowDateTime ?? DateTime.Now;
+								var span = time - x.New.ResItems.Last().ResItem.Res.NowDateTime;
+								var sec = Math.Max(span.TotalSeconds / 2, MinWaitSec);
+								fireDate = DateTime.Now.AddSeconds(sec);
+							}
+						} else {
+							// レスなし
+							var time = x.New.Raw.NowDateTime ?? DateTime.Now;
+							var span = time - x.New.ResItems.Last().ResItem.Res.NowDateTime;
+							var sec = Math.Max(span.TotalSeconds / 2, MinWaitSec);
+							fireDate = DateTime.Now.AddSeconds(sec);
+						}
+						// スレ落ち予測時間に補正する
+						if(x.New.Raw.DieDateTime.HasValue && (x.New.Raw.DieDateTime.Value.AddSeconds(60) < fireDate)) {
+							fireDate = x.New.Raw.DieDateTime.Value;
+						}
+					}
+				} else {
+					// 取得失敗リトライ
+					fireDate = DateTime.Now.AddSeconds(ErrorWaitSec);
+				}
+				return fireDate;
+			}
+			void fire(IObserver<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> o, bool incremental, int priority, DateTime fireTime, object tag) {
+				PassiveReloadQueue.Push(Helpers.ConnectionQueueItem<object>.From(
+					action: (_) => {
+						// 設定が変わる場合に備えてURLから検索
+						var b = Config.ConfigLoader.Board.Boards
+							.Where(x => x.Url == url)
+							.FirstOrDefault();
+						if(b == null) {
+							o.OnCompleted();
+						} else {
+							UpdateThreadResInternal(b, threadNo, incremental, passive)
+								.Subscribe(x => {
+									if(x.Successed && (x.New.Raw.IsDie || x.New.Raw.IsMaxRes)) {
+										o.OnNext(x);
+										o.OnCompleted();
+									} else {
+										if(b.MakiMokiExtra.IsEnabledPassiveReload) {
+											fire(o, true, PassivePriority, get(x), tag);
+										}
+										o.OnNext(x);
+									}
+								});
+						}
+					},
+					priority: priority,
+					fireTime: fireTime,
+					tag: tag))
+					.Subscribe();
+			}
 
-		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadRes(Data.BoardData bord, string threadNo, bool incremental = false) {
+			return Observable.Create<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(o => {
+				fire(
+					o, incremental,
+					passive ? PassivePriority : 0,
+					passive ? DateTime.Now.AddSeconds(MinWaitSec) :  DateTime.MinValue,
+					CreatePassiveReloadQueueTag(url, threadNo));
+
+				return System.Reactive.Disposables.Disposable.Empty;
+			});
+		}
+		private static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadResInternal(Data.BoardData bord, string threadNo, bool incremental, bool autoReload) {
 			var u = new Data.UrlContext(bord.Url, threadNo);
 			Data.FutabaContext parent = null;
 			lock(lockObj) {
@@ -261,7 +382,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					end:
 						return (successed, result, prev, error);
 					});
-					PutThreadResResult(ctx.New, ctx.Old, ctx.ErrorMessage);
+					PutThreadResResult(ctx.New, ctx.Old, ctx.ErrorMessage, autoReload);
 					o.OnNext(ctx);
 				}
 				finally {
@@ -272,7 +393,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadResAll(Data.BoardData bord, string threadNo) {
+		private static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadResAll(Data.BoardData bord, string threadNo) {
 			return Observable.Create<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(async o => {
 				try {
 					var ctx = await Task.Run<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(() => {
@@ -476,7 +597,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					end:
 						return (successed, result, prev, error);
 					});
-					PutThreadResResult(ctx.New, ctx.Old, ctx.ErrorMessage);
+					PutThreadResResult(ctx.New, ctx.Old, ctx.ErrorMessage, false);
 					o.OnNext(ctx);
 				}
 				finally {
@@ -486,9 +607,15 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		private static void PutThreadResResult(Data.FutabaContext newFutaba, Data.FutabaContext oldFutaba, string error) {
+		private static void PutThreadResResult(Data.FutabaContext newFutaba, Data.FutabaContext oldFutaba, string error, bool autoReload) {
 			if(newFutaba == null) {
-				PutInformation(new Data.Information(string.IsNullOrEmpty(error) ? "スレ取得エラー" : error, newFutaba));
+				if(!autoReload
+#if DEBUG
+					|| true
+#endif
+					) {
+					PutInformation(new Data.Information(string.IsNullOrEmpty(error) ? "スレ取得エラー" : error, newFutaba));
+				}
 			} else {
 				if(oldFutaba == null) {
 					// 何もしない
@@ -498,7 +625,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						if(newFutaba.Raw.IsDie) {
 							PutInformation(new Data.Information("スレッドは落ちています", newFutaba));
 						} else {
-							PutInformation(new Data.Information("新着レスなし", newFutaba));
+							if(!autoReload
+#if DEBUG
+								|| true
+#endif
+								) {
+								PutInformation(new Data.Information("新着レスなし", newFutaba));
+							}
 						}
 					} else {
 						if(oldFutaba.ResItems.Any()) {
@@ -506,7 +639,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						} else {
 							c = c - 1;
 							if(c == 0) {
-								PutInformation(new Data.Information("新着レスなし", newFutaba));
+								if(!autoReload
+#if DEBUG
+									|| true
+#endif
+									) {
+									PutInformation(new Data.Information("新着レスなし", newFutaba));
+								}
 							} else {
 								PutInformation(new Data.Information($"{c}件の新着レス", newFutaba));
 							}
@@ -550,6 +689,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					Threads.Value = Threads.Value.Where(x => x.Url.BaseUrl != url.BaseUrl).ToArray();
 				} else {
 					Threads.Value = Threads.Value.Where(x => x.Url != url).ToArray();
+					PassiveReloadQueue.RemoveFromTag(CreatePassiveReloadQueueTag(url.BaseUrl, url.ThreadNo));
 				}
 			}
 		}

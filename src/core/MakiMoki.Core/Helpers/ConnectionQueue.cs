@@ -22,7 +22,8 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 			string name = null,
 			int maxConcurrency = 2,
 			int delayTime = 100,
-			int waitTime = 2000) {
+			int waitTime = 2000,
+			int? sleepTime = null) {
 
 			System.Diagnostics.Debug.Assert(0 < maxConcurrency);
 			System.Diagnostics.Debug.Assert(0 < delayTime);
@@ -40,9 +41,16 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 						}
 
 						System.Diagnostics.Debug.WriteLine($"{ nameof(ConnectionQueue<T>) }[{ name }]::Get()");
-						q = this.queue.OrderBy(x => x.Item.Priority).ToArray();
-						this.queue = new ConcurrentBag<(ConnectionQueueItem<T> Item, IObserver<T> Observer)>(
-							q.Skip(maxConcurrency));
+						q = this.queue
+							.Where(x => x.Item.FireTime < DateTime.Now)
+							.OrderBy(x => x.Item.Priority)
+							.OrderBy(x => x.Item.FireTime)
+							.Take(maxConcurrency)
+							.ToArray();
+						if(!q.Any()) {
+							goto sleep;
+						}
+						this.queue = new ConcurrentBag<(ConnectionQueueItem<T> Item, IObserver<T> Observer)>(this.queue.Except(q));
 					}
 
 					System.Diagnostics.Debug.WriteLine($"{ nameof(ConnectionQueue<T>) }[{ name }]::Action()");
@@ -58,7 +66,11 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 
 				sleep:
 					System.Diagnostics.Debug.WriteLine($"{ nameof(ConnectionQueue<T>) }[{ name }]::Sleep()");
-					this.condition.WaitOne();
+					if(sleepTime.HasValue) {
+						this.condition.WaitOne(sleepTime.Value);
+					} else {
+						this.condition.WaitOne();
+					}
 				}
 			}) {
 				Name = name,
@@ -76,27 +88,62 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 			System.Diagnostics.Debug.Assert(item != null);
 			return Observable.Create<T>(o => {
 				lock(this.lockObj) {
+					if(item.Tag != null) {
+						var a1 = this.queue
+							.Where(x => item.Tag.Equals(x.Item.Tag)) // ==ではobjectなのでうまくいかない
+							.ToArray();
+						var a2 = this.queue.Except(a1);
+						this.queue = new ConcurrentBag<(ConnectionQueueItem<T> Item, IObserver<T> Observer)>(a2);
+					}
 					this.queue.Add((item, o));
 				}
-				this.condition.Set();
+				if(item.FireTime <= DateTime.Now) {
+					this.condition.Set();
+				}
 
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
+		}
+
+		public void RemoveFromTag(object tag) {
+			System.Diagnostics.Debug.Assert(tag != null);
+			lock(this.lockObj) {
+				var a1 = this.queue
+					.Where(x => tag.Equals(x.Item.Tag)) // ==ではobjectなのでうまくいかない
+					.ToArray();
+				var a2 = this.queue.Except(a1);
+				this.queue = new ConcurrentBag<(ConnectionQueueItem<T> Item, IObserver<T> Observer)>(a2);
+			}
+		}
+
+		public TTag[] ExceptTag<TTag>(IEnumerable<TTag> tags) {
+			var a = this.queue
+				.Select(x => x.Item.Tag)
+				.ToArray();
+			return tags
+				.Where(x => a.Any(y => !y.Equals(x)))
+				.ToArray();
 		}
 	}
 
 	public class ConnectionQueueItem<T> {
 		public Action<IObserver<T>> Action { get; private set; }
 		public int Priority { get; private set; }
+		public DateTime FireTime { get; private set; }
+		public object Tag { get; private set; }
 
 		public static ConnectionQueueItem<T> From(
 			Action<IObserver<T>> action,
-			int priority = 0) {
+			int priority = 0,
+			DateTime? fireTime = null,
+			object tag = null) {
 
 			System.Diagnostics.Debug.Assert(action != null);
 			return new ConnectionQueueItem<T>() {
 				Action = action,
-				Priority = priority
+				Priority = priority,
+				FireTime = fireTime ?? DateTime.MinValue,
+				Tag = tag,
 			};
 		}
 	}

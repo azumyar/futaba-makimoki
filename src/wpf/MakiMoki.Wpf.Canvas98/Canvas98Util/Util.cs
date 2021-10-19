@@ -9,7 +9,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Util {
 			try {
 				return !string.IsNullOrEmpty(CoreWebView2Environment.GetAvailableBrowserVersionString());
 			}
-			catch(EdgeNotFoundException) {
+			catch(WebView2RuntimeNotFoundException) {
 				return false;
 			}
 		}

@@ -22,126 +22,6 @@ using Yarukizero.Net.MakiMoki.Wpf.Reactive;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	public class BindableFutaba : INotifyPropertyChanged, IDisposable {
-		public class PostHolder : INotifyPropertyChanged, IDisposable {
-
-			private static readonly string FallbackUnicodeString = "\a";
-			private static readonly Encoding FutabaEncoding = Encoding.GetEncoding(
-				"Shift_JIS",
-				new EncoderReplacementFallback(FallbackUnicodeString),
-				DecoderFallback.ReplacementFallback);
-			private static string GetDefaultSubject(string defaultValue = "") => Config.ConfigLoader.MakiMoki.FutabaPostSavedSubject ? Config.ConfigLoader.FutabaApi.SavedSubject : defaultValue;
-			private static string GetDefaultName(string defaultValue = "") => Config.ConfigLoader.MakiMoki.FutabaPostSavedName ? Config.ConfigLoader.FutabaApi.SavedName : defaultValue;
-			private static string GetDefaultMail(string defaultValue = "") => Config.ConfigLoader.MakiMoki.FutabaPostSavedMail ? Config.ConfigLoader.FutabaApi.SavedMail : defaultValue;
-
-#pragma warning disable CS0067
-			public event PropertyChangedEventHandler PropertyChanged;
-#pragma warning restore CS0067
-			public ReactiveProperty<string> Comment { get; } = new ReactiveProperty<string>("");
-			public ReadOnlyReactiveProperty<string> CommentEncoded { get; }
-			public ReadOnlyReactiveProperty<int> CommentBytes { get; }
-			public ReadOnlyReactiveProperty<int> CommentLines { get; }
-
-			public ReactiveProperty<string> Name { get; } = new ReactiveProperty<string>(GetDefaultName());
-			public ReadOnlyReactiveProperty<string> NameEncoded { get; }
-			public ReactiveProperty<string> Mail { get; } = new ReactiveProperty<string>(GetDefaultMail());
-			public ReadOnlyReactiveProperty<string> MailEncoded { get; }
-			public ReactiveProperty<string> Subject { get; } = new ReactiveProperty<string>(GetDefaultSubject());
-			public ReadOnlyReactiveProperty<string> SubjectEncoded { get; }
-			public ReactiveProperty<string> Password { get; } = new ReactiveProperty<string>(
-				Config.ConfigLoader.FutabaApi.SavedPassword);
-			public ReactiveProperty<string> ImagePath { get; } = new ReactiveProperty<string>("");
-
-			public ReactiveProperty<string> ImageName { get; }
-			public ReactiveProperty<ImageSource> ImagePreview { get; }
-
-			public ReactiveProperty<bool> CommentValidFlag { get; }
-			public ReactiveProperty<bool> ImageValidFlag { get; }
-			public ReactiveProperty<bool> CommentImageValidFlag { get; }
-			public ReactiveProperty<bool> PasswordValidFlag { get; }
-
-			public MakiMokiCommand PostButtonCommand { get; }
-
-			public PostHolder() {
-				this.ImageName = this.ImagePath.Select(x => {
-					if(string.IsNullOrWhiteSpace(x)) {
-						return "";
-					} else {
-						return Path.GetFileName(x);
-					}
-				}).ToReactiveProperty("");
-				this.ImagePreview = this.ImagePath.Select<string, ImageSource>(x => {
-					if(File.Exists(x)) {
-						var ext = Path.GetExtension(x).ToLower();
-						var imageExt = Config.ConfigLoader.MimeFutaba.Types
-							.Where(y => y.MimeContents == MimeContents.Image)
-							.Select(y => y.Ext)
-							.ToArray();
-						var movieExt = Config.ConfigLoader.MimeFutaba.Types
-							.Where(y => y.MimeContents == MimeContents.Video)
-							.Select(y => y.Ext)
-							.ToArray();
-						if(imageExt.Contains(ext)) {
-							return WpfUtil.ImageUtil.LoadImage(x);
-						} else if(movieExt.Contains(ext)) {
-							// 動画は今は何もしない
-							// TODO: なんんか実装する
-						}
-					}
-					return null;
-				}).ToReactiveProperty();
-
-				this.CommentEncoded = this.Comment
-					.Select(x =>Util.TextUtil.ConvertUnicodeTextToFutabaComment(x))
-					.ToReadOnlyReactiveProperty();
-				this.CommentBytes = this.CommentEncoded
-					.Select(x => Util.TextUtil.GetTextFutabaByteCount(x))
-					.ToReadOnlyReactiveProperty();
-				this.CommentLines = this.Comment
-					.Select(x => (x.Length == 0) ? 0 : (x.Where(y => y == '\n').Count() + 1))
-					.ToReadOnlyReactiveProperty();
-				this.NameEncoded = this.Name
-					.Select(x => Util.TextUtil.ConvertUnicodeTextToFutabaComment(x))
-					.ToReadOnlyReactiveProperty();
-				this.MailEncoded = this.Mail
-					.Select(x => Util.TextUtil.ConvertUnicodeTextToFutabaComment(x))
-					.ToReadOnlyReactiveProperty();
-				this.SubjectEncoded = this.Subject
-					.Select(x => Util.TextUtil.ConvertUnicodeTextToFutabaComment(x))
-					.ToReadOnlyReactiveProperty();
-
-				this.CommentValidFlag = this.Comment.Select(x => x.Length != 0).ToReactiveProperty();
-				this.ImageValidFlag = this.ImagePath.Select(x => x.Length != 0).ToReactiveProperty();
-				this.CommentImageValidFlag = new[] { this.CommentValidFlag, this.ImageValidFlag }
-					.CombineLatest(x => x.Any(y => y))
-					.ToReactiveProperty();
-				this.PasswordValidFlag = this.Password.Select(x => x.Length != 0).ToReactiveProperty();
-				this.PostButtonCommand = new[] { CommentImageValidFlag, PasswordValidFlag }
-					.CombineLatestValuesAreAllTrue()
-					.ToMakiMokiCommand();
-
-				Config.ConfigLoader.PostConfigUpdateNotifyer.AddHandler(this.UpdateFromConfig);
-			}
-
-			public void Dispose() {
-				Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
-			}
-
-			public void Reset() {
-				Comment.Value = "";
-				Name.Value = GetDefaultName();
-				Mail.Value = GetDefaultMail();
-				Subject.Value = GetDefaultSubject();
-				Password.Value = Config.ConfigLoader.FutabaApi.SavedPassword;
-				ImagePath.Value = "";
-			}
-
-			public void UpdateFromConfig() {
-				Name.Value = GetDefaultName(Name.Value);
-				Mail.Value = GetDefaultMail(Mail.Value);
-				Subject.Value = GetDefaultSubject(Subject.Value);
-				Password.Value = Config.ConfigLoader.FutabaApi.SavedPassword;
-			}
-		}
 #pragma warning disable CS0067
 		public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore CS0067
@@ -152,24 +32,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<int> ResCount { get; }
 		public ReactiveProperty<string> DieTextLong { get; }
 
-		public ReactiveProperty<string> PostTitle { get; }
-		[Helpers.AutoDisposable.IgonoreDispose]
-		[Helpers.AutoDisposable.IgonoreDisposeBindingsValue]
-		public ReactiveProperty<PostHolder> PostData { get; }
-
-		public ReactiveProperty<Visibility> PostNameVisibility { get; }
-		public ReactiveProperty<Visibility> PostImageVisibility { get; }
-		public ReactiveProperty<Visibility> PostIpOptionVisibility { get; }
-		public ReactiveProperty<Visibility> PostIdOptionVisibility { get; }
-
-		public MakiMokiCommand<MouseButtonEventArgs> OpenImageCommand { get; }
-			= new MakiMokiCommand<MouseButtonEventArgs>();
-		public MakiMokiCommand<MouseButtonEventArgs> DeleteImageCommand { get; }
-			= new MakiMokiCommand<MouseButtonEventArgs>();
-		public MakiMokiCommand DeletePostDataCommand { get; } = new MakiMokiCommand();
-		public MakiMokiCommand MailSageClickCommand { get; } = new MakiMokiCommand();
-		public MakiMokiCommand MailIdClickCommand { get; } = new MakiMokiCommand();
-		public MakiMokiCommand MailIpClickCommand { get; } = new MakiMokiCommand();
 
 		public MakiMokiCommand ExportCommand { get; } = new MakiMokiCommand();
 
@@ -297,37 +159,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					this.DieTextLong = new ReactiveProperty<string>("スレ消滅：不明");
 				}
 			}
-
-			var bord = Config.ConfigLoader.Board.Boards.Where(x => x.Url == futaba.Url.BaseUrl).FirstOrDefault();
-			this.PostTitle = new ReactiveProperty<string>(futaba.Url.IsCatalogUrl ? "スレッド作成" : "レス投稿");
-			if(bord == null) {
-				this.PostNameVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
-				this.PostImageVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
-				this.PostIpOptionVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
-				this.PostIdOptionVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
-			} else {
-				this.PostNameVisibility = new ReactiveProperty<Visibility>(
-					(bord.Extra.Name) ? Visibility.Visible : Visibility.Collapsed);
-				if(futaba.Url.IsCatalogUrl) {
-					this.PostImageVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
-					this.PostIpOptionVisibility = new ReactiveProperty<Visibility>(
-						bord.Extra.MailIp ? Visibility.Visible : Visibility.Collapsed);
-					this.PostIdOptionVisibility = new ReactiveProperty<Visibility>(
-						bord.Extra.MailId ? Visibility.Visible : Visibility.Collapsed);
-				} else {
-					this.PostImageVisibility = new ReactiveProperty<Visibility>(
-						bord.Extra.ResImage ? Visibility.Visible : Visibility.Collapsed);
-					this.PostIpOptionVisibility = new ReactiveProperty<Visibility>(Visibility.Collapsed);
-					this.PostIdOptionVisibility = new ReactiveProperty<Visibility>(Visibility.Collapsed);
-				}
-			}
-			this.PostData = old?.PostData ?? new ReactiveProperty<PostHolder>(new PostHolder());
-			this.OpenImageCommand.Subscribe(x => OnOpenImage(x));
-			this.DeleteImageCommand.Subscribe(x => OnDeleteImage(x));
-			this.MailSageClickCommand.Subscribe(x => OnMailSageClick());
-			this.MailIdClickCommand.Subscribe(x => OnMailIdClick());
-			this.MailIpClickCommand.Subscribe(x => OnMailIpClick());
-			this.DeletePostDataCommand.Subscribe(() => OnDeletePostData());
 			this.ExportCommand.Subscribe(() => OnExport());
 
 			this.FullScreenCatalogClickCommand.Subscribe(() => OnFullScreenCatalogClick());
@@ -447,64 +278,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public void Dispose() {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
-		}
-
-		private async void OnOpenImage(MouseButtonEventArgs e) {
-			if(e.Source is FrameworkElement o) {
-				if((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
-					switch(e.ChangedButton) {
-					case MouseButton.Left:
-						try {
-							Application.Current.MainWindow.IsEnabled = false;
-							var ext = Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext);
-							var ofd = new Microsoft.Win32.OpenFileDialog() {
-								Filter = "ふたば画像ファイル|"
-									+ string.Join(";", ext.Select(x => "*" + x).ToArray())
-									+ "|すべてのファイル|*.*"
-							};
-							e.Handled = true;
-							if(ofd.ShowDialog() ?? false) {
-								this.PostData.Value.ImagePath.Value = ofd.FileName;
-								// ダイアログをダブルクリックで選択するとウィンドウに当たり判定がいくので
-								// 一度待つ
-								await Task.Delay(1);
-							}
-						}
-						finally {
-							Application.Current.MainWindow.IsEnabled = true;
-						}
-						break;
-					}
-				}
-			}
-		}
-
-		private void OnDeleteImage(MouseButtonEventArgs e) {
-			if(e.Source is FrameworkElement o) {
-				if((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
-					switch(e.ChangedButton) {
-					case MouseButton.Left:
-						this.PostData.Value.ImagePath.Value = "";
-						e.Handled = true;
-						break;
-					}
-				}
-			}
-		}
-
-		private void OnMailSageClick() {
-			this.PostData.Value.Mail.Value = "sage";
-		}
-		private void OnMailIdClick() {
-			this.PostData.Value.Mail.Value = "id表示";
-		}
-
-		private void OnMailIpClick() {
-			this.PostData.Value.Mail.Value = "ip表示";
-		}
-
-		private void OnDeletePostData() {
-			this.PostData.Value.Reset();
 		}
 
 		private void OnFullScreenCatalogClick() {

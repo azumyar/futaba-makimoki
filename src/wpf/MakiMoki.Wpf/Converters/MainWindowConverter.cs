@@ -103,9 +103,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 	class ThreadNewResVisibleConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-			if(values.Length == 2) {
-				if((values[0] is int i1) && (values[1] is int i2) && (0 <= i1)) { // スレ情報取得前のi1の初期値は-1
-					return i1 < i2 ? Visibility.Visible : Visibility.Hidden;
+			if(values.Length == 3) {
+				if((values[0] is int i1) && (values[1] is int i2) && (values[2] is int i3) && (0 <= i1)) { // スレ情報取得前のi1の初期値は-1
+					if(i1 == i3) {
+						return i1 < i2 ? Visibility.Visible : Visibility.Hidden;
+					} else {
+						return Visibility.Visible;
+					}
 					//return bf.ResCount.Value < bf.CatalogResCount.Value ? Visibility.Visible : Visibility.Hidden;
 				}
 				return Visibility.Hidden;
@@ -142,6 +146,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 					return new Model.InformationBindableExObject(
 						WpfUtil.ImageUtil.GetImageCache(
 							Util.Futaba.GetThumbImageLocalFilePath(fc.Url, it.ResItem.Res)));
+				}
+			} else if(value is Data.UrlContext c) {
+				if(c.IsThreadUrl) {
+					var f = Util.Futaba.Threads.Value
+						.Where(x => x.Url == c)
+						.FirstOrDefault();
+					if((f != null) && f.ResItems.Any()) {
+						return new Model.InformationBindableExObject(
+							WpfUtil.ImageUtil.GetImageCache(
+								Util.Futaba.GetThumbImageLocalFilePath(c, f.ResItems.First().ResItem.Res)));
+					}
 				}
 			}
 

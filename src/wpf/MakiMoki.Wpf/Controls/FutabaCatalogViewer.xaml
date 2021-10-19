@@ -1107,20 +1107,20 @@
             <!-- 書き込みサブウィンドウ -->
             <local:FutabaPostView
                 Grid.Row="1"
-                Opacity="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}"
-                Contents="{Binding Contents.Futaba.Value, ElementName=_this}"
+                Opacity="{Binding Contents.PostData.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}"
+                Contents="{Binding Contents.PostData.Value, ElementName=_this}"
                 Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=TwoWay}">
                 <local:FutabaPostView.MinWidth>
                     <MultiBinding Converter="{StaticResource PostViewMinWidthConverter}">
                         <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
                         <Binding Mode="OneWay" Source="{StaticResource DefaultMinWidth}" />
-                        <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
+                        <Binding Path="Contents.PostData.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
                     </MultiBinding>
                 </local:FutabaPostView.MinWidth>
                 <local:FutabaPostView.MaxWidth>
                     <MultiBinding Converter="{StaticResource PostViewMaxWidthConverter}">
                         <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
-                        <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
+                        <Binding Path="Contents.PostData.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
                     </MultiBinding>
                 </local:FutabaPostView.MaxWidth>
                 <i:Interaction.Triggers>
@@ -1134,13 +1134,13 @@
                         <i:ChangePropertyAction
                             PropertyName="Opacity"
                             TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
-                            Value="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}" />
+                            Value="{Binding Contents.PostData.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}" />
                     </i:EventTrigger>
                     <i:DataStoreChangedTrigger Binding="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this}">
                         <i:ChangePropertyAction
                             PropertyName="Opacity"
                             TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
-                            Value="{Binding Contents.Futaba.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}" />
+                            Value="{Binding Contents.PostData.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}" />
                     </i:DataStoreChangedTrigger>
                 </i:Interaction.Triggers>
             </local:FutabaPostView>

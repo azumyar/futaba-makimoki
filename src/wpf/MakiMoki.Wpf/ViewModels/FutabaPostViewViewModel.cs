@@ -89,8 +89,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<KeyBinding[]> KeyGestures { get; } = new ReactiveProperty<KeyBinding[]>();
 		public ReactiveProperty<Visibility> PostProgressVisibility { get; }
 
-		public MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>> ContentsChangedCommand { get; }
-			= new MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.BindableFutaba>>();
+		public MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.PostHolder>> ContentsChangedCommand { get; }
+			= new MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.PostHolder>>();
+
+		public MakiMokiCommand<MouseButtonEventArgs> OpenImageCommand { get; }
+			= new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> DeleteImageCommand { get; }
+			= new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<PostHolder> DeletePostDataCommand { get; } = new MakiMokiCommand<PostHolder>();
+		public MakiMokiCommand<PostHolder> MailSageClickCommand { get; } = new MakiMokiCommand<PostHolder>();
+		public MakiMokiCommand<PostHolder> MailIdClickCommand { get; } = new MakiMokiCommand<PostHolder>();
+		public MakiMokiCommand<PostHolder> MailIpClickCommand { get; } = new MakiMokiCommand<PostHolder>();
+
 
 		public MakiMokiCommand<DragEventArgs> ImageDragOverCommand { get; } = new MakiMokiCommand<DragEventArgs>();
 		public MakiMokiCommand<DragEventArgs> ImageDropCommand { get; } = new MakiMokiCommand<DragEventArgs>();
@@ -100,8 +110,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public MakiMokiCommand<RoutedEventArgs> PostViewPostCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
-		public MakiMokiCommand<BindableFutaba> MenuItemClickPastePostImageCommand { get; } = new MakiMokiCommand<BindableFutaba>();
-		public MakiMokiCommand<BindableFutaba> MenuItemClickPastePostUpCommand { get; } = new MakiMokiCommand<BindableFutaba>();
+		public MakiMokiCommand<PostHolder> MenuItemClickPastePostImageCommand { get; } = new MakiMokiCommand<PostHolder>();
+		public MakiMokiCommand<PostHolder> MenuItemClickPastePostUpCommand { get; } = new MakiMokiCommand<PostHolder>();
 
 		public MakiMokiCommand KeyBindingPostCommand { get; } = new MakiMokiCommand();
 		public MakiMokiCommand KeyBindingOpenImageCommand { get; } = new MakiMokiCommand();
@@ -122,12 +132,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			UpdateKeyBindings();
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
 
+			OpenImageCommand.Subscribe(x => OnOpenImage(x));
+			DeleteImageCommand.Subscribe(x => OnDeleteImage(x));
+			MailSageClickCommand.Subscribe(x => OnMailSageClick(x));
+			MailIdClickCommand.Subscribe(x => OnMailIdClick(x));
+			MailIpClickCommand.Subscribe(x => OnMailIpClick(x));
+			DeletePostDataCommand.Subscribe(x => OnDeletePostData(x));
+
 			OpenUploadCommand.Subscribe(x => OnOpenUpload(x));
 			ImageDragOverCommand.Subscribe(x => OnImageDragOver(x));
 			ImageDropCommand.Subscribe(x => OnImageDrop(x));
 			UploadDragOverpCommand.Subscribe(x => OnUploadDragOver(x));
 			UploadDroppCommand.Subscribe(x => OnUploadDrop(x));
-			PostViewPostCommand.Subscribe(x => OnPostViewPostClick((x.Source as FrameworkElement)?.DataContext as Model.BindableFutaba));
+			PostViewPostCommand.Subscribe(x => OnPostViewPostClick((x.Source as FrameworkElement)?.DataContext as Model.PostHolder));
 
 			MenuItemClickPastePostImageCommand.Subscribe(x => OnMenuItemClickPastePostImage(x));
 			MenuItemClickPastePostUpCommand.Subscribe(x => OnMenuItemClickPastePostUp(x));
@@ -181,30 +198,30 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			this.KeyGestures.Value = kg.ToArray();
 		}
 
-		private void UploadUp2(Model.BindableFutaba f, string path) {
+		private void UploadUp2(Model.PostHolder postData, string path) {
 			if(this.IsPosting.Value || this.IsUpplading2.Value) {
 				return;
 			}
 
 			this.IsUpplading2.Value = true;
-			Util.Futaba.UploadUp2(path, f.PostData.Value.Password.Value)
+			Util.Futaba.UploadUp2(path, postData.Password.Value)
 				.ObserveOn(UIDispatcherScheduler.Default)
 				.Finally(() => { this.IsUpplading2.Value = false; })
 				.Subscribe(x => {
 					if(x.Successed) {
 						Messenger.Instance.GetEvent<PubSubEvent<AppendTextMessage>>()
-							.Publish(new AppendTextMessage(f.Url, x.FileNameOrMessage));
+							.Publish(new AppendTextMessage(postData.Url, x.FileNameOrMessage));
 					} else {
-						Util.Futaba.PutInformation(new Information($"アップロード失敗：{ x.FileNameOrMessage }", f));
+						Util.Futaba.PutInformation(new Information($"アップロード失敗：{ x.FileNameOrMessage }", postData));
 					}
 				});
 		}
 
-		public async Task OpenUpload(Model.BindableFutaba f) {
+		public async Task OpenUpload(Model.PostHolder p) {
 			if(this.IsPosting.Value) {
 				return;
 			}
-			if(f == null) {
+			if(p == null) {
 				return;
 			}
 
@@ -217,7 +234,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						+ "|すべてのファイル|*.*"
 				};
 				if(ofd.ShowDialog() ?? false) {
-					this.UploadUp2(f, ofd.FileName);
+					this.UploadUp2(p, ofd.FileName);
 
 					// ダイアログをダブルクリックで選択するとウィンドウに当たり判定がいくので
 					// 一度待つ
@@ -229,7 +246,65 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		private void OnContentsChanged(RoutedPropertyChangedEventArgs<Model.BindableFutaba> e) { }
+		private void OnContentsChanged(RoutedPropertyChangedEventArgs<Model.PostHolder> e) { }
+
+		private async void OnOpenImage(MouseButtonEventArgs e) {
+			if((e.Source is FrameworkElement o) && (o.DataContext is PostHolder p)) {
+				if((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
+					switch(e.ChangedButton) {
+					case MouseButton.Left:
+						try {
+							Application.Current.MainWindow.IsEnabled = false;
+							var ext = Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext);
+							var ofd = new Microsoft.Win32.OpenFileDialog() {
+								Filter = "ふたば画像ファイル|"
+									+ string.Join(";", ext.Select(x => "*" + x).ToArray())
+									+ "|すべてのファイル|*.*"
+							};
+							e.Handled = true;
+							if(ofd.ShowDialog() ?? false) {
+								p.ImagePath.Value = ofd.FileName;
+								// ダイアログをダブルクリックで選択するとウィンドウに当たり判定がいくので
+								// 一度待つ
+								await Task.Delay(1);
+							}
+						}
+						finally {
+							Application.Current.MainWindow.IsEnabled = true;
+						}
+						break;
+					}
+				}
+			}
+		}
+
+		private void OnDeleteImage(MouseButtonEventArgs e) {
+			if((e.Source is FrameworkElement o) && (o.DataContext is PostHolder p)) {
+				if((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
+					switch(e.ChangedButton) {
+					case MouseButton.Left:
+						p.ImagePath.Value = "";
+						e.Handled = true;
+						break;
+					}
+				}
+			}
+		}
+
+		private void OnMailSageClick(PostHolder p) {
+			p.Mail.Value = "sage";
+		}
+		private void OnMailIdClick(PostHolder p) {
+			p.Mail.Value = "id表示";
+		}
+
+		private void OnMailIpClick(PostHolder p) {
+			p.Mail.Value = "ip表示";
+		}
+
+		private void OnDeletePostData(PostHolder p) {
+			p.Reset();
+		}
 
 		private void OnImageDragOver(DragEventArgs e) {
 			if(IsValidDragFile(e, Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext).ToArray())) {
@@ -242,11 +317,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnImageDrop(DragEventArgs e) {
-			if((e.Source as FrameworkElement)?.DataContext is Model.BindableFutaba f) {
+			if((e.Source as FrameworkElement)?.DataContext is Model.PostHolder p) {
 				if(IsValidDragFile(e, Config.ConfigLoader.MimeFutaba.Types.Select(x => x.Ext).ToArray())
 					&& e.Data.GetData(DataFormats.FileDrop) is string[] files) {
 
-					f.PostData.Value.ImagePath.Value = files[0];
+					p.ImagePath.Value = files[0];
 				} else {
 					Util.Futaba.PutInformation(new Information("未対応のファイル"));
 				}
@@ -254,23 +329,23 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private async void OnOpenUpload(MouseButtonEventArgs e) {
-			if(e.Source is FrameworkElement o && o.DataContext is Model.BindableFutaba f) {
+			if(e.Source is FrameworkElement o && o.DataContext is Model.PostHolder p) {
 				if((e.ClickCount == 1) && (VisualTreeHelper.HitTest(o, e.GetPosition(o)) != null)) {
 					switch(e.ChangedButton) {
 					case MouseButton.Left:
 						e.Handled = true;
-						await OpenUpload(f);
+						await OpenUpload(p);
 						break;
 					}
 				}
 			}
 		}
 
-		public async Task OpenImage(Model.BindableFutaba f) {
+		public async Task OpenImage(Model.PostHolder p) {
 			if(this.IsPosting.Value) {
 				return;
 			}
-			if(f == null) {
+			if(p == null) {
 				return;
 			}
 
@@ -283,7 +358,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						+ "|すべてのファイル|*.*"
 				};
 				if(ofd.ShowDialog() ?? false) {
-					f.PostData.Value.ImagePath.Value = ofd.FileName;
+					p.ImagePath.Value = ofd.FileName;
 					// ダイアログをダブルクリックで選択するとウィンドウに当たり判定がいくので
 					// 一度待つ
 					await Task.Delay(1);
@@ -309,11 +384,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				return;
 			}
 
-			if((e.Source as FrameworkElement)?.DataContext is Model.BindableFutaba f) {
+			if((e.Source as FrameworkElement)?.DataContext is Model.PostHolder postData) {
 				if(IsValidDragFile(e, Config.ConfigLoader.MimeUp2.Types.Select(x => x.Ext).ToArray())
 					&& e.Data.GetData(DataFormats.FileDrop) is string[] files) {
 
-					this.UploadUp2(f, files[0]);
+					this.UploadUp2(postData, files[0]);
 				} else {
 					Util.Futaba.PutInformation(new Information("未対応のファイル"));
 				}
@@ -328,40 +403,40 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				&& ext.Contains(Path.GetExtension(files[0]).ToLower()));
 		}
 
-		public void OnPostViewPostClick(Model.BindableFutaba x) {
+		public void OnPostViewPostClick(Model.PostHolder x) {
 			if(this.IsPosting.Value) {
 				return;
 			}
 
 			if(x != null) {
-				if(!x.PostData.Value.PostButtonCommand.CanExecute()) {
+				if(!x.PostButtonCommand.CanExecute()) {
 					return;
 				}
 
 				this.IsPosting.Value = true;
 				if(x.Url.IsCatalogUrl) {
-					Util.Futaba.PostThread(x.Raw.Bord,
-						x.PostData.Value.NameEncoded.Value,
-						x.PostData.Value.MailEncoded.Value,
-						x.PostData.Value.SubjectEncoded.Value,
-						x.PostData.Value.CommentEncoded.Value,
-						x.PostData.Value.ImagePath.Value,
-						x.PostData.Value.Password.Value)
+					Util.Futaba.PostThread(x.Board,
+						x.NameEncoded.Value,
+						x.MailEncoded.Value,
+						x.SubjectEncoded.Value,
+						x.CommentEncoded.Value,
+						x.ImagePath.Value,
+						x.Password.Value)
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Finally(() => { this.IsPosting.Value = false; })
 					.Subscribe(y => {
 						if(y.Successed) {
 							Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(x.Url));
-							x.PostData.Value.Reset();
+							x.Reset();
 							Task.Run(async () => {
 								await Task.Delay(1000); // すぐにスレが作られないので1秒くらい待つ
-								Util.Futaba.UpdateThreadRes(x.Raw.Bord, y.NextOrMessage)
+								Util.Futaba.UpdateThreadRes(x.Board, y.NextOrMessage)
 									.ObserveOn(UIDispatcherScheduler.Default)
 									.Subscribe(z => {
 										// TODO: utilでやる
 										if((z.New != null) && (z.New.ResItems.Length != 0)) {
 											Util.Futaba.PostItems.Value = Util.Futaba.PostItems.Value
-												.Concat(new[] { new Data.PostedResItem(x.Raw.Url.BaseUrl, z.New.ResItems.FirstOrDefault().ResItem) })
+												.Concat(new[] { new Data.PostedResItem(x.Url.BaseUrl, z.New.ResItems.FirstOrDefault().ResItem) })
 												.ToArray();
 										}
 									});
@@ -371,19 +446,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						}
 					});
 				} else {
-					var resCount = x.ResItems.Count;
-					Util.Futaba.PostRes(x.Raw.Bord, x.Url.ThreadNo,
-						x.PostData.Value.NameEncoded.Value,
-						x.PostData.Value.MailEncoded.Value,
-						x.PostData.Value.SubjectEncoded.Value,
-						x.PostData.Value.CommentEncoded.Value,
-						x.PostData.Value.ImagePath.Value,
-						x.PostData.Value.Password.Value)
+					Util.Futaba.PostRes(x.Board, x.Url.ThreadNo,
+						x.NameEncoded.Value,
+						x.MailEncoded.Value,
+						x.SubjectEncoded.Value,
+						x.CommentEncoded.Value,
+						x.ImagePath.Value,
+						x.Password.Value)
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Finally(() => { this.IsPosting.Value = false; })
 					.Subscribe(y => {
 						if(y.Successed) {
-							var com = x.PostData.Value.CommentEncoded.Value;
+							var com = x.CommentEncoded.Value;
 							if(string.IsNullOrEmpty(com)) {
 								var b = Config.ConfigLoader.Board.Boards
 									.Where(z => z.Display && (z.Url == x.Url.BaseUrl))
@@ -393,12 +467,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 								}
 							}
 							Messenger.Instance.GetEvent<PubSubEvent<PostCloseMessage>>().Publish(new PostCloseMessage(x.Url));
-							x.PostData.Value.Reset();
-							Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
+							x.Reset();
+							Util.Futaba.UpdateThreadRes(x.Board, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
 								.ObserveOn(UIDispatcherScheduler.Default)
 								.Subscribe(z => {
 									// TODO: utilでやる
 									if(z.New != null) {
+										var resCount = z.Old?.ResItems.Length ?? 0;
 										foreach(var res in z.New.ResItems.Skip(resCount).Reverse()) {
 											var cLine = com.Replace("\r", "").Split('\n');
 											var rLine = Regex.Split(res.ResItem.Res.Com, "<br>");
@@ -437,7 +512,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 												if(cLine.Length == success) {
 													Util.Futaba.PostItems.Value = Util.Futaba.PostItems.Value
-														.Concat(new[] { new Data.PostedResItem(x.Raw.Url.BaseUrl, res.ResItem) })
+														.Concat(new[] { new Data.PostedResItem(x.Url.BaseUrl, res.ResItem) })
 														.ToArray();
 													break;
 												}
@@ -446,14 +521,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									}
 								});
 						} else {
-							Util.Futaba.PutInformation(new Information(y.Message, x));
+							Util.Futaba.PutInformation(new Information(y.Message, x.Url));
 						}
 					});
 				}
 			}
 		}
 
-		private async Task<string> Paste(Model.BindableFutaba f, int maxFileSize) {
+		private async Task<string> Paste(Model.PostHolder postData, int maxFileSize) {
 			var fileName = Util.TimeUtil.ToUnixTimeMilliseconds().ToString();
 			if(Clipboard.ContainsImage()) {
 				var path = Path.Combine(
@@ -494,11 +569,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									}
 									return path;
 								} else {
-									Util.Futaba.PutInformation(new Information("URLの画像取得に失敗", f));
+									Util.Futaba.PutInformation(new Information("URLの画像取得に失敗", postData.Url));
 								}
 							}
 						} else {
-							Util.Futaba.PutInformation(new Information("URLの情報取得に失敗", f));
+							Util.Futaba.PutInformation(new Information("URLの情報取得に失敗", postData.Url));
 						}
 					}
 				}
@@ -506,32 +581,32 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			return "";
 		}
 
-		private async void OnMenuItemClickPastePostImage(Model.BindableFutaba f) {
-			await PasteImage(f);
+		private async void OnMenuItemClickPastePostImage(Model.PostHolder p) {
+			await PasteImage(p);
 		}
 
-		private async void OnMenuItemClickPastePostUp(Model.BindableFutaba f) {
-			await PaseteUploader2(f);
+		private async void OnMenuItemClickPastePostUp(Model.PostHolder p) {
+			await PaseteUploader2(p);
 		}
 		
-		public async Task PasteImage(Model.BindableFutaba f) {
-			if(f.Raw.Url.IsThreadUrl && !f.Raw.Bord.Extra.ResImage) {
+		public async Task PasteImage(Model.PostHolder postData) {
+			if(postData.Url.IsThreadUrl && !postData.Board.Extra.ResImage) {
 				return;
 			}
 
-			var path = await Paste(f, Config.ConfigLoader.Board.MaxFileSize);
+			var path = await Paste(postData, Config.ConfigLoader.Board.MaxFileSize);
 			if(!string.IsNullOrEmpty(path) && File.Exists(path)) {
-				f.PostData.Value.ImagePath.Value = path;
+				postData.ImagePath.Value = path;
 			}
 		}
-		public async Task PaseteUploader2(Model.BindableFutaba f) {
-			if(f == null) {
+		public async Task PaseteUploader2(Model.PostHolder postData) {
+			if(postData == null) {
 				return;
 			}
 
-			var path = await Paste(f, 3072000); // TODO: 設定ファイルに移動
+			var path = await Paste(postData, 3072000); // TODO: 設定ファイルに移動
 			if(!string.IsNullOrEmpty(path) && File.Exists(path)) {
-				this.UploadUp2(f, path);
+				this.UploadUp2(postData, path);
 			}
 		}
 
