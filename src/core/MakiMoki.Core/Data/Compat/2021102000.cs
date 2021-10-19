@@ -1,16 +1,17 @@
 using Newtonsoft.Json;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Text;
 
 namespace Yarukizero.Net.MakiMoki.Data.Compat {
-	public class BoardConfig2020062900 : ConfigObject, IMigrateCompatObject {
-		public static int CurrentVersion { get; } = 2020062900;
+	public class BoardConfig2021012000 : ConfigObject, IMigrateCompatObject {
+		public static int CurrentVersion { get; } = 2021012000;
 
-		[JsonProperty("bords", Required = Required.Always)]
-		public BoardData2020062900[] Boards { get; protected set; }
+		[JsonProperty("boards", Required = Required.Always)]
+		public BoardData2021012000[] Boards { get; protected set; }
+
 
 		public virtual ConfigObject Migrate() {
 			return BoardConfig.From(
@@ -34,18 +35,9 @@ namespace Yarukizero.Net.MakiMoki.Data.Compat {
 					display: x.Display))
 				.ToArray());
 		}
-
-		/*
-		internal static BoardConfig CreateDefault() {
-			return new BoardConfig() {
-				Version = CurrentVersion,
-				Boards = Array.Empty<BoardData>(),
-			};
-		}
-		*/
 	}
 
-	public class BoardData2020062900 : JsonObject {
+	public class BoardData2021012000 : JsonObject {
 		[JsonProperty("name", Required = Required.Always)]
 		public string Name { get; set; }
 
@@ -65,38 +57,13 @@ namespace Yarukizero.Net.MakiMoki.Data.Compat {
 		public bool Display { get; set; }
 
 		[JsonProperty("extra", Required = Required.Always)]
-		public BoardDataExtra2020062900 Extra { get; set; }
-
-		/*
-		public static BoardData2020062900 From(
-			string name,
-			string url,
-			string defaultComment,
-			int sortIndex,
-			BoardDataExtra extra,
-			bool display = true) {
-
-			System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(name));
-			System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(url));
-			System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(defaultComment));
-			System.Diagnostics.Debug.Assert(extra != null);
-
-			return new BoardData() {
-				Name = name,
-				Url = url,
-				DefaultComment = defaultComment,
-				SortIndex = sortIndex,
-				Extra = extra,
-				Display = display,
-			};
-		}
-		*/
+		public BoardDataExtra2021012000 Extra { get; set; }
 	}
 
-	public class BoardDataExtra2020062900 : JsonObject {
+	public class BoardDataExtra2021012000 : JsonObject {
 		[JsonProperty("name", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(true)]
-		public bool Name { get; set; }
+		public bool Name { get; private set; }
 
 		[JsonProperty("enable-res-image", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(true)]
@@ -104,74 +71,30 @@ namespace Yarukizero.Net.MakiMoki.Data.Compat {
 
 		[JsonProperty("enable-mail-ip", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(false)]
-		public bool MailIp { get; set; }
+		public bool MailIp { get; private set; }
 
 		[JsonProperty("enable-mail-id", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(false)]
-		public bool MailId { get; set; }
+		public bool MailId { get; private set; }
 
 		[JsonProperty("always-ip", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(false)]
-		public bool AlwaysIp { get; set; }
+		public bool AlwaysIp { get; private set; }
 
 		[JsonProperty("always-id", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(false)]
-		public bool AlwaysId { get; set; }
+		public bool AlwaysId { get; private set; }
 
 		[JsonProperty("max-stored-res", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(0)]
-		public int MaxStoredRes { get; set; }
+		public int MaxStoredRes { get; private set; }
 
 		[JsonProperty("max-stored-time", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(0)]
-		public int MaxStoredTime { get; set; }
+		public int MaxStoredTime { get; private set; }
 
 		[JsonProperty("enable-res-tegaki", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Populate)]
 		[DefaultValue(false)]
-		public bool ResTegaki { get; set; }
-
-		/*
-		public static BoardDataExtra From(
-			bool name,
-			bool resImage,
-			bool mailIp,
-			bool mailId,
-			bool alwaysIp,
-			bool alwaysId,
-			int maxStoredRes,
-			int maxStoredTime,
-			bool resTegaki) {
-
-			return new BoardDataExtra() {
-				Name = name,
-				ResImage = resImage,
-				MailIp = mailIp,
-				MailId = mailId,
-				AlwaysIp = alwaysIp,
-				AlwaysId = alwaysId,
-				MaxStoredRes = maxStoredRes,
-				MaxStoredTime = maxStoredTime,
-				ResTegaki = resTegaki,
-			};
-		}
-
-		[JsonIgnore]
-		public bool NameValue => Name;
-
-		[JsonIgnore]
-		public bool ResImageValue => ResImage;
-
-		[JsonIgnore]
-		public bool MailIpValue => MailIp;
-
-		[JsonIgnore]
-		public bool MailIdValue => MailId;
-
-		[JsonIgnore]
-		public bool AlwaysIpValue => AlwaysIp;
-
-		[JsonIgnore]
-		public bool AlwaysIdValue => AlwaysId;
-		*/
+		public bool ResTegaki { get; private set; }
 	}
 }

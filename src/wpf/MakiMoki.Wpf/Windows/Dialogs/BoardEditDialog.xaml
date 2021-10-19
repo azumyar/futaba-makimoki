@@ -59,6 +59,8 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <TextBlock
                     Grid.Row="0"
@@ -187,8 +189,22 @@
                     不正
                 </TextBlock>
 
-                <StackPanel
+                <TextBlock
                     Grid.Row="15"
+                    Grid.Column="0" Grid.ColumnSpan="3"
+                    Style="{StaticResource ConfigHeaderText}">
+                    ふたマキ設定
+                </TextBlock>
+
+                <TextBlock Grid.Row="16" Grid.Column="0">自動更新</TextBlock>
+                <CheckBox
+                    Grid.Row="16" Grid.Column="2"
+                    IsChecked="{Binding IsEnabledPassiveReload.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Content="有効"
+                    />
+
+                <StackPanel
+                    Grid.Row="17"
                     Grid.Column="0" Grid.ColumnSpan="4"
                     Margin="0 16 0 0"
                     HorizontalAlignment="Right"

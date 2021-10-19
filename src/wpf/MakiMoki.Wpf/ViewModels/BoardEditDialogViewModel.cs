@@ -46,6 +46,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> IsAlwaysIp { get; }
 		public ReactiveProperty<bool> IsAlwaysId { get; }
 
+		public ReactiveProperty<bool> IsEnabledPassiveReload { get; }
+
 		public MakiMokiCommand OkButtonCommand { get; }
 		public MakiMokiCommand CancelButtonCommand { get; } = new MakiMokiCommand();
 
@@ -53,6 +55,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			static Visibility ToErrorVisibility(bool v) { return v ? Visibility.Hidden : Visibility.Visible; }
 
 			var defaultExtra = JsonConvert.DeserializeObject<Data.BoardDataExtra>("{}");
+			var defaultMakiMokiExtra = JsonConvert.DeserializeObject<Data.MakiMokiBoardDataExtra>("{}");
 			Name = new ReactiveProperty<string>("");
 			Url = new ReactiveProperty<string>("");
 			DefaultComment = new ReactiveProperty<string>("本文無し");
@@ -79,6 +82,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			IsEnabledMailId = new ReactiveProperty<bool>(defaultExtra.MailId);
 			IsAlwaysIp = new ReactiveProperty<bool>(defaultExtra.AlwaysIp);
 			IsAlwaysId = new ReactiveProperty<bool>(defaultExtra.AlwaysId);
+
+			IsEnabledPassiveReload = new ReactiveProperty<bool>(defaultMakiMokiExtra.IsEnabledPassiveReload);
 
 			OkButtonCommand = new[] {
 				IsNameValid,
@@ -120,6 +125,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				IsEnabledMailId.Value = bd.Extra.MailId;
 				IsAlwaysIp.Value = bd.Extra.AlwaysIp;
 				IsAlwaysId.Value = bd.Extra.AlwaysId;
+
+				IsEnabledPassiveReload.Value = bd.MakiMokiExtra.IsEnabledPassiveReload;
 			}
 		}
 
@@ -153,7 +160,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					alwaysId: IsAlwaysId.Value,
 					maxStoredRes: maxStoredRes,
 					maxStoredTime: maxStoredTime,
-					resTegaki: IsEnabledTegaki.Value));
+					resTegaki: IsEnabledTegaki.Value),
+				makimokiExtra: Data.MakiMokiBoardDataExtra.From(
+					isEnabledPassiveReload: IsEnabledPassiveReload.Value));
 			var param = new DialogParameters();
 			param.Add(typeof(Data.BoardData).FullName, bd);
 

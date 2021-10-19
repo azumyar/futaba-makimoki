@@ -115,6 +115,15 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 				this.queue = new ConcurrentBag<(ConnectionQueueItem<T> Item, IObserver<T> Observer)>(a2);
 			}
 		}
+
+		public TTag[] ExceptTag<TTag>(IEnumerable<TTag> tags) {
+			var a = this.queue
+				.Select(x => x.Item.Tag)
+				.ToArray();
+			return tags
+				.Where(x => a.Any(y => !y.Equals(x)))
+				.ToArray();
+		}
 	}
 
 	public class ConnectionQueueItem<T> {

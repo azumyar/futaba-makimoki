@@ -1,5 +1,5 @@
 {
-  "version": 2021012000,
+  "version": 2021102000,
 
   "max-file-size": 3072000,
   "boards": [
@@ -10,7 +10,8 @@
       "extra": {
         "always-ip": true,
         "max-stored-res": 2000
-      }
+      },
+      "makimoki-extra": {}
     }
   ]
 }
