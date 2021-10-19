@@ -270,7 +270,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				}
 				return fireDate;
 			}
-			void fire(IObserver<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> o, bool incremental, int priority, DateTime fireTime, object tag) {
+			void fire(IObserver<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> o, bool incremental, bool passive, int priority, DateTime fireTime, object tag) {
 				PassiveReloadQueue.Push(Helpers.ConnectionQueueItem<object>.From(
 					action: (_) => {
 						// 設定が変わる場合に備えてURLから検索
@@ -287,7 +287,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 										o.OnCompleted();
 									} else {
 										if(b.MakiMokiExtra.IsEnabledPassiveReload) {
-											fire(o, true, PassivePriority, get(x), tag);
+											fire(o, true, true, PassivePriority, get(x), tag);
 										}
 										o.OnNext(x);
 									}
@@ -302,7 +302,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 			return Observable.Create<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(o => {
 				fire(
-					o, incremental,
+					o, incremental, passive,
 					passive ? PassivePriority : 0,
 					passive ? DateTime.Now.AddSeconds(MinWaitSec) :  DateTime.MinValue,
 					CreatePassiveReloadQueueTag(url, threadNo));
