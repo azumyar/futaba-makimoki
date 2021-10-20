@@ -10,6 +10,7 @@ on:
   pull_request:
     branches:
       - windows
+#  workflow_dispatch:
 
 jobs:
   build:
@@ -142,7 +143,8 @@ jobs:
     - name: Rename dll.conf -> .exe.conf
       run: Move-Item $env:Wap_Publish_Output/futamaki.dll.config $env:Wap_Publish_Output/futamaki.exe.config
 
-    - name: Move WebView2 Dll and Remove
+    - name: Move Dll and Remove
+      continue-on-error: true
       run: |
         # libvlcがコピーされないので手動で移す
         Copy-Item -Recurse -Force src/wpf/MakiMoki.Wpf/bin/Release/net5.0-windows/win-$env:Target_Arch/libvlc $env:Wap_Publish_Output
@@ -158,6 +160,7 @@ jobs:
         Target_Arch: ${{ matrix.arch }}
 
     - name: Remove No Arch Lib
+      continue-on-error: true
       run: |
         Get-ChildItem -Path $env:Wap_Publish_Output/Lib -Exclude $env:Target_Arch | Remove-Item -Recurse -Force
         Get-ChildItem -Path $env:Wap_Publish_Output/libvlc -Exclude win-$env:Target_Arch | Remove-Item -Recurse -Force
