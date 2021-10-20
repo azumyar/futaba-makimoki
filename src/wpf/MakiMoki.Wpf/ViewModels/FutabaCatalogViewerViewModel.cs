@@ -106,13 +106,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			CatalogMenuItemWatchImageCommand.Subscribe(x => OnCatalogMenuItemWatchImage(x));
 			CatalogMenuItemNgImageCommand.Subscribe(x => OnCatalogMenuItemNgImage(x));
 
-			/*
 			KeyBindingUpdateCommand.Subscribe(x => UpdateCatalog(x));
 			//KeyBindingSearchCommand.Subscribe(x => x);
 			//KeyBindingSortCommand.Subscribe(x => x);
 			KeyBindingModeCommand.Subscribe(x => UpdateCatalogListWrap(x));
 			KeyBindingPostCommand.Subscribe(x => OnPostClick(x));
-			*/
 		}
 
 		public void Dispose() {
