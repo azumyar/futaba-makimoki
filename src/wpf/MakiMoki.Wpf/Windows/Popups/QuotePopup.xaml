@@ -33,7 +33,7 @@
         </Border.BorderBrush>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" MinWidth="240" MaxWidth="640" />
+                <ColumnDefinition Width="*" MinWidth="240" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
@@ -136,6 +136,7 @@
                                 <c:FutabaResBlock
                                     x:Name="CommentBlock"
                                     Grid.Column="0" Grid.Row="0"
+                                    MaxWidth="640"
                                     >
                                     <c:FutabaResBlock.Foreground>
                                         <SolidColorBrush>
