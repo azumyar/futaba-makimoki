@@ -66,13 +66,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			var arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString().ToLower();
 			WinApi.Win32.SetDllDirectory(Path.Combine(
 				AppContext.BaseDirectory,
-				"Lib",
-				arch));
+				"runtimes",
+				"libwebp",
+				$"win-{ arch }"));
 
 			UIDispatcherScheduler.Initialize();
 			// ARM64未対応
 			LibVLCSharp.Shared.Core.Initialize(Path.Combine(
 				AppContext.BaseDirectory,
+				"runtimes",
 				"libvlc",
 				$"win-{ arch }"));
 			this.LibVLC = new LibVLCSharp.Shared.LibVLC();

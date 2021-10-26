@@ -89,10 +89,10 @@
     <Content Include="Config.d\makimoki.board.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Lib\x64\libwebp.dll">
+    <Content Include="runtimes\libwebp\win-x64\libwebp.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Lib\x86\libwebp.dll">
+    <Content Include="runtimes\libwebp\win-x86\libwebp.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="futamaki.VisualElementsManifest.xml">
@@ -145,7 +145,7 @@
     <RuntimeHostConfigurationOption Include="System.Globalization.UseNls" Value="true" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Lib\arm64\libwebp.dll">
+    <Content Include="runtimes\libwebp\wn-arm64\libwebp.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
