@@ -21,12 +21,11 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 		public ConnectionQueue(
 			string name = null,
 			int maxConcurrency = 2,
-			int delayTime = 100,
+			int delayTime = 100, // TODO: 削除
 			int waitTime = 2000,
 			int? sleepTime = null) {
 
 			System.Diagnostics.Debug.Assert(0 < maxConcurrency);
-			System.Diagnostics.Debug.Assert(0 < delayTime);
 			System.Diagnostics.Debug.Assert(0 < waitTime);
 
 			// 無限ループだし名前が付けられるのでTaskじゃなくてThreadを採用
@@ -58,10 +57,7 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 						Task.Run(() => it.Item.Action(it.Observer));
 					}
 
-					var time = DateTime.Now;
-					do {
-						Task.Delay(delayTime).Wait();
-					} while((DateTime.Now - time).TotalMilliseconds < waitTime);
+					this.condition.WaitOne(waitTime);
 					continue;
 
 				sleep:
