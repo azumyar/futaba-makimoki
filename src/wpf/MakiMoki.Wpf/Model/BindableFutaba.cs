@@ -498,7 +498,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		private static Helpers.ConnectionQueue<ulong?> HashQueue = new Helpers.ConnectionQueue<ulong?>(
 			name: "NG/Watchハッシュ計算キュー",
 			maxConcurrency: 4,
-			delayTime: 100,
 			waitTime: 100);
 
 		public static void CopyImage(BindableFutabaResItem src, BindableFutabaResItem dst) {

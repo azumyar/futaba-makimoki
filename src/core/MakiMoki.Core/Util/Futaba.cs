@@ -95,11 +95,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				sleepTime: 60 * 1000
 			);
 			SoudaneQueue = new Helpers.ConnectionQueue<(bool Successed, string Message)>(
-				name: "そうだねAPIキュー"
+				name: "そうだねAPIキュー",
+				forceWait: true
 			);
 			DelQueue = new Helpers.ConnectionQueue<(bool Successed, string Message)>(
 				name: "delAPIキュー",
 				maxConcurrency: 1,
+				forceWait: true,
 				waitTime: 5000
 			);
 			Config.ConfigLoader.BoardConfigUpdateNotifyer.AddHandler(BoardConfigUpdateAction);
