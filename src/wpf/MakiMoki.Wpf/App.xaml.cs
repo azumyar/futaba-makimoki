@@ -74,7 +74,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			// ARM64未対応
 			LibVLCSharp.Shared.Core.Initialize(Path.Combine(
 				AppContext.BaseDirectory,
+#if RELEASE
 				"runtimes",
+#endif
 				"libvlc",
 				$"win-{ arch }"));
 			this.LibVLC = new LibVLCSharp.Shared.LibVLC();
