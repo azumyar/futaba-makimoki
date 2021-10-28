@@ -23,15 +23,15 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			}
 		}
 
-		private static DateTime FromUnixTimeSeconds(long unixTime) {
+		public static DateTime FromUnixTimeSeconds(long unixTime) {
 			return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
 				.AddSeconds(unixTime)
 				.ToLocalTime();
 		}
 
-		private static DateTime FromUnixTimeMilliseconds(long unixTime) {
+		public static DateTime FromUnixTimeMilliseconds(long unixTime) {
 			return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-				.AddMinutes(unixTime)
+				.AddMilliseconds(unixTime)
 				.ToLocalTime();
 		}
 	}
