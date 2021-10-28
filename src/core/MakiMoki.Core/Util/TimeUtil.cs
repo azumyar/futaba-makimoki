@@ -11,14 +11,28 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static long ToUnixTimeMilliseconds(DateTime ticks) {
 			var offest = TimeZoneInfo.Local.GetUtcOffset(ticks);
 			return new DateTimeOffset(ticks).ToUnixTimeMilliseconds()
-					- (((offest.Hours * 3600) + (offest.Minutes * 60) + offest.Seconds) * 1000);
+					- (((offest.Hours * 3600) + (offest.Minutes * 60) + offest.Seconds));
 		}
 
-		public static DateTime FromUnixTimeMilliseconds(long unixTime) {
+		public static DateTime FromUnixTime(long unixTime) {
+			// 今日より1年後の時間より大きい場合ミリ秒まで含まれているとみなす
+			if(unixTime < ToUnixTimeMilliseconds(DateTime.Now.AddYears(1))) {
+				return FromUnixTimeSeconds(unixTime);
+			} else {
+				return FromUnixTimeMilliseconds(unixTime);
+			}
+		}
+
+		private static DateTime FromUnixTimeSeconds(long unixTime) {
 			return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
 				.AddSeconds(unixTime)
 				.ToLocalTime();
 		}
 
+		private static DateTime FromUnixTimeMilliseconds(long unixTime) {
+			return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+				.AddMinutes(unixTime)
+				.ToLocalTime();
+		}
 	}
 }

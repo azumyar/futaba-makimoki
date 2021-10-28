@@ -510,14 +510,14 @@ namespace Yarukizero.Net.MakiMoki.Util {
 									}
 									var m = Regex.Match(time, @"^(\d\d/\d\d/\d\d)\(\S\)(\d\d:\d\d:\d\d)");
 									if(m.Success) {
-										var tms = m.Groups[1].Value + " " + m.Groups[2].Value;
-										if(DateTime.TryParseExact(tms, "yy/MM/dd hh:mm:ss",
+										var tms = $"{ m.Groups[1].Value } { m.Groups[2].Value }";
+										if(DateTime.TryParseExact(tms, "yy/MM/dd HH:mm:ss",
 											System.Globalization.CultureInfo.InvariantCulture,
-											System.Globalization.DateTimeStyles.None,
+											System.Globalization.DateTimeStyles.AdjustToUniversal,
 											out var dt)) {
 
-											// ミリ秒以下がなくなるが仕方無し
-											utc = Util.TimeUtil.ToUnixTimeMilliseconds(dt);
+											// JST→UTCを時差なしで行っているので再補正する
+											utc = Util.TimeUtil.ToUnixTimeMilliseconds(dt) + (9 * 3600);
 										}
 									}
 									if(0 < ip.Length) {
