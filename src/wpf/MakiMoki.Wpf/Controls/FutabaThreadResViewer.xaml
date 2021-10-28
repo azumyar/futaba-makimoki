@@ -1195,6 +1195,7 @@
                     </ListBox.ItemTemplate>
                     <i:Interaction.Behaviors>
                         <behavior:ScrollBehavior x:Name="ListBoxScrollBehavior" />
+                        <behavior:MakiMokiViewerBehavior />
                         <behavior:WheelUpdateBehavior
                             Command="{Binding WheelUpdateCommand, Mode=OneWay}"
                             CommandParameter="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"
