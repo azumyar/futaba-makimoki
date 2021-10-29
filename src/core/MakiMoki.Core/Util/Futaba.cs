@@ -273,7 +273,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				return fireDate;
 			}
 			void fire(IObserver<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> o, bool incremental, bool passive, int priority, DateTime fireTime, object tag) {
-				PassiveReloadQueue.Push(Helpers.ConnectionQueueItem<object>.From(
+				var d = default(IDisposable);
+				d = PassiveReloadQueue.Push(Helpers.ConnectionQueueItem<object>.From(
 					action: (_) => {
 						// 設定が変わる場合に備えてURLから検索
 						var b = Config.ConfigLoader.Board.Boards
@@ -282,8 +283,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						if(b == null) {
 							o.OnCompleted();
 						} else {
-							UpdateThreadResInternal(b, threadNo, incremental, passive)
+							var dd = default(IDisposable);
+							dd = UpdateThreadResInternal(b, threadNo, incremental, passive)
 								.Subscribe(x => {
+									dd?.Dispose();
 									if(x.Successed && (x.New.Raw.IsDie || x.New.Raw.IsMaxRes)) {
 										o.OnNext(x);
 										o.OnCompleted();
@@ -299,7 +302,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					priority: priority,
 					fireTime: fireTime,
 					tag: tag))
-					.Subscribe();
+					.Subscribe(_ => d?.Dispose());
 			}
 
 			return Observable.Create<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(o => {
@@ -312,6 +315,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				return System.Reactive.Disposables.Disposable.Empty;
 			});
 		}
+
 		private static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadResInternal(Data.BoardData bord, string threadNo, bool incremental, bool autoReload) {
 			var u = new Data.UrlContext(bord.Url, threadNo);
 			Data.FutabaContext parent = null;
@@ -319,294 +323,108 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				parent = Threads.Value.Where(x => x.Url == u).FirstOrDefault();
 			}
 			if(!incremental || (parent == null) || (parent.ResItems.Length == 0)) {
-				return UpdateThreadResAll(bord, threadNo);
-			}
-
-			return Observable.Create<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(async o => {
-				try {
-					var ctx = await Task.Run<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(() => {
-						var successed = false;
-						Data.FutabaContext result = null;
-						Data.FutabaContext prev = null;
-						var error = "";
-						try {
-							var res = parent.ResItems.Last().ResItem.No;
-							var no = "";
-							if(long.TryParse(res, out var v)) {
-								no = (++v).ToString();
-							} else {
-								error = $"レスNo[{ res }]は不正なフォーマットです";
-								goto end;
-							}
-
-							var r = FutabaApi.GetThreadRes(
-								bord.Url,
-								threadNo,
-								no,
-								Config.ConfigLoader.FutabaApi.Cookies);
-							Task.WaitAll(r);
-							if(!r.Result.Successed) {
-								if(!string.IsNullOrEmpty(r.Result.Raw)) {
-									var parser = new HtmlParser();
-									var doc = parser.ParseDocument(r.Result.Raw);
-									error = doc.QuerySelector("body").TextContent;
-								} else {
-									error = "スレッドの取得に失敗しました";
-								}
-								goto end;
-							}
-							Config.ConfigLoader.UpdateCookie(r.Result.cookies);
-							lock(lockObj) {
-								var f = Data.FutabaContext.FromThreadResResponse(parent, r.Result.Response);
-
-								for(var i = 0; i < Threads.Value.Length; i++) {
-									if(Threads.Value[i].Url == f.Url) {
-										successed = true;
-										result = f;
-										prev = Threads.Value[i];
-										Threads.Value[i] = f;
-										Threads.Value = Threads.Value.ToArray();
-
-										goto end;
-									}
-								}
-								Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] { f }).ToArray();
-
-								successed = true;
-								result = f;
-								goto end;
-							}
-						}
-						catch(Exception e) {
-							System.Diagnostics.Debug.WriteLine(e.ToString());
-							throw;
-						}
-					end:
-						return (successed, result, prev, error);
-					});
-					PutThreadResResult(ctx.New, ctx.Old, ctx.ErrorMessage, autoReload);
-					o.OnNext(ctx);
+				lock(lockObj) {
+					if(!Threads.Value.Select(x => x.Url).Contains(u)) {
+						Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] {
+							Data.FutabaContext.FromThreadEmpty(bord, threadNo),
+						}).ToArray();
+					}
 				}
-				finally {
-					o.OnCompleted();
-				}
-				return System.Reactive.Disposables.Disposable.Empty;
-			});
-		}
-
-
-		private static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadResAll(Data.BoardData bord, string threadNo) {
-			return Observable.Create<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(async o => {
-				try {
-					var ctx = await Task.Run<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)>(() => {
-						var successed = false;
-						Data.FutabaContext result = null;
-						Data.FutabaContext prev = null;
-						var error = "";
-						try {
-							var u = new Data.UrlContext(bord.Url, threadNo);
-							lock(lockObj) {
-								if(!Threads.Value.Select(x => x.Url).Contains(u)) {
-									Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] {
-									result = Data.FutabaContext.FromThreadEmpty(bord, threadNo),
-								}).ToArray();
-								}
-							}
-
-							var r = FutabaApi.GetThreadRes(
-								bord.Url,
-								threadNo,
-								Config.ConfigLoader.FutabaApi.Cookies);
-							var rr = FutabaApi.GetThreadResHtml(
-								bord.Url,
-								threadNo,
-								Config.ConfigLoader.FutabaApi.Cookies);
-							Task.WaitAll(r, rr);
-							if(!r.Result.Successed || !rr.Result.Successed) {
-								// 404の場脚の処理を行う
-								if((r.Result.Successed && r.Result.Response.IsDie)
-									|| (rr.Result.Is404)) {
-
-									Data.FutabaContext fc = null;
-									var index = 0;
-									lock(lockObj) {
-										for(index = 0; index < Threads.Value.Length; index++) {
-											if(Threads.Value[index].Url == u) {
-												fc = Threads.Value[index];
-												break;
-											}
+				return FutabaApiReactive.GetThreadResAll(bord, threadNo)
+					.Select(x => {
+						var @new = default(Data.FutabaContext);
+						var prev = default(Data.FutabaContext);
+						if(x.Successed) {
+							if(x.IsDie) {
+								// スレ落ち処理
+								var fc = default(Data.FutabaContext);
+								var index = 0;
+								lock(lockObj) {
+									for(index = 0; index < Threads.Value.Length; index++) {
+										if(Threads.Value[index].Url == u) {
+											fc = Threads.Value[index];
+											break;
 										}
+									}
 
-										if(fc != null) {
-											var fc2 = Data.FutabaContext.FromThreadResResponse404(
+									if(fc != null) {
+										var fc2 = default(Data.FutabaContext);
+										if(x.RawResponse != null) {
+											fc2 = Data.FutabaContext.FromThreadResResponse404(
 												Catalog.Value.Where(x => x.Bord.Url == bord.Url).FirstOrDefault(),
-												fc, r.Result.Response);
-											if(fc2 != null) {
-												var ary = Threads.Value.ToArray();
-												ary[index] = fc2;
-												Threads.Value = ary;
-												result = fc2;
-												prev = fc;
-											} else {
-												result = fc;
-												prev = fc;
-											}
+												fc, x.RawResponse);
 										}
-									}
-									successed = true;
-								} else {
-									if(!r.Result.Successed) {
-										if(!string.IsNullOrEmpty(r.Result.Raw)) {
-											var parser = new HtmlParser();
-											var doc = parser.ParseDocument(r.Result.Raw);
-											error = doc.QuerySelector("body").TextContent;
+										if(fc2 != null) {
+											var ary = Threads.Value.ToArray();
+											ary[index] = fc2;
+											Threads.Value = ary;
+											@new = fc2;
+											prev = fc;
 										} else {
-											error = "スレッドの取得に失敗しました";
-										}
-									} else {
-										error = "スレッドHTMLの取得に失敗しました";
-									}
-								}
-								goto end;
-							}
-							Config.ConfigLoader.UpdateCookie(r.Result.cookies);
-							lock(lockObj) {
-								var name = "";
-								var email = "";
-								var id = "";
-								var ip = "";
-								var soudane = 0;
-								var host = "";
-								var thumb = "";
-								var w = 0;
-								var h = 0;
-								var fsize = 0;
-								var time = "";
-								var utc = 0L;
-								var parser = new HtmlParser();
-								var doc = parser.ParseDocument(rr.Result.Raw);
-								var sub = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > span.csb", threadNo))?.Text() ?? "";
-								var nameEl = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > span.cnm", threadNo));
-								if(nameEl != null) {
-									name = nameEl.Text();
-									var mailEl = nameEl.QuerySelector("a");
-									if(mailEl != null) {
-										email = mailEl.GetAttribute("href").Substring("mailto:".Length);
-									}
-								}
-								var timeEl = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > span.cnw", threadNo));
-								if(timeEl != null) {
-									time = timeEl.Text();
-									var t = Regex.Split(time, @"\s+");
-									if(1 < t.Length) {
-										time = t[0];
-										for(var i = 1; i < t.Length; i++) {
-											if(t[i].StartsWith("ID:")) {
-												id = t[i];
-											} else if(t[i].StartsWith("IP:")) {
-												ip = t[i];
-											}
+											@new = fc;
+											prev = fc;
 										}
 									}
-									var m = Regex.Match(time, @"^(\d\d/\d\d/\d\d)\(\S\)(\d\d:\d\d:\d\d)");
-									if(m.Success) {
-										var tms = $"{ m.Groups[1].Value } { m.Groups[2].Value }";
-										if(DateTime.TryParseExact(tms, "yy/MM/dd HH:mm:ss",
-											System.Globalization.CultureInfo.InvariantCulture,
-											System.Globalization.DateTimeStyles.AdjustToUniversal,
-											out var dt)) {
+								}
+								return (true, @new, prev, x.ErrorMessage);
+							} else {
+								Config.ConfigLoader.UpdateCookie(x.Cookies);
+								lock(lockObj) {
+									var f = x.Data;
+									for(var i = 0; i < Threads.Value.Length; i++) {
+										if(Threads.Value[i].Url == f.Url) {
+											@new = f;
+											prev = Threads.Value[i];
+											Threads.Value[i] = f;
+											Threads.Value = Threads.Value.ToArray();
 
-											// JST→UTCを時差なしで行っているので再補正する
-											utc = Util.TimeUtil.ToUnixTimeMilliseconds(dt) + (9 * 3600);
+											goto end;
 										}
 									}
-									if(0 < ip.Length) {
-										time = time + " " + ip;
-									}
-									var mailEl = timeEl.QuerySelector("a");
-									if(mailEl != null) {
-										email = mailEl.GetAttribute("href").Substring("mailto:".Length);
-									}
+									Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] { f }).ToArray();
 								}
-								var sd = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a.sod", threadNo))?.Text() ?? "";
-								if(sd.StartsWith("そうだねx")) {
-									var m = Regex.Match(sd, @"(\d+)$");
-									if(m.Success && int.TryParse(m.Groups[1].Value, out var sdn)) {
-										soudane = sdn;
-									}
-								}
-								var src = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a", threadNo))?.GetAttribute("href") ?? "";
-								var ext = Path.GetExtension(src);
-								var thumbEl = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a > img", threadNo));
-								if(thumbEl != null) {
-									thumb = thumbEl.GetAttribute("src");
-									if(int.TryParse(thumbEl.GetAttribute("width"), out var ww)) {
-										w = ww;
-									}
-									if(int.TryParse(thumbEl.GetAttribute("height"), out var hh)) {
-										h = hh;
-									}
-									var alt = thumbEl.GetAttribute("alt");
-									var m = Regex.Match(alt, @"^(\d+)");
-									if(m.Success && int.TryParse(m.Groups[1].Value, out var fs)) {
-										fsize = fs;
-									}
-								}
-								var com = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > blockquote", threadNo))?.InnerHtml ?? "";
-								// 常時IP/ID表示の板はJSONのidが常に空なので破棄する
-								if(!string.IsNullOrEmpty(ip) && bord.Extra.AlwaysIp) {
-									ip = "";
-								}
-								if(!string.IsNullOrEmpty(id) && bord.Extra.AlwaysId) {
-									time = time + " " + id;
-									id = "";
-								}
-								var f = Data.FutabaContext.FromThreadResResponse(bord, threadNo, r.Result.Response,
-									new Data.NumberedResItem(threadNo,
-										Data.ResItem.From(
-											sub, name, email, com,
-											id + ip, // IDとIPは同時に付与されない？
-											host, "",
-											src, thumb, ext, fsize, w, h,
-											time, utc.ToString(),
-											0)), soudane);
-								if(f == null) {
-									error = "Contextの作成に失敗しました";
-									goto end;
-								}
+							}
+						} else {
+							// 失敗時の処理はない
+						}
+					end:;
+						PutThreadResResult(@new, prev, x.ErrorMessage, false);
+						return (x.Successed, @new, prev, x.ErrorMessage);
+					});
+			} else {
+				return FutabaApiReactive.GetThreadRes(bord, threadNo, parent, incremental)
+					.Select(x => {
+						var r = (
+							Successed: x.Successed,
+							New: default(Data.FutabaContext),
+							Old: default(Data.FutabaContext),
+							ErrorMessage: default(string)
+						);
+						if(x.Successed) {
+							Config.ConfigLoader.UpdateCookie(x.Cookies);
+							lock(lockObj) {
+								var f = x.Data;
 								for(var i = 0; i < Threads.Value.Length; i++) {
 									if(Threads.Value[i].Url == f.Url) {
-										successed = true;
-										result = f;
-										prev = Threads.Value[i];
+										var p = Threads.Value[i];
 										Threads.Value[i] = f;
 										Threads.Value = Threads.Value.ToArray();
-
+										r = (true, f, p, x.ErrorMessage);
 										goto end;
 									}
 								}
 								Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] { f }).ToArray();
-
-								successed = true;
-								result = f;
+								r = (true, x.Data, null, x.ErrorMessage);
 								goto end;
 							}
-						}
-						catch(Exception e) {
-							System.Diagnostics.Debug.WriteLine(e.ToString());
-							throw;
+						} else {
+							r = (false, null, null, x.ErrorMessage);
 						}
 					end:
-						return (successed, result, prev, error);
+						PutThreadResResult(r.New, r.Old, r.ErrorMessage, autoReload);
+						return r;
 					});
-					PutThreadResResult(ctx.New, ctx.Old, ctx.ErrorMessage, false);
-					o.OnNext(ctx);
-				}
-				finally {
-					o.OnCompleted();
-				}
-				return System.Reactive.Disposables.Disposable.Empty;
-			});
+			}
 		}
 
 		private static void PutThreadResResult(Data.FutabaContext newFutaba, Data.FutabaContext oldFutaba, string error, bool autoReload) {
@@ -760,50 +578,33 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string NextOrMessage)> PostThread(Data.BoardData bord,
+		public static IObservable<(bool Successed, string NextOrMessage)> PostThread(
+			Data.BoardData board,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
-			return Observable.Create<(bool Successed, string Message)>(async o => {
-				try {
-					var r = await FutabaApi.PostThread(bord,
-						Config.ConfigLoader.FutabaApi.Cookies, Config.ConfigLoader.FutabaApi.Ptua,
-						name, email, subject, comment, filePath, passwd);
-					if(r.Raw == null) {
-						o.OnNext((false, "不明なエラー"));
-					} else {
-						Config.ConfigLoader.UpdateCookie(r.Cookies);
-						Config.ConfigLoader.UpdateFutabaInputData(bord, subject, name, email, passwd);
-						o.OnNext((r.Successed, r.NextOrMessage));
+
+			return FutabaApiReactive.PostThread(board, name, email, subject, comment, filePath, passwd)
+				.Select(x => {
+					if(x.Successed) {
+						Config.ConfigLoader.UpdateCookie(x.Cookies);
+						Config.ConfigLoader.UpdateFutabaInputData(board, subject, name, email, passwd);
 					}
-				}
-				finally {
-					o.OnCompleted();
-				}
-				return System.Reactive.Disposables.Disposable.Empty;
-			});
+					return (x.Successed, x.NextOrMessage);
+				});
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostRes(Data.BoardData bord, string threadNo,
+		public static IObservable<(bool Successed, string Message)> PostRes(Data.BoardData board, string threadNo,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
-			return Observable.Create<(bool Successed, string Message)>(async o => {
-				try {
-					var r = await FutabaApi.PostRes(bord, threadNo,
-						Config.ConfigLoader.FutabaApi.Cookies, Config.ConfigLoader.FutabaApi.Ptua,
-						name, email, subject, comment, filePath, passwd);
-					if(r.Raw == null) {
-						o.OnNext((false, "不明なエラー"));
-					} else {
-						Config.ConfigLoader.UpdateCookie(r.Cookies);
-						Config.ConfigLoader.UpdateFutabaInputData(bord, subject, name, email, passwd);
-						o.OnNext((r.Successed, r.Raw));
+
+			return FutabaApiReactive.PostRes(board, threadNo, name, email, subject, comment, filePath, passwd)
+				.Select(x => {
+					if(x.Successed) {
+						Config.ConfigLoader.UpdateCookie(x.Cookies);
+						Config.ConfigLoader.UpdateFutabaInputData(board, subject, name, email, passwd);
 					}
-				}
-				finally {
-					o.OnCompleted();
-				}
-				return System.Reactive.Disposables.Disposable.Empty;
-			});
+					return (x.Successed, x.Message);
+				});
 		}
 
 		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetUploaderFile(string url) {
@@ -1012,57 +813,44 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return m.Groups[1].Value;
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostDeleteThreadRes(Data.BoardData bord, string threadNo, bool imageOnlyDel, string passwd) {
-			return Observable.Create<(bool Successed, string Message)>(async o => {
-				try {
-					var r = await FutabaApi.PostDeleteThreadRes(bord.Url, threadNo, Config.ConfigLoader.FutabaApi.Cookies, imageOnlyDel, passwd);
-					if(r.Raw == null) {
-						o.OnNext((false, "不明なエラー"));
-					} else {
-						Config.ConfigLoader.UpdateCookie(r.Cookies);
-						o.OnNext((r.Successed, r.Raw));
+		public static IObservable<(bool Successed, string Message)> PostDeleteThreadRes(Data.BoardData board, string threadNo, bool imageOnlyDel, string passwd) {
+			return FutabaApiReactive.PostDeleteThreadRes(board, threadNo, imageOnlyDel, passwd)
+				.Select(x => {
+					if(x.Successed) {
+						Config.ConfigLoader.UpdateCookie(x.Cookies);
 					}
-				}
-				finally {
-					o.OnCompleted();
-				}
-				return System.Reactive.Disposables.Disposable.Empty;
-			});
+					return (x.Successed, x.Message);
+				});
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostSoudane(Data.BoardData bord, string threadNo) {
+		public static IObservable<(bool Successed, string Message)> PostSoudane(Data.BoardData board, string threadNo) {
 			return SoudaneQueue.Push(Helpers.ConnectionQueueItem<(bool Successed, string Message)>.From(
 				(o) => {
-					try {
-						var task = FutabaApi.PostSoudane(bord.Url, threadNo);
-						task.Wait();
-						if(task.Result.Raw == null) {
-							o.OnNext((false, "不明なエラー"));
-						} else {
-							o.OnNext((task.Result.Successed, task.Result.Raw));
-						}
-					}
-					finally {
-						o.OnCompleted();
-					}
+					FutabaApiReactive.PostSoudane(board, threadNo)
+						.Subscribe(x => {
+							try {
+								o.OnNext(x);
+							}
+							finally {
+								o.OnCompleted();
+							}
+						});
+
 				}));
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostDel(Data.BoardData bord, string threadNo, string resNo) {
+		public static IObservable<(bool Successed, string Message)> PostDel(Data.BoardData board, string threadNo, string resNo) {
 			return DelQueue.Push(Helpers.ConnectionQueueItem<(bool Successed, string Message)>.From(
 				(o) => {
-					try {
-						var task = FutabaApi.PostDel(bord.Url, threadNo, resNo /*, Config.ConfigLoader.FutabaApi.Cookies */);
-						task.Wait();
-						if(task.Result.Raw == null) {
-							o.OnNext((false, "不明なエラー"));
-						} else {
-							o.OnNext((task.Result.Successed, task.Result.Raw));
-						}
-					}
-					finally {
-						o.OnCompleted();
-					}
+					FutabaApiReactive.PostDel(board, threadNo, resNo)
+						.Subscribe(x => {
+							try {
+								o.OnNext(x);
+							}
+							finally {
+								o.OnCompleted();
+							}
+						});
 				}));
 		}
 
@@ -1071,17 +859,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 		public static IObservable<(bool Successed, string FileNameOrMessage)> UploadUp2(string comment, string filePath, string passwd) {
-			return Observable.Create<(bool Successed, string Message)>(async o => {
-				try {
-					var r = await FutabaApi.UploadUp2(comment, filePath, passwd);
+			return FutabaApiReactive.UploadUp2(comment, filePath, passwd)
+				.Select(x => {
 					Config.ConfigLoader.UpdateFutabaPassword(passwd);
-					o.OnNext((r.Successed, r.Message));
-				}
-				finally {
-					o.OnCompleted();
-				}
-				return System.Reactive.Disposables.Disposable.Empty;
-			});
+					return x;
+				});
 		}
 
 		public static IObservable<(bool Successed, string LocalPath, byte[] FileBytes)> GetThumbImageUp(Data.UrlContext threadUrl, string fileName) {
@@ -1099,52 +881,29 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					return System.Reactive.Disposables.Disposable.Empty;
 				});
 			} else {
-				return GetCompleteUrlUp(threadUrl, f)
+				return FutabaApiReactive.GetThumbImageUp(
+					threadUrl,
+					fileName,
+					Config.ConfigLoader.Uploder.Uploders)
 					.Select(x => {
 						if(File.Exists(cache)) {
 							return (true, cache, default(byte[]));
 						} else {
-							if(x.Successed
-								&& (x.Raw is Data.AppsweetsThumbnailCompleteResponse r)
-								&& !string.IsNullOrEmpty(r.Content)) {
-
-								return (true, cache, Convert.FromBase64String(
-									r.Content.Substring("data:image/png;base64,".Length)));
+							if(x.Successed) {
+								return (true, cache, x.FileBytes);
+							} else {
+								return (false, default(string), default(byte[]));
 							}
 						}
-						return (false, default(string), default(byte[]));
 					});
 			}
 		}
 
 		public static IObservable<(bool Successed, string UrlOrMessage, object Raw)> GetCompleteUrlUp(Data.UrlContext threadUrl, string fileNameWitfOutExtension) {
-			return Observable.Create<(bool Successed, string Message, object Raw)>(async o => {
-				try {
-					var r = await FutabaApi.GetCompleteUrlUp(GetFutabaThreadUrl(threadUrl), fileNameWitfOutExtension);
-					if(r.Successed) {
-						System.Diagnostics.Debug.Assert(r.CompleteResponse != null);
-						if(!string.IsNullOrEmpty(r.CompleteResponse.Name)) {
-							var url = Config.ConfigLoader.Uploder.Uploders
-								.Where(x => Regex.IsMatch(r.CompleteResponse.Name, x.File))
-								.Select(x => x.Root + r.CompleteResponse.Name)
-								.FirstOrDefault();
-							if(url != null) {
-								o.OnNext((true, url, r.CompleteResponse));
-								goto end;
-							}
-						}
-					} else if(r.ErrorResponse != null) {
-						o.OnNext((false, r.ErrorResponse.Error, r.ErrorResponse));
-						goto end;
-					}
-					o.OnNext((false, "不明なエラー", null));
-				}
-				finally {
-					o.OnCompleted();
-				}
-			end:
-				return System.Reactive.Disposables.Disposable.Empty;
-			});
+			return FutabaApiReactive.GetCompleteUrlUp(
+				threadUrl,
+				fileNameWitfOutExtension,
+				Config.ConfigLoader.Uploder.Uploders);
 		}
 			
 		public static void PutInformation(Data.Information information) {
@@ -1163,11 +922,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 
 		public static string GetFutabaThreadUrl(Data.UrlContext url) {
-			if(url.IsCatalogUrl) {
-				return $"{ url.BaseUrl }futaba.php?mode=cat";
-			} else {
-				return $"{ url.BaseUrl }res/{ url.ThreadNo }.htm";
-			}
+			return FutabaApiReactive.GetFutabaThreadUrl(url);
 		}
 
 		public static string GetFutabaThreadImageUrl(Data.UrlContext url, Data.ResItem item) {
