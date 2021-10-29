@@ -99,6 +99,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 					// スクロールでリセットさせないのはスレ更新で新レスがないと普通スクロールをしないため
 					Observable.Return(0)
 						.Delay(TimeSpan.FromSeconds(1))
+						.ObserveOn(global::Reactive.Bindings.UIDispatcherScheduler.Default)
 						.Subscribe(x => this.deltaCount = 0);
 
 					if(this.Command?.CanExecute(this.CommandParameter) ?? false) {
