@@ -687,6 +687,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 			lock(lockObj) {
 				if(url.IsCatalogUrl) {
+					PassiveReloadQueue.RemoveFromTags(
+						Threads.Value
+							.Where(x => x.Url.BaseUrl == url.BaseUrl)
+							.Select(x => CreatePassiveReloadQueueTag(url.BaseUrl, url.ThreadNo))
+							.ToArray());
 					Catalog.Value = Catalog.Value.Where(x => x.Url != url).ToArray();
 					Threads.Value = Threads.Value.Where(x => x.Url.BaseUrl != url.BaseUrl).ToArray();
 				} else {

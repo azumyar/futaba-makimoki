@@ -120,6 +120,18 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 			}
 		}
 
+		public void RemoveFromTags(object[] tags) {
+			System.Diagnostics.Debug.Assert(tags != null);
+			lock(this.lockObj) {
+				var a1 = new List<(ConnectionQueueItem<T> Item, IObserver<T> Observer)>();
+				foreach(var tag in tags) {
+					a1.AddRange(this.queue.Where(x => tag.Equals(x.Item.Tag))); // ==ではobjectなのでうまくいかない
+				}
+				var a2 = this.queue.Except(a1);
+				this.queue = new ConcurrentBag<(ConnectionQueueItem<T> Item, IObserver<T> Observer)>(a2);
+			}
+		}
+
 		public TTag[] ExceptTag<TTag>(IEnumerable<TTag> tags) {
 			var a = this.queue
 				.Select(x => x.Item.Tag)
