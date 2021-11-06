@@ -88,5 +88,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 				WpfConfig.WpfConfigLoader.UpdatePlacementByWindowClosing(this);
 			}
 		}
+
+		private void OnLoadedGC(object sender, RoutedEventArgs e) {
+#if DEBUG
+			if(e.OriginalSource is UIElement el) {
+				el.Visibility = Visibility.Visible;
+			}
+#endif
+		}
+
+		private void OnClickGC(object sender, RoutedEventArgs e) {
+			// テスト用強制GC
+			GC.Collect();
+		}
 	}
 }

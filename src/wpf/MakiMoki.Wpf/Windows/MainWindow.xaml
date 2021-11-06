@@ -178,6 +178,15 @@
                                         Command="ScrollBar.LineDownCommand"
                                         Visibility="Hidden" />
                                     <StackPanel Grid.Column="1" Grid.Row="6" Orientation="Vertical">
+                                        <!-- デバッグ用 -->
+                                        <Button
+                                            Style="{StaticResource PrimaryColorButton}"
+                                            Content="GC"
+                                            Visibility="Collapsed"
+                                            Loaded="OnLoadedGC"
+                                            Click="OnClickGC"
+                                            />
+
                                         <Button
                                             x:Name="bordButton"
                                             Style="{StaticResource PrimaryColorButton}"
