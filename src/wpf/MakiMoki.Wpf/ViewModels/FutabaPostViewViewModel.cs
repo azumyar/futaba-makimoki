@@ -550,30 +550,35 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					using(var client = new System.Net.Http.HttpClient() {
 						Timeout = TimeSpan.FromMilliseconds(5000),
 					}) {
-						client.DefaultRequestHeaders.Add("User-Agent", WpfUtil.PlatformUtil.GetContentType());
-						var ret1 = await client.SendAsync(new System.Net.Http.HttpRequestMessage(
-							System.Net.Http.HttpMethod.Head, uri));
-						if((ret1.StatusCode == System.Net.HttpStatusCode.OK) && (ret1.Content.Headers.ContentLength <= maxFileSize)) {
-							var mime = Config.ConfigLoader.MimeFutaba.Types
-								.Where(x => x.MimeType == ret1.Content.Headers.ContentType.MediaType)
-								.FirstOrDefault();
-							if(mime != null) {
-								var path = Path.Combine(
-									Config.ConfigLoader.InitializedSetting.CacheDirectory,
-									$"{ fileName }{ mime.Ext }");
-								var ret2 = await client.SendAsync(new System.Net.Http.HttpRequestMessage(
-									System.Net.Http.HttpMethod.Get, uri));
-								if(ret2.StatusCode == System.Net.HttpStatusCode.OK) {
-									using(var fs = new FileStream(path, FileMode.OpenOrCreate)) {
-										await ret2.Content.CopyToAsync(fs);
+						try {
+							client.DefaultRequestHeaders.Add("User-Agent", WpfUtil.PlatformUtil.GetContentType());
+							var ret1 = await client.SendAsync(new System.Net.Http.HttpRequestMessage(
+								System.Net.Http.HttpMethod.Head, uri));
+							if((ret1.StatusCode == System.Net.HttpStatusCode.OK) && (ret1.Content.Headers.ContentLength <= maxFileSize)) {
+								var mime = Config.ConfigLoader.MimeFutaba.Types
+									.Where(x => x.MimeType == ret1.Content.Headers.ContentType.MediaType)
+									.FirstOrDefault();
+								if(mime != null) {
+									var path = Path.Combine(
+										Config.ConfigLoader.InitializedSetting.CacheDirectory,
+										$"{ fileName }{ mime.Ext }");
+									var ret2 = await client.SendAsync(new System.Net.Http.HttpRequestMessage(
+										System.Net.Http.HttpMethod.Get, uri));
+									if(ret2.StatusCode == System.Net.HttpStatusCode.OK) {
+										using(var fs = new FileStream(path, FileMode.OpenOrCreate)) {
+											await ret2.Content.CopyToAsync(fs);
+										}
+										return path;
+									} else {
+										Util.Futaba.PutInformation(new Information("URLの画像取得に失敗", postData.Url));
 									}
-									return path;
-								} else {
-									Util.Futaba.PutInformation(new Information("URLの画像取得に失敗", postData.Url));
 								}
+							} else {
+								Util.Futaba.PutInformation(new Information("URLの情報取得に失敗(HTTP失敗)", postData.Url));
 							}
-						} else {
-							Util.Futaba.PutInformation(new Information("URLの情報取得に失敗", postData.Url));
+						}
+						catch(TaskCanceledException) { // タイムアウト時くる
+							Util.Futaba.PutInformation(new Information("URLの情報取得に失敗(タイムアウト)", postData.Url));
 						}
 					}
 				}
