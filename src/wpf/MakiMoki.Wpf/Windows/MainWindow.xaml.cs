@@ -100,6 +100,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 		private void OnClickGC(object sender, RoutedEventArgs e) {
 			// テスト用強制GC
 			GC.Collect();
+			GC.WaitForPendingFinalizers();
 		}
 	}
 }
