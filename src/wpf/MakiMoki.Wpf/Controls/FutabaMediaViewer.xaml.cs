@@ -1,4 +1,5 @@
 using Prism.Events;
+using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -112,7 +113,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					}
 					o.OnCompleted();
 					return System.Reactive.Disposables.Disposable.Empty;
-				}).Retry(5);
+				}).Retry(5)
+				.ObserveOn(UIDispatcherScheduler.Default);
 			}
 
 			disposable = new Helpers.AutoDisposable()
@@ -201,19 +203,40 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					return;
 				}
 				this.VideoView.MediaPlayer = new LibVLCSharp.Shared.MediaPlayer((Application.Current as App).LibVLC);
-				this.VideoView.MediaPlayer.Playing += (s, e) => this.Dispatcher.Invoke(() => this.SafeRaiseEvent(new RoutedEventArgs(VideoViewPlayingEvent)));
-				this.VideoView.MediaPlayer.Paused += (s, e) => this.Dispatcher.Invoke(() => this.SafeRaiseEvent(new RoutedEventArgs(VideoViewPausedEvent)));
-				this.VideoView.MediaPlayer.Stopped += (s, e) => this.Dispatcher.Invoke(() => {
-					this.SafeRaiseEvent(new RoutedEventArgs(VideoViewStoppedEvent));
-					// イベントが飛ばない
-					this.SafeRaiseEvent(new RoutedPositionEventArgs(0, VideoViewPositionChangedEvent));
-				});
-				this.VideoView.MediaPlayer.EndReached += (s, e) => this.Dispatcher.Invoke(async () => {
-					await Task.Delay(1); // これをいれると安定する気がする
-					this.SafeRaiseEvent(new RoutedEventArgs(VideoViewEndReachedEvent));
-					// イベントが飛ばない
-					this.SafeRaiseEvent(new RoutedPositionEventArgs(0, VideoViewPositionChangedEvent));
-				});
+				this.VideoView.MediaPlayer.Playing += (s, e) => {
+					Observable.Return(0)
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Subscribe(_ => this.SafeRaiseEvent(new RoutedEventArgs(VideoViewPlayingEvent)));
+				};
+				this.VideoView.MediaPlayer.Paused += (s, e) => {
+					Observable.Return(0)
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Subscribe(_ => this.SafeRaiseEvent(new RoutedEventArgs(VideoViewPausedEvent)));
+				};
+				this.VideoView.MediaPlayer.Stopped += (s, e) => {
+					Observable.Return(0)
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Subscribe(_ => {
+							this.SafeRaiseEvent(new RoutedEventArgs(VideoViewStoppedEvent));
+							// イベントが飛ばない
+							this.SafeRaiseEvent(new RoutedPositionEventArgs(0, VideoViewPositionChangedEvent));
+						});
+				};
+				this.VideoView.MediaPlayer.EndReached += (s, e) => {
+					Observable.Create<int>(async o => {
+						await Task.Delay(1); // これをいれると安定する気がする
+						o.OnNext(default);
+						o.OnCompleted();
+						return System.Reactive.Disposables.Disposable.Empty;
+					})
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Subscribe(_ => {
+							this.SafeRaiseEvent(new RoutedEventArgs(VideoViewEndReachedEvent));
+							// イベントが飛ばない
+							this.SafeRaiseEvent(new RoutedPositionEventArgs(0, VideoViewPositionChangedEvent));
+						});
+
+				};
 				this.VideoView.MediaPlayer.PositionChanged += (s, e) => this.Dispatcher.Invoke(() => this.SafeRaiseEvent(new RoutedPositionEventArgs(e.Position, VideoViewPositionChangedEvent)));
 			};
 		}
