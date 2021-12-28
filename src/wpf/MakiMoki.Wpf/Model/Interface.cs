@@ -24,8 +24,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		ReactiveProperty<Prism.Regions.IRegion> Region { get; }
 		ReactiveProperty<object> ThreadView { get; }
 
-
+		/*
+		void Bind(IFutabaContainer container);
+		void Unbind();
+		*/
 		void ShowSearchBox();
 		void HideSearchBox();
+	}
+
+	public interface IFutabaContainer {
+		void DestroyContainer();
 	}
 }

@@ -46,6 +46,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<object> ThreadView { get; }
 		public ReactiveProperty<int> LastRescount { get; }
 		private bool isActivated = false;
+		private IFutabaContainer container = null;
+
+#pragma warning disable IDE0052
+		// AutoDisposableで使用する
+		private IDisposable SubscribeFutaba { get; }
+#pragma warning restore IDE0052
 
 		public TabItem(Data.FutabaContext f) {
 			this.Url = f.Url;
@@ -65,7 +71,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						return string.IsNullOrEmpty(x?.Name) ? $"No.{ this.Url.ThreadNo }" : x.Name;
 					}
 				}).ToReactiveProperty();
-			this.Futaba.Subscribe(x => {
+			this.SubscribeFutaba = this.Futaba.Subscribe(x => {
 				if(x == null) {
 					this.ThumbSource.Value = null;
 					return;
@@ -89,20 +95,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				}
 
 				Util.Futaba.GetThumbImage(this.Url, res.Raw.Value.ResItem.Res)
-					.Select(x => x.Successed ? WpfUtil.ImageUtil.LoadImage(x.LocalPath, x.FileBytes) : null)
+					.Select(x => x.Successed ? WpfUtil.ImageUtil.LoadStream(x.LocalPath, x.FileBytes) : null)
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
-						this.ThumbSource.Value = x;
+						this.ThumbSource.Value = WpfUtil.ImageUtil.CreateImage(x);
 					});
 			});
 			this.ThumbVisibility = this.ThumbSource
 				.Select(x => (x != null) ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
 
-			SearchButtonVisibility = SearchBoxVisibility
+			this.SearchButtonVisibility = SearchBoxVisibility
 				.Select(x => (x == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible)
 				.ToReactiveProperty();
-			SearchColumnWidth = SearchBoxVisibility
+			this.SearchColumnWidth = SearchBoxVisibility
 				.Select(x => (x == Visibility.Visible) ? new GridLength(320, GridUnitType.Star) : new GridLength(0, GridUnitType.Auto))
 				.ToReactiveProperty();
 		}
@@ -114,10 +120,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.Region.Value = null;
 				this.ThreadView.Value = null;
 			}
+			this.container?.DestroyContainer();
 			new Helpers.AutoDisposable(this)
 				.AddEnumerable(this.Futaba.Value?.ResItems)
 				.Dispose();
 		}
+
+		public void Bind(IFutabaContainer container) {
+			this.container = container;
+		}
+
+		public void Unbind() {
+			this.container = null;
+		}
+
 
 		public void ShowSearchBox() {
 			SearchBoxVisibility.Value = Visibility.Visible;

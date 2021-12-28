@@ -275,7 +275,8 @@
                                             <Image
                                                 Source="{Binding ThumbSource.Value, Mode=OneWay}"
                                                 RenderOptions.EdgeMode="Aliased"
-                                                RenderOptions.BitmapScalingMode="Fant">
+                                                RenderOptions.BitmapScalingMode="Fant"
+                                                Unloaded="OnImageUnloaded">
                                                 <Image.CacheMode>
                                                     <BitmapCache RenderAtScale="1" />
                                                 </Image.CacheMode>

@@ -181,7 +181,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				}
 
 				if(old?.ResItems != null) {
-					disps.Add(old.ResItems);
+					disps.AddEnumerable(old.ResItems);
 				}
 			} else {
 				this.ResItems = old.ResItems;
@@ -708,31 +708,35 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				var m = Regex.Match(item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$");
 				if(m.Success) {
 					this.ImageName = new ReactiveProperty<string>(m.Groups[1].Value);
-					var bmp = WpfUtil.ImageUtil.GetImageCache(
+					var stream = WpfUtil.ImageUtil.GetImageCache(
 						Util.Futaba.GetThumbImageLocalFilePath(item.Url, item.ResItem.Res));
-					if(bmp != null) {
-						if(Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
-							void work() {
-								this.SetThumbSource(bmp);
-								if(this.Raw.Value.Url.IsCatalogUrl
-									&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
-									&& !object.ReferenceEquals(this.ThumbSource.Value, this.OriginSource.Value)) {
+					if(stream != null) {
+						Observable.Return(stream)
+							.ObserveOn(UIDispatcherScheduler.Default)
+							.Subscribe(x => {
+								if(Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
+									void work() {
+										this.SetThumbSource(WpfUtil.ImageUtil.CreateImage(x));
+										if(this.Raw.Value.Url.IsCatalogUrl
+											&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
+											&& !object.ReferenceEquals(this.ThumbSource.Value, this.OriginSource.Value)) {
 
-									this.IsNgImageHidden.Value = true;
-								}
-							}
-							if(HashCache.TryGetTarget(this.GetCacheKey(), out var _)) {
-								work();
-							} else {
-								HashQueue.Push(Helpers.ConnectionQueueItem<ulong?>.From(
-									o => {
+											this.IsNgImageHidden.Value = true;
+										}
+									}
+									if(HashCache.TryGetTarget(this.GetCacheKey(), out var _)) {
 										work();
-										o.OnNext(null);
-									})).Subscribe();
-							}
-						} else {
-							this.SetThumbSource(bmp);
-						}
+									} else {
+										HashQueue.Push(Helpers.ConnectionQueueItem<ulong?>.From(
+											o => {
+												work();
+												o.OnNext(null);
+											})).Subscribe();
+									}
+								} else {
+									this.SetThumbSource(WpfUtil.ImageUtil.CreateImage(x));
+								}
+							});
 					}
 				} else {
 					this.ImageName = new ReactiveProperty<string>("");
@@ -774,7 +778,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ThumbLoadCommand.Subscribe(_ => OnThumbLoad());
 		}
 
+		private object test;
 		public void Dispose() {
+			test = null;
+			if(!this.ThumbSource?.IsDisposed ?? false) {
+				this.ThumbSource.Value = null;
+				this.ThumbSource.Dispose();
+			}
+			if(!this.OriginSource?.IsDisposed ?? false) {
+				this.OriginSource.Value = null;
+				this.OriginSource.Dispose();
+			}
+
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
@@ -811,7 +826,28 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			if((Raw.Value.ResItem.Res.Fsize != 0)
 				&& (!string.IsNullOrEmpty(ImageName.Value))
 				&& (ThumbSource.Value == null)) {
+
 				Util.Futaba.GetThumbImage(Raw.Value.Url, Raw.Value.ResItem.Res)
+					.Select(x => {
+						if(x.Successed) {
+							return WpfUtil.ImageUtil.LoadStream(x.LocalPath, x.FileBytes);
+						} else {
+							return null;
+						}
+					})
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Select(x => WpfUtil.ImageUtil.CreateImage(x))
+					.Subscribe(x => {
+						if(x != null) {
+							test = x;
+							SetThumbSource(x);
+						} else {
+							// TODO: エラー画像表示
+						}
+					});
+				/*
+				var d = default(IDisposable);
+				d = Util.Futaba.GetThumbImage(Raw.Value.Url, Raw.Value.ResItem.Res)
 					.Select(x => {
 						if(x.Successed) {
 							if(x.FileBytes != null) {
@@ -830,7 +866,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						} else {
 							// TODO: エラー画像表示
 						}
+						d?.Dispose();
 					});
+				*/
 			}
 		}
 

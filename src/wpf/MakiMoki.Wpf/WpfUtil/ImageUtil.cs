@@ -13,6 +13,66 @@ using System.Windows.Media.Imaging;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 	static class ImageUtil {
+		class ImageStream : Stream {
+			private byte[] bytes;
+
+			public ImageStream(byte[] imageBytes) {
+				this.bytes = imageBytes;
+			}
+			protected override void Dispose(bool disposing) {
+				base.Dispose(disposing);
+				if(disposing) {
+					this.bytes = null;
+				}
+			}
+
+
+			public override bool CanRead => true;
+
+			public override bool CanSeek => true;
+
+			public override bool CanWrite => false;
+
+			public override long Length => this.bytes.Length;
+
+			public override long Position { get; set; }
+
+			public override void Flush() { }
+
+			public override int Read(byte[] buffer, int offset, int count) {
+				var i = 0;
+				for(; (i < count) && (this.Position < this.Length); i++) {
+					buffer[offset + i] = this.bytes[this.Position++];
+				}
+				return i;
+			}
+
+			public override long Seek(long offset, SeekOrigin origin) {
+				switch(origin) {
+				case SeekOrigin.Begin:
+					this.Position = offset;
+					break;
+				case SeekOrigin.Current:
+					this.Position += offset;
+					break;
+				case SeekOrigin.End:
+					this.Position = this.Length - 1 - offset;
+					break;
+				}
+				if(this.Position < 0) {
+					this.Position = 0;
+				}
+				if(this.Length < this.Position) {
+					this.Position = this.Length;
+				}
+				return this.Position;
+			}
+
+			public override void SetLength(long value) { }
+
+			public override void Write(byte[] buffer, int offset, int count) { }
+		}
+
 		[DllImport(
 			"libwebp",
 			EntryPoint = "WebPGetInfo",
@@ -34,13 +94,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			int output_stride);
 
 
-		private volatile static Dictionary<string, WeakReference<BitmapImage>> bitmapDic
-			= new Dictionary<string, WeakReference<BitmapImage>>();
+		private volatile static Dictionary<string, WeakReference<byte[]>> bitmapBytesDic
+			= new Dictionary<string, WeakReference<byte[]>>();
 		private static BitmapImage NgImage { get; set; } = null;
 
-		private static bool TryGetImage(string file, out BitmapImage image) {
-			lock(bitmapDic) {
-				if(bitmapDic.TryGetValue(file, out var v)) {
+		private static bool TryGetImage(string file, out byte[] image) {
+			lock(bitmapBytesDic) {
+				if(bitmapBytesDic.TryGetValue(file, out var v)) {
 					if(v.TryGetTarget(out var b)) {
 						image = b;
 						return true;
@@ -51,133 +111,114 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 		}
 
-		private static void SetImage(string file, BitmapImage image) {
-			lock(bitmapDic) {
-				var r = new WeakReference<BitmapImage>(image);
-				if(bitmapDic.ContainsKey(file)) {
-					bitmapDic[file] = r;
+		private static void SetImage(string file, byte[] image) {
+			lock(bitmapBytesDic) {
+				var r = new WeakReference<byte[]>(image);
+				if(bitmapBytesDic.ContainsKey(file)) {
+					bitmapBytesDic[file] = r;
 				} else {
-					bitmapDic.Add(file, r);
+					bitmapBytesDic.Add(file, r);
 				}
 
-				foreach(var k in bitmapDic
+				foreach(var k in bitmapBytesDic
 					.Select(x => (Key: x.Key, Value: x.Value.TryGetTarget(out _)))
-					.Where(x => !x.Value)) {
+					.Where(x => !x.Value)
+					.ToArray()) {
 
-					bitmapDic.Remove(k.Key);
+					bitmapBytesDic.Remove(k.Key);
 				}
 			}
 		}
-
 		public static BitmapImage GetNgImage() {
 			if(NgImage == null) {
 				var asm = typeof(App).Assembly;
-				var bitmapImage = new BitmapImage();
-				bitmapImage.BeginInit();
-				bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-				bitmapImage.StreamSource = asm.GetManifestResourceStream(
-					$"{ typeof(App).Namespace }.Resources.Images.NgImage.png");
-				bitmapImage.EndInit();
-				bitmapImage.Freeze();
-
-				NgImage = bitmapImage;
+				NgImage = CreateImage(asm.GetManifestResourceStream(
+					$"{ typeof(App).Namespace }.Resources.Images.NgImage.png"));
 			}
 			return NgImage;
 		}
 
 		public static string GetNgImageBase64() {
 			var asm = typeof(App).Assembly;
-
 			return Util.FileUtil.ToBase64(asm.GetManifestResourceStream(
 				$"{ typeof(App).Namespace }.Resources.Images.NgImage.png"));
 		}
 
-		public static BitmapImage GetImageCache(string path) {
+		public static Stream GetImageCache(string path) {
 			if(TryGetImage(path, out var b)) {
-				return b;
+				//return new MemoryStream(b);
+				return new ImageStream(b);
 			}
 			return null;
 		}
 
-		public static BitmapImage LoadImage(string path) {
-			var stream = default(Stream);
-			try {
-				if(TryGetImage(path, out var b)) {
-					return b;
-				}
+		public static BitmapImage CreateImage(Stream stream) {
+			if(stream == null) {
+				return null;
+			}
+			if(System.Windows.Threading.Dispatcher.CurrentDispatcher != System.Windows.Application.Current?.Dispatcher) {
+				System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!! UIスレッド外でのCreateImage !!!!!!!!!!!!!!!!!!!");
+				return null;
+			}
 
-				if(Path.GetExtension(path).ToLower() == ".webp") {
-					stream = LoadWebP(path, null);
-				} else {
-					var s = CreateStream(path);
-					if(!s.Sucessed) {
-						throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path));
-					}
-					stream = s.Stream;
-				}
-				var bitmapImage = new BitmapImage();
+			var bitmapImage = new BitmapImage();
+			try {
 				bitmapImage.BeginInit();
 				bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
 				bitmapImage.StreamSource = stream;
 				bitmapImage.EndInit();
 				bitmapImage.Freeze();
 
-				SetImage(path, bitmapImage);
 				return bitmapImage;
 			}
-			catch(Exceptions.ImageLoadFailedException) {
-				System.Diagnostics.Debug.WriteLine("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-				return null; /* TODO: エラー画像を用意する */
-			}
-			finally {
-				// AnimationGifで再利用されるのでDisposeしてはいけない
-				// stream?.Dispose();
-				var d = System.Windows.Threading.Dispatcher.CurrentDispatcher;
-				if(d != System.Windows.Application.Current?.Dispatcher) {
-					d.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.SystemIdle);
-					//System.Windows.Threading.Dispatcher.Run();
-				}
+			catch(ArgumentException) { // 画像によってはエラー出てクラッシュするので対策
+				return null;
 			}
 		}
 
-		public static BitmapImage LoadImage(string path, byte[] imageBytes) {
-			if(imageBytes == null) {
-				return LoadImage(path);
-			}
-
-			var stream = default(Stream);
-			try {
+		public static Stream LoadStream(string path, byte[] imageBytes = null) {
+			{
 				if(TryGetImage(path, out var b)) {
-					return b;
+					//return new MemoryStream(b);
+					return new ImageStream(b);
 				}
-
-				if(Path.GetExtension(path).ToLower() == ".webp") {
-					stream = LoadWebP(path, imageBytes);
-				} else {
-					stream = new MemoryStream(imageBytes);
-				}
-				var bitmapImage = new BitmapImage();
-				bitmapImage.BeginInit();
-				bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-				bitmapImage.StreamSource = stream;
-				bitmapImage.EndInit();
-				bitmapImage.Freeze();
-
-				SetImage(path, bitmapImage);
-				return bitmapImage;
 			}
-			catch(Exceptions.ImageLoadFailedException) {
-				System.Diagnostics.Debug.WriteLine("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-				return null; /* TODO: エラー画像を用意する */
+
+			if(Path.GetExtension(path).ToLower() == ".webp") {
+				return LoadWebP(path, imageBytes);
 			}
-			finally {
-				// AnimationGifで再利用されるのでDisposeしてはいけない
-				// stream?.Dispose();
-				var d = System.Windows.Threading.Dispatcher.CurrentDispatcher;
-				if(d != System.Windows.Application.Current?.Dispatcher) {
-					d.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.SystemIdle);
-					//System.Windows.Threading.Dispatcher.Run();
+				
+			if(imageBytes != null) {
+				SetImage(path, imageBytes);
+				return new ImageStream(imageBytes);
+				//return new MemoryStream(imageBytes);
+			}
+
+
+			var s = CreateStream(path);
+			if(!s.Sucessed) {
+				return null;
+			}
+			
+			var l = new List<byte>();
+			{
+				var b = new byte[1024];
+				while(true) {
+					var r = s.Stream.Read(b);
+					if(0 < r) {
+						l.AddRange(b.Take(r));
+					} else {
+						break;
+					}
 				}
+			}
+			s.Stream.Dispose();
+
+			{
+				var b = l.ToArray();
+				SetImage(path, b);
+				return new ImageStream(b);
+				//return new MemoryStream(b);
 			}
 		}
 

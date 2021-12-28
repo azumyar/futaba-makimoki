@@ -750,18 +750,20 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				async (c, u) => {
 					try {
 						if(isAsync) {
-							var t1 = await c.GetAsync(u);
-							var t2 = t1.IsSuccessStatusCode ? await t1.Content.ReadAsByteArrayAsync() : default;
-							return (true, t1.StatusCode, t2);
+							using(var t1 = await c.GetAsync(u)) {
+								var t2 = t1.IsSuccessStatusCode ? await t1.Content.ReadAsByteArrayAsync() : default;
+								return (true, t1.StatusCode, t2);
+							}
 						} else {
-							var t1 = c.GetAsync(u);
-							t1.Wait();
-							if(t1.IsCompleted) {
-								var t2 = t1.Result.Content.ReadAsByteArrayAsync();
-								t2.Wait();
-								return (true, t1.Result.StatusCode, t2.Result);
-							} else {
-								return (true, t1.Result.StatusCode, default);
+							using(var t1 = c.GetAsync(u)) {
+								t1.Wait();
+								if(t1.IsCompleted) {
+									var t2 = t1.Result.Content.ReadAsByteArrayAsync();
+									t2.Wait();
+									return (true, t1.Result.StatusCode, t2.Result);
+								} else {
+									return (true, t1.Result.StatusCode, default);
+								}
 							}
 						}
 					}

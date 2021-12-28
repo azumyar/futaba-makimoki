@@ -319,17 +319,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 												false)
 												.Select<
 													(bool Successed, string LocalPath, byte[] FileBytes),
-													(System.Windows.Media.Imaging.BitmapSource Image, string Path)
+													(System.IO.Stream Stream, string Path)
 												>(
-													x => x.Successed ? (WpfUtil.ImageUtil.LoadImage(x.LocalPath, x.FileBytes), x.LocalPath)
+													x => x.Successed ? (WpfUtil.ImageUtil.LoadStream(x.LocalPath, x.FileBytes), x.LocalPath)
 														: (null, null))
+												.ObserveOn(UIDispatcherScheduler.Default)
 												.Subscribe(x => {
-													if(x.Image != null) {
+													if(x.Stream != null) {
 														var it = c.Where(y => y.Path == x.Path)
 															.Select(y => y.Item)
 															.FirstOrDefault();
 														if(it != null) {
-															it.SetThumbSource(x.Image);
+															it.SetThumbSource(WpfUtil.ImageUtil.CreateImage(x.Stream));
 														}
 													}
 													o.OnNext(x);
@@ -372,6 +373,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			var r = default(Model.TabItem);
 			var rl = new List<Model.TabItem>();
 			using(var disp = new Helpers.AutoDisposable()) {
+				var disp2 = new Helpers.AutoDisposable();
 				if(cc.Any()) {
 					foreach(var it in cc) {
 						collection.Add(new Model.TabItem(catalog.Where(x => x.Url == it).First()));
@@ -419,6 +421,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					if(futaba != null) {
 						if(futaba.Token != it.Futaba.Value.Raw.Token) {
 							disp.Add(it.Futaba.Value);
+							if(!isThreadUpdated) {
+								disp.AddEnumerable(it.Futaba.Value.ResItems);
+								disp2.AddEnumerable(it.Futaba.Value.ResItems
+									.Select(x => x.ThumbSource)
+									.ToArray());
+							}
 							it.Futaba.Value = new BindableFutaba(futaba, it.Futaba.Value);
 						}
 					}
@@ -426,8 +434,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 				if(r != null) {
 					apply?.Invoke(r);
-					await Task.Delay(1);
 				}
+				disp2.Dispose();
+				await Task.Delay(1);
 
 				foreach(var rm in rl) {
 					collection.Remove(rm);

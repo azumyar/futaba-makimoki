@@ -144,8 +144,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				var it = fc.ResItems.FirstOrDefault();
 				if(it != null) {
 					return new Model.InformationBindableExObject(
-						WpfUtil.ImageUtil.GetImageCache(
-							Util.Futaba.GetThumbImageLocalFilePath(fc.Url, it.ResItem.Res)));
+						WpfUtil.ImageUtil.CreateImage(WpfUtil.ImageUtil.GetImageCache(
+							Util.Futaba.GetThumbImageLocalFilePath(fc.Url, it.ResItem.Res))));
 				}
 			} else if(value is Data.UrlContext c) {
 				if(c.IsThreadUrl) {
@@ -154,8 +154,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 						.FirstOrDefault();
 					if((f != null) && f.ResItems.Any()) {
 						return new Model.InformationBindableExObject(
-							WpfUtil.ImageUtil.GetImageCache(
-								Util.Futaba.GetThumbImageLocalFilePath(c, f.ResItems.First().ResItem.Res)));
+							WpfUtil.ImageUtil.CreateImage(WpfUtil.ImageUtil.GetImageCache(
+								Util.Futaba.GetThumbImageLocalFilePath(c, f.ResItems.First().ResItem.Res))));
 					}
 				}
 			}

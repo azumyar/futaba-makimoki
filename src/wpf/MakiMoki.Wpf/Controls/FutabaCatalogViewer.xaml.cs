@@ -20,7 +20,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	/// <summary>
 	/// FutabaViewer.xaml の相互作用ロジック
 	/// </summary>
-	partial class FutabaCatalogViewer : UserControl {
+	partial class FutabaCatalogViewer : UserControl, Model.IFutabaContainer {
 		public static readonly DependencyProperty ContentsProperty
 			= DependencyProperty.Register(
 				nameof(Contents),
@@ -135,5 +135,55 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		private ViewModels.FutabaCatalogViewerViewModel GetViewModel() => this.DataContext as ViewModels.FutabaCatalogViewerViewModel;
 
 		private void OnCatalogMenuItemDelClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogMenuItemDelClickCommand.Execute(e);
+
+		private void OnImageUnloaded(object sender, RoutedEventArgs e) {
+			if(sender is Image o) {
+				var s = o.Source;
+				BindingOperations.ClearAllBindings(o);
+				if(s != null) {
+					o.Source = null;
+					if(s is BitmapImage bi) {
+						//bi.StreamSource.Dispose();
+					}
+				}
+				/*
+				var f = o.GetType().GetField(
+					"_bitmapSource",
+					System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+				if(f != null) {
+					var a = f.GetValue(o);
+					f.SetValue(o, null);
+				}
+				*/
+			}
+		}
+
+		private void OnContentUnloaded(object sender, RoutedEventArgs e) {
+			if(sender is DependencyObject o) {
+				void del(DependencyObject o, Action<DependencyObject> act) {
+					foreach(var child in LogicalTreeHelper.GetChildren(o)) {
+						if(child is DependencyObject) {
+							del(child as DependencyObject, act);
+						}
+					}
+					act(o);
+				}
+
+				del(o, x => BindingOperations.ClearAllBindings(x));
+			}
+		}
+
+		public void DestroyContainer() {
+			void del(DependencyObject o, Action<DependencyObject> act) {
+				foreach(var child in LogicalTreeHelper.GetChildren(o)) {
+					if(child is DependencyObject) {
+						del(child as DependencyObject, act);
+					}
+				}
+				act(o);
+			}
+
+			del(this, x => BindingOperations.ClearAllBindings(x));
+		}
 	}
 }
