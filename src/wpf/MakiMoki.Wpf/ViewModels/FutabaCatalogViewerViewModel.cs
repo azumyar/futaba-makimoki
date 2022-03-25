@@ -305,6 +305,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		// .NET6でToolTipふたマキ実装ではがクラッシュするようになったので自前で処理する
+		// https://github.com/dotnet/wpf/issues/5730
 		private FrameworkElement toolTipTarget = null;
 		private void OnItemEnter(MouseEventArgs e) {
 			if((e.Source is FrameworkElement el) && !object.ReferenceEquals(el, this.toolTipTarget)) {
