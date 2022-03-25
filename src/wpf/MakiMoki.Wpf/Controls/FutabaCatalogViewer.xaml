@@ -54,7 +54,7 @@
             <converter:PostViewMinWidthConverter x:Key="PostViewMinWidthConverter" />
             <converter:PostViewMaxWidthConverter x:Key="PostViewMaxWidthConverter" />
 
-            <ToolTip x:Key="CatalogItemToolTip">
+            <ToolTip x:Key="CatalogItemToolTip" x:Shared="False">
                 <ToolTip.Background>
                     <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
                 </ToolTip.Background>
@@ -196,11 +196,13 @@
                                     BorderBrush="Transparent"
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
-                                    ToolTipService.InitialShowDelay="1000"
-                                    ToolTipService.BetweenShowDelay="0"
                                     ToolTipService.ShowDuration="{x:Static sys:Int32.MaxValue}"
-                                    ToolTip="{StaticResource CatalogItemToolTip}"
                                     Tag="{Binding DataContext,Mode=OneWay, ElementName=_this}">
+                                    <!--
+                                    ToolTipService.InitialShowDelay="0"
+                                    ToolTipService.BetweenShowDelay="0"
+                                    ToolTip="{StaticResource CatalogItemToolTip}"                                    
+                                    -->
                                     <Button.ContextMenu>
                                         <ContextMenu
                                             DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
@@ -513,6 +515,14 @@
                                         <i:EventTrigger EventName="PreviewMouseUp">
                                             <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogItemClickCommand, ElementName=_this}" />
                                         </i:EventTrigger>
+                                        <i:EventTrigger EventName="MouseEnter">
+                                            <ri:EventToReactiveCommand
+                                                Command="{Binding DataContext.CatalogItemEnterCommand, ElementName=_this}" />
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="MouseLeave">
+                                            <ri:EventToReactiveCommand
+                                                Command="{Binding DataContext.CatalogItemLeaveCommand, ElementName=_this}" />
+                                        </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </Button>
                             </Grid>
@@ -545,11 +555,13 @@
                                     BorderBrush="Transparent"
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
-                                    ToolTipService.InitialShowDelay="1000"
-                                    ToolTipService.BetweenShowDelay="0"
                                     ToolTipService.ShowDuration="{x:Static sys:Int32.MaxValue}"
-                                    ToolTip="{StaticResource CatalogItemToolTip}"
                                     Tag="{Binding DataContext,Mode=OneWay, ElementName=_this}">
+                                    <!--
+                                    ToolTipService.InitialShowDelay="0"
+                                    ToolTipService.BetweenShowDelay="0"
+                                    ToolTip="{StaticResource CatalogItemToolTip}"
+                                    -->
                                     <Button.ContextMenu>
                                         <ContextMenu
                                             DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
@@ -1097,6 +1109,12 @@
                         </Setter>
                     </Style>
                 </ListBox.ItemContainerStyle>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseLeave">
+                        <ri:EventToReactiveCommand
+                            Command="{Binding DataContext.CatalogItemLeaveCommand, ElementName=_this}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
                 <i:Interaction.Behaviors>
                     <behavior:MakiMokiViewerBehavior />
                     <behavior:WheelUpdateBehavior

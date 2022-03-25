@@ -61,10 +61,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<RoutedEventArgs> PostClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
 
-		public MakiMokiCommand<MouseButtonEventArgs> CatalogItemMouseDownCommand { get; }
-			= new MakiMokiCommand<MouseButtonEventArgs>();
-		public MakiMokiCommand<MouseButtonEventArgs> CatalogItemClickCommand { get; }
-			= new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> CatalogItemMouseDownCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> CatalogItemClickCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseEventArgs> CatalogItemEnterCommand { get; } = new MakiMokiCommand<MouseEventArgs>();
+		public MakiMokiCommand<MouseEventArgs> CatalogItemLeaveCommand { get; } = new MakiMokiCommand<MouseEventArgs>();
 
 		public ReactiveProperty<Visibility> PostViewVisibility { get; }
 			= new ReactiveProperty<Visibility>(Visibility.Hidden);
@@ -111,6 +111,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			//KeyBindingSortCommand.Subscribe(x => x);
 			KeyBindingModeCommand.Subscribe(x => UpdateCatalogListWrap(x));
 			KeyBindingPostCommand.Subscribe(x => OnPostClick(x));
+
+			CatalogItemEnterCommand.Subscribe(x => OnItemEnter(x));
+			CatalogItemLeaveCommand.Subscribe(x => OnItemLeave(x));
 		}
 
 		public void Dispose() {
@@ -246,7 +249,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Ng.NgConfig.NgConfigLoader.AddHiddenRes(Ng.NgData.HiddenData.FromResItem(
 				x.Raw.Value.Url.BaseUrl, x.Raw.Value.ResItem));
 		}
-		
+
 		private void OnCatalogMenuItemWatchImage(Model.BindableFutabaResItem x) {
 			if(x.OriginSource.Value != null) {
 				var v = x.ThumbHash.Value ?? WpfUtil.ImageUtil.CalculatePerceptualHash(x.OriginSource.Value);
@@ -298,6 +301,41 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							Ng.NgData.NgImageData.FromPerceptualHash(v, r));
 					}
 				}
+			}
+		}
+
+		// .NET6でToolTipふたマキ実装ではがクラッシュするようになったので自前で処理する
+		private FrameworkElement toolTipTarget = null;
+		private void OnItemEnter(MouseEventArgs e) {
+			if((e.Source is FrameworkElement el) && !object.ReferenceEquals(el, this.toolTipTarget)) {
+				if(this.toolTipTarget?.ToolTip is ToolTip tt) {
+					tt.IsOpen = false;
+					this.toolTipTarget.ToolTip = null;
+				}
+				this.toolTipTarget = el;
+				Observable.Return(0)
+					.Delay(TimeSpan.FromSeconds(1))
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(_ => {
+						if(object.ReferenceEquals(this.toolTipTarget, el)) {
+							this.toolTipTarget.ToolTip ??= this.toolTipTarget.FindResource("CatalogItemToolTip");
+							if(this.toolTipTarget.ToolTip is ToolTip tt) {
+								tt.DataContext = el.DataContext;
+								tt.PlacementTarget = el;
+								tt.IsOpen = true;
+							}
+						}
+					});
+			}
+
+		}
+		private void OnItemLeave(MouseEventArgs e) {
+			if((e.Source is FrameworkElement el) && !object.ReferenceEquals(el, this.toolTipTarget)) {
+				if(this.toolTipTarget.ToolTip is ToolTip tt) {
+					tt.IsOpen = false;
+				}
+				this.toolTipTarget.ToolTip = null;
+				this.toolTipTarget = null;
 			}
 		}
 	}
