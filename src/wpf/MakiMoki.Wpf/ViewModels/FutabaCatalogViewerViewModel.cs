@@ -314,15 +314,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					this.toolTipTarget.ToolTip = null;
 				}
 				this.toolTipTarget = el;
-				Observable.Return(0)
+				Observable.Return(el)
 					.Delay(TimeSpan.FromSeconds(1))
 					.ObserveOn(UIDispatcherScheduler.Default)
-					.Subscribe(_ => {
-						if(object.ReferenceEquals(this.toolTipTarget, el)) {
-							this.toolTipTarget.ToolTip ??= this.toolTipTarget.FindResource("CatalogItemToolTip");
+					.Subscribe(x => {
+						if(object.ReferenceEquals(this.toolTipTarget, x)) {
+							this.toolTipTarget.ToolTip ??= this.toolTipTarget.TryFindResource("CatalogItemToolTip");
 							if(this.toolTipTarget.ToolTip is ToolTip tt) {
-								tt.DataContext = el.DataContext;
-								tt.PlacementTarget = el;
+								tt.DataContext = x.DataContext;
+								tt.PlacementTarget = x;
 								tt.IsOpen = true;
 							}
 						}
@@ -332,10 +332,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 		private void OnItemLeave(MouseEventArgs e) {
 			if((e.Source is FrameworkElement el) && !object.ReferenceEquals(el, this.toolTipTarget)) {
-				if(this.toolTipTarget.ToolTip is ToolTip tt) {
+				if(this.toolTipTarget?.ToolTip is ToolTip tt) {
+					this.toolTipTarget.ToolTip = null;
 					tt.IsOpen = false;
 				}
-				this.toolTipTarget.ToolTip = null;
 				this.toolTipTarget = null;
 			}
 		}
