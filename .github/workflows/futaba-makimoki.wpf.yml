@@ -85,7 +85,7 @@ jobs:
     - name: Install .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.100
+        dotnet-version: 6.0.x
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
@@ -146,7 +146,7 @@ jobs:
     - name: Move libvlc Dll
       run: |
         # libvlcがコピーされないので手動で移す
-        Copy-Item -Recurse -Force src/wpf/MakiMoki.Wpf/bin/Release/net5.0-windows/win-$env:Target_Arch/libvlc $env:Wap_Publish_Output/runtimes
+        Copy-Item -Recurse -Force src/wpf/MakiMoki.Wpf/bin/Release/net6.0-windows/win-$env:Target_Arch/libvlc $env:Wap_Publish_Output/runtimes
       env:
         Target_Arch: ${{ matrix.arch }}
 
