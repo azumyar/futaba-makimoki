@@ -58,7 +58,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<MouseButtonEventArgs> TabClickCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
 		public MakiMokiCommand<RoutedEventArgs> TabCloseClickButtonCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 		
-		private Dictionary<string, Model.TabItem> SelectedTabItem { get; } = new Dictionary<string, TabItem>();
 		public ReactiveProperty<Model.TabItem> TabControlSelectedItem { get; } = new ReactiveProperty<Model.TabItem>();
 		public ReactiveProperty<Model.TabItem> ThreadTabSelectedItem { get; } = new ReactiveProperty<Model.TabItem>();
 
@@ -278,6 +277,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private async void OnUpdateCatalog(Data.FutabaContext[] catalog) {
+#if DEBUG
+			var back = this.Catalogs.ToArray();
+#endif
 			await Update(
 				this.Catalogs,
 				catalog,
@@ -285,6 +287,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				(x) => this.TabControlSelectedItem.Value = x);
 			this.CatalogToken.Value = DateTime.Now.Ticks;
 			this.TabVisibility.Value = this.Catalogs.Count != 0 ? Visibility.Visible : Visibility.Collapsed;
+#if DEBUG
+			// スレが削除された場合Threadキャッシュ整合性確認
+			{
+				var except = back.Select(x => x.Url.BaseUrl)
+					.Except(catalog.Select(x => x.Url.BaseUrl))
+					.ToArray();
+				if(except.Any()) {
+					foreach(var e in except) {
+						if(Util.Futaba.Threads.Value.Any(x => x.Url.BaseUrl == e)) {
+							System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!カタログスレッドキャッシュ不整合!!!!!!!!!!!!!!!!!!!!!");
+						}
+					}
+				}
+			}
+#endif
 			foreach(var c in catalog) {
 				var th = this.Threads.Value.Where(x => x.Url.BaseUrl == c.Url.BaseUrl).ToArray();
 				foreach(var t in c.ResItems) {
@@ -351,10 +368,28 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private async void OnUpdateThreadRes(Data.FutabaContext[] threads) {
 			var url = this.TabControlSelectedItem.Value?.Futaba.Value?.Url.BaseUrl ?? "";
-			await Update(
-				this.Threads.Value,
-				threads.Where(x => x.Url.BaseUrl == url).ToArray(),
-				true);
+			var catalogBords = this.Catalogs.Select(x => x.Futaba.Value?.Url.BaseUrl)
+				.Where(x => x != null)
+				.Distinct()
+				.ToArray();
+			var threadBords = this.ThreadsDic.Keys.ToList();
+			foreach(var c in catalogBords) {
+				if(c == this.TabControlSelectedItem.Value?.Futaba.Value?.Url.BaseUrl) {
+					await Update(
+						this.Threads.Value,
+						threads.Where(x => x.Url.BaseUrl == c).ToArray(),
+						true,
+						x => {
+							this.ThreadTabSelectedItem.Value = x;
+						});
+				}
+				if(threadBords.Contains(c)) {
+					threadBords.Remove(c);
+				}
+			}
+			foreach(var t in threadBords) {
+				this.ThreadsDic.Remove(t);
+			}
 			this.ThreadToken.Value = DateTime.Now.Ticks;
 		}
 
@@ -394,23 +429,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							rl.Add(rm);
 						}
 					}
-					if(idx.HasValue && (copy.Count != 0)) {
-						for(var idx2 = idx.Value; 0 <= idx2; idx2--) {
-							var tr = (copy.Count <= idx2) ? copy.Last() : copy[idx2];
-							if(tr.Futaba.Value.Url.BaseUrl == act.Url.BaseUrl) {
-								r = tr;
-								break;
-							}
-						}
-						if(r == null) {
-							for(var idx2 = idx.Value + 1; idx2 < collection.Count; idx2++) {
-								if(copy[idx2].Futaba.Value.Url.BaseUrl == act.Url.BaseUrl) {
-									r = copy[idx2];
-									break;
-								}
-							}
-						}
-					}
+					// 最後に見たタブを持ってくる
+					r = copy.Select((x, i) => new { Value = x, Index = i })
+						.OrderBy(x => x.Value.LastDisplayTime.Value)
+						.ThenByDescending(x => x.Index)
+						.LastOrDefault()?.Value;
 				}
 				for(var i = 0; i < collection.Count; i++) {
 					var it = collection[i];
@@ -427,7 +450,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									.Select(x => x.ThumbSource)
 									.ToArray());
 							}
-							it.Futaba.Value = new BindableFutaba(futaba, it.Futaba.Value);
+							it.UpdateFutaba(new BindableFutaba(futaba, it.Futaba.Value));
 						}
 					}
 				}
@@ -453,17 +476,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 
 			if(tabItem.Futaba.Value.Url.IsCatalogUrl) {
-				if(this.SelectedTabItem.TryGetValue(tabItem.Futaba.Value.Url.BaseUrl, out var ti)) {
-					await Task.Delay(1);
-					this.OnUpdateThreadRes(Util.Futaba.Threads.Value);
-					this.ThreadTabSelectedItem.Value = ti;
+				if(this.ThreadsDic.TryGetValue(tabItem.Futaba.Value.Url.BaseUrl, out var tabCollection)) {
+					var ti = tabCollection
+						.Select((x, i) => new { Value = x, Index = i })
+						.OrderBy(x => x.Value.LastDisplayTime.Value)
+						.ThenByDescending(x => x.Index)
+						.LastOrDefault()?.Value;
+					if(ti != null) {
+						await Task.Yield();
+						this.OnUpdateThreadRes(Util.Futaba.Threads.Value);
+						this.ThreadTabSelectedItem.Value = ti;
+					}
 				}
+				tabItem.Activate();
 			} else {
-				if(this.SelectedTabItem.ContainsKey(tabItem.Futaba.Value.Url.BaseUrl)) {
-					this.SelectedTabItem[this.TabControlSelectedItem.Value.Futaba.Value.Url.BaseUrl] = tabItem;
-				} else {
-					this.SelectedTabItem.Add(this.TabControlSelectedItem.Value.Futaba.Value.Url.BaseUrl, tabItem);
-				}
 				foreach(var tab in this.ThreadsDic.ToArray()) {
 					foreach(var it in tab.Value) {
 						it.Deactivate();

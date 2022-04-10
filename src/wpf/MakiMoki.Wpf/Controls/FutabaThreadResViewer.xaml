@@ -573,8 +573,7 @@
                                                 Opacity="{DynamicResource FailsafeThreadImageOpacity}"
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Bottom"
-                                                Visibility="{Binding FailsafeMistakePostVisibility.Value, Mode=OneWay}"
-                                                >
+                                                Visibility="{Binding FailsafeMistakePostVisibility.Value, Mode=OneWay}">
                                                 <Image
                                                     Source="{Binding Contents.ThumbSource.Value, Mode=OneWay, ElementName=_this}"
                                                     RenderOptions.EdgeMode="Aliased"
@@ -596,15 +595,25 @@
                                                 </Image>
                                             </Viewbox>
 
-                                            <ScrollViewer
+                                            <Grid
                                                 Grid.Row="0" Grid.RowSpan="2"
-                                                Grid.Column="0" Grid.ColumnSpan="2"
-                                                Style="{StaticResource MakiMokiScrollViewerStyle}"
-                                                CanContentScroll="True"
-                                                Margin="0"
-                                                Focusable="false">
-                                                <ItemsPresenter />
-                                            </ScrollViewer>
+                                                Grid.Column="0" Grid.ColumnSpan="2">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+
+                                                <ScrollViewer
+                                                    Grid.Row="0"
+                                                    Style="{StaticResource MakiMokiScrollViewerStyle}"
+                                                    CanContentScroll="True"
+                                                    Margin="0"
+                                                    Focusable="false">
+                                                    <ItemsPresenter />
+                                                </ScrollViewer>
+                                                
+                                                <!-- TODO: ここに続きを読むを置く -->
+                                            </Grid>
                                         </Grid>
                                     </ControlTemplate>
                                 </Setter.Value>
@@ -658,8 +667,7 @@
                                     Grid.Column="0" Grid.Row="0"
                                     HorizontalAlignment="Left" 
                                     Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}"
-                                    Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}"
-                                    >
+                                    Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
                                     <Grid.Resources>
                                         <!-- 見つからないと言われることがあるのでリソースに置く -->
                                         <ResourceDictionary>

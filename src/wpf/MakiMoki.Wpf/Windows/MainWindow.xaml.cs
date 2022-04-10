@@ -50,7 +50,28 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 						}
 					}
 				});
+
+			// WPF バグ対策 
+			// https://github.com/dotnet/wpf/issues/6091
+			ViewModels.MainWindowViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<System.Windows.FrameworkElement>>()
+				.Subscribe(async x => {
+					System.Diagnostics.Debug.WriteLine("unload bag fix");
+					var p = x.Parent as Panel;
+					if(p != null) {
+						p.Children.Remove(x);
+						await Task.Yield();
+						x.DataContext = null;
+						this.BitmapRemoveConainer.Children.Add(x);
+						await Task.Yield();
+						x.UpdateLayout();
+						await Task.Yield();
+						this.BitmapRemoveConainer.Children.Remove(x);
+						//p.Children.Add(x);
+					}
+				});
 		}
+
 
 		private void SystemCommandsCanExecute(object sender, CanExecuteRoutedEventArgs e) {
 			e.CanExecute = true;

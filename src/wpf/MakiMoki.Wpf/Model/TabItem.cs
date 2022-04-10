@@ -23,7 +23,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> Name { get; }
 		public ReactiveProperty<ImageSource> ThumbSource { get; }
 		public ReactiveProperty<Visibility> ThumbVisibility { get; }
-		public ReactiveProperty<BindableFutaba> Futaba { get; }
+		
+		private ReactiveProperty<BindableFutaba> FutabaProperty { get; }
+		public IReadOnlyReactiveProperty<BindableFutaba> Futaba { get; }
+		
 		public ReactiveProperty<PostHolder> PostData { get; }
 
 		public ReactiveProperty<PlatformData.FutabaMedia> MediaContents { get; } 
@@ -35,6 +38,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			= new ReactiveProperty<double>(0);
 		ReactiveProperty<double> IFutabaViewerContents.ScrollHorizontalOffset { get; }
 			= new ReactiveProperty<double>(0);
+		private ReactiveProperty<DateTime> LastDisplayTimeProperty { get; } = new ReactiveProperty<DateTime>(DateTime.MinValue);
+		public IReadOnlyReactiveProperty<DateTime> LastDisplayTime { get; }
 
 		public ReactiveProperty<Visibility> SearchBoxVisibility { get; }
 			= new ReactiveProperty<Visibility>(Visibility.Collapsed);
@@ -55,11 +60,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public TabItem(Data.FutabaContext f) {
 			this.Url = f.Url;
-			this.ThumbSource = new ReactiveProperty<ImageSource>();
-			this.Region = new ReactiveProperty<Prism.Regions.IRegion>();
-			this.ThreadView = new ReactiveProperty<object>();
-			this.Futaba = new ReactiveProperty<BindableFutaba>(new BindableFutaba(f));
+			this.FutabaProperty = new ReactiveProperty<BindableFutaba>(new BindableFutaba(f));
+			this.Futaba = this.FutabaProperty.ToReadOnlyReactiveProperty();
 			this.LastRescount = new ReactiveProperty<int>(this.Futaba.Value.ResCount.Value);
+			this.ThumbSource = new ReactiveProperty<ImageSource>();
+			this.ThreadView = new ReactiveProperty<object>();
 			this.PostData = new ReactiveProperty<PostHolder>(new PostHolder(f.Bord, f.Url));
 			this.Name = this.Futaba
 				.Select(x => {
@@ -111,6 +116,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.SearchColumnWidth = SearchBoxVisibility
 				.Select(x => (x == Visibility.Visible) ? new GridLength(320, GridUnitType.Star) : new GridLength(0, GridUnitType.Auto))
 				.ToReactiveProperty();
+
+			this.LastDisplayTime = this.LastDisplayTimeProperty.ToReadOnlyReactiveProperty();
+
+			this.Region = new ReactiveProperty<Prism.Regions.IRegion>();
 		}
 
 		public void Dispose() {
@@ -124,6 +133,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			new Helpers.AutoDisposable(this)
 				.AddEnumerable(this.Futaba.Value?.ResItems)
 				.Dispose();
+		}
+
+		public void UpdateFutaba(BindableFutaba futaba) {
+			this.FutabaProperty.Value = futaba;
 		}
 
 		public void Bind(IFutabaContainer container) {
@@ -146,6 +159,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public void Activate() {
 			this.isActivated = true;
 			this.LastRescount.Value = this.Futaba.Value.ResCount.Value;
+			this.LastDisplayTimeProperty.Value = DateTime.Now;
 		}
 
 

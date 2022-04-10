@@ -197,7 +197,8 @@
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
                                     ToolTipService.ShowDuration="{x:Static sys:Int32.MaxValue}"
-                                    Tag="{Binding DataContext,Mode=OneWay, ElementName=_this}">
+                                    Tag="{Binding DataContext,Mode=OneWay, ElementName=_this}"
+                                    Unloaded="OnContentUnloaded">
                                     <!--
                                     ToolTipService.InitialShowDelay="0"
                                     ToolTipService.BetweenShowDelay="0"
@@ -635,8 +636,7 @@
 
                                         <Grid Grid.Column="0" Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}">
                                             <Viewbox
-                                                Width="48"
-                                                Height="48"
+                                                Width="{DynamicResource CatalogImageSize}" Height="{DynamicResource CatalogImageSize}"
                                                 HorizontalAlignment="Left"
                                                 StretchDirection="DownOnly">
                                                 <Image 
@@ -653,7 +653,6 @@
                                                     </i:Interaction.Triggers>
                                                 </Image>
                                             </Viewbox>
-
                                             <!-- 新着レス数-->
                                             <Viewbox
                                                 Margin="2"
@@ -924,12 +923,10 @@
                             x:Name="CatalogSearchTextBox"
                             Grid.Column="0"
                             CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
-                            Text="{Binding Contents.Futaba.Value.FilterText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ElementName=_this}"
                             FontSize="14"
                             VerticalAlignment="Center"
                             local:PlaceHolderBehavior.PlaceHolderText="検索テキスト"
-                            Tag="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
-                            >
+                            Tag="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}">
                             <TextBox.Foreground>
                                 <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                             </TextBox.Foreground>

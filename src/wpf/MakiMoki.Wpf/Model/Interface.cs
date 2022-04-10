@@ -9,13 +9,14 @@ using System.Windows;
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 	public interface IFutabaViewerContents: IDisposable {
-		ReactiveProperty<BindableFutaba> Futaba { get; }
+		IReadOnlyReactiveProperty<BindableFutaba> Futaba { get; }
 
 		ReactiveProperty<PlatformData.FutabaMedia> MediaContents { get; }
 
 		ReactiveProperty<object> LastVisibleItem { get; }
 		ReactiveProperty<double> ScrollVerticalOffset { get; }
 		ReactiveProperty<double> ScrollHorizontalOffset { get; }
+		IReadOnlyReactiveProperty<DateTime> LastDisplayTime { get; }
 
 		ReactiveProperty<Visibility> SearchBoxVisibility { get; }
 		ReactiveProperty<Visibility> SearchButtonVisibility { get; }

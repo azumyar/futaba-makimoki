@@ -568,13 +568,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Visibility> MenuItemRegisterHiddenVisibility { get; }
 		public ReactiveProperty<Visibility> MenuItemUnregisterHiddenVisibility { get; }
 
-		[Helpers.AutoDisposable.IgonoreDisposeBindingsValueAttribute]
+		[Helpers.AutoDisposable.IgonoreDisposeBindingsValue]
 		public ReactiveProperty<BindableFutaba> Parent { get; }
 
 		public MakiMokiCommand<MouseButtonEventArgs> FutabaTextBlockMouseDownCommand { get; }
 			= new MakiMokiCommand<MouseButtonEventArgs>();
-		public MakiMokiCommand ThumbLoadCommand { get; }
-			= new MakiMokiCommand();
+		public MakiMokiCommand<RoutedEventArgs> ThumbLoadCommand { get; }
+			= new MakiMokiCommand<RoutedEventArgs>();
 
 		private RefValue<ulong> hashValue;
 		private Action<Ng.NgData.NgConfig> ngUpdateAction;
@@ -583,6 +583,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		private Action<Ng.NgData.WatchConfig> watchUpdateAction;
 		private Action<Ng.NgData.WatchImageConfig> watchImageUpdateAction;
 		private Action<PlatformData.WpfConfig> systemUpdateAction;
+
+		private List<FrameworkElement> thumbElement = new();
 
 		public BindableFutabaResItem(int index, Data.FutabaContext.Item item, string baseUrl, BindableFutaba parent) {
 			System.Diagnostics.Debug.Assert(item != null);
@@ -775,22 +777,36 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.MenuItemUnregisterHiddenVisibility = this.IsHidden.Select(x => x ? Visibility.Visible : Visibility.Collapsed).ToReactiveProperty();
 
 			this.FutabaTextBlockMouseDownCommand.Subscribe(x => OnFutabaTextBlockMouseDown(x));
-			this.ThumbLoadCommand.Subscribe(_ => OnThumbLoad());
+			this.ThumbLoadCommand.Subscribe(x => {
+				// WPFバグ対策
+				if(x.Source is FrameworkElement fe) {
+					if(!thumbElement.Contains(fe)) {
+						void unload(object s, RoutedEventArgs e) {
+							if(s is FrameworkElement fe2 && thumbElement.Contains(fe2)) {
+								fe2.Unloaded -= unload;
+								thumbElement.Remove(fe2);
+							}
+						}
+
+						thumbElement.Add(fe);
+						fe.Unloaded += unload;
+					}
+				}
+				OnThumbLoad();
+			});
 		}
 
-		private object test;
 		public void Dispose() {
-			test = null;
-			if(!this.ThumbSource?.IsDisposed ?? false) {
-				this.ThumbSource.Value = null;
-				this.ThumbSource.Dispose();
-			}
-			if(!this.OriginSource?.IsDisposed ?? false) {
-				this.OriginSource.Value = null;
-				this.OriginSource.Dispose();
-			}
-
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
+
+			foreach(var el in this.thumbElement) {
+				System.Windows.Data.BindingOperations.ClearAllBindings(el);
+				if(el.DataContext != null) {
+					ViewModels.MainWindowViewModel.Messenger.Instance
+						.GetEvent<Prism.Events.PubSubEvent<System.Windows.FrameworkElement>>()
+						.Publish(el);
+				}
+			}
 		}
 
 		public void ReleaseHiddenRes() {
@@ -840,7 +856,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					.Select(x => WpfUtil.ImageUtil.CreateImage(x))
 					.Subscribe(x => {
 						if(x != null) {
-							test = x;
 							SetThumbSource(x);
 						} else {
 							// TODO: エラー画像表示

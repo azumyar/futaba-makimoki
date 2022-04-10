@@ -28,11 +28,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Reactive {
 			this.NativeCommand = command;
 		}
 
-		public void Dispose() {
-			if(this.NativeCommand != null) {
-				this.NativeCommand.Dispose();
-				this.NativeCommand = null;
+		public virtual void Dispose() {
+#if !DEBUG // TODO: なんかクラッシュする
+			try {
+				this.NativeCommand?.Dispose();
 			}
+			catch(NullReferenceException) { /* とりあえず握りつぶす */ }
+#endif
+			this.NativeCommand = null;
+			GC.SuppressFinalize(this);
 		}
 
 		public event EventHandler CanExecuteChanged {

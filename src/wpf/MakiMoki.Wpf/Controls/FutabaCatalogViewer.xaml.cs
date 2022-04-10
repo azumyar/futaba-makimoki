@@ -27,7 +27,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				typeof(Model.IFutabaViewerContents),
 				typeof(FutabaCatalogViewer),
 				new PropertyMetadata(OnContentsChanged));
-		public static RoutedEvent ContentsChangedEvent
+		public static readonly RoutedEvent ContentsChangedEvent
 			= EventManager.RegisterRoutedEvent(
 				nameof(ContentsChanged),
 				RoutingStrategy.Tunnel,
@@ -139,13 +139,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		private void OnImageUnloaded(object sender, RoutedEventArgs e) {
 			if(sender is Image o) {
 				var s = o.Source;
-				BindingOperations.ClearAllBindings(o);
+				//BindingOperations.ClearAllBindings(o);
 				if(s != null) {
-					o.Source = null;
+					//o.Source = null;
 					if(s is BitmapImage bi) {
 						//bi.StreamSource.Dispose();
 					}
 				}
+				//o.UpdateLayout();
 				/*
 				var f = o.GetType().GetField(
 					"_bitmapSource",
@@ -159,8 +160,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 
 		private void OnContentUnloaded(object sender, RoutedEventArgs e) {
-			if(sender is DependencyObject o) {
-				void del(DependencyObject o, Action<DependencyObject> act) {
+			if(sender is FrameworkElement o) {
+				static void del(DependencyObject o, Action<DependencyObject> act) {
 					foreach(var child in LogicalTreeHelper.GetChildren(o)) {
 						if(child is DependencyObject) {
 							del(child as DependencyObject, act);
@@ -170,11 +171,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				}
 
 				del(o, x => BindingOperations.ClearAllBindings(x));
+				if(o.DataContext != null) {
+					ViewModels.MainWindowViewModel.Messenger.Instance
+						.GetEvent<PubSubEvent<System.Windows.FrameworkElement>>()
+						.Publish(o);
+				}
 			}
 		}
 
 		public void DestroyContainer() {
-			void del(DependencyObject o, Action<DependencyObject> act) {
+			static void del(DependencyObject o, Action<DependencyObject> act) {
 				foreach(var child in LogicalTreeHelper.GetChildren(o)) {
 					if(child is DependencyObject) {
 						del(child as DependencyObject, act);
