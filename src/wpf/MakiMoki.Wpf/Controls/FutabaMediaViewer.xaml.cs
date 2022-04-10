@@ -41,31 +41,31 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 		public delegate void RoutedPositionEventHandler(object sender, RoutedPositionEventArgs e);
 
-		public static RoutedEvent VideoViewPlayingEvent
+		public static readonly RoutedEvent VideoViewPlayingEvent
 			= EventManager.RegisterRoutedEvent(
 				nameof(VideoViewPlaying),
 				RoutingStrategy.Tunnel,
 				typeof(RoutedEventHandler),
 				typeof(FutabaMediaViewer));
-		public static RoutedEvent VideoViewPausedEvent
+		public static readonly RoutedEvent VideoViewPausedEvent
 			= EventManager.RegisterRoutedEvent(
 				nameof(VideoViewPaused),
 				RoutingStrategy.Tunnel,
 				typeof(RoutedEventHandler),
 				typeof(FutabaMediaViewer));
-		public static RoutedEvent VideoViewStoppedEvent
+		public static readonly RoutedEvent VideoViewStoppedEvent
 			= EventManager.RegisterRoutedEvent(
 				nameof(VideoViewStopped),
 				RoutingStrategy.Tunnel,
 				typeof(RoutedEventHandler),
 				typeof(FutabaMediaViewer));
-		public static RoutedEvent VideoViewEndReachedEvent
+		public static readonly RoutedEvent VideoViewEndReachedEvent
 			= EventManager.RegisterRoutedEvent(
 				nameof(VideoViewEndReached),
 				RoutingStrategy.Tunnel,
 				typeof(RoutedEventHandler),
 				typeof(FutabaMediaViewer));
-		public static RoutedEvent VideoViewPositionChangedEvent
+		public static readonly RoutedEvent VideoViewPositionChangedEvent
 			= EventManager.RegisterRoutedEvent(
 				nameof(VideoViewPositionChanged),
 				RoutingStrategy.Tunnel,
@@ -97,7 +97,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			remove { RemoveHandler(VideoViewPositionChangedEvent, value); }
 		}
 
-		private Helpers.AutoDisposable disposable;
+		private readonly Helpers.AutoDisposable disposable;
 		private volatile bool isDisposed = false;
 
 		public FutabaMediaViewer() {
