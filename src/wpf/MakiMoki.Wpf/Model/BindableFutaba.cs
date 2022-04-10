@@ -505,6 +505,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			dst.ThumbHash.Value = src.ThumbHash.Value;
 			dst.OriginSource.Value = src.OriginSource.Value;
 			dst.hashValue = src.hashValue;
+
+			src.ThumbSource.Value = null;
+			src.ThumbHash.Value = null;
+			src.OriginSource.Value = null;
 		}
 
 #pragma warning disable CS0067
@@ -797,14 +801,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		public void Dispose() {
+			var s = this.OriginSource.Value;
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 
-			foreach(var el in this.thumbElement) {
-				System.Windows.Data.BindingOperations.ClearAllBindings(el);
-				if(el.DataContext != null) {
-					ViewModels.MainWindowViewModel.Messenger.Instance
-						.GetEvent<Prism.Events.PubSubEvent<System.Windows.FrameworkElement>>()
-						.Publish(el);
+			if(s != null) {
+				foreach(var el in this.thumbElement) {
+					System.Windows.Data.BindingOperations.ClearAllBindings(el);
+					if(el.DataContext != null) {
+						ViewModels.MainWindowViewModel.Messenger.Instance
+							.GetEvent<Prism.Events.PubSubEvent<System.Windows.FrameworkElement>>()
+							.Publish(el);
+					}
 				}
 			}
 		}
