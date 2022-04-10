@@ -71,6 +71,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				$"win-{ arch }"));
 
 			UIDispatcherScheduler.Initialize();
+			ReactivePropertyScheduler.SetDefault(
+				new global::Reactive.Bindings.Schedulers.ReactivePropertyWpfScheduler(
+					this.Dispatcher));
 			// ARM64未対応
 			LibVLCSharp.Shared.Core.Initialize(Path.Combine(
 				AppContext.BaseDirectory,
