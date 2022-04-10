@@ -80,9 +80,10 @@
                                 <Button
                                     Grid.Column="2"
                                     Width="32"
+                                    FontFamily="Marlett"
+                                    Content="r"
                                     Command="{Binding DataContext.ConfigRemoveCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:ConfigDialog}}"
                                     CommandParameter="{Binding }">
-                                    <TextBlock>✖</TextBlock>
                                 </Button>
                             </Grid>
                         </Border>

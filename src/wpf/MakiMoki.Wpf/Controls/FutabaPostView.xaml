@@ -149,10 +149,9 @@
                         <Button
                             Margin="4"
                             HorizontalAlignment="Right"
-                            VerticalAlignment="Top">
-                            <TextBlock>
-                                ✖
-                            </TextBlock>
+                            VerticalAlignment="Top"
+                            FontFamily="Marlett"
+                            Content="r">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="PreviewMouseUp">
                                     <ri:EventToReactiveCommand Command="{Binding DataContext.DeleteImageCommand, Mode=OneWay, ElementName=_this}" />

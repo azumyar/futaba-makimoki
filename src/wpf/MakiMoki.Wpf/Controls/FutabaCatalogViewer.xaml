@@ -938,18 +938,15 @@
                             </i:Interaction.Behaviors>
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="TextChanged">
-                                    <!--
                                     <ri:EventToReactiveCommand Command="{Binding DataContext.FilterTextChangedCommand, ElementName=_this}" />
-                                    -->
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </TextBox>
-                        <Button Grid.Column="1" VerticalAlignment="Center">
-                            <Button.Content>
-                                <TextBlock>
-                                     ✖
-                                </TextBlock>
-                            </Button.Content>
+                        <Button
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            FontFamily="Marlett"
+                            Content="r">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <i:ChangePropertyAction 
