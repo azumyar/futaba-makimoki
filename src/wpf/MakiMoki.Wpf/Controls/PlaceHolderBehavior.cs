@@ -19,7 +19,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				new PropertyMetadata(null, OnPlaceHolderChanged));
 
 		private static void OnPlaceHolderChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
-			var textBox = sender as TextBox;
+			var textBox = sender as System.Windows.Controls.Primitives.TextBoxBase;
 			if(textBox == null) {
 				return;
 			}
@@ -30,7 +30,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				textBox.TextChanged -= handler;
 			} else {
 				textBox.TextChanged += handler;
-				if(string.IsNullOrEmpty(textBox.Text)) {
+				if(IsTextEmpty(textBox)) {
 					textBox.Background = CreateVisualBrush(placeHolder);
 				}
 			}
@@ -42,8 +42,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			return (sender, e) => {
 				// 背景に TextBlock を描画する VisualBrush を使って
 				// プレースホルダーを実現
-				var textBox = (TextBox)sender;
-				if(string.IsNullOrEmpty(textBox.Text)) {
+				var textBox = (System.Windows.Controls.Primitives.TextBoxBase)sender;
+				if(IsTextEmpty(textBox)) {
 					textBox.Background = CreateVisualBrush(placeHolder);
 				} else {
 					textBox.Background = new SolidColorBrush(Colors.Transparent);
@@ -67,12 +67,33 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			};
 		}
 
-		public static void SetPlaceHolderText(TextBox textBox, string placeHolder) {
+
+		public static void SetPlaceHolderText(System.Windows.Controls.Primitives.TextBoxBase textBox, string placeHolder) {
 			textBox.SetValue(PlaceHolderTextProperty, placeHolder);
 		}
 
-		public static string GetPlaceHolderText(TextBox textBox) {
+		public static string GetPlaceHolderText(System.Windows.Controls.Primitives.TextBoxBase textBox) {
 			return textBox.GetValue(PlaceHolderTextProperty) as string;
+		}
+
+
+		private static bool IsTextEmpty(System.Windows.Controls.Primitives.TextBoxBase textBox) {
+			if(textBox is TextBox tb) {
+				return string.IsNullOrEmpty(tb.Text);
+			} else if(textBox is RichTextBox rb) {
+				if(rb.Document.Blocks.Any()) {
+					if(rb.Document.Blocks.SkipLast(1).Any()) {
+						return false;
+					} else {
+						var b = rb.Document.Blocks.First();
+						return string.IsNullOrEmpty(new System.Windows.Documents.TextRange(b.ContentStart, b.ContentEnd).Text);
+					}
+				} else {
+					return true;
+				}
+			} else {
+				return true;
+			}
 		}
 	}
 }

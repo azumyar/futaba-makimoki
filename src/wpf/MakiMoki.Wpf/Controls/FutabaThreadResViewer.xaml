@@ -1029,7 +1029,7 @@
                                         <i:EventTrigger EventName="MouseLeave">
                                             <i:ChangePropertyAction PropertyName="Visibility" TargetName="copyButton" Value="Hidden" />
                                         </i:EventTrigger>
-                                        <i:EventTrigger EventName="MouseDown">
+                                        <i:EventTrigger EventName="PreviewMouseDown">
                                             <ri:EventToReactiveCommand Command="{Binding DataContext.FutabaTextBlockMouseDownCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" />
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>

@@ -818,6 +818,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				var b2 = !this.IsHidden.Value && !this.IsNg.Value;
 				if(b1 || b2) {
 					this.StartCopyMode();
+					e.Handled = true;
 				}
 			}
 		}
