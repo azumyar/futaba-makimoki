@@ -156,13 +156,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			this.PostViewVisibility.Value = Visibility.Hidden;
 		}
 
-		private async void OnFilterTextChanged(TextChangedEventArgs e) {
+		private void OnFilterTextChanged(TextChangedEventArgs e) {
 			if((e.Source is TextBox tb) && (tb.Tag is BindableFutaba bf)) {
-				var s = tb.Text.Clone().ToString();
-				await Task.Delay(500);
-				if(tb.Text == s) {
-					bf.FilterText.Value = s;
-				}
+				Observable.Return(tb.Text.Clone().ToString())
+					.Delay(TimeSpan.FromMilliseconds(500))
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(x => {
+						if(tb.Text == x) {
+							bf.FilterText.Value = x;
+						}
+					});
 			}
 		}
 
