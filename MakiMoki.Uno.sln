@@ -1,0 +1,57 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{29E060A0-1293-480F-B9B9-AC015E8DD64F}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		publish.wpf.bat = publish.wpf.bat
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Platform", "Platform", "{AEDF3A44-37C2-457A-911D-0BE9408C404C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{C6F32707-EB02-4FD9-9CEC-DC0B091558C2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{2E902488-01FF-4E0A-A908-532271C9AE58}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MakiMoki.Uno.Shared", "src\uno\MakiMoki.Uno.Shared\MakiMoki.Uno.Shared.shproj", "{6828645F-A9ED-4D01-ABB3-58D9CA626975}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakiMoki.Core", "src\core\MakiMoki.Core\MakiMoki.Core.csproj", "{F899C94F-8100-48A7-863D-AAF75BF81B9A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakiMoki.Uno.Mobile", "src\uno\MakiMoki.Uno.Mobile\MakiMoki.Uno.Mobile.csproj", "{DC57ADE3-14D4-48DD-BC70-ECE90B4431A7}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\uno\MakiMoki.Uno.Shared\MakiMoki.Uno.Shared.projitems*{6828645f-a9ed-4d01-abb3-58d9ca626975}*SharedItemsImports = 13
+		src\uno\MakiMoki.Uno.Shared\MakiMoki.Uno.Shared.projitems*{dc57ade3-14d4-48dd-bc70-ece90b4431a7}*SharedItemsImports = 5
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F899C94F-8100-48A7-863D-AAF75BF81B9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F899C94F-8100-48A7-863D-AAF75BF81B9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F899C94F-8100-48A7-863D-AAF75BF81B9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F899C94F-8100-48A7-863D-AAF75BF81B9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC57ADE3-14D4-48DD-BC70-ECE90B4431A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC57ADE3-14D4-48DD-BC70-ECE90B4431A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC57ADE3-14D4-48DD-BC70-ECE90B4431A7}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{DC57ADE3-14D4-48DD-BC70-ECE90B4431A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC57ADE3-14D4-48DD-BC70-ECE90B4431A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC57ADE3-14D4-48DD-BC70-ECE90B4431A7}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6828645F-A9ED-4D01-ABB3-58D9CA626975} = {2E902488-01FF-4E0A-A908-532271C9AE58}
+		{F899C94F-8100-48A7-863D-AAF75BF81B9A} = {C6F32707-EB02-4FD9-9CEC-DC0B091558C2}
+		{DC57ADE3-14D4-48DD-BC70-ECE90B4431A7} = {AEDF3A44-37C2-457A-911D-0BE9408C404C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {09DD425B-7B31-45D5-83FD-0F8CA1AF9E75}
+	EndGlobalSection
+EndGlobal
