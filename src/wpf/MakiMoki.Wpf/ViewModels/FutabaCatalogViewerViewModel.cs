@@ -65,6 +65,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<MouseButtonEventArgs> CatalogItemClickCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
 		public MakiMokiCommand<MouseEventArgs> CatalogItemEnterCommand { get; } = new MakiMokiCommand<MouseEventArgs>();
 		public MakiMokiCommand<MouseEventArgs> CatalogItemLeaveCommand { get; } = new MakiMokiCommand<MouseEventArgs>();
+		public MakiMokiCommand<ScrollChangedEventArgs> CatalogScrollChangedCommand { get; } = new MakiMokiCommand<ScrollChangedEventArgs>();
 
 		public ReactiveProperty<Visibility> PostViewVisibility { get; }
 			= new ReactiveProperty<Visibility>(Visibility.Hidden);
@@ -86,6 +87,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<Model.BindableFutaba> KeyBindingSortCommand { get; } = new MakiMokiCommand<BindableFutaba>();
 		public MakiMokiCommand<Model.BindableFutaba> KeyBindingModeCommand { get; } = new MakiMokiCommand<BindableFutaba>();
 		public MakiMokiCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new MakiMokiCommand<BindableFutaba>();
+
+		public ReactiveProperty<BitmapScalingMode> CatalogBitmapScalingMode { get; } = new ReactiveProperty<BitmapScalingMode>(BitmapScalingMode.Fant);
 
 		private bool isCatalogItemClicking = false;
 		public FutabaCatalogViewerViewModel() {
@@ -114,7 +117,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 			CatalogItemEnterCommand.Subscribe(x => OnItemEnter(x));
 			CatalogItemLeaveCommand.Subscribe(x => OnItemLeave(x));
+			CatalogScrollChangedCommand.Subscribe(_ => {
+				System.Diagnostics.Debug.WriteLine("CatalogScrollChangedCommand");
+				CatalogBitmapScalingMode.Value = BitmapScalingMode.NearestNeighbor;
+				Observable.Return(this.scrollToken = DateTime.Now)
+					.Delay(TimeSpan.FromMilliseconds(500))
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(x => {
+						if(x == this.scrollToken) {
+							System.Diagnostics.Debug.WriteLine("CatalogScrollChangedCommand-end");
+							CatalogBitmapScalingMode.Value = BitmapScalingMode.Fant;
+						}
+					});
+			});
 		}
+		private DateTime scrollToken = DateTime.MinValue;
 
 		public void Dispose() {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();

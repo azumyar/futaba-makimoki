@@ -175,8 +175,32 @@
                 </Setter>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             </Style>
+            <Style x:Key="CatalogViewerListBoxStyle" TargetType="ListBox" BasedOn="{StaticResource MakiMokiViewerListBoxStyle}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBox">
+                            <Border>
+                                <ScrollViewer
+                                    Style="{StaticResource MakiMokiScrollViewerStyle}"
+                                    CanContentScroll="True"
+                                    Margin="0"
+                                    Focusable="false">
+                                    <ItemsPresenter />
 
-            <Style x:Key="CatalogWrapBox" TargetType="ListBox" BasedOn="{StaticResource MakiMokiViewerListBoxStyle}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="ScrollChanged">
+                                            <ri:EventToReactiveCommand
+                                                Command="{Binding DataContext.CatalogScrollChangedCommand, ElementName=_this}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ScrollViewer>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="CatalogWrapBox" TargetType="ListBox" BasedOn="{StaticResource CatalogViewerListBoxStyle}">
                 <Setter Property="ItemsPanel">
                     <Setter.Value>
                         <ItemsPanelTemplate>
@@ -278,7 +302,7 @@
                                             <Image
                                                 Source="{Binding ThumbSource.Value, Mode=OneWay}"
                                                 RenderOptions.EdgeMode="Aliased"
-                                                RenderOptions.BitmapScalingMode="Fant"
+                                                RenderOptions.BitmapScalingMode="{Binding DataContext.CatalogBitmapScalingMode, ElementName=_this}"
                                                 Unloaded="OnImageUnloaded">
                                                 <Image.CacheMode>
                                                     <BitmapCache RenderAtScale="1" />
@@ -1107,6 +1131,10 @@
                     <i:EventTrigger EventName="MouseLeave">
                         <ri:EventToReactiveCommand
                             Command="{Binding DataContext.CatalogItemLeaveCommand, ElementName=_this}" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="PreviewMouseWheel">
+                        <ri:EventToReactiveCommand
+                            Command="{Binding DataContext.CatalogMouseWheelCommand, ElementName=_this}" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
                 <i:Interaction.Behaviors>
