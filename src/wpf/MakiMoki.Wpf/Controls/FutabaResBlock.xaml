@@ -165,7 +165,7 @@
                             BorderBrush="Transparent"
                             Padding="0"
                             Margin="0 0 4 0">
-                            <Border Unloaded="OnContentUnloaded">
+                            <Border>
                                 <Image
                                     Source="{Binding ThumbSource.Value, Mode=OneWay}"
                                     RenderOptions.EdgeMode="Aliased"
