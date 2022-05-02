@@ -34,8 +34,6 @@
             <converter:TabLastMenuItemConverter x:Key="TabLastMenuItemConverter" />
             <converter:ThreadDieOpacityConverter x:Key="ThreadDieOpacityConverter" />
             <converter:ThreadNewResVisibleConverter x:Key="ThreadNewResVisibleConverter" />
-            <converter:InformationItemConverter x:Key="InformationItemConverter" />
-            <converter:InformationObjectConverter x:Key="InformationObjectConverter" />
 
             <system:Double x:Key="WindowCaptionHeight">36</system:Double>
 
@@ -1080,7 +1078,7 @@
 
             <ListBox
                 Grid.Row="1"
-                ItemsSource="{Binding Source={x:Static util:Futaba.Informations}, Mode=OneWay, Converter={StaticResource InformationItemConverter}}"
+                ItemsSource="{Binding Infomations.Value, Mode=OneWay}"
                 Background="Transparent"
                 BorderBrush="Transparent"
                 BorderThickness="0"
@@ -1106,11 +1104,8 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="4" />
                                 </Grid.ColumnDefinitions>
-                                <Border
-                                    Grid.RowSpan="3"
-                                    Grid.Column="0"
-                                    DataContext="{Binding ExObject, Mode=OneWay, Converter={StaticResource InformationObjectConverter}}">
-                                    <Grid Visibility="{Binding ObjectVisibility.Value, Mode=OneWay}">
+                                <Border Grid.RowSpan="3" Grid.Column="0">
+                                    <Grid Visibility="{Binding ExObject.ObjectVisibility.Value, Mode=OneWay}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="1" />
                                             <ColumnDefinition Width="Auto" />
@@ -1124,15 +1119,16 @@
                                         <Viewbox
                                             Grid.Row="1"
                                             Grid.Column="1"
-                                            Width="{DynamicResource InformationImageSize}" Height="{DynamicResource InformationImageSize}"
+                                            Width="{DynamicResource ExObject.InformationImageSize}" Height="{DynamicResource InformationImageSize}"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
                                             Stretch="Uniform"
                                             >
                                             <Image
-                                                Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                                Source="{Binding ExObject.ThumbSource.Value, Mode=OneWay}"
                                                 RenderOptions.EdgeMode="Aliased"
-                                                RenderOptions.BitmapScalingMode="Fant">
+                                                RenderOptions.BitmapScalingMode="Fant"
+                                                Unloaded="OnImageUnloaded">
                                                 <Image.CacheMode>
                                                     <BitmapCache RenderAtScale="1" />
                                                 </Image.CacheMode>
@@ -1149,6 +1145,12 @@
                                         FontSize="{DynamicResource InformationFontSize}" />
                                 </Border>
                             </Grid>
+
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Loaded">
+                                    <ri:EventToReactiveCommand Command="{Binding ExObject.LoadedCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
                         </Border>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

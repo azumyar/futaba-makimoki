@@ -63,7 +63,8 @@
                     Margin="16 4 16 4" 
                     IsHitTestVisible="False"
                     TextBlock.FontSize="12"
-                    TextBlock.FontFamily="{DynamicResource CatalogTextFont}" >
+                    TextBlock.FontFamily="{DynamicResource CatalogTextFont}"
+                    Unloaded="OnContentUnloaded">
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                     </TextBlock.Foreground>
@@ -221,8 +222,7 @@
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
                                     ToolTipService.ShowDuration="{x:Static sys:Int32.MaxValue}"
-                                    Tag="{Binding DataContext,Mode=OneWay, ElementName=_this}"
-                                    Unloaded="OnContentUnloaded">
+                                    Tag="{Binding DataContext,Mode=OneWay, ElementName=_this}">
                                     <!--
                                     ToolTipService.InitialShowDelay="0"
                                     ToolTipService.BetweenShowDelay="0"
@@ -283,7 +283,7 @@
                                             </SolidColorBrush.Color>
                                         </SolidColorBrush>
                                     </Button.Foreground>
-                                    <Grid x:Name="CatalogItem">
+                                    <Grid x:Name="CatalogItem" Unloaded="OnContentUnloaded">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
@@ -648,7 +648,8 @@
                                         Background="Transparent"
                                         IsHitTestVisible="False"
                                         TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
-                                        TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
+                                        TextBlock.FontFamily="{DynamicResource ThreadTextFont}"
+                                        Unloaded="OnContentUnloaded">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />

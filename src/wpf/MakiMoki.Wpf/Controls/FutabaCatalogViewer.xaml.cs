@@ -173,8 +173,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				del(o, x => BindingOperations.ClearAllBindings(x));
 				if(o.DataContext != null) {
 					ViewModels.MainWindowViewModel.Messenger.Instance
-						.GetEvent<PubSubEvent<System.Windows.FrameworkElement>>()
-						.Publish(o);
+						.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.WpfBugMessage>>()
+						.Publish(new ViewModels.MainWindowViewModel.WpfBugMessage(o));
 				}
 			}
 		}

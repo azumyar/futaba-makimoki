@@ -809,8 +809,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					System.Windows.Data.BindingOperations.ClearAllBindings(el);
 					if(el.DataContext != null) {
 						ViewModels.MainWindowViewModel.Messenger.Instance
-							.GetEvent<Prism.Events.PubSubEvent<System.Windows.FrameworkElement>>()
-							.Publish(el);
+							.GetEvent<Prism.Events.PubSubEvent<ViewModels.MainWindowViewModel.WpfBugMessage>>()
+							.Publish(new ViewModels.MainWindowViewModel.WpfBugMessage(el, false));
 					}
 				}
 			}

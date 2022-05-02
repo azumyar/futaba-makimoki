@@ -808,8 +808,7 @@
                                     <local:FutabaResBlock
                                         x:Name="CommentBlock"
                                         Grid.Column="0" Grid.Row="0"
-                                        MaxWidth="1024"
-                                        >
+                                        MaxWidth="1024">
                                         <local:FutabaResBlock.Foreground>
                                             <SolidColorBrush>
                                                 <SolidColorBrush.Color>

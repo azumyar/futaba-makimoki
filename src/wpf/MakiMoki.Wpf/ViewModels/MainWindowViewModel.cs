@@ -20,6 +20,9 @@ using Yarukizero.Net.MakiMoki.Wpf.Reactive;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class MainWindowViewModel : BindableBase, IDisposable {
+		public record struct InfomationRecord(string Message, InformationBindableExObject ExObject, string Token);
+		public record struct WpfBugMessage(FrameworkElement Element, bool Remove = true);
+
 		internal class Messenger : EventAggregator {
 			public static Messenger Instance { get; } = new Messenger();
 		}
@@ -46,6 +49,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private Dictionary<string, ReactiveCollection<Model.TabItem>> ThreadsDic { get; } = new Dictionary<string, ReactiveCollection<TabItem>>();
 		public ReactiveProperty<ReactiveCollection<Model.TabItem>> Threads { get; }
 		public ReactiveProperty<object> ThreadToken { get; } = new ReactiveProperty<object>(DateTime.Now.Ticks);
+		public ReactiveProperty<List<InfomationRecord>> Infomations { get; }
 
 		public ReactiveProperty<bool> Topmost { get; }
 		public ReactiveProperty<Visibility> TabVisibility { get; }
@@ -123,6 +127,50 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					return new ReactiveCollection<Model.TabItem>();
 				}
 			}).ToReactiveProperty();
+			this.Infomations = new ReactiveProperty<List<InfomationRecord>>(initialValue: new ());
+			Util.Futaba.Informations.Subscribe(x => {
+				Observable.Return(x)
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(y => {
+						var list = new List<InfomationRecord>();
+						using var rm = new CompositeDisposable();
+						foreach(var it in y) {
+							if(!this.Infomations.Value.Any(z => z.Token == it.Token)) {
+								static InformationBindableExObject gen1(FutabaContext fc) {
+									if((fc.ResItems.FirstOrDefault() is FutabaContext.Item fit)
+										&& WpfUtil.ImageUtil.CreateImage(WpfUtil.ImageUtil.GetImageCache(
+											Util.Futaba.GetThumbImageLocalFilePath(fc.Url, fit.ResItem.Res))) is ImageSource isc) {
+
+										return new InformationBindableExObject(isc);
+									}
+									return new InformationBindableExObject();
+								}
+								static InformationBindableExObject gen2(UrlContext c) {
+									return gen1(Util.Futaba.Threads.Value.Where(x => x.Url == c).FirstOrDefault());
+								} 
+
+								list.Add(new InfomationRecord(
+									it.Message,
+									it.ExObject switch {
+										BindableFutaba bf => new InformationBindableExObject(bf),
+										ImageSource isc => new InformationBindableExObject(isc),
+										FutabaContext fc when fc.Url.IsThreadUrl => gen1(fc),
+										UrlContext uc when uc.IsThreadUrl => gen2(uc),
+										_ => new InformationBindableExObject()
+									}, it.Token)) ;
+							}
+						}
+						foreach(var it in this.Infomations.Value) {
+							if(y.Any(z => z.Token == it.Token)) {
+								list.Add(it);
+							} else {
+								rm.Add(it.ExObject);
+							}
+						}
+						this.Infomations.Value = list;
+					});
+			});
+
 			this.Topmost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledWindowTopmost);
 			this.TabVisibility = new ReactiveProperty<Visibility>((Catalogs.Count == 0) ? Visibility.Collapsed : Visibility.Visible);
 			this.UpdateKeyBindings();
@@ -416,15 +464,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					r = collection.Last();
 				}
 				if(tt.Any()) {
-					var idx = default(int?);
 					var copy = collection.ToList();
 					foreach(var it in tt) {
 						if(it.IsThreadUrl == isThreadUpdated) {
-							if(act?.Url == it) {
-								idx = t.IndexOf(it);
-							}
 							var rm = collection.Where(x => x.Url == it).First();
 							disp.Add(rm);
+							if(rm.Url.IsCatalogUrl) {
+								disp.AddEnumerable(rm.Futaba.Value.ResItems);
+							}
 							copy.Remove(rm);
 							rl.Add(rm);
 						}

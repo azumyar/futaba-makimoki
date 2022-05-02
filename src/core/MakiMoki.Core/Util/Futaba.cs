@@ -23,7 +23,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		public static ReactiveProperty<Data.FutabaContext[]> Catalog { get; private set; }
 		public static ReactiveProperty<Data.FutabaContext[]> Threads { get; private set; }
 		public static ReactiveProperty<Data.PostedResItem[]> PostItems { get; private set; }
-		public static ReactiveCollection<Data.Information> Informations { get; private set; }
+		public static IReadOnlyReactiveProperty<IEnumerable<Data.Information>> Informations { get; private set; }
+		private static ReactiveProperty<IEnumerable<Data.Information>> InformationsProperty { get; set; }
 
 		private static Helpers.ConnectionQueue<object> PassiveReloadQueue { get; set; }
 		private static Helpers.ConnectionQueue<(bool Successed, string Message)> SoudaneQueue { get; set; }
@@ -82,7 +83,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				Threads = new ReactiveProperty<Data.FutabaContext[]>(Array.Empty<Data.FutabaContext>());
 			}
 			PostItems = new ReactiveProperty<Data.PostedResItem[]>(Config.ConfigLoader.PostedItem.Items.ToArray());
-			Informations = new ReactiveCollection<Data.Information>(UIDispatcherScheduler.Default);
+			InformationsProperty = new ReactiveProperty<IEnumerable<Data.Information>>(Array.Empty<Data.Information>());
+			Informations = InformationsProperty.ToReadOnlyReactiveProperty();
 
 			Catalog.Subscribe(x => Config.ConfigLoader.SaveFutabaResponse(Catalog.Value.ToArray(), Threads.Value.ToArray()));
 			Threads.Subscribe(x => Config.ConfigLoader.SaveFutabaResponse(Catalog.Value.ToArray(), Threads.Value.ToArray()));
@@ -909,6 +911,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 			
 		public static void PutInformation(Data.Information information) {
+			/*
 			Observable.Create<Data.Information>(o => {
 				try {
 					Informations.AddOnScheduler(information);
@@ -920,6 +923,15 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				return System.Reactive.Disposables.Disposable.Empty;
 			}).Delay(TimeSpan.FromSeconds(3))
 				.Subscribe(x => Informations.RemoveOnScheduler(x));
+			*/
+			Observable.Return(information)
+				.Select(x => {
+					InformationsProperty.Value = InformationsProperty.Value.Append(x);
+					return x;
+				}).Delay(TimeSpan.FromSeconds(3))
+				.Subscribe(x => {
+					InformationsProperty.Value = InformationsProperty.Value.Where(y => !object.ReferenceEquals(x, y));
+				});
 		}
 
 
