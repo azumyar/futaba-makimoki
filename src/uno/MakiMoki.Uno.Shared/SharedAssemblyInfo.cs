@@ -1,7 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
+#if __ANDROID__
 [assembly: System.Runtime.Versioning.SupportedOSPlatform("android31.0")]
+#endif
+
+#if CANARY
+#warning カナリアビルド設定です
+#endif
+

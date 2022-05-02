@@ -6,7 +6,7 @@ using Prism.Commands;
 using Prism.Navigation;
 using Prism.Services.Dialogs;
 
-namespace MakiMoki.Uno.ViewModels {
+namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 	internal class ViewModelBase : ModelBase, INavigationAware, IJournalAware, IDestructible {
 		public void Destroy() => this.Dispose();
 

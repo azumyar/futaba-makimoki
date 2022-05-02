@@ -1,10 +1,10 @@
 <PrismApplication
-    x:Class="MakiMoki.Uno.App"
+    x:Class="Yarukizero.Net.MakiMoki.Uno.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:prism="using:Prism.Unity"
-    xmlns:local="using:MakiMoki.Uno"
-    xmlns:v="using:MakiMoki.Uno.Views"
+    xmlns:local="using:Yarukizero.Net.MakiMoki.Uno"
+    xmlns:v="using:Yarukizero.Net.MakiMoki.Uno.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:win="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:android="http://uno.ui/android"

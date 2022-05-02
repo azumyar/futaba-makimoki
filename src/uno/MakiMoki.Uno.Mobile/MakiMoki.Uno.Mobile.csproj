@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-android31.0</TargetFramework>
+    <TargetFrameworks>net6.0-android</TargetFrameworks>
+    <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <RootNamespace>MakiMoki.Uno</RootNamespace>
+    <RootNamespace>Yarukizero.Net.MakiMoki.Uno</RootNamespace>
     <SingleProject>true</SingleProject>
     <OutputType>Exe</OutputType>
     
@@ -14,26 +15,55 @@
     <IsUnoHead>true</IsUnoHead>
     <SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-ios'">14.2</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-maccatalyst'">14.0</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-android'">21.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-android'">31.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="'$(TargetFramework)'=='net6.0-macos'">10.14</SupportedOSPlatformVersion>
+    <Platforms>AnyCPU;ARM64</Platforms>
+
+	<TransformOnBuild Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')">true</TransformOnBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net6.0-android'">
+    <EnableLLVM>True</EnableLLVM>
+    <MandroidI18n>CJK;</MandroidI18n>
+    <JavaMaximumHeapSize>1G</JavaMaximumHeapSize>
   </PropertyGroup>
    <ItemGroup>
      <Compile Remove="obj\**" />
      <EmbeddedResource Remove="obj\**" />
      <None Remove="obj\**" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net6.0-android'">
+    <None Update="Android\AndroidManifest.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AndroidManifest.xml</LastGenOutput>
+    </None>
+    <None Update="Android\AndroidManifest.xml">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AndroidManifest.tt</DependentUpon>
+    </None>
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Prism.Unity.Uno" Version="8.1.97" />
+    <PackageReference Include="ReactiveProperty" Version="8.1.0" />
     <PackageReference Include="Uno.Core" Version="4.0.1" />
+    <PackageReference Include="Uno.Extensions.Navigation.Toolkit.UI" Version="1.0.1" />
     <PackageReference Include="Uno.UI" Version="4.2.6" />
     <PackageReference Include="Uno.UI.RemoteControl" Version="4.2.6" Condition="'$(Configuration)'=='Debug'" />
     <PackageReference Include="Uno.UI.Adapter.Microsoft.Extensions.Logging" Version="4.2.6" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android31.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
     <PackageReference Include="Uno.UniversalImageLoader" Version="1.9.35" />
     <PackageReference Include="Xamarin.Google.Android.Material" Version="1.5.0.2" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\core\MakiMoki.Core\MakiMoki.Core.csproj" SetPlatform="AnyCPU" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
   <Import Project="..\MakiMoki.Uno.Shared\MakiMoki.Uno.Shared.projitems" Label="Shared" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')" />
 </Project>

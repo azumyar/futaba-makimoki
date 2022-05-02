@@ -6,7 +6,7 @@
     <SharedGUID>6828645f-a9ed-4d01-abb3-58d9ca626975</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>MakiMoki.Uno</Import_RootNamespace>
+    <Import_RootNamespace>Yarukizero.Net.MakiMoki.Uno</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Page Include="$(MSBuildThisFileDirectory)App.xaml">
@@ -19,9 +19,17 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)App.xaml.common.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)App.xaml.droid.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)SharedAssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UnoUtils\PlatformInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ModelBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ShellViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ViewModelBase.cs" />

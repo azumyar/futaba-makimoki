@@ -14,7 +14,7 @@ using Windows.UI.Xaml.Media;
 
 using AndroidX.AppCompat.App;
 
-namespace MakiMoki.Uno.Droid {
+namespace Yarukizero.Net.MakiMoki.Uno.Droid {
 	[global::Android.App.ApplicationAttribute(
 		Label = "@string/ApplicationName",
 		LargeHeap = true,
@@ -22,6 +22,8 @@ namespace MakiMoki.Uno.Droid {
 		Theme = "@style/AppTheme"
 	)]
 	public class MakiMokiApplication : Windows.UI.Xaml.NativeApplication {
+		public static MakiMokiApplication Current { get; private set; }
+
 		public MakiMokiApplication(IntPtr javaReference, JniHandleOwnership transfer)
 			: base(() => new App(), javaReference, transfer) {
 			ConfigureUniversalImageLoader();
@@ -39,6 +41,8 @@ namespace MakiMoki.Uno.Droid {
 		}
 
 		public override void OnCreate() {
+			Current = this;
+
 			base.OnCreate();
 		}
 	}
