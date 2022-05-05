@@ -925,10 +925,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				.Subscribe(x => Informations.RemoveOnScheduler(x));
 			*/
 			Observable.Return(information)
+				.ObserveOn(DefaultScheduler.Instance)
 				.Select(x => {
 					InformationsProperty.Value = InformationsProperty.Value.Append(x);
 					return x;
 				}).Delay(TimeSpan.FromSeconds(3))
+				.ObserveOn(DefaultScheduler.Instance)
 				.Subscribe(x => {
 					InformationsProperty.Value = InformationsProperty.Value.Where(y => !object.ReferenceEquals(x, y));
 				});
