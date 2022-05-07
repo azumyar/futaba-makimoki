@@ -257,9 +257,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
 						if(x.Successed) {
-							Util.Futaba.PutInformation(new Information("del送信", ri.ThumbSource.Value));
+							Util.Futaba.PutInformation(new Information("del送信", ri.ThumbSource));
 						} else {
-							Util.Futaba.PutInformation(new Information(x.Message, ri.ThumbSource.Value));
+							Util.Futaba.PutInformation(new Information(x.Message, ri.ThumbSource));
 						}
 					});
 			}
@@ -271,33 +271,47 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnCatalogMenuItemWatchImage(Model.BindableFutabaResItem x) {
-			if(x.OriginSource.Value != null) {
-				var v = x.ThumbHash.Value ?? WpfUtil.ImageUtil.CalculatePerceptualHash(x.OriginSource.Value);
-				var ng = Ng.NgConfig.NgConfigLoader.WatchImageConfig.Images
-					.Where(y => y.Hash == v.ToString())
-					.FirstOrDefault();
-				if(ng != null) {
-					// Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
-				} else {
-					string r = null;
-					var w = new Windows.ImageReasonWindow() {
-						Owner = App.Current.MainWindow,
-					};
-					if(w.ShowDialog() ?? false) {
-						r = w.ReasonText;
-					}
+			if(x.ThumbDisplay.Value.HasValue) {
+				void f(ulong v) {
+					var ng = Ng.NgConfig.NgConfigLoader.WatchImageConfig.Images
+						.Where(y => y.Hash == v.ToString())
+						.FirstOrDefault();
+					if(ng != null) {
+						// Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
+					} else {
+						string r = null;
+						var w = new Windows.ImageReasonWindow() {
+							Owner = App.Current.MainWindow,
+						};
+						if(w.ShowDialog() ?? false) {
+							r = w.ReasonText;
+						}
 
-					if(r != null) {
-						Ng.NgConfig.NgConfigLoader.AddWatchImage(
-							Ng.NgData.NgImageData.FromPerceptualHash(v, r));
+						if(r != null) {
+							Ng.NgConfig.NgConfigLoader.AddWatchImage(
+								Ng.NgData.NgImageData.FromPerceptualHash(v, r));
+						}
 					}
+				}
+
+				if(x.ThumbHash.Value.HasValue) {
+					f(x.ThumbHash.Value.Value);
+				} else {
+					x.LoadBitmapSource()
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Select(y => (Pixels: WpfUtil.ImageUtil.CreatePixelsBytes(y), Width: y.PixelWidth, Height: y.PixelHeight))
+						.ObserveOn(System.Reactive.Concurrency.ThreadPoolScheduler.Instance)
+						.Select(y => Ng.NgUtil.PerceptualHash.CalculateHash(y.Pixels, y.Width, y.Height, 32))
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Subscribe(y => {
+							f(y);
+						});
 				}
 			}
 		}
 
 		private void OnCatalogMenuItemNgImage(Model.BindableFutabaResItem x) {
-			if(x.OriginSource.Value != null) {
-				var v = x.ThumbHash.Value ?? WpfUtil.ImageUtil.CalculatePerceptualHash(x.OriginSource.Value);
+			void hash(ulong v) {
 				var ng = Ng.NgConfig.NgConfigLoader.NgImageConfig.Images
 					.Where(y => y.Hash == v.ToString())
 					.FirstOrDefault();
@@ -321,6 +335,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							Ng.NgData.NgImageData.FromPerceptualHash(v, r));
 					}
 				}
+			}
+
+			if(x.ThumbHash.Value.HasValue) {
+				hash(x.ThumbHash.Value.Value);
+			} else {
+				x.LoadBitmapSource()
+					.Select(y => (Pixels: WpfUtil.ImageUtil.CreatePixelsBytes(y), Width: y.PixelWidth, Height: y.PixelHeight))
+					.ObserveOn(System.Reactive.Concurrency.ThreadPoolScheduler.Instance)
+					.Select(y => Ng.NgUtil.PerceptualHash.CalculateHash(y.Pixels, y.Width, y.Height, 32))
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(y => {
+						hash(y);
+					});
 			}
 		}
 

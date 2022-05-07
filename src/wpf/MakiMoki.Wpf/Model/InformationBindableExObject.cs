@@ -24,7 +24,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public InformationBindableExObject(BindableFutaba futaba) {
 			var item = futaba.ResItems.FirstOrDefault();
 			if(futaba.Url.IsThreadUrl && (item != null)) {
-				ThumbSource = item.ThumbSource
+				ThumbSource = item.LoadBitmapSource()
 					.Cast<ImageSource>()
 					.ToReactiveProperty();
 				ObjectVisibility = ThumbSource

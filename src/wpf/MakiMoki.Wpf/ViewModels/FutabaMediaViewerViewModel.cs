@@ -232,13 +232,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					if(x.Successed) {
 						if(this.IsImageFile(res.Src)) {
 							this.ImageViewVisibility.Value = Visibility.Visible;
-							this.ImageSource.Value = WpfUtil.ImageUtil.CreateImage(WpfUtil.ImageUtil.LoadStream(x.LocalPath, x.FileBytes));
+							this.ImageSource.Value = WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes);
 						} else if(this.IsMovieFile(res.Src)) {
 							this.VideoViewVisibility.Value = Visibility.Visible;
 							Messenger.Instance.GetEvent<PubSubEvent<VideoLoadMessage>>()
 								.Publish(new VideoLoadMessage(this.Media.Value, x.LocalPath));
+						} else {
+							// TODO: 不明なファイル
 						}
-						// TODO: 不明なファイル
 					} else {
 						// TODO: なんかエラー画像出す
 					}
@@ -252,13 +253,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					if(x.Successed) {
 						if(this.IsImageFile(u)) {
 							this.ImageViewVisibility.Value = Visibility.Visible;
-							this.ImageSource.Value = WpfUtil.ImageUtil.CreateImage(WpfUtil.ImageUtil.LoadStream(x.LocalPath, x.FileBytes));
+							this.ImageSource.Value = WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes);
 						} else if(this.IsMovieFile(u)) {
 							this.VideoViewVisibility.Value = Visibility.Visible;
 							Messenger.Instance.GetEvent<PubSubEvent<VideoLoadMessage>>()
 								.Publish(new VideoLoadMessage(this.Media.Value, x.LocalPath));
+						} else {
+							// TODO: 不明なファイル
 						}
-						// TODO: 不明なファイル
 					} else {
 						// TODO: なんかエラー画像出す
 					}
@@ -396,9 +398,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnVideoViewPaused() => this.VideoPlayButtonVisibility.Value = Visibility.Visible;
 		private void OnVideoViewStopped() => this.VideoPlayButtonVisibility.Value = Visibility.Visible;
 		private void OnVideoViewEndReached() {
-			this.VideoPlayButtonVisibility.Value = Visibility.Visible;
-			Messenger.Instance.GetEvent<PubSubEvent<VideoStopMessage>>()
-				.Publish(new VideoStopMessage(this.Media.Value));
+			//this.VideoPlayButtonVisibility.Value = Visibility.Visible;
+			//Messenger.Instance.GetEvent<PubSubEvent<VideoStopMessage>>()
+			//	.Publish(new VideoStopMessage(this.Media.Value));
 		}
 
 		private void OnVideoViewPositionChanged(FutabaMediaViewer.RoutedPositionEventArgs e) {

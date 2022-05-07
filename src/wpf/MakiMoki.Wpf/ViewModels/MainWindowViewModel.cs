@@ -138,8 +138,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							if(!this.Infomations.Value.Any(z => z.Token == it.Token)) {
 								static InformationBindableExObject gen1(FutabaContext fc) {
 									if((fc.ResItems.FirstOrDefault() is FutabaContext.Item fit)
-										&& WpfUtil.ImageUtil.CreateImage(WpfUtil.ImageUtil.GetImageCache(
-											Util.Futaba.GetThumbImageLocalFilePath(fc.Url, fit.ResItem.Res))) is ImageSource isc) {
+										&& WpfUtil.ImageUtil.GetImageCache2(
+											Util.Futaba.GetThumbImageLocalFilePath(
+												fc.Url, fit.ResItem.Res)) is ImageSource isc) {
 
 										return new InformationBindableExObject(isc);
 									}
@@ -364,7 +365,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				foreach(var tab in this.Catalogs) {
 					Observable.Create<object>(o => {
 						var c = tab.Futaba.Value.ResItems
-							.Where(x => (x.OriginSource.Value == null)
+							.Where(x => !x.ThumbDisplay.Value.HasValue
 								&& x.Raw.Value.ResItem.Res.IsHavedImage)
 							.Select<BindableFutabaResItem, (BindableFutabaResItem Item, string Path)>(
 								x => (x, Util.Futaba.GetThumbImageLocalFilePath(
@@ -395,7 +396,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 															.Select(y => y.Item)
 															.FirstOrDefault();
 														if(it != null) {
-															it.SetThumbSource(WpfUtil.ImageUtil.CreateImage(x.Stream));
+															it.SetThumbSource(WpfUtil.ImageUtil.CreateImage(x.Path, x.Stream));
 														}
 													}
 													o.OnNext(x);
@@ -442,36 +443,32 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private async Task<Model.TabItem> Update(
-			ReactiveCollection<Model.TabItem> collection,
-			Data.FutabaContext[] catalog,
+			ReactiveCollection<Model.TabItem> inputCollection,
+			Data.FutabaContext[] newItem,
 			bool isThreadUpdated,
 			Action<Model.TabItem> apply = null) {
 
 			var act = isThreadUpdated ? this.ThreadTabSelectedItem.Value : this.TabControlSelectedItem.Value;
 
-			var c = catalog.Select(x => x.Url).ToList();
-			var t = collection.Select(x => x.Url).ToList();
+			var c = newItem.Select(x => x.Url).ToList();
+			var t = inputCollection.Select(x => x.Url).ToList();
 			var cc = c.Except(t);
 			var tt = t.Except(c);
 			var r = default(Model.TabItem);
 			var rl = new List<Model.TabItem>();
 			using(var disp = new Helpers.AutoDisposable()) {
-				var disp2 = new Helpers.AutoDisposable();
 				if(cc.Any()) {
 					foreach(var it in cc) {
-						collection.Add(new Model.TabItem(catalog.Where(x => x.Url == it).First()));
+						inputCollection.Add(new Model.TabItem(newItem.Where(x => x.Url == it).First()));
 					}
-					r = collection.Last();
+					r = inputCollection.Last();
 				}
 				if(tt.Any()) {
-					var copy = collection.ToList();
+					var copy = inputCollection.ToList();
 					foreach(var it in tt) {
 						if(it.IsThreadUrl == isThreadUpdated) {
-							var rm = collection.Where(x => x.Url == it).First();
+							var rm = inputCollection.Where(x => x.Url == it).First();
 							disp.Add(rm);
-							if(rm.Url.IsCatalogUrl) {
-								disp.AddEnumerable(rm.Futaba.Value.ResItems);
-							}
 							copy.Remove(rm);
 							rl.Add(rm);
 						}
@@ -482,20 +479,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						.ThenByDescending(x => x.Index)
 						.LastOrDefault()?.Value;
 				}
-				for(var i = 0; i < collection.Count; i++) {
-					var it = collection[i];
+				for(var i = 0; i < inputCollection.Count; i++) {
+					var it = inputCollection[i];
 					if(cc.Contains(it.Url)) {
 						continue;
 					}
-					var futaba = catalog.Where(x => x.Url == it.Url).FirstOrDefault();
+					var futaba = newItem.Where(x => x.Url == it.Url).FirstOrDefault();
 					if(futaba != null) {
 						if(futaba.Token != it.Futaba.Value.Raw.Token) {
 							disp.Add(it.Futaba.Value);
 							if(!isThreadUpdated) {
 								disp.AddEnumerable(it.Futaba.Value.ResItems);
-								disp2.AddEnumerable(it.Futaba.Value.ResItems
-									.Select(x => x.ThumbSource)
-									.ToArray());
 							}
 							it.UpdateFutaba(new BindableFutaba(futaba, it.Futaba.Value));
 						}
@@ -505,11 +499,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				if(r != null) {
 					apply?.Invoke(r);
 				}
-				disp2.Dispose();
 				await Task.Delay(1);
 
 				foreach(var rm in rl) {
-					collection.Remove(rm);
+					inputCollection.Remove(rm);
 				}
 			}
 			return r;

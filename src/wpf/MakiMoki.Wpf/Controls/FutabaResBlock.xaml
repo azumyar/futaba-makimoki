@@ -167,7 +167,7 @@
                             Margin="0 0 4 0">
                             <Border>
                                 <Image
-                                    Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                    Source="{Binding ThumbSource, Mode=OneWay}"
                                     RenderOptions.EdgeMode="Aliased"
                                     RenderOptions.BitmapScalingMode="Fant">
                                     <Image.CacheMode>

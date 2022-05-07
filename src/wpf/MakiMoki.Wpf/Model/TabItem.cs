@@ -91,8 +91,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					return;
 				}
 
-				if(res.ThumbSource.Value != null) {
-					this.ThumbSource.Value = res.ThumbSource.Value;
+				if(res.ThumbSource != null) {
+					this.ThumbSource.Value = res.ThumbSource;
 				}
 
 				if(!res.Raw.Value.ResItem.Res.IsHavedImage) {
@@ -100,10 +100,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				}
 
 				Util.Futaba.GetThumbImage(this.Url, res.Raw.Value.ResItem.Res)
-					.Select(x => x.Successed ? WpfUtil.ImageUtil.LoadStream(x.LocalPath, x.FileBytes) : null)
+					.Select(x => x.Successed 
+						? (Path: x.LocalPath, Stream: WpfUtil.ImageUtil.LoadStream(x.LocalPath, x.FileBytes)) : (null, null))
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
-						this.ThumbSource.Value = WpfUtil.ImageUtil.CreateImage(x);
+						this.ThumbSource.Value = WpfUtil.ImageUtil.CreateImage(x.Path, x.Stream);
 					});
 			});
 			this.ThumbVisibility = this.ThumbSource
