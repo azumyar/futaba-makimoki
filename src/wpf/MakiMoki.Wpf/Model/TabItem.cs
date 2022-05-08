@@ -45,6 +45,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			= new ReactiveProperty<Visibility>(Visibility.Collapsed);
 		public ReactiveProperty<Visibility> SearchButtonVisibility { get; }
 		public ReactiveProperty<GridLength> SearchColumnWidth { get; }
+		private ReactiveProperty<bool> IsEnabledFailsafeMistakePost { get; }
+		public ReactiveProperty<Visibility> FailsafeMistakePostVisibility { get; }
 
 		public ReactiveProperty<Prism.Regions.IRegion> Region { get; }
 
@@ -52,6 +54,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<int> LastRescount { get; }
 		private bool isActivated = false;
 		private IFutabaContainer container = null;
+		private readonly Action<PlatformData.WpfConfig> systemConfigNotifyAction;
 
 #pragma warning disable IDE0052
 		// AutoDisposableで使用する
@@ -119,8 +122,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				.ToReactiveProperty();
 
 			this.LastDisplayTime = this.LastDisplayTimeProperty.ToReadOnlyReactiveProperty();
+			this.IsEnabledFailsafeMistakePost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFailsafeMistakePost);
+			this.FailsafeMistakePostVisibility = IsEnabledFailsafeMistakePost
+				.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
+				.ToReactiveProperty();
 
 			this.Region = new ReactiveProperty<Prism.Regions.IRegion>();
+
+			this.systemConfigNotifyAction = (x) => {
+				IsEnabledFailsafeMistakePost.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFailsafeMistakePost;
+			};
+			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(systemConfigNotifyAction);
 		}
 
 		public void Dispose() {

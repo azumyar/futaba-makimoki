@@ -565,36 +565,6 @@
                                                 <RowDefinition Height="2*" />
                                             </Grid.RowDefinitions>
 
-                                            <Viewbox
-                                                x:Name="ThumbView"
-                                                Grid.Row="1"
-                                                Grid.Column="1"
-                                                Margin="48"
-                                                Opacity="{DynamicResource FailsafeThreadImageOpacity}"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Bottom"
-                                                Visibility="{Binding FailsafeMistakePostVisibility.Value, Mode=OneWay}">
-                                                <Image
-                                                    Source="{Binding Contents.ThumbSource.Value, Mode=OneWay, ElementName=_this}"
-                                                    RenderOptions.EdgeMode="Aliased"
-                                                    RenderOptions.BitmapScalingMode="Fant">
-                                                    <Image.CacheMode>
-                                                        <BitmapCache RenderAtScale="1" />
-                                                    </Image.CacheMode>
-                                                    <Image.Effect>
-                                                        <BlurEffect Radius="{DynamicResource FailsafeThreadImageBlurRadius}" />
-                                                    </Image.Effect>
-
-                                                    <!--
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="Loaded">
-                                                            <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                    -->
-                                                </Image>
-                                            </Viewbox>
-
                                             <Grid
                                                 Grid.Row="0" Grid.RowSpan="2"
                                                 Grid.Column="0" Grid.ColumnSpan="2">

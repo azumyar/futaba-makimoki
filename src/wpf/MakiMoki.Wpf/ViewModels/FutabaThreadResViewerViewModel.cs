@@ -90,9 +90,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<object> Canvas98BookmarkletToken { get; } = new ReactiveProperty<object>(DateTime.Now);
 
-		private ReactiveProperty<bool> IsEnabledFailsafeMistakePost { get; }
-		public ReactiveProperty<Visibility> FailsafeMistakePostVisibility { get; }
-
 
 		public ReactiveProperty<string> FilterText { get; } = new ReactiveProperty<string>("");
 
@@ -259,10 +256,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Canvas98BottomGridMinHeight = IsEnbaledCanvas98Bottom
 				.Select(x => x ? 480d : 0d)
 				.ToReactiveProperty();
-			IsEnabledFailsafeMistakePost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFailsafeMistakePost);
-			FailsafeMistakePostVisibility = IsEnabledFailsafeMistakePost
-				.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
-				.ToReactiveProperty();
 
 			GridSplitterVisibility = new[] {
 				IsEnbaledCanvas98Bottom,
@@ -284,7 +277,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Canvas98RightRegionVisibility = IsEnbaledCanvas98Right.Select(x => x ? Visibility.Visible : Visibility.Hidden).ToReactiveProperty();
 
 			systemConfigNotifyAction = (x) => {
-				IsEnabledFailsafeMistakePost.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFailsafeMistakePost;
 				if(Canvas98Position.Value != x.Canvas98Position) {
 					Canvas98Position.Value = x.Canvas98Position;
 					Canvas98.ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance

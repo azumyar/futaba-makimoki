@@ -131,7 +131,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						BindingOperations.ClearBinding(this.image, WpfAnimatedGif.ImageBehavior.AnimatedSourceProperty);
 						WpfAnimatedGif.ImageBehavior.SetAnimatedSource(this.image, null);
 						this.image.Source = null;
-
+						this.image.UpdateLayout();
 						await Task.Yield();
 					}
 

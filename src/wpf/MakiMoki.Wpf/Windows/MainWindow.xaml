@@ -1061,7 +1061,40 @@
                             <TabControl.ContentTemplate>
                                 <DataTemplate>
                                     <Grid x:Name="container">
-                                        <control:FutabaThreadRegionContainer Contents="{Binding DataContext, Mode=OneWay, ElementName=container}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Viewbox
+                                            Grid.Row="1"
+                                            Grid.Column="1"
+                                            Margin="48"
+                                            Opacity="{DynamicResource FailsafeThreadImageOpacity}"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Bottom"
+                                            Visibility="{Binding FailsafeMistakePostVisibility.Value, Mode=OneWay}">
+                                            <Image
+                                                Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                                RenderOptions.EdgeMode="Aliased"
+                                                RenderOptions.BitmapScalingMode="Fant">
+                                                <Image.CacheMode>
+                                                    <BitmapCache RenderAtScale="1" />
+                                                </Image.CacheMode>
+                                                <Image.Effect>
+                                                    <BlurEffect Radius="{DynamicResource FailsafeThreadImageBlurRadius}" />
+                                                </Image.Effect>
+                                            </Image>
+                                        </Viewbox>
+
+                                        <control:FutabaThreadRegionContainer
+                                            Grid.Column="0" Grid.ColumnSpan="2"
+                                            Grid.Row="0" Grid.RowSpan="2"
+                                            Contents="{Binding DataContext, Mode=OneWay, ElementName=container}">
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="ContentsChanged">
                                                     <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
