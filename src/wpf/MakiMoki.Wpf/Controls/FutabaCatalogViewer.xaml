@@ -1101,7 +1101,7 @@
                 ScrollViewer.CanContentScroll="True"
                 VirtualizingPanel.ScrollUnit="Pixel"
                 VirtualizingPanel.IsVirtualizing="True"
-                VirtualizingPanel.VirtualizationMode="Standard"
+                VirtualizingPanel.VirtualizationMode="Recycling"
                 >
                 <ListBox.Style>
                     <MultiBinding Converter="{StaticResource FutabaCatalogStyleConverter}">
