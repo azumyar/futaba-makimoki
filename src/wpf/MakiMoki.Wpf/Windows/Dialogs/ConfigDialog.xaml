@@ -505,13 +505,8 @@
                                 <CheckBox Content="有効" IsChecked="{Binding PostViewSavedMail.Value, Mode=TwoWay}" />
                             </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}">
-                                <TextBlock>投稿画面最低表示幅</TextBlock>
-                                <TextBlock Foreground="Gray" TextWrapping="Wrap">投稿画面の最低表示幅を設定します。(0で無効，360～)この設定よりも親ビューの表示領域が狭い場合そちらが優先されます。</TextBlock>
-                                <TextBox Text="{Binding PostViewMinWidth.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource ConfigContents}">
-                                <TextBlock>投稿画面最大表示幅</TextBlock>
-                                <TextBlock Foreground="Gray" TextWrapping="Wrap">投稿画面の最大表示幅を設定します。(0で無効，360～)この設定よりも親ビューの表示領域が狭い場合そちらが優先されます。</TextBlock>
+                                <TextBlock>投稿画面表示幅</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">投稿画面の表示幅を設定します。(0で標準，360～)この設定よりも親ビューの表示領域が狭い場合そちらが優先されます。</TextBlock>
                                 <TextBox Text="{Binding PostViewMaxWidth.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}" Width="320" HorizontalAlignment="Left" />
                             </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}">
