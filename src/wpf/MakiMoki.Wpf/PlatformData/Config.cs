@@ -68,6 +68,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("catalog-visible-isolate-thread", Required = Required.Always)]
 		public bool IsVisibleCatalogIsolateThread { get; private set; }
 
+		[Obsolete] // 定義を変えるとめどいのでなんか増やすまで残しておく
 		[JsonProperty("post-view-min-width", Required = Required.Always)]
 		public int MinWidthPostView { get; private set; }
 

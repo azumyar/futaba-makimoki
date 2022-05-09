@@ -56,6 +56,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 			ViewModels.MainWindowViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.WpfBugMessage>>()
 				.Subscribe(async x => {
+					// 現在は別アプローチで対策したので使っていない
 					static async Task<(bool Sucessed, int? Index)> preRemove(FrameworkElement el) {
 						if(el is Panel p) {
 							var r = p.Children.IndexOf(el);
