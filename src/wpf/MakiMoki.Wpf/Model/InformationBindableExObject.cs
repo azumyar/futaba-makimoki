@@ -10,19 +10,21 @@ using System.Windows.Media.Imaging;
 using Reactive.Bindings;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
-	class InformationBindableExObject {
+	class InformationBindableExObject : IDisposable {
 		public ReactiveProperty<Visibility> ObjectVisibility { get; }
 		public ReactiveProperty<ImageSource> ThumbSource { get; }
+		public Reactive.MakiMokiCommand<RoutedEventArgs> LoadedCommand { get; } = new();
 
 		public InformationBindableExObject() {
-			ObjectVisibility = new ReactiveProperty<Visibility>(Visibility.Collapsed);
-			ThumbSource = new ReactiveProperty<ImageSource>(default(ImageSource));
+			this.ObjectVisibility = new ReactiveProperty<Visibility>(Visibility.Collapsed);
+			this.ThumbSource = new ReactiveProperty<ImageSource>(default(ImageSource));
+			this.LoadedCommand.Subscribe(x => this.OnLoaded(x));
 		}
 
 		public InformationBindableExObject(BindableFutaba futaba) {
 			var item = futaba.ResItems.FirstOrDefault();
 			if(futaba.Url.IsThreadUrl && (item != null)) {
-				ThumbSource = item.ThumbSource
+				ThumbSource = item.LoadBitmapSource()
 					.Cast<ImageSource>()
 					.ToReactiveProperty();
 				ObjectVisibility = ThumbSource
@@ -32,6 +34,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				ObjectVisibility = new ReactiveProperty<Visibility>(Visibility.Collapsed);
 				ThumbSource = new ReactiveProperty<ImageSource>(default(ImageSource));
 			}
+			this.LoadedCommand.Subscribe(x => this.OnLoaded(x));
 		}
 
 		public InformationBindableExObject(ImageSource image) {
@@ -42,6 +45,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				ObjectVisibility = new ReactiveProperty<Visibility>(Visibility.Collapsed);
 				ThumbSource = new ReactiveProperty<ImageSource>(default(ImageSource));
 			}
+			this.LoadedCommand.Subscribe(x => this.OnLoaded(x));
 		}
+
+		public void Dispose() {
+			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
+		}
+
+		private void OnLoaded(RoutedEventArgs e) { }
 	}
 }

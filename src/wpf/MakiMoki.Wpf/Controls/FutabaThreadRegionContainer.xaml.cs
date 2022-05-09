@@ -46,6 +46,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		private bool isFirstContents = false;
 		public FutabaThreadRegionContainer() {
 			InitializeComponent();
+			this.Unloaded += (s, e) => {
+				System.Diagnostics.Debug.WriteLine("Unloaded");
+			};
 		}
 
 		private static async void OnContentsChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {

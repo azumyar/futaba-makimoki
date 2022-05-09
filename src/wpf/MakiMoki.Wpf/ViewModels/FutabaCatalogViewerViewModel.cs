@@ -61,10 +61,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<RoutedEventArgs> PostClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
 
-		public MakiMokiCommand<MouseButtonEventArgs> CatalogItemMouseDownCommand { get; }
-			= new MakiMokiCommand<MouseButtonEventArgs>();
-		public MakiMokiCommand<MouseButtonEventArgs> CatalogItemClickCommand { get; }
-			= new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> CatalogItemMouseDownCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> CatalogItemClickCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseEventArgs> CatalogItemEnterCommand { get; } = new MakiMokiCommand<MouseEventArgs>();
+		public MakiMokiCommand<MouseEventArgs> CatalogItemLeaveCommand { get; } = new MakiMokiCommand<MouseEventArgs>();
+		public MakiMokiCommand<ScrollChangedEventArgs> CatalogScrollChangedCommand { get; } = new MakiMokiCommand<ScrollChangedEventArgs>();
 
 		public ReactiveProperty<Visibility> PostViewVisibility { get; }
 			= new ReactiveProperty<Visibility>(Visibility.Hidden);
@@ -86,6 +87,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<Model.BindableFutaba> KeyBindingSortCommand { get; } = new MakiMokiCommand<BindableFutaba>();
 		public MakiMokiCommand<Model.BindableFutaba> KeyBindingModeCommand { get; } = new MakiMokiCommand<BindableFutaba>();
 		public MakiMokiCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new MakiMokiCommand<BindableFutaba>();
+
+		public ReactiveProperty<BitmapScalingMode> CatalogBitmapScalingMode { get; } = new ReactiveProperty<BitmapScalingMode>(BitmapScalingMode.Fant);
 
 		private bool isCatalogItemClicking = false;
 		public FutabaCatalogViewerViewModel() {
@@ -111,7 +114,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			//KeyBindingSortCommand.Subscribe(x => x);
 			KeyBindingModeCommand.Subscribe(x => UpdateCatalogListWrap(x));
 			KeyBindingPostCommand.Subscribe(x => OnPostClick(x));
+
+			CatalogItemEnterCommand.Subscribe(x => OnItemEnter(x));
+			CatalogItemLeaveCommand.Subscribe(x => OnItemLeave(x));
+			CatalogScrollChangedCommand.Subscribe(_ => {
+				System.Diagnostics.Debug.WriteLine("CatalogScrollChangedCommand");
+				CatalogBitmapScalingMode.Value = BitmapScalingMode.NearestNeighbor;
+				Observable.Return(this.scrollToken = DateTime.Now)
+					.Delay(TimeSpan.FromMilliseconds(500))
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(x => {
+						if(x == this.scrollToken) {
+							System.Diagnostics.Debug.WriteLine("CatalogScrollChangedCommand-end");
+							CatalogBitmapScalingMode.Value = BitmapScalingMode.Fant;
+						}
+					});
+			});
 		}
+		private DateTime scrollToken = DateTime.MinValue;
 
 		public void Dispose() {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
@@ -153,13 +173,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			this.PostViewVisibility.Value = Visibility.Hidden;
 		}
 
-		private async void OnFilterTextChanged(TextChangedEventArgs e) {
+		private void OnFilterTextChanged(TextChangedEventArgs e) {
 			if((e.Source is TextBox tb) && (tb.Tag is BindableFutaba bf)) {
-				var s = tb.Text.Clone().ToString();
-				await Task.Delay(500);
-				if(tb.Text == s) {
-					bf.FilterText.Value = s;
-				}
+				Observable.Return(tb.Text.Clone().ToString())
+					.Delay(TimeSpan.FromMilliseconds(500))
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(x => {
+						if(tb.Text == x) {
+							bf.FilterText.Value = x;
+						}
+					});
 			}
 		}
 
@@ -234,9 +257,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
 						if(x.Successed) {
-							Util.Futaba.PutInformation(new Information("del送信", ri.ThumbSource.Value));
+							Util.Futaba.PutInformation(new Information("del送信", ri.ThumbSource));
 						} else {
-							Util.Futaba.PutInformation(new Information(x.Message, ri.ThumbSource.Value));
+							Util.Futaba.PutInformation(new Information(x.Message, ri.ThumbSource));
 						}
 					});
 			}
@@ -246,35 +269,49 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Ng.NgConfig.NgConfigLoader.AddHiddenRes(Ng.NgData.HiddenData.FromResItem(
 				x.Raw.Value.Url.BaseUrl, x.Raw.Value.ResItem));
 		}
-		
-		private void OnCatalogMenuItemWatchImage(Model.BindableFutabaResItem x) {
-			if(x.OriginSource.Value != null) {
-				var v = x.ThumbHash.Value ?? WpfUtil.ImageUtil.CalculatePerceptualHash(x.OriginSource.Value);
-				var ng = Ng.NgConfig.NgConfigLoader.WatchImageConfig.Images
-					.Where(y => y.Hash == v.ToString())
-					.FirstOrDefault();
-				if(ng != null) {
-					// Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
-				} else {
-					string r = null;
-					var w = new Windows.ImageReasonWindow() {
-						Owner = App.Current.MainWindow,
-					};
-					if(w.ShowDialog() ?? false) {
-						r = w.ReasonText;
-					}
 
-					if(r != null) {
-						Ng.NgConfig.NgConfigLoader.AddWatchImage(
-							Ng.NgData.NgImageData.FromPerceptualHash(v, r));
+		private void OnCatalogMenuItemWatchImage(Model.BindableFutabaResItem x) {
+			if(x.ThumbDisplay.Value.HasValue) {
+				void f(ulong v) {
+					var ng = Ng.NgConfig.NgConfigLoader.WatchImageConfig.Images
+						.Where(y => y.Hash == v.ToString())
+						.FirstOrDefault();
+					if(ng != null) {
+						// Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
+					} else {
+						string r = null;
+						var w = new Windows.ImageReasonWindow() {
+							Owner = App.Current.MainWindow,
+						};
+						if(w.ShowDialog() ?? false) {
+							r = w.ReasonText;
+						}
+
+						if(r != null) {
+							Ng.NgConfig.NgConfigLoader.AddWatchImage(
+								Ng.NgData.NgImageData.FromPerceptualHash(v, r));
+						}
 					}
+				}
+
+				if(x.ThumbHash.Value.HasValue) {
+					f(x.ThumbHash.Value.Value);
+				} else {
+					x.LoadBitmapSource()
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Select(y => (Pixels: WpfUtil.ImageUtil.CreatePixelsBytes(y), Width: y.PixelWidth, Height: y.PixelHeight))
+						.ObserveOn(System.Reactive.Concurrency.ThreadPoolScheduler.Instance)
+						.Select(y => Ng.NgUtil.PerceptualHash.CalculateHash(y.Pixels, y.Width, y.Height, 32))
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Subscribe(y => {
+							f(y);
+						});
 				}
 			}
 		}
 
 		private void OnCatalogMenuItemNgImage(Model.BindableFutabaResItem x) {
-			if(x.OriginSource.Value != null) {
-				var v = x.ThumbHash.Value ?? WpfUtil.ImageUtil.CalculatePerceptualHash(x.OriginSource.Value);
+			void hash(ulong v) {
 				var ng = Ng.NgConfig.NgConfigLoader.NgImageConfig.Images
 					.Where(y => y.Hash == v.ToString())
 					.FirstOrDefault();
@@ -298,6 +335,55 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							Ng.NgData.NgImageData.FromPerceptualHash(v, r));
 					}
 				}
+			}
+
+			if(x.ThumbHash.Value.HasValue) {
+				hash(x.ThumbHash.Value.Value);
+			} else {
+				x.LoadBitmapSource()
+					.Select(y => (Pixels: WpfUtil.ImageUtil.CreatePixelsBytes(y), Width: y.PixelWidth, Height: y.PixelHeight))
+					.ObserveOn(System.Reactive.Concurrency.ThreadPoolScheduler.Instance)
+					.Select(y => Ng.NgUtil.PerceptualHash.CalculateHash(y.Pixels, y.Width, y.Height, 32))
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(y => {
+						hash(y);
+					});
+			}
+		}
+
+		// .NET6でToolTipふたマキ実装ではがクラッシュするようになったので自前で処理する
+		// https://github.com/dotnet/wpf/issues/5730
+		private FrameworkElement toolTipTarget = null;
+		private void OnItemEnter(MouseEventArgs e) {
+			if((e.Source is FrameworkElement el) && !object.ReferenceEquals(el, this.toolTipTarget)) {
+				if(this.toolTipTarget?.ToolTip is ToolTip tt) {
+					tt.IsOpen = false;
+					this.toolTipTarget.ToolTip = null;
+				}
+				this.toolTipTarget = el;
+				Observable.Return(el)
+					.Delay(TimeSpan.FromSeconds(1))
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(x => {
+						if(object.ReferenceEquals(this.toolTipTarget, x)) {
+							this.toolTipTarget.ToolTip ??= this.toolTipTarget.TryFindResource("CatalogItemToolTip");
+							if(this.toolTipTarget.ToolTip is ToolTip tt) {
+								tt.DataContext = x.DataContext;
+								tt.PlacementTarget = x;
+								tt.IsOpen = true;
+							}
+						}
+					});
+			}
+
+		}
+		private void OnItemLeave(MouseEventArgs e) {
+			if((e.Source is FrameworkElement el) && !object.ReferenceEquals(el, this.toolTipTarget)) {
+				if(this.toolTipTarget?.ToolTip is ToolTip tt) {
+					this.toolTipTarget.ToolTip = null;
+					tt.IsOpen = false;
+				}
+				this.toolTipTarget = null;
 			}
 		}
 	}

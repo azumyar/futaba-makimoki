@@ -53,17 +53,11 @@ if not %errorlevel%==0 goto end
    %TARGET_PRJ%
 if not %errorlevel%==0 goto end
 
-mkdir %OUTPUT_DIR%\libvlc
-xcopy /y /s /q src\wpf\MakiMoki.Wpf\bin\Release\net5.0-windows\%TARGET_RUNTIME%\libvlc %OUTPUT_DIR%\libvlc
-xcopy /y %OUTPUT_DIR%\x86 %OUTPUT_DIR%\Lib\x86
-xcopy /y %OUTPUT_DIR%\x64 %OUTPUT_DIR%\Lib\x64
-xcopy /y %OUTPUT_DIR%\arm64 %OUTPUT_DIR%\Lib\arm64
-rd /s /q %OUTPUT_DIR%\x86
-rd /s /q %OUTPUT_DIR%\x64
-rd /s /q %OUTPUT_DIR%\arm64
+mkdir %OUTPUT_DIR%\runtimes\libvlc
+xcopy /y /s /q src\wpf\MakiMoki.Wpf\bin\Release\net5.0-windows\%TARGET_RUNTIME%\libvlc %OUTPUT_DIR%\runtimes\libvlc
 
-powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\Lib\ -Exclude %TARGET_ARCH% | Remove-Item -Recurse -Force"
-powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\libvlc\\ -Exclude win-%TARGET_ARCH% | Remove-Item -Recurse -Force"
+powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\runtimes\libwebp\ -Exclude win-%TARGET_ARCH% | Remove-Item -Recurse -Force"
+powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\runtimes\libvlc\\ -Exclude win-%TARGET_ARCH% | Remove-Item -Recurse -Force"
 move %OUTPUT_ROOT%\FutaMaki\futamaki.dll.config %OUTPUT_ROOT%\FutaMaki\futamaki.exe.config
 
 @rem 公開用ZIPファイルの生成

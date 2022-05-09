@@ -101,7 +101,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class FutabaOldResVisibilityConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			if(value == null) {
-				return null;
+				return Visibility.Collapsed;
 			}
 
 			if(value is Model.BindableFutabaResItem it) {
@@ -138,7 +138,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class FutabaNewResVisibilityConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			if(value == null) {
-				return null;
+				return Visibility.Collapsed;
 			}
 
 			if(value is Data.FutabaContext.Item it) {
@@ -186,11 +186,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 							.ToArray();
 					}
 					return ext.Contains(it.ResItem.Res.Ext.ToLower()) ? Visibility.Visible : Visibility.Collapsed;
+				/*
 				} else {
 					return Visibility.Collapsed;
+				*/
 				}
 			}
-			throw new ArgumentException("型不正。", nameof(values));
+			return Visibility.Collapsed;
+			//throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -203,11 +206,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if((values.Length == 2) && (values[0] is Data.FutabaContext.Item it)) {
 				if(WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleCatalogIsolateThread) {
 					return it.ResItem.IsolateValue ? Visibility.Visible : Visibility.Collapsed;
+				/*
 				} else {
 					return Visibility.Collapsed;
+				*/
 				}
 			}
-			throw new ArgumentException("型不正。", nameof(values));
+			return Visibility.Collapsed;
+			//throw new ArgumentException("型不正。", nameof(values));
 		}
 
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
@@ -218,7 +224,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class FutabaIsolateResCountVisibilityConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			if(value == null) {
-				return null;
+				return Visibility.Hidden;
 			}
 
 			if(value is Data.FutabaContext.Item it) {

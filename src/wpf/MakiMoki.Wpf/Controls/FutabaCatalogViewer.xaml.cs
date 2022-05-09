@@ -20,14 +20,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	/// <summary>
 	/// FutabaViewer.xaml の相互作用ロジック
 	/// </summary>
-	partial class FutabaCatalogViewer : UserControl {
+	partial class FutabaCatalogViewer : UserControl, Model.IFutabaContainer {
 		public static readonly DependencyProperty ContentsProperty
 			= DependencyProperty.Register(
 				nameof(Contents),
 				typeof(Model.IFutabaViewerContents),
 				typeof(FutabaCatalogViewer),
 				new PropertyMetadata(OnContentsChanged));
-		public static RoutedEvent ContentsChangedEvent
+		public static readonly RoutedEvent ContentsChangedEvent
 			= EventManager.RegisterRoutedEvent(
 				nameof(ContentsChanged),
 				RoutingStrategy.Tunnel,
@@ -135,5 +135,63 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		private ViewModels.FutabaCatalogViewerViewModel GetViewModel() => this.DataContext as ViewModels.FutabaCatalogViewerViewModel;
 
 		private void OnCatalogMenuItemDelClickCommand(object sender, RoutedEventArgs e) => GetViewModel()?.CatalogMenuItemDelClickCommand.Execute(e);
+
+		private void OnImageUnloaded(object sender, RoutedEventArgs e) {
+			if(sender is Image o) {
+				var s = o.Source;
+				//BindingOperations.ClearAllBindings(o);
+				if(s != null) {
+					//o.Source = null;
+					if(s is BitmapImage bi) {
+						//bi.StreamSource.Dispose();
+					}
+				}
+				//o.UpdateLayout();
+				/*
+				var f = o.GetType().GetField(
+					"_bitmapSource",
+					System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+				if(f != null) {
+					var a = f.GetValue(o);
+					f.SetValue(o, null);
+				}
+				*/
+			}
+		}
+
+		private void OnContentUnloaded(object sender, RoutedEventArgs e) {
+			if(sender is FrameworkElement o) {
+				static void del(DependencyObject o, Action<DependencyObject> act) {
+					foreach(var child in LogicalTreeHelper.GetChildren(o)) {
+						if(child is DependencyObject) {
+							del(child as DependencyObject, act);
+						}
+					}
+					act(o);
+				}
+
+				del(o, x => BindingOperations.ClearAllBindings(x));
+				if(o.DataContext != null) {
+					/*
+					ViewModels.MainWindowViewModel.Messenger.Instance
+						.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.WpfBugMessage>>()
+						.Publish(new ViewModels.MainWindowViewModel.WpfBugMessage(o));
+					*/
+				}
+			}
+		}
+
+		public void DestroyContainer() {
+			static void del(DependencyObject o, Action<DependencyObject> act) {
+				foreach(var child in LogicalTreeHelper.GetChildren(o)) {
+					if(child is DependencyObject) {
+						del(child as DependencyObject, act);
+					}
+				}
+				act(o);
+			}
+
+			del(this, x => BindingOperations.ClearAllBindings(x));
+		}
 	}
 }

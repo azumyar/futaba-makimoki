@@ -315,12 +315,11 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </TextBox>
-                        <Button Grid.Column="1" VerticalAlignment="Center">
-                            <Button.Content>
-                                <TextBlock>
-                                     ✖
-                                </TextBlock>
-                            </Button.Content>
+                        <Button
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            FontFamily="Marlett"
+                            Content="r">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <i:ChangePropertyAction 
@@ -545,7 +544,7 @@
                     ScrollViewer.CanContentScroll="True"
                     VirtualizingPanel.ScrollUnit="Pixel"
                     VirtualizingPanel.IsVirtualizing="True"
-                    VirtualizingPanel.VirtualizationMode="Standard"
+                    VirtualizingPanel.VirtualizationMode="Recycling"
                     HorizontalContentAlignment="Stretch"
                     >
                     <ListBox.Effect>
@@ -566,46 +565,25 @@
                                                 <RowDefinition Height="2*" />
                                             </Grid.RowDefinitions>
 
-                                            <Viewbox
-                                                x:Name="ThumbView"
-                                                Grid.Row="1"
-                                                Grid.Column="1"
-                                                Margin="48"
-                                                Opacity="{DynamicResource FailsafeThreadImageOpacity}"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Bottom"
-                                                Visibility="{Binding FailsafeMistakePostVisibility.Value, Mode=OneWay}"
-                                                >
-                                                <Image
-                                                    Source="{Binding Contents.ThumbSource.Value, Mode=OneWay, ElementName=_this}"
-                                                    RenderOptions.EdgeMode="Aliased"
-                                                    RenderOptions.BitmapScalingMode="Fant">
-                                                    <Image.CacheMode>
-                                                        <BitmapCache RenderAtScale="1" />
-                                                    </Image.CacheMode>
-                                                    <Image.Effect>
-                                                        <BlurEffect Radius="{DynamicResource FailsafeThreadImageBlurRadius}" />
-                                                    </Image.Effect>
-
-                                                    <!--
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="Loaded">
-                                                            <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                    -->
-                                                </Image>
-                                            </Viewbox>
-
-                                            <ScrollViewer
+                                            <Grid
                                                 Grid.Row="0" Grid.RowSpan="2"
-                                                Grid.Column="0" Grid.ColumnSpan="2"
-                                                Style="{StaticResource MakiMokiScrollViewerStyle}"
-                                                CanContentScroll="True"
-                                                Margin="0"
-                                                Focusable="false">
-                                                <ItemsPresenter />
-                                            </ScrollViewer>
+                                                Grid.Column="0" Grid.ColumnSpan="2">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+
+                                                <ScrollViewer
+                                                    Grid.Row="0"
+                                                    Style="{StaticResource MakiMokiScrollViewerStyle}"
+                                                    CanContentScroll="True"
+                                                    Margin="0"
+                                                    Focusable="false">
+                                                    <ItemsPresenter />
+                                                </ScrollViewer>
+                                                
+                                                <!-- TODO: ここに続きを読むを置く -->
+                                            </Grid>
                                         </Grid>
                                     </ControlTemplate>
                                 </Setter.Value>
@@ -659,8 +637,7 @@
                                     Grid.Column="0" Grid.Row="0"
                                     HorizontalAlignment="Left" 
                                     Visibility="{Binding FutabaTextBlockVisibility.Value, Mode=OneWay}"
-                                    Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}"
-                                    >
+                                    Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
                                     <Grid.Resources>
                                         <!-- 見つからないと言われることがあるのでリソースに置く -->
                                         <ResourceDictionary>
@@ -801,8 +778,7 @@
                                     <local:FutabaResBlock
                                         x:Name="CommentBlock"
                                         Grid.Column="0" Grid.Row="0"
-                                        MaxWidth="1024"
-                                        >
+                                        MaxWidth="1024">
                                         <local:FutabaResBlock.Foreground>
                                             <SolidColorBrush>
                                                 <SolidColorBrush.Color>
@@ -1030,7 +1006,7 @@
                                         <i:EventTrigger EventName="MouseLeave">
                                             <i:ChangePropertyAction PropertyName="Visibility" TargetName="copyButton" Value="Hidden" />
                                         </i:EventTrigger>
-                                        <i:EventTrigger EventName="MouseDown">
+                                        <i:EventTrigger EventName="PreviewMouseDown">
                                             <ri:EventToReactiveCommand Command="{Binding DataContext.FutabaTextBlockMouseDownCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" />
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
@@ -1195,6 +1171,7 @@
                     </ListBox.ItemTemplate>
                     <i:Interaction.Behaviors>
                         <behavior:ScrollBehavior x:Name="ListBoxScrollBehavior" />
+                        <behavior:MakiMokiViewerBehavior />
                         <behavior:WheelUpdateBehavior
                             Command="{Binding WheelUpdateCommand, Mode=OneWay}"
                             CommandParameter="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"
@@ -1265,6 +1242,7 @@
                     <local:FutabaPostView.MaxWidth>
                         <MultiBinding Converter="{StaticResource PostViewMaxWidthConverter}">
                             <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
+                            <Binding Mode="OneWay" Source="{StaticResource DefaultMaxWidth}" />
                             <Binding Path="Contents.PostData.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
                         </MultiBinding>
                     </local:FutabaPostView.MaxWidth>

@@ -294,12 +294,8 @@
                     BorderBrush="Transparent"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Top"
-                    >
-                    <Button.Content>
-                        <TextBlock>
-                            ✖
-                        </TextBlock>
-                    </Button.Content>
+                    FontFamily="Marlett"
+                    Content="r">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
                             <ri:EventToReactiveCommand Command="{Binding CloseCommand}" />
@@ -319,12 +315,8 @@
             BorderBrush="Transparent"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
-            >
-            <Button.Content>
-                <TextBlock>
-                    ✖
-                </TextBlock>
-            </Button.Content>
+            FontFamily="Marlett"
+            Content="r">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
                     <ri:EventToReactiveCommand Command="{Binding CloseCommand}" />

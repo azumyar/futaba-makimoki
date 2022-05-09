@@ -72,7 +72,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					return Path.GetFileName(x);
 				}
 			}).ToReactiveProperty("");
-			this.ImagePreview = this.ImagePath.Select<string, ImageSource>(x => {
+			this.ImagePreview = this.ImagePath
+				.ObserveOn(UIDispatcherScheduler.Default)
+				.Select<string, ImageSource>(x => {
+
 				if(File.Exists(x)) {
 					var ext = Path.GetExtension(x).ToLower();
 					var imageExt = Config.ConfigLoader.MimeFutaba.Types
@@ -84,7 +87,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						.Select(y => y.Ext)
 						.ToArray();
 					if(imageExt.Contains(ext)) {
-						return WpfUtil.ImageUtil.LoadImage(x);
+						return WpfUtil.ImageUtil.CreateImage(
+							x,
+							WpfUtil.ImageUtil.LoadStream(x));
 					} else if(movieExt.Contains(ext)) {
 						// 動画は今は何もしない
 						// TODO: なんんか実装する

@@ -119,7 +119,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				if(NowTime == 0L) {
 					return null;
 				} else {
-					return Util.TimeUtil.FromUnixTimeMilliseconds(NowTime);
+					return Util.TimeUtil.FromUnixTimeSeconds(NowTime);
 				}
 			}
 		}
@@ -216,9 +216,10 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public DateTime NowDateTime {
 			get {
 				if(long.TryParse(Tim, out var v)) {
-					return DateTimeOffset.FromUnixTimeMilliseconds(v).LocalDateTime;
+					return TimeUtil.FromUnixTimeMilliseconds(v);
+				} else {
+					return DateTime.MinValue;
 				}
-				return DateTime.MinValue;
 			}
 		}
 
@@ -825,10 +826,12 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	public class Information { 
 		public string Message { get; }
 		public object ExObject { get; }
+		public string Token { get; }
 
 		public Information(string message, object exObject = null) {
 			this.Message = message;
 			this.ExObject = exObject;
+			this.Token = $"{ DateTime.Now.ToString("yyyyMMddHHmmssfffffff") }:{ message }";
 		}
 	}
 }

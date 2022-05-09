@@ -50,7 +50,75 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 						}
 					}
 				});
+
+			// WPF バグ対策 
+			// https://github.com/dotnet/wpf/issues/6091
+			ViewModels.MainWindowViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.WpfBugMessage>>()
+				.Subscribe(async x => {
+					// 現在は別アプローチで対策したので使っていない
+					static async Task<(bool Sucessed, int? Index)> preRemove(FrameworkElement el) {
+						if(el is Panel p) {
+							var r = p.Children.IndexOf(el);
+							p.Children.Remove(el);
+							await Task.Yield();
+							return (true, r);
+						} else if(el is global::System.Windows.Controls.Decorator d) {
+							d.Child = null;
+							await Task.Yield();
+							return (true, null);
+						} if(el is Image) {
+							await Task.Yield();
+							return (true, null);
+						} else {
+							System.Diagnostics.Debug.WriteLine($"!!!!!!! 不明なWPFBugコンテナ { el.GetType() } !!!!!!!!");
+							await Task.Yield();
+							return (false, null);
+						}
+					}
+					static async Task remove(FrameworkElement el, Grid removeConainer) {
+						try {
+							removeConainer.Children.Add(el);
+							await Task.Yield();
+							el.UpdateLayout();
+							await Task.Yield();
+							removeConainer.Children.Remove(el);
+						}
+						catch(InvalidOperationException) { } // 再利用されるとくる再利用されて場合は多分リークしないので無視
+					}
+
+					System.Diagnostics.Debug.WriteLine("unload bag fix");
+					if(x.Remove) {
+						var el = x.Element;
+						var r = await preRemove(el);
+						if(r.Sucessed) {
+							el.DataContext = null;						
+							await remove(el, this.BitmapRemoveConainer);
+						}
+					} else {
+						var el = x.Element;
+						if(el is Image im) {
+							var prt = im.Parent;
+							var r = await preRemove(el);
+							if(r.Sucessed) {
+								await remove(el, this.BitmapRemoveConainer);
+								if(el is Panel p && r.Index.HasValue) {
+									p.Children.Insert(r.Index.Value, el);
+									await Task.Yield();
+								} else if(el is global::System.Windows.Controls.Decorator d) {
+									d.Child = el;
+									await Task.Yield();
+								}
+							}
+						} else {
+							System.Diagnostics.Debug.WriteLine($"!!!!!!! 不明なWPFBugオブジェクト { x.GetType() } !!!!!!!!");
+							await Task.Yield();
+							return;
+						}
+					}
+				});
 		}
+
 
 		private void SystemCommandsCanExecute(object sender, CanExecuteRoutedEventArgs e) {
 			e.CanExecute = true;
@@ -88,5 +156,31 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 				WpfConfig.WpfConfigLoader.UpdatePlacementByWindowClosing(this);
 			}
 		}
+
+		private void OnLoadedGC(object sender, RoutedEventArgs e) {
+#if DEBUG
+			if(e.OriginalSource is UIElement el) {
+				el.Visibility = Visibility.Visible;
+			}
+#endif
+		}
+
+		private void OnClickGC(object sender, RoutedEventArgs e) {
+			// テスト用強制GC
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
+		}
+
+		private void OnImageUnloaded(object sender, RoutedEventArgs e) {
+			if(sender is FrameworkElement o) {
+				BindingOperations.ClearAllBindings(o);
+				if(o.DataContext != null) {
+					ViewModels.MainWindowViewModel.Messenger.Instance
+						.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.WpfBugMessage>>()
+						.Publish(new ViewModels.MainWindowViewModel.WpfBugMessage(o));
+				}
+			}
+		}
+
 	}
 }

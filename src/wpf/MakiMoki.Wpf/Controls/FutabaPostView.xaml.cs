@@ -111,9 +111,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.ReplaceTextMessage>>()
 				.Subscribe(x => {
 					if(x.Url == this.Contents?.Url) {
+						/*
 						this.PostCommentTextBox.Text = x.Text;
 						this.PostCommentTextBox.SelectionStart = x.Text.Length;
 						this.PostCommentTextBox.SelectionLength = 0;
+						*/
+						this.PostCommentTextBox.Document ??= new FlowDocument();
+						this.PostCommentTextBox.Document.Blocks.Clear();
+						this.PostCommentTextBox.Document.Blocks.AddRange(
+							x.Text.Replace("\r\n", "\n")
+								.Split("\n")
+								.Select(x => new Paragraph(new Run(x))));
+						if(!string.IsNullOrEmpty(x.Text)) {
+							this.PostCommentTextBox.CaretPosition = this.PostCommentTextBox.Document.Blocks.Last().ContentEnd;
+						}
 						this.PostCommentTextBox.Focus();
 					}
 				});
@@ -121,14 +132,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				.GetEvent<PubSubEvent<ViewModels.FutabaPostViewViewModel.AppendTextMessage>>()
 				.Subscribe(x => {
 					if((x.Url == this.Contents?.Url) && !string.IsNullOrEmpty(x.Text)) {
-						var s = x.Text + ((x.Text.Last() == '\n') ? "" : Environment.NewLine);
+						var s = $"{ x.Text }{((x.Text.Last() == '\n') ? "" : Environment.NewLine)}";
+						this.PostCommentTextBox.CaretPosition.InsertTextInRun(s);
+						/*
 						var ss = this.PostCommentTextBox.SelectionStart;
+						var ss = this.PostCommentTextBox.CaretPosition.
 						var sb = new StringBuilder(this.PostCommentTextBox.Text);
 						sb.Insert(ss, s);
 						this.PostCommentTextBox.Text = sb.ToString();
 						this.PostCommentTextBox.SelectionStart = ss + s.Length;
 						this.PostCommentTextBox.SelectionLength = 0;
 						this.PostCommentTextBox.Focus();
+						*/
 					}
 				});
 		}

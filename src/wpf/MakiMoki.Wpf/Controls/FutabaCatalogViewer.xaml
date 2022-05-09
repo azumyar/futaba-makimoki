@@ -54,7 +54,7 @@
             <converter:PostViewMinWidthConverter x:Key="PostViewMinWidthConverter" />
             <converter:PostViewMaxWidthConverter x:Key="PostViewMaxWidthConverter" />
 
-            <ToolTip x:Key="CatalogItemToolTip">
+            <ToolTip x:Key="CatalogItemToolTip" x:Shared="False">
                 <ToolTip.Background>
                     <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
                 </ToolTip.Background>
@@ -63,7 +63,8 @@
                     Margin="16 4 16 4" 
                     IsHitTestVisible="False"
                     TextBlock.FontSize="12"
-                    TextBlock.FontFamily="{DynamicResource CatalogTextFont}" >
+                    TextBlock.FontFamily="{DynamicResource CatalogTextFont}"
+                    Unloaded="OnContentUnloaded">
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                     </TextBlock.Foreground>
@@ -91,17 +92,12 @@
                             StretchDirection="DownOnly"
                             Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}">
                             <Image 
-                                Source="{Binding ThumbSource.Value}"
+                                Source="{Binding ThumbSource, Mode=OneWay}"
                                 RenderOptions.EdgeMode="Aliased"
                                 RenderOptions.BitmapScalingMode="Fant">
                                 <Image.CacheMode>
                                     <BitmapCache RenderAtScale="1" />
                                 </Image.CacheMode>
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="Loaded">
-                                        <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
                             </Image>
                         </Viewbox>
 
@@ -175,8 +171,32 @@
                 </Setter>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             </Style>
+            <Style x:Key="CatalogViewerListBoxStyle" TargetType="ListBox" BasedOn="{StaticResource MakiMokiViewerListBoxStyle}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBox">
+                            <Border>
+                                <ScrollViewer
+                                    Style="{StaticResource MakiMokiScrollViewerStyle}"
+                                    CanContentScroll="True"
+                                    Margin="0"
+                                    Focusable="false">
+                                    <ItemsPresenter />
 
-            <Style x:Key="CatalogWrapBox" TargetType="ListBox" BasedOn="{StaticResource MakiMokiViewerListBoxStyle}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="ScrollChanged">
+                                            <ri:EventToReactiveCommand
+                                                Command="{Binding DataContext.CatalogScrollChangedCommand, ElementName=_this}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ScrollViewer>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="CatalogWrapBox" TargetType="ListBox" BasedOn="{StaticResource CatalogViewerListBoxStyle}">
                 <Setter Property="ItemsPanel">
                     <Setter.Value>
                         <ItemsPanelTemplate>
@@ -196,11 +216,13 @@
                                     BorderBrush="Transparent"
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
-                                    ToolTipService.InitialShowDelay="1000"
-                                    ToolTipService.BetweenShowDelay="0"
                                     ToolTipService.ShowDuration="{x:Static sys:Int32.MaxValue}"
-                                    ToolTip="{StaticResource CatalogItemToolTip}"
                                     Tag="{Binding DataContext,Mode=OneWay, ElementName=_this}">
+                                    <!--
+                                    ToolTipService.InitialShowDelay="0"
+                                    ToolTipService.BetweenShowDelay="0"
+                                    ToolTip="{StaticResource CatalogItemToolTip}"                                    
+                                    -->
                                     <Button.ContextMenu>
                                         <ContextMenu
                                             DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
@@ -256,7 +278,7 @@
                                             </SolidColorBrush.Color>
                                         </SolidColorBrush>
                                     </Button.Foreground>
-                                    <Grid x:Name="CatalogItem">
+                                    <Grid x:Name="CatalogItem" Unloaded="OnContentUnloaded">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
@@ -273,17 +295,13 @@
                                             Stretch="Uniform"
                                             >
                                             <Image
-                                                Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                                Source="{Binding ThumbSource, Mode=OneWay}"
                                                 RenderOptions.EdgeMode="Aliased"
-                                                RenderOptions.BitmapScalingMode="Fant">
+                                                RenderOptions.BitmapScalingMode="{Binding DataContext.CatalogBitmapScalingMode, ElementName=_this}"
+                                                Unloaded="OnImageUnloaded">
                                                 <Image.CacheMode>
                                                     <BitmapCache RenderAtScale="1" />
                                                 </Image.CacheMode>
-                                                <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="Loaded">
-                                                        <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
-                                                    </i:EventTrigger>
-                                                </i:Interaction.Triggers>
                                             </Image>
                                         </Viewbox>
                                         <!-- 新着レス数-->
@@ -512,6 +530,14 @@
                                         <i:EventTrigger EventName="PreviewMouseUp">
                                             <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogItemClickCommand, ElementName=_this}" />
                                         </i:EventTrigger>
+                                        <i:EventTrigger EventName="MouseEnter">
+                                            <ri:EventToReactiveCommand
+                                                Command="{Binding DataContext.CatalogItemEnterCommand, ElementName=_this}" />
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="MouseLeave">
+                                            <ri:EventToReactiveCommand
+                                                Command="{Binding DataContext.CatalogItemLeaveCommand, ElementName=_this}" />
+                                        </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </Button>
                             </Grid>
@@ -544,11 +570,13 @@
                                     BorderBrush="Transparent"
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
-                                    ToolTipService.InitialShowDelay="1000"
-                                    ToolTipService.BetweenShowDelay="0"
                                     ToolTipService.ShowDuration="{x:Static sys:Int32.MaxValue}"
-                                    ToolTip="{StaticResource CatalogItemToolTip}"
                                     Tag="{Binding DataContext,Mode=OneWay, ElementName=_this}">
+                                    <!--
+                                    ToolTipService.InitialShowDelay="0"
+                                    ToolTipService.BetweenShowDelay="0"
+                                    ToolTip="{StaticResource CatalogItemToolTip}"
+                                    -->
                                     <Button.ContextMenu>
                                         <ContextMenu
                                             DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
@@ -610,7 +638,8 @@
                                         Background="Transparent"
                                         IsHitTestVisible="False"
                                         TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
-                                        TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
+                                        TextBlock.FontFamily="{DynamicResource ThreadTextFont}"
+                                        Unloaded="OnContentUnloaded">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
@@ -622,25 +651,18 @@
 
                                         <Grid Grid.Column="0" Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}">
                                             <Viewbox
-                                                Width="48"
-                                                Height="48"
+                                                Width="{DynamicResource CatalogImageSize}" Height="{DynamicResource CatalogImageSize}"
                                                 HorizontalAlignment="Left"
                                                 StretchDirection="DownOnly">
                                                 <Image 
-                                                    Source="{Binding ThumbSource.Value}"
+                                                    Source="{Binding ThumbSource, Mode=OneWay}"
                                                     RenderOptions.EdgeMode="Aliased"
                                                     RenderOptions.BitmapScalingMode="Fant">
                                                     <Image.CacheMode>
                                                         <BitmapCache RenderAtScale="1" />
                                                     </Image.CacheMode>
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="Loaded">
-                                                            <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
                                                 </Image>
                                             </Viewbox>
-
                                             <!-- 新着レス数-->
                                             <Viewbox
                                                 Margin="2"
@@ -911,12 +933,10 @@
                             x:Name="CatalogSearchTextBox"
                             Grid.Column="0"
                             CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
-                            Text="{Binding Contents.Futaba.Value.FilterText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ElementName=_this}"
                             FontSize="14"
                             VerticalAlignment="Center"
                             local:PlaceHolderBehavior.PlaceHolderText="検索テキスト"
-                            Tag="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
-                            >
+                            Tag="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}">
                             <TextBox.Foreground>
                                 <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                             </TextBox.Foreground>
@@ -925,18 +945,15 @@
                             </i:Interaction.Behaviors>
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="TextChanged">
-                                    <!--
                                     <ri:EventToReactiveCommand Command="{Binding DataContext.FilterTextChangedCommand, ElementName=_this}" />
-                                    -->
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </TextBox>
-                        <Button Grid.Column="1" VerticalAlignment="Center">
-                            <Button.Content>
-                                <TextBlock>
-                                     ✖
-                                </TextBlock>
-                            </Button.Content>
+                        <Button
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            FontFamily="Marlett"
+                            Content="r">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <i:ChangePropertyAction 
@@ -1069,7 +1086,7 @@
                 ScrollViewer.CanContentScroll="True"
                 VirtualizingPanel.ScrollUnit="Pixel"
                 VirtualizingPanel.IsVirtualizing="True"
-                VirtualizingPanel.VirtualizationMode="Standard"
+                VirtualizingPanel.VirtualizationMode="Recycling"
                 >
                 <ListBox.Style>
                     <MultiBinding Converter="{StaticResource FutabaCatalogStyleConverter}">
@@ -1096,7 +1113,18 @@
                         </Setter>
                     </Style>
                 </ListBox.ItemContainerStyle>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseLeave">
+                        <ri:EventToReactiveCommand
+                            Command="{Binding DataContext.CatalogItemLeaveCommand, ElementName=_this}" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="PreviewMouseWheel">
+                        <ri:EventToReactiveCommand
+                            Command="{Binding DataContext.CatalogMouseWheelCommand, ElementName=_this}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
                 <i:Interaction.Behaviors>
+                    <behavior:MakiMokiViewerBehavior />
                     <behavior:WheelUpdateBehavior
                         Command="{Binding WheelUpdateCommand, Mode=OneWay}"
                         CommandParameter="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"
@@ -1120,6 +1148,7 @@
                 <local:FutabaPostView.MaxWidth>
                     <MultiBinding Converter="{StaticResource PostViewMaxWidthConverter}">
                         <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
+                        <Binding Mode="OneWay" Source="{StaticResource DefaultMaxWidth}" />
                         <Binding Path="Contents.PostData.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
                     </MultiBinding>
                 </local:FutabaPostView.MaxWidth>
