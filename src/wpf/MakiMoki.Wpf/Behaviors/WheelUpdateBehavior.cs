@@ -11,16 +11,12 @@ using System.Windows.Input;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 	class WheelUpdateBehavior : Behavior<Control> {
-		private static readonly int DefaultWheelCount = 10;
+		private static readonly int WheelWaitMiliSec = 750;
+		private static readonly int WheelResetMiliSec = 1500;
 		private ScrollViewer scrollViewer;
-		private int deltaCount;
+		private int deltaStep;
+		private DateTime? delataTime;
 
-		public static readonly DependencyProperty WheelCountProperty =
-			DependencyProperty.Register(
-				nameof(WheelCount),
-				typeof(int),
-				typeof(WheelUpdateBehavior),
-				new PropertyMetadata(DefaultWheelCount));
 		public static readonly DependencyProperty CommandProperty =
 			DependencyProperty.RegisterAttached(
 				nameof(Command), 
@@ -34,13 +30,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 				typeof(object),
 				typeof(WheelUpdateBehavior),
 				new PropertyMetadata(null));
-
-		public int WheelCount {
-			get => (int)this.GetValue(WheelCountProperty);
-			set {
-				this.SetValue(WheelCountProperty, value);
-			}
-		}
 
 		public ICommand Command {
 			get => (ICommand)this.GetValue(CommandProperty);
@@ -81,30 +70,54 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 		}
 
 		private void OnMouseWheel(object sender, MouseWheelEventArgs e) {
+			void observe() {
+				Observable.Return(this.delataTime.Value)
+					.Delay(TimeSpan.FromMilliseconds(WheelResetMiliSec))
+					.ObserveOn(global::Reactive.Bindings.UIDispatcherScheduler.Default)
+					.Subscribe(x => {
+						this.deltaStep = 0;
+						this.delataTime = null;
+					});
+			}
+			void exec() {
+				this.deltaStep = 0;
+				this.delataTime = null;
+				if(this.Command?.CanExecute(this.CommandParameter) ?? false) {
+					this.Command?.Execute(this.CommandParameter);
+					e.Handled = true;
+				}
+			}
+
 			if(this.scrollViewer != null) {
 				if(0 < e.Delta) {
 					// 上スクロール
 					if(this.scrollViewer.VerticalOffset <= 0) {
-						deltaCount--;
+						if(this.deltaStep == 0) {
+							this.deltaStep = -1;
+							if(!this.delataTime.HasValue) {
+								this.delataTime = DateTime.Now.AddMilliseconds(WheelWaitMiliSec);
+							}
+							observe();
+						} else if(this.deltaStep == -1) {
+							if(this.delataTime.HasValue && (this.delataTime < DateTime.Now)) {
+								exec();
+							}
+						}
 					}
 				} else {
 					// 下スクロール
 					if(this.scrollViewer.ScrollableHeight <= this.scrollViewer.VerticalOffset) {
-						deltaCount++;
-					}
-				}
-
-				if(this.WheelCount == Math.Abs(this.deltaCount)) {
-					// 画面上のインタラクションがなく連続発行されてしまうので1秒間値をリセットしない
-					// スクロールでリセットさせないのはスレ更新で新レスがないと普通スクロールをしないため
-					Observable.Return(0)
-						.Delay(TimeSpan.FromSeconds(1))
-						.ObserveOn(global::Reactive.Bindings.UIDispatcherScheduler.Default)
-						.Subscribe(x => this.deltaCount = 0);
-
-					if(this.Command?.CanExecute(this.CommandParameter) ?? false) {
-						this.Command?.Execute(this.CommandParameter);
-						e.Handled = true;
+						if(this.deltaStep == 0) {
+							this.deltaStep = 1;
+							if(!this.delataTime.HasValue) {
+								this.delataTime = DateTime.Now.AddMilliseconds(WheelWaitMiliSec);
+							}
+							observe();
+						} else if(this.deltaStep == 1) {
+							if(this.delataTime.HasValue && (this.delataTime < DateTime.Now)) {
+								exec();
+							}
+						}
 					}
 				}
 			}
@@ -112,7 +125,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 
 		private void OnScrollChanged(object sender, ScrollChangedEventArgs e) {
 			// スクロールするとホイールはリセットされる
-			this.deltaCount = 0;
+			this.deltaStep = 0;
+			this.delataTime = null;
 		}
 	}
 }
