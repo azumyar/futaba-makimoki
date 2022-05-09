@@ -638,8 +638,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		
 		public ReactiveProperty<bool> IsVisibleCatalogIdMarker{ get; }
 
-		[Obsolete]
-		public ReactiveProperty<string> MenuItemTextHidden { get; }
 		public ReactiveProperty<Visibility> MenuItemRegisterHiddenVisibility { get; }
 		public ReactiveProperty<Visibility> MenuItemUnregisterHiddenVisibility { get; }
 
@@ -648,8 +646,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public MakiMokiCommand<MouseButtonEventArgs> FutabaTextBlockMouseDownCommand { get; }
 			= new MakiMokiCommand<MouseButtonEventArgs>();
-		public MakiMokiCommand<RoutedEventArgs> ThumbLoadCommand { get; }
-			= new MakiMokiCommand<RoutedEventArgs>();
 
 		private RefValue<ulong> hashValue;
 		private Action<Ng.NgData.NgConfig> ngUpdateAction;
@@ -658,8 +654,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		private Action<Ng.NgData.WatchConfig> watchUpdateAction;
 		private Action<Ng.NgData.WatchImageConfig> watchImageUpdateAction;
 		private Action<PlatformData.WpfConfig> systemUpdateAction;
-
-		private List<FrameworkElement> thumbElement = new();
 
 		public BindableFutabaResItem(int index, Data.FutabaContext.Item item, string baseUrl, BindableFutaba parent) {
 			System.Diagnostics.Debug.Assert(item != null);
@@ -692,7 +686,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					headLine.Append("<font color=\"#ff0000\">削除依頼によって隔離されました</font><br>");
 				}
 				if(!string.IsNullOrEmpty(Raw.Value.ResItem.Res.Host)) {
-					headLine.AppendFormat("[<font color=\"#ff0000\">{0}</font>]<br>", Raw.Value.ResItem.Res.Host);
+					headLine.Append($"[<font color=\"#ff0000\">{ Raw.Value.ResItem.Res.Host }</font>]<br>");
 				}
 				this.IsNg = new ReactiveProperty<bool>(
 					parent.Url.IsCatalogUrl ? Ng.NgUtil.NgHelper.CheckCatalogNg(parent.Raw, item)
@@ -922,8 +916,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}
 		}
 
-		private void OnThumbLoad() {
-		}
 
 		public void SetThumbSource(BitmapSource bmp) {
 		}
@@ -970,7 +962,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		// TODO: 名前変える
-		private async void b() {
+		private void b() {
 			BitmapSource get(BitmapSource bmp) {
 				return (this.ThumbDisplay.Value ?? true) switch {
 					true => bmp,

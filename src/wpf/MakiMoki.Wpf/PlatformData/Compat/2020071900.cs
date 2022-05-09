@@ -1,3 +1,4 @@
+#pragma warning disable CS0612 // 古い形式警告を除去
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

@@ -1021,13 +1021,6 @@
                                                 <Image.CacheMode>
                                                     <BitmapCache RenderAtScale="1" />
                                                 </Image.CacheMode>
-                                                <!--
-                                                <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="Loaded">
-                                                        <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
-                                                    </i:EventTrigger>
-                                                </i:Interaction.Triggers>
-                                                -->
                                             </Image>
                                         </Viewbox>
                                         <Ellipse
