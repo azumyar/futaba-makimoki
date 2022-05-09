@@ -520,15 +520,32 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<bool?> ThumbDisplay { get; } = new ReactiveProperty<bool?>(); // NGではない場合true
 		public BitmapSource ThumbSource {
 			set {
-				this.thumbSource.SetTarget(value);
-				this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ThumbSource)));
+				if((value != null) && Ng.NgUtil.NgHelper.IsEnabledNgImage() && !this.ThumbHash.Value.HasValue) {
+					this.StoreHash(value)
+						.Subscribe(y => {
+							this.thumbSource.SetTarget(this.ThumbDisplay.Value.Value switch {
+								true => value,
+								false => (Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod == ImageNgMethod.Hidden) switch {
+									true => null,
+									false => WpfUtil.ImageUtil.GetNgImage()
+								}
+							});
+							this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ThumbSource)));
+						});
+				} else {
+					this.ThumbDisplay.Value = true;
+					this.thumbSource.SetTarget(value);
+					this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ThumbSource)));
+				}
 			}
 			get {
 				static BitmapSource apply(BindableFutabaResItem item, BitmapSource bitmap, bool? display) {
 					return (display ?? true) switch {
 						true => bitmap,
-						false => (Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod == ImageNgMethod.Hidden)
-							? null : WpfUtil.ImageUtil.GetNgImage()
+						false => (Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod == ImageNgMethod.Hidden) switch {
+							true => null,
+							false => WpfUtil.ImageUtil.GetNgImage()
+						}
 					};
 				}
 
@@ -550,24 +567,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						Util.Futaba.GetThumbImageLocalFilePath(
 							this.Parent.Value.Url, this.Raw.Value.ResItem.Res)) is BitmapSource bmp) {
 						this.ThumbToken.Value ??= new object();
-						if(Ng.NgUtil.NgHelper.IsEnabledNgImage() && !this.ThumbDisplay.Value.HasValue) {
-							if(HashCache.TryGetTarget(this.GetCacheKey(), out var hash)) {
-								this.ThumbHash.Value = hash.Value;
-								this.ThumbDisplay.Value = !Ng.NgUtil.NgHelper.CheckImageNg(hash.Value);
-								var b = apply(this, bmp, this.ThumbDisplay.Value);
-								this.thumbSource.SetTarget(b);
-								return b;
-							} else {
-								this.StoreHash(bmp)
-									.Subscribe(y => {
-										this.ThumbSource = apply(this, bmp, this.ThumbDisplay.Value);
-									});
-							}
-							return null;
-						} else {
-							this.thumbSource.SetTarget(bmp);
-							return bmp;
-						}
+						this.thumbSource.SetTarget(bmp);
+						return bmp;
 					}
 				}
 
@@ -575,15 +576,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					.Subscribe(b => {
 						if(b != null) {
 							this.ThumbToken.Value ??= new object();
-							if(Ng.NgUtil.NgHelper.IsEnabledNgImage() && !this.ThumbDisplay.Value.HasValue) {
-								var key = this.GetCacheKey();
-								this.StoreHash(b)
-									.Subscribe(y => {
-										this.ThumbSource = apply(this, b, this.ThumbDisplay.Value);
-									});
-							} else {
-								this.ThumbSource = apply(this, b, this.ThumbDisplay.Value);
-							}
+							this.ThumbSource = apply(this, b, this.ThumbDisplay.Value);
 						} else {
 							// エラー
 						}
@@ -777,41 +770,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				var m = Regex.Match(item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$");
 				if(m.Success) {
 					this.ImageName = new ReactiveProperty<string>(m.Groups[1].Value);
-					var bmp = WpfUtil.ImageUtil.GetImageCache2(
-						Util.Futaba.GetThumbImageLocalFilePath(item.Url, item.ResItem.Res));
-					if(bmp != null) {
-						/* TODO: NG画像カタログ非表示処理
-						Observable.Return(bmp)
-							.ObserveOn(UIDispatcherScheduler.Default)
-							.Subscribe(x => {
-								if(Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
-									void work(ulong? v = null) {
-										bool b;
-										if(v.HasValue) {
-											b = Ng.NgUtil.NgHelper.CheckImageNg(v.Value);
-										} else {
-											b = !(this.ThumbDisplay.Value ?? true);
-										}
+					if(Ng.NgUtil.NgHelper.IsEnabledNgImage() && HashCache.TryGetTarget(this.GetCacheKey(), out var hash)) {
+						if(this.Raw.Value.Url.IsCatalogUrl
+							&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
+							&& Ng.NgUtil.NgHelper.CheckImageNg(hash.Value)) {
 
-										if(this.Raw.Value.Url.IsCatalogUrl
-											&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
-											&& b) {
-
-											this.IsNgImageHidden.Value = true;
-										}
-									}
-									if(HashCache.TryGetTarget(this.GetCacheKey(), out var y)) {
-										work(y.Value);
-									} else {
-										HashQueue.Push(Helpers.ConnectionQueueItem<ulong?>.From(
-											o => {
-												work();
-												o.OnNext(null);
-											})).Subscribe();
-									}
-								}
-							});
-						*/
+							this.IsNgImageHidden.Value = true;
+						}
 					}
 				} else {
 					this.ImageName = new ReactiveProperty<string>("");
@@ -845,45 +810,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					}
 				}).Select(x => x ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
-			this.MenuItemTextHidden = this.IsHidden.Select(x => x ? "非表示を解除" : "非表示").ToReactiveProperty();
 			this.MenuItemRegisterHiddenVisibility = this.IsHidden.Select(x => x ? Visibility.Collapsed : Visibility.Visible).ToReactiveProperty();
 			this.MenuItemUnregisterHiddenVisibility = this.IsHidden.Select(x => x ? Visibility.Visible : Visibility.Collapsed).ToReactiveProperty();
 
 			this.FutabaTextBlockMouseDownCommand.Subscribe(x => OnFutabaTextBlockMouseDown(x));
-			this.ThumbLoadCommand.Subscribe(x => {
-				// WPFバグ対策
-				if(x.Source is FrameworkElement fe) {
-					if(!thumbElement.Contains(fe)) {
-						void unload(object s, RoutedEventArgs e) {
-							if(s is FrameworkElement fe2 && thumbElement.Contains(fe2)) {
-								fe2.Unloaded -= unload;
-								thumbElement.Remove(fe2);
-							}
-						}
-
-						thumbElement.Add(fe);
-						fe.Unloaded += unload;
-					}
-				}
-				OnThumbLoad();
-			});
 		}
 
 		public void Dispose() {
-			//var s = this.OriginSource.Value;
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
-			/*
-			if(s != null) {
-				foreach(var el in this.thumbElement) {
-					System.Windows.Data.BindingOperations.ClearAllBindings(el);
-					if(el.DataContext != null) {
-						ViewModels.MainWindowViewModel.Messenger.Instance
-							.GetEvent<Prism.Events.PubSubEvent<ViewModels.MainWindowViewModel.WpfBugMessage>>()
-							.Publish(new ViewModels.MainWindowViewModel.WpfBugMessage(el, false));
-					}
-				}
-			}
-			*/
 		}
 
 		public void ReleaseHiddenRes() {
