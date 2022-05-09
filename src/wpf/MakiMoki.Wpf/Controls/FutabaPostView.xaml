@@ -30,8 +30,9 @@
                 <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
             </ResourceDictionary.MergedDictionaries>
- 
+
             <sys:Double x:Key="DefaultMinWidth">360</sys:Double>
+            <sys:Double x:Key="DefaultMaxWidth">480</sys:Double>
         </ResourceDictionary>
     </UserControl.Resources>
     <i:Interaction.Triggers>

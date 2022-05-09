@@ -42,13 +42,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 	class PostViewMaxWidthConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-			if(values.Length != 2) {
+			if(values.Length != 3) {
 				throw new ArgumentException("型不正。", nameof(values));
 			}
 
 			var c = WpfConfig.WpfConfigLoader.SystemConfig;
-			if(values[0] is double width) {
-				var val = (c.MaxWidthPostView != 0) ? (double)c.MaxWidthPostView : width;
+			if((values[0] is double width) && (values[1] is double def)) {
+				var val = (c.MaxWidthPostView != 0) ? (double)c.MaxWidthPostView : def;
 
 				return Math.Min(width, val);
 			}

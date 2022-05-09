@@ -1242,6 +1242,7 @@
                     <local:FutabaPostView.MaxWidth>
                         <MultiBinding Converter="{StaticResource PostViewMaxWidthConverter}">
                             <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
+                            <Binding Mode="OneWay" Source="{StaticResource DefaultMaxWidth}" />
                             <Binding Path="Contents.PostData.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
                         </MultiBinding>
                     </local:FutabaPostView.MaxWidth>
