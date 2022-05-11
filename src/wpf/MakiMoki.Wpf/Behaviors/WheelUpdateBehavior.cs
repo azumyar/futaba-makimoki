@@ -80,8 +80,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 					});
 			}
 			void exec() {
-				this.deltaStep = 0;
-				this.delataTime = null;
 				if(this.Command?.CanExecute(this.CommandParameter) ?? false) {
 					this.Command?.Execute(this.CommandParameter);
 					e.Handled = true;
@@ -100,6 +98,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 							observe();
 						} else if(this.deltaStep == -1) {
 							if(this.delataTime.HasValue && (this.delataTime < DateTime.Now)) {
+								this.deltaStep = -2;
 								exec();
 							}
 						}
@@ -115,6 +114,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 							observe();
 						} else if(this.deltaStep == 1) {
 							if(this.delataTime.HasValue && (this.delataTime < DateTime.Now)) {
+								this.deltaStep = 2; 
 								exec();
 							}
 						}

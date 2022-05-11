@@ -1157,7 +1157,7 @@
                                         <Viewbox
                                             Grid.Row="1"
                                             Grid.Column="1"
-                                            Width="{DynamicResource ExObject.InformationImageSize}" Height="{DynamicResource InformationImageSize}"
+                                            Width="{DynamicResource InformationImageSize}" Height="{DynamicResource InformationImageSize}"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
                                             Stretch="Uniform"
