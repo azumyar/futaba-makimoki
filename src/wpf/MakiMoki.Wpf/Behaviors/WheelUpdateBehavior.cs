@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Reactive.Bindings;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 	class WheelUpdateBehavior : Behavior<Control> {
@@ -15,6 +16,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 			Default,
 			Top,
 			Bottom
+		}
+
+		public enum WheelUpdateState {
+			Default,
+			Begin,
+			Post
 		}
 
 		private static readonly string BeginUpdateMessage = "約１秒間ホイールで更新";
@@ -31,6 +38,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 				typeof(WheelUpdatePosition),
 				typeof(WheelUpdateBehavior),
 				new PropertyMetadata(WheelUpdatePosition.Default));
+
+		public static readonly DependencyProperty UpdateStateProperty =
+			DependencyProperty.RegisterAttached(
+				nameof(UpdateState),
+				typeof(WheelUpdateState),
+				typeof(WheelUpdateBehavior),
+				new PropertyMetadata(WheelUpdateState.Default));
+
 		public static readonly DependencyProperty StatusMessageProperty =
 			DependencyProperty.RegisterAttached(
 				nameof(StatusMessage),
@@ -57,6 +72,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 			set => this.SetValue(UpdatePositionProperty, value);
 		}
 
+		public WheelUpdateState UpdateState {
+			get => (WheelUpdateState)this.GetValue(UpdateStateProperty);
+			set => this.SetValue(UpdateStateProperty, value);
+		}
+
 		public string StatusMessage {
 			get => (string)this.GetValue(StatusMessageProperty);
 			set => this.SetValue(StatusMessageProperty, value);
@@ -64,16 +84,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 
 		public ICommand Command {
 			get => (ICommand)this.GetValue(CommandProperty);
-			set {
-				this.SetValue(CommandProperty, value);
-			}
+			set => this.SetValue(CommandProperty, value);
 		}
 
 		public object CommandParameter {
 			get => this.GetValue(CommandParameterProperty);
-			set {
-				this.SetValue(CommandParameterProperty, value);
-			}
+			set => this.SetValue(CommandParameterProperty, value);
 		}
 
 		protected override void OnAttached() {
@@ -106,15 +122,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 					.Delay(TimeSpan.FromMilliseconds(WheelResetMiliSec))
 					.ObserveOn(global::Reactive.Bindings.UIDispatcherScheduler.Default)
 					.Subscribe(x => {
-						this.UpdatePosition = WheelUpdatePosition.Default;
+						this.UpdateState = WheelUpdateState.Default;
 						this.StatusMessage = "";
 						this.deltaStep = 0;
 						this.delataTime = null;
 					});
 			}
 			void exec() {
+				this.UpdateState = WheelUpdateState.Post;
+				this.StatusMessage = FireUpdateMessage;
 				if(this.Command?.CanExecute(this.CommandParameter) ?? false) {
-					this.StatusMessage = FireUpdateMessage;
 					this.Command?.Execute(this.CommandParameter);
 					e.Handled = true;
 				}
@@ -138,6 +155,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 							this.deltaStep--;
 							break;
 						case -3:
+							this.UpdateState = WheelUpdateState.Begin;
 							this.StatusMessage = BeginUpdateMessage;
 							this.deltaStep--;
 							break;
@@ -166,6 +184,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 							this.deltaStep++;
 							break;
 						case 3:
+							this.UpdateState = WheelUpdateState.Begin;
 							this.StatusMessage = BeginUpdateMessage;
 							this.deltaStep++;
 							break;
@@ -183,7 +202,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 
 		private void OnScrollChanged(object sender, ScrollChangedEventArgs e) {
 			// スクロールするとホイールはリセットされる
-			this.UpdatePosition = WheelUpdatePosition.Default;
+			this.UpdateState = WheelUpdateState.Default;
 			this.StatusMessage = "";
 			this.deltaStep = 0;
 			this.delataTime = null;

@@ -23,6 +23,7 @@
                 <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ViewerListBox.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/WheelUpdateNotifier.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converter:BackgroundToForegroundColorConverter x:Key="BackgroundToForegroundColorConverter" />
             <converter:CatalogTextConverter x:Key="CatalogTextConverter"/>
@@ -53,8 +54,6 @@
             <converter:PostViewOpacityConverter x:Key="PostViewOpacityConverter" />
             <converter:PostViewMinWidthConverter x:Key="PostViewMinWidthConverter" />
             <converter:PostViewMaxWidthConverter x:Key="PostViewMaxWidthConverter" />
-            <converter:WheelUpdatePositionConverter x:Key="WheelUpdatePositionConverter" />
-            <converter:WheelUpdateVisibleConverter x:Key="WheelUpdateVisibleConverter" />
 
             <ToolTip x:Key="CatalogItemToolTip" x:Shared="False">
                 <ToolTip.Background>
@@ -1129,6 +1128,7 @@
                     <behavior:MakiMokiViewerBehavior />
                     <behavior:WheelUpdateBehavior
                         UpdatePosition="{Binding WheelUpdatePositionHolder.Value, Mode=TwoWay}"
+                        UpdateState="{Binding WheelUpdateStateHolder.Value, Mode=TwoWay}"
                         StatusMessage="{Binding WheelUpdateStatusMessageHolder.Value, Mode=TwoWay}"
                         Command="{Binding WheelUpdateCommand, Mode=OneWay}"
                         CommandParameter="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"
@@ -1136,23 +1136,11 @@
                 </i:Interaction.Behaviors>
             </ListBox>
 
-            <Border
+            <ContentPresenter
                 Grid.Row="1"
-                Visibility="{Binding WheelUpdateStatusMessageHolder.Value, Mode=OneWay, Converter={StaticResource WheelUpdateVisibleConverter}}"
-                VerticalAlignment="{Binding WheelUpdatePositionHolder.Value, Mode=OneWay, Converter={StaticResource WheelUpdatePositionConverter}}">
-                <Border.Background>
-                    <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" Opacity="0.4" />
-                </Border.Background>
-                <TextBlock
-                    Margin="8,8,8,8"
-                    HorizontalAlignment="Center"
-                    Text="{Binding WheelUpdateStatusMessageHolder.Value, Mode=OneWay}">
-                    <TextBlock.Foreground>
-                        <SolidColorBrush Color="White" />
-                        <!-- いったん白で固定 -->
-                    </TextBlock.Foreground>
-                </TextBlock>
-            </Border>
+                VerticalAlignment="{Binding WheelUpdatePositionHolder.Value, Mode=OneWay, Converter={StaticResource WheelUpdatePositionConverter}}"
+                Content="{StaticResource WheelUpdateNotifier}"
+                />
 
             <!-- 書き込みサブウィンドウ -->
             <local:FutabaPostView

@@ -49,4 +49,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			throw new NotImplementedException();
 		}
 	}
+
+	class WheelUpdateOpacityConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value == null) {
+				return 0;
+			}
+
+			if(value is Behaviors.WheelUpdateBehavior.WheelUpdateState s) {
+				return s switch {
+					Behaviors.WheelUpdateBehavior.WheelUpdateState.Begin => 0.4,
+					Behaviors.WheelUpdateBehavior.WheelUpdateState.Post => 1.0,
+					Behaviors.WheelUpdateBehavior.WheelUpdateState.Default => 0.0,
+					_ => 0.0
+				};
+			}
+			throw new ArgumentException("型不正。", nameof(value));
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
 }
