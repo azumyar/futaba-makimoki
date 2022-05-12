@@ -520,7 +520,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<bool?> ThumbDisplay { get; } = new ReactiveProperty<bool?>(); // NGではない場合true
 		public BitmapSource ThumbSource {
 			set {
-				if((value != null) && Ng.NgUtil.NgHelper.IsEnabledNgImage() && !this.ThumbHash.Value.HasValue) {
+				if((value != null) && Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
 					this.StoreHash(value)
 						.Subscribe(y => {
 							this.thumbSource.SetTarget(this.ThumbDisplay.Value.Value switch {
@@ -852,6 +852,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 
 		public void SetThumbSource(BitmapSource bmp) {
+			// Watch画像から送られてくる
+			this.ThumbSource = bmp;
 		}
 
 		public void SetResCount(int count, BindableFutabaResItem[] res) {
@@ -897,28 +899,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		// TODO: 名前変える
 		private void b() {
-			BitmapSource get(BitmapSource bmp) {
-				return (this.ThumbDisplay.Value ?? true) switch {
-					true => bmp,
-					false => WpfUtil.ImageUtil.GetNgImage()
-				};
-			}
-
 			var b = WpfUtil.ImageUtil.GetImageCache2(this.GetCacheKey());
 			if(b == null) {
-				this.thumbSource.SetTarget(null);
-				this.ThumbSource = null;
+				// キャッシュに残っていないので再ロードさせる
+				this.ThumbToken.Value = null;
+				this.ThumbDisplay.Value = null;
+				this.thumbSource.SetTarget(null); 
+				_ = this.ThumbSource;
 			} else {
-				if(this.ThumbHash.Value.HasValue) {
-					this.ThumbDisplay.Value = !Ng.NgUtil.NgHelper.CheckImageNg(this.ThumbHash.Value.Value);
-					this.ThumbSource = get(b);
-				} else {
-					this.StoreHash(b)
-						.ObserveOn(UIDispatcherScheduler.Default)
-						.Subscribe(_ => {
-							this.ThumbSource = get(b);
-						});
-				}
+				// NG設定が変わったので上書きする
+				this.ThumbSource = b;
 			}
 		}
 
