@@ -49,6 +49,8 @@
             <converter:PostViewOpacityConverter x:Key="PostViewOpacityConverter" />
             <converter:PostViewMinWidthConverter x:Key="PostViewMinWidthConverter" />
             <converter:PostViewMaxWidthConverter x:Key="PostViewMaxWidthConverter" />
+            <converter:WheelUpdatePositionConverter x:Key="WheelUpdatePositionConverter" />
+            <converter:WheelUpdateVisibleConverter x:Key="WheelUpdateVisibleConverter" />
 
             <Style x:Key="ResIndexStyle" TargetType="TextBlock">
             </Style>
@@ -1291,6 +1293,7 @@
 
             <ContentPresenter
                 Grid.Row="1"
+                Visibility="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource WheelUpdateVisibleConverter}}"
                 VerticalAlignment="{Binding WheelUpdatePositionHolder.Value, Mode=OneWay, Converter={StaticResource WheelUpdatePositionConverter}}"
                 Content="{StaticResource WheelUpdateNotifier}"
                 />
