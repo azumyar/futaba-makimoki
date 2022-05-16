@@ -90,6 +90,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<BitmapScalingMode> CatalogBitmapScalingMode { get; } = new ReactiveProperty<BitmapScalingMode>(BitmapScalingMode.Fant);
 		public ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdatePosition> WheelUpdatePositionHolder { get; } = new ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdatePosition>();
+		public ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdateState> WheelUpdateStateHolder { get; } = new ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdateState>();
 		public ReactiveProperty<string> WheelUpdateStatusMessageHolder { get; } = new ReactiveProperty<string>();
 
 
@@ -358,6 +359,23 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		// https://github.com/dotnet/wpf/issues/5730
 		private FrameworkElement toolTipTarget = null;
 		private void OnItemEnter(MouseEventArgs e) {
+			static void onToolTip(object _, RoutedEventArgs e) {
+				if(e.Source is ToolTip tt) {
+					tt.Loaded -= onToolTip;
+					System.Windows.Controls.Primitives.Popup p = null;
+					FrameworkElement el = tt;
+					while((el = el.Parent as FrameworkElement) != null) {
+						if(el is System.Windows.Controls.Primitives.Popup pp) {
+							p = pp;
+							break;
+						}
+					}
+					if(p != null) {
+						p.IsHitTestVisible = false;
+					}
+				}
+			}
+
 			if((e.Source is FrameworkElement el) && !object.ReferenceEquals(el, this.toolTipTarget)) {
 				if(this.toolTipTarget?.ToolTip is ToolTip tt) {
 					tt.IsOpen = false;
@@ -374,12 +392,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 								tt.DataContext = x.DataContext;
 								tt.PlacementTarget = x;
 								tt.IsOpen = true;
+								tt.Loaded += onToolTip;
 							}
 						}
 					});
 			}
-
 		}
+
 		private void OnItemLeave(MouseEventArgs e) {
 			if((e.Source is FrameworkElement el) && !object.ReferenceEquals(el, this.toolTipTarget)) {
 				if(this.toolTipTarget?.ToolTip is ToolTip tt) {

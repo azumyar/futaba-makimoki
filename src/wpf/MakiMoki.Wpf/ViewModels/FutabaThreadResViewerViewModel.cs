@@ -154,6 +154,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<double> Canvas98BottomGridMinHeight { get; }
 
 		public ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdatePosition> WheelUpdatePositionHolder { get; } = new ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdatePosition>();
+		public ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdateState> WheelUpdateStateHolder { get; } = new ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdateState>();
 		public ReactiveProperty<string> WheelUpdateStatusMessageHolder { get; } = new ReactiveProperty<string>();
 
 		public MakiMokiCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs> Canvas98SuccessedCommand { get; }

@@ -42,6 +42,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 					false => Visibility.Visible
 				};
 			}
+
+			if(value is Model.BindableFutaba bf) {
+				return bf.IsDie.Value switch {
+					true => Visibility.Collapsed,
+					false => Visibility.Visible
+				};
+			}
 			throw new ArgumentException("型不正。", nameof(value));
 		}
 
