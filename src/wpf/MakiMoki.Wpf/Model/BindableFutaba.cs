@@ -139,22 +139,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				if(t.HasValue) {
 					var ts = t.Value - (futaba.Raw.NowDateTime ?? DateTime.Now);
 					var tt = DateTime.Now.Add(ts); // 消滅時間表示はPCの時計を使用
-					if(ts.TotalSeconds < 0) {
-						this.DieTextLong = new ReactiveProperty<string>(
-							string.Format("スレ消滅：{0}(消滅時間を過ぎました)", tt.ToString("mm:ss")));
-					} else if(0 < ts.Days) {
-						this.DieTextLong = new ReactiveProperty<string>(
-							string.Format("スレ消滅：{0}(あと{1})", tt.ToString("MM/dd"), ts.ToString(@"dd\日hh\時\間")));
-					} else if(0 < ts.Hours) {
-						this.DieTextLong = new ReactiveProperty<string>(
-							string.Format("スレ消滅：{0}(あと{1})", tt.ToString("HH:mm"), ts.ToString(@"hh\時\間mm\分")));
-					} else if(0 < ts.Minutes) {
-						this.DieTextLong = new ReactiveProperty<string>(
-							string.Format("スレ消滅：{0}(あと{1})", tt.ToString("HH:mm"), ts.ToString(@"mm\分ss\秒")));
-					} else {
-						this.DieTextLong = new ReactiveProperty<string>(
-							string.Format("スレ消滅：{0}(あと{1})", tt.ToString("HH:mm"), ts.ToString(@"ss\秒")));
-					}
+					this.DieTextLong = new ReactiveProperty<string>(ts switch {
+						TimeSpan x when x.TotalSeconds < 0 => $"スレ消滅：{Math.Abs(((futaba.Raw.NowDateTime ?? DateTime.Now) - t.Value).TotalSeconds):00}秒経過(消滅時間を過ぎました)",
+						TimeSpan x when 0 < x.Days => $"スレ消滅：{ tt.ToString("MM/dd") }(あと{ ts.ToString(@"dd\日hh\時\間") })",
+						TimeSpan x when 0 < x.Hours => $"スレ消滅：{ tt.ToString("HH:mm") }(あと{ ts.ToString(@"hh\時\間mm\分") })",
+						TimeSpan x when 0 < x.Minutes => $"スレ消滅：{ tt.ToString("HH:mm") }(あと{ ts.ToString(@"mm\分ss\秒") })",
+						_ => $"スレ消滅：{ tt.ToString("HH:mm") }(あと{ ts.ToString(@"ss\秒") })",
+					});
 				} else {
 					this.DieTextLong = new ReactiveProperty<string>("スレ消滅：不明");
 				}
