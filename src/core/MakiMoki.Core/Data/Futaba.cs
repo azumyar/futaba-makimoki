@@ -134,7 +134,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		// スレが落ちると Thu, 01 Jan 1970 01:07:29 GMT といった1970年まで落ちるので1日くらいマージンとっても問題ない
 		// …と思ってたらつけっぱで普通に誤爆したので1年マージンとる
 		[JsonIgnore]
-		public bool IsDie => ((DieDateTime?.AddDays(365) ?? DateTime.MaxValue) < DateTime.Now);
+		public bool IsDie => ((DieDateTime?.AddDays(365) ?? DateTime.MaxValue) < (this.NowDateTime ?? DateTime.Now));
 
 		// 最大レスの閾値を超えた場合MaxResには下記のような文言が入る
 		// 上限2000レスに達しました
