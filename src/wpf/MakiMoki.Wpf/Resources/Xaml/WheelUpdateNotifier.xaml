@@ -11,6 +11,7 @@
         x:Key="WheelUpdateNotifier"
         x:Shared="False"
         x:Name="Container"
+        IsHitTestVisible="False"
         Opacity="0">
         <Border.Background>
             <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" Opacity="0" />
