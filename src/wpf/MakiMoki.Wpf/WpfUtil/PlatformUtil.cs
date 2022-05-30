@@ -110,6 +110,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				try {
 					File.Delete(it);
 				}
+				catch(UnauthorizedAccessException) { /* 削除できないファイルは無視する */}
 				catch(IOException) { /* 削除できないファイルは無視する */}
 			});
 #if DEBUG
