@@ -21,13 +21,13 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 		public ConnectionQueue(
 			string name = null,
 			int maxConcurrency = 2,
-			int delayTime = 100,
+			bool forceWait = false,
 			int waitTime = 2000,
 			int? sleepTime = null) {
 
+			const int delayTime = 100;
 			System.Diagnostics.Debug.Assert(0 < maxConcurrency);
-			System.Diagnostics.Debug.Assert(0 < delayTime);
-			System.Diagnostics.Debug.Assert(0 < waitTime);
+			System.Diagnostics.Debug.Assert(delayTime <= waitTime);
 
 			// 無限ループだし名前が付けられるのでTaskじゃなくてThreadを採用
 			new Thread(() => {
@@ -58,10 +58,14 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 						Task.Run(() => it.Item.Action(it.Observer));
 					}
 
-					var time = DateTime.Now;
-					do {
-						Task.Delay(delayTime).Wait();
-					} while((DateTime.Now - time).TotalMilliseconds < waitTime);
+					if(forceWait) {
+						var time = DateTime.Now;
+						do {
+							Task.Delay(delayTime).Wait();
+						} while((DateTime.Now - time).TotalMilliseconds < waitTime);
+					} else {
+						this.condition.WaitOne(waitTime);
+					}
 					continue;
 
 				sleep:
@@ -111,6 +115,18 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 				var a1 = this.queue
 					.Where(x => tag.Equals(x.Item.Tag)) // ==ではobjectなのでうまくいかない
 					.ToArray();
+				var a2 = this.queue.Except(a1);
+				this.queue = new ConcurrentBag<(ConnectionQueueItem<T> Item, IObserver<T> Observer)>(a2);
+			}
+		}
+
+		public void RemoveFromTags(object[] tags) {
+			System.Diagnostics.Debug.Assert(tags != null);
+			lock(this.lockObj) {
+				var a1 = new List<(ConnectionQueueItem<T> Item, IObserver<T> Observer)>();
+				foreach(var tag in tags) {
+					a1.AddRange(this.queue.Where(x => tag.Equals(x.Item.Tag))); // ==ではobjectなのでうまくいかない
+				}
 				var a2 = this.queue.Except(a1);
 				this.queue = new ConcurrentBag<(ConnectionQueueItem<T> Item, IObserver<T> Observer)>(a2);
 			}

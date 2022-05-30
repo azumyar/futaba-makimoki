@@ -8,19 +8,51 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Reactive.Bindings;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 	class WheelUpdateBehavior : Behavior<Control> {
-		private static readonly int DefaultWheelCount = 10;
-		private ScrollViewer scrollViewer;
-		private int deltaCount;
+		public enum WheelUpdatePosition {
+			Default,
+			Top,
+			Bottom
+		}
 
-		public static readonly DependencyProperty WheelCountProperty =
-			DependencyProperty.Register(
-				nameof(WheelCount),
-				typeof(int),
+		public enum WheelUpdateState {
+			Default,
+			Begin,
+			Post
+		}
+
+		private static readonly string BeginUpdateMessage = "約１秒間ホイールで更新";
+		private static readonly string FireUpdateMessage = "更新を実行";
+		private static readonly int WheelWaitMiliSec = 750;
+		private static readonly int WheelResetMiliSec = 1500;
+		private ScrollViewer scrollViewer;
+		private int deltaStep;
+		private DateTime? delataTime;
+
+		public static readonly DependencyProperty UpdatePositionProperty =
+			DependencyProperty.RegisterAttached(
+				nameof(UpdatePosition),
+				typeof(WheelUpdatePosition),
 				typeof(WheelUpdateBehavior),
-				new PropertyMetadata(DefaultWheelCount));
+				new PropertyMetadata(WheelUpdatePosition.Default));
+
+		public static readonly DependencyProperty UpdateStateProperty =
+			DependencyProperty.RegisterAttached(
+				nameof(UpdateState),
+				typeof(WheelUpdateState),
+				typeof(WheelUpdateBehavior),
+				new PropertyMetadata(WheelUpdateState.Default));
+
+		public static readonly DependencyProperty StatusMessageProperty =
+			DependencyProperty.RegisterAttached(
+				nameof(StatusMessage),
+				typeof(string),
+				typeof(WheelUpdateBehavior),
+				new PropertyMetadata(""));
+
 		public static readonly DependencyProperty CommandProperty =
 			DependencyProperty.RegisterAttached(
 				nameof(Command), 
@@ -35,25 +67,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 				typeof(WheelUpdateBehavior),
 				new PropertyMetadata(null));
 
-		public int WheelCount {
-			get => (int)this.GetValue(WheelCountProperty);
-			set {
-				this.SetValue(WheelCountProperty, value);
-			}
+		public WheelUpdatePosition UpdatePosition {
+			get => (WheelUpdatePosition)this.GetValue(UpdatePositionProperty);
+			set => this.SetValue(UpdatePositionProperty, value);
+		}
+
+		public WheelUpdateState UpdateState {
+			get => (WheelUpdateState)this.GetValue(UpdateStateProperty);
+			set => this.SetValue(UpdateStateProperty, value);
+		}
+
+		public string StatusMessage {
+			get => (string)this.GetValue(StatusMessageProperty);
+			set => this.SetValue(StatusMessageProperty, value);
 		}
 
 		public ICommand Command {
 			get => (ICommand)this.GetValue(CommandProperty);
-			set {
-				this.SetValue(CommandProperty, value);
-			}
+			set => this.SetValue(CommandProperty, value);
 		}
 
 		public object CommandParameter {
 			get => this.GetValue(CommandParameterProperty);
-			set {
-				this.SetValue(CommandParameterProperty, value);
-			}
+			set => this.SetValue(CommandParameterProperty, value);
 		}
 
 		protected override void OnAttached() {
@@ -81,29 +117,84 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 		}
 
 		private void OnMouseWheel(object sender, MouseWheelEventArgs e) {
+			void observe() {
+				Observable.Return(this.delataTime.Value)
+					.Delay(TimeSpan.FromMilliseconds(WheelResetMiliSec))
+					.ObserveOn(global::Reactive.Bindings.UIDispatcherScheduler.Default)
+					.Subscribe(x => {
+						this.UpdateState = WheelUpdateState.Default;
+						this.StatusMessage = "";
+						this.deltaStep = 0;
+						this.delataTime = null;
+					});
+			}
+			void exec() {
+				this.UpdateState = WheelUpdateState.Post;
+				this.StatusMessage = FireUpdateMessage;
+				if(this.Command?.CanExecute(this.CommandParameter) ?? false) {
+					this.Command?.Execute(this.CommandParameter);
+					e.Handled = true;
+				}
+			}
+
 			if(this.scrollViewer != null) {
 				if(0 < e.Delta) {
 					// 上スクロール
 					if(this.scrollViewer.VerticalOffset <= 0) {
-						deltaCount--;
+						switch(this.deltaStep) {
+						case 0:
+							this.UpdatePosition = WheelUpdatePosition.Top;
+							this.deltaStep--;
+							if(!this.delataTime.HasValue) {
+								this.delataTime = DateTime.Now.AddMilliseconds(WheelWaitMiliSec);
+							}
+							observe();
+							break;
+						case -1:
+						case -2:
+							this.deltaStep--;
+							break;
+						case -3:
+							this.UpdateState = WheelUpdateState.Begin;
+							this.StatusMessage = BeginUpdateMessage;
+							this.deltaStep--;
+							break;
+						case -4:
+							if(this.delataTime.HasValue && (this.delataTime < DateTime.Now)) {
+								this.deltaStep = -5;
+								exec();
+							}
+							break;
+						}
 					}
 				} else {
 					// 下スクロール
 					if(this.scrollViewer.ScrollableHeight <= this.scrollViewer.VerticalOffset) {
-						deltaCount++;
-					}
-				}
-
-				if(this.WheelCount == Math.Abs(this.deltaCount)) {
-					// 画面上のインタラクションがなく連続発行されてしまうので1秒間値をリセットしない
-					// スクロールでリセットさせないのはスレ更新で新レスがないと普通スクロールをしないため
-					Observable.Return(0)
-						.Delay(TimeSpan.FromSeconds(1))
-						.Subscribe(x => this.deltaCount = 0);
-
-					if(this.Command?.CanExecute(this.CommandParameter) ?? false) {
-						this.Command?.Execute(this.CommandParameter);
-						e.Handled = true;
+						switch(this.deltaStep) {
+						case 0:
+							this.UpdatePosition = WheelUpdatePosition.Bottom;
+							this.deltaStep++;
+							if(!this.delataTime.HasValue) {
+								this.delataTime = DateTime.Now.AddMilliseconds(WheelWaitMiliSec);
+							}
+							observe();
+							break;
+						case 1:
+						case 2:
+							this.deltaStep++;
+							break;
+						case 3:
+							this.UpdateState = WheelUpdateState.Begin;
+							this.StatusMessage = BeginUpdateMessage;
+							this.deltaStep++;
+							break;
+						case 4:
+							if(this.delataTime.HasValue && (this.delataTime < DateTime.Now)) {
+								this.deltaStep = 5;
+								exec();
+							}
+							break;
+						}
 					}
 				}
 			}
@@ -111,7 +202,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 
 		private void OnScrollChanged(object sender, ScrollChangedEventArgs e) {
 			// スクロールするとホイールはリセットされる
-			this.deltaCount = 0;
+			this.UpdateState = WheelUpdateState.Default;
+			this.StatusMessage = "";
+			this.deltaStep = 0;
+			this.delataTime = null;
 		}
 	}
 }

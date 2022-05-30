@@ -33,6 +33,7 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 				if(this.propertyInfo == null) {
 					if(this.target is IReactiveProperty rp) {
 						if(rp.Value is IDisposable d) {
+							rp.Value = null;
 							d.Dispose();
 						}
 					} else if(this.target is IEnumerable<IDisposable> e) {
@@ -43,6 +44,7 @@ namespace Yarukizero.Net.MakiMoki.Helpers {
 				} else if((this.propertyInfo.GetValue(this.target) is IReactiveProperty rp)
 					&& (rp.Value is IDisposable d)) {
 
+					rp.Value = null;
 					d.Dispose();
 				}
 			}

@@ -9,13 +9,14 @@ using System.Windows;
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 	public interface IFutabaViewerContents: IDisposable {
-		ReactiveProperty<BindableFutaba> Futaba { get; }
+		IReadOnlyReactiveProperty<BindableFutaba> Futaba { get; }
 
 		ReactiveProperty<PlatformData.FutabaMedia> MediaContents { get; }
 
 		ReactiveProperty<object> LastVisibleItem { get; }
 		ReactiveProperty<double> ScrollVerticalOffset { get; }
 		ReactiveProperty<double> ScrollHorizontalOffset { get; }
+		IReadOnlyReactiveProperty<DateTime> LastDisplayTime { get; }
 
 		ReactiveProperty<Visibility> SearchBoxVisibility { get; }
 		ReactiveProperty<Visibility> SearchButtonVisibility { get; }
@@ -24,8 +25,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		ReactiveProperty<Prism.Regions.IRegion> Region { get; }
 		ReactiveProperty<object> ThreadView { get; }
 
-
+		/*
+		void Bind(IFutabaContainer container);
+		void Unbind();
+		*/
 		void ShowSearchBox();
 		void HideSearchBox();
+	}
+
+	public interface IFutabaContainer {
+		void DestroyContainer();
 	}
 }

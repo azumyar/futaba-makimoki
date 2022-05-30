@@ -363,7 +363,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				} else if(message == WebMessageExecuteAlbam) {
 					await this.webView.ExecuteScriptAsync(new StringBuilder()
 						.AppendLine("if(document.getElementById('canvas98Element') !== null) {")
-						.AppendLine(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptAlbam)
+						.AppendLine(this.ConvertJs(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptAlbam))
 						.AppendLine("}")
 						.ToString());
 				} else if(message == WebMessage404) {
@@ -421,13 +421,25 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 		private Task ExecCanvas98() {
 			return this.webView.ExecuteScriptAsync(new StringBuilder()
 				.AppendLine("if(document.getElementById('canvas98Element') === null) {")
-				.AppendLine(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.Script)
+				.AppendLine(this.ConvertJs(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.Script))
 				// 拡張が失敗することがあるので少し待つ
 				.AppendLine("  setTimeout(() => {")
-				.AppendJoin<string>(Environment.NewLine, Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ExtendScripts)
+				.AppendJoin<string>(
+					Environment.NewLine,
+					Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ExtendScripts.Select(x => this.ConvertJs(x)))
 				.AppendLine("  }, 100);")
 				.AppendLine("}")
 				.ToString());
+		}
+
+		private string ConvertJs(string s) {
+			if(s.Contains("let%20") || s.Contains("return%20")) { // ソースコードにありそうな感じなのがあったらデコード
+				return Uri.UnescapeDataString(s);
+			} else if(s.Contains('\"') || s.Contains('\'')) { // これはエンコードされていないので通す
+				return s;
+			} else { // デフォルトデコード
+				return Uri.UnescapeDataString(s);
+			}
 		}
 	}
 }

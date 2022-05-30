@@ -83,8 +83,9 @@
                                     DataContext="{DynamicResource ViewerForegroundColor}" />
                                 <Ellipse Width="16" Height="16" Fill="{Binding Tag, Mode=OneWay, ElementName=Border}" />
                                 <TextBlock
-                                    Text="✖"
+                                    Text="r"
                                     FontSize="8"
+                                    FontFamily="Marlett"
                                     Padding="0.5 0 0 0"
                                     TextAlignment="Center"
                                     HorizontalAlignment="Center"

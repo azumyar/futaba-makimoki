@@ -12,6 +12,7 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
     xmlns:behavior="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Behaviors"
+    xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
     mc:Ignorable="d" 
     prism:ViewModelLocator.AutoWireViewModel="True"
     d:DesignHeight="450" d:DesignWidth="800"
@@ -29,8 +30,9 @@
                 <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
             </ResourceDictionary.MergedDictionaries>
- 
+
             <sys:Double x:Key="DefaultMinWidth">360</sys:Double>
+            <sys:Double x:Key="DefaultMaxWidth">480</sys:Double>
         </ResourceDictionary>
     </UserControl.Resources>
     <i:Interaction.Triggers>
@@ -105,27 +107,29 @@
                     Orientation="Vertical"
                     TextBlock.FontFamily="{DynamicResource PostFont}"
                     TextBlock.FontSize="{DynamicResource PostFontSize}">
-                    <TextBox 
+                    <local:MakiMokiTextBox 
                         x:Name="PostCommentTextBox"
                         AcceptsReturn="True"
-                        Text="{Binding Comment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Margin="0 4 0 4" Padding="1"
+                        HorizontalAlignment="Left"
+                        HorizontalContentAlignment="Left"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
                         local:PlaceHolderBehavior.PlaceHolderText="コメント">
-                        <TextBox.Foreground>
+                        <local:MakiMokiTextBox.Foreground>
                             <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
-                        </TextBox.Foreground>
+                        </local:MakiMokiTextBox.Foreground>
                         <i:Interaction.Behaviors>
                             <behavior:FocusBehavior x:Name="PostViewFocusBehavior" />
                             <behavior:AttachedScrollBarStyleBehavior Style="{StaticResource MakiMokiScrollBarStyle}" />
+                            <behavior:RichTextBoxBehavior PlaneText="{Binding Comment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         </i:Interaction.Behaviors>
                         <i:Interaction.Triggers>
                             <i:DataTrigger Binding="{Binding Visibility, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}, Mode=OneWay}" Value="Visible" Comparison="Equal">
                                 <i:CallMethodAction TargetObject="{Binding ElementName=PostViewFocusBehavior, Mode=OneWay}" MethodName="Focus" />
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
-                    </TextBox>
+                    </local:MakiMokiTextBox>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock Margin="2 2 0 2" Text="{Binding CommentBytes.Value, StringFormat='たぶん\{0\}byte', Mode=OneWay}" />
                         <TextBlock Margin="2 2 0 2" Text="{Binding CommentLines.Value, StringFormat='\{0\}行', Mode=OneWay}" />
@@ -149,10 +153,9 @@
                         <Button
                             Margin="4"
                             HorizontalAlignment="Right"
-                            VerticalAlignment="Top">
-                            <TextBlock>
-                                ✖
-                            </TextBlock>
+                            VerticalAlignment="Top"
+                            FontFamily="Marlett"
+                            Content="r">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="PreviewMouseUp">
                                     <ri:EventToReactiveCommand Command="{Binding DataContext.DeleteImageCommand, Mode=OneWay, ElementName=_this}" />
@@ -168,25 +171,31 @@
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Grid>
-                    <TextBox
+                    <local:MakiMokiTextBox
                         Margin="0 4 0 4" Padding="1"
                         Visibility="{Binding PostNameVisibility.Value, Mode=OneWay}"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
-                        Text="{Binding Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        AcceptsReturn="False"
                         local:PlaceHolderBehavior.PlaceHolderText="おなまえ">
-                        <TextBox.Foreground>
+                        <local:MakiMokiTextBox.Foreground>
                             <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
-                        </TextBox.Foreground>
-                    </TextBox>
-                    <TextBox 
+                        </local:MakiMokiTextBox.Foreground>
+                        <i:Interaction.Behaviors>
+                            <behavior:RichTextBoxBehavior PlaneText="{Binding Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </i:Interaction.Behaviors>
+                    </local:MakiMokiTextBox>
+                    <local:MakiMokiTextBox 
                         Margin="0 4 0 4" Padding="1"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
-                        Text="{Binding Mail.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        AcceptsReturn="False"
                         local:PlaceHolderBehavior.PlaceHolderText="メールアドレス">
-                        <TextBox.Foreground>
+                        <local:MakiMokiTextBox.Foreground>
                             <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
-                        </TextBox.Foreground>
-                    </TextBox>
+                        </local:MakiMokiTextBox.Foreground>
+                        <i:Interaction.Behaviors>
+                            <behavior:RichTextBoxBehavior PlaneText="{Binding Mail.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </i:Interaction.Behaviors>
+                    </local:MakiMokiTextBox>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Height="32" Margin="4 0 0 0" Visibility="{Binding PostIdOptionVisibility.Value, Mode=OneWay}">
                             <Button.Content>
@@ -228,25 +237,31 @@
                             </i:Interaction.Triggers>
                         </Button>
                     </StackPanel>
-                    <TextBox
+                    <local:MakiMokiTextBox 
                         Margin="0 4 0 4" Padding="1"
                         Visibility="{Binding PostNameVisibility.Value, Mode=OneWay}"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
-                        Text="{Binding Subject.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        AcceptsReturn="False"
                         local:PlaceHolderBehavior.PlaceHolderText="題名">
-                        <TextBox.Foreground>
+                        <local:MakiMokiTextBox.Foreground>
                             <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
-                        </TextBox.Foreground>
-                    </TextBox>
-                    <TextBox
+                        </local:MakiMokiTextBox.Foreground>
+                        <i:Interaction.Behaviors>
+                            <behavior:RichTextBoxBehavior PlaneText="{Binding Subject.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </i:Interaction.Behaviors>
+                    </local:MakiMokiTextBox>
+                    <local:MakiMokiTextBox
                         Margin="0 4 0 4" Padding="1"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
-                        Text="{Binding Password.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        AcceptsReturn="False"
                         local:PlaceHolderBehavior.PlaceHolderText="削除キー(必須)">
-                        <TextBox.Foreground>
+                        <local:MakiMokiTextBox.Foreground>
                             <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
-                        </TextBox.Foreground>
-                    </TextBox>
+                        </local:MakiMokiTextBox.Foreground>
+                        <i:Interaction.Behaviors>
+                            <behavior:RichTextBoxBehavior PlaneText="{Binding Password.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </i:Interaction.Behaviors>
+                    </local:MakiMokiTextBox>
                 </StackPanel>
             </ScrollViewer>
             <Border

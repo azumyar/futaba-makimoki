@@ -85,7 +85,7 @@ jobs:
     - name: Install .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.100
+        dotnet-version: 6.0.x
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
@@ -143,27 +143,17 @@ jobs:
     - name: Rename dll.conf -> .exe.conf
       run: Move-Item $env:Wap_Publish_Output/futamaki.dll.config $env:Wap_Publish_Output/futamaki.exe.config
 
-    - name: Move Dll and Remove
-      continue-on-error: true
+    - name: Move libvlc Dll
       run: |
         # libvlcがコピーされないので手動で移す
-        Copy-Item -Recurse -Force src/wpf/MakiMoki.Wpf/bin/Release/net5.0-windows/win-$env:Target_Arch/libvlc $env:Wap_Publish_Output
-        # WebView2のlibをコピー
-        Copy-Item -Force $env:Wap_Publish_Output/x86 $env:Wap_Publish_Output/Lib
-        Copy-Item -Force $env:Wap_Publish_Output/x64 $env:Wap_Publish_Output/Lib
-        Copy-Item -Force $env:Wap_Publish_Output/arm64 $env:Wap_Publish_Output/Lib
-        # WebView2のコピー元を削除
-        Remove-Item -Recurse $env:Wap_Publish_Output/x86
-        Remove-Item -Recurse $env:Wap_Publish_Output/x64
-        Remove-Item -Recurse $env:Wap_Publish_Output/arm64
+        Copy-Item -Recurse -Force src/wpf/MakiMoki.Wpf/bin/Release/net6.0-windows/win-$env:Target_Arch/libvlc $env:Wap_Publish_Output/runtimes
       env:
         Target_Arch: ${{ matrix.arch }}
 
     - name: Remove No Arch Lib
-      continue-on-error: true
       run: |
-        Get-ChildItem -Path $env:Wap_Publish_Output/Lib -Exclude $env:Target_Arch | Remove-Item -Recurse -Force
-        Get-ChildItem -Path $env:Wap_Publish_Output/libvlc -Exclude win-$env:Target_Arch | Remove-Item -Recurse -Force
+        Get-ChildItem -Path $env:Wap_Publish_Output/runtimes/libwebp -Exclude win-$env:Target_Arch | Remove-Item -Recurse -Force
+        Get-ChildItem -Path $env:Wap_Publish_Output/runtimes/libvlc -Exclude win-$env:Target_Arch | Remove-Item -Recurse -Force
       env:
         Target_Arch: ${{ matrix.arch }}
 

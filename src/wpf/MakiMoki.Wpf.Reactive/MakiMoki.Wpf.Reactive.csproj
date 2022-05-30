@@ -2,7 +2,7 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')" />
 
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
     <UseWPF>true</UseWPF>
     <RootNamespace>Yarukizero.Net.MakiMoki.Wpf.Reactive</RootNamespace>
@@ -16,8 +16,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ReactiveProperty" Version="7.12.0" />
-    <PackageReference Include="ReactiveProperty.WPF" Version="7.12.0" />
+    <PackageReference Include="ReactiveProperty" Version="8.1.1" />
+    <PackageReference Include="ReactiveProperty.WPF" Version="8.1.1" />
   </ItemGroup>
 
 </Project>

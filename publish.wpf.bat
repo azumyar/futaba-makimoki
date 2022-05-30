@@ -6,9 +6,9 @@ set DOTNET_CLI_TELEMETRY_OPTOUT=1
 
 @rem 基本設定
 set DOTNET=%ProgramFiles%\dotnet\dotnet.exe
-if "%VS_VERSION%" == "" set VS_VERSION=2019
+if "%VS_VERSION%" == "" set VS_VERSION=2022
 if "%VS_EDITION%" == "" set VS_EDITION=Community
-if not exist "%MSBUILD%" set MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\%VS_VERSION%\%VS_EDITION%\MSBuild\Current\Bin\MSBuild.exe
+if not exist "%MSBUILD%" set MSBUILD=%ProgramFiles%\Microsoft Visual Studio\%VS_VERSION%\%VS_EDITION%\Msbuild\Current\Bin\amd64\MSBuild.exe
 if "%TARGET_PLATFORM%" == "" set TARGET_PLATFORM=win
 if "%TARGET_ARCH%" == "" set TARGET_ARCH=x64
 set TARGET_RUNTIME=%TARGET_PLATFORM%-%TARGET_ARCH%
@@ -30,7 +30,7 @@ if exist %OUTPUT_ROOT%\%OUTPUT_ZIP% echo 既にアーカイブが存在します & goto end
 
 @rem ビルド
 if exist %OUTPUT_DIR% rd /s /q %OUTPUT_DIR% 
-"%DOTNET%" restore
+"%DOTNET%" restore -p:PublishReadyToRun=true
 if not %errorlevel%==0 goto end
 "%DOTNET%" clean --nologo -c Release -r %TARGET_RUNTIME%
 if not %errorlevel%==0 goto end
@@ -53,17 +53,11 @@ if not %errorlevel%==0 goto end
    %TARGET_PRJ%
 if not %errorlevel%==0 goto end
 
-mkdir %OUTPUT_DIR%\libvlc
-xcopy /y /s /q src\wpf\MakiMoki.Wpf\bin\Release\net5.0-windows\%TARGET_RUNTIME%\libvlc %OUTPUT_DIR%\libvlc
-xcopy /y %OUTPUT_DIR%\x86 %OUTPUT_DIR%\Lib\x86
-xcopy /y %OUTPUT_DIR%\x64 %OUTPUT_DIR%\Lib\x64
-xcopy /y %OUTPUT_DIR%\arm64 %OUTPUT_DIR%\Lib\arm64
-rd /s /q %OUTPUT_DIR%\x86
-rd /s /q %OUTPUT_DIR%\x64
-rd /s /q %OUTPUT_DIR%\arm64
+mkdir %OUTPUT_DIR%\runtimes\libvlc
+xcopy /y /s /q src\wpf\MakiMoki.Wpf\bin\Release\net6.0-windows\%TARGET_RUNTIME%\libvlc %OUTPUT_DIR%\runtimes\libvlc
 
-powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\Lib\ -Exclude %TARGET_ARCH% | Remove-Item -Recurse -Force"
-powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\libvlc\\ -Exclude win-%TARGET_ARCH% | Remove-Item -Recurse -Force"
+powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\runtimes\libwebp\ -Exclude win-%TARGET_ARCH% | Remove-Item -Recurse -Force"
+powershell -Command "Get-ChildItem -Path %OUTPUT_DIR%\runtimes\libvlc\\ -Exclude win-%TARGET_ARCH% | Remove-Item -Recurse -Force"
 move %OUTPUT_ROOT%\FutaMaki\futamaki.dll.config %OUTPUT_ROOT%\FutaMaki\futamaki.exe.config
 
 @rem 公開用ZIPファイルの生成

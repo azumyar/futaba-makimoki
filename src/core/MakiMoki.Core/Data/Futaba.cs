@@ -119,7 +119,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				if(NowTime == 0L) {
 					return null;
 				} else {
-					return Util.TimeUtil.FromUnixTimeMilliseconds(NowTime);
+					return Util.TimeUtil.FromUnixTimeSeconds(NowTime);
 				}
 			}
 		}
@@ -134,7 +134,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		// スレが落ちると Thu, 01 Jan 1970 01:07:29 GMT といった1970年まで落ちるので1日くらいマージンとっても問題ない
 		// …と思ってたらつけっぱで普通に誤爆したので1年マージンとる
 		[JsonIgnore]
-		public bool IsDie => ((DieDateTime?.AddDays(365) ?? DateTime.MaxValue) < DateTime.Now);
+		public bool IsDie => ((DieDateTime?.AddDays(365) ?? DateTime.MaxValue) < (this.NowDateTime ?? DateTime.Now));
 
 		// 最大レスの閾値を超えた場合MaxResには下記のような文言が入る
 		// 上限2000レスに達しました
@@ -216,9 +216,10 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public DateTime NowDateTime {
 			get {
 				if(long.TryParse(Tim, out var v)) {
-					return DateTimeOffset.FromUnixTimeMilliseconds(v).LocalDateTime;
+					return TimeUtil.FromUnixTimeMilliseconds(v);
+				} else {
+					return DateTime.MinValue;
 				}
-				return DateTime.MinValue;
 			}
 		}
 
@@ -825,10 +826,12 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	public class Information { 
 		public string Message { get; }
 		public object ExObject { get; }
+		public string Token { get; }
 
 		public Information(string message, object exObject = null) {
 			this.Message = message;
 			this.ExObject = exObject;
+			this.Token = $"{ DateTime.Now.ToString("yyyyMMddHHmmssfffffff") }:{ message }";
 		}
 	}
 }

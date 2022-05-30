@@ -26,7 +26,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					this.loaded = true;
 					loader().Select(x => {
 						if(x.Successed) {
-							return WpfUtil.ImageUtil.LoadImage(x.LocalPath, x.FileBytes);
+							return WpfUtil.ImageUtil.CreateImage(x.LocalPath,
+								WpfUtil.ImageUtil.LoadStream(x.LocalPath, x.FileBytes));
 						} else {
 							return null;
 						}

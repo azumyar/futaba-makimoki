@@ -34,8 +34,6 @@
             <converter:TabLastMenuItemConverter x:Key="TabLastMenuItemConverter" />
             <converter:ThreadDieOpacityConverter x:Key="ThreadDieOpacityConverter" />
             <converter:ThreadNewResVisibleConverter x:Key="ThreadNewResVisibleConverter" />
-            <converter:InformationItemConverter x:Key="InformationItemConverter" />
-            <converter:InformationObjectConverter x:Key="InformationObjectConverter" />
 
             <system:Double x:Key="WindowCaptionHeight">36</system:Double>
 
@@ -178,6 +176,15 @@
                                         Command="ScrollBar.LineDownCommand"
                                         Visibility="Hidden" />
                                     <StackPanel Grid.Column="1" Grid.Row="6" Orientation="Vertical">
+                                        <!-- デバッグ用 -->
+                                        <Button
+                                            Style="{StaticResource PrimaryColorButton}"
+                                            Content="GC"
+                                            Visibility="Collapsed"
+                                            Loaded="OnLoadedGC"
+                                            Click="OnClickGC"
+                                            />
+
                                         <Button
                                             x:Name="bordButton"
                                             Style="{StaticResource PrimaryColorButton}"
@@ -744,6 +751,14 @@
                 <Button Content="r" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.CloseWindowCommand}" />
             </StackPanel>
 
+            <!-- WPFバグ対策コンテナ -->
+            <Grid
+                x:Name="BitmapRemoveConainer"
+                Grid.Row="1"
+                Visibility="Hidden"
+                />
+
+
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                 </Grid.ColumnDefinitions>
@@ -1006,13 +1021,6 @@
                                                 <Image.CacheMode>
                                                     <BitmapCache RenderAtScale="1" />
                                                 </Image.CacheMode>
-                                                <!--
-                                                <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="Loaded">
-                                                        <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
-                                                    </i:EventTrigger>
-                                                </i:Interaction.Triggers>
-                                                -->
                                             </Image>
                                         </Viewbox>
                                         <Ellipse
@@ -1046,7 +1054,40 @@
                             <TabControl.ContentTemplate>
                                 <DataTemplate>
                                     <Grid x:Name="container">
-                                        <control:FutabaThreadRegionContainer Contents="{Binding DataContext, Mode=OneWay, ElementName=container}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Viewbox
+                                            Grid.Row="1"
+                                            Grid.Column="1"
+                                            Margin="48"
+                                            Opacity="{DynamicResource FailsafeThreadImageOpacity}"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Bottom"
+                                            Visibility="{Binding FailsafeMistakePostVisibility.Value, Mode=OneWay}">
+                                            <Image
+                                                Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                                RenderOptions.EdgeMode="Aliased"
+                                                RenderOptions.BitmapScalingMode="Fant">
+                                                <Image.CacheMode>
+                                                    <BitmapCache RenderAtScale="1" />
+                                                </Image.CacheMode>
+                                                <Image.Effect>
+                                                    <BlurEffect Radius="{DynamicResource FailsafeThreadImageBlurRadius}" />
+                                                </Image.Effect>
+                                            </Image>
+                                        </Viewbox>
+
+                                        <control:FutabaThreadRegionContainer
+                                            Grid.Column="0" Grid.ColumnSpan="2"
+                                            Grid.Row="0" Grid.RowSpan="2"
+                                            Contents="{Binding DataContext, Mode=OneWay, ElementName=container}">
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="ContentsChanged">
                                                     <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
@@ -1063,15 +1104,27 @@
 
             <ListBox
                 Grid.Row="1"
-                ItemsSource="{Binding Source={x:Static util:Futaba.Informations}, Mode=OneWay, Converter={StaticResource InformationItemConverter}}"
+                ItemsSource="{Binding Infomations.Value, Mode=OneWay}"
                 Background="Transparent"
                 BorderBrush="Transparent"
                 BorderThickness="0"
                 IsHitTestVisible="False"
                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.VirtualizationMode="Recycling"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 ScrollViewer.VerticalScrollBarVisibility="Disabled"
                 ScrollViewer.CanContentScroll="False">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel
+                            Orientation="Vertical"
+                            IsItemsHost="True" 
+                            UseLayoutRounding="False"
+                            HorizontalAlignment="Stretch"
+                            />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border Padding="8 0 8 8" IsHitTestVisible="False">
@@ -1089,11 +1142,8 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="4" />
                                 </Grid.ColumnDefinitions>
-                                <Border
-                                    Grid.RowSpan="3"
-                                    Grid.Column="0"
-                                    DataContext="{Binding ExObject, Mode=OneWay, Converter={StaticResource InformationObjectConverter}}">
-                                    <Grid Visibility="{Binding ObjectVisibility.Value, Mode=OneWay}">
+                                <Border Grid.RowSpan="3" Grid.Column="0">
+                                    <Grid Visibility="{Binding ExObject.ObjectVisibility.Value, Mode=OneWay}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="1" />
                                             <ColumnDefinition Width="Auto" />
@@ -1113,9 +1163,10 @@
                                             Stretch="Uniform"
                                             >
                                             <Image
-                                                Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                                Source="{Binding ExObject.ThumbSource.Value, Mode=OneWay}"
                                                 RenderOptions.EdgeMode="Aliased"
-                                                RenderOptions.BitmapScalingMode="Fant">
+                                                RenderOptions.BitmapScalingMode="Fant"
+                                                Unloaded="OnImageUnloaded">
                                                 <Image.CacheMode>
                                                     <BitmapCache RenderAtScale="1" />
                                                 </Image.CacheMode>
@@ -1132,6 +1183,12 @@
                                         FontSize="{DynamicResource InformationFontSize}" />
                                 </Border>
                             </Grid>
+
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Loaded">
+                                    <ri:EventToReactiveCommand Command="{Binding ExObject.LoadedCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
                         </Border>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
