@@ -1376,6 +1376,7 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
                                     <TextBlock
                                         Grid.Column="0" Grid.Row="0"
@@ -1388,7 +1389,7 @@
                                         Text="{Binding Canvas98ExtendsLayer.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         MaxLines="1"
                                         HorizontalAlignment="Stretch"
-                                        c:PlaceHolderBehavior.PlaceHolderText="はっちゃん拡張：レイヤー"
+                                        c:PlaceHolderBehavior.PlaceHolderText="レイヤーforはっちゃん"
                                         />
 
                                     <TextBlock
@@ -1402,7 +1403,7 @@
                                         Text="{Binding Canvas98ExtendsAlbam.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         MaxLines="1"
                                         HorizontalAlignment="Stretch"
-                                        c:PlaceHolderBehavior.PlaceHolderText="はっちゃん拡張：アルバム"
+                                        c:PlaceHolderBehavior.PlaceHolderText="アルバムforはっちゃん"
                                         />
 
                                     <TextBlock
@@ -1416,7 +1417,21 @@
                                         Text="{Binding Canvas98ExtendsMenu.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         MaxLines="1"
                                         HorizontalAlignment="Stretch"
-                                        c:PlaceHolderBehavior.PlaceHolderText="はっちゃん拡張：メニュー"
+                                        c:PlaceHolderBehavior.PlaceHolderText="追加機能メニューforはっちゃん"
+                                        />
+
+                                    <TextBlock
+                                        Grid.Column="0" Grid.Row="3"
+                                        Text="タイムラプス"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        />
+                                    <TextBox 
+                                        Grid.Column="1" Grid.Row="3"
+                                        Text="{Binding Canvas98ExtendsTimelapse.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        MaxLines="1"
+                                        HorizontalAlignment="Stretch"
+                                        c:PlaceHolderBehavior.PlaceHolderText="追加機能タイムラプスforはっちゃん"
                                         />
                                 </Grid>
                             </StackPanel>

@@ -873,7 +873,6 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource WindowTabSelectedForegroundColor}" />
@@ -1022,20 +1021,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="5"  Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconCatalogMode}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
-                        <Button.ToolTip>
-                            <ToolTip Content="モード切替" />
-                        </Button.ToolTip>
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="Click">
-                                <ri:EventToReactiveCommand Command="{Binding DataContext.CatalogListWrapClickCommand, ElementName=_this}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </Button>
-                    <Button Grid.Column="6"  Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="5"  Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <Button.Background>
                             <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                         </Button.Background>
@@ -1050,7 +1036,7 @@
                     </Button>
 
                     <Button
-                        Grid.Column="7"
+                        Grid.Column="6"
                         Style="{StaticResource ToolbarButton}"
                         Content="{DynamicResource ButtonIconCatalogExpand}"
                         DataContext="{Binding Contents.Futaba.Value, ElementName=_this}"
