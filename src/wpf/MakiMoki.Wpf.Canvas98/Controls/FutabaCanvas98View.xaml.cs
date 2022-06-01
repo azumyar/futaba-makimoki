@@ -86,6 +86,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 
 		private static string WebMessageReady { get; } = "x-makimoki-canvas98-message://ready";
 		private static string WebMessageExecuteAlbam { get; } = "x-makimoki-canvas98-message://albam";
+		private static string WebMessageExecuteTimelapse { get; } = "x-makimoki-canvas98-message://timelapse";
 		private static string WebMessage404 { get; } = "x-makimoki-canvas98-message://404";
 		private static string WebMessagePostSucessed { get; } = "x-makimoki-canvas98-message://post-ok";
 		private static string WebMessagePostError { get; } = "x-makimoki-canvas98-message://post-error";
@@ -119,10 +120,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 			ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaCanvas98ViewViewModel.NavigateTo>>()
 				.Subscribe(async x => {
+					static string toJsBool(bool b) => b.ToString().ToLower();
+
 					var f = this.ThreadUrl != null;
 					this.ThreadUrl = x.Url;
 					await Task.WhenAll(webViewInitializeTask);
-					this.webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(
+					var isChildItem = (!string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptAlbam)
+						|| !string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptTimelapse));
+					await this.webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(
 						new StringBuilder()
 							.AppendLine("'use strict';")
 							.AppendLine("window.addEventListener('load', ()=>{")
@@ -212,21 +217,34 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 							.AppendLine("        document.forms.fm.pwd.type = 'text';")
 							.AppendLine("      }")
 							// 独自ボタンを仕込む
-							.AppendLine($"      if({ (!string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptAlbam)).ToString().ToLower() }) {{")
+							.AppendLine($"      if({ toJsBool(isChildItem) }) {{")
 							.AppendLine("        const callback = function(mutationsList, observer) {")
 							.AppendLine("          for(const mutation of mutationsList) {")
 							.AppendLine("            if(mutation.type === 'childList') {")
 							.AppendLine("              const n = document.getElementById('canvas98UndoButton');")
 							.AppendLine("              if(n && !document.getElementById('makimokiCanvas98Extension')) {")
-							.AppendLine("                const el = document.createElement('li');")
-							.AppendLine("                el.id = 'makimokiCanvas98Extension';")
-							.AppendLine("                el.className = 'canvas98MenuItem material-icons';")
-							.AppendLine("                el.title = 'アルバム';")
-							.AppendLine("                el.innerText = 'save';")
-							.AppendLine("                el.addEventListener('click', _ => {")
-							.AppendLine($"                  window.chrome.webview.postMessage('{ WebMessageExecuteAlbam }');")
-							.AppendLine("                });")
-							.AppendLine("                n.parentNode.insertBefore(el, n.parentNode.firstNode);")
+							.AppendLine($"               if({ toJsBool(!string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptAlbam)) }) {{")
+							.AppendLine("                  const el = document.createElement('li');")
+							.AppendLine("                  el.id = 'makimokiCanvas98Extension';")
+							.AppendLine("                  el.className = 'canvas98MenuItem material-icons';")
+							.AppendLine("                  el.title = 'アルバム';")
+							.AppendLine("                  el.innerText = 'save';")
+							.AppendLine("                  el.addEventListener('click', _ => {")
+							.AppendLine($"                    window.chrome.webview.postMessage('{ WebMessageExecuteAlbam }');")
+							.AppendLine("                  });")
+							.AppendLine("                  n.parentNode.insertBefore(el, n.parentNode.firstNode);")
+							.AppendLine("                }")
+							.AppendLine($"               if({toJsBool(!string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptTimelapse))}) {{")
+							.AppendLine("                  const el = document.createElement('li');")
+							.AppendLine("                  el.id = 'makimokiCanvas98Extension';")
+							.AppendLine("                  el.className = 'canvas98MenuItem material-icons';")
+							.AppendLine("                  el.title = 'タイムラプス';")
+							.AppendLine("                  el.innerText = 'timelapse';")
+							.AppendLine("                  el.addEventListener('click', _ => {")
+							.AppendLine($"                    window.chrome.webview.postMessage('{ WebMessageExecuteTimelapse }');")
+							.AppendLine("                  });")
+							.AppendLine("                  n.parentNode.insertBefore(el, n.parentNode.firstNode);")
+							.AppendLine("                }")
 							.AppendLine("                break;")
 							.AppendLine("              }")
 							.AppendLine("            }")
@@ -364,6 +382,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 					await this.webView.ExecuteScriptAsync(new StringBuilder()
 						.AppendLine("if(document.getElementById('canvas98Element') !== null) {")
 						.AppendLine(this.ConvertJs(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptAlbam))
+						.AppendLine("}")
+						.ToString());
+				} else if(message == WebMessageExecuteTimelapse) {
+					await this.webView.ExecuteScriptAsync(new StringBuilder()
+						.AppendLine("if(document.getElementById('canvas98Element') !== null) {")
+						.AppendLine(this.ConvertJs(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptTimelapse))
 						.AppendLine("}")
 						.ToString());
 				} else if(message == WebMessage404) {

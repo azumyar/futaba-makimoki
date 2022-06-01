@@ -34,7 +34,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config {
 					Path.Combine(setting.UserDirectory, BookmarkletFile),
 					Bookmarklet.Value,
 					new Dictionary<int, Type>() {
-						{ Canvas98Data.Compat.Canvas98Bookmarklet2021011600.CurrentVersion, typeof(Canvas98Data.Compat.Canvas98Bookmarklet2021011600) }
+						{ Canvas98Data.Compat.Canvas98Bookmarklet2021011600.CurrentVersion, typeof(Canvas98Data.Compat.Canvas98Bookmarklet2021011600) },
+						{ Canvas98Data.Compat.Canvas98Bookmarklet2021080700.CurrentVersion, typeof(Canvas98Data.Compat.Canvas98Bookmarklet2021080700) }
 					});
 			}
 		}
@@ -47,13 +48,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config {
 		public static Helpers.UpdateNotifyer<Canvas98Data.Canvas98Bookmarklet> BookmarkletUpdateNotifyer { get; } = new Helpers.UpdateNotifyer<Canvas98Data.Canvas98Bookmarklet>();
 
 
-		public static void UpdateBookmarklet(string bookmarklet, string exLayer, string exAlbam, string exMenu) {
+		public static void UpdateBookmarklet(
+			string bookmarklet,
+			string exLayer,
+			string exAlbam,
+			string exMenu,
+			string exTimelapse) {
 			if(Directory.Exists(InitializedSetting.UserDirectory)) {
 				Bookmarklet.Value = Canvas98Data.Canvas98Bookmarklet.From(
 					bookmarklet: bookmarklet,
 					bookmarkletLayer: exLayer,
 					bookmarkletAlbam: exAlbam,
-					bookmarkletMenu: exMenu
+					bookmarkletMenu: exMenu,
+					bookmarkletTimelapse: exTimelapse
 				);
 				Util.FileUtil.SaveJson(
 					Path.Combine(InitializedSetting.UserDirectory, BookmarkletFile),
