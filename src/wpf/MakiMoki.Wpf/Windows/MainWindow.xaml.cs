@@ -24,8 +24,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 	/// MainWindow.xaml の相互作用ロジック
 	/// </summary>
 	public partial class MainWindow : Window {
+		[System.Runtime.InteropServices.DllImport("Dwmapi.dll")]
+		private static extern IntPtr DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int pvAttribute, int cbAttribute);
+
 		public MainWindow() {
 			InitializeComponent();
+
+			if(Environment.OSVersion.Platform == PlatformID.Win32NT) {
+				var win11RTM = new Version(10, 0, 22000);
+				if(win11RTM <= Environment.OSVersion.Version) {
+					// Windows11でウインドウ角を丸くする
+					var hwnd = new WindowInteropHelper(GetWindow(this)).EnsureHandle();
+					int DWM_WINDOW_CORNER_PREFERENCE = 33;
+					int DWMWCP_ROUND = 2;
+					DwmSetWindowAttribute(hwnd, DWM_WINDOW_CORNER_PREFERENCE, ref DWMWCP_ROUND, sizeof(int));
+				}
+			}
 
 			ViewModels.MainWindowViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.CurrentCatalogChanged>>()
