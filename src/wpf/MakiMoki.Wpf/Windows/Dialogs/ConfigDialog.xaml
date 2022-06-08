@@ -1431,7 +1431,7 @@
                                         Text="{Binding Canvas98ExtendsTimelapse.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         MaxLines="1"
                                         HorizontalAlignment="Stretch"
-                                        c:PlaceHolderBehavior.PlaceHolderText="追加機能タイムラプスforはっちゃん"
+                                        c:PlaceHolderBehavior.PlaceHolderText="タイムラプスforはっちゃん"
                                         />
                                 </Grid>
                             </StackPanel>
