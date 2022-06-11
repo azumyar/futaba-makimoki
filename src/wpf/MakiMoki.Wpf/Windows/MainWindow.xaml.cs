@@ -36,6 +36,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 		}
 
 		public MainWindow() {
+			void applyDwmRound(IntPtr hwnd, bool round) {
+				int DWM_WINDOW_CORNER_PREFERENCE = 33;
+				if(round) {
+					int DWMWCP_ROUND = 2;
+					DwmSetWindowAttribute(hwnd, DWM_WINDOW_CORNER_PREFERENCE, ref DWMWCP_ROUND, sizeof(int));
+				} else {
+					int DWMWCP_DONOTROUND = 1;
+					DwmSetWindowAttribute(hwnd, DWM_WINDOW_CORNER_PREFERENCE, ref DWMWCP_DONOTROUND, sizeof(int));
+				}
+			}
+
 			InitializeComponent();
 
 			var isWindows11RTM = false;
@@ -43,10 +54,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 				var win11RTM = new Version(10, 0, 22000);
 				if(isWindows11RTM = (win11RTM <= Environment.OSVersion.Version)) {
 					// Windows11でウインドウ角を丸くする
-					var hwnd = new WindowInteropHelper(GetWindow(this)).EnsureHandle();
-					int DWM_WINDOW_CORNER_PREFERENCE = 33;
-					int DWMWCP_ROUND = 2;
-					DwmSetWindowAttribute(hwnd, DWM_WINDOW_CORNER_PREFERENCE, ref DWMWCP_ROUND, sizeof(int));
+					applyDwmRound(new WindowInteropHelper(GetWindow(this)).EnsureHandle(), this.WindowState != WindowState.Maximized);
 				}
 			}
 			this.Loaded += (_, _) => {
@@ -64,6 +72,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 
 				HwndSource.FromHwnd(new WindowInteropHelper(GetWindow(this)).Handle)
 					.AddHook(new HwndSourceHook(wndProc));
+			};
+			this.StateChanged += (_, e) => {
+				if(isWindows11RTM) {
+					// 最大化すると角丸を解除する/普通に戻ると角丸にする
+					applyDwmRound(new WindowInteropHelper(GetWindow(this)).Handle, this.WindowState != WindowState.Maximized);
+				}
 			};
 
 			ViewModels.MainWindowViewModel.Messenger.Instance
