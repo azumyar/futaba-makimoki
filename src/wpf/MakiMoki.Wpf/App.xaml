@@ -7,7 +7,21 @@
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf">
     <Application.Resources>
         <pd:StyleType x:Key="StyleType">Light</pd:StyleType>
-        
+
+        <Color x:Key="MakimokiWhiteColor">#F5F5F5</Color>
+        <Color x:Key="MakimokiBlackColor">#212121</Color>
+        <!--
+        <Color x:Key="MakimokiForegroundColor">#212121</Color>
+        <Color x:Key="MakimokiBackgroundColor">#F5F5F5</Color>
+        <Color x:Key="MakimokiPrimaryColor">#03A9F4</Color>
+        -->
+        <Color x:Key="MakimokiSecondaryColor">#E91E63</Color>
+
+        <Color x:Key="MakimokiPrimaryColor">#1E88E5</Color>
+        <Color x:Key="MakimokiForegroundColor">#F5F5F5</Color>
+        <Color x:Key="MakimokiBackgroundColor">#212121</Color>
+
+
         <sys:Double x:Key="WindowThreadTabDieOpacity">0.6</sys:Double>
         <!-- Redの500 -->
         <Color x:Key="WindowThreadTabNewColor">#f44336</Color>

@@ -14,7 +14,7 @@
         IsHitTestVisible="False"
         Opacity="0">
         <Border.Background>
-            <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" Opacity="0" />
+            <SolidColorBrush Color="{DynamicResource MakimokiPrimaryColor}" Opacity="0" />
         </Border.Background>
         <Border.Resources>
             <Storyboard x:Key="StoryboardDefault">
@@ -61,7 +61,7 @@
             Text="{Binding WheelUpdateStatusMessageHolder.Value, Mode=OneWay}"
             Opacity="1">
             <TextBlock.Foreground>
-                <SolidColorBrush Color="White" />
+                <SolidColorBrush Color="{DynamicResource MakimokiWhiteColor}" />
                 <!-- いったん白で固定 -->
             </TextBlock.Foreground>
         </TextBlock>

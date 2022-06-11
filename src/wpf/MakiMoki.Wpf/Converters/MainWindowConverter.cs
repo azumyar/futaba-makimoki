@@ -9,6 +9,26 @@ using System.Windows;
 using System.Windows.Data;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
+	class TabItemHilightConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if(values == null) {
+				throw new ArgumentException("型不正。", nameof(values));
+			}
+			if(values.Length == 2) {
+				if((values[0] is bool select) && (values[1] is bool mouse)) {
+					if(mouse) {
+						return !select;
+					}
+					return false;
+				}
+			}
+			throw new ArgumentException("型不正。", nameof(values));
+		}
+
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
 
 	class TabItemWidthConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {

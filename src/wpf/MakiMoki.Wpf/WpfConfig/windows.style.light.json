@@ -3,8 +3,10 @@
 
   "style-type": "Light",
 
-  "color-white": "#F5F5F5",
-  "color-black": "#263238",
+  "color-white": "#FFFFFF",
+  "color-black": "#000000",
+  "color-foreground": "#000000",
+  "color-background": "#FFFFFF",
   "color-primary": "#03A9F4",
   "color-secondary": "#E91E63",
 

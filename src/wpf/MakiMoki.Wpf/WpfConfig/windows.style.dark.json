@@ -3,9 +3,11 @@
 
   "style-type": "Dark",
 
-  "color-white": "#212121",
-  "color-black": "#F5F5F5",
-  "color-primary": "#03A9F4",
+  "color-white": "#FFFFFF",
+  "color-black": "#000000",
+  "color-foreground": "#FFFFFF",
+  "color-background": "#000000",
+  "color-primary": "#1E88E5",
   "color-secondary": "#E91E63",
 
   "color-window-frame": "#424242",
