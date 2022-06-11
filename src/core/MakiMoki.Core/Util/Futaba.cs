@@ -587,8 +587,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 			return FutabaApiReactive.PostThread(board, name, email, subject, comment, filePath, passwd)
 				.Select(x => {
-					if(x.Successed) {
+					if(x.Cookies != null) {
 						Config.ConfigLoader.UpdateCookie(x.Cookies);
+					}
+					if(x.Successed) {
 						Config.ConfigLoader.UpdateFutabaInputData(board, subject, name, email, passwd);
 					}
 					return (x.Successed, x.NextOrMessage);
@@ -601,8 +603,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 			return FutabaApiReactive.PostRes(board, threadNo, name, email, subject, comment, filePath, passwd)
 				.Select(x => {
-					if(x.Successed) {
+					if(x.Cookies != null) {
 						Config.ConfigLoader.UpdateCookie(x.Cookies);
+					}
+					if(x.Successed) {
 						Config.ConfigLoader.UpdateFutabaInputData(board, subject, name, email, passwd);
 					}
 					return (x.Successed, x.Message);
