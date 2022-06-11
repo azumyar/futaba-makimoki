@@ -132,11 +132,14 @@
                                         <RowDefinition Height="4" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-                                    <Viewbox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Top">
-                                        <Canvas Width="1024" Height="1024" Opacity="0.6">
-                                            <Path Width="768" Height="512" Canvas.Left="128" Canvas.Top="352" Stretch="Fill" Fill="#FFFFFFFF" Data="F1 M 768,576C 682.866,576 569.422,543.679 528,498.924L 528,864L 496,864L 496,498.924C 454.578,543.679 341.133,576 256,576C 149.961,576 128,525.856 128,464C 128,402.144 149.961,352 256,352C 362.038,352 512,402.144 512,464C 512,402.144 661.961,352 768,352C 874.039,352 896,402.144 896,464C 896,525.856 874.039,576 768,576 Z M 512,464L 511.993,464.75L 512.007,464.75C 512.002,464.5 512,464.25 512,464 Z "/>
-                                        </Canvas>
-                                    </Viewbox>
+                                    <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Width="32" Height="32">
+                                        <Viewbox Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="-4,-4,0,0">
+                                            <Canvas Width="1024" Height="1024" Opacity="0.6">
+                                                <Path Width="768" Height="704" Canvas.Left="128" Canvas.Top="160" Stretch="Fill" Fill="#FFFFFFFF" Data="M 640,272C 597.333,288 554.667,320 512,352L 512,384C 554.667,352 597.333,320 640,304C 682.667,288 725.333,288 768,288L 768,256C 725.333,256 682.667,256 640,272 Z M 330.667,272C 373.333,288 426.667,320 480,352L 480,320C 426.667,288 373.333,256 330.667,240C 288,224 256,224 224,224L 224,256C 256,256 288,256 330.667,272 Z M 288,544L 480,544L 480,437.259C 422.181,466.931 335.806,480 266.667,480C 151.791,480 128,443.921 128,355.556C 128,267.19 151.791,160 266.667,160C 356.509,160 475.455,225.564 523.029,296.409C 559.537,227.689 679.178,160 768,160C 874.038,160 896,256.472 896,336C 896,415.529 874.038,448 768,448C 692.155,448 593.84,431.388 544,392.827L 544,544L 736,544L 736,640L 608,832L 608,864L 416,864L 416,832L 288,640L 288,544 Z "/>
+                                            </Canvas>
+                                        </Viewbox>
+                                    </Border>
+
 
                                     <ScrollViewer
                                         x:Name="scrollViewer"
