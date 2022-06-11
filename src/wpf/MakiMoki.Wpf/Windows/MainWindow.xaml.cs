@@ -26,13 +26,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 	public partial class MainWindow : Window {
 		[System.Runtime.InteropServices.DllImport("Dwmapi.dll")]
 		private static extern IntPtr DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int pvAttribute, int cbAttribute);
+		[System.Runtime.InteropServices.DllImport("user32.dll")]
+		private static extern bool SendMessage(IntPtr hwnd, int msg, IntPtr wP, IntPtr lP);
+		[System.Runtime.InteropServices.DllImport("user32.dll")]
+		private static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr wP, IntPtr lP);
 
 		public MainWindow() {
 			InitializeComponent();
 
+			var isWindows11RTM = false;
 			if(Environment.OSVersion.Platform == PlatformID.Win32NT) {
 				var win11RTM = new Version(10, 0, 22000);
-				if(win11RTM <= Environment.OSVersion.Version) {
+				if(isWindows11RTM = (win11RTM <= Environment.OSVersion.Version)) {
 					// Windows11でウインドウ角を丸くする
 					var hwnd = new WindowInteropHelper(GetWindow(this)).EnsureHandle();
 					int DWM_WINDOW_CORNER_PREFERENCE = 33;
@@ -40,6 +45,105 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 					DwmSetWindowAttribute(hwnd, DWM_WINDOW_CORNER_PREFERENCE, ref DWMWCP_ROUND, sizeof(int));
 				}
 			}
+			this.Loaded += (_, _) => {
+				IntPtr wndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
+					bool isMax(IntPtr lP) {
+						foreach(var b in new[] {
+							this.maximizeWindowButton,
+							this.restoreWindowButton,
+						}) {
+							if(b.Visibility == Visibility.Visible) {
+								var p = b.PointFromScreen(new Point() {
+									X = lP.ToInt32() & 0xffff,
+									Y = lP.ToInt32() >> 16 & 0xffff
+								});
+								if((0 <= p.X) && (p.X <= b.ActualWidth)
+									&& (0 <= p.Y) && (p.Y <= b.ActualHeight)) {
+
+									return true;
+								}
+							}
+						}
+						return false;
+					}
+					int makeWp() {
+						const int MK_CONTROL = 0x0008;
+						const int MK_LBUTTON = 0x0001;
+						const int MK_MBUTTON = 0x0010;
+						const int MK_RBUTTON = 0x0002;
+						const int MK_SHIFT = 0x0004;
+						const int MK_XBUTTON1 = 0x0020;
+						const int MK_XBUTTON2 = 0x0040;
+
+						var r = 0;
+						foreach(var it in new (MouseButtonState State, int Value)[] {
+								(Mouse.LeftButton, MK_LBUTTON),
+								(Mouse.MiddleButton, MK_MBUTTON),
+								(Mouse.RightButton, MK_RBUTTON),
+								(Mouse.XButton1, MK_XBUTTON1),
+								(Mouse.XButton2, MK_XBUTTON2),
+							}) {
+							r |= it.State switch {
+								MouseButtonState.Pressed => it.Value,
+								_ => 0
+							};
+						}
+						foreach(var it in new (Key Key, int Value)[] {
+								(Key.LeftCtrl, MK_CONTROL),
+								(Key.RightCtrl, MK_CONTROL),
+								(Key.LeftShift, MK_SHIFT),
+								(Key.RightShift, MK_SHIFT),
+							}) {
+							r |= Keyboard.IsKeyDown(it.Key) switch {
+								true => it.Value,
+								false => 0,
+							};
+						}
+						return r;
+					}
+
+					const int WM_NCHITTEST = 0x0084;
+					const int WM_NCMOUSEHOVER = 0x02A0;
+					const int WM_NCMOUSELEAVE = 0x02A2;
+					const int WM_NCMOUSEMOVE = 0x00A0;
+					const int WM_NCLBUTTONDOWN = 0x00A1;
+					const int WM_NCLBUTTONUP = 0x00A2;
+					const int WM_LBUTTONDOWN = 0x0201;
+					const int WM_LBUTTONUP = 0x0202;
+					const int WM_MOUSEHOVER = 0x02A1;
+					const int WM_MOUSEMOVE = 0x0200;
+					switch(msg) {
+					case WM_NCHITTEST:
+						if(isWindows11RTM && isMax(lParam)) {
+							const int HTMAXBUTTON = 9;
+							// うまく動かない
+							//handled = true;
+							//return (IntPtr)HTMAXBUTTON;
+						}
+						break;
+					}
+					foreach(var it in new (int From, int To)[] {
+						(WM_NCLBUTTONDOWN, WM_LBUTTONDOWN),
+						(WM_NCLBUTTONUP, WM_LBUTTONUP),
+						(WM_NCMOUSEHOVER, 0),
+						(WM_NCMOUSELEAVE, 0),
+						(WM_NCMOUSEMOVE, WM_MOUSEMOVE),
+					}) {
+						if((msg == it.From) && isWindows11RTM && isMax(lParam)) {
+							if(it.To != 0) {
+								SendMessage(hwnd, it.To, (IntPtr)makeWp(), lParam);
+							}
+							handled = true;
+							return IntPtr.Zero;
+						}
+					}
+
+					return IntPtr.Zero;
+				}
+
+				HwndSource.FromHwnd(new WindowInteropHelper(GetWindow(this)).Handle)
+					.AddHook(new HwndSourceHook(wndProc));
+			};
 
 			ViewModels.MainWindowViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.CurrentCatalogChanged>>()
