@@ -65,7 +65,10 @@ namespace Yarukizero.Net.MakiMoki.Config {
 				default(UploderConfig));
 			FutabaApi = Util.FileUtil.LoadMigrate(
 				Path.Combine(setting.WorkDirectory, FutabaApiFile),
-				FutabaApiConfig.CreateDefault());
+				FutabaApiConfig.CreateDefault(),
+				new Dictionary<int, Type>() {
+					{Data.Compat.FutabaApiConfig2020062900.CurrentVersion, typeof(Data.Compat.FutabaApiConfig2020062900)}
+				});
 			System.Diagnostics.Debug.Assert(MakiMoki != null);
 			System.Diagnostics.Debug.Assert(Optout != null);
 			System.Diagnostics.Debug.Assert(MimeFutaba != null);
@@ -193,9 +196,16 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			}
 		}
 
-		internal static void UpdateCookie(Data.Cookie[] cookies) {
-			FutabaApi.Cookies = cookies;
+		internal static void UpdateCookie(string url, Data.Cookie2[] cookies) {
 			lock(lockObj) {
+				var l = FutabaApi.Cookies.ToList();
+				var uri = new Uri(url);
+				foreach(var it in l.Where(x => uri.Host.EndsWith(x.Domain) && uri.AbsolutePath.StartsWith(x.Path)).ToArray()) {
+					l.Remove(it);
+				}
+				l.AddRange(cookies);
+				FutabaApi.Cookies = l.ToArray();
+
 				Util.FileUtil.SaveJson(
 					Path.Combine(InitializedSetting.WorkDirectory, FutabaApiFile),
 					FutabaApi);

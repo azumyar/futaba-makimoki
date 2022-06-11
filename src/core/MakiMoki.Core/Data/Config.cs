@@ -243,13 +243,17 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class FutabaApiConfig : ConfigObject {
-		public static int CurrentVersion { get; } = 2020062900;
+		public static int CurrentVersion { get; } = 2022061200;
+
+		internal FutabaApiConfig() {
+			this.Version = CurrentVersion;
+		}
 
 		[JsonProperty("ptua", Required = Required.Always)]
 		public string Ptua { get; internal set; }
 
 		[JsonProperty("cookies", Required = Required.Always)]
-		public Cookie[] Cookies { get; internal set; }
+		public Cookie2[] Cookies { get; internal set; }
 
 		[JsonProperty("subject", Required = Required.Always)]
 		public string SavedSubject { get; internal set; }
@@ -265,9 +269,8 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 		public static FutabaApiConfig CreateDefault() {
 			return new FutabaApiConfig() {
-				Version = CurrentVersion,
 				Ptua = "",
-				Cookies = new Cookie[0],
+				Cookies = new Cookie2[0],
 				SavedSubject = "",
 				SavedName = "",
 				SavedMail = "",

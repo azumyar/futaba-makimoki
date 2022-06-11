@@ -200,6 +200,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			{
 				var white = style.ToWpfColor(style.WhiteColor);
 				var black = style.ToWpfColor(style.BlackColor);
+				var foreground = style.ToWpfColor(style.ForegroundColor);
+				var background = style.ToWpfColor(style.BackgroundColor);
 				var primary = style.ToWpfColor(style.PrimaryColor);
 				var primarySub = style.GetSubColor(primary);
 				var secondary = style.ToWpfColor(style.SecondaryColor);
@@ -217,6 +219,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				var viewerScrollBarThumbSub = style.GetSubColor(viewerScrollBarThumb);
 				var viewerScrollBarThumbSubSub = style.GetSubColor(viewerScrollBarThumbSub);
 				var viewerScrollBarTrack = style.ToWpfColor(style.ViewerScollbarTrackColor);
+
+				this.Resources["MakimokiWhiteColor"] = white;
+				this.Resources["MakimokiBlackColor"] = black;
+				this.Resources["MakimokiForegroundColor"] = foreground;
+				this.Resources["MakimokiBackgroundColor"] = background;
+				this.Resources["MakimokiPrimaryColor"] = primary;
 
 				this.Resources["WindowFrameColor"] = windowFrame;
 				this.Resources["WindowFrameBorderColor"] = windowBorder;

@@ -17,7 +17,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			Data.FutabaContext Data,
 			string ErrorMessage,
 			Data.FutabaResonse RawResponse,
-			Data.Cookie[] Cookies
+			Data.Cookie2[] Cookies
 		)>GetThreadRes(
 			Data.BoardData board, string threadNo,
 			Data.FutabaContext parent,
@@ -29,12 +29,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					.Select(x => (x.Successed && !x.IsDie, x.Data, x.ErrorMessage, x.RawResponse, x.Cookies));
 			}
 
-			return Observable.Create<(bool Successed, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResonse RawResponse, Data.Cookie[] Cookies)>(async o => {
+			return Observable.Create<(bool Successed, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResonse RawResponse, Data.Cookie2[] Cookies)>(async o => {
 				try {
-					var ctx = await Task.Run<(bool Successed, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResonse RawResponse, Data.Cookie[] Cookies)>(() => {
+					var ctx = await Task.Run<(bool Successed, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResonse RawResponse, Data.Cookie2[] Cookies)>(() => {
 					var successed = false;
 					var result = default(Data.FutabaContext);
-					var cookies = Array.Empty<Data.Cookie>();
+					var cookies = Array.Empty<Data.Cookie2>();
 					var response = default(Data.FutabaResonse);
 						var error = "";
 						try {
@@ -91,16 +91,16 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			Data.FutabaContext Data,
 			string ErrorMessage,
 			Data.FutabaResonse RawResponse,
-			Data.Cookie[] Cookies
+			Data.Cookie2[] Cookies
 		)> GetThreadResAll(Data.BoardData board, string threadNo) {
-			return Observable.Create<(bool Successed, bool IsDie, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResonse RawResponse, Data.Cookie[] Cookies)>(async o => {
+			return Observable.Create<(bool Successed, bool IsDie, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResonse RawResponse, Data.Cookie2[] Cookies)>(async o => {
 				try {
-					var ctx = await Task.Run<(bool Successed, bool IsDie, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResonse RawResponse, Data.Cookie[] Cookies)>(() => {
+					var ctx = await Task.Run<(bool Successed, bool IsDie, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResonse RawResponse, Data.Cookie2[] Cookies)>(() => {
 						var successed = false;
 						var isDie = false;
 						var result = default(Data.FutabaContext);
 						var response = default(Data.FutabaResonse);
-						var cookies = Array.Empty<Data.Cookie>();
+						var cookies = Array.Empty<Data.Cookie2>();
 						var error = "";
 						try {
 							var u = new Data.UrlContext(board.Url, threadNo);
@@ -267,20 +267,20 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static IObservable<(bool Successed, string NextOrMessage, Data.Cookie[] Cookies)> PostThread(
+		public static IObservable<(bool Successed, string NextOrMessage, Data.Cookie2[] Cookies)> PostThread(
 			Data.BoardData board,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
 
-			return Observable.Create<(bool Successed, string NextOrMessage, Data.Cookie[] Cookies)>(async o => {
+			return Observable.Create<(bool Successed, string NextOrMessage, Data.Cookie2[] Cookies)>(async o => {
 				try {
 					var r = await FutabaApi.PostThread(board,
 						Config.ConfigLoader.FutabaApi.Cookies, Config.ConfigLoader.FutabaApi.Ptua,
 						name, email, subject, comment, filePath, passwd);
 					if(r.Raw == null) {
-						o.OnNext((false, "不明なエラー", Array.Empty<Data.Cookie>()));
+						o.OnNext((false, "不明なエラー", Array.Empty<Data.Cookie2>()));
 					} else {
-						Config.ConfigLoader.UpdateCookie(r.Cookies);
+						Config.ConfigLoader.UpdateCookie(board.Url, r.Cookies);
 						Config.ConfigLoader.UpdateFutabaInputData(board, subject, name, email, passwd);
 						o.OnNext((r.Successed, r.NextOrMessage, r.Cookies));
 					}
@@ -292,18 +292,18 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string Message, Data.Cookie[] Cookies)> PostRes(
+		public static IObservable<(bool Successed, string Message, Data.Cookie2[] Cookies)> PostRes(
 			Data.BoardData board, string threadNo,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
 
-			return Observable.Create<(bool Successed, string Message, Data.Cookie[] Cookies)>(async o => {
+			return Observable.Create<(bool Successed, string Message, Data.Cookie2[] Cookies)>(async o => {
 				try {
 					var r = await FutabaApi.PostRes(board, threadNo,
 						Config.ConfigLoader.FutabaApi.Cookies, Config.ConfigLoader.FutabaApi.Ptua,
 						name, email, subject, comment, filePath, passwd);
 					if(r.Raw == null) {
-						o.OnNext((false, "不明なエラー", Array.Empty<Data.Cookie>()));
+						o.OnNext((false, "不明なエラー", Array.Empty<Data.Cookie2>()));
 					} else {
 						o.OnNext((r.Successed, r.Raw, r.Cookies));
 					}
@@ -315,12 +315,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string Message, Data.Cookie[] Cookies)> PostDeleteThreadRes(Data.BoardData board, string threadNo, bool imageOnlyDel, string passwd) {
-			return Observable.Create<(bool Successed, string Message, Data.Cookie[] Cookies)> (async o => {
+		public static IObservable<(bool Successed, string Message, Data.Cookie2[] Cookies)> PostDeleteThreadRes(Data.BoardData board, string threadNo, bool imageOnlyDel, string passwd) {
+			return Observable.Create<(bool Successed, string Message, Data.Cookie2[] Cookies)> (async o => {
 				try {
 					var r = await FutabaApi.PostDeleteThreadRes(board.Url, threadNo, Config.ConfigLoader.FutabaApi.Cookies, imageOnlyDel, passwd);
 					if(r.Raw == null) {
-						o.OnNext((false, "不明なエラー", Array.Empty<Data.Cookie>()));
+						o.OnNext((false, "不明なエラー", Array.Empty<Data.Cookie2>()));
 					} else {
 						o.OnNext((r.Successed, r.Raw, r.Cookies));
 					}

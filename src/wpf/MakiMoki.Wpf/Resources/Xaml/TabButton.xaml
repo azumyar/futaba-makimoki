@@ -6,8 +6,38 @@
     xmlns:c="clr-namespace:System.Collections;assembly=mscorlib"
     xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
     >
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
     <converter:BackgroundToForegroundColorConverter x:Key="BackgroundToForegroundColorConverter" />
-    <Style x:Key="TabCloseButton" TargetType="Button">
+    <Style x:Key="TabCloseButton" TargetType="Button" BasedOn="{StaticResource MaterialTransparentButton}">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Width" Value="24" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Padding" Value="0" />
+
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontFamily" Value="Marlett" />
+        <Setter Property="Content" Value="r" />
+
+            <!--
+        <Setter Property="Content">
+            <Setter.Value>
+                <TextBlock
+                    Text="r"
+                    FontSize="11"
+                    FontFamily="Marlett"
+                    TextAlignment="Center"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                </TextBlock>
+            </Setter.Value>
+        </Setter>
+        -->
+    </Style>
+
+    <Style x:Key="_TabCloseButton" TargetType="Button">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Width" Value="24" />
         <Setter Property="Height" Value="24" />

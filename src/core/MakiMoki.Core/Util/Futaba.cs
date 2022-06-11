@@ -123,14 +123,14 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return $"{ boardUrl }+{ threadNo }";
 		}
 
-		public static IObservable<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)> UpdateCatalog(Data.BoardData bord, Data.CatalogSortItem sort = null) {
+		public static IObservable<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)> UpdateCatalog(Data.BoardData board, Data.CatalogSortItem sort = null) {
 			return Observable.Create<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)>(async o => {
 				try {
 					var f = await Task.Run<(bool Successed, Data.FutabaContext Catalog, string ErrorMessage)>(async () => {
 						lock(lockObj) {
-							if(!Catalog.Value.Select(x => x.Url.BaseUrl).Contains(bord.Url)) {
+							if(!Catalog.Value.Select(x => x.Url.BaseUrl).Contains(board.Url)) {
 								Catalog.Value = Catalog.Value.Concat(new Data.FutabaContext[] {
-								Data.FutabaContext.FromCatalogEmpty(bord),
+								Data.FutabaContext.FromCatalogEmpty(board),
 							}).ToArray();
 							}
 						}
@@ -140,7 +140,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						var error = "";
 						try {
 							var r = await FutabaApi.GetCatalog(
-								bord.Url,
+								board.Url,
 								Config.ConfigLoader.FutabaApi.Cookies,
 								sort);
 							if(!r.Successed) {
@@ -153,9 +153,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								}
 								goto end;
 							}
-							Config.ConfigLoader.UpdateCookie(r.Cookies);
+							Config.ConfigLoader.UpdateCookie(board.Url, r.Cookies);
 							var rr = await FutabaApi.GetCatalogHtml(
-								bord.Url,
+								board.Url,
 								Config.ConfigLoader.FutabaApi.Cookies,
 								r.Response.Res.Length,
 								sort);
@@ -163,7 +163,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								error = "カタログHTMLの取得に失敗しました";
 								goto end;
 							}
-							Config.ConfigLoader.UpdateCookie(rr.Cookies);
+							Config.ConfigLoader.UpdateCookie(board.Url, rr.Cookies);
 							var parser = new HtmlParser();
 							var doc = parser.ParseDocument(rr.Raw);
 							var counter = doc.QuerySelectorAll("#cattable td")
@@ -195,10 +195,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 									.Select(x => new Data.NumberedResItem(x.No, x.Res, true)));
 							lock(lockObj) {
 								for(var i = 0; i < Catalog.Value.Length; i++) {
-									if(Catalog.Value[i].Bord.Url == bord.Url) {
+									if(Catalog.Value[i].Bord.Url == board.Url) {
 										successed = true;
 										result = Data.FutabaContext.FromCatalogResponse(
-											bord,
+											board,
 											r.Response,
 											sortList.ToArray(),
 											dic,
@@ -210,7 +210,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								}
 								successed = true;
 								result = Data.FutabaContext.FromCatalogResponse(
-										bord, r.Response, sortList.ToArray(), dic, null);
+										board, r.Response, sortList.ToArray(), dic, null);
 								Catalog.Value = Catalog.Value.Concat(new Data.FutabaContext[] { result }).ToArray();
 							}
 						end:;
@@ -318,8 +318,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		private static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadResInternal(Data.BoardData bord, string threadNo, bool incremental, bool autoReload) {
-			var u = new Data.UrlContext(bord.Url, threadNo);
+		private static IObservable<(bool Successed, Data.FutabaContext New, Data.FutabaContext Old, string ErrorMessage)> UpdateThreadResInternal(Data.BoardData board, string threadNo, bool incremental, bool autoReload) {
+			var u = new Data.UrlContext(board.Url, threadNo);
 			Data.FutabaContext parent = null;
 			lock(lockObj) {
 				parent = Threads.Value.Where(x => x.Url == u).FirstOrDefault();
@@ -328,11 +328,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				lock(lockObj) {
 					if(!Threads.Value.Select(x => x.Url).Contains(u)) {
 						Threads.Value = Threads.Value.Concat(new Data.FutabaContext[] {
-							Data.FutabaContext.FromThreadEmpty(bord, threadNo),
+							Data.FutabaContext.FromThreadEmpty(board, threadNo),
 						}).ToArray();
 					}
 				}
-				return FutabaApiReactive.GetThreadResAll(bord, threadNo)
+				return FutabaApiReactive.GetThreadResAll(board, threadNo)
 					.Select(x => {
 						var @new = default(Data.FutabaContext);
 						var prev = default(Data.FutabaContext);
@@ -353,7 +353,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 										var fc2 = default(Data.FutabaContext);
 										if(x.RawResponse != null) {
 											fc2 = Data.FutabaContext.FromThreadResResponse404(
-												Catalog.Value.Where(x => x.Bord.Url == bord.Url).FirstOrDefault(),
+												Catalog.Value.Where(x => x.Bord.Url == board.Url).FirstOrDefault(),
 												fc, x.RawResponse);
 										}
 										if(fc2 != null) {
@@ -370,7 +370,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								}
 								return (true, @new, prev, x.ErrorMessage);
 							} else {
-								Config.ConfigLoader.UpdateCookie(x.Cookies);
+								Config.ConfigLoader.UpdateCookie(board.Url, x.Cookies);
 								lock(lockObj) {
 									var f = x.Data;
 									for(var i = 0; i < Threads.Value.Length; i++) {
@@ -394,7 +394,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (x.Successed, @new, prev, x.ErrorMessage);
 					});
 			} else {
-				return FutabaApiReactive.GetThreadRes(bord, threadNo, parent, incremental)
+				return FutabaApiReactive.GetThreadRes(board, threadNo, parent, incremental)
 					.Select(x => {
 						var r = (
 							Successed: x.Successed,
@@ -403,7 +403,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							ErrorMessage: default(string)
 						);
 						if(x.Successed) {
-							Config.ConfigLoader.UpdateCookie(x.Cookies);
+							Config.ConfigLoader.UpdateCookie(board.Url, x.Cookies);
 							lock(lockObj) {
 								var f = x.Data;
 								for(var i = 0; i < Threads.Value.Length; i++) {
@@ -587,8 +587,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 			return FutabaApiReactive.PostThread(board, name, email, subject, comment, filePath, passwd)
 				.Select(x => {
+					if(x.Cookies != null) {
+						Config.ConfigLoader.UpdateCookie(board.Url, x.Cookies);
+					}
 					if(x.Successed) {
-						Config.ConfigLoader.UpdateCookie(x.Cookies);
 						Config.ConfigLoader.UpdateFutabaInputData(board, subject, name, email, passwd);
 					}
 					return (x.Successed, x.NextOrMessage);
@@ -601,8 +603,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 			return FutabaApiReactive.PostRes(board, threadNo, name, email, subject, comment, filePath, passwd)
 				.Select(x => {
+					if(x.Cookies != null) {
+						Config.ConfigLoader.UpdateCookie(board.Url, x.Cookies);
+					}
 					if(x.Successed) {
-						Config.ConfigLoader.UpdateCookie(x.Cookies);
 						Config.ConfigLoader.UpdateFutabaInputData(board, subject, name, email, passwd);
 					}
 					return (x.Successed, x.Message);
@@ -821,7 +825,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return FutabaApiReactive.PostDeleteThreadRes(board, threadNo, imageOnlyDel, passwd)
 				.Select(x => {
 					if(x.Successed) {
-						Config.ConfigLoader.UpdateCookie(x.Cookies);
+						Config.ConfigLoader.UpdateCookie(board.Url, x.Cookies);
 					}
 					return (x.Successed, x.Message);
 				});
@@ -911,19 +915,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 			
 		public static void PutInformation(Data.Information information) {
-			/*
-			Observable.Create<Data.Information>(o => {
-				try {
-					Informations.AddOnScheduler(information);
-					o.OnNext(information);
-				}
-				finally {
-					o.OnCompleted();
-				}
-				return System.Reactive.Disposables.Disposable.Empty;
-			}).Delay(TimeSpan.FromSeconds(3))
-				.Subscribe(x => Informations.RemoveOnScheduler(x));
-			*/
 			Observable.Return(information)
 				.ObserveOn(DefaultScheduler.Instance)
 				.Select(x => {

@@ -245,6 +245,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public string WhiteColor { get; private set; }
 		[JsonProperty("color-black", Required = Required.Always)]
 		public string BlackColor { get; private set; }
+		[JsonProperty("color-foreground", Required = Required.Always)]
+		public string ForegroundColor { get; private set; }
+		[JsonProperty("color-background", Required = Required.Always)]
+		public string BackgroundColor { get; private set; }
 		[JsonProperty("color-primary", Required = Required.Always)]
 		public string PrimaryColor { get; private set; }
 		[JsonProperty("color-secondary", Required = Required.Always)]

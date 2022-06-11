@@ -261,9 +261,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 								} else {
 									/* いったんコメントアウトで対応。要検討
 									toolTip = new ToolTip() {
-										Background = new SolidColorBrush((Color)App.Current.Resources["ViewerBackgroundColor"]),
+										Background = new SolidColorBrush((Color)App.Current.Resources["MakimokiBackgroundColor"]),
 										Content = new TextBlock() {
-											Foreground = new SolidColorBrush((Color)App.Current.Resources["ViewerForegroundColor"]),
+											Foreground = new SolidColorBrush((Color)App.Current.Resources["MakimokiForegroundColor"]),
 											Text = "見つかりませんでした",
 											FontFamily = tb.FontFamily,
 											FontSize = tb.FontSize,
@@ -371,9 +371,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				/* いったんコメントアウトで対応。需要次第で考える。
 				if(run.ToolTip == null) {
 					run.ToolTip = new ToolTip() {
-						Background = new SolidColorBrush((Color)App.Current.Resources["ViewerBackgroundColor"]),
+						Background = new SolidColorBrush((Color)App.Current.Resources["MakimokiBackgroundColor"]),
 						Content = new FutabaResBlock() {
-							Foreground = new SolidColorBrush((Color)App.Current.Resources["ViewerForegroundColor"]),
+							Foreground = new SolidColorBrush((Color)App.Current.Resources["MakimokiForegroundColor"]),
 							Background = new SolidColorBrush((Color)App.Current.Resources["ThreadBackgroundColor"]),
 							IsHitTestVisible = false,
 							DataContext = ri,

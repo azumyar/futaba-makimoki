@@ -66,10 +66,10 @@
         DataContext="{Binding Contents, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
         >
         <TextBlock.Foreground>
-            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+            <SolidColorBrush Color="{DynamicResource MakimokiForegroundColor}" />
         </TextBlock.Foreground>
         <Border.Background>
-            <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+            <SolidColorBrush Color="{DynamicResource MakimokiBackgroundColor}" />
         </Border.Background>
         <Border.BorderBrush>
             <SolidColorBrush Color="{DynamicResource ViewerBorderColor}" />
@@ -197,7 +197,12 @@
                         </i:Interaction.Behaviors>
                     </local:MakiMokiTextBox>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Height="32" Margin="4 0 0 0" Visibility="{Binding PostIdOptionVisibility.Value, Mode=OneWay}">
+                        <Button
+                            Style="{StaticResource MaterialButton}"
+                            Height="32"
+                            Margin="4 0 0 0"
+                            FontSize="11"
+                            Visibility="{Binding PostIdOptionVisibility.Value, Mode=OneWay}">
                             <Button.Content>
                                 ID表示
                             </Button.Content>
@@ -210,7 +215,12 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
-                        <Button Height="32" Margin="4 0 0 0" Visibility="{Binding PostIpOptionVisibility.Value, Mode=OneWay}">
+                        <Button
+                            Style="{StaticResource MaterialButton}"
+                            Height="32"
+                            Margin="4 0 0 0"
+                            FontSize="11"
+                            Visibility="{Binding PostIpOptionVisibility.Value, Mode=OneWay}">
                             <Button.Content>
                                 IP表示
                             </Button.Content>
@@ -223,7 +233,11 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
-                        <Button Height="32" Margin="4 0 0 0">
+                        <Button
+                            Style="{StaticResource MaterialButton}"
+                            Height="32"
+                            FontSize="11"
+                            Margin="4 0 0 0">
                             <Button.Content>
                                 sage
                             </Button.Content>
@@ -271,7 +285,12 @@
                     <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
                 </Border.Background>
                 <StackPanel Orientation="Horizontal">
-                    <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconPostSend}" Command="{Binding PostButtonCommand}">
+                    <Button
+                        Style="{StaticResource MaterialButton}" 
+                        Width="32" Height="32"
+                        Padding="2"
+                        Content="{StaticResource ButtonIconPostSend}"
+                        Command="{Binding PostButtonCommand}">
                         <Button.ToolTip>
                             <ToolTip Content="投稿" />
                         </Button.ToolTip>
@@ -282,7 +301,9 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button
-                        Style="{StaticResource PrimaryColorButton}"
+                        Style="{StaticResource MaterialButton}"
+                        Width="32" Height="32"
+                        Padding="2"
                         Content="{StaticResource ButtonIconPostImage}" AllowDrop="True" 
                         Visibility="{Binding PostImageVisibility.Value, Mode=OneWay}"
                         Tag="{Binding DataContext, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}">
@@ -313,7 +334,9 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button 
-                        Style="{StaticResource PrimaryColorButton}"
+                        Style="{StaticResource MaterialButton}"
+                        Width="32" Height="32"
+                        Padding="2"
                         Content="{StaticResource ButtonIconPostUpload}"
                         AllowDrop="True"
                         Tag="{Binding DataContext, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}">
@@ -343,7 +366,11 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconPostDelete}">
+                    <Button
+                        Style="{StaticResource MaterialButton}"
+                        Width="32" Height="32"
+                        Padding="2"
+                        Content="{StaticResource ButtonIconPostDelete}">
                         <Button.ToolTip>
                             <ToolTip Content="破棄" />
                         </Button.ToolTip>

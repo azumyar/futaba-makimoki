@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 	static class PlatformUtil {
+		[System.Runtime.InteropServices.DllImport("Kernel32.dll")]
+		private static extern bool DeleteFile(string lpFileName);
+
 		public static string GetExePath() {
 #if DEBUG
 			var exe = System.Reflection.Assembly.GetExecutingAssembly().Location;
@@ -99,6 +102,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 					try {
 						return File.GetLastWriteTime(x) < time;
 					}
+					catch(UnauthorizedAccessException) {
+						return false;
+					}
 					catch(IOException) {
 						return false;
 					}
@@ -106,12 +112,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			// TODO: ファイルがたくさんあると無視できないくらい重い、非同期化したほうがいいかも
 			// Parallel.ForEachにしてみた
 			Parallel.ForEach(f, it => {
-				//System.Diagnostics.Debug.WriteLine(it);
+				// .NET例外が投げられないようにWin32 APIたたく
+				DeleteFile(it);
+#if false
 				try {
 					File.Delete(it);
 				}
 				catch(UnauthorizedAccessException) { /* 削除できないファイルは無視する */}
 				catch(IOException) { /* 削除できないファイルは無視する */}
+#endif
 			});
 #if DEBUG
 			sw.Stop();
