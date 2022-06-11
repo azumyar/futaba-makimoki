@@ -7,289 +7,7 @@
     xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
     >
     <converter:BackgroundToForegroundColorConverter x:Key="BackgroundToForegroundColorConverter" />
-    <Style x:Key="ToolbarButton" TargetType="Button">
-        <Style.Resources>
-            <FrameworkElement 
-                x:Key="StyleTypeGetter"
-                Visibility="Collapsed"
-                DataContext="{DynamicResource StyleType}" />
-            <FrameworkElement 
-                x:Key="WhiteColorGetter"
-                Visibility="Collapsed"
-                DataContext="{DynamicResource ViewerBackgroundColor}" />
-            <FrameworkElement 
-                x:Key="BlackColorGetter"
-                Visibility="Collapsed"
-                DataContext="{DynamicResource ViewerForegroundColor}" />
-        </Style.Resources>
-        <Setter Property="OverridesDefaultStyle" Value="True" />
-        <Setter Property="Width" Value="32" />
-        <Setter Property="Height" Value="32" />
-        <Setter Property="Margin" Value="2" />
-        <!--
-        <Setter Property="Foreground">
-            <Setter.Value>
-                <SolidColorBrush>
-                    <SolidColorBrush.Color>
-                        <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}">
-                            <Binding Path="Background" RelativeSource="{RelativeSource TemplatedParent}" />
-                            <Binding Path="DataContext" Source="{StaticResource StyleTypeGetter}" />
-                            <Binding Path="DataContext" Source="{StaticResource WhiteColorGetter}" />
-                            <Binding Path="DataContext" Source="{StaticResource BlackColorGetter}" />
-                        </MultiBinding>
-                    </SolidColorBrush.Color>
-                </SolidColorBrush>
-            </Setter.Value>
-        </Setter>
-        -->
-        <Setter Property="Background" Value="Transparent" x:Name="TestProperty" />
-        <Setter Property="BorderBrush" Value="Transparent" />
 
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Border">
-                        <Border.Background>
-                            <SolidColorBrush Color="{Binding Background.Color, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=Button}}" />
-                        </Border.Background>
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CommonStates">
-                                <VisualState x:Name="Normal">
-                                </VisualState>
-                                <VisualState x:Name="MouseOver">
-                                    <Storyboard>
-                                        <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" Storyboard.TargetName="Border">
-                                            <EasingColorKeyFrame KeyTime="0:0:0.25" Value="{DynamicResource ViewerPrimaryColor}" />
-                                        </ColorAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Pressed">
-                                    <Storyboard>
-                                        <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" Storyboard.TargetName="Border">
-                                            <EasingColorKeyFrame KeyTime="0:0:0.25" Value="{DynamicResource ViewerPrimaryDarkColor}" />
-                                        </ColorAnimationUsingKeyFrames>
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Content">
-                                            <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="0.8" />
-                                        </DoubleAnimationUsingKeyFrames>                                    
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Disabled">
-                                    <Storyboard>
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Border">
-                                            <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0.4"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
-
-                        <Grid>
-                            <FrameworkElement 
-                                x:Name="BackgroundGetter"
-                                Visibility="Collapsed"
-                                DataContext="{TemplateBinding Background}" />
-                            <FrameworkElement 
-                                x:Name="BackgroundOverGetter"
-                                Visibility="Collapsed"
-                                DataContext="{DynamicResource ViewerPrimaryColor}" />
-                            <FrameworkElement 
-                                x:Name="BackgroundPressGetter"
-                                Visibility="Collapsed"
-                                DataContext="{DynamicResource ViewerPrimaryDarkColor}" />
-                            <FrameworkElement 
-                                x:Name="StyleTypeGetter"
-                                Visibility="Collapsed"
-                                DataContext="{DynamicResource StyleType}" />
-                            <FrameworkElement 
-                                x:Name="WhiteColorGetter"
-                                Visibility="Collapsed"
-                                DataContext="{DynamicResource ViewerBackgroundColor}" />
-                            <FrameworkElement 
-                                x:Name="BlackColorGetter"
-                                Visibility="Collapsed"
-                                DataContext="{DynamicResource ViewerForegroundColor}" />
-
-                            <!--
-                        <ContentPresenter
-                            Width="{TemplateBinding Width}"
-                            Height="{TemplateBinding Height}"
-                            Margin="{TemplateBinding Margin}"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            />
-                        -->
-                            <ContentControl
-                                x:Name="Content"
-                                Content="{TemplateBinding Content}"
-                                Width="{TemplateBinding Width}"
-                                Height="{TemplateBinding Height}"
-                                Margin="{TemplateBinding Margin}"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                >
-                                <ContentControl.Foreground>
-                                    <SolidColorBrush>
-                                        <SolidColorBrush.Color>
-                                            <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}">
-                                                <Binding Path="Background.Color" ElementName="Border" />
-                                               
-                                                <Binding Path="DataContext" ElementName="StyleTypeGetter" />
-                                                <Binding Path="DataContext" ElementName="WhiteColorGetter" />
-                                                <Binding Path="DataContext" ElementName="BlackColorGetter" />
-                                                <!--
-                                                <Binding Path="DataContext" Source="{StaticResource StyleTypeGetter}" />
-                                                <Binding Path="DataContext" Source="{StaticResource WhiteColorGetter}" />
-                                                <Binding Path="DataContext" Source="{StaticResource BlackColorGetter}" />
-                                                -->
-                                                <Binding Path="DataContext.Color" ElementName="BackgroundGetter" />
-                                                <Binding Path="DataContext" ElementName="BackgroundOverGetter" />
-                                                <Binding Path="DataContext" ElementName="BackgroundPressGetter" />
-                                                <Binding ElementName="Border" />
-                                                <Binding ElementName="CommonStates" />
-                                            </MultiBinding>
-                                        </SolidColorBrush.Color>
-                                    </SolidColorBrush>
-                                </ContentControl.Foreground>
-                            </ContentControl>
-                        </Grid>
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <Style x:Key="ToolbarButtonHarf" TargetType="Button">
-        <Setter Property="Width" Value="16" />
-        <Setter Property="Height" Value="32" />
-        <Setter Property="Margin" Value="2" />
-        <Setter Property="Foreground">
-            <Setter.Value>
-                <SolidColorBrush Color="{DynamicResource WindowTabSelectedForegroundColor}" />
-            </Setter.Value>
-        </Setter>
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderBrush" Value="Transparent" />
-    </Style>
-
-    <Style x:Key="PrimaryColorButton" TargetType="Button">
-        <Setter Property="Width" Value="32" />
-        <Setter Property="Height" Value="32" />
-        <Setter Property="Margin" Value="2" />
-        <Setter Property="Foreground">
-            <Setter.Value>
-                <SolidColorBrush Color="{DynamicResource WindowTabForegroundColor}" />
-            </Setter.Value>
-        </Setter>
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Button}">
-                    <Border x:Name="border" SnapsToDevicePixels="True">
-                        <Border.Background>
-                            <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" Opacity="0" />
-                        </Border.Background>
-                        <Border.Effect>
-                            <DropShadowEffect Opacity="0"/>
-                        </Border.Effect>
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CommonStates">
-                                <VisualState x:Name="Normal">
-                                </VisualState>
-                                <VisualState x:Name="MouseOver">
-                                    <Storyboard>
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Opacity)" Storyboard.TargetName="border">
-                                            <EasingDoubleKeyFrame KeyTime="0" Value="0.4"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Pressed">
-                                    <Storyboard>
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Opacity)" Storyboard.TargetName="border">
-                                            <EasingDoubleKeyFrame KeyTime="0" Value="0.4"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Disabled">
-                                    <Storyboard>
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="border">
-                                            <EasingDoubleKeyFrame KeyTime="0" Value="0.4"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
-                        <ContentPresenter
-                                x:Name="contentPresenter"
-                                Focusable="False"
-                                Margin="{TemplateBinding Padding}"
-                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <Style x:Key="PrimaryColorRepeatButton" TargetType="RepeatButton">
-        <Setter Property="Width" Value="32" />
-        <Setter Property="Height" Value="32" />
-        <Setter Property="Margin" Value="2" />
-        <Setter Property="Foreground">
-            <Setter.Value>
-                <SolidColorBrush Color="{DynamicResource WindowTabForegroundColor}" />
-            </Setter.Value>
-        </Setter>
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type RepeatButton}">
-                    <Border x:Name="border" SnapsToDevicePixels="True">
-                        <Border.Background>
-                            <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" Opacity="0" />
-                        </Border.Background>
-                        <Border.Effect>
-                            <DropShadowEffect Opacity="0"/>
-                        </Border.Effect>
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CommonStates">
-                                <VisualState x:Name="Normal">
-                                </VisualState>
-                                <VisualState x:Name="MouseOver">
-                                    <Storyboard>
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Opacity)" Storyboard.TargetName="border">
-                                            <EasingDoubleKeyFrame KeyTime="0" Value="0.4"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Pressed">
-                                    <Storyboard>
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Opacity)" Storyboard.TargetName="border">
-                                            <EasingDoubleKeyFrame KeyTime="0" Value="0.4"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Disabled">
-                                    <Storyboard>
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="border">
-                                            <EasingDoubleKeyFrame KeyTime="0" Value="0.4"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
-                        <ContentPresenter
-                                x:Name="contentPresenter"
-                                Focusable="False"
-                                Margin="{TemplateBinding Padding}"
-                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
 
     <Style x:Key="MaterialButton" TargetType="Button">
         <Setter Property="OverridesDefaultStyle" Value="True" />
@@ -311,6 +29,107 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
+                    <Border
+                        x:Name="Border"
+                        Width="{TemplateBinding Width}"
+                        Height="{TemplateBinding Height}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal">
+                                </VisualState>
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(UIElement.Opacity)"
+                                            Storyboard.TargetName="White">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="0.2" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(UIElement.Opacity)"
+                                            Storyboard.TargetName="Cover">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="0.9" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(UIElement.Opacity)"
+                                            Storyboard.TargetName="Content">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="0.7" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.Y)"
+                                            Storyboard.TargetName="Content">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="1" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(UIElement.Opacity)"
+                                            Storyboard.TargetName="Border">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.0" Value="0.4"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+
+                        <Grid>
+                            <Border
+                                x:Name="Cover"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Opacity="1">
+                            </Border>
+                            <Border
+                                x:Name="White"
+                                CornerRadius="4"
+                                Opacity="0"
+                                Background="White"
+                                />
+                            <ContentControl
+                                x:Name="Content"
+                                Foreground="{TemplateBinding Foreground}"
+                                Margin="{TemplateBinding Padding}"
+                                Content="{TemplateBinding Content}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
+                                <ContentControl.RenderTransform>
+                                    <TransformGroup>
+                                        <TranslateTransform X="0" Y="0" />
+                                    </TransformGroup>
+                                </ContentControl.RenderTransform>
+                            </ContentControl>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MaterialRepeatButton" TargetType="RepeatButton">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="Padding" Value="8,2,8,2" />
+        <Setter Property="Foreground">
+            <Setter.Value>
+                <SolidColorBrush Color="{DynamicResource MakimokiWhiteColor}" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background">
+            <Setter.Value>
+                <SolidColorBrush Color="{DynamicResource MakimokiPrimaryColor}" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
                     <Border
                         x:Name="Border"
                         Width="{TemplateBinding Width}"

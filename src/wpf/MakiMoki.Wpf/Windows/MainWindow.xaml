@@ -161,21 +161,35 @@
                                     <RepeatButton
                                         x:Name="leftButton"
                                         Grid.Column="1" Grid.Row="3"
-                                        Style="{StaticResource PrimaryColorRepeatButton}"
+                                        Style="{StaticResource MaterialRepeatButton}"
+                                        Width="32" Height="32"
+                                        Margin="2"
+                                        Padding="2"
                                         VerticalAlignment="Center"
                                         Content="▲"
                                         CommandTarget="{Binding ElementName=scrollViewer}"
                                         Command="ScrollBar.LineUpCommand"
-                                        Visibility="Hidden" />
+                                        Visibility="Hidden">
+                                        <RepeatButton.Background>
+                                            <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                                        </RepeatButton.Background>
+                                    </RepeatButton>
                                     <RepeatButton
                                         x:Name="rightButton"
                                         Grid.Column="1" Grid.Row="4"
-                                        Style="{StaticResource PrimaryColorRepeatButton}"
+                                        Style="{StaticResource MaterialRepeatButton}"
+                                        Width="32" Height="32"
+                                        Margin="2"
+                                        Padding="2"
                                         VerticalAlignment="Center"
                                         Content="▼"
                                         CommandTarget="{Binding ElementName=scrollViewer}"
                                         Command="ScrollBar.LineDownCommand"
-                                        Visibility="Hidden" />
+                                        Visibility="Hidden">
+                                        <RepeatButton.Background>
+                                            <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                                        </RepeatButton.Background>
+                                    </RepeatButton>
                                     <StackPanel Grid.Column="1" Grid.Row="6" Orientation="Vertical">
                                         <!-- デバッグ用 -->
                                         <Button
@@ -456,22 +470,36 @@
                                     </ScrollViewer>
                                     <RepeatButton
                                         x:Name="leftButton" Grid.Column="3"
-                                        Style="{StaticResource PrimaryColorRepeatButton}"
+                                        Style="{StaticResource MaterialRepeatButton}"
+                                        Width="32" Height="32"
+                                        Margin="2"
+                                        Padding="2"
                                         VerticalAlignment="Center"
                                         Content="◀"
                                         CommandTarget="{Binding ElementName=scrollViewer}"
                                         Command="ScrollBar.LineLeftCommand"
                                         Visibility="Hidden"
-                                        WindowChrome.IsHitTestVisibleInChrome="True"/>
+                                        WindowChrome.IsHitTestVisibleInChrome="True">
+                                        <RepeatButton.Background>
+                                            <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                                        </RepeatButton.Background>
+                                    </RepeatButton>
                                     <RepeatButton
                                         x:Name="rightButton" Grid.Column="4"
-                                        Style="{StaticResource PrimaryColorRepeatButton}"
+                                        Style="{StaticResource MaterialRepeatButton}"
+                                        Width="32" Height="32"
+                                        Margin="2"
+                                        Padding="2"
                                         VerticalAlignment="Center"
                                         Content="▶"
                                         CommandTarget="{Binding ElementName=scrollViewer}"
                                         Command="ScrollBar.LineRightCommand"
                                         Visibility="Hidden"
-                                        WindowChrome.IsHitTestVisibleInChrome="True"/>
+                                        WindowChrome.IsHitTestVisibleInChrome="True">
+                                        <RepeatButton.Background>
+                                            <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                                        </RepeatButton.Background>
+                                    </RepeatButton>
                                     <StackPanel Grid.Column="6" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
                                         <Button Content="0" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
                                         <Button Content="1" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MaximizeWindowCommand}">
