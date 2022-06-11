@@ -53,7 +53,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			};
 		}
 
-		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie[] Cookies, string Raw)> GetCatalog(string baseUrl, Data.Cookie[] cookies, Data.CatalogSortItem sort = null) {
+		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie2[] Cookies, string Raw)> GetCatalog(string baseUrl, Data.Cookie2[] cookies, Data.CatalogSortItem sort = null) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			return await Task.Run(() => {
 				try {
@@ -65,11 +65,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						r.AddParameter("sort", sort.ApiValue);
 					}
 					foreach(var cookie in cookies) {
-						r.AddCookie(cookie.Name, cookie.Value);
+						if(IsCookie(baseUrl, cookie)) {
+							r.AddCookie(cookie.Name, cookie.Value);
+						}
 					}
 					var res = c.Execute(r);
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-						var rc = res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray();
+						var rc = res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray();
 						if(res.Content.StartsWith("<html>")) {
 							var s = FutabaEncoding.GetString(res.RawBytes);
 							System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -91,7 +93,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(bool Successed, Data.Cookie[] Cookies, string Raw)> GetCatalogHtml(string baseUrl, Data.Cookie[] cookies, int maxThread, Data.CatalogSortItem sort = null) {
+		public static async Task<(bool Successed, Data.Cookie2[] Cookies, string Raw)> GetCatalogHtml(string baseUrl, Data.Cookie2[] cookies, int maxThread, Data.CatalogSortItem sort = null) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			return await Task.Run(() => {
 				try {
@@ -103,16 +105,20 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					}
 					foreach(var cookie in cookies) {
 						if(cookie.Name != "cxyl") {
-							r.AddCookie(cookie.Name, cookie.Value);
+							if(IsCookie(baseUrl, cookie)) {
+								r.AddCookie(cookie.Name, cookie.Value);
+							}
 						}
 					}
-					var w = 15;
-					var h = (maxThread / w) + ((maxThread % w == 0) ? 0 : 1);
-					r.AddCookie("cxyl", string.Format("{0}x{1}x0x0x0", w, h));
+					{
+						var w = 15;
+						var h = (maxThread / w) + ((maxThread % w == 0) ? 0 : 1);
+						r.AddCookie("cxyl", $"{w}x{h}x0x0x0");
+					}
 					var res = c.Execute(r);
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 						var s = FutabaEncoding.GetString(res.RawBytes);
-						var rc = res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray();
+						var rc = res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray();
 						return (true, rc, s);
 					} else {
 						return (false, null, null);
@@ -122,7 +128,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie[] cookies, string Raw)> GetThreadRes(string baseUrl, string threadNo, Data.Cookie[] cookies) {
+		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie2[] cookies, string Raw)> GetThreadRes(string baseUrl, string threadNo, Data.Cookie2[] cookies) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(threadNo != null);
 			return await Task.Run(() => {
@@ -132,11 +138,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					r.AddParameter("mode", "json");
 					r.AddParameter("res", threadNo);
 					foreach(var cookie in cookies) {
-						r.AddCookie(cookie.Name, cookie.Value);
+						if(IsCookie(baseUrl, cookie)) {
+							r.AddCookie(cookie.Name, cookie.Value);
+						}
 					}
 					var res = c.Execute(r);
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-						var rc = res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray();
+						var rc = res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray();
 						if(res.Content.StartsWith("<html>")) {
 							var s = FutabaEncoding.GetString(res.RawBytes);
 							System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -157,7 +165,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie[] cookies, string Raw)> GetThreadRes(string baseUrl, string threadNo, string startRes, Data.Cookie[] cookies) {
+		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie2[] cookies, string Raw)> GetThreadRes(string baseUrl, string threadNo, string startRes, Data.Cookie2[] cookies) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(threadNo != null);
 			System.Diagnostics.Debug.Assert(startRes != null);
@@ -169,11 +177,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					r.AddParameter("res", threadNo);
 					r.AddParameter("start", startRes);
 					foreach(var cookie in cookies) {
-						r.AddCookie(cookie.Name, cookie.Value);
+						if(IsCookie(baseUrl, cookie)) {
+							r.AddCookie(cookie.Name, cookie.Value);
+						}
 					}
 					var res = c.Execute(r);
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-						var rc = res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray();
+						var rc = res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray();
 						if(res.Content.StartsWith("<html>")) {
 							var s = FutabaEncoding.GetString(res.RawBytes);
 							System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -194,19 +204,21 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(bool Successed, bool Is404, Data.Cookie[] Cookies, string Raw)> GetThreadResHtml(string baseUrl, string threadNo, Data.Cookie[] cookies) {
+		public static async Task<(bool Successed, bool Is404, Data.Cookie2[] Cookies, string Raw)> GetThreadResHtml(string baseUrl, string threadNo, Data.Cookie2[] cookies) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			return await Task.Run(() => {
 				try {
 					var c = CreateRestClient(baseUrl);
 					var r = new RestRequest(string.Format("res/{0}.htm", threadNo), Method.GET);
 					foreach(var cookie in cookies) {
-						r.AddCookie(cookie.Name, cookie.Value);
+						if(IsCookie(baseUrl, cookie)) {
+							r.AddCookie(cookie.Name, cookie.Value);
+						}
 					}
 					var res = c.Execute(r);
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 						var s = FutabaEncoding.GetString(res.RawBytes);
-						var rc = res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray();
+						var rc = res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray();
 						return (true, false, rc, s);
 					} else {
 						return (false, res.StatusCode == System.Net.HttpStatusCode.NotFound, null, null);
@@ -260,11 +272,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 
-		public static async Task<(bool Successed, string NextOrMessage, Data.Cookie[] Cookies, string Raw)> PostThread(Data.BoardData bord,
-			Data.Cookie[] cookies, string ptua,
+		public static async Task<(bool Successed, string NextOrMessage, Data.Cookie2[] Cookies, string Raw)> PostThread(Data.BoardData board,
+			Data.Cookie2[] cookies, string ptua,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
-			System.Diagnostics.Debug.Assert(bord != null);
+			System.Diagnostics.Debug.Assert(board != null);
 			System.Diagnostics.Debug.Assert(cookies != null);
 			System.Diagnostics.Debug.Assert(ptua != null);
 			System.Diagnostics.Debug.Assert(name != null);
@@ -276,19 +288,21 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return await Task.Run(() => {
 				// nc -vv -k -l 127.0.0.1 8080;
 				//var c = new RestClient("http://127.0.0.1:8080/");
-				var c = CreateRestClient(bord.Url);
+				var c = CreateRestClient(board.Url);
 				var r = new RestRequest(FutabaEndPoint, Method.POST);
 				c.Encoding = FutabaEncoding;
 				r.AddHeader("Content-Type", "multipart/form-data");
-				r.AddHeader("referer", string.Format("{0}futaba.htm", bord.Url));
+				r.AddHeader("referer", string.Format("{0}futaba.htm", board.Url));
 				r.AddParameter("guid", "on", ParameterType.QueryString);
 
 				r.AlwaysMultipartFormData = true;
-				SetPostParameter(r, bord, "",
+				SetPostParameter(r, board, "",
 					ptua,
 					name, email, subject, comment, filePath, passwd);
 				foreach(var cookie in cookies) {
-					r.AddCookie(cookie.Name, cookie.Value);
+					if(IsCookie(board.Url, cookie)) {
+						r.AddCookie(cookie.Name, cookie.Value);
+					}
 				}
 				var res = c.Execute(r);
 				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
@@ -297,7 +311,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						"<meta\\s+http-equiv=\"refresh\"\\s+content=\"1;url=res/([0-9]+).htm\">",
 						RegexOptions.IgnoreCase);
 					if(m.Success) {
-						return (true, m.Groups[1].Value, res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray(), s);
+						return (true, m.Groups[1].Value, res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
 					} else {
 						// エラー解析めどい…めどくない？
 						var msg = "不明なエラー";
@@ -315,7 +329,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								msg = mm.Groups[1].Value;
 							}
 						}
-						return (false, msg, res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray(), s);
+						return (false, msg, res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
 					}
 				} else {
 					return (false, "HTTPエラー", null, null);
@@ -323,11 +337,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(bool Successed, Data.Cookie[] Cookies, string Raw)> PostRes(Data.BoardData bord, string threadNo,
-			Data.Cookie[] cookies, string ptua,
+		public static async Task<(bool Successed, Data.Cookie2[] Cookies, string Raw)> PostRes(Data.BoardData board, string threadNo,
+			Data.Cookie2[] cookies, string ptua,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
-			System.Diagnostics.Debug.Assert(bord != null);
+			System.Diagnostics.Debug.Assert(board != null);
 			System.Diagnostics.Debug.Assert(threadNo != null);
 			System.Diagnostics.Debug.Assert(cookies != null);
 			System.Diagnostics.Debug.Assert(ptua != null);
@@ -340,27 +354,29 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return await Task.Run(() => {
 				// nc -vv -k -l 127.0.0.1 8080;
 				//var c = new RestClient("http://127.0.0.1:8080/");
-				var c = CreateRestClient(bord.Url);
+				var c = CreateRestClient(board.Url);
 				//c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
 				//c.Encoding = Encoding.GetEncoding("Shift_JIS");
 				var r = new RestRequest(FutabaEndPoint, Method.POST);
 				r.AddHeader("Content-Type", "multipart/form-data");
 				//r.AddHeader("origin", "https://img.2chan.net");
-				r.AddHeader("referer", string.Format("{0}res/{1}.htm", bord.Url, threadNo));
+				r.AddHeader("referer", string.Format("{0}res/{1}.htm", board.Url, threadNo));
 				r.AddParameter("guid", "on", ParameterType.QueryString);
 
 				r.AlwaysMultipartFormData = true;
-				SetPostParameter(r, bord, threadNo,
+				SetPostParameter(r, board, threadNo,
 					ptua,
 					name, email, subject, comment, filePath, passwd);
 				r.AddParameter("responsemode", "ajax", ParameterType.GetOrPost);
 				foreach(var cookie in cookies) {
-					r.AddCookie(cookie.Name, cookie.Value);
+					if(IsCookie(board.Url, cookie)) {
+						r.AddCookie(cookie.Name, cookie.Value);
+					}
 				}
 				var res = c.Execute(r);
 				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 					var s = FutabaEncoding.GetString(res.RawBytes);
-					return (s == "ok", res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray(), s);
+					return (s == "ok", res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
 				} else {
 					return (false, null, null);
 				}
@@ -414,7 +430,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return r;
 		}
 
-		public static async Task<(bool Successed, Data.Cookie[] Cookies, string Raw)> PostDeleteThreadRes(string baseUrl, string threadResNo, Data.Cookie[] cookies, bool imageOnly, string passwd) {
+		public static async Task<(bool Successed, Data.Cookie2[] Cookies, string Raw)> PostDeleteThreadRes(string baseUrl, string threadResNo, Data.Cookie2[] cookies, bool imageOnly, string passwd) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(threadResNo != null);
 			System.Diagnostics.Debug.Assert(passwd != null);
@@ -431,12 +447,14 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				}
 
 				foreach(var cookie in cookies) {
-					r.AddCookie(cookie.Name, cookie.Value);
+					if(IsCookie(baseUrl, cookie)) {
+						r.AddCookie(cookie.Name, cookie.Value);
+					}
 				}
 				var res = c.Execute(r);
 				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 					var s = FutabaEncoding.GetString(res.RawBytes);
-					return (s == "ok", res.Cookies.Select(x => new Data.Cookie(x.Name, x.Value)).ToArray(), s);
+					return (s == "ok", res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
 				} else {
 					return (false, null, null);
 				}
@@ -491,34 +509,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				}
 			});
 		}
-
-		[Obsolete]
-		public static async Task<bool> PostDel(string baseUrl, string threadResNo, Data.Cookie[] cookies, Data.DelReasonItem reason) {
-			System.Diagnostics.Debug.Assert(baseUrl != null);
-			System.Diagnostics.Debug.Assert(threadResNo != null);
-			System.Diagnostics.Debug.Assert(reason != null);
-			return await Task.Run(() => {
-				var url = new Uri(baseUrl);
-				var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
-				var b = url.AbsolutePath.Replace("/", "");
-
-				var c = CreateRestClient(u);
-				var r = new RestRequest(FutabaDelEndPoint, Method.POST);
-				r.AddParameter("mode", "post", ParameterType.GetOrPost);
-				r.AddParameter("responsemode", "ajax", ParameterType.GetOrPost);
-				r.AddParameter("b", b, ParameterType.GetOrPost);
-				r.AddParameter("d", threadResNo, ParameterType.GetOrPost);
-				r.AddParameter("reason", reason.ApiValue, ParameterType.GetOrPost);
-				var res = c.Execute(r);
-				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-					var s = res.Content;
-					return s == "ok";
-				} else {
-					return false;
-				}
-			});
-		}
-
 		public static async Task<(bool Successed, string Message)> UploadUp2(string comment, string filePath, string passwd) {
 			System.Diagnostics.Debug.Assert(comment != null);
 			System.Diagnostics.Debug.Assert(filePath != null);
@@ -650,6 +640,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				}
 			}
 			return "";
+		}
+
+		private static bool IsCookie(string baseUrl, Data.Cookie2 cookie) {
+			var u = new Uri(baseUrl);
+			return u.Host.EndsWith(cookie.Domain)
+				&& u.AbsolutePath.StartsWith(cookie.Path);
 		}
 	}
 }
