@@ -29,7 +29,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 		[System.Runtime.InteropServices.DllImport("user32.dll")]
 		private static extern bool SendMessage(IntPtr hwnd, int msg, IntPtr wP, IntPtr lP);
 		[System.Runtime.InteropServices.DllImport("user32.dll")]
-		private static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr wP, IntPtr lP);
+		private static extern bool GetCursorPos(ref POINT p);
+		struct POINT {
+			public int x;
+			public int y;
+		}
 
 		public MainWindow() {
 			InitializeComponent();
@@ -47,97 +51,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 			}
 			this.Loaded += (_, _) => {
 				IntPtr wndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
-					bool isMax(IntPtr lP) {
-						foreach(var b in new[] {
-							this.maximizeWindowButton,
-							this.restoreWindowButton,
-						}) {
-							if(b.Visibility == Visibility.Visible) {
-								var p = b.PointFromScreen(new Point() {
-									X = lP.ToInt32() & 0xffff,
-									Y = lP.ToInt32() >> 16 & 0xffff
-								});
-								if((0 <= p.X) && (p.X <= b.ActualWidth)
-									&& (0 <= p.Y) && (p.Y <= b.ActualHeight)) {
-
-									return true;
-								}
-							}
+					if(isWindows11RTM) {
+						/* 無効化
+						var r = this.Win11SnapLayoutProc(hwnd, msg, wParam, lParam, ref handled);
+						if(handled) {
+							return r;
 						}
-						return false;
+						*/
 					}
-					int makeWp() {
-						const int MK_CONTROL = 0x0008;
-						const int MK_LBUTTON = 0x0001;
-						const int MK_MBUTTON = 0x0010;
-						const int MK_RBUTTON = 0x0002;
-						const int MK_SHIFT = 0x0004;
-						const int MK_XBUTTON1 = 0x0020;
-						const int MK_XBUTTON2 = 0x0040;
-
-						var r = 0;
-						foreach(var it in new (MouseButtonState State, int Value)[] {
-								(Mouse.LeftButton, MK_LBUTTON),
-								(Mouse.MiddleButton, MK_MBUTTON),
-								(Mouse.RightButton, MK_RBUTTON),
-								(Mouse.XButton1, MK_XBUTTON1),
-								(Mouse.XButton2, MK_XBUTTON2),
-							}) {
-							r |= it.State switch {
-								MouseButtonState.Pressed => it.Value,
-								_ => 0
-							};
-						}
-						foreach(var it in new (Key Key, int Value)[] {
-								(Key.LeftCtrl, MK_CONTROL),
-								(Key.RightCtrl, MK_CONTROL),
-								(Key.LeftShift, MK_SHIFT),
-								(Key.RightShift, MK_SHIFT),
-							}) {
-							r |= Keyboard.IsKeyDown(it.Key) switch {
-								true => it.Value,
-								false => 0,
-							};
-						}
-						return r;
-					}
-
-					const int WM_NCHITTEST = 0x0084;
-					const int WM_NCMOUSEHOVER = 0x02A0;
-					const int WM_NCMOUSELEAVE = 0x02A2;
-					const int WM_NCMOUSEMOVE = 0x00A0;
-					const int WM_NCLBUTTONDOWN = 0x00A1;
-					const int WM_NCLBUTTONUP = 0x00A2;
-					const int WM_LBUTTONDOWN = 0x0201;
-					const int WM_LBUTTONUP = 0x0202;
-					const int WM_MOUSEHOVER = 0x02A1;
-					const int WM_MOUSEMOVE = 0x0200;
-					switch(msg) {
-					case WM_NCHITTEST:
-						if(isWindows11RTM && isMax(lParam)) {
-							const int HTMAXBUTTON = 9;
-							// うまく動かない
-							//handled = true;
-							//return (IntPtr)HTMAXBUTTON;
-						}
-						break;
-					}
-					foreach(var it in new (int From, int To)[] {
-						(WM_NCLBUTTONDOWN, WM_LBUTTONDOWN),
-						(WM_NCLBUTTONUP, WM_LBUTTONUP),
-						(WM_NCMOUSEHOVER, 0),
-						(WM_NCMOUSELEAVE, 0),
-						(WM_NCMOUSEMOVE, WM_MOUSEMOVE),
-					}) {
-						if((msg == it.From) && isWindows11RTM && isMax(lParam)) {
-							if(it.To != 0) {
-								SendMessage(hwnd, it.To, (IntPtr)makeWp(), lParam);
-							}
-							handled = true;
-							return IntPtr.Zero;
-						}
-					}
-
 					return IntPtr.Zero;
 				}
 
@@ -300,5 +221,114 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 			}
 		}
 
+		private IntPtr Win11SnapLayoutProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
+			bool hittest(FrameworkElement e, int x, int y) {
+				var p = e.PointFromScreen(new Point(x, y));
+				return (0 <= p.X) && (p.X <= e.ActualWidth)
+					&& (0 <= p.Y) && (p.Y <= e.ActualHeight);
+			}
+			bool isMax(IntPtr lP) {
+				foreach(var b in new[] {
+							this.maximizeWindowButton,
+							this.restoreWindowButton,
+						}) {
+					var l = (uint)lP.ToInt64();
+					if(b.Visibility == Visibility.Visible) {
+						if(hittest(b, (int)(short)(l & 0xffff), (int)(short)(l >> 16 & 0xffff))) {
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+			int makeWp() {
+				const int MK_CONTROL = 0x0008;
+				const int MK_LBUTTON = 0x0001;
+				const int MK_MBUTTON = 0x0010;
+				const int MK_RBUTTON = 0x0002;
+				const int MK_SHIFT = 0x0004;
+				const int MK_XBUTTON1 = 0x0020;
+				const int MK_XBUTTON2 = 0x0040;
+
+				var r = 0;
+				foreach(var it in new (MouseButtonState State, int Value)[] {
+					(Mouse.LeftButton, MK_LBUTTON),
+					(Mouse.MiddleButton, MK_MBUTTON),
+					(Mouse.RightButton, MK_RBUTTON),
+					(Mouse.XButton1, MK_XBUTTON1),
+					(Mouse.XButton2, MK_XBUTTON2),
+				}) {
+					r |= it.State switch {
+						MouseButtonState.Pressed => it.Value,
+						_ => 0
+					};
+				}
+				foreach(var it in new (Key Key, int Value)[] {
+					(Key.LeftCtrl, MK_CONTROL),
+					(Key.RightCtrl, MK_CONTROL),
+					(Key.LeftShift, MK_SHIFT),
+					(Key.RightShift, MK_SHIFT),
+				}) {
+					r |= Keyboard.IsKeyDown(it.Key) switch {
+						true => it.Value,
+						false => 0,
+					};
+				}
+				return r;
+			}
+
+			const int WM_NCHITTEST = 0x0084;
+			const int WM_NCMOUSEHOVER = 0x02A0;
+			const int WM_NCMOUSELEAVE = 0x02A2;
+			const int WM_NCMOUSEMOVE = 0x00A0;
+			const int WM_NCLBUTTONDOWN = 0x00A1;
+			const int WM_NCLBUTTONUP = 0x00A2;
+			const int WM_LBUTTONDOWN = 0x0201;
+			const int WM_LBUTTONUP = 0x0202;
+			const int WM_MOUSEHOVER = 0x02A1;
+			const int WM_MOUSEMOVE = 0x0200;
+			const int WM_MOUSELEAVE = 0x02A3;
+			switch(msg) {
+			case WM_NCHITTEST:
+				if(isMax(lParam)) {
+					const int HTMAXBUTTON = 9;
+					handled = true;
+					return (IntPtr)HTMAXBUTTON;
+				}
+				break;
+			case WM_NCLBUTTONDOWN:
+				if(isMax(lParam)) {
+					if(new System.Windows.Automation.Peers.ButtonAutomationPeer(this.WindowState switch {
+						WindowState ws when ws == WindowState.Maximized => this.restoreWindowButton,
+						_ => this.maximizeWindowButton,
+					}).GetPattern(System.Windows.Automation.Peers.PatternInterface.Invoke) is System.Windows.Automation.Provider.IInvokeProvider ip) {
+						ip.Invoke();
+						handled = true;
+						return IntPtr.Zero;
+					}
+				}
+				break;
+			case WM_MOUSELEAVE: {
+					var p = default(POINT);
+					GetCursorPos(ref p);
+					if(hittest(this.WindowState switch {
+						WindowState ws when ws == WindowState.Maximized => this.restoreWindowButton,
+						_ => this.maximizeWindowButton
+					}, p.x, p.y)) {
+						handled = true;
+						return IntPtr.Zero;
+					}
+				}
+				break;
+			case WM_NCMOUSEMOVE:
+				if(isMax(lParam)) {
+					SendMessage(hwnd, WM_MOUSEMOVE, (IntPtr)makeWp(), lParam);
+					handled = true;
+					return IntPtr.Zero;
+				}
+				break;
+			}
+			return IntPtr.Zero;
+		}
 	}
 }
