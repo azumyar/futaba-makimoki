@@ -1,7 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
-  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
-  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')" />
+  <!-- net6.0はT4がうまく動かないので細工する -->
+  <Import
+    Project="Sdk.props" Sdk="Microsoft.NET.Sdk"
+    Condition="$(Github) == 'True'"
+    />
+  <Import
+    Project="Sdk.targets" Sdk="Microsoft.NET.Sdk"
+    Condition="$(Github) == 'True'"
+    />
+  <Import
+    Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets"
+    Condition="$(Github) == 'True' And Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')"
+    />
 
   <PropertyGroup>
     <TargetFrameworks>net6.0-windows</TargetFrameworks>
