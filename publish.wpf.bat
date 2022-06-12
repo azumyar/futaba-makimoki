@@ -34,7 +34,7 @@ if exist %OUTPUT_DIR% rd /s /q %OUTPUT_DIR%
 if not %errorlevel%==0 goto end
 "%DOTNET%" clean --nologo -c Release -r %TARGET_RUNTIME%
 if not %errorlevel%==0 goto end
-"%MSBUILD%" %TARGET_SLN% -nologo -m -t:TransformAll
+"%MSBUILD%" %TARGET_SLN% -nologo -m -t:TransformAll -p:Github=True
 if not %errorlevel%==0 goto end
 "%DOTNET%" msbuild ^
    -noLogo ^
