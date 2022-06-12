@@ -44,7 +44,7 @@ table th, table td {
     padding: 4px;
 }
 
-#screenshot-sction {
+#screenshot-section {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -52,17 +52,17 @@ table th, table td {
     max-width: 1024px;
 }
 
-#screenshot-sction div {
+#screenshot-section div {
     width: 360px;
     margin-right: 4px;
     margin-bottom: 4px;
 }
 
-#screenshot-sction div.orig {
+#screenshot-section div.orig {
     width: initial;
 }
 
-#screenshot-sction div img {
+#screenshot-section div img {
     width: 100%;
     height: auto;
 }

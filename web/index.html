@@ -12,17 +12,20 @@
     <h1>ふたマキ</h1>
     <p style="font-weight: bold;">2021/06/17 現在/futamaki/配下が参照できない問>題が発生しているため設定を変更してます。/futamaki/は403ですが配下のzip,apkファイルにはアクセスできるようになっています。最新の安定版以外をお探しの方はカナリアビルドからお探しください。</p>
     <ul>
-        <li class="checked" id="futamaki-bin-link"><a href="/futamaki/">ダウンロード</a></li>
+        <li class="checked" id="futamaki-bin-link"><a href="futamaki/">ダウンロード</a></li>
         <li class="checked"><a href="https://install.appcenter.ms/users/azumyar/apps/futamaki/distribution_groups/canary/">カナリアビルド(人柱向け)</a></li>
         <li class="checked"><a href="https://github.com/azumyar/futaba-makimoki">ソースコード</a></li>
         <li class="checked"><a href="https://marshmallow-qa.com/yarukizero_dev">マシュマロ(連絡先)</a></li>
+        <li class="checked"><a href="release-history.html">更新履歴</a></li>
+        <li class="checked"><a href="marshmallow-history.html">返信履歴</a></li>
     </ul>
 
     <h2>なにこれ</h2>
     <p>
-        某掲示板ブラウザです。
+        某掲示板ブラウザです。<br />
+        <a id="show-screenshot" onclick="showScreenshot()">スクリーンショット表示</a>
     </p>
-    <div id="screenshot-sction">
+    <div id="screenshot-section" style="display:none;">
         <div>
             <img src="img/ss01.jpg" loading="lazy" />
         </div>
@@ -91,317 +94,38 @@
         <h3>Done</h3>
         <ul>
             <li class="checked">
+                period.35 動画のサムネ実装
+                <ul>
+                    <li class="checked">投稿画面に動画のサムネを表示するように</li>
+               </ul>
+            </li>
+            <li class="checked">
+                period.34 見た目の修正
+                <ul>
+                    <li class="checked">Windows11の角丸スタイルに対応</li>
+                    <li class="checked">コントロールのスタイルに独自スタイルを適用範囲を拡大</li>
+                    <li class="checked">Cookie処理を修正</li>
+                </ul>
+            </li>
+            <li class="checked">
+                period.33 はっちゃんforタイムラプス対応
+                <ul>
+                    <li class="checked">はっちゃんforタイムラプス対応</li>
+                    <li class="checked">カタログモードのモード切替を廃止</li>
+                </ul>
+            </li>
+            <li class="checked">
+                period.32 微調整
+                <ul>
+                    <li class="checked">imgのスレ保存設定が変わっていたので対応</li>
+                    <li class="checked">消滅処理時間がローカル時刻を使っていた問題を修正</li>
+                </ul>
+            </li>
+            <li class="checked">
                 period.31 微調整
                 <ul>
                     <li class="checked">スレが落ちているときに更新インタラクションを非表示に</li>
                     <li class="checked">カタログサムネツールチップにマウスイベントが奪われていた問題修正</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.30 バグ修正
-                <ul>
-                    <li class="checked">スクロール更新にインタラクションを追加</li>
-                    <li class="checked">NGとWatchのハッシュ計算が連携できていなかった問題を修正</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.29 バグ修正
-                <ul>
-                    <li class="checked">トーストの画像領域が正方形でなかった問題を修正</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.28 メモリ消費問題をメインにいろいろと細かいところを
-                <ul>
-                    <li class="checked">メモリが大幅に消費される問題を対策</li>
-                    <li class="checked">.NET6に移行とそれに伴う仕様変更</li>
-                    <li class="checked">ListBoxのホイールスクロールを下方向4倍上方向2倍に設定</li>
-                    <li class="checked">投稿画面でカラー絵文字を使用できるように変更</li>
-                    <li class="checked">Windows11でボタンが十字になっていた問題対策</li>
-                    <li class="checked">カタログ検索が入力後すぐに検索していた実装を0.5秒待機するように変更</li>
-                    <li class="checked">ホイールスクロールアップデート回数からを0.75秒回し続けるに変更</li>
-                    <li class="checked">Per Moniter V2に対応</li>
-                    <li class="checked">カタログスクロール中にサムネ画質を落とすように変更</li>
-                    <li class="checked">タブを閉じるとき左のタブではなく閲覧履歴に沿って移動するように変更</li>
-                    <li class="checked">Chromeからはっちゃんのブックマークレットをコピーするとエスケープされるようになっていたので対策</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.27 バグ修正
-                <ul>
-                    <li class="checked">引用ポップアップで1文が長いと見切れる問題を修正</li>
-                    <li class="checked">カタログのショートカットキーを無効化したままだった問題を修正</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.26 バグ修正
-                <ul>
-                    <li class="checked">自動更新で新着レスなしが表示されることがある問題を修正</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.25 パッシブ自動更新追加
-                <ul>
-                    <li class="checked">パッシブ自動更新を実装(板毎設定)</li>
-                    <li class="checked">引用ポップアップで1文が長いと見切れる問題を修正</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.24 バグ修正
-                <ul>
-                    <li class="checked">カタログのツールチップにHTMLが残る問題を修正</li>
-                    <li class="checked">スレ消滅時間計算をふたばの時刻ベースに変更</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.23 引用のポップアップウインドウ実装
-                <ul>
-                    <li class="checked">引用レスをポップアップに変更</li>
-                    <li class="checked">被引用レス一覧を表示を追加</li>
-                    <li class="checked">引用判定に未来のレスが含まれていた問題を修正</li>
-                    <li class="checked">非表示レス設定が再読み込みしないと適用されない問題を修正</li>
-                    <li class="checked">あぷ小のサムネ表示が機能しなくなっていた問題を修正</li>
-                    <li class="checked">塩辛鯖へのリンク機能を削除</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.22 はっちゃんアルバム対応
-                <ul>
-                    <li class="checked">はっちゃんとの連携設定を変更しアルバム機能に対応</li>
-                    <li class="checked">スレビュー末尾の消滅時間表示部分が複数でることがある問題の対策</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.21 バグ修正を主に機能追加
-                <ul>
-                    <li class="checked">コンテキストメニューにショートカットキー追加</li>
-                    <li class="checked">被参照レス数を表示(今回はここまで)</li>
-                    <li class="checked">HTML5保存(フルセット)試験追加</li>
-                    <li class="checked">自レス判定にデフォルトコメントを考慮するように変更</li>
-                    <li class="checked">メール欄判定が小文字しか考慮していなかった問題を修正</li>
-                    <li class="checked">はっちゃん連携が動作しなくなっていた問題修正</li>
-                    <li class="checked">メモリ解放周り強化</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.20 バグ修正
-                <ul>
-                    <li class="checked">ショートカット設定ファイルを読み込んでいなかった問題を修正</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.19 バグ修正
-                <ul>
-                    <li class="checked">スレッドビューListoBoxの再利用を廃止</li>
-                    <li class="checked">VLCを更新</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.18 バグ修正とちょっと機能追加
-                <ul>
-                    <li class="checked">塩とあぷ、あぷ小画像のサムネをリンクマウスオーバーで表示するように</li>
-                    <li class="checked">トーストにサムネを表示するように</li>
-                    <li class="checked">削除したレス画像のサムネが表示される問題を修正</li>
-                    <li class="checked">検索でひらがなカタカナ半角カタカナを区別しない処理が死んでいた問題を修正</li>
-                    <li class="checked">タブの閉じるボタンが意図せず発火する問題を修正</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.17 バグ修正
-                <ul>
-                    <li class="checked">外部URLを複数開くケースがある問題を修正</li>
-                    <li class="checked">落ちたスレを開くとrscが壊れている問題を修正</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.16 バグ修正
-                <ul>
-                    <li class="checked">メディアビューワの右クリックのバインドが外れていた問題を修正</li>
-                    <li class="checked">ブラー効果を調整</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.15 バグ修正をメインにちょこっと新機能
-                <ul>
-                    <li class="checked">ショートカットキ―の設定外だし</li>
-                    <li class="checked">右下にスレ画表示する機能(誤爆防止)</li>
-                    <li class="checked">高DPIにフリーズする問題対策</li>
-                    <li class="checked">手書き送信時に多重更新される問題対策</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.14 バグ修正
-                <ul>
-                    <li class="checked">スレッドビューをタブ毎に生成するように変更</li>
-                    <li class="checked">動画再生終了時にフリーズする問題対策</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.13 パッケージ化できなかったので再度
-                <ul>
-                    <li class="checked">パッケージが壊れていたので依存ライブラリをダウングレード</li>
-                </ul>
-            </li>
- 
-            <li class="checked">
-                period.12 バグ修正
-                <ul>
-                    <li class="checked">カラー絵文字がおかしくなっていた問題修正</li>
-                    <li class="checked">書き送信時に多重更新がかかることがある問題対策</li>
-                    <li class="checked">画像取得を改善</li>
-               </ul>
-            </li>
-
-            <li class="checked">
-                period.11 致命的な問題を修正
-                <ul>
-                    <li class="checked">初期起動時何もできなかった問題を修正</li>
-               </ul>
-            </li>
-
-            <li class="checked">
-                period.10 機能詰め込みすぎて怖いのでちょっと早いけどリリース
-                <ul>
-                    <li class="checked">設定画面に板追加機能を追加</li>
-                    <li class="checked">カタログ部分を非表示にしてスレッドが面を全体化するレイアウト</li>
-                    <li class="checked">カタログ強調ワード/画像機能</li>
-                    <li class="checked">ハッシュ処理の積極的な非同期化</li>
-                    <li class="checked">コマンドパレットの左寄せ/はっちゃんキャンバスの右と下配置に対応</li>
-               </ul>
-            </li>
-
-            <li class="checked">
-                period.09 お正月ロスタイム更新
-                <ul>
-                    <li class="checked">.NET5に移行</li>
-                    <li class="checked">はっちゃんキャンバス連携処理を実装</li>
-                    <li class="checked">App Center連携処理を実装</li>
-                    <li class="checked">コメントTextViewのfont指定カラーの変換設定を追加</li>
-                    <li class="checked">libwebpを1.1.0に更新</li>
-                    <li class="checked">タイムゾーンがJST以外の環境で実行するとクラッシュしていた問題を対策</li>
-                    <li class="checked">そうだねとdelをキュースレッドに分離連続実行でブロックされる問題に対策</li>
-                </ul>
-            </li>
-
-            <li class="checked">
-                period.08 1周年
-                <ul>
-                    <li class="checked">
-                        もうすぐ落ちるスレをカタログに表示
-                        <ul>
-                            <li class="checked">IDマーカーの背景色を青色に変更</li>
-                        </ul>
-                    </li>
-                    <li class="checked">あぷ小のアップロード対象ファイル設定を更新</li>
-                    <li class="checked">HTMLエクスポートを修正</li>
-                </ul>
-            </li>
-            <li class="checked">
-                period.07 ダークモード(テーマ)に手を付けたら終わる気がしないので途中で投げる
-                <ul>
-                    <li class="checked">スレ/レス削除の画像消去オプション</li>
-                    <li class="checked">
-                        カラー・フォント設定ファイル外だし
-                        <ul>
-                            <li class="checked">途中で投げたのでβですけどね！</li>
-                        </ul>
-                    </li>
-                    <li class="checked">要望「マウス右ボタンのダブルクリックでそうだね入れたりできませんか？」の対応</li>
-                    <li class="checked">ふたばの仕様でカタログJSONにIDが乗ってくるようになったのでID NG設定を分離</li>
-                    <li class="checked">ふたばの仕様でカタログJSONにIDが乗ってくるようになったのでカタログにIDマーカーを実装</li>
-                </ul>
-            </li>
-            <li class="checked">
-                period.06 お便りの対応とかバグ修正とか
-                <ul>
-                    <li class="checked">あぷと塩の拡張子がないファイルを補完してリンク張る/li>
-                    <li class="checked">引用クリックで引用元に移動機能を追加</li>
-                    <li class="checked">常に手前で表示機能を追加</li>
-                    <li class="checked">依存ライブラリを最新化</li>
-                    <li class="checked">合字を入力するとクラッシュしていた問題を修正</li>
-                    <li class="checked">メール(等)の絵文字を表示できるように修正</li>
-                    <li class="checked">
-                        動画再生中にメディア画面を閉じようとすると高確率でフリーズする問題を修正？
-                        <ul>
-                            <li class="checked">VLCを更新したらなおった気がする</li>
-                        </ul>
-                    </li>
-                    <li class="checked">検索を開いた状態で別の板に移動して戻ってくると閉じている(画面上閉じているだけで入力は生きています)問題を修正</li>
-                </ul>
-            </li>
-            <li class="checked">
-                period.05 バグ修正
-                <ul>
-                    <li class="checked">メディアビューで右クリックするとクリックしても閉じなくなる問題を修正</li>
-                    <li class="checked">差分JSONにそうだねが乗ってくるようになったためそうだね送信後の更新を全更新から設定依存に変更</li>
-                </ul>
-            </li>
-            <li class="checked">
-                period.04 マイグレ処理を作ったので設定回りの簡単なものを消化
-                <ul>
-                    <li class="checked">題名，おなまえ，メールアドレスを記憶させるオプション</li>
-                    <li class="checked">隔離スレッドをカタログに表示させるオプション</li>
-                    <li class="checked">投稿ビュー部分にマウスエンターで表示、マウスリーブで半透明みたいな実装</li>
-                    <li class="checked">投稿ビューの最小/最大表示サイズを設定</li>
-                    <li class="checked">カタログ検索でヒットしたスレ→ヒットしないスレの順番に表示するオプション</li>
-                </ul>
-            </li>
-            <li class="checked">
-                period.03 スキマ時間でサクっと実装できるものを消化
-                <ul>
-                    <li class="checked">ホイールスクロールで更新</li>
-                    <li class="checked">スレの一番上や一番下に行ける何か</li>
-                </ul>
-            </li>
-            <li class="checked">
-                period.02 間に合わなかったGIFアニメとx64ネイティブ実行に対応
-                <ul>
-                    <li class="checked">アニメーションGIFの再生</li>
-                    <li class="checked"><del>WebPのライブラリがx86オンリーになってるので自前で再実装する</del>勘違い.NET 4.5のビルドオプションが原因</li>
-                    <li class="checked">メディアビュー@画像で右上の笨麻{タンは遠いのでクリックとかで閉じたい</li>
-                </ul>
-            </li>
-            <li class="checked">
-                period.01 ファーストリリース
-                <ul>
-                    <li class="checked">ID NG機能</li>
-                    <li class="checked">NGコメント機能</li>
-                    <li class="checked">コメント非表示機能</li>
-                    <li class="checked">NG画像機能→精度に難がある気がするけどこんなものなのかな？あとちょう重い</li>
-                    <li class="checked">設定画面</li>
-                    <li class="checked">ショートカットキー</li>
-                    <li class="checked">
-                        画像の保存
-                        <ul>
-                            <li class="checked">静止画の保存</li>
-                            <li class="checked">動画の保存</li>
-                        </ul>
-                    </li>
-                    <li class="checked">現在の開いているスレッドの状態の保存</li>
-                    <li class="checked">スレ/レス画像ファイル名を引用するためのなにがし</li>
-                    <li class="checked">クリップボードから画像添付</li>
-                    <li class="checked"><del>DPI付きJPEG画像が小さく表示される(PNGは対応済み、WebPは知らない)</del>ImageのWidth/HeightにImageSourceのサイズをバインドすればよかったぽい</li>
-                    <li class="checked">画像キャッシュ読み込み時に別プロセスが握っているとクラッシュする→数回試行するように修正したい</li>
-                    <li class="checked">エラー表示強化</li>        
-                    <li class="checked">アプリの自動アップデート確認機能</li>
                 </ul>
             </li>
         </ul>
@@ -590,287 +314,14 @@
             </q>
             スレのほうで返信しておいたのでっちーをご確認ください            
         </p>
-        
-        <p>
-            <q>上下端ではなくてもスクロールで更新されるので普通にスクロールして閲覧するのが厳しいです…<br />
-            </q>
-            watch画像の問題と思われます。period.30をお試しください。
-        </p>
-
-        <p>
-            <q>カナリアビルド103からだと思うんですがキャッシュされてるNG画像スレッド設定が更新時に効いてないみたいです。<br />
-                カタログでなにかのスレッドを手動で非表示にしたらまた更新するまでは除外されるみたいですね。<br />
-            </q>
-            ご報告ありがとうございます。period.28正式版では修正されています。
-        </p>
-        
-        <p>
-            <q>NG設定したワードのレスを<br />
-                「NG設定に抵触しています」と表示もしない完全な非表示化はできますか？<br />
-                レス番が飛んでることぐらいしかNGワードのレスがあったことに気づかないような感じに<br />
-                <br />
-                また、NG画像を含むレスを同様に画像だけでなくレスごとまるごと完全な非表示化したいです<br />
-            </q>
-            これは現在技術的な理由で対応を先送りしています。対応時期は未定です。
-        </p>
-
-        <p>
-            <q>✕ボタンが全部＋になってます？<br />
-            </q>
-            Windows 11の問題です。period.28で対策しました。
-        </p>
-        
-        <p>
-            <q>動画の再生が終わる時にシークバーが数ミリ残った状態でフリーズして操作受け付けなくなることがそこそこあります<br />
-            </q>
-            事象は確認していますが発生原因がわかっていません。period.28でも改善策は実施していますが有効かはわかっていません。
-        </p>
-
-        <p>
-            <q>設定にNG有効無効がほしいです。<br />
-            </q>
-            これは必要だと思ったのでそのうち用意します。
-        </p>
-
-        <p>
-            <q>見落としているんだとは思いますがユーザー定義テーマの>今のところgitからテンプレ落としてきて編集して下さい…<br />
-                ってどこにあるんでしょうか？<br />
-            </q>
-            現時点ではhttps://github.com/azumyar/futaba-makimoki/tree/master/src/wpf/MakiMoki.Wpf/WpfConfigにありますが予告なく変更されます。
-        </p>
-
-        <p>
-            <q>スレのタブを閉じたときに一個前に開いてたタブになってくれると嬉しいです<br />
-            </q>
-            period.28で対応しました。
-        </p>
-
-        <p>
-            <q>ショートカットのカタログ更新、モード切替、スレ立て画面表示が使えないみたいです。閉じるや板移動なんかは使えました。<br />
-            </q>
-            スレ立て画面表示は手元で確認できました。対策を検討します。
-        </p>
-
-        <p>
-            <q>画像クイック保存がサムネ右クリからできると嬉しいっす<br />
-            </q>
-            この時点ではサムネ本体しかダウンロードしていないので現時点で対応は予定しておりません。
-        </p>
-
-        <p>
-            <q>
-                バージョンは1個か2個前の奴だと思うんスけど、久々に立ち上げたらTrojan:Script/Wacatac.B!ml扱いされてディフェんだリニンに消されたっす。
-ご検知かも知れないけれど、一応報告っす<br />
-            </q>
-            アップロードしているファイルにVirusTotalかけてみました(2021/10/15)けど検知されなかったので誤検知だと思われます。
-        </p>
-
-
-        <p>
-            <q>
-                自動更新的な機能の搭載予定はありますか？<br />
-            </q>
-            予定はないです。申し訳ないです。
-        </p>
-
-
-        <p>
-            <q>
-                トップの最新版がDLできないです<br />
-            </q>
-            サーバがエラーを返していたので設定を変更してみました。障害情報は乗っていないので原因はよくわからないですね…
-        </p>
-
-        <p>
-            <q>
-                カタログとスレッドの右クリックメニューに引用（C)、非表示（N)みたいにキーボードで操作できるキー設定を付けてほいい…<br />
-                できれば自分で設定いじれるようにさせてもらえれば…<br />
-            </q>
-            period.21で対応しました。カスタマイズは今回見送りです。
-        </p>
-
-        <p>
-            <q>
-                板追加がカタログ、掲示板トップどちらでも不正と出てしまいます。<br />
-                また、QAのみでなくかんたんなもので構わないのでヘルプがあるとありがたいです<br />
-            </q>
-            設定ダイアログは現状見た目にコストかけていないのでわかりにくくて申し訳ありません。<br />
-            ここのURLはプレースホルダ(未入力時薄く見えている文字)に従って入力してください。例えば猫板はhttps://may.2chan.net/27/です。<br />
-            .NET6のタイミングで色々変える(ももともはその予定だったんだけど個人的には今時点ではトーンダウン)かもしれないので今のところヘルプは作る予定ないです。
-        </p>
-
-        <p>
-            <q>
-                画像表示は右上のバツボタンあるのでそれ以外の場所で閉じるのはダブルクリックとかになりませんか？<br />
-                画像をよく見ようとドラッグすると誤爆するのかよく閉じちゃいます<br />
-            </q>
-            これは過去の要望でこの実装になっているので申し訳ありませんが仕様変更の予定はありません。
-        </p>
-
-        <p>
-            <q>
-                URL省略<br />
-                このスレのうぇぶみを再生しようとすると確実に一瞬でシークバーが右端に飛んで固まってしまいます。<br />
-            </q>
-            事象は確認しましたが、原因はわからないのでperiod.19時点で調査中です。ここはVLCに丸投げなので対応できるか不明…
-        </p>
-
-        <p>
-            <q>
-                タブ選択するためにクリックすると×ボタンを同時にクリックしてタブそのまま閉じちゃうミスが時々あるのでなんとかなりませんかね<br />
-            </q>
-            本件period.18で修正しました。バグ報告ありがとうございます。
-        </p>
-
-        <p>
-            <q>
-                開いた画像を右クリックメニューで何をしても強制終了してしまう…<br />
-            </q>
-            本件period.16で修正しました。バグ報告ありがとうございます。
-        </p>
-
-        <p>
-            <q>
-                外部リンクを開くと二重にリンクが開かれてしまう…<br />
-            </q>
-            本件period.14で修正しました。バグ報告ありがとうございます。
-        </p>
-        
-        <p>
-            <q>
-                タブの位置をドラッグで入れ替えられるようにとかダブルクリックでタブのロック（閉じないようにする）とかお願いします！<br />
-            </q>
-            これは標準機能ではできないので自前で処理する必要があるのですがタブ移動はやりたいなと思ってるのでバックログに入れておきます。
-        </p>
-
-        <p>
-            <q>
-                ダークモードだと絵文字の表示が潰れて見えなくなりますね。<br />
-                テーマが関係あるかは確認してませんがレスがまれに1レス丸々見えなくなることもあります、開き直せば普通に表示されます。<br />
-                あとおま環かもしれませんがホイールで更新時によく固まります、この場合は操作を受け付けずに閉じるしかありません。それと動画を再生して終わるギリギリで固まることが多い感じです、この場合は触ったりすると応答なしになりますね。<br />
-            </q>
-            絵文字の件period.12で修正しました。ライブラリの仕様変更に追従していませんでした<br />
-            レスが透明になる件把握していますが対応方法がわかっていません。わかり次第対応します。なおスレを閉じなくてもタブの切り替えでいいです。<br />
-            ホイールで更新時時にフリーズしたことはないですね…手元で起こったことがないのでよくわからないです。<br />
-            動画再生でクラッシュする件は把握していますが原因がよくわかっていません。こちらもわかり次第対応します。
-        </p>
-        <p>
-            <q>
-                カタログ完全にしまえるようになって嬉しい<br />
-                カタログしまうのと全面を切り替えられるようにも出来たらありがたいです<br />
-            </q>
-            うーん機能の実装は簡単なんですがいい感じのUIが思いつきませんね…バックログに入れておきます。
-        </p>
-        <p>
-            <q>
-                カタログとスレの境界の位置が保存されたら嬉しいな<br />
-            </q>
-            これは準備していますがまだ手が回っていません。適当に設定ファイル作ると後で辛くなるので時間に余裕があるときにやります。
-        </p>
-        <p>
-            <q>
-                1.08と1.00試したけどfutamaki.exeをクリックした時にプログラムが起動しないす<br />
-                動作環境を満たすす<br />
-                俺は外人のROMなのでもしかしてこれが問題かなす<br />
-            </q>
-            gitにコミットしてなかったみたいで解凍が消えて今いました。申し訳ありません。PCのタイムゾーン設定がJST以外で起動しない問題がありましたがperiod.09で修正しました。
-        </p>
-        <p>
-            <q>
-                いまさらの要望ですみません<br />
-                カタログリロード時に増加数でソートが欲しく要望させていただきます<br />
-                その際新規スレッドもレス数＋1（スレ立て０ぶん）でカウントして頂けると嬉しいです<br />
-                リロード中に活発だったスレッドが分かるので…<br />
-            </q>
-            了解致した。<br />
-            バックログに入れておきます。
-        </p>
-        <p>
-            <q>
-                ふたマキの開発をいつも楽しみにしております<br />
-                カタログの逆NGワードのようなものは検討しておりませんでしょうか<br />
-                お気に入りのワードがスレッド本文に含まれていた場合、カタログ一覧上部へソート後に背景を変更して表示をするような機能です<br />
-                Androidアプリのとしあき（仮）の監視ワードという機能をイメージして頂けると嬉しいです<br />
-            </q>
-            これは対応予定ですがワードだけにするか画像も対応するかでちょっと悩んでいます。<br />
-            (負荷低減のため画像は初回表示時に遅延読み込みさせているので画面に表示されるまで検知できません。表示後になるので検知してもカタログのレイアウトが決まっている点もネック)<br />
-            バックログには入れておきます。
-        </p>
-        <p>
-            <q>
-                &gt;フォントの変更や文字サイズの変更、カタログの画像サイズ変更文字数変更なんかの外観をいじる設定もほしい…<br />
-            </q>
-            今作っているので次のリリースをお待ちください。ただ次で正式版まで持っていけるかは未定。しばらくこの機能はβです！で運用するかも。
-        </p>
-        <P>
-            <q>
-                &gt;マウス右ボタンのダブルクリックでそうだね入れたりできませんか？<br />
-            </q>
-            うーん技術的には可能ですが右クリックダブルクリックという一等地にそうだねはなんか違う気がします。やるなら引用かな…<br />
-            というわけで要件は「ワンクリックでそうだねをいれたい」だと思うので下画像のようなコマンドパレットを用意する形はどうでしょうか？<br />
-            <img 
-                style="border: 1px solid var(--foreground-color);"
-                src="data:image/jpeg;base64,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" />
-        </P>
-        <p>
-            <q>
-                &gt;引用をクリックしたら引用元に飛べると嬉しいかもです<br />
-            </q>
-            実装してgitに挙げてみました(現状windowsブランチ)が挙動が個人的に直観的ではない気がするのでオプションにするかもです。<br />
-            そしてオプションにする場合はマイグレ処理入れる都合ある程度まとめてやりたいので次回リリースには含まれないかも…
-        </p>
-        <p>
-            <q>
-                &gt;カタログの非表示がほしい…！<br />
-                &gt;あとカタログのソートの種類を記憶できるように<br />
-            </q>
-            実装予定タスクには入っていますがまだ着手できていません。もうしばらくお待ちください。
-        </p>
-        <p>
-            <q>
-                &gt;スレの一番上や一番下に行ける何かが欲しいです<br />
-            </q>
-            了解致した。バックログに追加しておきます。
-        </p>
-        <p>
-            <q>
-                &gt;す、すいません･･･中瓶鯖が過労死したんで<br />
-                &gt;回復まで面倒で申し訳ないですが大瓶使っていただければ<br />
-                &gt;<br />
-                &gt;塩辛瓶中の人<br />
-            </q>
-            復旧されたようで本当にお疲れ様です…またお世話になります！
-        </p>
-
-        <p>
-            <q>
-                &gt;&gt;うーんどうしましょうね…ふたば外はあまり使いたくなく<br />
-                &gt;もちろん塩辛瓶やってる間はって事になりますが、使って頂いて構いません。<br />
-                &gt;ただトラフィックが増えてたまに落ちる事があるのはご容赦頂ければ。<br />
-                &gt;<br />
-                &gt;塩辛瓶中の人<br />
-            </q>
-            ありがとうございます！！まだまだβリリースは続く予定ですので利用させていただきます。
-        </p>
-
-        <p>
-            <q>
-                &gt;逆あいまい検索と言えばいいんでしょうかね<br />
-                &gt;例えばスレ内のレス番号にマウスオーバーしたらそのレスを引用したレスを表示してくれるような機能です<br />
-                &gt;ふたクロだと「各レスへの返信数と引用先を表示」って機能です<br />
-            </q>
-            把握しました。引用ポップアップ実装時に実装しようと思いましたが、いい感じのアルゴリズムを思いつかなかったので保留になっています。<br />
-            初回リリースには間に合わないかもしれませんが実装したいですね。
-        </p>
-
-         <p>
-             <q>
-                 &gt;スレ画だけの問題なのかわからないけど画像表示がやけに小さくなって拡大するとガビガビになります<br />
-            </q>
-            多分DPI付きのJEPG画像じゃないでしょうか？DPIが解釈されてしまい原寸で表示される問題があります。
-        </p>
     </div>
 <script>
+function showScreenshot() {
+    document.getElementById("show-screenshot").style.display = "none";
+    document.getElementById("screenshot-section").style.display = "flex";
+
+}
+
 // 最新版のリンクを張る
 // IEは面倒見なくていいよね…
 if(fetch && String.prototype.padStart) {
@@ -887,7 +338,7 @@ if(fetch && String.prototype.padStart) {
         });
 }
 
-const el = document.getElementById("screenshot-sction");
+const el = document.getElementById("screenshot-section");
 for(const div of el.getElementsByTagName("div")) {
     div.addEventListener("click", () => {
         if(div.classList.contains("orig")) {
