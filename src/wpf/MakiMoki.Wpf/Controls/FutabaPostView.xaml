@@ -135,23 +135,24 @@
                         <TextBlock Margin="2 2 0 2" Text="{Binding CommentLines.Value, StringFormat='\{0\}行', Mode=OneWay}" />
                     </StackPanel>
                     <Grid Visibility="Collapsed">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                            <TextBlock
-                                Margin="0 4 0 4"
-                                Text="{Binding ImageName.Value, Mode=OneWay}" />
-                            <Viewbox Width="128" Height="128"  StretchDirection="DownOnly">
-                                <Image 
-                                    Source="{Binding ImagePreview.Value, Mode=OneWay}"
-                                    RenderOptions.EdgeMode="Aliased"
-                                    RenderOptions.BitmapScalingMode="Fant">
-                                    <Image.CacheMode>
-                                        <BitmapCache RenderAtScale="1" />
-                                    </Image.CacheMode>
-                                </Image>
-                            </Viewbox>
-                        </StackPanel>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="128" />
+                        </Grid.RowDefinitions>
+                        <TextBlock
+                            Grid.Column="0" Grid.Row="0"
+                            Margin="0,4,0,4"
+                            Text="{Binding ImageName.Value, Mode=OneWay}" />
                         <Button
+                            Grid.Column="1" Grid.Row="0"
+                            Style="{StaticResource MaterialButton}"
+                            Width="24" Height="24"
                             Margin="4"
+                            Padding="2"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Top"
                             FontFamily="Marlett"
@@ -162,6 +163,23 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
+                        <Viewbox
+                            Grid.Column="0" Grid.ColumnSpan="2"
+                            Grid.Row="1"
+                            Width="128"
+                            StretchDirection="DownOnly"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                            <Image 
+                                Source="{Binding ImagePreview.Value, Mode=OneWay}"
+                                RenderOptions.EdgeMode="Aliased"
+                                RenderOptions.BitmapScalingMode="Fant">
+                                <Image.CacheMode>
+                                    <BitmapCache RenderAtScale="1" />
+                                </Image.CacheMode>
+                            </Image>
+                        </Viewbox>
+
                         <i:Interaction.Triggers>
                             <i:DataTrigger Binding="{Binding ImagePath.Value.Length, Mode=OneWay}" Value="0" Comparison="Equal">
                                 <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
