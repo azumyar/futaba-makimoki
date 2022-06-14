@@ -91,8 +91,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 							x,
 							WpfUtil.ImageUtil.LoadStream(x));
 					} else if(movieExt.Contains(ext)) {
-						// 動画は今は何もしない
-						// TODO: なんんか実装する
+						try {
+							using var shell = Microsoft.WindowsAPICodePack.Shell.ShellFile.FromFilePath(x);
+							return shell.Thumbnail.BitmapSource;
+						}
+						catch(IOException) { }
 					}
 				}
 				return null;

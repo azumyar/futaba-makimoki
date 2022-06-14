@@ -72,6 +72,7 @@
   <ItemGroup>
     <PackageReference Include="Emoji.Wpf" Version="0.3.3" />
     <PackageReference Include="LibVLCSharp.WPF" Version="3.6.6" />
+    <PackageReference Include="Microsoft-Windows10-APICodePack-Shell" Version="1.1.6" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
