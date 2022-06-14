@@ -7,8 +7,8 @@
     xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
     >
     <converter:BackgroundToForegroundColorConverter x:Key="BackgroundToForegroundColorConverter" />
-
-
+    <converter:DiablBrushConverter x:Key="DiablBrushConverter" />
+    
     <Style x:Key="MaterialButton" TargetType="Button">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="MinHeight" Value="32" />
@@ -69,7 +69,7 @@
                                     <Storyboard>
                                         <DoubleAnimationUsingKeyFrames
                                             Storyboard.TargetProperty="(UIElement.Opacity)"
-                                            Storyboard.TargetName="Border">
+                                            Storyboard.TargetName="Content">
                                             <EasingDoubleKeyFrame KeyTime="0:0:0.0" Value="0.4"/>
                                         </DoubleAnimationUsingKeyFrames>
                                     </Storyboard>
@@ -78,11 +78,21 @@
                         </VisualStateManager.VisualStateGroups>
 
                         <Grid>
+                            <FrameworkElement x:Name="BackgroundColorGetter" DataContext="{TemplateBinding Background}" />
+                            <FrameworkElement x:Name="BackgroundDiableColorGetter" DataContext="{TemplateBinding Background, Converter={StaticResource DiablBrushConverter}}" />
                             <Border
                                 x:Name="Cover"
                                 Background="{TemplateBinding Background}"
                                 CornerRadius="4"
                                 Opacity="1">
+                                <i:Interaction.Triggers>
+                                    <i:DataTrigger Binding="{Binding IsEnabled, Mode=OneWay, ElementName=Cover}" Value="True" Comparison="Equal">
+                                        <i:ChangePropertyAction PropertyName="Background" Value="{Binding DataContext, Mode=OneWay, ElementName=BackgroundColorGetter}" />
+                                    </i:DataTrigger>
+                                    <i:DataTrigger Binding="{Binding IsEnabled, Mode=OneWay, ElementName=Cover}" Value="True" Comparison="NotEqual">
+                                        <i:ChangePropertyAction PropertyName="Background" Value="{Binding DataContext, Mode=OneWay, ElementName=BackgroundDiableColorGetter}" />
+                                    </i:DataTrigger>
+                                </i:Interaction.Triggers>
                             </Border>
                             <Border
                                 x:Name="White"
