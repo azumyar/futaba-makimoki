@@ -205,7 +205,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 
 		private void ApplyStyle(PlatformData.StyleConfig styleConfig = null) {
 			var style = styleConfig ?? WpfConfig.WpfConfigLoader.Style;
-			this.Resources["StyleType"] = style.StyleType;
 			{
 				var white = style.ToWpfColor(style.WhiteColor);
 				var black = style.ToWpfColor(style.BlackColor);
@@ -216,7 +215,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				var secondary = style.ToWpfColor(style.SecondaryColor);
 				var secondarySub = style.GetSubColor(secondary);
 				var windowFrame = style.ToWpfColor(style.WindowFrameColor);
-				var windowBorder = style.GetSubColor(windowFrame, PlatformData.StyleType.Light);
+				var windowBorder = style.GetSubColor(windowFrame);
 				var windowTabBackground = style.ToWpfColor(style.WindowTabColor);
 				var windowTabForeground = style.GetTextColor(windowFrame, white, black);
 				var windowTabActiveForeground = style.GetTextColor(windowTabBackground, white, black);

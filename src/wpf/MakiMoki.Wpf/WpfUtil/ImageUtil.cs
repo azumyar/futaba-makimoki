@@ -557,20 +557,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 		}
 
-		public static Color GetMaterialSubColor(Color baseColor, PlatformData.StyleType styleType) {
+		public static Color GetMaterialSubColor(Color baseColor) {
 			var hsl = ToHsl(baseColor);
-			if(styleType == PlatformData.StyleType.Light) {
-				var l = Math.Max(hsl.Lightness - (0.05 * 2), 0);
-				var rgb = HslToRgb(hsl.Hue, hsl.Saturation, l);
-				return Color.FromArgb(baseColor.A, rgb.R, rgb.G, rgb.B);
-			} else {
-				var l = Math.Min(hsl.Lightness + (0.05 * 2), 1.0);
-				var rgb = HslToRgb(hsl.Hue, hsl.Saturation, l);
-				return Color.FromArgb(baseColor.A, rgb.R, rgb.G, rgb.B);
-			}
+			var l = Math.Max(hsl.Lightness - (0.05 * 2), 0);
+			var rgb = HslToRgb(hsl.Hue, hsl.Saturation, l);
+			return Color.FromArgb(baseColor.A, rgb.R, rgb.G, rgb.B);
 		}
 
-		public static Color GetTextColor(Color background, Color white, Color black, PlatformData.StyleType styleType, double threshold = 0.5) {
+		public static Color GetTextColor(Color background, Color white, Color black, double threshold = 0.5) {
 			return (ToHsl(background).Lightness < threshold) ? white : black;
 		}
 

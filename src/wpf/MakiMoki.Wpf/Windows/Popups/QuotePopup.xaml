@@ -22,6 +22,7 @@
             </ResourceDictionary.MergedDictionaries>
             <converter:QuotePopupSourceConverter x:Key="QuotePopupSourceConverter" />
             <converter:FutabaResItemCopyTextBoxEventConverter x:Key="FutabaResItemCopyTextBoxEventConverter" />
+            <converter:BackgroundToForegroundColorConverter x:Key="BackgroundToForegroundColorConverter" />
         </ResourceDictionary>
     </Popup.Resources>
     <Border x:Name="border" BorderThickness="1">
@@ -76,10 +77,11 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="16 4 16 4" Background="Transparent">
+                            <!-- 削除する -->
                             <FrameworkElement 
                                 x:Name="StyleTypeGetter"
                                 Visibility="Collapsed"
-                                DataContext="{DynamicResource StyleType}" />
+                                DataContext="" />
                             <FrameworkElement 
                                 x:Name="WhiteColorGetter"
                                 Visibility="Collapsed"

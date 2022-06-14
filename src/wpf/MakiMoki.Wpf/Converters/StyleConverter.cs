@@ -19,7 +19,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			//System.Diagnostics.Debug.WriteLine($"{ values.Length }");
 			if(9 == values.Length) {
 				if((values[0] is Color back)
-					&& (values[1] is PlatformData.StyleType type)
 					&& (values[2] is Color white)
 					&& (values[3] is Color black)
 					&& (values[4] is Color orig)
@@ -39,9 +38,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 					}
 					double GetThreshold() {
 						if(el.IsMouseCaptured && (System.Windows.Input.Mouse.LeftButton == System.Windows.Input.MouseButtonState.Pressed)) {
-							return (type == PlatformData.StyleType.Light) ? 0.4 : 0.6;
+							return 0.4;
 						} else if(el.IsMouseOver) {
-							return (type == PlatformData.StyleType.Light) ? 0.4 : 0.6;
+							return 0.4;
 						} else {
 							return 0.5;
 						}
@@ -54,7 +53,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 					var t = GetThreshold();
 					var b = ((back.A == 0) || isAnimate) ? GetColor() : back;
-					var foreground = (b.A == 0) ? black : WpfUtil.ImageUtil.GetTextColor(b, white, black, type, t);
+					var foreground = (b.A == 0) ? black : WpfUtil.ImageUtil.GetTextColor(b, white, black, t);
 					//System.Diagnostics.Debug.WriteLine($"return:{ foreground }");
 					return foreground;
 				}
@@ -72,7 +71,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				}
 				*/
 				if((values[0] is Color back)
-					&& (values[1] is PlatformData.StyleType type)
 					&& (values[2] is Color white)
 					&& (values[3] is Color black)
 					&& (values[4] is Color orig)
@@ -86,7 +84,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 					catch(InvalidOperationException) { }
 
 					var b = ((back.A == 0) || isAnimate) ? orig : back;
-					var foreground = (b.A == 0) ? black : WpfUtil.ImageUtil.GetTextColor(b, white, black, type);
+					var foreground = (b.A == 0) ? black : WpfUtil.ImageUtil.GetTextColor(b, white, black);
 					//System.Diagnostics.Debug.WriteLine($"return:{ foreground }");
 					return foreground;
 				}
@@ -94,21 +92,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 			{
 				if((values[0] is Color back)
-					&& (values[1] is PlatformData.StyleType type)
 					&& (values[2] is Color white)
 					&& (values[3] is Color black)) {
 
-					return (back.A == 0) ? black : WpfUtil.ImageUtil.GetTextColor(back, white, black, type);
+					return (back.A == 0) ? black : WpfUtil.ImageUtil.GetTextColor(back, white, black);
 				}
 			}
 
 			{
 				if((values[0] is SolidColorBrush back)
-					&& (values[1] is PlatformData.StyleType type)
 					&& (values[2] is Color white)
 					&& (values[3] is Color black)) {
 
-					return (back.Color.A == 0) ? black : WpfUtil.ImageUtil.GetTextColor(back.Color, white, black, type);
+					return (back.Color.A == 0) ? black : WpfUtil.ImageUtil.GetTextColor(back.Color, white, black);
 				}
 			}
 			// values[0]が設定されていない場合があるので固定値を返す

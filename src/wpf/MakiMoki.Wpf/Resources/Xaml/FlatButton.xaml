@@ -6,7 +6,6 @@
     xmlns:c="clr-namespace:System.Collections;assembly=mscorlib"
     xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
     >
-    <converter:BackgroundToForegroundColorConverter x:Key="BackgroundToForegroundColorConverter" />
     <converter:DiablBrushConverter x:Key="DiablBrushConverter" />
     
     <Style x:Key="MaterialButton" TargetType="Button">
