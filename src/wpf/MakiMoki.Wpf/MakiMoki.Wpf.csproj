@@ -156,6 +156,10 @@
     <TrimmerRootAssembly Include="System.Runtime" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Windows\MainWindow.xaml.Win11RTM.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Content>
+	  
     <Page Update="Resources\Xaml\TabButton.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
