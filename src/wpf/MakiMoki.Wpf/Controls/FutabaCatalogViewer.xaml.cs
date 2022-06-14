@@ -108,7 +108,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			this.CatalogListBox.Loaded += (s, e) => {
 				if((this.scrollViewerCatalog = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.CatalogListBox)) != null) {
 					this.scrollViewerCatalog.ScrollChanged += (ss, arg) => {
-						if((this.Contents != null) && this.Contents.Futaba.Value.Url.IsCatalogUrl) {
+						if(this.Contents?.Futaba.Value?.Url.IsCatalogUrl ?? false) {
 							this.Contents.ScrollVerticalOffset.Value = this.scrollViewerCatalog.VerticalOffset;
 							this.Contents.ScrollHorizontalOffset.Value = this.scrollViewerCatalog.HorizontalOffset;
 						}

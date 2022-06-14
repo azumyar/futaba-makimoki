@@ -119,4 +119,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			throw new NotImplementedException();
 		}
 	}
+
+
+	class DiablBrushConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			if(value == null) {
+				return Colors.Transparent;
+			}
+
+			if(value is SolidColorBrush sb) {
+				var hsv = WpfUtil.ImageUtil.ToHsv(sb.Color);
+				return new SolidColorBrush(WpfUtil.ImageUtil.HsvToRgb(hsv.H, 0, hsv.V * 0.4));
+			}
+			throw new ArgumentException("型不正。", nameof(value));
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
 }
