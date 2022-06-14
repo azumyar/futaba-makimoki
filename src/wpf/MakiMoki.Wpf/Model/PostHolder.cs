@@ -91,11 +91,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 							x,
 							WpfUtil.ImageUtil.LoadStream(x));
 					} else if(movieExt.Contains(ext)) {
-						try {
-							using var shell = Microsoft.WindowsAPICodePack.Shell.ShellFile.FromFilePath(x);
-							return shell.Thumbnail.BitmapSource;
-						}
-						catch(IOException) { }
+						return WpfUtil.MediaFoundationUtil.CreateThumbnail(x);
 					}
 				}
 				return null;

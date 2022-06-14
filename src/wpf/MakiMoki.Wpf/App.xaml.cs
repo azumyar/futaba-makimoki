@@ -63,6 +63,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 						System.Text.Encoding.UTF8);
 				}
 			};
+			WpfUtil.MediaFoundationUtil.StratUp();
 			var arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString().ToLower();
 			WinApi.Win32.SetDllDirectory(Path.Combine(
 				AppContext.BaseDirectory,
@@ -188,6 +189,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				});
 #endif
 			base.OnStartup(e);
+		}
+
+		protected override void OnExit(ExitEventArgs e) {
+			try {
+				WpfUtil.MediaFoundationUtil.Shutdown();
+			}
+			catch(InvalidOperationException) { /* どうしようもないので無視する */ }
+			base.OnExit(e);
 		}
 
 		protected override Window CreateShell() {
