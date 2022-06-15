@@ -1192,12 +1192,16 @@
                 <Button
                     Style="{StaticResource CaptionButtonStyleKey}"
                     Grid.Column="0"
+                    MinWidth="0"
+                    HorizontalAlignment="Stretch"
                     Content="0"
                     Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
                 <Button
                     x:Name="maximizeWindowButton"
                     Style="{DynamicResource CaptionButtonStyleKey}"
                     Grid.Column="1"
+                    MinWidth="0"
+                    HorizontalAlignment="Stretch"
                     Content="1"
                     Command="{x:Static SystemCommands.MaximizeWindowCommand}">
                     <i:Interaction.Triggers>
@@ -1212,9 +1216,11 @@
                 </Button>
                 <Button
                     x:Name="restoreWindowButton"
-                    Grid.Column="1"
-                    Content="2"
                     Style="{StaticResource CaptionButtonStyleKey}"
+                    Grid.Column="1"
+                    MinWidth="0"
+                    HorizontalAlignment="Stretch"
+                    Content="2"
                     Command="{x:Static SystemCommands.RestoreWindowCommand}">
                     <i:Interaction.Triggers>
                         <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
@@ -1228,6 +1234,8 @@
                 <Button
                     Style="{StaticResource CaptionButtonStyleKey}"
                     Grid.Column="2"
+                    MinWidth="0"
+                    HorizontalAlignment="Stretch"
                     Content="r"
                     Command="{x:Static SystemCommands.CloseWindowCommand}" />
             </Grid>
