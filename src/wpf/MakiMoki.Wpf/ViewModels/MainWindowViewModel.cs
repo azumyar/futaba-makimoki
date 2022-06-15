@@ -329,11 +329,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 #if DEBUG
 			var back = this.Catalogs.ToArray();
 #endif
-			await Update(
-				this.Catalogs,
-				catalog,
-				false,
-				(x) => this.TabControlSelectedItem.Value = x);
+			// BorderからWhiteが見つからないと言われるので暫定対策
+			// 再現手順:起動→なにかのカタログを開く→全部カタログを閉じる
+			try {
+				await Update(
+					this.Catalogs,
+					catalog,
+					false,
+					(x) => this.TabControlSelectedItem.Value = x);
+			}
+			catch(InvalidOperationException) {
+#if DEBUG // リリース版でのみつぶす
+				throw;
+#endif
+			}
 			this.CatalogToken.Value = DateTime.Now.Ticks;
 			this.TabVisibility.Value = this.Catalogs.Count != 0 ? Visibility.Visible : Visibility.Collapsed;
 #if DEBUG

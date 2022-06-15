@@ -6,8 +6,6 @@
              xmlns:pd="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.PlatformData"
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf">
     <Application.Resources>
-        <pd:StyleType x:Key="StyleType">Light</pd:StyleType>
-
         <Color x:Key="MakimokiWhiteColor">#FFFFFF</Color>
         <Color x:Key="MakimokiBlackColor">#000000</Color>
         <Color x:Key="MakimokiForegroundColor">#212121</Color>

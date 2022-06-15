@@ -298,7 +298,8 @@
             </ScrollViewer>
             <Border
                 Grid.Column="0" Grid.ColumnSpan="3"
-                Grid.Row="2">
+                Grid.Row="2"
+                Padding="0,2,0,2">
                 <Border.Background>
                     <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
                 </Border.Background>

@@ -238,9 +238,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	public class StyleConfig : Data.ConfigObject {
 		public static int CurrentVersion { get; } = -1;
 
-		[JsonProperty("style-type", Required = Required.Always)]
-		public StyleType StyleType { get; private set; }
-
 		[JsonProperty("color-white", Required = Required.Always)]
 		public string WhiteColor { get; private set; }
 		[JsonProperty("color-black", Required = Required.Always)]
@@ -357,10 +354,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public double FailsafeThreadImageBlurRadius { get; private set; }
 
 		public (bool Successed, string ErrorText) Validate() {
-			if(!((this.StyleType == StyleType.Light) || (this.StyleType == StyleType.Dark))) {
-				return (false, $"{ nameof(StyleType) }が不正です。");
-			}
-
 			var ps = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
 			foreach(var p in ps.Where(x => x.CanRead && (x.PropertyType == typeof(string)) && x.Name.EndsWith("Color"))) {
 				try {
@@ -404,12 +397,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			throw new InvalidOperationException();
 		}
 
-		public Color GetSubColor(Color baseColor, StyleType? type = null) {
-			return WpfUtil.ImageUtil.GetMaterialSubColor(baseColor, type ?? this.StyleType);
+		public Color GetSubColor(Color baseColor) {
+			return WpfUtil.ImageUtil.GetMaterialSubColor(baseColor);
 		}
 
 		public Color GetTextColor(Color background, Color white, Color black) {
-			return WpfUtil.ImageUtil.GetTextColor(background, white, black, this.StyleType);
+			return WpfUtil.ImageUtil.GetTextColor(background, white, black);
 		}
 
 		public static StyleConfig CreateDefault() {
@@ -418,11 +411,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				Version = CurrentVersion,
 			};
 		}
-	}
-
-	public enum StyleType {
-		Light,
-		Dark,
 	}
 
 	public class ColorMapCollection : System.Collections.ObjectModel.ObservableCollection<ColorMap> {

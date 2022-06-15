@@ -453,7 +453,7 @@
                                         <ColumnDefinition Width="32" />
                                         <ColumnDefinition Width="32" />
                                         <ColumnDefinition Width="4" />
-                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="96" />
                                     </Grid.ColumnDefinitions>
                                     <ScrollViewer
                                         x:Name="scrollViewer" Grid.Column="1" CanContentScroll="True"
@@ -503,31 +503,6 @@
                                             <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
                                         </RepeatButton.Background>
                                     </RepeatButton>
-                                    <StackPanel Grid.Column="6" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
-                                        <Button Content="0" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
-                                        <Button Content="1" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MaximizeWindowCommand}">
-                                            <i:Interaction.Triggers>
-                                                <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
-                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
-                                                </i:DataTrigger>
-                                                <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
-                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
-                                                </i:DataTrigger>
-                                            </i:Interaction.Triggers>
-
-                                        </Button>
-                                        <Button Content="2" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.RestoreWindowCommand}">
-                                            <i:Interaction.Triggers>
-                                                <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
-                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
-                                                </i:DataTrigger>
-                                                <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
-                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
-                                                </i:DataTrigger>
-                                            </i:Interaction.Triggers>
-                                        </Button>
-                                        <Button Content="r" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.CloseWindowCommand}" />
-                                    </StackPanel>
                                 </Grid>
 
                                 <Border
@@ -856,35 +831,6 @@
                 Visibility="Collapsed"
                 DataContext="{DynamicResource WindowThreadTabDieOpacity}" />
             <Grid x:Name="PopupContainer" />
-
-            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
-                <Button
-                    Style="{StaticResource CaptionButtonStyleKey}"
-                    Content="0"
-                    Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
-                <Button x:Name="maximizeWindowButton" Content="1" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MaximizeWindowCommand}">
-                    <i:Interaction.Triggers>
-                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
-                            <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
-                        </i:DataTrigger>
-                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
-                            <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
-                        </i:DataTrigger>
-                    </i:Interaction.Triggers>
-
-                </Button>
-                <Button x:Name="restoreWindowButton" Content="2" Style="{StaticResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.RestoreWindowCommand}">
-                    <i:Interaction.Triggers>
-                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
-                            <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
-                        </i:DataTrigger>
-                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
-                            <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
-                        </i:DataTrigger>
-                    </i:Interaction.Triggers>
-                </Button>
-                <Button Content="r" Style="{StaticResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.CloseWindowCommand}" />
-            </StackPanel>
 
             <!-- WPFバグ対策コンテナ -->
             <Grid
@@ -1236,6 +1182,56 @@
                     </DataTemplate>
                 </TabControl.ContentTemplate>
             </TabControl>
+
+            <Grid Grid.Row="0" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="32" />
+                </Grid.ColumnDefinitions>
+                <Button
+                    Style="{StaticResource CaptionButtonStyleKey}"
+                    Grid.Column="0"
+                    Content="0"
+                    Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
+                <Button
+                    x:Name="maximizeWindowButton"
+                    Style="{DynamicResource CaptionButtonStyleKey}"
+                    Grid.Column="1"
+                    Content="1"
+                    Command="{x:Static SystemCommands.MaximizeWindowCommand}">
+                    <i:Interaction.Triggers>
+                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
+                            <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
+                        </i:DataTrigger>
+                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
+                            <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
+                        </i:DataTrigger>
+                    </i:Interaction.Triggers>
+
+                </Button>
+                <Button
+                    x:Name="restoreWindowButton"
+                    Grid.Column="1"
+                    Content="2"
+                    Style="{StaticResource CaptionButtonStyleKey}"
+                    Command="{x:Static SystemCommands.RestoreWindowCommand}">
+                    <i:Interaction.Triggers>
+                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
+                            <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
+                        </i:DataTrigger>
+                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
+                            <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
+                        </i:DataTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button
+                    Style="{StaticResource CaptionButtonStyleKey}"
+                    Grid.Column="2"
+                    Content="r"
+                    Command="{x:Static SystemCommands.CloseWindowCommand}" />
+            </Grid>
+
 
             <ListBox
                 Grid.Row="1"

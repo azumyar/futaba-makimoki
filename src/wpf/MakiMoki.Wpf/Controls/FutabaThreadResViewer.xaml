@@ -108,10 +108,6 @@
     <Grid>
         <!-- DynamicResource取得用のElement -->
         <FrameworkElement 
-            x:Name="StyleTypeGetter"
-            Visibility="Collapsed"
-            DataContext="{DynamicResource StyleType}" />
-        <FrameworkElement 
             x:Name="WhiteColorGetter"
             Visibility="Collapsed"
             DataContext="{DynamicResource MakimokiBackgroundColor}" />
@@ -640,10 +636,6 @@
                                 </Grid.RowDefinitions>
 
                                 <FrameworkElement 
-                                    x:Name="StyleTypeGetter"
-                                    Visibility="Collapsed"
-                                    DataContext="{DynamicResource StyleType}" />
-                                <FrameworkElement 
                                     x:Name="WhiteColorGetter"
                                     Visibility="Collapsed"
                                     DataContext="{DynamicResource MakimokiBackgroundColor}" />
@@ -801,18 +793,6 @@
                                         MaxWidth="1024">
                                         <local:FutabaResBlock.Foreground>
                                             <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
-                                            <!--
-                                            <SolidColorBrush>
-                                                <SolidColorBrush.Color>
-                                                    <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}" Mode="OneWay">
-                                                        <Binding Path="Background.Color" ElementName="viewGrid" Mode="OneWay" />
-                                                        <Binding Path="DataContext" ElementName="StyleTypeGetter" Mode="OneWay" />
-                                                        <Binding Path="DataContext" ElementName="WhiteColorGetter" Mode="OneWay" />
-                                                        <Binding Path="DataContext" ElementName="BlackColorGetter" Mode="OneWay" />
-                                                    </MultiBinding>
-                                                </SolidColorBrush.Color>
-                                            </SolidColorBrush>
-                                            -->
                                         </local:FutabaResBlock.Foreground>
 
                                         <i:Interaction.Triggers>
