@@ -53,13 +53,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 						}
 					}
 					break;
-				case WM_POWERBROADCAST when wParam.ToInt32() == PBT_APMPOWERSTATUSCHANGE:
-					if(this.type == FluentType.AcryicBlur) {
-						if(this.IsPowerLine()) {
-							//this.EnableAcryicBlur(hwnd, this.accentColor, true);
-						} else {
-
-						}
+				case WM_POWERBROADCAST when App.OsCompat.IsWindows10Redstone5 && (wParam.ToInt32() == PBT_APMPOWERSTATUSCHANGE): {
+						Action<IntPtr, (Color, Color), bool> f = this.type switch {
+							FluentType.AeroBlur => (x, y, z) => this.EnableAeroBlur(x, y, z),
+							FluentType.AcryicBlur => (x, y, z) => this.EnableAcryicBlur(x, y, z),
+							_ => null
+						};
+						f?.Invoke(hwnd, this.blurColor, this.IsPowerLine());
 					}
 					break;
 				}
@@ -83,110 +83,94 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 				}
 			}
 
-			private void EnableDwmClient(IntPtr hwnd) {
+			private void EnableDwmClient(IntPtr hwnd, bool enable) {
+				var v = enable ? -1 : 0;
 				var mgn = new MARGINS() {
-					cxLeftWidth = -1,
-					cxRightWidth = -1,
-					cyTopHeight = -1,
-					cyBottomHeight = -1,
+					cxLeftWidth = v,
+					cxRightWidth = v,
+					cyTopHeight = v,
+					cyBottomHeight = v,
 				};
-				var s  = DwmExtendFrameIntoClientArea(hwnd, ref mgn);
-				System.Diagnostics.Debug.WriteLine($"{s.ToInt32():x}");
+				DwmExtendFrameIntoClientArea(hwnd, ref mgn);
 			}
 
-			private void EnableAeroBlur(IntPtr hwnd, Color? accent) {
+			private void SetComposition(IntPtr hwnd, ACCENT_POLICY policy) {
 				IntPtr pPolicy = IntPtr.Zero;
 				try {
-					this.source.CompositionTarget.BackgroundColor = accent ?? Color.FromArgb(0, 0, 0, 0);
-					var policy = new ACCENT_POLICY() {
+					pPolicy = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(ACCENT_POLICY)));
+					Marshal.StructureToPtr(policy, pPolicy, true);
+					var d = new WINDOWCOMPOSITIONATTRIBDATA() {
+						Attrib = WCA_ACCENT_POLICY,
+						pvData = pPolicy,
+						cbData = (IntPtr)Marshal.SizeOf(typeof(ACCENT_POLICY)),
+					};
+					SetWindowCompositionAttribute(hwnd, ref d);
+				}
+				finally {
+					if(pPolicy != IntPtr.Zero) {
+						Marshal.FreeHGlobal(pPolicy);
+					}
+				}
+			}
+
+			private void EnableAeroBlur(IntPtr hwnd, (Color BaseColor, Color Accent) blur, bool powerLine) {
+				var p = powerLine switch {
+					true => (C: blur.Accent, P: new ACCENT_POLICY() {
 						AccentState = ACCENT_ENABLE_BLURBEHIND,
 						AccentFlags = 2,
 						GradientColor = 0,
 						AnimationId = 0
-					};
-					pPolicy = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(ACCENT_POLICY)));
-					Marshal.StructureToPtr(policy, pPolicy, true);
-					var d = new WINDOWCOMPOSITIONATTRIBDATA() {
-						Attrib = WCA_ACCENT_POLICY,
-						pvData = pPolicy,
-						cbData = (IntPtr)Marshal.SizeOf(typeof(ACCENT_POLICY)),
-					};
-					SetWindowCompositionAttribute(hwnd, ref d);
-				}
-				finally {
-					if(pPolicy != IntPtr.Zero) {
-						Marshal.FreeHGlobal(pPolicy);
-					}
-				}
-			}
-
-			private void EnableAcryicBlur(IntPtr hwnd, (Color BaseColor, Color Accent) blur, bool powerLine) {
-				IntPtr pPolicy = IntPtr.Zero;
-				try {
-					/*
-					const int AccentFlagsDrawLeftBorder = 0x20;
-					const int AccentFlagsDrawDrawTopBorder = 0x40;
-					const int AccentFlagsDrawDrawRightBorder = 0x80;
-					const int AccentFlagsDrawDrawBottomBorder = 0100; 
-					*/
-					var p = powerLine switch {
-						true => (C: blur.Accent, P: new ACCENT_POLICY() {
-							AccentState = ACCENT_ENABLE_ACRYLICBLURBEHIND,
-							AccentFlags = 0, //AccentFlagsDrawLeftBorder | AccentFlagsDrawDrawTopBorder | AccentFlagsDrawDrawRightBorder | AccentFlagsDrawDrawBottomBorder,
-							GradientColor = WpfUtil.ImageUtil.ToHsv(blur.BaseColor).V switch {
-								var v when v < 50 => unchecked((int)(10 << 24 | (uint)blur.BaseColor.B << 16 | (uint)blur.BaseColor.G << 8 | (uint)blur.BaseColor.R)),
-								_ => unchecked((int)(128u << 24 | (uint)blur.BaseColor.B << 16 | (uint)blur.BaseColor.G << 8 | (uint)blur.BaseColor.R)),
-							},
-							AnimationId = 0
-						}),
-						false => (C: blur.Accent, P: new ACCENT_POLICY() {
-							AccentState = ACCENT_DISABLED,
-							AccentFlags = 0,
-							GradientColor = 0,
-							AnimationId = 0
-						})
-					};
-					this.source.CompositionTarget.BackgroundColor = p.C;
-					pPolicy = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(ACCENT_POLICY)));
-					Marshal.StructureToPtr(p.P, pPolicy, true);
-					var d = new WINDOWCOMPOSITIONATTRIBDATA() {
-						Attrib = WCA_ACCENT_POLICY,
-						pvData = pPolicy,
-						cbData = (IntPtr)Marshal.SizeOf(typeof(ACCENT_POLICY)),
-					};
-					SetWindowCompositionAttribute(hwnd, ref d);
-				}
-				finally {
-					if(pPolicy != IntPtr.Zero) {
-						Marshal.FreeHGlobal(pPolicy);
-					}
-				}
-			}
-
-			private void DisableAeroBlur(IntPtr hwnd) {
-				IntPtr pPolicy = IntPtr.Zero;
-				try {
-					//this.source.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
-					var policy = new ACCENT_POLICY() {
+					}),
+					false => (C: Color.FromRgb(blur.Accent.R, blur.Accent.G, blur.Accent.B), P: new ACCENT_POLICY() {
 						AccentState = ACCENT_DISABLED,
 						AccentFlags = 0,
 						GradientColor = 0,
 						AnimationId = 0
-					};
-					pPolicy = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(ACCENT_POLICY)));
-					Marshal.StructureToPtr(policy, pPolicy, true);
-					var d = new WINDOWCOMPOSITIONATTRIBDATA() {
-						Attrib = WCA_ACCENT_POLICY,
-						pvData = pPolicy,
-						cbData = (IntPtr)Marshal.SizeOf(typeof(ACCENT_POLICY)),
-					};
-					SetWindowCompositionAttribute(hwnd, ref d);
-				}
-				finally {
-					if(pPolicy != IntPtr.Zero) {
-						Marshal.FreeHGlobal(pPolicy);
-					}
-				}
+					})
+				};
+				this.source.CompositionTarget.BackgroundColor = p.C;
+				this.EnableDwmClient(hwnd, powerLine);
+				this.SetComposition(hwnd, p.P);
+			}
+
+			private void EnableAcryicBlur(IntPtr hwnd, (Color BaseColor, Color Accent) blur, bool powerLine) {
+				/*
+				const int AccentFlagsDrawLeftBorder = 0x20;
+				const int AccentFlagsDrawDrawTopBorder = 0x40;
+				const int AccentFlagsDrawDrawRightBorder = 0x80;
+				const int AccentFlagsDrawDrawBottomBorder = 0100; 
+				*/
+				var p = powerLine switch {
+					true => (C: blur.Accent, P: new ACCENT_POLICY() {
+						AccentState = ACCENT_ENABLE_ACRYLICBLURBEHIND,
+						AccentFlags = 0, //AccentFlagsDrawLeftBorder | AccentFlagsDrawDrawTopBorder | AccentFlagsDrawDrawRightBorder | AccentFlagsDrawDrawBottomBorder,
+						GradientColor = WpfUtil.ImageUtil.ToHsv(blur.BaseColor).V switch {
+							var v when v < 50 => unchecked((int)(10 << 24 | (uint)blur.BaseColor.B << 16 | (uint)blur.BaseColor.G << 8 | (uint)blur.BaseColor.R)),
+							_ => unchecked((int)(128u << 24 | (uint)blur.BaseColor.B << 16 | (uint)blur.BaseColor.G << 8 | (uint)blur.BaseColor.R)),
+						},
+						AnimationId = 0
+					}),
+					false => (C: Color.FromRgb(blur.Accent.R, blur.Accent.G, blur.Accent.B), P: new ACCENT_POLICY() {
+						AccentState = ACCENT_DISABLED,
+						AccentFlags = 0,
+						GradientColor = 0,
+						AnimationId = 0
+					})
+				};
+				this.source.CompositionTarget.BackgroundColor = p.C;
+				this.EnableDwmClient(hwnd, powerLine);
+				this.SetComposition(hwnd, p.P);
+			}
+
+			private void DisableBlur(IntPtr hwnd) {
+				var policy = new ACCENT_POLICY() {
+					AccentState = ACCENT_DISABLED,
+					AccentFlags = 0,
+					GradientColor = 0,
+					AnimationId = 0
+				};
+				this.EnableDwmClient(hwnd, false);
+				this.SetComposition(hwnd, policy);
 			}
 
 			private void EnableMica(IntPtr hwnd, bool isDark) {
@@ -201,12 +185,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 				} else {
 					DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref @false, sizeof(int));
 				}
+				this.EnableDwmClient(hwnd, true);
 				DwmSetWindowAttribute(hwnd, DWMWA_MICA_EFFECT, ref @true, sizeof(int));
 			}
 
 			private void DisableMica(IntPtr hwnd) {
 				// この処理はRTMでしか動かない
 				var @false = 0;
+				this.EnableDwmClient(hwnd, false);
 				DwmSetWindowAttribute(hwnd, DWMWA_MICA_EFFECT, ref @false, sizeof(int));
 			}
 
@@ -234,8 +220,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 						if(!blur.HasValue) {
 							throw new ArgumentNullException();
 						}
-						this.EnableDwmClient(this.source.Handle);
-						this.EnableAeroBlur(this.source.Handle, blur.Value.Accent) ;
+						this.blurColor = blur.Value;
+						this.EnableAeroBlur(this.source.Handle, this.blurColor, this.IsPowerLine());
 					}
 					break;
 				case FluentType.AcryicBlur:
@@ -244,13 +230,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 							throw new ArgumentNullException();
 						}
 						this.blurColor = blur.Value;
-						this.EnableDwmClient(this.source.Handle);
 						EnableAcryicBlur(this.source.Handle, this.blurColor, this.IsPowerLine());
 					}
 					break;
 				case FluentType.Mica:
 					if(App.OsCompat.IsWindows11Rtm) {
-						this.EnableDwmClient(this.source.Handle);
 						this.EnableMica(
 							this.source.Handle,
 							WpfUtil.ImageUtil.ToHsv((Color)App.Current.Resources["MakimokiBackgroundColor"]).V < 50);
