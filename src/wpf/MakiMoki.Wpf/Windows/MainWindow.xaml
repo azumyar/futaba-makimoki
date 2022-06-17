@@ -739,7 +739,7 @@
                 </Setter>
             </Style>
 
-            <Style x:Key="CaptionButtonStyleKey" TargetType="{x:Type Button}" BasedOn="{StaticResource MaterialButton}">
+            <Style x:Key="CaptionButton" TargetType="{x:Type Button}" BasedOn="{StaticResource MaterialButton}">
                 <Setter Property="OverridesDefaultStyle" Value="True" />
                 <Setter Property="Background">
                     <Setter.Value>
@@ -753,15 +753,18 @@
                     </Setter.Value>
                 </Setter>
                 -->
-                <Setter Property="FontFamily" Value="Marlett"/>
                 <Setter Property="IsTabStop" Value="False"/>
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="VerticalAlignment" Value="Stretch" />
                 <Setter Property="HorizontalContentAlignment" Value="Center" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
-                <Setter Property="Margin" Value="2" />
+                <Setter Property="Margin" Value="0" />
                 <Setter Property="Padding" Value="2" />
                 <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
-                <Setter Property="MinWidth" Value="{StaticResource WindowCaptionHeight}" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="MinHeight" Value="0" />
                 <!--
+                <Setter Property="MinWidth" Value="{StaticResource WindowCaptionHeight}" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type Button}">
@@ -808,6 +811,11 @@
                 </Setter>
                 -->
                 <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            </Style>
+
+            <Style x:Key="CaptionButtonSymbol" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontFamily" Value="Segoe Fluent Icons,Segoe MDL2 Assets,Segoe UI Symbol"/>
+                <Setter Property="FontSize" Value="9"/>
             </Style>
         </ResourceDictionary>
     </Window.Resources>
@@ -1188,25 +1196,22 @@
 
             <Grid Grid.Row="0" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="32" />
-                    <ColumnDefinition Width="32" />
-                    <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="36" />
+                    <ColumnDefinition Width="36" />
+                    <ColumnDefinition Width="36" />
                 </Grid.ColumnDefinitions>
                 <Button
-                    Style="{StaticResource CaptionButtonStyleKey}"
+                    Style="{StaticResource CaptionButton}"
                     Grid.Column="0"
-                    MinWidth="0"
-                    HorizontalAlignment="Stretch"
-                    Content="0"
-                    Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
+                    Command="{x:Static SystemCommands.MinimizeWindowCommand}">
+                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="&#xE921;" />
+                </Button>
                 <Button
                     x:Name="maximizeWindowButton"
-                    Style="{DynamicResource CaptionButtonStyleKey}"
+                    Style="{DynamicResource CaptionButton}"
                     Grid.Column="1"
-                    MinWidth="0"
-                    HorizontalAlignment="Stretch"
-                    Content="1"
                     Command="{x:Static SystemCommands.MaximizeWindowCommand}">
+                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="&#xE922;" />
                     <i:Interaction.Triggers>
                         <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
                             <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
@@ -1219,12 +1224,10 @@
                 </Button>
                 <Button
                     x:Name="restoreWindowButton"
-                    Style="{StaticResource CaptionButtonStyleKey}"
+                    Style="{StaticResource CaptionButton}"
                     Grid.Column="1"
-                    MinWidth="0"
-                    HorizontalAlignment="Stretch"
-                    Content="2"
                     Command="{x:Static SystemCommands.RestoreWindowCommand}">
+                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="&#xE923;" />
                     <i:Interaction.Triggers>
                         <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
                             <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
@@ -1235,12 +1238,11 @@
                     </i:Interaction.Triggers>
                 </Button>
                 <Button
-                    Style="{StaticResource CaptionButtonStyleKey}"
+                    Style="{StaticResource CaptionButton}"
                     Grid.Column="2"
-                    MinWidth="0"
-                    HorizontalAlignment="Stretch"
-                    Content="r"
-                    Command="{x:Static SystemCommands.CloseWindowCommand}" />
+                    Command="{x:Static SystemCommands.CloseWindowCommand}">
+                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="&#xE8BB;" />
+                </Button>
             </Grid>
 
 
