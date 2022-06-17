@@ -361,7 +361,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnItemEnter(MouseEventArgs e) {
 			static void onToolTip(object _, RoutedEventArgs e) {
 				if(e.Source is ToolTip tt) {
-					tt.Loaded -= onToolTip;
+					tt.Opened -= onToolTip;
 					System.Windows.Controls.Primitives.Popup p = null;
 					FrameworkElement el = tt;
 					while((el = el.Parent as FrameworkElement) != null) {
@@ -371,6 +371,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						}
 					}
 					if(p != null) {
+						WpfHelpers.FluentHelper.ApplyCompositionPopup(WpfHelpers.FluentHelper.Attach(p.Child));
+						WpfHelpers.FluentHelper.ApplyPopupBackground(tt);
 						p.IsHitTestVisible = false;
 					}
 				}
@@ -391,8 +393,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							if(this.toolTipTarget.ToolTip is ToolTip tt) {
 								tt.DataContext = x.DataContext;
 								tt.PlacementTarget = x;
+								tt.Opened += onToolTip;
 								tt.IsOpen = true;
-								tt.Loaded += onToolTip;
 							}
 						}
 					});

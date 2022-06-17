@@ -34,6 +34,7 @@
   "color-viewer-catalog-badge-isolate-background": "#212121",
 
   "color-viewer-thread-background": "#00000000",
+  "color-viewer-thread-link": "#E91E63",
   "color-viewer-thread-search-hit-background": "#C8E6C9",
   "color-viewer-thread-quot-hit-background": "#FFE0B2",
   "color-viewer-thread-old-foreground": "#f44336",

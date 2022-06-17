@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -17,28 +18,6 @@ using System.Windows.Shapes;
 namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 	// Windows11 RTM用の互換処理
 	public partial class MainWindow {
-		[System.Runtime.InteropServices.DllImport("Dwmapi.dll")]
-		private static extern IntPtr DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int pvAttribute, int cbAttribute);
-		[System.Runtime.InteropServices.DllImport("user32.dll")]
-		private static extern bool SendMessage(IntPtr hwnd, int msg, IntPtr wP, IntPtr lP);
-		[System.Runtime.InteropServices.DllImport("user32.dll")]
-		private static extern bool GetCursorPos(ref POINT p);
-		[System.Runtime.InteropServices.DllImport("user32.dll")]
-		private static extern bool RedrawWindow(IntPtr hWnd, ref RECT lprcUpdate, IntPtr hrgnUpdate, int flags);
-		[System.Runtime.InteropServices.DllImport("user32.dll")]
-		private static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, int flags);
-
-		struct POINT {
-			public int x;
-			public int y;
-		}
-		struct RECT {
-			public int left;
-			public int top;
-			public int right;
-			public int bottom;
-		}
-
 		private bool win11SnapLayoutMouseOver = false;
 		private bool win11SnapLayoutMousePress = false;
 		private (
@@ -46,17 +25,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 			bool MousePress,
 			FrameworkElement Target,
 			System.Windows.Media.Animation.Storyboard Storyboard) win11SnapLayoutLatestAction = (false, false, null, null);
-
-		private void ApplyDwmRound(IntPtr hwnd, bool round) {
-			int DWM_WINDOW_CORNER_PREFERENCE = 33;
-			if(round) {
-				int DWMWCP_ROUND = 2;
-				DwmSetWindowAttribute(hwnd, DWM_WINDOW_CORNER_PREFERENCE, ref DWMWCP_ROUND, sizeof(int));
-			} else {
-				int DWMWCP_DONOTROUND = 1;
-				DwmSetWindowAttribute(hwnd, DWM_WINDOW_CORNER_PREFERENCE, ref DWMWCP_DONOTROUND, sizeof(int));
-			}
-		}
 
 		private IntPtr Win11SnapLayoutProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
 			static bool hittest(FrameworkElement e, int x, int y) {
@@ -180,18 +148,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 				}
 			}
 
-			const int WM_NCHITTEST = 0x0084;
-			const int WM_NCMOUSEHOVER = 0x02A0;
-			const int WM_NCMOUSELEAVE = 0x02A2;
-			const int WM_NCMOUSEMOVE = 0x00A0;
-			const int WM_NCLBUTTONDOWN = 0x00A1;
-			const int WM_NCLBUTTONUP = 0x00A2;
-			const int WM_LBUTTONDOWN = 0x0201;
-			const int WM_LBUTTONUP = 0x0202;
-			const int WM_MOUSEHOVER = 0x02A1;
-			const int WM_MOUSEMOVE = 0x0200;
-			const int WM_MOUSELEAVE = 0x02A3;
-			const int HTMAXBUTTON = 9;
 			switch(msg) {
 			case WM_NCHITTEST:
 				if(isMax(lParam)) {

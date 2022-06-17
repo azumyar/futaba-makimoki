@@ -8,7 +8,7 @@
   "color-foreground": "#FFFFFF",
   "color-background": "#000000",
   "color-primary": "#1E88E5",
-  "color-secondary": "#E91E63",
+  "color-secondary": "#d81b60",
 
   "color-window-frame": "#424242",
   "color-window-tab": "#616161",
@@ -34,6 +34,7 @@
   "color-viewer-catalog-badge-isolate-background": "#212121",
 
   "color-viewer-thread-background": "#00000000",
+  "color-viewer-thread-link": "#d81b60",
   "color-viewer-thread-search-hit-background": "#33691E",
   "color-viewer-thread-quot-hit-background": "#BF360C",
   "color-viewer-thread-old-foreground": "#f44336",

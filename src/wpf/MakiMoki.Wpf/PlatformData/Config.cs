@@ -221,6 +221,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		Bottom
 	}
 
+	enum FluentType {
+		None,
+		Auto,
+		Aero,
+		Acryic,
+		Maica
+	}
+
 	class PlacementConfig : Data.ConfigObject {
 		public static int CurrentVersion { get; } = 2020062900;
 
@@ -235,7 +243,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		}
 	}
 
-	public class StyleConfig : Data.ConfigObject {
+	class StyleConfig : Data.ConfigObject {
 		public static int CurrentVersion { get; } = -1;
 
 		[JsonProperty("color-white", Required = Required.Always)]
@@ -254,7 +262,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public string WindowFrameColor { get; private set; }
 		[JsonProperty("color-window-tab", Required = Required.Always)]
 		public string WindowTabColor { get; private set; }
-		[JsonProperty("color-window-tab-badge")]
+		[JsonProperty("color-window-tab-badge", Required = Required.Always)]
 		public string WindowTabBadgeColor { get; private set; }
 		[JsonProperty("color-viewer-foreground", Required = Required.Always)]
 		public string ViewerForegroundColor { get; private set; }
@@ -263,54 +271,56 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("color-viewer-border", Required = Required.Always)]
 		public string ViewerBorderColor { get; private set; }
 
-		[JsonProperty("color-viewer-catalog-item-background")]
+		[JsonProperty("color-viewer-catalog-item-background", Required = Required.Always)]
 		public string CatalogItemBackgroundColor { get; private set; }
-		[JsonProperty("color-viewer-catalog-item-background-search-hit")]
+		[JsonProperty("color-viewer-catalog-item-background-search-hit", Required = Required.Always)]
 		public string CatalogItemSearchHitBackgroundColor { get; private set; }
-		[JsonProperty("color-viewer-catalog-item-background-watch-hit")]
+		[JsonProperty("color-viewer-catalog-item-background-watch-hit", Required = Required.Always)]
 		public string CatalogItemWatchHitBackgroundColor { get; private set; }
-		[JsonProperty("color-viewer-catalog-item-background-opend")]
+		[JsonProperty("color-viewer-catalog-item-background-opend", Required = Required.Always)]
 		public string CatalogItemOpendBackgroundColor { get; private set; }
-		[JsonProperty("color-viewer-catalog-badge-count-foreground")]
+		[JsonProperty("color-viewer-catalog-badge-count-foreground", Required = Required.Always)]
 		public string CatalogBadgeCountForegroundColor { get; private set; }
-		[JsonProperty("color-viewer-catalog-badge-count-background")]
+		[JsonProperty("color-viewer-catalog-badge-count-background", Required = Required.Always)]
 		public string CatalogBadgeCountBackgroundColor { get; private set; }
-		[JsonProperty("color-viewer-catalog-badge-id-foreground")]
+		[JsonProperty("color-viewer-catalog-badge-id-foreground", Required = Required.Always)]
 		public string CatalogBadgeIdForegroundColor { get; private set; }
-		[JsonProperty("color-viewer-catalog-badge-id-background")]
+		[JsonProperty("color-viewer-catalog-badge-id-background", Required = Required.Always)]
 		public string CatalogBadgeIdBackgroundColor { get; private set; }
-		[JsonProperty("color-viewer-catalog-badge-old-foreground")]
+		[JsonProperty("color-viewer-catalog-badge-old-foreground", Required = Required.Always)]
 		public string CatalogBadgeOldForegroundColor { get; private set; }
-		[JsonProperty("color-viewer-catalog-badge-old-background")]
+		[JsonProperty("color-viewer-catalog-badge-old-background", Required = Required.Always)]
 		public string CatalogBadgeOldBackgroundColor { get; private set; }
-		[JsonProperty("color-viewer-catalog-badge-movie-foreground")]
+		[JsonProperty("color-viewer-catalog-badge-movie-foreground", Required = Required.Always)]
 		public string CatalogBadgeMovieForegroundColor { get; private set; }
-		[JsonProperty("color-viewer-catalog-badge-movie-background")]
+		[JsonProperty("color-viewer-catalog-badge-movie-background", Required = Required.Always)]
 		public string CatalogBadgeMovieBackgroundColor { get; private set; }
-		[JsonProperty("color-viewer-catalog-badge-isolate-foreground")]
+		[JsonProperty("color-viewer-catalog-badge-isolate-foreground", Required = Required.Always)]
 		public string CatalogBadgeIsolateForegroundColor { get; private set; }
-		[JsonProperty("color-viewer-catalog-badge-isolate-background")]
+		[JsonProperty("color-viewer-catalog-badge-isolate-background", Required = Required.Always)]
 		public string CatalogBadgeIsolateBackgroundColor { get; private set; }
 
-		[JsonProperty("color-viewer-thread-background")]
+		[JsonProperty("color-viewer-thread-background", Required = Required.Always)]
 		public string ThreadBackgroundColor { get; private set; }
-		[JsonProperty("color-viewer-thread-search-hit-background")]
+		[JsonProperty("color-viewer-thread-link", Required = Required.Always)]
+		public string ThreadLinkColor { get; private set; }
+		[JsonProperty("color-viewer-thread-search-hit-background", Required = Required.Always)]
 		public string ThreadSearchHitBackgroundColor { get; private set; }
-		[JsonProperty("color-viewer-thread-quot-hit-background")]
+		[JsonProperty("color-viewer-thread-quot-hit-background", Required = Required.Always)]
 		public string ThreadQuotHitBackgroundColor { get; private set; }
-		[JsonProperty("color-viewer-thread-old-foreground")]
+		[JsonProperty("color-viewer-thread-old-foreground", Required = Required.Always)]
 		public string ThreadOldForegroundColor { get; private set; }
-		[JsonProperty("color-viewer-thread-header-posted-foreground")]
+		[JsonProperty("color-viewer-thread-header-posted-foreground", Required = Required.Always)]
 		public string ThreadHeaerPostedForegroundColor { get; private set; }
-		[JsonProperty("color-viewer-thread-header-subject-foreground")]
+		[JsonProperty("color-viewer-thread-header-subject-foreground", Required = Required.Always)]
 		public string ThreadHeaerSubjectForegroundColor { get; private set; }
-		[JsonProperty("color-viewer-thread-header-name-foreground")]
+		[JsonProperty("color-viewer-thread-header-name-foreground", Required = Required.Always)]
 		public string ThreadHeaerNameForegroundColor { get; private set; }
-		[JsonProperty("color-viewer-thread-header-mail-foreground")]
+		[JsonProperty("color-viewer-thread-header-mail-foreground", Required = Required.Always)]
 		public string ThreadHeaerMailForegroundColor { get; private set; }
-		[JsonProperty("color-viewer-thread-header-res-count-foreground")]
+		[JsonProperty("color-viewer-thread-header-res-count-foreground", Required = Required.Always)]
 		public string ThreadHeaerResCountForegroundColor { get; private set; }
-		[JsonProperty("color-viewer-thread-header-soudane-foreground")]
+		[JsonProperty("color-viewer-thread-header-soudane-foreground", Required = Required.Always)]
 		public string ThreadHeaerSoudaneForegroundColor { get; private set; }
 
 		[JsonProperty("color-viewer-scrollbar-thumb", Required = Required.Always)]
@@ -318,7 +328,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("color-viewer-scrollbar-tarck", Required = Required.Always)]
 		public string ViewerScollbarTrackColor { get; private set; }
 
-		[JsonProperty("color-viewer-map-futaba")]
+		[JsonProperty("color-viewer-map-futaba", Required = Required.Always)]
 		public Dictionary<string, string> ViewerFutabaColorMap { get; private set; }
 
 		[JsonProperty("size-catalog-image", Required = Required.Always)]
@@ -352,6 +362,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public double FailsafeThreadImageOpacity { get; private set; }
 		[JsonProperty("blur-radius-failsafe-thread-image", Required = Required.Always)]
 		public double FailsafeThreadImageBlurRadius { get; private set; }
+
+		// 実験的機能
+		[JsonProperty("-opt-fluent-window", Required = Required.DisallowNull, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[System.ComponentModel.DefaultValue(FluentType.None)]
+		public FluentType OptionFluentTypeWidnow { get; private set; }
+		[JsonProperty("-opt-fluent-type-window-color", Required = Required.DisallowNull, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[System.ComponentModel.DefaultValue("--ref:color-window-frame")]
+		public string OptionFluentTypeWidnowColorOrRef { get; private set; }
+		[JsonProperty("-opt-fluent-type-popup", Required = Required.DisallowNull, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[System.ComponentModel.DefaultValue(FluentType.Acryic)]
+		public FluentType OptionFluentTypePopup { get; private set; }
+		[JsonProperty("-opt-fluent-type-popup-color", Required = Required.DisallowNull, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[System.ComponentModel.DefaultValue("--ref:color-background")]
+		public string OptionFluentTypePopupColorOrRef { get; private set; }
+		[JsonProperty("-opt-fluent-blur-opacity", Required = Required.DisallowNull, DefaultValueHandling = DefaultValueHandling.Populate)]
+		[System.ComponentModel.DefaultValue(0.4f)]
+		public float FluentBlurOpacity { get; private set; }
+		
 
 		public (bool Successed, string ErrorText) Validate() {
 			var ps = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);

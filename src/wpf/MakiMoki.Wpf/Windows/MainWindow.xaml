@@ -578,7 +578,7 @@
                                             HorizontalAlignment="Stretch"
                                             Visibility="{Binding DataContext.Futaba.Value.FullScreenBorderVisibility.Value, RelativeSource={RelativeSource Self}}">
                                             <GridSplitter.Background>
-                                                <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                                                <SolidColorBrush Color="{DynamicResource WindowSplitterColor}" />
                                             </GridSplitter.Background>
                                         </GridSplitter>
 
@@ -840,7 +840,7 @@
                 />
 
 
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="1" Visibility="{Binding StartUpVisibility.Value, Mode=OneWay}">
                 <Grid.ColumnDefinitions>
                 </Grid.ColumnDefinitions>
                 <ListBox
@@ -968,6 +968,9 @@
                 SelectedItem="{Binding Path=TabControlSelectedItem.Value,UpdateSourceTrigger=PropertyChanged,Mode=Twoway}"
                 TabStripPlacement="Left"
                 Padding="0">
+                <TabControl.Background>
+                    <SolidColorBrush Color="Transparent" />
+                </TabControl.Background>
                 <TabControl.ItemTemplate>
                     <DataTemplate>
                         <Grid

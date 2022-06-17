@@ -52,6 +52,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<List<InfomationRecord>> Infomations { get; }
 
 		public ReactiveProperty<bool> Topmost { get; }
+		public ReactiveProperty<Visibility> StartUpVisibility { get; }
 		public ReactiveProperty<Visibility> TabVisibility { get; }
 		public ReactiveProperty<KeyBinding[]> KeyGestures { get; } = new ReactiveProperty<KeyBinding[]>(Array.Empty<KeyBinding>());
 
@@ -173,7 +174,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			});
 
 			this.Topmost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledWindowTopmost);
-			this.TabVisibility = new ReactiveProperty<Visibility>((Catalogs.Count == 0) ? Visibility.Collapsed : Visibility.Visible);
+			this.TabVisibility = new ReactiveProperty<Visibility>(Catalogs.Any() switch {
+				true => Visibility.Visible,
+				false => Visibility.Collapsed
+			});
+			this.StartUpVisibility = this.TabVisibility.Select(x => x switch {
+				Visibility.Visible => Visibility.Collapsed,
+				_ => Visibility.Visible
+			}).ToReactiveProperty();
 			this.UpdateKeyBindings();
 			BordListClickCommand.Subscribe(x => OnBordListClick(x));
 			ConfigButtonClickCommand.Subscribe(x => OnConfigButtonClick(x));
@@ -340,7 +348,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 			catch(InvalidOperationException) {
 #if DEBUG // リリース版でのみつぶす
-				throw;
+				if(System.Diagnostics.Debugger.IsAttached) {
+					System.Diagnostics.Debugger.Break();
+				} else {
+					throw;
+				}
 #endif
 			}
 			this.CatalogToken.Value = DateTime.Now.Ticks;

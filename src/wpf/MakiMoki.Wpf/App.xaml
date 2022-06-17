@@ -36,6 +36,7 @@
 
         <!-- LightBlueの500 -->
         <Color x:Key="WindowFrameColor">#03A9F4</Color>
+        <Color x:Key="WindowSplitterColor">#03A9F4</Color>
         <!-- LightBlueの700 -->
         <Color x:Key="WindowFrameBorderColor">#0288D1</Color>
         <Color x:Key="WindowTabBackgroundColor">White</Color>
@@ -73,6 +74,8 @@
 
 
         <Color x:Key="ThreadBackgroundColor">#00000000</Color>
+        <!-- Pinkの500 -->
+        <Color x:Key="ThreadLinkColor">#E91E63</Color>
         <!-- LightGreenの100 -->
         <Color x:Key="ThreadBackgroundSerachHitColor">#C8E6C9</Color>
         <!-- DeepOrangeの100-->
@@ -140,6 +143,14 @@
             <!-- 赤字→Redの500-->
             <pd:ColorMap Target="#ff0000" Value="#f44336" />
         </pd:ColorMapCollection>
+
+
+        <pd:FluentType x:Key="FluentWindowType">None</pd:FluentType>
+        <pd:FluentType x:Key="FluentPopupType">None</pd:FluentType>
+        <sys:Single x:Key="FluentBlurOpacity">0.4</sys:Single>
+        <Color x:Key="FluentWindowAccentColor">#00000000</Color>
+        <Color x:Key="FluentPopupAccentColor">#00000000</Color>
+
 
         <Viewbox x:Key="ButtonIconWindowBordList" x:Shared="False">
             <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">

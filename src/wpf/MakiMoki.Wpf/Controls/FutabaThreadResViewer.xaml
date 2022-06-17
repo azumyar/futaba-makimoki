@@ -529,7 +529,7 @@
                     HorizontalAlignment="Stretch"
                     Visibility="{Binding VerticalGridSplitterVisibility.Value, Mode=OneWay}">
                     <GridSplitter.Background>
-                        <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                        <SolidColorBrush Color="{DynamicResource WindowSplitterColor}" />
                     </GridSplitter.Background>
                 </GridSplitter>
                 -->
@@ -544,7 +544,7 @@
                     VerticalAlignment="Stretch"
                     Visibility="{Binding VerticalGridSplitterVisibility.Value, Mode=OneWay}">
                     <GridSplitter.Background>
-                        <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                        <SolidColorBrush Color="{DynamicResource WindowSplitterColor}" />
                     </GridSplitter.Background>
                 </GridSplitter>
                 
