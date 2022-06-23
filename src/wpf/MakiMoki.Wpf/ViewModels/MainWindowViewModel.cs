@@ -254,6 +254,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogModeToggleUpdate
 				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentCatalogTabModeCommand))
 				.Where(x => x != null));
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogOpenPost
+				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentCatalogTabPostCommand))
+				.Where(x => x != null));
 			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogClose
 				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentCatalogTabCloseCommand))
 				.Where(x => x != null));
