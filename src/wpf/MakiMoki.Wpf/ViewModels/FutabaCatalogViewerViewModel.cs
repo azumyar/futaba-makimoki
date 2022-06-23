@@ -389,12 +389,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
 						if(object.ReferenceEquals(this.toolTipTarget, x)) {
-							this.toolTipTarget.ToolTip ??= this.toolTipTarget.TryFindResource("CatalogItemToolTip");
-							if(this.toolTipTarget.ToolTip is ToolTip tt) {
-								tt.DataContext = x.DataContext;
-								tt.PlacementTarget = x;
-								tt.Opened += onToolTip;
-								tt.IsOpen = true;
+							if(Window.GetWindow(this.toolTipTarget)?.IsActive ?? false) {
+								this.toolTipTarget.ToolTip ??= this.toolTipTarget.TryFindResource("CatalogItemToolTip");
+								if(this.toolTipTarget.ToolTip is ToolTip tt) {
+									tt.DataContext = x.DataContext;
+									tt.PlacementTarget = x;
+									tt.Opened += onToolTip;
+									tt.IsOpen = true;
+								}
 							}
 						}
 					});
