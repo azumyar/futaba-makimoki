@@ -116,8 +116,39 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 	}
 
+	class MaterialForegroundColorConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if(values.Length != 4) {
+				throw new ArgumentException("型不正。", nameof(values));
+			}
 
-	class DiablBrushConverter : IValueConverter {
+			if(values[0] is SolidColorBrush @default && (@default.Color.A != 0)) {
+				return values[0];
+			}
+
+			if((values[1] is Brush accent)
+				&& (values[2] is Color white)
+				&& (values[3] is Color black)) {
+
+				if(accent is SolidColorBrush sb) {
+					return WpfUtil.ImageUtil.ToHsv(sb.Color) switch {
+						var hsv when hsv.V < 50 => new SolidColorBrush(white),
+						_ => new SolidColorBrush(black)
+					};
+				} else {
+					return new SolidColorBrush(white);
+				}
+			}
+			return values[0];
+		}
+
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+
+	}
+
+	class DisableBrushConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			if(value == null) {
 				return Colors.Transparent;

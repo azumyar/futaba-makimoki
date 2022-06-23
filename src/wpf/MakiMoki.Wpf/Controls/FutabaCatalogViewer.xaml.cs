@@ -27,6 +27,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				typeof(Model.IFutabaViewerContents),
 				typeof(FutabaCatalogViewer),
 				new PropertyMetadata(OnContentsChanged));
+		public static readonly DependencyProperty CornerRadiusProperty
+			= DependencyProperty.Register(
+				nameof(CornerRadius),
+				typeof(CornerRadius),
+				typeof(FutabaCatalogViewer),
+				new PropertyMetadata(new CornerRadius())); 
 		public static readonly RoutedEvent ContentsChangedEvent
 			= EventManager.RegisterRoutedEvent(
 				nameof(ContentsChanged),
@@ -34,18 +40,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				typeof(RoutedPropertyChangedEventHandler<Model.IFutabaViewerContents>),
 				typeof(FutabaCatalogViewer));
 
-
 		public Model.IFutabaViewerContents Contents {
 			get => (Model.IFutabaViewerContents)this.GetValue(ContentsProperty);
-			set {
-				this.SetValue(ContentsProperty, value);
-			}
+			set { this.SetValue(ContentsProperty, value); }
+		}
+
+		public CornerRadius CornerRadius {
+			get => (CornerRadius)this.GetValue(ContentsProperty);
+			set { this.SetValue(CornerRadiusProperty, value); }
 		}
 
 		public event RoutedPropertyChangedEventHandler<Model.IFutabaViewerContents> ContentsChanged {
 			add { AddHandler(ContentsChangedEvent, value); }
 			remove { RemoveHandler(ContentsChangedEvent, value); }
 		}
+
 
 		private ScrollViewer scrollViewerCatalog;
 		private IDisposable CatalogUpdateCommandSubscriber { get; }

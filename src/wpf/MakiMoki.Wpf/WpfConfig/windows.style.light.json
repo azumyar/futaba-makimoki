@@ -1,8 +1,6 @@
 {
   "version": -1,
 
-  "style-type": "Light",
-
   "color-white": "#FFFFFF",
   "color-black": "#000000",
   "color-foreground": "#000000",
@@ -61,12 +59,23 @@
   "size-thread-text-font": 16,
   "size-post-font": 16,
 
-  "font-catalog": "メイリオ",
+  "font-catalog": "游ゴシック,メイリオ",
   "font-catalog-badge": "Segoe UI,メイリオ",
-  "font-thread-header": "メイリオ",
-  "font-thread-text": "メイリオ",
-  "font-post": "メイリオ",
+  "font-thread-header": "游ゴシック,メイリオ",
+  "font-thread-text": "游ゴシック,メイリオ",
+  "font-post": "游ゴシック,メイリオ",
+  "weight-catalog": "Medium",
+  "weight-badge-catalog": "Bold",
+  "weight-thread": "Medium",
+  "weight-thread-bold": "Bold",
+  "weight-post": "Medium",
 
   "opacity-failsafe-thread-image": 0.4,
-  "blur-radius-failsafe-thread-image": 15
+  "blur-radius-failsafe-thread-image": 15,
+
+  "-opt-fluent-window": "None",
+  "-opt-fluent-type-window-color": "--ref:color-window-frame",
+  "-opt-fluent-popup": "Acryic",
+  "-opt-fluent-type-popup-color": "--ref:color-background",
+  "-opt-fluent-blur-opacity": 0.4
 }

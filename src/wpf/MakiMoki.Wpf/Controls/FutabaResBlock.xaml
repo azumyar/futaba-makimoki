@@ -32,7 +32,7 @@
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderPostedColor}" />
                     </Setter.Value>
                 </Setter>
-                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="FontWeight" Value="{DynamicResource ThreadBoldFontWeight}" />
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -57,9 +57,11 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="24" />
             </Grid.RowDefinitions>
-            <WrapPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal"
-                    TextBlock.FontSize="{DynamicResource ThreadHeaderFontSize}"
-                    TextBlock.FontFamily="{DynamicResource ThreadHeaderFont}">
+            <WrapPanel
+                Grid.Column="0" Grid.Row="0" Orientation="Horizontal"
+                TextBlock.FontSize="{DynamicResource ThreadHeaderFontSize}"
+                TextBlock.FontFamily="{DynamicResource ThreadHeaderFont}"
+                TextBlock.FontWeight="{DynamicResource ThreadFontWeight}">
                 <!-- AlternationCount/AlternationIndexではアイテム追加時に追従してくれない -->
                 <TextBlock>
                     <TextBlock.Style>
@@ -75,7 +77,7 @@
                 <TextBlock
                     Visibility="{Binding NameVisibility.Value, Mode=OneWay}"
                     Text="{Binding Raw.Value.ResItem.Res.Sub, StringFormat='\{0\} ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}"
-                    FontWeight="Bold" >
+                    FontWeight="{DynamicResource ThreadBoldFontWeight}" >
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderSubjectColor}" />
                     </TextBlock.Foreground>
@@ -83,7 +85,7 @@
                 <TextBlock
                     Visibility="{Binding NameVisibility.Value, Mode=OneWay}"
                     Text="{Binding Raw.Value.ResItem.Res.Name, StringFormat='\{0\} ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}"
-                    FontWeight="Bold">
+                    FontWeight="{DynamicResource ThreadBoldFontWeight}">
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderNameColor}" />
                     </TextBlock.Foreground>
@@ -140,7 +142,8 @@
                 Grid.Column="0" Grid.Row="1"
                 Orientation="Horizontal" 
                 TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"
-                TextBlock.FontFamily="{DynamicResource ThreadTextFont}">
+                TextBlock.FontFamily="{DynamicResource ThreadTextFont}"
+                TextBlock.FontWeight="{DynamicResource ThreadFontWeight}">
                 <Grid
                     Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}"
                     TextBlock.FontSize="{DynamicResource ThreadTextFontSize}"

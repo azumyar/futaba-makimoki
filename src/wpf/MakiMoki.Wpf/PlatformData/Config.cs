@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
@@ -244,6 +245,61 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	}
 
 	class StyleConfig : Data.ConfigObject {
+		public class WeightConverter : JsonConverter {
+			public override bool CanConvert(Type objectType) {
+				return typeof(FontWeight) == objectType;
+			}
+
+			public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
+				switch(reader.TokenType) {
+				case JsonToken.Null:
+					return FontWeights.Normal;
+				case JsonToken.String:
+				case JsonToken.Integer:
+					return reader.Value switch {
+						string s when s.ToLower() == "Thin".ToLower() => FontWeights.Thin,
+						string s when s.ToLower() == "ExtraLight".ToLower() => FontWeights.ExtraLight,
+						string s when s.ToLower() == "UltraLight".ToLower() => FontWeights.UltraLight,
+						string s when s.ToLower() == "Light".ToLower() => FontWeights.Light,
+						string s when s.ToLower() == "Normal".ToLower() => FontWeights.Normal,
+						string s when s.ToLower() == "Regular".ToLower() => FontWeights.Regular,
+						string s when s.ToLower() == "Medium".ToLower() => FontWeights.Medium,
+						string s when s.ToLower() == "DemiBold".ToLower() => FontWeights.DemiBold,
+						string s when s.ToLower() == "SemiBold".ToLower() => FontWeights.SemiBold,
+						string s when s.ToLower() == "Bold".ToLower() => FontWeights.Bold,
+						string s when s.ToLower() == "ExtraBold".ToLower() => FontWeights.ExtraBold,
+						string s when s.ToLower() == "UltraBold".ToLower() => FontWeights.UltraBold,
+						string s when s.ToLower() == "Black".ToLower() => FontWeights.Black,
+						string s when s.ToLower() == "Heavy".ToLower() => FontWeights.Heavy,
+						string s when s.ToLower() == "ExtraBlack".ToLower() => FontWeights.ExtraBlack,
+						string s when s.ToLower() == "UltraBlack".ToLower() => FontWeights.UltraBlack,
+
+						int i when(1 <= i) && (i <= 100) => FontWeights.Thin,
+						int i when i <= 200 => FontWeights.ExtraLight,
+						int i when i <= 300 => FontWeights.Light,
+						int i when i <= 400 => FontWeights.Normal,
+						int i when i <= 500 => FontWeights.Medium,
+						int i when i <= 600 => FontWeights.SemiBold,
+						int i when i <= 700 => FontWeights.Bold,
+						int i when i <= 800 => FontWeights.ExtraBold,
+						int i when i <= 900 => FontWeights.Black,
+						int i when i <= 950 => FontWeights.ExtraBlack,
+						int i when i <= 999 => FontWeights.ExtraBlack,
+						_ => throw new JsonReaderException()
+					};
+				default:
+					throw new JsonReaderException();
+				}
+			}
+
+			public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
+				if(value is FontWeight w) {
+					serializer.Serialize(writer, w.ToOpenTypeWeight());
+				} else {
+					serializer.Serialize(writer, 400);
+				}
+			}
+		}
 		public static int CurrentVersion { get; } = -1;
 
 		[JsonProperty("color-white", Required = Required.Always)]
@@ -357,6 +413,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public string ThreadTextFont { get; private set; }
 		[JsonProperty("font-post", Required = Required.Always)]
 		public string PostFont { get; private set; }
+
+		[JsonProperty("weight-catalog", Required = Required.Always)]
+		[JsonConverter(typeof(WeightConverter))]
+		public FontWeight CatalogFontWeight { get; private set; }
+		[JsonProperty("weight-badge-catalog", Required = Required.Always)]
+		[JsonConverter(typeof(WeightConverter))]
+		public FontWeight CatalogBadgeFontWeight { get; private set; }
+		[JsonProperty("weight-thread", Required = Required.Always)]
+		[JsonConverter(typeof(WeightConverter))]
+		public FontWeight ThreadFontWeight { get; private set; }
+		[JsonProperty("weight-thread-bold", Required = Required.Always)]
+		[JsonConverter(typeof(WeightConverter))]
+		public FontWeight ThreadBoldFontWeight { get; private set; }
+		[JsonProperty("weight-post", Required = Required.Always)]
+		[JsonConverter(typeof(WeightConverter))]
+		public FontWeight PostFontWeight { get; private set; }
 
 		[JsonProperty("opacity-failsafe-thread-image", Required = Required.Always)]
 		public double FailsafeThreadImageOpacity { get; private set; }

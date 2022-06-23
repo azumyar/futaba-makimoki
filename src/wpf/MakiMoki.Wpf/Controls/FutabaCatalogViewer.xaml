@@ -20,7 +20,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/Material.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ViewerListBox.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/WheelUpdateNotifier.xaml"/>
@@ -148,6 +148,11 @@
                                                 <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" Storyboard.TargetName="border">
                                                     <EasingColorKeyFrame KeyTime="0:0:0.25" Value="{DynamicResource ViewerPrimaryDarkColor}" />
                                                 </ColorAnimationUsingKeyFrames>
+                                                <DoubleAnimationUsingKeyFrames
+                                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.Y)"
+                                                    Storyboard.TargetName="contentPresenter">
+                                                    <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="1" />
+                                                </DoubleAnimationUsingKeyFrames>
                                             </Storyboard>
                                         </VisualState>
                                         <VisualState x:Name="Disabled">
@@ -164,7 +169,14 @@
                                     Focusable="False"
                                     Margin="{TemplateBinding Padding}"
                                     HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                                    <ContentPresenter.RenderTransform>
+                                        <TransformGroup>
+                                            <TranslateTransform X="0" Y="0" />
+                                        </TransformGroup>
+                                    </ContentPresenter.RenderTransform>
+
+                                </ContentPresenter>
                             </Border>
                         </ControlTemplate>
                     </Setter.Value>
@@ -175,7 +187,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ListBox">
-                            <Border>
+                            <Border Background="{TemplateBinding Background}">
                                 <ScrollViewer
                                     Style="{StaticResource MakiMokiScrollViewerStyle}"
                                     CanContentScroll="True"
@@ -202,7 +214,7 @@
                 Placement="Bottom"
                 VerticalOffset="4" HorizontalOffset="0">
                 <ContextMenu.ItemContainerStyle>
-                    <Style TargetType="MenuItem">
+                    <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialMenuItem}">
                         <Setter Property="Header" Value="{Binding Name}" />
                         <Setter Property="IsChecked">
                             <Setter.Value>
@@ -226,6 +238,19 @@
             </ContextMenu>
         </ResourceDictionary>
     </UserControl.Resources>
+    <UserControl.Style>
+        <Style TargetType="{x:Type UserControl}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type UserControl}">
+                        <Border>
+                            <ContentPresenter />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Style>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="ContentsChanged">
             <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
@@ -267,7 +292,13 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Margin="0" BorderThickness="0,0,0,1" Padding="0,2,0,2" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+            <Border
+                Grid.Row="0"
+                Margin="0"
+                BorderThickness="0,0,0,1"
+                Padding="0,2,0,2"
+                CornerRadius="{Binding CornerRadius, Mode=OneWay, ElementName=_this}"
+                DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                 <Border.Background>
                     <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                 </Border.Background>
@@ -302,9 +333,6 @@
                         <Button.LayoutTransform>
                             <RotateTransform x:Name="FullScreenThreadRotate" Angle="180" />
                         </Button.LayoutTransform>
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="スレッド画面最大化" />
                         </Button.ToolTip>
@@ -321,9 +349,6 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button Grid.Column="2" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconViewerUpdate}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="更新" />
                         </Button.ToolTip>
@@ -405,9 +430,6 @@
                         Style="{StaticResource MaterialTransparentButton}"
                         Content="{DynamicResource ButtonIconViewerSearch}"
                         Visibility="{Binding Contents.SearchButtonVisibility.Value, Mode=OneWay, ElementName=_this}">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="検索" />
                         </Button.ToolTip>
@@ -425,9 +447,6 @@
                     </Button>
 
                     <Button Grid.Column="4" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconCatalogSort}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="ソート" />
                         </Button.ToolTip>
@@ -453,9 +472,6 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button Grid.Column="5"  Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="スレッド作成" />
                         </Button.ToolTip>
@@ -475,9 +491,6 @@
                         <Button.LayoutTransform>
                             <RotateTransform x:Name="FullScreenCatalogRotate" Angle="0" />
                         </Button.LayoutTransform>
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="スレッド画面最大化" />
                         </Button.ToolTip>
@@ -500,6 +513,7 @@
                 x:Name="CatalogListBox"
                 Style="{StaticResource CatalogViewerListBoxStyle}"
                 Grid.Row="1"
+                Background="{Binding Background, Mode=OneWay, ElementName=_this}"
                 BorderThickness="0"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 ScrollViewer.CanContentScroll="True"
@@ -527,7 +541,7 @@
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <vwp:VirtualizingWrapPanel IsItemsHost="True"  HorizontalAlignment="Center"/>
+                        <vwp:VirtualizingWrapPanel IsItemsHost="True"  HorizontalAlignment="Center" />
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
@@ -601,6 +615,7 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="1"/>
                                     </Grid.RowDefinitions>
                                     <!-- スレ画-->
                                     <Viewbox
@@ -645,7 +660,7 @@
                                                 Text="{Binding Raw.Value, Converter={StaticResource FutabaNewResCountConverter}, Mode=OneWay}"
                                                 FontFamily="{DynamicResource CatalogBadgeFont}"
                                                 FontSize="10"
-                                                FontWeight="Bold"
+                                                FontWeight="{DynamicResource CatalogBadgeFontWeight}"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 Padding="0 0 0 1">
@@ -685,7 +700,7 @@
                                                 Text="隔"
                                                 FontFamily="{DynamicResource CatalogBadgeFont}"
                                                 FontSize="10"
-                                                FontWeight="Bold"
+                                                FontWeight="{DynamicResource CatalogBadgeFontWeight}"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 Padding="0 0 0 1">
@@ -718,7 +733,7 @@
                                                     Text="落"
                                                     FontFamily="{DynamicResource CatalogBadgeFont}"
                                                     FontSize="10"
-                                                    FontWeight="Bold"
+                                                    FontWeight="{DynamicResource CatalogBadgeFontWeight}"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     Padding="0 0 0 1">
@@ -755,7 +770,7 @@
                                                     Text="ID"
                                                     FontFamily="{DynamicResource CatalogBadgeFont}"
                                                     FontSize="10"
-                                                    FontWeight="Bold"
+                                                    FontWeight="{DynamicResource CatalogBadgeFontWeight}"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     Padding="0 0 0 1">
@@ -814,7 +829,8 @@
                                         Width="{Binding ActualWidth, ElementName=CatalogItem, Mode=OneWay}"
                                         Height="{DynamicResource CatalogTextSize}"
                                         TextBlock.FontSize="{DynamicResource CatalogTextFontSize}"
-                                        TextBlock.FontFamily="{DynamicResource CatalogTextFont}">
+                                        TextBlock.FontFamily="{DynamicResource CatalogTextFont}"
+                                        TextBlock.FontWeight="{DynamicResource CatalogTextFontWeight}">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="2" />
                                             <RowDefinition Height="Auto" />

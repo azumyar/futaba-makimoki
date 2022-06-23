@@ -242,6 +242,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 		}
 
 		private void ApplyStyle(PlatformData.StyleConfig styleConfig = null) {
+			static Color border(Color c1, Color c2) {
+				var a = ((int)c1.A + c2.A) / 2; 
+				var r = ((int)c1.R + c2.R) / 2; 
+				var g = ((int)c1.G + c2.G) / 2; 
+				var b = ((int)c1.B + c2.B) / 2;
+				var hsv = WpfUtil.ImageUtil.ToHsv(Color.FromRgb((byte)r, (byte)g, (byte)b));
+				var c = WpfUtil.ImageUtil.HsvToRgb(hsv.H, hsv.S * 0.4, hsv.V);
+				return Color.FromArgb((byte)a, c.R, c.G, c.B);
+			}
+
 			var style = styleConfig ?? WpfConfig.WpfConfigLoader.Style;
 			{
 				var white = style.ToWpfColor(style.WhiteColor);
@@ -270,7 +280,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				this.Resources["MakimokiBlackColor"] = black;
 				this.Resources["MakimokiForegroundColor"] = foreground;
 				this.Resources["MakimokiBackgroundColor"] = background;
+				this.Resources["MakimokiBorderColor"] = border(foreground, background);
 				this.Resources["MakimokiPrimaryColor"] = primary;
+				this.Resources["MakimokiSecondaryColor"] = secondary;
 
 				this.Resources["WindowFrameColor"] = this.Resources["WindowSplitterColor"] =  windowFrame;
 				this.Resources["WindowFrameBorderColor"] = windowBorder;
@@ -371,6 +383,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			this.Resources["ThreadHeaderFont"] = new FontFamily(style.ThreadHeaderFont);
 			this.Resources["ThreadTextFont"] = new FontFamily(style.ThreadTextFont);
 			this.Resources["PostFont"] = new FontFamily(style.PostFont);
+
+			this.Resources["CatalogTextFontWeight"] = style.CatalogFontWeight;
+			this.Resources["CatalogBadgeFontWeight"] = style.CatalogBadgeFontWeight;
+			this.Resources["ThreadFontWeight"] = style.ThreadFontWeight;
+			this.Resources["ThreadBoldFontWeight"] = style.ThreadBoldFontWeight;
+			this.Resources["PostFontWeight"] = style.PostFontWeight;
 
 			{ // 実験的機能
 				static Color blend(float a, Color @base) {

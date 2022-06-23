@@ -23,7 +23,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/Material.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ViewerListBox.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/WheelUpdateNotifier.xaml"/>
@@ -51,17 +51,6 @@
             <converter:PostViewMaxWidthConverter x:Key="PostViewMaxWidthConverter" />
             <converter:WheelUpdatePositionConverter x:Key="WheelUpdatePositionConverter" />
             <converter:WheelUpdateVisibleConverter x:Key="WheelUpdateVisibleConverter" />
-
-            <Style x:Key="ResIndexStyle" TargetType="TextBlock">
-            </Style>
-            <Style x:Key="PostedResIndexStyle" TargetType="TextBlock">
-                <Setter Property="Foreground">
-                    <Setter.Value>
-                        <SolidColorBrush Color="{DynamicResource ThreadHeaderPostedColor}" />
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="FontWeight" Value="Bold" />
-            </Style>
 
             <ContextMenu
                 x:Key="ThreadResHamburgerContextMenu"
@@ -257,9 +246,6 @@
                                     CommandParameter="{Binding Mode=OneWay}"/>
                             </ContextMenu>
                         </Button.ContextMenu>
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="更新" />
                         </Button.ToolTip>
@@ -377,9 +363,6 @@
                         Style="{StaticResource MaterialTransparentButton}"
                         Content="{DynamicResource ButtonIconViewerSearch}"    
                         Visibility="{Binding Contents.SearchButtonVisibility.Value, Mode=OneWay, ElementName=_this}">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="検索" />
                         </Button.ToolTip>
@@ -396,9 +379,6 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button Grid.Column="5" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconViewerArrow}">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="一番上に移動" />
                         </Button.ToolTip>
@@ -409,9 +389,6 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button Grid.Column="6" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconViewerArrow}">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="一番下に移動" />
                         </Button.ToolTip>
@@ -436,9 +413,6 @@
                             </Style>
                         </Button.Style>
                         -->
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="はっちゃんキャンバス" />
                         </Button.ToolTip>
@@ -462,9 +436,6 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button Grid.Column="8" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="レス書き込み" />
                         </Button.ToolTip>
@@ -482,9 +453,6 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button Grid.Column="9" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconThreadMouseHamburger}" Width="16">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
                                 <i:ChangePropertyAction 
@@ -850,6 +818,9 @@
                                                             />
                                                     </ContextMenu>
                                                 </Button.Resources>
+                                                <Button.Background>
+                                                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                                </Button.Background>
                                                 <Button.ToolTip>
                                                     <ToolTip Content="引用" />
                                                 </Button.ToolTip>
@@ -874,6 +845,9 @@
                                                 VerticalAlignment="Bottom"
                                                 Content="{StaticResource ButtonIconCopy}"
                                                 Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
+                                                <Button.Background>
+                                                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                                </Button.Background>
                                                 <Button.ToolTip>
                                                     <ToolTip Content="コピー" />
                                                 </Button.ToolTip>
@@ -890,6 +864,9 @@
                                                 Padding="2"
                                                 VerticalAlignment="Bottom"
                                                 Content="{StaticResource ButtonIconSoudane}">
+                                                <Button.Background>
+                                                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                                </Button.Background>
                                                 <Button.ToolTip>
                                                     <ToolTip Content="そうだね" />
                                                 </Button.ToolTip>
@@ -906,6 +883,9 @@
                                                 Padding="2"
                                                 VerticalAlignment="Bottom"
                                                 Content="{StaticResource ButtonIconDel}">
+                                                <Button.Background>
+                                                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                                </Button.Background>
                                                 <Button.ToolTip>
                                                     <ToolTip Content="del" />
                                                 </Button.ToolTip>
@@ -939,6 +919,9 @@
                                                             CommandParameter="{Binding Mode=OneWay}" />
                                                     </ContextMenu>
                                                 </Button.Resources>
+                                                <Button.Background>
+                                                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                                </Button.Background>
                                                 <Button.ToolTip>
                                                     <ToolTip Content="削除" />
                                                 </Button.ToolTip>
@@ -964,6 +947,9 @@
                                             VerticalAlignment="Bottom"
                                             Content="{StaticResource ButtonIconThreadMouse}"
                                             Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
+                                            <Button.Background>
+                                                <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                            </Button.Background>
                                             <Button.ToolTip>
                                                 <ToolTip Content="コピーモード" />
                                             </Button.ToolTip>
@@ -982,6 +968,9 @@
                                             Margin="2 0 0 0"
                                             VerticalAlignment="Bottom"
                                             Visibility="{Binding ReleaseHiddenResBuutonVisibility.Value, Mode=OneWay}">
+                                            <Button.Background>
+                                                <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                            </Button.Background>
                                             <TextBlock>非表示を解除</TextBlock>
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="Click">
@@ -998,6 +987,9 @@
                                             Margin="2 0 0 0"
                                             VerticalAlignment="Bottom"
                                             Visibility="{Binding ShowNgResButtonVisibility.Value, Mode=OneWay}">
+                                            <Button.Background>
+                                                <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                            </Button.Background>
                                             <TextBlock Text="{Binding ShowNgResButtonText.Value, Mode=OneWay}" />
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="Click">
@@ -1042,6 +1034,7 @@
                                         TextWrapping="Wrap" Margin="4"
                                         FontFamily="{DynamicResource ThreadTextFont}"
                                         FontSize="{DynamicResource ThreadTextFontSize}"
+                                        FontWeight="{DynamicResource ThreadFontWeight}"
                                         IsReadOnly="True"
                                         DataContext="{Binding DataContext, Mode=OneWay, ElementName=_this}"
                                         Tag="{Binding Contents, Mode=OneWay, ElementName=_this}"
@@ -1137,6 +1130,9 @@
                                         Grid.Column="0" 
                                         MinWidth="200" Height="40"
                                         IsEnabled="{Binding  Parent.Value, Mode=OneWay, Converter={StaticResource FutabaResItemNextButtonEnabledConverter}}">
+                                        <Button.Background>
+                                            <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                        </Button.Background>
                                         <TextBlock>
                                             続きを読む
                                         </TextBlock>
@@ -1148,11 +1144,11 @@
                                     </Button>
                                     <Border Grid.Column="2" BorderThickness="1" CornerRadius="4" Padding="4">
                                         <Border.BorderBrush>
-                                            <SolidColorBrush Color="{Binding DataContext, Mode=OneWay,ElementName=BlackColorGetter}" />
+                                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                                         </Border.BorderBrush>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" MinWidth="128" />
                                                 <ColumnDefinition Width="32" />
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
@@ -1174,6 +1170,9 @@
                                                 </TextBlock.Foreground>
                                             </TextBlock>
                                             <Button Style="{StaticResource MaterialButton}" Grid.Column="2" Width="32" Height="32" Padding="2" Content="{StaticResource ButtonIconThreadSave}">
+                                                <Button.Background>
+                                                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                                </Button.Background>
                                                 <Button.ToolTip>
                                                     <ToolTip Content="保存" />
                                                 </Button.ToolTip>

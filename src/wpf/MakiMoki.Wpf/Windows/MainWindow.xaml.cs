@@ -24,7 +24,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 	/// MainWindow.xaml の相互作用ロジック
 	/// </summary>
 	public partial class MainWindow : Window {
+		public static readonly DependencyProperty Windows11CornerRadiusProperty
+			= DependencyProperty.Register(
+				nameof(Windows11CornerRadius),
+				typeof(CornerRadius),
+				typeof(MainWindow),
+				new PropertyMetadata(new CornerRadius()));
 		private WpfHelpers.FluentHelper.FluentSource source;
+
+		public CornerRadius Windows11CornerRadius {
+			get => (CornerRadius)this.GetValue(Windows11CornerRadiusProperty);
+			set { this.SetValue(Windows11CornerRadiusProperty, value); }
+		}
 
 		public MainWindow() {
 			InitializeComponent();
@@ -32,6 +43,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 			new WindowInteropHelper(GetWindow(this)).EnsureHandle(); // ウインドウハンドルを作る
 			this.source = WpfHelpers.FluentHelper.Attach(this);
 			WpfHelpers.FluentHelper.ApplyCompositionWindow(source);
+			if(App.OsCompat.IsWindows11Rtm) {
+				this.Windows11CornerRadius = new CornerRadius(4, 0, 0, 0);
+			}
+
 			this.Loaded += (_, _) => {
 				IntPtr wndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
 					if(App.OsCompat.IsWindows11Rtm) {

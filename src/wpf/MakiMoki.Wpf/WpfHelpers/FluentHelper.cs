@@ -14,11 +14,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Controls.Primitives;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 	class FluentHelper {
 		public class FluentSource {
-			private HwndSource source;
+			protected HwndSource Source { get; }
 			private FluentType type = FluentType.None;
 			private (Color BaseColor, Color Accent) blurColor = (Color.FromArgb(0, 0, 0, 0), Color.FromArgb(0, 0, 0, 0));
 			private bool enableDwmRound = false;
@@ -26,17 +27,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 			private bool isWindowMaxmized = false;
 
 			public FluentSource(Visual obj) {
-				this.source = (HwndSource)HwndSource.FromVisual(obj);
-				if(this.source == null) {
-					this.source = HwndSource.FromHwnd(new WindowInteropHelper(Window.GetWindow(obj)).Handle);
+				this.Source = (HwndSource)HwndSource.FromVisual(obj);
+				if(this.Source == null) {
+					this.Source = HwndSource.FromHwnd(new WindowInteropHelper(Window.GetWindow(obj)).Handle);
 				}
-				if(this.source == null) {
+				if(this.Source == null) {
 					throw new ArgumentException();
 				}
-				this.source.AddHook(new HwndSourceHook(this.WndProc));
+				this.Source.AddHook(new HwndSourceHook(this.WndProc));
 			}
 
-			private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
+			protected virtual IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
 				const int WM_POWERBROADCAST = 0x218;
 				const int WM_SIZE = 0x0005;
 				const int SIZE_MAXIMIZED = 2;
@@ -128,7 +129,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 						AnimationId = 0
 					})
 				};
-				this.source.CompositionTarget.BackgroundColor = p.C;
+				this.Source.CompositionTarget.BackgroundColor = p.C;
 				this.EnableDwmClient(hwnd, powerLine);
 				this.SetComposition(hwnd, p.P);
 			}
@@ -157,7 +158,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 						AnimationId = 0
 					})
 				};
-				this.source.CompositionTarget.BackgroundColor = p.C;
+				this.Source.CompositionTarget.BackgroundColor = p.C;
 				this.EnableDwmClient(hwnd, powerLine);
 				this.SetComposition(hwnd, p.P);
 			}
@@ -175,7 +176,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 
 			private void EnableMica(IntPtr hwnd, bool isDark) {
 				// この処理はRTMでしか動かない
-				this.source.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
+				this.Source.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
 
 				var hsv = WpfUtil.ImageUtil.ToHsv((Color)App.Current.Resources["MakimokiBackgroundColor"]);
 				var @true = 1;
@@ -221,7 +222,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 							throw new ArgumentNullException();
 						}
 						this.blurColor = blur.Value;
-						this.EnableAeroBlur(this.source.Handle, this.blurColor, this.IsPowerLine());
+						this.EnableAeroBlur(this.Source.Handle, this.blurColor, this.IsPowerLine());
 					}
 					break;
 				case FluentType.AcryicBlur:
@@ -230,13 +231,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 							throw new ArgumentNullException();
 						}
 						this.blurColor = blur.Value;
-						EnableAcryicBlur(this.source.Handle, this.blurColor, this.IsPowerLine());
+						EnableAcryicBlur(this.Source.Handle, this.blurColor, this.IsPowerLine());
 					}
 					break;
 				case FluentType.Mica:
 					if(App.OsCompat.IsWindows11Rtm) {
 						this.EnableMica(
-							this.source.Handle,
+							this.Source.Handle,
 							WpfUtil.ImageUtil.ToHsv((Color)App.Current.Resources["MakimokiBackgroundColor"]).V < 50);
 					}
 					break;
@@ -264,12 +265,45 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 				if(App.OsCompat.IsWindows11Rtm) {
 					this.enableDwmRound = true;
 					this.enableDwmRoundSmall = isSmallRound;
-					if(this.isWindowMaxmized = IsZoomed(this.source.Handle)) {
-						this.EnableDwmRound(this.source.Handle, false, isSmallRound);
+					if(this.isWindowMaxmized = IsZoomed(this.Source.Handle)) {
+						this.EnableDwmRound(this.Source.Handle, false, isSmallRound);
 					} else {
-						this.EnableDwmRound(this.source.Handle, true, isSmallRound);
+						this.EnableDwmRound(this.Source.Handle, true, isSmallRound);
 					}
 				}
+			}
+		}
+
+		class MenuFluentSource : FluentSource {
+			private static Dictionary<IntPtr, FluentSource> s_menu = new Dictionary<IntPtr, FluentSource>();
+
+			public static bool IsApplied(MenuItem item, out FluentSource source) {
+				var hwnd = ((HwndSource)HwndSource.FromVisual(item))?.Handle ?? IntPtr.Zero;
+				if(hwnd == IntPtr.Zero) {
+					hwnd = new WindowInteropHelper(Window.GetWindow(item)).Handle;
+				}
+				if(hwnd == IntPtr.Zero) {
+					throw new ArgumentException();
+				}
+				return s_menu.TryGetValue(hwnd, out source);
+			}
+
+			public MenuFluentSource(FrameworkElement obj) : base(obj) {
+				s_menu.Add(this.Source.Handle, this);
+			}
+
+			public MenuFluentSource(Popup obj) : base(obj.Child) {
+				s_menu.Add(this.Source.Handle, this);
+			}
+
+			protected override IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
+				const int WM_DESTROY = 0x0002;
+				switch(msg) {
+				case WM_DESTROY:
+					s_menu.Remove(hwnd);
+					break;
+				}
+				return base.WndProc(hwnd, msg, wParam, lParam, ref handled);
 			}
 		}
 
@@ -421,5 +455,65 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 				c.Background = Brushes.Transparent;
 			}
 		}
+
+
+		public static void AttachAndApplyMenuItem(FrameworkElement item) {
+			static void apply(FrameworkElement el) {
+				static T? parent<T>(FrameworkElement child, string name = null) where T : class {
+					var p = child;
+					do {
+						p = VisualTreeHelper.GetParent(p) as FrameworkElement;
+						if(p is T cm) {
+							if(name == null) {
+								break;
+							}
+							if(p.GetType().FullName == name) {
+								break;
+							}
+						}
+					} while(p != null);
+					return p switch {
+						T t => t,
+						_ => null
+					};
+				}
+
+				var mi = parent<MenuItem>(el);
+				if(mi == null) {
+					return;
+				}
+				if(MenuFluentSource.IsApplied(mi, out var s)) {
+					return;
+				}
+				if(parent<ContextMenu>(mi) is ContextMenu cm) {
+					ApplyCompositionPopup(new MenuFluentSource(cm));
+					if(IsWindowBackgroundTransparent()) {
+						cm.Background = Brushes.Transparent;
+					}
+				} else if(parent<Popup>(mi) is Popup pp) {
+					ApplyCompositionPopup(new MenuFluentSource(pp));
+				} else if(parent<FrameworkElement>(mi, "System.Windows.Controls.Primitives.PopupRoot") is FrameworkElement el2) {
+					ApplyCompositionPopup(new MenuFluentSource(el2));
+				}
+			}
+
+			static void on(object _, RoutedEventArgs e) {
+				if(e.Source is FrameworkElement it) {
+					apply(it);
+				}
+			}
+			if(item.IsLoaded) {
+				apply(item);
+			} else {
+				item.Loaded += on;
+			}
+		}
+
+		public static bool IsWindowBackgroundTransparent()
+			=> App.Current.Resources["FluentPopupType"] switch {
+				PlatformData.FluentType t when t == PlatformData.FluentType.None => false,
+				PlatformData.FluentType t when t == PlatformData.FluentType.Auto && !App.OsCompat.IsWindows10Redstone5 => false,
+				_ => true
+			};
 	}
 }
