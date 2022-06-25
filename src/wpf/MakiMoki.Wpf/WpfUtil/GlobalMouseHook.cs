@@ -70,7 +70,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			public int Delta { get; }
 			public int Time { get; }
 
-			public bool Cancel { get; private set; } = false;
+			public bool Cancel { get; set; } = false;
 			public int NativeWParam {
 				set {
 					this.m_nativeWParam = value;

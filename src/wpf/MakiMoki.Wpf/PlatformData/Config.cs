@@ -524,6 +524,67 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public Color Value { get; set; }
 	}
 
+
+	public enum MouseGestureCommand {
+		Left,
+		Up,
+		Right,
+		Down
+	}
+	public record class MouseGestureCommands(IEnumerable<MouseGestureCommand> Commands) {
+		bool IEquatable<MouseGestureCommands>.Equals(MouseGestureCommands? other) {
+			if(object.ReferenceEquals(this, other)) {
+				return true;
+			} else if(other != null) {
+				var c1 = this.Commands.ToArray();
+				var c2 = other.Commands.ToArray();
+				if(c1.Length != c2.Length) {
+					return false;
+				}
+				for(var i = 0; i < c1.Length; i++) {
+					if(c1[i] != c2[i]) {
+						return false;
+					}
+				}
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		public override int GetHashCode() => this.Commands.GetHashCode();
+
+		public override string ToString() {
+			return this.ToString(false);
+		}
+
+		public string ToString(bool isSymbol) {
+			var left = isSymbol switch {
+				true => "\xf0b0",
+				false => "←",
+			};
+			var up = isSymbol switch {
+				true => "\xf0ad",
+				false => "↑",
+			};
+			var right = isSymbol switch {
+				true => "\xf0af",
+				false => "→",
+			};
+			var down = isSymbol switch {
+				true => "\xf0ae",
+				false => "↓",
+			};
+			return string.Join(' ', this.Commands.Select(x => x switch {
+				MouseGestureCommand.Left => left,
+				MouseGestureCommand.Up => up,
+				MouseGestureCommand.Right => right,
+				MouseGestureCommand.Down => down,
+				_ => null
+			}).Where(x => x != null).ToArray());
+		}
+	}
+
 	public class GestureConfig : Data.ConfigObject {
 		public static int CurrentVersion { get; } = 2021020100;
 
@@ -572,6 +633,54 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public string[] KeyGesturePostViewPasteImage { get; private set; }
 		[JsonProperty("gesture-key-post-view-paste-uploader", Required = Required.Always)]
 		public string[] KeyGesturePostViewPasteUploader { get; private set; }
+
+
+		[JsonIgnore]
+		public MouseGestureCommands[] MouseGestureCatalogOpenPost { get; } = new[] {
+			new MouseGestureCommands(new [] {
+				MouseGestureCommand.Up,
+				MouseGestureCommand.Left
+			})
+		};
+		[JsonIgnore]
+		public MouseGestureCommands[] MouseGestureCatalogUpdate { get; } = new[] {
+			new MouseGestureCommands(new [] {
+				MouseGestureCommand.Up,
+				MouseGestureCommand.Down
+			})
+		};
+		[JsonIgnore]
+		public MouseGestureCommands[] MouseGestureCatalogClose { get; } = new[] {
+			new MouseGestureCommands(new [] {
+				MouseGestureCommand.Up,
+				MouseGestureCommand.Right
+			})
+		};
+		[JsonIgnore]
+		public MouseGestureCommands[] MouseGestureThreadOpenPost { get; } = new[] {
+			new MouseGestureCommands(new [] {
+				MouseGestureCommand.Down,
+				MouseGestureCommand.Left
+			})
+		};
+		[JsonIgnore]
+		public MouseGestureCommands[] MouseGestureThreadUpdate { get; } = new[] {
+			new MouseGestureCommands(new [] {
+				MouseGestureCommand.Down,
+				MouseGestureCommand.Up
+			})
+		};
+		[JsonIgnore]
+		public MouseGestureCommands[] MouseGestureThreadClose { get; } = new[] {
+			new MouseGestureCommands(new [] {
+				MouseGestureCommand.Down,
+				MouseGestureCommand.Right
+			})
+		};
+		[JsonIgnore]
+		public MouseGestureCommands[] MouseGestureThreadPrevious { get; } = Array.Empty<MouseGestureCommands>();
+		[JsonIgnore]
+		public MouseGestureCommands[] MouseGestureThreadNext { get; } = Array.Empty<MouseGestureCommands>();
 
 		public static GestureConfig CreateDefault() {
 			return new GestureConfig() {
