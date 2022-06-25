@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 	internal class MouseGesture : IDisposable {
@@ -24,6 +25,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 
 		public Action<PlatformData.MouseGestureCommands> Update { get; set; }
 		public Func<PlatformData.MouseGestureCommands, bool> Fire { get; set; }
+		private bool prevCancelState = false;
 
 		public MouseGesture(DependencyObject target) {
 			this.target = Window.GetWindow(target);
@@ -60,12 +62,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 #if DEBUG
 				System.Diagnostics.Debug.WriteLine($"マウスジェスチャ:確定{new PlatformData.MouseGestureCommands(this.commands)}");
 #endif
-				if(this.DoFire()) {
-					e.Cancel = true;
-				}
+				this.prevCancelState = this.DoFire();
+				this.target.ReleaseMouseCapture();
 			} else if(this.active) {
 				System.Diagnostics.Debug.WriteLine($"マウスジェスチャ:キャンセル");
 				this.Reset();
+				this.target.ReleaseMouseCapture();
 			}
 		}
 
@@ -99,6 +101,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 #if DEBUG
 						System.Diagnostics.Debug.WriteLine($"マウスジェスチャ:{new PlatformData.MouseGestureCommands(this.commands)}");
 #endif
+						// コマンド入力からキャプチャする
+						this.target.CaptureMouse();
+						this.target.MouseRightButtonUp += OnCaptureLbuttonUp;
 					} else {
 						var commandLength = length(this.activePosition.X - this.startPosition.X, this.activePosition.Y - this.startPosition.Y);
 						if((this.commands.Last() != command) && (this.commandDelta < commandLength)) {
@@ -116,6 +121,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 					this.prevPosition = this.activePosition;
 				}
 			}
+		}
+
+		private void OnCaptureLbuttonUp(object _, MouseButtonEventArgs e) {
+			e.Handled = this.prevCancelState;
+			this.prevCancelState = false;
+			this.target.MouseRightButtonUp -= OnCaptureLbuttonUp;
 		}
 
 		private bool DoFire() {
