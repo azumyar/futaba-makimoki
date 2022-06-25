@@ -1345,6 +1345,29 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
+
+            <Border
+                Grid.Row="1"
+                Visibility="{Binding TmpMouseGestureVisibility.Value, Mode=OneWay}"
+                Padding="4"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Background="Red">
+                <TextBlock
+                    Foreground="White"
+                    FontFamily="メイリオ"
+                    FontWeight="Bold"
+                    FontSize="14"
+                    Text="{Binding TmpMouseGestureText.Value, Mode=OneWay}"
+                    />
+            </Border>
+
         </Grid>
     </Window.Content>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <ri:EventToReactiveCommand Command="{Binding LoadedCommand, Mode=OneWay}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
 </Window>

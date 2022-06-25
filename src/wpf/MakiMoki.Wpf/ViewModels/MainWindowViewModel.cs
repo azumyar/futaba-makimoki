@@ -56,6 +56,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Visibility> TabVisibility { get; }
 		public ReactiveProperty<KeyBinding[]> KeyGestures { get; } = new ReactiveProperty<KeyBinding[]>(Array.Empty<KeyBinding>());
 
+		public MakiMokiCommand<RoutedEventArgs> LoadedCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 		public MakiMokiCommand<MouseButtonEventArgs> BordListClickCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
 		public MakiMokiCommand<BoardData> BoardOpenCommand { get; } = new MakiMokiCommand<BoardData>();
 		public MakiMokiCommand<RoutedEventArgs> ConfigButtonClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
@@ -100,8 +101,25 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private Action<PlatformData.GestureConfig> onGestureConfigUpdateNotifyer;
 
 		private IDialogService DialogService { get; }
+		private WpfHelpers.MouseGesture gesture;
+		public ReactiveProperty<Visibility> TmpMouseGestureVisibility { get; }
+		public ReactiveProperty<string> TmpMouseGestureText { get; } = new ReactiveProperty<string>("");
+
 
 		public MainWindowViewModel(IDialogService dialogService) {
+			TmpMouseGestureVisibility = TmpMouseGestureText.Select(x => string.IsNullOrEmpty(x) switch {
+				true => Visibility.Collapsed,
+				false => Visibility.Visible
+			}).ToReactiveProperty();
+			this.LoadedCommand.Subscribe(x => {
+				if(x.Source is DependencyObject o) {
+					this.gesture = new WpfHelpers.MouseGesture(o);
+					gesture.Update = (_) => {
+						this.TmpMouseGestureText.Value = this.gesture.GetCommandText();
+					};
+				}
+			});
+
 			DialogService = dialogService;
 			Boards = new ReactiveProperty<Data.BoardData[]>(Config.ConfigLoader.Board.Boards);
 			foreach(var c in Util.Futaba.Catalog.Value) {
