@@ -122,7 +122,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		static GlobalMouseHook() {
 			s_hook = SetWindowsHookEx(WH_MOUSE_LL,
 				s_proc = HookProc,
+#if DEBUG
+				// vshostとか嚙まされると困るので自分のインスタンスを引っ張る
 				System.Runtime.InteropServices.Marshal.GetHINSTANCE(typeof(GlobalMouseHook).Module),
+#else
+				// バイナリ統合するとこっちじゃないと正しいインスタンスが取れない
+				GetModuleHandle(null),
+#endif
 				0);
 			AppDomain.CurrentDomain.DomainUnload += (_, _) => {
 				if(s_hook != IntPtr.Zero) {
