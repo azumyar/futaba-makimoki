@@ -438,24 +438,40 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 				App.Current.Resources["FluentPopupAccentColor"]);
 
 		public static void ApplyPopupBackground(Control c) {
-			if(App.Current.Resources["FluentPopupType"] switch {
-				PlatformData.FluentType t when t == PlatformData.FluentType.None => false,
-				PlatformData.FluentType t when t == PlatformData.FluentType.Auto && !App.OsCompat.IsWindows10Redstone5 => false,
-				_ => true
-			}) {
+			if(IsWindowBackgroundTransparent(App.Current.Resources["FluentPopupType"])) {
 				c.Background = Brushes.Transparent;
 			}
 		}
 		public static void ApplyPopupBackground(Border c) {
-			if(App.Current.Resources["FluentPopupType"] switch {
-				PlatformData.FluentType t when t == PlatformData.FluentType.None => false,
-				PlatformData.FluentType t when t == PlatformData.FluentType.Auto && !App.OsCompat.IsWindows10Redstone5 => false,
-				_ => true
-			}) {
+			if(IsWindowBackgroundTransparent(App.Current.Resources["FluentPopupType"])) {
 				c.Background = Brushes.Transparent;
 			}
 		}
-
+		public static void ApplyPopupBackground(object o) {
+			if(IsWindowBackgroundTransparent(App.Current.Resources["FluentPopupType"])) {
+				switch(o) {
+				case Control c:
+					c.Background = Brushes.Transparent;
+					break;
+				case Border b:
+					b.Background = Brushes.Transparent;
+					break;
+				case Panel p:
+					p.Background = Brushes.Transparent;
+					break;
+				case object obj when obj != null: {
+						obj.GetType().GetProperty(
+							"Background",
+							System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public,
+							null,
+							typeof(Brush),
+							Array.Empty<Type>(),
+							null)?.SetValue(obj, Brushes.Transparent);
+					}
+					break;
+				}
+			}
+		}
 
 		public static void AttachAndApplyMenuItem(FrameworkElement item) {
 			static void apply(FrameworkElement el) {
@@ -509,8 +525,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 			}
 		}
 
-		public static bool IsWindowBackgroundTransparent()
-			=> App.Current.Resources["FluentPopupType"] switch {
+		public static bool IsWindowBackgroundTransparent() => IsWindowBackgroundTransparent(App.Current.Resources["FluentPopupType"]);
+		private static bool IsWindowBackgroundTransparent(object type)
+			=> type switch {
 				PlatformData.FluentType t when t == PlatformData.FluentType.None => false,
 				PlatformData.FluentType t when t == PlatformData.FluentType.Auto && !App.OsCompat.IsWindows10Redstone5 => false,
 				_ => true
