@@ -23,14 +23,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class FutabaResItemCommentHtmlConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
 			if(values.Any()) {
-				if(values[0] is Model.BindableFutabaResItem ri) {
-					return new Controls.FutabaCommentBlock.CommentItem() { Value = ri };
-				} else { // 変換できない場合はnullをかえす
-					return null;
-				}
+				return values[0] switch {
+					Model.BindableFutabaResItem ri => new Controls.FutabaCommentBlock.CommentItem() { Value = ri },
+					_ => null
+				};
 			}
-
-			throw new ArgumentException("型不正。", nameof(values));
+			var sb = new System.Text.StringBuilder()
+				.AppendJoin(',', values.Select(x => x?.GetType().FullName ?? "(null)").ToArray()).AppendLine()
+				.AppendJoin(Environment.NewLine, values.Select(x => x?.ToString() ?? "(null)").ToArray());
+			throw new ArgumentException($"型不正。{Environment.NewLine}{sb}", nameof(values));
 		}
 		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture) {
 			throw new NotImplementedException();
