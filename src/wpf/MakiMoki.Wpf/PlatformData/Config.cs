@@ -657,6 +657,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			})
 		};
 		[JsonIgnore]
+		public MouseGestureCommands[] MouseGestureCatalogPrevious { get; } = new[] {
+			new MouseGestureCommands(new [] {
+				MouseGestureCommand.Left,
+				MouseGestureCommand.Up,
+				MouseGestureCommand.Left
+			})
+		};
+		[JsonIgnore]
+		public MouseGestureCommands[] MouseGestureCatalogNext { get; } = new[] {
+			new MouseGestureCommands(new [] {
+				MouseGestureCommand.Right,
+				MouseGestureCommand.Up,
+				MouseGestureCommand.Right
+			})
+		};
+
+
+		[JsonIgnore]
 		public MouseGestureCommands[] MouseGestureThreadOpenPost { get; } = new[] {
 			new MouseGestureCommands(new [] {
 				MouseGestureCommand.Down,
@@ -678,9 +696,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			})
 		};
 		[JsonIgnore]
-		public MouseGestureCommands[] MouseGestureThreadPrevious { get; } = Array.Empty<MouseGestureCommands>();
+		public MouseGestureCommands[] MouseGestureThreadPrevious { get; } = new[] {
+			new MouseGestureCommands(new [] {
+				MouseGestureCommand.Left,
+				MouseGestureCommand.Down,
+				MouseGestureCommand.Left
+			})
+		};
 		[JsonIgnore]
-		public MouseGestureCommands[] MouseGestureThreadNext { get; } = Array.Empty<MouseGestureCommands>();
+		public MouseGestureCommands[] MouseGestureThreadNext { get; } = new[] {
+			new MouseGestureCommands(new [] {
+				MouseGestureCommand.Right,
+				MouseGestureCommand.Down,
+				MouseGestureCommand.Right
+			})
+		};
 
 		public static GestureConfig CreateDefault() {
 			return new GestureConfig() {

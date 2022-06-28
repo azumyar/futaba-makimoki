@@ -114,6 +114,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			MouseGestureCatalogOpenPost,
 			MouseGestureCatalogUpdate,
 			MouseGestureCatalogClose,
+			MouseGestureCatalogPrevious,
+			MouseGestureCatalogNext, 
 			MouseGestureThreadOpenPost,
 			MouseGestureThreadUpdate,
 			MouseGestureThreadClose,
@@ -285,6 +287,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				{ MouseGestureId.MouseGestureCatalogOpenPost, OnKeyBindingCurrentCatalogTabPost},
 				{ MouseGestureId.MouseGestureCatalogUpdate, OnKeyBindingCurrentCatalogTabUpdate},
 				{ MouseGestureId.MouseGestureCatalogClose, OnKeyBindingCurrentCatalogTabClose},
+				{ MouseGestureId.MouseGestureCatalogPrevious, OnKeyBindingPreviouseCatalogTab},
+				{ MouseGestureId.MouseGestureCatalogNext, OnKeyBindingNextCatalogTab},
 				{ MouseGestureId.MouseGestureThreadOpenPost, OnKeyBindingCurrentThreadTabPost},
 				{ MouseGestureId.MouseGestureThreadUpdate, OnKeyBindingCurrentThreadTabUpdate},
 				{ MouseGestureId.MouseGestureThreadClose, OnKeyBindingCurrentThreadTabClose},
@@ -360,11 +364,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureCatalogOpenPost, MouseGestureId.MouseGestureCatalogOpenPost, "スレ立て"),
 				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureCatalogUpdate, MouseGestureId.MouseGestureCatalogUpdate, "カタ更新"),
 				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureCatalogClose, MouseGestureId.MouseGestureCatalogClose, "カタ閉じ"),
+				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureCatalogPrevious, MouseGestureId.MouseGestureCatalogPrevious, "前のカタ"),
+				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureCatalogNext, MouseGestureId.MouseGestureCatalogNext, "次のカタ"),
 				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureThreadOpenPost, MouseGestureId.MouseGestureThreadOpenPost, "レス"),
 				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureThreadUpdate, MouseGestureId.MouseGestureThreadUpdate, "スレ更新"),
 				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureThreadClose, MouseGestureId.MouseGestureThreadClose, "スレ閉じ"),
-				//(WpfConfig.WpfConfigLoader.Gesture.MouseGestureThreadPrevious, MouseGestureId.MouseGestureThreadPrevious, ""),
-				//(WpfConfig.WpfConfigLoader.Gesture.MouseGestureThreadNext, MouseGestureId.MouseGestureThreadNext, ""),
+				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureThreadPrevious, MouseGestureId.MouseGestureThreadPrevious, "前のスレ"),
+				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureThreadNext, MouseGestureId.MouseGestureThreadNext, "次のスレ"),
 			};
 		}
 
