@@ -169,7 +169,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 					}
 				} else {
 					// 下スクロール
-					if(this.scrollViewer.ScrollableHeight <= this.scrollViewer.VerticalOffset) {
+					// 浮動小数点誤差で意図しない動きをするのでintにする
+					if((int)this.scrollViewer.ScrollableHeight <= (int)this.scrollViewer.VerticalOffset) {
 						switch(this.deltaStep) {
 						case 0:
 							this.UpdatePosition = WheelUpdatePosition.Bottom;
