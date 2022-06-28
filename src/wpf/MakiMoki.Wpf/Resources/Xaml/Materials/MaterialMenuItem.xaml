@@ -30,6 +30,9 @@
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}">
                         <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+                        <i:Interaction.Behaviors>
+                            <behavior:FluentContextMenuBehavior ContextMenu="{Binding Mode=OneWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContextMenu}}" />
+                        </i:Interaction.Behaviors>                    
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="HasDropShadow" Value="true">
@@ -225,15 +228,12 @@ CheckboxComposite	e73a	CheckboxComposite
                                             <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
                                         </ScrollViewer>
                                         <i:Interaction.Behaviors>
-                                            <behavior:FluentMenuBehavior />
+                                            <behavior:FluentSubMenuBehavior Popup="{Binding Mode=OneWay, ElementName=Popup}" />
                                         </i:Interaction.Behaviors>
                                     </Border>
                                 </Popup>
                             </Grid>
                         </Grid>
-                        <i:Interaction.Behaviors>
-                            <behavior:FluentMenuBehavior />
-                        </i:Interaction.Behaviors>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="False">

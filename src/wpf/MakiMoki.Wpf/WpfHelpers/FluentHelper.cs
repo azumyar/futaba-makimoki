@@ -29,7 +29,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 			public FluentSource(Visual obj) {
 				this.Source = (HwndSource)HwndSource.FromVisual(obj);
 				if(this.Source == null) {
-					this.Source = HwndSource.FromHwnd(new WindowInteropHelper(Window.GetWindow(obj)).Handle);
+					var h = new WindowInteropHelper(Window.GetWindow(obj));
+					var hwnd = h.Handle;
+					if(hwnd == IntPtr.Zero) {
+						hwnd = h.EnsureHandle();
+					}
+					this.Source = HwndSource.FromHwnd(hwnd);
 				}
 				if(this.Source == null) {
 					throw new ArgumentException();
@@ -274,39 +279,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 			}
 		}
 
-		class MenuFluentSource : FluentSource {
-			private static Dictionary<IntPtr, FluentSource> s_menu = new Dictionary<IntPtr, FluentSource>();
-
-			public static bool IsApplied(MenuItem item, out FluentSource source) {
-				var hwnd = ((HwndSource)HwndSource.FromVisual(item))?.Handle ?? IntPtr.Zero;
-				if(hwnd == IntPtr.Zero) {
-					hwnd = new WindowInteropHelper(Window.GetWindow(item)).Handle;
-				}
-				if(hwnd == IntPtr.Zero) {
-					throw new ArgumentException();
-				}
-				return s_menu.TryGetValue(hwnd, out source);
-			}
-
-			public MenuFluentSource(FrameworkElement obj) : base(obj) {
-				s_menu.Add(this.Source.Handle, this);
-			}
-
-			public MenuFluentSource(Popup obj) : base(obj.Child) {
-				s_menu.Add(this.Source.Handle, this);
-			}
-
-			protected override IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
-				const int WM_DESTROY = 0x0002;
-				switch(msg) {
-				case WM_DESTROY:
-					s_menu.Remove(hwnd);
-					break;
-				}
-				return base.WndProc(hwnd, msg, wParam, lParam, ref handled);
-			}
-		}
-
 		public enum FluentType {
 			None,
 			AeroBlur,
@@ -473,56 +445,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 			}
 		}
 
-		public static void AttachAndApplyMenuItem(FrameworkElement item) {
-			static void apply(FrameworkElement el) {
-				static T? parent<T>(FrameworkElement child, string name = null) where T : class {
-					var p = child;
-					do {
-						p = VisualTreeHelper.GetParent(p) as FrameworkElement;
-						if(p is T cm) {
-							if(name == null) {
-								break;
-							}
-							if(p.GetType().FullName == name) {
-								break;
-							}
-						}
-					} while(p != null);
-					return p switch {
-						T t => t,
-						_ => null
-					};
-				}
+		public static void AttachAndApplyContextMenu(ContextMenu contextMenu) {
+			ApplyCompositionPopup(new FluentSource(contextMenu));
+			if(IsWindowBackgroundTransparent()) {
+				contextMenu.Background = Brushes.Transparent;
+			}
+		}
 
-				var mi = parent<MenuItem>(el);
-				if(mi == null) {
-					return;
-				}
-				if(MenuFluentSource.IsApplied(mi, out var s)) {
-					return;
-				}
-				if(parent<ContextMenu>(mi) is ContextMenu cm) {
-					ApplyCompositionPopup(new MenuFluentSource(cm));
-					if(IsWindowBackgroundTransparent()) {
-						cm.Background = Brushes.Transparent;
-					}
-				} else if(parent<Popup>(mi) is Popup pp) {
-					ApplyCompositionPopup(new MenuFluentSource(pp));
-				} else if(parent<FrameworkElement>(mi, "System.Windows.Controls.Primitives.PopupRoot") is FrameworkElement el2) {
-					ApplyCompositionPopup(new MenuFluentSource(el2));
-				}
-			}
-
-			static void on(object _, RoutedEventArgs e) {
-				if(e.Source is FrameworkElement it) {
-					apply(it);
-				}
-			}
-			if(item.IsLoaded) {
-				apply(item);
-			} else {
-				item.Loaded += on;
-			}
+		public static void AttachAndApplySubMenu(Popup popup) {
+			ApplyCompositionPopup(new FluentSource(popup.Child));
 		}
 
 		public static bool IsWindowBackgroundTransparent() => IsWindowBackgroundTransparent(App.Current.Resources["FluentPopupType"]);
