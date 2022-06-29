@@ -74,6 +74,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows.Popups {
 
 		}
 
+		WpfHelpers.FluentHelper.FluentSource source;
+
 		public QuotePopup() {
 			InitializeComponent();
 			this.HorizontalAlignment = (WpfConfig.WpfConfigLoader.SystemConfig.CommandPalettePosition == PlatformData.UiPosition.Left)
@@ -86,6 +88,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows.Popups {
 				this.closeButton.Visibility = Visibility.Visible;
 			};
 			this.closeButton.Click += (_, _) => { this.IsOpen = false; };
+		}
+
+		protected override void OnOpened(EventArgs e) {
+			base.OnOpened(e);
+			this.source = WpfHelpers.FluentHelper.Attach(this.Child);
+			WpfHelpers.FluentHelper.ApplyCompositionPopup(source);
+			WpfHelpers.FluentHelper.ApplyPopupBackground(this.border);
 		}
 	}
 }

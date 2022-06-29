@@ -6,7 +6,8 @@
     xmlns:c="clr-namespace:System.Collections;assembly=mscorlib"
     xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
     >
-    <converter:DiablBrushConverter x:Key="DiablBrushConverter" />
+    <converter:DisableBrushConverter x:Key="DisableBrushConverter" />
+    <converter:MaterialForegroundColorConverter x:Key="MaterialForegroundColorConverter" />
     
     <Style x:Key="MaterialButton" TargetType="Button">
         <Setter Property="OverridesDefaultStyle" Value="True" />
@@ -17,6 +18,9 @@
                 <SolidColorBrush Color="{DynamicResource MakimokiWhiteColor}" />
             </Setter.Value>
         </Setter>
+        <!-- うまく動かない
+        <Setter Property="Foreground" Value="{x:Null}" />
+        -->
         <Setter Property="Background">
             <Setter.Value>
                 <SolidColorBrush Color="{DynamicResource MakimokiPrimaryColor}" />
@@ -82,8 +86,20 @@
                         </VisualStateManager.VisualStateGroups>
 
                         <Grid>
+                            <FrameworkElement x:Name="WhiteColorGetter" DataContext="{DynamicResource MakimokiWhiteColor}" />
+                            <FrameworkElement x:Name="BlackColorGetter" DataContext="{DynamicResource MakimokiBlackColor}" />
                             <FrameworkElement x:Name="BackgroundColorGetter" DataContext="{TemplateBinding Background}" />
-                            <FrameworkElement x:Name="BackgroundDiableColorGetter" DataContext="{TemplateBinding Background, Converter={StaticResource DiablBrushConverter}}" />
+                            <FrameworkElement x:Name="BackgroundDisableColorGetter" DataContext="{TemplateBinding Background, Converter={StaticResource DisableBrushConverter}}" />
+                            <FrameworkElement x:Name="ForegroundGetter">
+                                <FrameworkElement.DataContext>
+                                    <MultiBinding Converter="{StaticResource MaterialForegroundColorConverter}" Mode="OneWay">
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="Foreground" />
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="Background" />
+                                        <Binding Path="DataContext" Mode="OneWay" ElementName="WhiteColorGetter" />
+                                        <Binding Path="DataContext" Mode="OneWay" ElementName="BlackColorGetter" />
+                                    </MultiBinding>
+                                </FrameworkElement.DataContext>
+                            </FrameworkElement>
                             <Border
                                 x:Name="Cover"
                                 Background="{TemplateBinding Background}"
@@ -94,7 +110,7 @@
                                         <i:ChangePropertyAction PropertyName="Background" Value="{Binding DataContext, Mode=OneWay, ElementName=BackgroundColorGetter}" />
                                     </i:DataTrigger>
                                     <i:DataTrigger Binding="{Binding IsEnabled, Mode=OneWay, ElementName=Cover}" Value="True" Comparison="NotEqual">
-                                        <i:ChangePropertyAction PropertyName="Background" Value="{Binding DataContext, Mode=OneWay, ElementName=BackgroundDiableColorGetter}" />
+                                        <i:ChangePropertyAction PropertyName="Background" Value="{Binding DataContext, Mode=OneWay, ElementName=BackgroundDisableColorGetter}" />
                                     </i:DataTrigger>
                                 </i:Interaction.Triggers>
                             </Border>
@@ -119,6 +135,11 @@
                             </ContentControl>
                         </Grid>
                     </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Foreground" Value="{x:Null}">
+                            <Setter TargetName="Content" Property="Foreground" Value="{Binding DataContext, ElementName=ForegroundGetter}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -301,12 +322,9 @@
                             <Border
                                 x:Name="Cover"
                                 CornerRadius="4"
-                                Opacity="0">
-                                <!-- Background="{TemplateBinding Background}" -->
-                                <Border.Background>
-                                    <SolidColorBrush Color="{DynamicResource MakimokiPrimaryColor}" />
-                                </Border.Background>
-                            </Border>
+                                Opacity="0"
+                                Background="{TemplateBinding Background}"
+                                />
                             <ContentControl
                                 x:Name="Content"
                                 Foreground="{TemplateBinding Foreground}"

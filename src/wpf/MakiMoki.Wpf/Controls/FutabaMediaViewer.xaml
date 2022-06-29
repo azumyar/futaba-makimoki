@@ -16,6 +16,9 @@
              Background="#88000000">
     <UserControl.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Xaml/Material.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
             <converter:MediaEnumQuickSaveItemConverter x:Key="MediaEnumQuickSaveItemConverter" />
         </ResourceDictionary>
     </UserControl.Resources>
@@ -49,99 +52,122 @@
         </Grid.RowDefinitions>
 
         <!-- 画像 -->
-        <ScrollViewer
+        <Grid
             Grid.Row="1" Grid.Column="1"
-            Visibility="{Binding ImageViewVisibility.Value, Mode=OneWay}"
-            HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled"
-            ClipToBounds="True"
-            IsManipulationEnabled="True">
-            <Viewbox 
-                StretchDirection="DownOnly"
-                RenderTransform="{Binding ImageMatrix.Value, Mode=TwoWay}">
-                <Image
-                    x:Name="image"
-                    gif:ImageBehavior.RepeatBehavior="Forever"
-                    gif:ImageBehavior.AnimatedSource="{Binding ImageSource.Value, Mode=OneWay}"
-                    Width="{Binding ImageSource.Value.PixelWidth, Mode=OneWay}"
-                    Height="{Binding ImageSource.Value.PixelHeight, Mode=OneWay}"
-                    IsHitTestVisible="False"
-                    RenderOptions.EdgeMode="Aliased"
-                    RenderOptions.BitmapScalingMode="Fant">
-                    <Image.CacheMode>
-                        <BitmapCache RenderAtScale="1" />
-                    </Image.CacheMode>
-                </Image>
-            </Viewbox>
-            <ScrollViewer.ContextMenu>
-                <ContextMenu
-                    DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
-                    IsOpen="{Binding PlacementTarget.DataContext.ImageContextMenuOpened.Value, Mode=TwoWay, RelativeSource={RelativeSource Self}}">
-                    <MenuItem
-                        Header="保存(_S)"
-                        Command="{Binding MenuItemClickSaveCommand, Mode=OneWay}"
-                        CommandParameter="{Binding Media.Value, Mode=OneWay}" />
-                    <MenuItem Header="クイック保存(_Q)">
-                        <MenuItem.ItemsSource>
-                            <!-- UpdateTokenいらないかも -->
-                            <MultiBinding Converter="{StaticResource MediaEnumQuickSaveItemConverter}">
-                                <Binding Path="Media.Value" Mode="OneWay" />
-                                <Binding Path="UpdateToken.Value" Mode="OneWay" />
-                            </MultiBinding>
-                        </MenuItem.ItemsSource>
-                        <MenuItem.ItemContainerStyle>
-                            <Style TargetType="MenuItem">
-                                <Setter Property="Header" Value="{Binding Name.Value}" />
-                                <Setter Property="IsEnabled" Value="{Binding IsEnabled.Value}" />
-                                <Setter Property="Command" Value="{Binding DataContext.MenuItemClickQuickSaveCommand, Mode=OneWay,  RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
-                                <Setter Property="CommandParameter" Value="{Binding}" />
-                            </Style>
-                        </MenuItem.ItemContainerStyle>
-                    </MenuItem>
-                    <Separator />
-                    <MenuItem
-                        Header="google画像検索(_G)"
-                        Command="{Binding MenuItemClickImageSearchGoogleCommand,Mode=OneWay}"
-                        CommandParameter="{Binding Media.Value, Mode=OneWay}" />
-                    <MenuItem
-                        Header="二次元画像詳細検索(_A)"
-                        Command="{Binding MenuItemClickImageSearchAscii2dCommand,Mode=OneWay}"
-                        CommandParameter="{Binding Media.Value, Mode=OneWay}" />
-                    <Separator />
-                    <MenuItem
-                        Header="ブラウザで開く(_B)"
-                        Command="{Binding MenuItemClickQuickOpenBrowserCommand,Mode=OneWay}"
-                        CommandParameter="{Binding Media.Value, Mode=OneWay}" />
-                </ContextMenu>
-            </ScrollViewer.ContextMenu>
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="ManipulationDelta">
-                </i:EventTrigger>
-                <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
-                    <ri:EventToReactiveCommand Command="{Binding MouseLeftButtonDownCommand}" />
-                </i:EventTrigger>
-                <i:EventTrigger EventName="MouseLeftButtonUp">
-                    <ri:EventToReactiveCommand Command="{Binding MouseLeftButtonUpCommand}" />
-                </i:EventTrigger>
-                <i:EventTrigger EventName="MouseMove">
-                    <ri:EventToReactiveCommand Command="{Binding MouseMoveCommand}" />
-                </i:EventTrigger>
-                <i:EventTrigger EventName="MouseLeave">
-                    <ri:EventToReactiveCommand Command="{Binding MouseLeaveCommand}" />
-                </i:EventTrigger>
-                <i:EventTrigger EventName="PreviewMouseWheel">
-                    <ri:EventToReactiveCommand Command="{Binding MouseWheelCommand}" />
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-        </ScrollViewer>
+            Visibility="{Binding ImageViewVisibility.Value, Mode=OneWay}">
+            <ScrollViewer
+                HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled"
+                ClipToBounds="True"
+                IsManipulationEnabled="True">
+                <Viewbox 
+                    StretchDirection="DownOnly"
+                    RenderTransform="{Binding ImageMatrix.Value, Mode=TwoWay}">
+                    <Image
+                        x:Name="image"
+                        gif:ImageBehavior.RepeatBehavior="Forever"
+                        gif:ImageBehavior.AnimatedSource="{Binding ImageSource.Value, Mode=OneWay}"
+                        Width="{Binding ImageSource.Value.PixelWidth, Mode=OneWay}"
+                        Height="{Binding ImageSource.Value.PixelHeight, Mode=OneWay}"
+                        IsHitTestVisible="False"
+                        RenderOptions.EdgeMode="Aliased"
+                        RenderOptions.BitmapScalingMode="Fant">
+                        <Image.CacheMode>
+                            <BitmapCache RenderAtScale="1" />
+                        </Image.CacheMode>
+                    </Image>
+                </Viewbox>
+                <ScrollViewer.ContextMenu>
+                    <ContextMenu
+                        DataContext="{Binding PlacementTarget.DataContext,Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                        IsOpen="{Binding PlacementTarget.DataContext.ImageContextMenuOpened.Value, Mode=TwoWay, RelativeSource={RelativeSource Self}}">
+                        <MenuItem
+                            Header="保存(_S)"
+                            Command="{Binding MenuItemClickSaveCommand, Mode=OneWay}"
+                            CommandParameter="{Binding Media.Value, Mode=OneWay}" />
+                        <MenuItem Header="クイック保存(_Q)">
+                            <MenuItem.ItemsSource>
+                                <!-- UpdateTokenいらないかも -->
+                                <MultiBinding Converter="{StaticResource MediaEnumQuickSaveItemConverter}">
+                                    <Binding Path="Media.Value" Mode="OneWay" />
+                                    <Binding Path="UpdateToken.Value" Mode="OneWay" />
+                                </MultiBinding>
+                            </MenuItem.ItemsSource>
+                            <MenuItem.ItemContainerStyle>
+                                <Style TargetType="MenuItem">
+                                    <Setter Property="Header" Value="{Binding Name.Value}" />
+                                    <Setter Property="IsEnabled" Value="{Binding IsEnabled.Value}" />
+                                    <Setter Property="Command" Value="{Binding DataContext.MenuItemClickQuickSaveCommand, Mode=OneWay,  RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+                                    <Setter Property="CommandParameter" Value="{Binding}" />
+                                </Style>
+                            </MenuItem.ItemContainerStyle>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem
+                            Header="google画像検索(_G)"
+                            Command="{Binding MenuItemClickImageSearchGoogleCommand,Mode=OneWay}"
+                            CommandParameter="{Binding Media.Value, Mode=OneWay}" />
+                        <MenuItem
+                            Header="二次元画像詳細検索(_A)"
+                            Command="{Binding MenuItemClickImageSearchAscii2dCommand,Mode=OneWay}"
+                            CommandParameter="{Binding Media.Value, Mode=OneWay}" />
+                        <Separator />
+                        <MenuItem
+                            Header="ブラウザで開く(_B)"
+                            Command="{Binding MenuItemClickQuickOpenBrowserCommand,Mode=OneWay}"
+                            CommandParameter="{Binding Media.Value, Mode=OneWay}" />
+                    </ContextMenu>
+                </ScrollViewer.ContextMenu>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="ManipulationDelta">
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                        <ri:EventToReactiveCommand Command="{Binding MouseLeftButtonDownCommand}" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseLeftButtonUp">
+                        <ri:EventToReactiveCommand Command="{Binding MouseLeftButtonUpCommand}" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseMove">
+                        <ri:EventToReactiveCommand Command="{Binding MouseMoveCommand}" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseLeave">
+                        <ri:EventToReactiveCommand Command="{Binding MouseLeaveCommand}" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="PreviewMouseWheel">
+                        <ri:EventToReactiveCommand Command="{Binding MouseWheelCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ScrollViewer>
+
+            <!-- 閉じるボタン -->
+            <Button
+                Style="{StaticResource MaterialTransparentButton}"
+                Width="32" Height="32"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top">
+                <Button.Background>
+                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                </Button.Background>
+                <TextBlock
+                    FontFamily="{DynamicResource MakimokiSymbolFont}"
+                    FontSize="11"
+                    Text="&#xE8BB;"
+                    />
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <ri:EventToReactiveCommand Command="{Binding CloseCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+        </Grid>
 
         <Grid
             Grid.Row="1" Grid.Column="1"
             Visibility="{Binding VideoViewVisibility.Value, Mode=OneWay}"
-            Background="Black"
-            >
+            Background="Black">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
-                <RowDefinition Height="32" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="48" />
             </Grid.RowDefinitions>
             <vlc:VideoView x:Name="VideoView" Grid.Row="0">
                 <!-- これはContextMenuでるけどうーん…
@@ -180,15 +206,36 @@
                 </Grid>
                 -->
             </vlc:VideoView>
-            <Grid Grid.Row="1">
+            <Slider
+                Grid.Row="1"
+                Margin="0,2,0,2"
+                VerticalAlignment="Center"
+                IsMoveToPointEnabled ="True"
+                Minimum="0"
+                Maximum="1.0"
+                Value="{Binding VideoSliderValue.Value, Mode=OneWay}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="ValueChanged">
+                        <ri:EventToReactiveCommand Command="{Binding VideoSliderValueChangedCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Slider>
+
+            <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="32" />
-                    <ColumnDefinition Width="32" />
-                    <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="48" />
+                    <ColumnDefinition Width="48" />
+                    <ColumnDefinition Width="48" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="48" />
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Tag="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}">
+                <Button
+                    Grid.Column="0"
+                    Style="{StaticResource MaterialTransparentButton}"
+                    Width="Auto" Height="Auto"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Tag="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaMediaViewer}}">
                     <Button.Resources>
                         <ContextMenu
                             x:Key="ContextMenu"
@@ -221,9 +268,14 @@
                                 CommandParameter="{Binding Media.Value, Mode=OneWay}" />
                         </ContextMenu>
                     </Button.Resources>
-                    <Button.Content>
-                        <TextBlock>保存</TextBlock>
-                    </Button.Content>
+                    <Button.Background>
+                        <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                    </Button.Background>
+                    <TextBlock
+                        FontFamily="{DynamicResource MakimokiSymbolFont}"
+                        FontSize="16"
+                        Text="&#xe74e;"
+                        />
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
                             <i:ChangePropertyAction 
@@ -237,10 +289,21 @@
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </Button>
-                <Button Grid.Column="1" Visibility="{Binding VideoPlayButtonVisibility.Value, Mode=OneWay}">
-                    <Button.Content>
-                        <TextBlock>再生</TextBlock>
-                    </Button.Content>
+                <Button
+                    Grid.Column="1"
+                    Style="{StaticResource MaterialTransparentButton}"
+                    Width="Auto" Height="Auto"
+                    Visibility="{Binding VideoPlayButtonVisibility.Value, Mode=OneWay}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+                    <Button.Background>
+                        <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                    </Button.Background>
+                    <TextBlock
+                        FontFamily="{DynamicResource MakimokiSymbolFont}"
+                        FontSize="16"
+                        Text="&#xe768;"
+                        />
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
                             <ri:EventToReactiveCommand Command="{Binding VideoPlayCommand}" />
@@ -248,10 +311,21 @@
                     </i:Interaction.Triggers>
                 </Button>
 
-                <Button Grid.Column="1" Visibility="{Binding VideoPauseButtonVisibility.Value, Mode=OneWay}">
-                    <Button.Content>
-                        <TextBlock>一停</TextBlock>
-                    </Button.Content>
+                <Button
+                    Grid.Column="1"
+                    Style="{StaticResource MaterialTransparentButton}"
+                    Width="Auto" Height="Auto"
+                    Visibility="{Binding VideoPauseButtonVisibility.Value, Mode=OneWay}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+                    <Button.Background>
+                        <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                    </Button.Background>
+                    <TextBlock
+                        FontFamily="{DynamicResource MakimokiSymbolFont}"
+                        FontSize="16"
+                        Text="&#xe769;"
+                        />
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
                             <ri:EventToReactiveCommand Command="{Binding VideoPauseCommand}" />
@@ -259,10 +333,20 @@
                     </i:Interaction.Triggers>
                 </Button>
 
-                <Button Grid.Column="2">
-                    <Button.Content>
-                        <TextBlock>停止</TextBlock>
-                    </Button.Content>
+                <Button
+                    Grid.Column="2"
+                    Style="{StaticResource MaterialTransparentButton}"
+                    Width="Auto" Height="Auto"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+                    <Button.Background>
+                        <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                    </Button.Background>
+                    <TextBlock
+                        FontFamily="{DynamicResource MakimokiSymbolFont}"
+                        FontSize="16"
+                        Text="&#xe71a;"
+                        />
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
                             <ri:EventToReactiveCommand Command="{Binding VideoStopCommand}" />
@@ -270,32 +354,21 @@
                     </i:Interaction.Triggers>
                 </Button>
 
-                <Slider
-                    Grid.Column="3"
-                    Margin="4 0 4 0"
-                    VerticalAlignment="Center"
-                    IsMoveToPointEnabled ="True"
-                    Minimum="0"
-                    Maximum="1.0"
-                    Value="{Binding VideoSliderValue.Value, Mode=OneWay}"
-                    >
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="ValueChanged">
-                            <ri:EventToReactiveCommand Command="{Binding VideoSliderValueChangedCommand}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                </Slider>
 
                 <Button
                     Grid.Column="4"
-                    Width="32" Height="32"
-                    Foreground="White"
-                    Background="Transparent"
-                    BorderBrush="Transparent"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    FontFamily="Marlett"
-                    Content="r">
+                    Style="{StaticResource MaterialTransparentButton}"
+                    Width="Auto" Height="Auto"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+                    <Button.Background>
+                        <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                    </Button.Background>
+                    <TextBlock
+                        FontFamily="{DynamicResource MakimokiSymbolFont}"
+                        FontSize="16"
+                        Text="&#xe711;"
+                        />
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
                             <ri:EventToReactiveCommand Command="{Binding CloseCommand}" />
@@ -306,22 +379,38 @@
             </Grid>
         </Grid>
 
-        <!-- 閉じるボタン -->
-        <Button
-            Grid.Column="1" Grid.Row="1"
-            Width="32" Height="32"
-            Foreground="White"
-            Background="Transparent"
-            BorderBrush="Transparent"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Top"
-            FontFamily="Marlett"
-            Content="r">
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="Click">
-                    <ri:EventToReactiveCommand Command="{Binding CloseCommand}" />
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-        </Button>
+        <Grid
+            Grid.Row="1" Grid.Column="1"
+            Visibility="{Binding ErrorViewVisibility.Value, Mode=OneWay}">
+            <TextBlock
+                Foreground="White"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontFamily="{DynamicResource MakimokiMessageFont}"
+                FontWeight="{DynamicResource MakimokiMessageFontWeight}"
+                Text="読み込みエラー"
+                />
+
+            <!-- 閉じるボタン -->
+            <Button
+                Style="{StaticResource MaterialTransparentButton}"
+                Width="32" Height="32"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top">
+                <Button.Background>
+                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                </Button.Background>
+                <TextBlock
+                    FontFamily="{DynamicResource MakimokiSymbolFont}"
+                    FontSize="11"
+                    Text="&#xE8BB;"
+                    />
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <ri:EventToReactiveCommand Command="{Binding CloseCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+        </Grid>
     </Grid>
 </UserControl>

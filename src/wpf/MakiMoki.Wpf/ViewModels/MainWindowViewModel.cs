@@ -50,11 +50,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<ReactiveCollection<Model.TabItem>> Threads { get; }
 		public ReactiveProperty<object> ThreadToken { get; } = new ReactiveProperty<object>(DateTime.Now.Ticks);
 		public ReactiveProperty<List<InfomationRecord>> Infomations { get; }
+		public ReactiveProperty<CornerRadius> InfomationCornerRadius { get; } = new ReactiveProperty<CornerRadius>(App.OsCompat.IsWindows11Rtm switch {
+			true => new CornerRadius(4, 4, 4, 4),
+			false => new CornerRadius()
+		});
 
 		public ReactiveProperty<bool> Topmost { get; }
+		public ReactiveProperty<Visibility> StartUpVisibility { get; }
 		public ReactiveProperty<Visibility> TabVisibility { get; }
 		public ReactiveProperty<KeyBinding[]> KeyGestures { get; } = new ReactiveProperty<KeyBinding[]>(Array.Empty<KeyBinding>());
 
+		public MakiMokiCommand<RoutedEventArgs> LoadedCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 		public MakiMokiCommand<MouseButtonEventArgs> BordListClickCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
 		public MakiMokiCommand<BoardData> BoardOpenCommand { get; } = new MakiMokiCommand<BoardData>();
 		public MakiMokiCommand<RoutedEventArgs> ConfigButtonClickCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
@@ -99,8 +105,64 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private Action<PlatformData.GestureConfig> onGestureConfigUpdateNotifyer;
 
 		private IDialogService DialogService { get; }
+		private WpfHelpers.MouseGesture gesture;
+		public ReactiveProperty<Visibility> TmpMouseGestureVisibility { get; }
+		public ReactiveProperty<string> TmpMouseGestureText { get; } = new ReactiveProperty<string>("");
+		public ReactiveProperty<string> TmpMouseGestureName { get; } = new ReactiveProperty<string>("");
+
+		private enum MouseGestureId {
+			MouseGestureCatalogOpenPost,
+			MouseGestureCatalogUpdate,
+			MouseGestureCatalogClose,
+			MouseGestureCatalogPrevious,
+			MouseGestureCatalogNext, 
+			MouseGestureThreadOpenPost,
+			MouseGestureThreadUpdate,
+			MouseGestureThreadClose,
+			MouseGestureThreadPrevious,
+			MouseGestureThreadNext,
+		}
+
+		private (PlatformData.MouseGestureCommands[] Commands, MouseGestureId MouseGestureId, string Name)[] MouseGestureCommands { get; set; }
+		private Dictionary<MouseGestureId, Action> MouseGestureId2Action { get; }
 
 		public MainWindowViewModel(IDialogService dialogService) {
+			TmpMouseGestureVisibility = TmpMouseGestureText.Select(x => string.IsNullOrEmpty(x) switch {
+				true => Visibility.Collapsed,
+				false => Visibility.Visible
+			}).ToReactiveProperty();
+			this.LoadedCommand.Subscribe(x => {
+				if(x.Source is DependencyObject o) {
+					this.gesture = new WpfHelpers.MouseGesture(o);
+					gesture.Update = y => {
+						var name = "";
+						foreach(var mg in this.MouseGestureCommands) {
+							if(mg.Commands.Cast<IEquatable<PlatformData.MouseGestureCommands>>().Any(z => z.Equals(y))) {
+								name = $"：{mg.Name}";
+								break;
+							}
+						}
+						this.TmpMouseGestureName.Value = name;
+						this.TmpMouseGestureText.Value = y.ToString(true);
+					};
+					gesture.Fire = y => {
+						MouseGestureId? id = null;
+						foreach(var mg in this.MouseGestureCommands) {
+							if(mg.Commands.Cast<IEquatable<PlatformData.MouseGestureCommands>>().Any(z => z.Equals(y))) {
+								id = mg.MouseGestureId;
+								break;
+							}
+						}
+						if((id != null) && this.MouseGestureId2Action.TryGetValue(id.Value, out var act)) {
+							act();
+							return true;
+						} else {
+							return false;
+						}
+					};
+				}
+			});
+
 			DialogService = dialogService;
 			Boards = new ReactiveProperty<Data.BoardData[]>(Config.ConfigLoader.Board.Boards);
 			foreach(var c in Util.Futaba.Catalog.Value) {
@@ -173,7 +235,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			});
 
 			this.Topmost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledWindowTopmost);
-			this.TabVisibility = new ReactiveProperty<Visibility>((Catalogs.Count == 0) ? Visibility.Collapsed : Visibility.Visible);
+			this.TabVisibility = new ReactiveProperty<Visibility>(Catalogs.Any() switch {
+				true => Visibility.Visible,
+				false => Visibility.Collapsed
+			});
+			this.StartUpVisibility = this.TabVisibility.Select(x => x switch {
+				Visibility.Visible => Visibility.Collapsed,
+				_ => Visibility.Visible
+			}).ToReactiveProperty();
 			this.UpdateKeyBindings();
 			BordListClickCommand.Subscribe(x => OnBordListClick(x));
 			ConfigButtonClickCommand.Subscribe(x => OnConfigButtonClick(x));
@@ -214,6 +283,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			KeyBindingNextThreadTabCommand.Subscribe(_ => OnKeyBindingNextThreadTab());
 			KeyBindingPreviouseThreadTabCommand.Subscribe(_ => OnKeyBindingPreviouseThreadTab());
 
+			MouseGestureId2Action = new Dictionary<MouseGestureId, Action> {
+				{ MouseGestureId.MouseGestureCatalogOpenPost, OnKeyBindingCurrentCatalogTabPost},
+				{ MouseGestureId.MouseGestureCatalogUpdate, OnKeyBindingCurrentCatalogTabUpdate},
+				{ MouseGestureId.MouseGestureCatalogClose, OnKeyBindingCurrentCatalogTabClose},
+				{ MouseGestureId.MouseGestureCatalogPrevious, OnKeyBindingPreviouseCatalogTab},
+				{ MouseGestureId.MouseGestureCatalogNext, OnKeyBindingNextCatalogTab},
+				{ MouseGestureId.MouseGestureThreadOpenPost, OnKeyBindingCurrentThreadTabPost},
+				{ MouseGestureId.MouseGestureThreadUpdate, OnKeyBindingCurrentThreadTabUpdate},
+				{ MouseGestureId.MouseGestureThreadClose, OnKeyBindingCurrentThreadTabClose},
+				{ MouseGestureId.MouseGestureThreadPrevious, OnKeyBindingPreviouseThreadTab},
+				{ MouseGestureId.MouseGestureThreadNext, OnKeyBindingNextThreadTab},
+			};
+
 			onBoardConfigUpdateNotifyer = () => Boards.Value = Config.ConfigLoader.Board.Boards;
 			onSystemConfigUpdateNotifyer = (_) => {
 				Topmost.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledWindowTopmost;
@@ -243,8 +325,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogSearch
 				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentCatalogTabSearchCommand))
 				.Where(x => x != null));
-			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogModeToggleUpdate
-				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentCatalogTabModeCommand))
+			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogOpenPost
+				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentCatalogTabPostCommand))
 				.Where(x => x != null));
 			kg.AddRange(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogClose
 				.Select(x => GetKeyBinding(x, this.KeyBindingCurrentCatalogTabCloseCommand))
@@ -274,6 +356,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				.Select(x => GetKeyBinding(x, this.KeyBindingPreviouseThreadTabCommand))
 				.Where(x => x != null));
 			this.KeyGestures.Value = kg.ToArray();
+
+			this.MouseGestureCommands = new[] {
+				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureCatalogOpenPost, MouseGestureId.MouseGestureCatalogOpenPost, "スレ立て"),
+				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureCatalogUpdate, MouseGestureId.MouseGestureCatalogUpdate, "カタ更新"),
+				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureCatalogClose, MouseGestureId.MouseGestureCatalogClose, "カタ閉じ"),
+				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureCatalogPrevious, MouseGestureId.MouseGestureCatalogPrevious, "前のカタ"),
+				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureCatalogNext, MouseGestureId.MouseGestureCatalogNext, "次のカタ"),
+				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureThreadOpenPost, MouseGestureId.MouseGestureThreadOpenPost, "レス"),
+				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureThreadUpdate, MouseGestureId.MouseGestureThreadUpdate, "スレ更新"),
+				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureThreadClose, MouseGestureId.MouseGestureThreadClose, "スレ閉じ"),
+				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureThreadPrevious, MouseGestureId.MouseGestureThreadPrevious, "前のスレ"),
+				(WpfConfig.WpfConfigLoader.Gesture.MouseGestureThreadNext, MouseGestureId.MouseGestureThreadNext, "次のスレ"),
+			};
 		}
 
 		private void OnBordListClick(MouseButtonEventArgs e) {
@@ -340,7 +435,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 			catch(InvalidOperationException) {
 #if DEBUG // リリース版でのみつぶす
-				throw;
+				if(System.Diagnostics.Debugger.IsAttached) {
+					System.Diagnostics.Debugger.Break();
+				} else {
+					throw;
+				}
 #endif
 			}
 			this.CatalogToken.Value = DateTime.Now.Ticks;

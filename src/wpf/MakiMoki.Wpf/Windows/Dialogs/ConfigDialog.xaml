@@ -611,44 +611,6 @@
                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                     ScrollViewer.VerticalScrollBarVisibility="Auto" />
                             </StackPanel>
-                            <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowCatalogModeToggleUpdate.Value, Mode=OneWay}">
-                                <TextBlock>カタログモード切替</TextBlock>
-                                <Grid HorizontalAlignment="Left">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid Grid.Column="0" Width="320">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBox
-                                            Grid.Column="0"
-                                            Text="{Binding Input.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            MaxLines="1" />
-                                        <Button Grid.Column="1" Command="{Binding AddCommand, Mode=OneWay}">
-                                            <TextBlock>
-                                                追加
-                                            </TextBlock>
-                                        </Button>
-                                    </Grid>
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Foreground="Red"
-                                        Visibility="{Binding InputVisibility.Value, Mode=OneWay}">
-                                        不正
-                                    </TextBlock>
-                                </Grid>
-                                <ListBox
-                                    Style="{StaticResource ConfigListBox}"
-                                    ItemsSource="{Binding GestureCollection, Mode=OneWay}"
-                                    Width="320"
-                                    Height="120"
-                                    HorizontalAlignment="Left"
-                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                    ScrollViewer.VerticalScrollBarVisibility="Auto" />
-                            </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GestureMainWindowCatalogOpenPost.Value, Mode=OneWay}">
                                 <TextBlock>スレ立て画面表示</TextBlock>
                                 <Grid HorizontalAlignment="Left">

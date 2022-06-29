@@ -7,7 +7,7 @@
     xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
     >
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+        <ResourceDictionary Source="/Resources/Xaml/Material.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <Style x:Key="TabCloseButton" TargetType="Button" BasedOn="{StaticResource MaterialTransparentButton}">
@@ -17,8 +17,8 @@
         <Setter Property="Margin" Value="0" />
         <Setter Property="Padding" Value="0" />
 
-        <Setter Property="FontSize" Value="11" />
-        <Setter Property="FontFamily" Value="Marlett" />
-        <Setter Property="Content" Value="r" />
+        <Setter Property="FontSize" Value="9" />
+        <Setter Property="FontFamily" Value="Segoe Fluent Icons,Segoe MDL2 Assets,Segoe UI Symbol"/>
+        <Setter Property="Content" Value="&#xE8BB;" />
     </Style>
 </ResourceDictionary>

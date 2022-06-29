@@ -24,20 +24,32 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 	/// MainWindow.xaml の相互作用ロジック
 	/// </summary>
 	public partial class MainWindow : Window {
+		public static readonly DependencyProperty Windows11CornerRadiusProperty
+			= DependencyProperty.Register(
+				nameof(Windows11CornerRadius),
+				typeof(CornerRadius),
+				typeof(MainWindow),
+				new PropertyMetadata(new CornerRadius()));
+		private WpfHelpers.FluentHelper.FluentSource source;
+
+		public CornerRadius Windows11CornerRadius {
+			get => (CornerRadius)this.GetValue(Windows11CornerRadiusProperty);
+			set { this.SetValue(Windows11CornerRadiusProperty, value); }
+		}
+
 		public MainWindow() {
 			InitializeComponent();
 
-			var isWindows11RTM = false;
-			if(Environment.OSVersion.Platform == PlatformID.Win32NT) {
-				var win11RTM = new Version(10, 0, 22000);
-				if(isWindows11RTM = (win11RTM <= Environment.OSVersion.Version)) {
-					// Windows11でウインドウ角を丸くする
-					ApplyDwmRound(new WindowInteropHelper(GetWindow(this)).EnsureHandle(), this.WindowState != WindowState.Maximized);
-				}
+			new WindowInteropHelper(GetWindow(this)).EnsureHandle(); // ウインドウハンドルを作る
+			this.source = WpfHelpers.FluentHelper.Attach(this);
+			WpfHelpers.FluentHelper.ApplyCompositionWindow(source);
+			if(App.OsCompat.IsWindows11Rtm) {
+				this.Windows11CornerRadius = new CornerRadius(4, 0, 0, 0);
 			}
+
 			this.Loaded += (_, _) => {
 				IntPtr wndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
-					if(isWindows11RTM) {
+					if(App.OsCompat.IsWindows11Rtm) {
 						var r = this.Win11SnapLayoutProc(hwnd, msg, wParam, lParam, ref handled);
 						if(handled) {
 							return r;
@@ -46,14 +58,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 					return IntPtr.Zero;
 				}
 
-				HwndSource.FromHwnd(new WindowInteropHelper(GetWindow(this)).Handle)
-					.AddHook(new HwndSourceHook(wndProc));
-			};
-			this.StateChanged += (_, e) => {
-				if(isWindows11RTM) {
-					// 最大化すると角丸を解除する/普通に戻ると角丸にする
-					ApplyDwmRound(new WindowInteropHelper(GetWindow(this)).Handle, this.WindowState != WindowState.Maximized);
-				}
+				var hs = HwndSource.FromHwnd(new WindowInteropHelper(GetWindow(this)).Handle);
+				hs.AddHook(new HwndSourceHook(wndProc));
+				hs.ContentRendered += (_, _) => {
+				};
 			};
 
 			ViewModels.MainWindowViewModel.Messenger.Instance

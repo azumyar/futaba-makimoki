@@ -6,10 +6,16 @@
              xmlns:pd="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.PlatformData"
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf">
     <Application.Resources>
+        <FontFamily x:Key="MakimokiUiFont">Yu Gothic UI,Meiryo UI</FontFamily>
+        <FontFamily x:Key="MakimokiMessageFont">Yu Gothic UI,Meiryo UI</FontFamily>
+        <FontWeight x:Key="MakimokiMessageFontWeight">Medium</FontWeight>
+        <FontFamily x:Key="MakimokiSymbolFont">Segoe Fluent Icons,Segoe MDL2 Assets,Segoe UI Symbol</FontFamily>
+        
         <Color x:Key="MakimokiWhiteColor">#FFFFFF</Color>
         <Color x:Key="MakimokiBlackColor">#000000</Color>
         <Color x:Key="MakimokiForegroundColor">#212121</Color>
         <Color x:Key="MakimokiBackgroundColor">#F5F5F5</Color>
+        <Color x:Key="MakimokiBorderColor">#8B8B8B</Color>
         <Color x:Key="MakimokiPrimaryColor">#03A9F4</Color>
         <Color x:Key="MakimokiSecondaryColor">#E91E63</Color>
 
@@ -36,6 +42,7 @@
 
         <!-- LightBlueの500 -->
         <Color x:Key="WindowFrameColor">#03A9F4</Color>
+        <Color x:Key="WindowSplitterColor">#03A9F4</Color>
         <!-- LightBlueの700 -->
         <Color x:Key="WindowFrameBorderColor">#0288D1</Color>
         <Color x:Key="WindowTabBackgroundColor">White</Color>
@@ -46,10 +53,12 @@
 
         <FontFamily x:Key="CatalogTextFont">メイリオ</FontFamily>
         <sys:Double x:Key="CatalogTextFontSize">11</sys:Double>
+        <FontWeight x:Key="CatalogTextFontWeight">Medium</FontWeight>
         <sys:Double x:Key="CatalogImageSize">80</sys:Double>
         <sys:Double x:Key="CatalogTextSize">16</sys:Double>
         <sys:Double x:Key="CatalogBadgeSize">20</sys:Double>
         <FontFamily x:Key="CatalogBadgeFont">Segoe UI</FontFamily>
+        <FontWeight x:Key="CatalogBadgeFontWeight">ExtraBold</FontWeight>
         <!-- Redの500 -->
         <Color x:Key="CatalogBadgeCountBackgroundColor">#f44336</Color>
         <!-- LightGreenの100 -->
@@ -73,6 +82,8 @@
 
 
         <Color x:Key="ThreadBackgroundColor">#00000000</Color>
+        <!-- Pinkの500 -->
+        <Color x:Key="ThreadLinkColor">#E91E63</Color>
         <!-- LightGreenの100 -->
         <Color x:Key="ThreadBackgroundSerachHitColor">#C8E6C9</Color>
         <!-- DeepOrangeの100-->
@@ -95,9 +106,12 @@
         <FontFamily x:Key="ThreadHeaderFont">メイリオ</FontFamily>
         <sys:Double x:Key="ThreadTextFontSize">16</sys:Double>
         <FontFamily x:Key="ThreadTextFont">メイリオ</FontFamily>
+        <FontWeight x:Key="ThreadFontWeight">Medium</FontWeight>
+        <FontWeight x:Key="ThreadBoldFontWeight">ExtraBold</FontWeight>
 
         <sys:Double x:Key="PostFontSize">16</sys:Double>
         <FontFamily x:Key="PostFont">メイリオ</FontFamily>
+        <FontWeight x:Key="PostFontWeight">Medium</FontWeight>
 
         <sys:Double x:Key="FailsafeThreadImageOpacity">0.4</sys:Double>
         <sys:Double x:Key="FailsafeThreadImageBlurRadius">15</sys:Double>
@@ -107,7 +121,6 @@
         <sys:Double x:Key="InformationMinWidth">240</sys:Double>
         <sys:Double x:Key="InformationMinHeight">66</sys:Double>
         <sys:Double x:Key="InformationImageSize">64</sys:Double>
-        <FontFamily x:Key="InformationFont">メイリオ</FontFamily>
         <sys:Double x:Key="InformationFontSize">12</sys:Double>
 
 
@@ -140,6 +153,13 @@
             <!-- 赤字→Redの500-->
             <pd:ColorMap Target="#ff0000" Value="#f44336" />
         </pd:ColorMapCollection>
+
+
+        <pd:FluentType x:Key="FluentWindowType">None</pd:FluentType>
+        <pd:FluentType x:Key="FluentPopupType">None</pd:FluentType>
+        <sys:Single x:Key="FluentBlurOpacity">0.4</sys:Single>
+        <Color x:Key="FluentWindowAccentColor">#00000000</Color>
+        <Color x:Key="FluentPopupAccentColor">#00000000</Color>
 
         <Viewbox x:Key="ButtonIconWindowBordList" x:Shared="False">
             <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
@@ -273,10 +293,12 @@
             </Canvas>
         </Viewbox>
 
+        <!--
         <Viewbox x:Key="ButtonIconPin" x:Shared="False">
             <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
                 <Path Width="512" Height="768" Canvas.Left="256" Canvas.Top="128" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="F1 M 256,480L 320,480L 320,160L 320,128L 352,128L 704,128L 704,160L 704,480L 768,480L 768,512L 704,512L 576,512L 544,512L 544,864L 512.014,896L 480,864L 480,512L 352,512L 320,512L 256,512L 256,480 Z M 352,160L 352,480L 576,480L 576,160L 352,160 Z "/>
             </Canvas>
         </Viewbox>
+        -->
     </Application.Resources>
 </prism:PrismApplication>

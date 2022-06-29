@@ -1,0 +1,10 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Resources/Xaml/Materials/MaterialButton.xaml"/>
+        <ResourceDictionary Source="/Resources/Xaml/Materials/MaterialTextBox.xaml"/>
+        <ResourceDictionary Source="/Resources/Xaml/Materials/MaterialMenuItem.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

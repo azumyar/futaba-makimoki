@@ -474,11 +474,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 
 		private static Color GetLinkColor() {
-			return (App.Current.TryFindResource("ViewerSecondaryColor") is Color c) ? c : Colors.Blue;
+			return App.Current.TryFindResource("ThreadLinkColor") switch {
+				Color c => c,
+				_ => Colors.Blue
+			};
 		}
 
 		private static Color GetLinkActiveColor() {
-			return (App.Current.TryFindResource("ViewerSecondaryDarkColor") is Color c) ? c : Colors.Red;
+			static Color dark(Color c ) {
+				var hsv = WpfUtil.ImageUtil.ToHsv(c);
+				return WpfUtil.ImageUtil.HsvToRgb(hsv.H, hsv.S, hsv.V * 0.8);
+			}
+			return App.Current.TryFindResource("ThreadLinkColor") switch {
+				Color c => dark(c),
+				_ => Colors.Red
+			};
 		}
 	}
 }

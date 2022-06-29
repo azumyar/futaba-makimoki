@@ -16,7 +16,7 @@
     <Popup.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/Material.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ViewerListBox.xaml"/>
             </ResourceDictionary.MergedDictionaries>
@@ -30,13 +30,12 @@
             <SolidColorBrush Color="{DynamicResource MakimokiBackgroundColor}" />
         </Border.Background>
         <Border.BorderBrush>
-            <SolidColorBrush Color="{DynamicResource ViewerBorderColor}" />
+            <SolidColorBrush Color="{DynamicResource MakimokiBorderColor}" />
         </Border.BorderBrush>
-        <Grid>
+        <Grid Margin="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" MinWidth="240" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="2" />
             </Grid.ColumnDefinitions>
 
             <ListBox
@@ -176,26 +175,37 @@
 
             <Button
                 x:Name="pinnedButton"
-                Style="{StaticResource MaterialButton}"
+                Style="{StaticResource MaterialTransparentButton}"
                 Grid.Column="1" Grid.Row="0"
                 Padding="2"
                 Width="24" Height="24"
                 Visibility="Visible"
-                VerticalAlignment="Top"
-                Content="{StaticResource ButtonIconPin}"
-                />
+                VerticalAlignment="Top">
+                <Button.Background>
+                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                </Button.Background>
+                <TextBlock
+                    FontFamily="{DynamicResource MakimokiSymbolFont}"
+                    FontSize="11"
+                    Text="&#xe718;" />
+            </Button>
             <Button 
                 x:Name="closeButton"
-                Style="{StaticResource MaterialButton}"
+                Style="{StaticResource MaterialTransparentButton}"
                 Grid.Column="1" Grid.Row="0"
                 Width="24" Height="24"
                 Padding="2"
                 Visibility="Hidden"
-                VerticalAlignment="Top"
-                FontFamily="Marlett"
-                FontSize="8"
-                Content="r"
-                />
+                VerticalAlignment="Top">
+                <Button.Background>
+                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                </Button.Background>
+                <TextBlock
+                    FontFamily="{DynamicResource MakimokiSymbolFont}"
+                    FontSize="11"
+                    Text="&#xE8BB;"
+                    />
+            </Button>
         </Grid>
     </Border>
 </Popup>
