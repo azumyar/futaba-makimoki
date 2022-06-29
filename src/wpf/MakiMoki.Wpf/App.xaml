@@ -7,6 +7,9 @@
              xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf">
     <Application.Resources>
         <FontFamily x:Key="MakimokiUiFont">Yu Gothic UI,Meiryo UI</FontFamily>
+        <FontFamily x:Key="MakimokiMessageFont">Yu Gothic UI,Meiryo UI</FontFamily>
+        <FontWeight x:Key="MakimokiMessageFontWeight">Medium</FontWeight>
+        <FontFamily x:Key="MakimokiSymbolFont">Segoe Fluent Icons,Segoe MDL2 Assets,Segoe UI Symbol</FontFamily>
         
         <Color x:Key="MakimokiWhiteColor">#FFFFFF</Color>
         <Color x:Key="MakimokiBlackColor">#000000</Color>
@@ -291,10 +294,12 @@
             </Canvas>
         </Viewbox>
 
+        <!--
         <Viewbox x:Key="ButtonIconPin" x:Shared="False">
             <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
                 <Path Width="512" Height="768" Canvas.Left="256" Canvas.Top="128" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="F1 M 256,480L 320,480L 320,160L 320,128L 352,128L 704,128L 704,160L 704,480L 768,480L 768,512L 704,512L 576,512L 544,512L 544,864L 512.014,896L 480,864L 480,512L 352,512L 320,512L 256,512L 256,480 Z M 352,160L 352,480L 576,480L 576,160L 352,160 Z "/>
             </Canvas>
         </Viewbox>
+        -->
     </Application.Resources>
 </prism:PrismApplication>

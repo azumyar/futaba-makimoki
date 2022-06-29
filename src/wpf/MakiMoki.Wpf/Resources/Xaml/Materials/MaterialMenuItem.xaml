@@ -206,7 +206,7 @@ CheckboxComposite	e73a	CheckboxComposite
                                     />
                                 <Popup
                                     x:Name="Popup"
-                                    Placement="Left"
+                                    Placement="Right"
                                     HorizontalOffset="8"
                                     IsOpen="{TemplateBinding IsSubmenuOpen}"
                                     AllowsTransparency="True"

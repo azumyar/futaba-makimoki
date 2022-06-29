@@ -90,6 +90,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<MouseWheelEventArgs> MouseWheelCommand { get; }
 			= new MakiMokiCommand<MouseWheelEventArgs>();
 
+		public ReactiveProperty<Visibility> ErrorViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Collapsed);
+
 		public ReactiveProperty<ImageSource> ImageSource { get; } = new ReactiveProperty<ImageSource>();
 		public ReactiveProperty<ImageSource> AnimationGifImageSource { get; } = new ReactiveProperty<ImageSource>();
 		public ReactiveProperty<Visibility> ImageViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Collapsed);
@@ -238,10 +240,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							Messenger.Instance.GetEvent<PubSubEvent<VideoLoadMessage>>()
 								.Publish(new VideoLoadMessage(this.Media.Value, x.LocalPath));
 						} else {
-							// TODO: 不明なファイル
+							// 不明なファイル
+							this.ErrorViewVisibility.Value = Visibility.Visible;
 						}
 					} else {
-						// TODO: なんかエラー画像出す
+						this.ErrorViewVisibility.Value = Visibility.Visible;
 					}
 				});
 		}
