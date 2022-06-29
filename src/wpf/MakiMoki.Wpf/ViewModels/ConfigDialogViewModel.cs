@@ -169,7 +169,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<GestureItem> GestureMainWindowCatalogUpdate { get; }
 		public ReactiveProperty<GestureItem> GestureMainWindowCatalogSearch { get; }
-		public ReactiveProperty<GestureItem> GestureMainWindowCatalogModeToggleUpdate { get; }
 		public ReactiveProperty<GestureItem> GestureMainWindowCatalogOpenPost { get; }
 		public ReactiveProperty<GestureItem> GestureMainWindowCatalogClose { get; }
 		public ReactiveProperty<GestureItem> GestureMainWindowCatalogNext { get; }
@@ -365,8 +364,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogUpdate));
 			GestureMainWindowCatalogSearch = new ReactiveProperty<GestureItem>(
 				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogSearch));
-			GestureMainWindowCatalogModeToggleUpdate = new ReactiveProperty<GestureItem>(
-				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogModeToggleUpdate));
 			GestureMainWindowCatalogOpenPost = new ReactiveProperty<GestureItem>(
 				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGestureCatalogOpenPost));
 			GestureMainWindowCatalogClose = new ReactiveProperty<GestureItem>(
@@ -601,7 +598,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			WpfConfig.WpfConfigLoader.UpdateGestureConfig(PlatformData.GestureConfig.From(
 				keyGestureCatalogUpdate: GestureMainWindowCatalogUpdate.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
 				keyGestureCatalogSearch: GestureMainWindowCatalogSearch.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
-				keyGestureCatalogModeToggleUpdate: GestureMainWindowCatalogModeToggleUpdate.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
 				keyGestureCatalogOpenPost: GestureMainWindowCatalogOpenPost.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
 				keyGestureCatalogClose: GestureMainWindowCatalogClose.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
 				keyGestureCatalogNext: GestureMainWindowCatalogNext.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
@@ -621,7 +617,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				keyGesturePostViewDelete: GesturePostViewDelete.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
 				keyGesturePostViewClose: GesturePostViewClose.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
 				keyGesturePostViewPasteImage: GesturePostViewPasteImage.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
-				keyGesturePostViewPasteUploader: GesturePostViewPasteUploader.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray()
+				keyGesturePostViewPasteUploader: GesturePostViewPasteUploader.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
+
+				// 2022063000
+				mouseGestureCatalogOpenPost: WpfConfigLoader.Gesture.MouseGestureCatalogOpenPost,
+				mouseGestureCatalogUpdate: WpfConfigLoader.Gesture.MouseGestureCatalogUpdate,
+				mouseGestureCatalogClose: WpfConfigLoader.Gesture.MouseGestureThreadClose,
+				mouseGestureCatalogNext: WpfConfigLoader.Gesture.MouseGestureCatalogNext,
+				mouseGestureCatalogPrevious: WpfConfigLoader.Gesture.MouseGestureCatalogPrevious,
+
+				mouseGestureThreadOpenPost: WpfConfigLoader.Gesture.MouseGestureThreadOpenPost,
+				mouseGestureThreadUpdate: WpfConfigLoader.Gesture.MouseGestureThreadUpdate,
+				mouseGestureThreadClose: WpfConfigLoader.Gesture.MouseGestureThreadClose,
+				mouseGestureThreadNext: WpfConfigLoader.Gesture.MouseGestureThreadNext,
+				mouseGestureThreadPrevious: WpfConfigLoader.Gesture.MouseGestureThreadPrevious
 			));
 			Canvas98ConfigLoader.UpdateBookmarklet(
 				Canvas98Bookmarklet.Value,

@@ -586,14 +586,76 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	}
 
 	public class GestureConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2021020100;
+		public class MouseGestureConverter : JsonConverter {
+			public override bool CanConvert(Type objectType) {
+				return typeof(MouseGestureCommands[]) == objectType;
+			}
+
+			public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
+				static MouseGestureCommands read(JsonReader reader) {
+					var list = new List<MouseGestureCommand>();
+					while(reader.Read()) {
+						switch(reader.TokenType) {
+						case JsonToken.EndArray:
+							return new MouseGestureCommands(list);
+						case JsonToken.String:
+							list.Add(reader.Value switch {
+								string s => s.ToLower() switch {
+									"left" => MouseGestureCommand.Left,
+									"up" => MouseGestureCommand.Up,
+									"right" => MouseGestureCommand.Right,
+									"down" => MouseGestureCommand.Down,
+									_ => throw new JsonReaderException(),
+								},
+								_ => throw new JsonReaderException(),
+							});
+							break;
+						default:
+							goto end_read;
+						}
+					}
+				end_read:
+					throw new JsonReaderException();
+				}
+				var list = new List<MouseGestureCommands>();
+				while(reader.Read()) {
+					switch(reader.TokenType) {
+					case JsonToken.StartArray:
+						list.Add(read(reader));
+						break;
+					case JsonToken.EndArray:
+						return list.ToArray();
+					default:
+						goto end;
+					}
+				}
+			end:
+				throw new JsonReaderException();
+			}
+
+			public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
+				if((value is MouseGestureCommands[] v)) {
+					serializer.Serialize(
+						writer,
+						v.Select(x => x.Commands.Select(y => y switch {
+							MouseGestureCommand.Left => "left",
+							MouseGestureCommand.Up => "up",
+							MouseGestureCommand.Right => "right",
+							MouseGestureCommand.Down => "down",
+							_ => throw new JsonWriterException(),
+						})).ToArray());
+				} else {
+					throw new JsonReaderException();
+				}
+			}
+		}
+
+		public static int CurrentVersion { get; } = 2022063000;
 
 		[JsonProperty("gesture-key-catalog-update", Required = Required.Always)]
 		public string[] KeyGestureCatalogUpdate { get; private set; }
 		[JsonProperty("gesture-key-catalog-search", Required = Required.Always)]
 		public string[] KeyGestureCatalogSearch { get; private set; }
-		[JsonProperty("gesture-key-catalog-mode-change-toggle", Required = Required.Always)]
-		public string[] KeyGestureCatalogModeToggleUpdate { get; private set; }
 		[JsonProperty("gesture-key-catalog-open-post", Required = Required.Always)]
 		public string[] KeyGestureCatalogOpenPost { get; private set; }
 		[JsonProperty("gesture-key-catalog-close", Required = Required.Always)]
@@ -635,82 +697,46 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public string[] KeyGesturePostViewPasteUploader { get; private set; }
 
 
-		[JsonIgnore]
-		public MouseGestureCommands[] MouseGestureCatalogOpenPost { get; } = new[] {
-			new MouseGestureCommands(new [] {
-				MouseGestureCommand.Up,
-				MouseGestureCommand.Left
-			})
-		};
-		[JsonIgnore]
-		public MouseGestureCommands[] MouseGestureCatalogUpdate { get; } = new[] {
-			new MouseGestureCommands(new [] {
-				MouseGestureCommand.Up,
-				MouseGestureCommand.Down
-			})
-		};
-		[JsonIgnore]
-		public MouseGestureCommands[] MouseGestureCatalogClose { get; } = new[] {
-			new MouseGestureCommands(new [] {
-				MouseGestureCommand.Up,
-				MouseGestureCommand.Right
-			})
-		};
-		[JsonIgnore]
-		public MouseGestureCommands[] MouseGestureCatalogPrevious { get; } = new[] {
-			new MouseGestureCommands(new [] {
-				MouseGestureCommand.Left,
-				MouseGestureCommand.Up,
-				MouseGestureCommand.Left
-			})
-		};
-		[JsonIgnore]
-		public MouseGestureCommands[] MouseGestureCatalogNext { get; } = new[] {
-			new MouseGestureCommands(new [] {
-				MouseGestureCommand.Right,
-				MouseGestureCommand.Up,
-				MouseGestureCommand.Right
-			})
-		};
+		[JsonProperty("gesture-mouse-catalog-post", Required = Required.Always)]
+		[JsonConverter(typeof(MouseGestureConverter))]
+		public MouseGestureCommands[] MouseGestureCatalogOpenPost { get; private set; }
+
+		[JsonProperty("gesture-mouse-catalog-update", Required = Required.Always)]
+		[JsonConverter(typeof(MouseGestureConverter))]
+		public MouseGestureCommands[] MouseGestureCatalogUpdate { get; private set; }
+
+		[JsonProperty("gesture-mouse-catalog-close", Required = Required.Always)]
+		[JsonConverter(typeof(MouseGestureConverter))]
+		public MouseGestureCommands[] MouseGestureCatalogClose { get; private set; }
+
+		[JsonProperty("gesture-mouse-catalog-previous", Required = Required.Always)]
+		[JsonConverter(typeof(MouseGestureConverter))]
+		public MouseGestureCommands[] MouseGestureCatalogPrevious { get; private set; }
+
+		[JsonProperty("gesture-mouse-catalog-next", Required = Required.Always)]
+		[JsonConverter(typeof(MouseGestureConverter))]
+		public MouseGestureCommands[] MouseGestureCatalogNext { get; private set; }
 
 
-		[JsonIgnore]
-		public MouseGestureCommands[] MouseGestureThreadOpenPost { get; } = new[] {
-			new MouseGestureCommands(new [] {
-				MouseGestureCommand.Down,
-				MouseGestureCommand.Left
-			})
-		};
-		[JsonIgnore]
-		public MouseGestureCommands[] MouseGestureThreadUpdate { get; } = new[] {
-			new MouseGestureCommands(new [] {
-				MouseGestureCommand.Down,
-				MouseGestureCommand.Up
-			})
-		};
-		[JsonIgnore]
-		public MouseGestureCommands[] MouseGestureThreadClose { get; } = new[] {
-			new MouseGestureCommands(new [] {
-				MouseGestureCommand.Down,
-				MouseGestureCommand.Right
-			})
-		};
-		[JsonIgnore]
-		public MouseGestureCommands[] MouseGestureThreadPrevious { get; } = new[] {
-			new MouseGestureCommands(new [] {
-				MouseGestureCommand.Left,
-				MouseGestureCommand.Down,
-				MouseGestureCommand.Left
-			})
-		};
-		[JsonIgnore]
-		public MouseGestureCommands[] MouseGestureThreadNext { get; } = new[] {
-			new MouseGestureCommands(new [] {
-				MouseGestureCommand.Right,
-				MouseGestureCommand.Down,
-				MouseGestureCommand.Right
-			})
-		};
+		[JsonProperty("gesture-mouse-thread-post", Required = Required.Always)]
+		[JsonConverter(typeof(MouseGestureConverter))]
+		public MouseGestureCommands[] MouseGestureThreadOpenPost { get; private set; }
+
+		[JsonProperty("gesture-mouse-thread-update", Required = Required.Always)]
+		[JsonConverter(typeof(MouseGestureConverter))]
+		public MouseGestureCommands[] MouseGestureThreadUpdate { get; private set; }
+
+		[JsonProperty("gesture-mouse-thread-close", Required = Required.Always)]
+		[JsonConverter(typeof(MouseGestureConverter))]
+		public MouseGestureCommands[] MouseGestureThreadClose { get; private set; }
+
+		[JsonProperty("gesture-mouse-thread-previous", Required = Required.Always)]
+		[JsonConverter(typeof(MouseGestureConverter))]
+		public MouseGestureCommands[] MouseGestureThreadPrevious { get; private set; }
+
+		[JsonProperty("gesture-mouse-thread-next", Required = Required.Always)]
+		[JsonConverter(typeof(MouseGestureConverter))]
+		public MouseGestureCommands[] MouseGestureThreadNext { get; private set; }
 
 		public static GestureConfig CreateDefault() {
 			return new GestureConfig() {
@@ -718,7 +744,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 
 				KeyGestureCatalogUpdate = Array.Empty<string>(),
 				KeyGestureCatalogSearch = Array.Empty<string>(),
-				KeyGestureCatalogModeToggleUpdate = Array.Empty<string>(),
 				KeyGestureCatalogOpenPost = Array.Empty<string>(),
 				KeyGestureCatalogClose = Array.Empty<string>(),
 				KeyGestureCatalogNext = Array.Empty<string>(),
@@ -739,13 +764,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				KeyGesturePostViewClose = Array.Empty<string>(),
 				KeyGesturePostViewPasteImage = Array.Empty<string>(),
 				KeyGesturePostViewPasteUploader = Array.Empty<string>(),
+
+				MouseGestureCatalogOpenPost = Array.Empty<MouseGestureCommands>(),
+				MouseGestureCatalogUpdate = Array.Empty<MouseGestureCommands>(),
+				MouseGestureCatalogClose = Array.Empty<MouseGestureCommands>(),
+				MouseGestureCatalogNext = Array.Empty<MouseGestureCommands>(),
+				MouseGestureCatalogPrevious = Array.Empty<MouseGestureCommands>(),
+
+				MouseGestureThreadOpenPost = Array.Empty<MouseGestureCommands>(),
+				MouseGestureThreadUpdate = Array.Empty<MouseGestureCommands>(),
+				MouseGestureThreadClose = Array.Empty<MouseGestureCommands>(),
+				MouseGestureThreadNext = Array.Empty<MouseGestureCommands>(),
+				MouseGestureThreadPrevious = Array.Empty<MouseGestureCommands>(),
 			};
 		}
 
 		public static GestureConfig From(
 			string[] keyGestureCatalogUpdate,
 			string[] keyGestureCatalogSearch,
-			string[] keyGestureCatalogModeToggleUpdate,
 			string[] keyGestureCatalogOpenPost,
 			string[] keyGestureCatalogClose,
 			string[] keyGestureCatalogNext,
@@ -765,12 +801,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			string[] keyGesturePostViewDelete,
 			string[] keyGesturePostViewClose,
 			string[] keyGesturePostViewPasteImage,
-			string[] keyGesturePostViewPasteUploader
-			) {
+			string[] keyGesturePostViewPasteUploader,
 
+			MouseGestureCommands[] mouseGestureCatalogOpenPost,
+			MouseGestureCommands[] mouseGestureCatalogUpdate,
+			MouseGestureCommands[] mouseGestureCatalogClose,
+			MouseGestureCommands[] mouseGestureCatalogNext,
+			MouseGestureCommands[] mouseGestureCatalogPrevious,
+
+			MouseGestureCommands[] mouseGestureThreadOpenPost,
+			MouseGestureCommands[] mouseGestureThreadUpdate,
+			MouseGestureCommands[] mouseGestureThreadClose,
+			MouseGestureCommands[] mouseGestureThreadNext,
+			MouseGestureCommands[] mouseGestureThreadPrevious
+			) {
 			System.Diagnostics.Debug.Assert(keyGestureCatalogUpdate != null);
 			System.Diagnostics.Debug.Assert(keyGestureCatalogSearch != null);
-			System.Diagnostics.Debug.Assert(keyGestureCatalogModeToggleUpdate != null);
 			System.Diagnostics.Debug.Assert(keyGestureCatalogOpenPost != null);
 			System.Diagnostics.Debug.Assert(keyGestureCatalogClose != null);
 			System.Diagnostics.Debug.Assert(keyGestureCatalogNext != null);
@@ -792,12 +838,23 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			System.Diagnostics.Debug.Assert(keyGesturePostViewPasteImage != null);
 			System.Diagnostics.Debug.Assert(keyGesturePostViewPasteUploader != null);
 
+			System.Diagnostics.Debug.Assert(mouseGestureCatalogOpenPost != null);
+			System.Diagnostics.Debug.Assert(mouseGestureCatalogUpdate != null);
+			System.Diagnostics.Debug.Assert(mouseGestureCatalogClose != null);
+			System.Diagnostics.Debug.Assert(mouseGestureCatalogNext != null);
+			System.Diagnostics.Debug.Assert(mouseGestureCatalogPrevious != null);
+
+			System.Diagnostics.Debug.Assert(mouseGestureThreadOpenPost != null);
+			System.Diagnostics.Debug.Assert(mouseGestureThreadUpdate != null);
+			System.Diagnostics.Debug.Assert(mouseGestureThreadClose != null);
+			System.Diagnostics.Debug.Assert(mouseGestureThreadNext != null);
+			System.Diagnostics.Debug.Assert(mouseGestureThreadPrevious != null);
+
 			return new GestureConfig() {
 				Version = CurrentVersion,
 
 				KeyGestureCatalogUpdate = keyGestureCatalogUpdate,
 				KeyGestureCatalogSearch = keyGestureCatalogSearch,
-				KeyGestureCatalogModeToggleUpdate = keyGestureCatalogModeToggleUpdate,
 				KeyGestureCatalogOpenPost = keyGestureCatalogOpenPost,
 				KeyGestureCatalogClose = keyGestureCatalogClose,
 				KeyGestureCatalogNext = keyGestureCatalogNext,
@@ -818,6 +875,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				KeyGesturePostViewClose = keyGesturePostViewClose,
 				KeyGesturePostViewPasteImage = keyGesturePostViewPasteImage,
 				KeyGesturePostViewPasteUploader = keyGesturePostViewPasteUploader,
+
+				MouseGestureCatalogOpenPost = mouseGestureCatalogOpenPost,
+				MouseGestureCatalogUpdate = mouseGestureCatalogUpdate,
+				MouseGestureCatalogClose = mouseGestureCatalogClose,
+				MouseGestureCatalogNext = mouseGestureCatalogNext,
+				MouseGestureCatalogPrevious = mouseGestureCatalogPrevious,
+
+				MouseGestureThreadOpenPost = mouseGestureThreadOpenPost,
+				MouseGestureThreadUpdate = mouseGestureThreadUpdate,
+				MouseGestureThreadClose = mouseGestureThreadClose,
+				MouseGestureThreadNext = mouseGestureThreadNext,
+				MouseGestureThreadPrevious = mouseGestureThreadPrevious,
 			};
 		}
 	}

@@ -1,5 +1,5 @@
 {
-  "version": 2021020100,
+  "version": 2022063000,
 
   "gesture-key-catalog-update": [
     "Ctrl+Alt+U",
@@ -7,9 +7,6 @@
   ],
   "gesture-key-catalog-search": [
     "Ctrl+Alt+F"
-  ],
-  "gesture-key-catalog-mode-change-toggle": [
-    "Ctrl+Alt+M"
   ],
   "gesture-key-catalog-open-post": [
     "Ctrl+Alt+Enter"
@@ -57,5 +54,36 @@
   "gesture-key-post-view-paste-image": [
     "Ctrl+Shift+V"
   ],
-  "gesture-key-post-view-paste-uploader": []
+  "gesture-key-post-view-paste-uploader": [],
+
+  "gesture-mouse-catalog-post": [
+    [ "up", "left" ]
+  ],
+  "gesture-mouse-catalog-update": [
+    [ "up", "down" ]
+  ],
+  "gesture-mouse-catalog-close": [
+    [ "down", "right" ]
+  ],
+  "gesture-mouse-catalog-previous": [
+    [ "left", "up", "left" ]
+  ],
+  "gesture-mouse-catalog-next": [
+    [ "right", "up", "right" ]
+  ],
+  "gesture-mouse-thread-post": [
+    [ "down", "left" ]
+  ],
+  "gesture-mouse-thread-update": [
+    [ "down", "up"]
+  ],
+  "gesture-mouse-thread-close": [
+    [ "down", "right" ]
+  ],
+  "gesture-mouse-thread-previous": [
+    [ "right", "down", "right" ]
+  ],
+  "gesture-mouse-thread-next": [
+    [ "left", "down", "left" ]
+  ]
 }
