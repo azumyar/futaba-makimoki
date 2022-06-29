@@ -120,6 +120,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		public static event EventHandler<MouseCaptureEventArgs> MouseMove;
 		public static event EventHandler<MouseCaptureEventArgs> MouseWheel;
 		static GlobalMouseHook() {
+#if DEBUG
+			// デバッグビルドかつデバッガ起動してる時はブレークポイントでのフリーズが邪魔なのでフック無効
+			if(System.Diagnostics.Debugger.IsAttached) {
+				return;
+			}
+#endif
+
 			s_hook = SetWindowsHookEx(WH_MOUSE_LL,
 				s_proc = HookProc,
 #if DEBUG

@@ -121,7 +121,6 @@
         <sys:Double x:Key="InformationMinWidth">240</sys:Double>
         <sys:Double x:Key="InformationMinHeight">66</sys:Double>
         <sys:Double x:Key="InformationImageSize">64</sys:Double>
-        <FontFamily x:Key="InformationFont">メイリオ</FontFamily>
         <sys:Double x:Key="InformationFontSize">12</sys:Double>
 
 

@@ -1333,8 +1333,9 @@
                                         ColorBlend="False"
                                         Text="{Binding Message, Mode=OneWay}"
                                         TextWrapping="Wrap"
-                                        FontFamily="{DynamicResource InformationFont}"
-                                        FontSize="{DynamicResource InformationFontSize}" />
+                                        FontFamily="{DynamicResource MakimokiMessageFont}"
+                                        FontSize="{DynamicResource InformationFontSize}"
+                                        FontWeight="{DynamicResource MakimokiMessageFontWeight}"/>
                                 </Border>
                             </Grid>
 
