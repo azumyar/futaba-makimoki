@@ -51,6 +51,7 @@
         <li class="checked">Windows 11/10/8.1(x64)</li>
         <li class="checked"><a href="https://aka.ms/vs/16/release/vc_redist.x64.exe">Visual Studio 2019 の Microsoft Visual C++ 再頒布可能パッケージ(x64)</a></li>
         <li class="checked"><a href="https://go.microsoft.com/fwlink/p/?LinkId=2124703">WebView2ランタイム</a>(はっちゃんキャンバス使用時のみ/Windows 11は標準でインストール済み)</li>
+        <li class="checked"><a href="https://aka.ms/SegoeFluentIcons">Segoe Fluent Iconsフォント</a>(Windows 8.1のみ)</li>
     </ul>
 
     <h3>インストールについて</h3>
@@ -153,7 +154,6 @@
             <li>開いたスレの履歴</li>
             <li>なーされたスレをキャッシュしている場合以前の書き込みを表示できる機能</li>
             <li>カタログのソートを1クリックでできるように</li>
-            <li>マウスジェスチャー機能</li>
             <li>
                 カタログをレス増加数でソート
                 <ul>
@@ -228,10 +228,6 @@
             </tr>
 
             <tr>
-                <td>Ctrl+Alt+M</td>
-                <td>カタログビューWrap/Listモード切替</td>
-            </tr>
-            <tr>
                 <td>Ctrl+Alt+Enter</td>
                 <td>新規スレッド投稿ビュー表示</td>
             </tr>
@@ -289,6 +285,53 @@
             </tr>
         </table>
         <p>この設定は標準設定です。period.15より自由に設定ができるようになりました。</p>
+
+        <h3>マウスジェスチャ</h3>
+        <table>
+            <tr>
+                <td>↑←</td>
+                <td>新規スレッド投稿ビュー表示</td>
+            </tr>
+            <tr>
+                <td>↑↓</td>
+                <td>カタログ更新</td>
+            </tr>
+
+            <tr>
+                <td>↑→</td>
+                <td>カタログ閉じる</td>
+            </tr>
+            <tr>
+                <td>←↑←</td>
+                <td>前のカタログタブに移動</td>
+            </tr>
+            <tr>
+                <td>→↑→</td>
+                <td>次のカタログタブに移動</td>
+            </tr>
+
+            <tr>
+                <td>↓←</td>
+                <td>レス投稿ビュー表示</td>
+            </tr>
+            <tr>
+                <td>↓↑</td>
+                <td>スレッド更新</td>
+            </tr>
+
+            <tr>
+                <td>↓→</td>
+                <td>今見ているスレッドを閉じる</td>
+            </tr>
+            <tr>
+                <td>←↓←</td>
+                <td>前のスレッドタブに移動</td>
+            </tr>
+            <tr>
+                <td>→↓→</td>
+                <td>次のスレッドタブに移動</td>
+            </tr>
+        </table>
 
         <h3>クリップボードからの投稿ビュー添付機能について</h3>
         <p>クリップボードに画像データが存在している場合JPEG形式で添付します。JPEGの圧縮品質は設定画面で編集可能です。</p>
