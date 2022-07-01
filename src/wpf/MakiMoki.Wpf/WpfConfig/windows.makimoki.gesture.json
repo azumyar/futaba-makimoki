@@ -63,7 +63,7 @@
     [ "up", "down" ]
   ],
   "gesture-mouse-catalog-close": [
-    [ "down", "right" ]
+    [ "up", "right" ]
   ],
   "gesture-mouse-catalog-previous": [
     [ "left", "up", "left" ]
