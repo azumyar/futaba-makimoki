@@ -28,6 +28,9 @@ if not exist "%DOTNET%" echo dotnetコマンドが見つかりません & goto end
 if not exist %TARGET_SLN% echo SLNが見つかりません & goto end
 if exist %OUTPUT_ROOT%\%OUTPUT_ZIP% echo 既にアーカイブが存在します & goto end
 
+@rem よく壊れるのでobjをいったん削除する
+rd /s /q  src\wpf\MakiMoki.Wpf\obj
+
 @rem ビルド
 if exist %OUTPUT_DIR% rd /s /q %OUTPUT_DIR% 
 "%DOTNET%" restore -p:PublishReadyToRun=true

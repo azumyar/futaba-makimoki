@@ -81,9 +81,9 @@
     [ "down", "right" ]
   ],
   "gesture-mouse-thread-previous": [
-    [ "right", "down", "right" ]
+    [ "left", "down", "left" ]
   ],
   "gesture-mouse-thread-next": [
-    [ "left", "down", "left" ]
+    [ "right", "down", "right" ]
   ]
 }
