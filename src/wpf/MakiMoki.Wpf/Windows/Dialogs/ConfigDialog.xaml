@@ -1261,7 +1261,7 @@
                                     ScrollViewer.VerticalScrollBarVisibility="Auto" />
                             </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}" DataContext="{Binding GesturePostViewPasteUploader.Value, Mode=OneWay}">
-                                <TextBlock>アップロードフィルを張り付け</TextBlock>
+                                <TextBlock>アップロードファイルを張り付け</TextBlock>
                                 <Grid HorizontalAlignment="Left">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
