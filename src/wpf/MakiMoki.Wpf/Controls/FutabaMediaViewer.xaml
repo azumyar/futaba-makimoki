@@ -150,7 +150,7 @@
                 <TextBlock
                     FontFamily="{DynamicResource MakimokiSymbolFont}"
                     FontSize="11"
-                    Text="&#xE8BB;"
+                    Text="{StaticResource FontSymbolCancel}"
                     />
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
@@ -274,7 +274,7 @@
                     <TextBlock
                         FontFamily="{DynamicResource MakimokiSymbolFont}"
                         FontSize="16"
-                        Text="&#xe74e;"
+                        Text="{StaticResource FontSymbolSave}"
                         />
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
@@ -302,7 +302,7 @@
                     <TextBlock
                         FontFamily="{DynamicResource MakimokiSymbolFont}"
                         FontSize="16"
-                        Text="&#xe768;"
+                        Text="{StaticResource FontSymbolPlay}"
                         />
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
@@ -324,7 +324,7 @@
                     <TextBlock
                         FontFamily="{DynamicResource MakimokiSymbolFont}"
                         FontSize="16"
-                        Text="&#xe769;"
+                        Text="{StaticResource FontSymbolPause}"
                         />
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
@@ -345,7 +345,7 @@
                     <TextBlock
                         FontFamily="{DynamicResource MakimokiSymbolFont}"
                         FontSize="16"
-                        Text="&#xe71a;"
+                        Text="{StaticResource FontSymbolStop}"
                         />
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
@@ -367,7 +367,7 @@
                     <TextBlock
                         FontFamily="{DynamicResource MakimokiSymbolFont}"
                         FontSize="16"
-                        Text="&#xe711;"
+                        Text="{StaticResource FontSymbolCancel}"
                         />
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
@@ -403,7 +403,7 @@
                 <TextBlock
                     FontFamily="{DynamicResource MakimokiSymbolFont}"
                     FontSize="11"
-                    Text="&#xE8BB;"
+                    Text="{StaticResource FontSymbolCancel}"
                     />
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">

@@ -187,7 +187,7 @@
                 <TextBlock
                     FontFamily="{DynamicResource MakimokiSymbolFont}"
                     FontSize="11"
-                    Text="&#xe718;" />
+                    Text="{StaticResource FontSymbolPin}" />
             </Button>
             <Button 
                 x:Name="closeButton"
@@ -203,7 +203,7 @@
                 <TextBlock
                     FontFamily="{DynamicResource MakimokiSymbolFont}"
                     FontSize="11"
-                    Text="&#xE8BB;"
+                    Text="{StaticResource FontSymbolCancel}"
                     />
             </Button>
         </Grid>
