@@ -541,7 +541,10 @@
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
+                        <!--
                         <vwp:VirtualizingWrapPanel IsItemsHost="True"  HorizontalAlignment="Center" />
+                        -->
+                        <local:MakiMokiVirtualizingWrapPanel IsItemsHost="True" HorizontalAlignment="Center" />
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
@@ -628,7 +631,7 @@
                                         <Image
                                             Source="{Binding ThumbSource, Mode=OneWay}"
                                             RenderOptions.EdgeMode="Aliased"
-                                            RenderOptions.BitmapScalingMode="{Binding DataContext.CatalogBitmapScalingMode, ElementName=_this}"
+                                            RenderOptions.BitmapScalingMode="{Binding DataContext.CatalogBitmapScalingMode.Value, ElementName=_this}"
                                             Unloaded="OnImageUnloaded">
                                             <Image.CacheMode>
                                                 <BitmapCache RenderAtScale="1" />

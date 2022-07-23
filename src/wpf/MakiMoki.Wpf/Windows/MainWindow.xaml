@@ -1212,14 +1212,14 @@
                     Style="{StaticResource CaptionButton}"
                     Grid.Column="0"
                     Command="{x:Static SystemCommands.MinimizeWindowCommand}">
-                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="&#xE921;" />
+                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="{StaticResource FontSymbolChromeMinimize}" />
                 </Button>
                 <Button
                     x:Name="maximizeWindowButton"
                     Style="{DynamicResource CaptionButton}"
                     Grid.Column="1"
                     Command="{x:Static SystemCommands.MaximizeWindowCommand}">
-                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="&#xE922;" />
+                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="{StaticResource FontSymbolChromeMaximize}" />
                     <i:Interaction.Triggers>
                         <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
                             <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
@@ -1235,7 +1235,7 @@
                     Style="{StaticResource CaptionButton}"
                     Grid.Column="1"
                     Command="{x:Static SystemCommands.RestoreWindowCommand}">
-                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="&#xE923;" />
+                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="{StaticResource FontSymbolChromeRestore}" />
                     <i:Interaction.Triggers>
                         <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
                             <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
@@ -1249,7 +1249,7 @@
                     Style="{StaticResource CaptionButton}"
                     Grid.Column="2"
                     Command="{x:Static SystemCommands.CloseWindowCommand}">
-                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="&#xE8BB;" />
+                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="{StaticResource FontSymbolChromeClose}" />
                 </Button>
             </Grid>
 

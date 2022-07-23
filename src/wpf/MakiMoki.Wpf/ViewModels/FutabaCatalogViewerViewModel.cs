@@ -355,6 +355,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
+		[System.Runtime.InteropServices.DllImport("user32.dll")]
+		private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter,int x, int y, int cx, int cy, uint uFlags);
+
 		// .NET6でToolTipふたマキ実装ではがクラッシュするようになったので自前で処理する
 		// https://github.com/dotnet/wpf/issues/5730
 		private FrameworkElement toolTipTarget = null;
@@ -370,9 +373,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							break;
 						}
 					}
-					if(p != null) {
+					if((p != null) && (p.PlacementTarget != null) && Window.GetWindow(p.PlacementTarget) is Window window) {
+						var hwnd = ((System.Windows.Interop.HwndSource)System.Windows.Interop.HwndSource.FromVisual(p.Child))?.Handle;
+						var wih = new System.Windows.Interop.WindowInteropHelper(window);
+						if(hwnd != null) {
+							// WS_EX_TOPMOSTをはずす→ふたマキウインドウの下に移動→ポップアップをふたマキのownedウインドウにする→ふたマキウインドウとポップアップを入れ替え
+							// これで非アクテイブ状態でもふたマキの上にポップアップが出るかつ前面ウインドウの邪魔をしない
+							//const int WS_EX_TOPMOST = 0x00000008;
+							const int HWND_NOTOPMOST = -2;
+							const int SWP_NOMOVE = 0x2;
+							const int SWP_NOSIZE = 0x1;
+							var wwh = new WpfHelpers.Win32WindowHelper(hwnd.Value);
+							SetWindowPos(hwnd.Value, (IntPtr)HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+							SetWindowPos(hwnd.Value, wih.Handle, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+							wwh.WindowLong.Owner = wih.Handle;
+							SetWindowPos(wih.Handle, hwnd.Value, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+						}
+						// DWMコンポジション有効化
 						WpfHelpers.FluentHelper.ApplyCompositionPopup(WpfHelpers.FluentHelper.Attach(p.Child));
 						WpfHelpers.FluentHelper.ApplyPopupBackground(tt);
+						// クリックできなくする
 						p.IsHitTestVisible = false;
 					}
 				}
@@ -389,14 +409,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
 						if(object.ReferenceEquals(this.toolTipTarget, x)) {
-							if(Window.GetWindow(this.toolTipTarget)?.IsActive ?? false) {
-								this.toolTipTarget.ToolTip ??= this.toolTipTarget.TryFindResource("CatalogItemToolTip");
-								if(this.toolTipTarget.ToolTip is ToolTip tt) {
-									tt.DataContext = x.DataContext;
-									tt.PlacementTarget = x;
-									tt.Opened += onToolTip;
-									tt.IsOpen = true;
-								}
+							this.toolTipTarget.ToolTip ??= this.toolTipTarget.TryFindResource("CatalogItemToolTip");
+							if(this.toolTipTarget.ToolTip is ToolTip tt) {
+								tt.DataContext = x.DataContext;
+								tt.PlacementTarget = x;
+								tt.Opened += onToolTip;
+								tt.IsOpen = true;
 							}
 						}
 					});

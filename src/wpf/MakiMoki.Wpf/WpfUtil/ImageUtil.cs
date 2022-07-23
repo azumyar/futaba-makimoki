@@ -161,6 +161,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 
 					bitmapBytesDic2.Remove(k.Key);
 				}
+				System.Diagnostics.Debug.WriteLine($"キャッシュサイズ= {bitmapBytesDic2.Count}");
 				return image;
 			}
 		}

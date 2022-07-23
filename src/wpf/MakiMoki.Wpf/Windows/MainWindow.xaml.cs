@@ -50,9 +50,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 			this.Loaded += (_, _) => {
 				IntPtr wndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
 					if(App.OsCompat.IsWindows11Rtm) {
-						var r = this.Win11SnapLayoutProc(hwnd, msg, wParam, lParam, ref handled);
-						if(handled) {
-							return r;
+						{
+							var r = this.Win11RoundHiteTestProc(hwnd, msg, wParam, lParam, ref handled);
+							if(handled) {
+								return r;
+							}
+						}
+
+						{
+							var r = this.Win11SnapLayoutProc(hwnd, msg, wParam, lParam, ref handled);
+							if(handled) {
+								return r;
+							}
 						}
 					}
 					return IntPtr.Zero;
@@ -94,6 +103,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 				.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.WpfBugMessage>>()
 				.Subscribe(async x => {
 					// 現在は別アプローチで対策したので使っていない
+					return;
+
 					static async Task<(bool Sucessed, int? Index)> preRemove(FrameworkElement el) {
 						if(el is Panel p) {
 							var r = p.Children.IndexOf(el);

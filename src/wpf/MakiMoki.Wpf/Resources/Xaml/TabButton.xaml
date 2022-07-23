@@ -8,6 +8,7 @@
     >
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Resources/Xaml/Material.xaml"/>
+        <ResourceDictionary Source="/Resources/Xaml/FontSymbolResource.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <Style x:Key="TabCloseButton" TargetType="Button" BasedOn="{StaticResource MaterialTransparentButton}">
@@ -17,8 +18,7 @@
         <Setter Property="Margin" Value="0" />
         <Setter Property="Padding" Value="0" />
 
-        <Setter Property="FontSize" Value="9" />
-        <Setter Property="FontFamily" Value="Segoe Fluent Icons,Segoe MDL2 Assets,Segoe UI Symbol"/>
-        <Setter Property="Content" Value="&#xE8BB;" />
+        <Setter Property="FontFamily" Value="{DynamicResource MakimokiSymbolFont}"/>
+        <Setter Property="Content" Value="{StaticResource FontSymbolCancel}" />
     </Style>
 </ResourceDictionary>

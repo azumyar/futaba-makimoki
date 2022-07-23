@@ -41,5 +41,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 		const int WM_MOUSEMOVE = 0x0200;
 		const int WM_MOUSELEAVE = 0x02A3;
 		const int HTMAXBUTTON = 9;
+		const int HTLEFT = 10;
+		const int HTRIGHT = 11;
+		const int HTTOP = 12;
+		const int HTTOPLEFT = 13;
+		const int HTTOPRIGHT = 14;
+		const int HTBOTTOM = 15;
+		const int HTBOTTOMLEFT = 16;
+		const int HTBOTTOMRIGHT = 17;
 	}
 }
