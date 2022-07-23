@@ -156,8 +156,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.FullScreenThreadClickCommand.Subscribe(() => OnFullScreenThreadClick());
 			this.ResCount = new ReactiveProperty<int>(futaba.ResItems?.LastOrDefault()?.ResItem.Res.Rsc ?? 0);
 
-			if((old == null) || old.Raw.Url.IsCatalogUrl) { // カタログはそうとっかえする
+			if((old == null) || old.Raw.Url.IsCatalogUrl) {
+				var rm = old?.ResItems.ToArray() ?? Array.Empty<BindableFutabaResItem>();
+				/* 一旦保留
+				this.ResItems = old switch {
+					var x when x != null => x.ResItems,
+					_ => new ReactiveCollection<BindableFutabaResItem>(),
+				};
+				*/
 				this.ResItems = new ReactiveCollection<BindableFutabaResItem>();
+
 				int c = 0;
 				foreach(var it in futaba.ResItems
 						.Select(x => new BindableFutabaResItem(c++, x, futaba.Url.BaseUrl, this))
@@ -171,9 +179,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					this.ResItems.Add(it);
 				}
 
-				if(old?.ResItems != null) {
-					disps.AddEnumerable(old.ResItems);
+				foreach(var it in rm) {
+					it.Dispose();
 				}
+				/* 一旦保留
+				if(rm.Any()) {
+					// 1フレームスキップする必要ある？
+					Observable.Return(rm)
+						.Delay(TimeSpan.FromMilliseconds(1))
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Subscribe(x => {
+							foreach(var it in x) {
+								this.ResItems.RemoveAt(0);
+								it.Dispose();
+							}
+							this.UpdateToken.Value = DateTime.Now;
+						});
+				}
+				*/
 			} else {
 				this.ResItems = old.ResItems;
 				var i = 0;
@@ -506,7 +529,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> ImageName { get; }
 
 
-		private ReactiveProperty<object> ThumbToken { get; } = new ReactiveProperty<object>();
+		private ReactiveProperty<object> ThumbToken { get; } = new ReactiveProperty<object>(initialValue: null);
 		private WeakReference<BitmapSource> thumbSource = new WeakReference<BitmapSource>(default);
 		public ReactiveProperty<bool?> ThumbDisplay { get; } = new ReactiveProperty<bool?>(); // NGではない場合true
 		public BitmapSource ThumbSource {
@@ -969,6 +992,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					if(WpfUtil.ImageUtil.GetImageCache2(
 						Util.Futaba.GetThumbImageLocalFilePath(
 							this.Parent.Value.Url, this.Raw.Value.ResItem.Res)) is BitmapSource bmp) {
+						this.ThumbToken.Value ??= new object();
 						this.thumbSource.SetTarget(bmp);
 						return Observable.Return<BitmapSource>(bmp);
 					}

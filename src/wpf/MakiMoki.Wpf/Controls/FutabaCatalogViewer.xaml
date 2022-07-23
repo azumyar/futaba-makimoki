@@ -541,7 +541,10 @@
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
+                        <!--
                         <vwp:VirtualizingWrapPanel IsItemsHost="True"  HorizontalAlignment="Center" />
+                        -->
+                        <local:MakiMokiVirtualizingWrapPanel IsItemsHost="True" HorizontalAlignment="Center" />
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
