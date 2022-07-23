@@ -50,9 +50,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 			this.Loaded += (_, _) => {
 				IntPtr wndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
 					if(App.OsCompat.IsWindows11Rtm) {
-						var r = this.Win11SnapLayoutProc(hwnd, msg, wParam, lParam, ref handled);
-						if(handled) {
-							return r;
+						{
+							var r = this.Win11RoundHiteTestProc(hwnd, msg, wParam, lParam, ref handled);
+							if(handled) {
+								return r;
+							}
+						}
+
+						{
+							var r = this.Win11SnapLayoutProc(hwnd, msg, wParam, lParam, ref handled);
+							if(handled) {
+								return r;
+							}
 						}
 					}
 					return IntPtr.Zero;

@@ -26,7 +26,33 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 			FrameworkElement Target,
 			System.Windows.Media.Animation.Storyboard Storyboard) win11SnapLayoutLatestAction = (false, false, null, null);
 
+		private IntPtr Win11RoundHiteTestProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
+			switch(msg) {
+			case WM_NCHITTEST: {
+					var l = (uint)lParam.ToInt64();
+					var r = (X: (int)(short)(l & 0xffff), Y: (int)(short)(l >> 16 & 0xffff)) switch {
+						var v when(0 <= v.X) && (v.X <= 2) && (0 <= v.Y) && (v.Y <= 1) => HTTOPLEFT,
+						var v when((this.ActualWidth - 2) <= v.X) && (v.X <= this.ActualWidth) && (0 <= v.Y) && (v.Y <= 1) => HTTOPRIGHT,
+						var v when(0 <= v.X) && (v.X <= 2) && ((this.ActualHeight) <= v.Y) && (v.Y <= this.ActualHeight) => HTBOTTOMLEFT,
+						var v when((this.ActualWidth - 2) <= v.X) && (v.X <= this.ActualWidth) && ((this.ActualHeight) <= v.Y) && (v.Y <= this.ActualHeight) => HTBOTTOMRIGHT,
+						var v when(0 <= v.X) && (v.X <= 2) => HTLEFT,
+						var v when((this.ActualWidth - 2) <= v.X) && (v.X <= this.ActualWidth) => HTRIGHT,
+						var v when(0 <= v.Y) && (v.Y <= 1) => HTTOP,
+						var v when((this.ActualHeight) <= v.Y) && (v.Y <= this.ActualHeight) => HTBOTTOM,
+						_ => 0,
+					};
+					if(r != 0) {
+						handled = true;
+						return (IntPtr)r;
+					}
+				}
+				break;
+			}
+			return IntPtr.Zero;
+		}
+
 		private IntPtr Win11SnapLayoutProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
+
 			static bool hittest(FrameworkElement e, int x, int y) {
 				var p = e.PointFromScreen(new Point(x, y));
 				return (0 <= p.X) && (p.X <= e.ActualWidth)
