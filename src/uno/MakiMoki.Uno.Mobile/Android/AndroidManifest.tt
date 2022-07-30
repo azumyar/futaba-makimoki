@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<#@ template debug="false" hostspecific="false" language="C#" encoding="utf-8" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".xml" #>
+<#@ parameter type="System.Int32" name="varsionCode" #>
+<#
+	var targetSdk = 31;
+	var code = (varsionCode == 0) ? 1 : varsionCode; // 外部からバージョンコードを挿入できるようにする
+#>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" 
+  android:versionCode="<#= code #>"
+  android:versionName="0.0.1" 
+  package="net.yarukizero.makimoki.android">
+  <uses-sdk android:targetSdkVersion="<#= targetSdk #>" android:minSdkVersion="<#= targetSdk #>" />
+  <application
+    android:allowBackup="true"
+    android:icon="@mipmap/ic_launcher"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsRtl="true">
+  </application>
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+</manifest>

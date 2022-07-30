@@ -209,6 +209,11 @@ csharp_style_deconstructed_variable_declaration = false
 # 「IDE0057	Substring を簡略化できます」を黙らせる
 csharp_style_prefer_range_operator = false
 
+[*.csproj]
+end_of_line = crlf
+indent_size = 2
+indent_style = space
+
 [*.bat]
 end_of_line = crlf
 charset = Shift_JIS

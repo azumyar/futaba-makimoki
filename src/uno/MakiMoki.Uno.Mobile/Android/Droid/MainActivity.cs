@@ -14,7 +14,7 @@ using Windows.UI.Xaml.Media;
 
 using AndroidX.AppCompat.App;
 
-namespace MakiMoki.Uno.Droid {
+namespace Yarukizero.Net.MakiMoki.Uno.Droid {
 	[Activity(
 			MainLauncher = true,
 			ConfigurationChanges = global::Uno.UI.ActivityHelper.AllConfigChanges,

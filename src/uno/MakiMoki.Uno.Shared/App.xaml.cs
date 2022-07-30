@@ -16,8 +16,9 @@ using Windows.UI.Xaml.Navigation;
 using Prism.Unity;
 using Windows.ApplicationModel;
 using Prism.Ioc;
+using Windows.ApplicationModel.Activation;
 
-namespace MakiMoki.Uno {
+namespace Yarukizero.Net.MakiMoki.Uno {
 	public sealed partial class App : PrismApplication {
 		public App() {
 			this.InitializeComponent();
@@ -30,6 +31,20 @@ namespace MakiMoki.Uno {
 		protected override void RegisterTypes(IContainerRegistry containerRegistry) {
 			containerRegistry.RegisterForNavigation<Views.Shell>();
 		}
+
+		protected override void OnInitialized() {
+			base.OnInitialized();
+
+			this.DoInitilize();
+		}
+		partial void DoInitilize();
+
+		protected override void OnLaunched(LaunchActivatedEventArgs args) {
+			base.OnLaunched(args);
+			this.DoLunch();
+		}
+
+		partial void DoLunch();
 
 		protected override void OnSuspending(SuspendingEventArgs e) {
 			var deferral = e.SuspendingOperation.GetDeferral();
