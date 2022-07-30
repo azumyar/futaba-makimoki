@@ -1,3 +1,4 @@
+using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,6 +68,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					}
 				}
 			};
+		}
+
+		private void OnContentUnloaded(object sender, RoutedEventArgs e) {
+			if(sender is FrameworkElement o) {
+				static void del(DependencyObject o, Action<DependencyObject> act) {
+					foreach(var child in LogicalTreeHelper.GetChildren(o)) {
+						if(child is DependencyObject) {
+							del(child as DependencyObject, act);
+						}
+					}
+					act(o);
+				}
+
+				del(o, x => BindingOperations.ClearAllBindings(x));
+				if(o.DataContext != null) {
+					ViewModels.MainWindowViewModel.Messenger.Instance
+						.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.WpfBugMessage>>()
+						.Publish(new ViewModels.MainWindowViewModel.WpfBugMessage(o));
+				}
+			}
 		}
 	}
 }

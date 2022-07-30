@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 	public class Canvas98Bookmarklet : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2021080700;
+		public static int CurrentVersion { get; } = 2022060100;
 
 		[JsonProperty("bookmarklet", Required = Required.Always)]
 		public string Bookmarklet { get; private set; }
@@ -17,7 +17,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 		public string BookmarkletAlbam { get; private set; }
 		[JsonProperty("bookmarklet-menu", Required = Required.Always)]
 		public string BookmarkletMenu { get; private set; }
-
+		[JsonProperty("bookmarklet-timelapse", Required = Required.Always)]
+		public string BookmarkletTimelapse { get; private set; }
 
 
 		[JsonIgnore]
@@ -26,6 +27,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 		private string[] CacheExtendScripts { get; set; }
 		[JsonIgnore]
 		private string CacheScriptAlbam { get; set; }
+		[JsonIgnore]
+		private string CacheScriptTimelapse { get; set; }
 
 		[JsonIgnore]
 		public string Script {
@@ -57,6 +60,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 			}
 		}
 
+		[JsonIgnore]
+		public string ScriptTimelapse {
+			get {
+				if(this.CacheScriptTimelapse != null) {
+					return this.CacheScriptTimelapse;
+				}
+
+				if(this.BookmarkletTimelapse == null) {
+					return this.CacheScriptTimelapse = "";
+				}
+
+				return this.CacheScriptTimelapse = RemovePrefix(this.BookmarkletTimelapse);
+			}
+		}
 
 		[JsonIgnore]
 		public string[] ExtendScripts {
@@ -84,7 +101,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 			string bookmarklet,
 			string bookmarkletLayer = null,
 			string bookmarkletAlbam = null,
-			string bookmarkletMenu = null) {
+			string bookmarkletMenu = null,
+			string bookmarkletTimelapse = null) {
 
 			return new Canvas98Bookmarklet() {
 				Version = CurrentVersion,
@@ -92,6 +110,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 				BookmarkletLayer = bookmarkletLayer ?? "",
 				BookmarkletAlbam = bookmarkletAlbam ?? "",
 				BookmarkletMenu = bookmarkletMenu ?? "",
+				BookmarkletTimelapse = bookmarkletTimelapse ?? "",
 			};
 		}
 	}

@@ -87,11 +87,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						.Select(y => y.Ext)
 						.ToArray();
 					if(imageExt.Contains(ext)) {
-						return WpfUtil.ImageUtil.CreateImage(							
+						return WpfUtil.ImageUtil.CreateImage(
+							x,
 							WpfUtil.ImageUtil.LoadStream(x));
 					} else if(movieExt.Contains(ext)) {
-						// 動画は今は何もしない
-						// TODO: なんんか実装する
+						return WpfUtil.MediaFoundationUtil.CreateThumbnail(x);
 					}
 				}
 				return null;

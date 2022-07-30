@@ -97,7 +97,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			remove { RemoveHandler(VideoViewPositionChangedEvent, value); }
 		}
 
-		private readonly Helpers.AutoDisposable disposable;
+#pragma warning disable CS0067
+		private IDisposable ViewerCloseSubscriber { get; }
+		private IDisposable VideoLoadSubscriber { get; }
+		private IDisposable VideoPlaySubscriber { get; }
+		private IDisposable VideoPauseSubscriber { get; }
+		private IDisposable VideoStopSubscriber { get; }
+		private IDisposable VideoPositionSubscriber { get; }
+#pragma warning restore CS0067
 		private volatile bool isDisposed = false;
 
 		public FutabaMediaViewer() {
@@ -117,86 +124,92 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				.ObserveOn(UIDispatcherScheduler.Default);
 			}
 
-			disposable = new Helpers.AutoDisposable()
-				.Add(ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
-					.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.ViewerCloseMessage>>()
-					.Subscribe(x => {
-						lock(this.VideoView) {
-							if(!this.isDisposed && this.IsThisMedia(x.Media)) {
-								this.isDisposed = true;
-								GetMediaPlayer()
-									.Finally(() => {
-										//this.VideoView.MediaPlayer.Dispose();
-										this.VideoView.Dispose();
-										disposable.Dispose();
-										Helpers.AutoDisposable.GetCompositeDisposable(this.DataContext).Dispose();
-									}).Subscribe(y => {
-										if(y.IsPlaying) {
-											y.Stop();
-										}
-									});
-							}
-						}
-					})
-				).Add(ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
-					.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoLoadMessage>>()
-					.Subscribe(x => {
-						lock(this.VideoView) {
-							if(!this.isDisposed && this.IsThisMedia(x.Media)) {
-								GetMediaPlayer().Subscribe(y => {
-									y.Play(new LibVLCSharp.Shared.Media(
-										(Application.Current as App).LibVLC,
-										x.Path,
-										LibVLCSharp.Shared.FromType.FromPath));
+			this.ViewerCloseSubscriber = ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.ViewerCloseMessage>>()
+				.Subscribe(async x => {
+					if(!this.isDisposed && this.IsThisMedia(x.Media)) {
+						BindingOperations.ClearBinding(this.image, WpfAnimatedGif.ImageBehavior.AnimatedSourceProperty);
+						WpfAnimatedGif.ImageBehavior.SetAnimatedSource(this.image, null);
+						this.image.Source = null;
+						this.image.UpdateLayout();
+						await Task.Yield();
+					}
+
+					lock(this.VideoView) {
+						if(!this.isDisposed && this.IsThisMedia(x.Media)) {
+							this.isDisposed = true;
+							GetMediaPlayer()
+								.Finally(() => {
+									//this.VideoView.MediaPlayer.Dispose();
+									this.VideoView.Dispose();
+									Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
+									Helpers.AutoDisposable.GetCompositeDisposable(this.DataContext).Dispose();
+								}).Subscribe(y => {
+									if(y.IsPlaying) {
+										y.Stop();
+									}
 								});
-							}
 						}
-					})
-				).Add(ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
-					.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPlayMessage>>()
-					.Subscribe(x => {
-						lock(this.VideoView) {
-							if(!this.isDisposed && this.IsThisMedia(x.Media)) {
-								GetMediaPlayer().Subscribe(y => {
-									y.Play();
-								});
-							}
+					}
+				});
+			this.VideoLoadSubscriber = ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoLoadMessage>>()
+				.Subscribe(x => {
+					lock(this.VideoView) {
+						if(!this.isDisposed && this.IsThisMedia(x.Media)) {
+							GetMediaPlayer().Subscribe(y => {
+								y.Play(new LibVLCSharp.Shared.Media(
+									(Application.Current as App).LibVLC,
+									x.Path,
+									LibVLCSharp.Shared.FromType.FromPath));
+							});
 						}
-					})
-				).Add(ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
-					.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPauseMessage>>()
-					.Subscribe(x => {
-						lock(this.VideoView) {
-							if(!this.isDisposed && this.IsThisMedia(x.Media)) {
-								GetMediaPlayer().Subscribe(y => {
-									y.Pause();
-								});
-							}
+					}
+				});
+			this.VideoPlaySubscriber = ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPlayMessage>>()
+				.Subscribe(x => {
+					lock(this.VideoView) {
+						if(!this.isDisposed && this.IsThisMedia(x.Media)) {
+							GetMediaPlayer().Subscribe(y => {
+								y.Play();
+							});
 						}
-					})
-				).Add(ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
-					.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoStopMessage>>()
-					.Subscribe(x => {
-						lock(this.VideoView) {
-							if(!this.isDisposed && this.IsThisMedia(x.Media)) {
-								GetMediaPlayer().Subscribe(y => {
-									y.Stop();
-								});
-							}
+					}
+				});
+			this.VideoPauseSubscriber = ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPauseMessage>>()
+				.Subscribe(x => {
+					lock(this.VideoView) {
+						if(!this.isDisposed && this.IsThisMedia(x.Media)) {
+							GetMediaPlayer().Subscribe(y => {
+								y.Pause();
+							});
 						}
-					})
-				).Add(ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
-					.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPositionMessage>>()
-					.Subscribe(x => {
-						lock(this.VideoView) {
-							if(!this.isDisposed && this.IsThisMedia(x.Media)) {
-								GetMediaPlayer().Subscribe(y => {
-									y.Position = x.Position;
-								});
-							}
+					}
+				});
+			this.VideoStopSubscriber = ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoStopMessage>>()
+				.Subscribe(x => {
+					lock(this.VideoView) {
+						if(!this.isDisposed && this.IsThisMedia(x.Media)) {
+							GetMediaPlayer().Subscribe(y => {
+								y.Stop();
+							});
 						}
-					})
-				);
+					}
+				});
+			this.VideoPositionSubscriber = ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoPositionMessage>>()
+				.Subscribe(x => {
+					lock(this.VideoView) {
+						if(!this.isDisposed && this.IsThisMedia(x.Media)) {
+							GetMediaPlayer().Subscribe(y => {
+								y.Position = x.Position;
+							});
+						}
+					}
+				});
 
 			this.Loaded += (sender, ev) => {
 				if(this.VideoView.MediaPlayer != null) {
@@ -206,7 +219,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				this.VideoView.MediaPlayer.Playing += (s, e) => {
 					Observable.Return(0)
 						.ObserveOn(UIDispatcherScheduler.Default)
-						.Subscribe(_ => this.SafeRaiseEvent(new RoutedEventArgs(VideoViewPlayingEvent)));
+						.Subscribe(_ => {
+							this.VideoView.Visibility = Visibility.Visible;
+							this.SafeRaiseEvent(new RoutedEventArgs(VideoViewPlayingEvent));
+						});
 				};
 				this.VideoView.MediaPlayer.Paused += (s, e) => {
 					Observable.Return(0)
@@ -217,27 +233,30 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					Observable.Return(0)
 						.ObserveOn(UIDispatcherScheduler.Default)
 						.Subscribe(_ => {
+							this.VideoView.Visibility= Visibility.Hidden;
 							this.SafeRaiseEvent(new RoutedEventArgs(VideoViewStoppedEvent));
 							// イベントが飛ばない
 							this.SafeRaiseEvent(new RoutedPositionEventArgs(0, VideoViewPositionChangedEvent));
 						});
 				};
 				this.VideoView.MediaPlayer.EndReached += (s, e) => {
-					Observable.Create<int>(async o => {
-						await Task.Delay(1); // これをいれると安定する気がする
-						o.OnNext(default);
-						o.OnCompleted();
-						return System.Reactive.Disposables.Disposable.Empty;
-					})
+					Observable.Return(this.VideoView)
+						.Delay(TimeSpan.FromMilliseconds(100)) // この時間に根拠はない
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Subscribe(x => {
+							if(!this.isDisposed) {
+								x.MediaPlayer?.Stop();
+							}
+							this.SafeRaiseEvent(new RoutedEventArgs(VideoViewEndReachedEvent));
+						});
+				};
+				this.VideoView.MediaPlayer.PositionChanged += (s, e) => {
+					Observable.Return(0)
 						.ObserveOn(UIDispatcherScheduler.Default)
 						.Subscribe(_ => {
-							this.SafeRaiseEvent(new RoutedEventArgs(VideoViewEndReachedEvent));
-							// イベントが飛ばない
-							this.SafeRaiseEvent(new RoutedPositionEventArgs(0, VideoViewPositionChangedEvent));
+							this.SafeRaiseEvent(new RoutedPositionEventArgs(e.Position, VideoViewPositionChangedEvent));
 						});
-
 				};
-				this.VideoView.MediaPlayer.PositionChanged += (s, e) => this.Dispatcher.Invoke(() => this.SafeRaiseEvent(new RoutedPositionEventArgs(e.Position, VideoViewPositionChangedEvent)));
 			};
 		}
 

@@ -27,11 +27,12 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/Material.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
             </ResourceDictionary.MergedDictionaries>
- 
+
             <sys:Double x:Key="DefaultMinWidth">360</sys:Double>
+            <sys:Double x:Key="DefaultMaxWidth">480</sys:Double>
         </ResourceDictionary>
     </UserControl.Resources>
     <i:Interaction.Triggers>
@@ -65,10 +66,10 @@
         DataContext="{Binding Contents, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}"
         >
         <TextBlock.Foreground>
-            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+            <SolidColorBrush Color="{DynamicResource MakimokiForegroundColor}" />
         </TextBlock.Foreground>
         <Border.Background>
-            <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+            <SolidColorBrush Color="{DynamicResource MakimokiBackgroundColor}" />
         </Border.Background>
         <Border.BorderBrush>
             <SolidColorBrush Color="{DynamicResource ViewerBorderColor}" />
@@ -105,11 +106,12 @@
                 <StackPanel
                     Orientation="Vertical"
                     TextBlock.FontFamily="{DynamicResource PostFont}"
-                    TextBlock.FontSize="{DynamicResource PostFontSize}">
+                    TextBlock.FontSize="{DynamicResource PostFontSize}"
+                    TextBlock.FontWeight="{DynamicResource PostFontWeight}"> <!-- プレースフォルダにも影響する -->
                     <local:MakiMokiTextBox 
                         x:Name="PostCommentTextBox"
                         AcceptsReturn="True"
-                        Margin="0 4 0 4" Padding="1"
+                        Margin="0,8,0,8" Padding="1"
                         HorizontalAlignment="Left"
                         HorizontalContentAlignment="Left"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
@@ -134,23 +136,24 @@
                         <TextBlock Margin="2 2 0 2" Text="{Binding CommentLines.Value, StringFormat='\{0\}行', Mode=OneWay}" />
                     </StackPanel>
                     <Grid Visibility="Collapsed">
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                            <TextBlock
-                                Margin="0 4 0 4"
-                                Text="{Binding ImageName.Value, Mode=OneWay}" />
-                            <Viewbox Width="128" Height="128"  StretchDirection="DownOnly">
-                                <Image 
-                                    Source="{Binding ImagePreview.Value, Mode=OneWay}"
-                                    RenderOptions.EdgeMode="Aliased"
-                                    RenderOptions.BitmapScalingMode="Fant">
-                                    <Image.CacheMode>
-                                        <BitmapCache RenderAtScale="1" />
-                                    </Image.CacheMode>
-                                </Image>
-                            </Viewbox>
-                        </StackPanel>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="128" />
+                        </Grid.RowDefinitions>
+                        <TextBlock
+                            Grid.Column="0" Grid.Row="0"
+                            Margin="0,4,0,4"
+                            Text="{Binding ImageName.Value, Mode=OneWay}" />
                         <Button
+                            Grid.Column="1" Grid.Row="0"
+                            Style="{StaticResource MaterialButton}"
+                            Width="24" Height="24"
                             Margin="4"
+                            Padding="2"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Top"
                             FontFamily="Marlett"
@@ -161,6 +164,23 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
+                        <Viewbox
+                            Grid.Column="0" Grid.ColumnSpan="2"
+                            Grid.Row="1"
+                            Width="128"
+                            StretchDirection="DownOnly"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                            <Image 
+                                Source="{Binding ImagePreview.Value, Mode=OneWay}"
+                                RenderOptions.EdgeMode="Aliased"
+                                RenderOptions.BitmapScalingMode="Fant">
+                                <Image.CacheMode>
+                                    <BitmapCache RenderAtScale="1" />
+                                </Image.CacheMode>
+                            </Image>
+                        </Viewbox>
+
                         <i:Interaction.Triggers>
                             <i:DataTrigger Binding="{Binding ImagePath.Value.Length, Mode=OneWay}" Value="0" Comparison="Equal">
                                 <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
@@ -171,7 +191,7 @@
                         </i:Interaction.Triggers>
                     </Grid>
                     <local:MakiMokiTextBox
-                        Margin="0 4 0 4" Padding="1"
+                        Margin="0,8,0,8" Padding="1"
                         Visibility="{Binding PostNameVisibility.Value, Mode=OneWay}"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
                         AcceptsReturn="False"
@@ -184,7 +204,7 @@
                         </i:Interaction.Behaviors>
                     </local:MakiMokiTextBox>
                     <local:MakiMokiTextBox 
-                        Margin="0 4 0 4" Padding="1"
+                        Margin="0,8,0,8" Padding="1"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
                         AcceptsReturn="False"
                         local:PlaceHolderBehavior.PlaceHolderText="メールアドレス">
@@ -196,7 +216,12 @@
                         </i:Interaction.Behaviors>
                     </local:MakiMokiTextBox>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Height="32" Margin="4 0 0 0" Visibility="{Binding PostIdOptionVisibility.Value, Mode=OneWay}">
+                        <Button
+                            Style="{StaticResource MaterialButton}"
+                            Height="32"
+                            Margin="4 0 0 0"
+                            FontSize="11"
+                            Visibility="{Binding PostIdOptionVisibility.Value, Mode=OneWay}">
                             <Button.Content>
                                 ID表示
                             </Button.Content>
@@ -209,7 +234,12 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
-                        <Button Height="32" Margin="4 0 0 0" Visibility="{Binding PostIpOptionVisibility.Value, Mode=OneWay}">
+                        <Button
+                            Style="{StaticResource MaterialButton}"
+                            Height="32"
+                            Margin="4 0 0 0"
+                            FontSize="11"
+                            Visibility="{Binding PostIpOptionVisibility.Value, Mode=OneWay}">
                             <Button.Content>
                                 IP表示
                             </Button.Content>
@@ -222,7 +252,11 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
-                        <Button Height="32" Margin="4 0 0 0">
+                        <Button
+                            Style="{StaticResource MaterialButton}"
+                            Height="32"
+                            FontSize="11"
+                            Margin="4 0 0 0">
                             <Button.Content>
                                 sage
                             </Button.Content>
@@ -237,7 +271,7 @@
                         </Button>
                     </StackPanel>
                     <local:MakiMokiTextBox 
-                        Margin="0 4 0 4" Padding="1"
+                        Margin="0,8,0,8" Padding="1"
                         Visibility="{Binding PostNameVisibility.Value, Mode=OneWay}"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
                         AcceptsReturn="False"
@@ -250,7 +284,7 @@
                         </i:Interaction.Behaviors>
                     </local:MakiMokiTextBox>
                     <local:MakiMokiTextBox
-                        Margin="0 4 0 4" Padding="1"
+                        Margin="0,8,0,8" Padding="1"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
                         AcceptsReturn="False"
                         local:PlaceHolderBehavior.PlaceHolderText="削除キー(必須)">
@@ -265,12 +299,18 @@
             </ScrollViewer>
             <Border
                 Grid.Column="0" Grid.ColumnSpan="3"
-                Grid.Row="2">
+                Grid.Row="2"
+                Padding="0,2,0,2">
                 <Border.Background>
                     <SolidColorBrush Color="{DynamicResource ViewerPrimaryColor}" />
                 </Border.Background>
                 <StackPanel Orientation="Horizontal">
-                    <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconPostSend}" Command="{Binding PostButtonCommand}">
+                    <Button
+                        Style="{StaticResource MaterialButton}" 
+                        Width="32" Height="32"
+                        Padding="2"
+                        Content="{StaticResource ButtonIconPostSend}"
+                        Command="{Binding PostButtonCommand}">
                         <Button.ToolTip>
                             <ToolTip Content="投稿" />
                         </Button.ToolTip>
@@ -281,7 +321,9 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button
-                        Style="{StaticResource PrimaryColorButton}"
+                        Style="{StaticResource MaterialButton}"
+                        Width="32" Height="32"
+                        Padding="2"
                         Content="{StaticResource ButtonIconPostImage}" AllowDrop="True" 
                         Visibility="{Binding PostImageVisibility.Value, Mode=OneWay}"
                         Tag="{Binding DataContext, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}">
@@ -312,7 +354,9 @@
                         </i:Interaction.Triggers>
                     </Button>
                     <Button 
-                        Style="{StaticResource PrimaryColorButton}"
+                        Style="{StaticResource MaterialButton}"
+                        Width="32" Height="32"
+                        Padding="2"
                         Content="{StaticResource ButtonIconPostUpload}"
                         AllowDrop="True"
                         Tag="{Binding DataContext, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:FutabaPostView}}">
@@ -342,7 +386,11 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconPostDelete}">
+                    <Button
+                        Style="{StaticResource MaterialButton}"
+                        Width="32" Height="32"
+                        Padding="2"
+                        Content="{StaticResource ButtonIconPostDelete}">
                         <Button.ToolTip>
                             <ToolTip Content="破棄" />
                         </Button.ToolTip>

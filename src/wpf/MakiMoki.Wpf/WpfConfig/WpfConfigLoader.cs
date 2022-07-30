@@ -67,7 +67,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 				if(File.Exists(Path.Combine(InitializedSetting.UserDirectory, GestureConfigFile))) {
 					Gesture = Util.FileUtil.LoadMigrate(
 						Path.Combine(InitializedSetting.UserDirectory, GestureConfigFile),
-						Gesture);
+						Gesture,
+						new Dictionary<int, Type>() {
+							{ PlatformData.Compat.GestureConfig2021020100.CurrentVersion, typeof(PlatformData.Compat.GestureConfig2021020100) },
+						});
 				}
 			}
 			UpdateStyle();

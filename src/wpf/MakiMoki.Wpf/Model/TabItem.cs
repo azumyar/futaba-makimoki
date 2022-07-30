@@ -45,6 +45,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			= new ReactiveProperty<Visibility>(Visibility.Collapsed);
 		public ReactiveProperty<Visibility> SearchButtonVisibility { get; }
 		public ReactiveProperty<GridLength> SearchColumnWidth { get; }
+		private ReactiveProperty<bool> IsEnabledFailsafeMistakePost { get; }
+		public ReactiveProperty<Visibility> FailsafeMistakePostVisibility { get; }
 
 		public ReactiveProperty<Prism.Regions.IRegion> Region { get; }
 
@@ -52,6 +54,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<int> LastRescount { get; }
 		private bool isActivated = false;
 		private IFutabaContainer container = null;
+		private readonly Action<PlatformData.WpfConfig> systemConfigNotifyAction;
 
 #pragma warning disable IDE0052
 		// AutoDisposableで使用する
@@ -91,8 +94,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					return;
 				}
 
-				if(res.ThumbSource.Value != null) {
-					this.ThumbSource.Value = res.ThumbSource.Value;
+				if(res.ThumbSource != null) {
+					this.ThumbSource.Value = res.ThumbSource;
 				}
 
 				if(!res.Raw.Value.ResItem.Res.IsHavedImage) {
@@ -100,10 +103,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				}
 
 				Util.Futaba.GetThumbImage(this.Url, res.Raw.Value.ResItem.Res)
-					.Select(x => x.Successed ? WpfUtil.ImageUtil.LoadStream(x.LocalPath, x.FileBytes) : null)
+					.Select(x => x.Successed 
+						? (Path: x.LocalPath, Stream: WpfUtil.ImageUtil.LoadStream(x.LocalPath, x.FileBytes)) : (null, null))
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
-						this.ThumbSource.Value = WpfUtil.ImageUtil.CreateImage(x);
+						this.ThumbSource.Value = WpfUtil.ImageUtil.CreateImage(x.Path, x.Stream);
 					});
 			});
 			this.ThumbVisibility = this.ThumbSource
@@ -118,8 +122,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				.ToReactiveProperty();
 
 			this.LastDisplayTime = this.LastDisplayTimeProperty.ToReadOnlyReactiveProperty();
+			this.IsEnabledFailsafeMistakePost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFailsafeMistakePost);
+			this.FailsafeMistakePostVisibility = IsEnabledFailsafeMistakePost
+				.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
+				.ToReactiveProperty();
 
 			this.Region = new ReactiveProperty<Prism.Regions.IRegion>();
+
+			this.systemConfigNotifyAction = (x) => {
+				IsEnabledFailsafeMistakePost.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFailsafeMistakePost;
+			};
+			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(systemConfigNotifyAction);
 		}
 
 		public void Dispose() {

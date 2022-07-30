@@ -1,30 +1,33 @@
-<Window x:Class="Yarukizero.Net.MakiMoki.Wpf.Windows.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
-        xmlns:prism="http://prismlibrary.com/"
-        xmlns:system="clr-namespace:System;assembly=mscorlib"
-        xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
-        xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
-        xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows"
-        xmlns:model="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Model"
-        xmlns:control="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
-        xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
-        xmlns:data="clr-namespace:Yarukizero.Net.MakiMoki.Data;assembly=MakiMoki.Core"
-        xmlns:util="clr-namespace:Yarukizero.Net.MakiMoki.Util;assembly=MakiMoki.Core"
-        mc:Ignorable="d"
-        prism:ViewModelLocator.AutoWireViewModel="True"
-        d:DesignHeight="450" d:DesignWidth="800"
-        Topmost="{Binding Topmost.Value, Mode=OneWay}"
-        control:InputBindingsBehavior.Source="{Binding KeyGestures.Value, Mode=OneWay}"
-        Title="ふたマキ">
+<Window
+    x:Class="Yarukizero.Net.MakiMoki.Wpf.Windows.MainWindow"
+    x:Name="_this"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:system="clr-namespace:System;assembly=mscorlib"
+    xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+    xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
+    xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Windows"
+    xmlns:model="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Model"
+    xmlns:control="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+    xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
+    xmlns:data="clr-namespace:Yarukizero.Net.MakiMoki.Data;assembly=MakiMoki.Core"
+    xmlns:util="clr-namespace:Yarukizero.Net.MakiMoki.Util;assembly=MakiMoki.Core"
+    mc:Ignorable="d"
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    d:DesignHeight="450" d:DesignWidth="800"
+    Topmost="{Binding Topmost.Value, Mode=OneWay}"
+    control:InputBindingsBehavior.Source="{Binding KeyGestures.Value, Mode=OneWay}"
+    FontFamily="Yu Gothic UI,Meiryo UI"
+    Title="ふたマキ">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/Material.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/TabButton.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converter:FutabaResItemVisibleConverter x:Key="FutabaResItemVisibleConverter"/>
@@ -34,8 +37,7 @@
             <converter:TabLastMenuItemConverter x:Key="TabLastMenuItemConverter" />
             <converter:ThreadDieOpacityConverter x:Key="ThreadDieOpacityConverter" />
             <converter:ThreadNewResVisibleConverter x:Key="ThreadNewResVisibleConverter" />
-            <converter:InformationItemConverter x:Key="InformationItemConverter" />
-            <converter:InformationObjectConverter x:Key="InformationObjectConverter" />
+            <converter:TabItemHilightConverter x:Key="TabItemHilightConverter" />
 
             <system:Double x:Key="WindowCaptionHeight">36</system:Double>
 
@@ -133,11 +135,14 @@
                                         <RowDefinition Height="4" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-                                    <Viewbox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Top">
-                                        <Canvas Width="1024" Height="1024" Opacity="0.6">
-                                            <Path Width="768" Height="512" Canvas.Left="128" Canvas.Top="352" Stretch="Fill" Fill="#FFFFFFFF" Data="F1 M 768,576C 682.866,576 569.422,543.679 528,498.924L 528,864L 496,864L 496,498.924C 454.578,543.679 341.133,576 256,576C 149.961,576 128,525.856 128,464C 128,402.144 149.961,352 256,352C 362.038,352 512,402.144 512,464C 512,402.144 661.961,352 768,352C 874.039,352 896,402.144 896,464C 896,525.856 874.039,576 768,576 Z M 512,464L 511.993,464.75L 512.007,464.75C 512.002,464.5 512,464.25 512,464 Z "/>
-                                        </Canvas>
-                                    </Viewbox>
+                                    <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Width="32" Height="32">
+                                        <Viewbox Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="-4,-4,0,0">
+                                            <Canvas Width="1024" Height="1024" Opacity="0.6">
+                                                <Path Width="768" Height="704" Canvas.Left="128" Canvas.Top="160" Stretch="Fill" Fill="#FFFFFFFF" Data="M 640,272C 597.333,288 554.667,320 512,352L 512,384C 554.667,352 597.333,320 640,304C 682.667,288 725.333,288 768,288L 768,256C 725.333,256 682.667,256 640,272 Z M 330.667,272C 373.333,288 426.667,320 480,352L 480,320C 426.667,288 373.333,256 330.667,240C 288,224 256,224 224,224L 224,256C 256,256 288,256 330.667,272 Z M 288,544L 480,544L 480,437.259C 422.181,466.931 335.806,480 266.667,480C 151.791,480 128,443.921 128,355.556C 128,267.19 151.791,160 266.667,160C 356.509,160 475.455,225.564 523.029,296.409C 559.537,227.689 679.178,160 768,160C 874.038,160 896,256.472 896,336C 896,415.529 874.038,448 768,448C 692.155,448 593.84,431.388 544,392.827L 544,544L 736,544L 736,640L 608,832L 608,864L 416,864L 416,832L 288,640L 288,544 Z "/>
+                                            </Canvas>
+                                        </Viewbox>
+                                    </Border>
+
 
                                     <ScrollViewer
                                         x:Name="scrollViewer"
@@ -162,36 +167,60 @@
                                     <RepeatButton
                                         x:Name="leftButton"
                                         Grid.Column="1" Grid.Row="3"
-                                        Style="{StaticResource PrimaryColorRepeatButton}"
+                                        Style="{StaticResource MaterialRepeatButton}"
+                                        Width="32" Height="32"
+                                        Margin="2"
+                                        Padding="2"
                                         VerticalAlignment="Center"
                                         Content="▲"
                                         CommandTarget="{Binding ElementName=scrollViewer}"
                                         Command="ScrollBar.LineUpCommand"
-                                        Visibility="Hidden" />
+                                        Visibility="Hidden">
+                                        <RepeatButton.Background>
+                                            <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                                        </RepeatButton.Background>
+                                    </RepeatButton>
                                     <RepeatButton
                                         x:Name="rightButton"
                                         Grid.Column="1" Grid.Row="4"
-                                        Style="{StaticResource PrimaryColorRepeatButton}"
+                                        Style="{StaticResource MaterialRepeatButton}"
+                                        Width="32" Height="32"
+                                        Margin="2"
+                                        Padding="2"
                                         VerticalAlignment="Center"
                                         Content="▼"
                                         CommandTarget="{Binding ElementName=scrollViewer}"
                                         Command="ScrollBar.LineDownCommand"
-                                        Visibility="Hidden" />
+                                        Visibility="Hidden">
+                                        <RepeatButton.Background>
+                                            <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                                        </RepeatButton.Background>
+                                    </RepeatButton>
                                     <StackPanel Grid.Column="1" Grid.Row="6" Orientation="Vertical">
                                         <!-- デバッグ用 -->
                                         <Button
-                                            Style="{StaticResource PrimaryColorButton}"
+                                            Style="{StaticResource MaterialButton}"
+                                            Width="32" Height="32"
+                                            Padding="2"
                                             Content="GC"
                                             Visibility="Collapsed"
                                             Loaded="OnLoadedGC"
-                                            Click="OnClickGC"
-                                            />
+                                            Click="OnClickGC">
+                                            <Button.Background>
+                                                <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                                            </Button.Background>
+                                        </Button>
 
                                         <Button
                                             x:Name="bordButton"
-                                            Style="{StaticResource PrimaryColorButton}"
+                                            Style="{StaticResource MaterialButton}"
+                                            Width="32" Height="32"
+                                            Padding="2"
                                             Tag="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"
                                             Content="{StaticResource ButtonIconWindowBordList}">
+                                            <Button.Background>
+                                                <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                                            </Button.Background>
                                             <Button.Resources>
                                                 <ContextMenu
                                                     x:Key="ContextMenu"
@@ -200,7 +229,7 @@
                                                     VerticalOffset="4" HorizontalOffset="0"
                                                     Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
                                                     <ContextMenu.ItemContainerStyle>
-                                                        <Style TargetType="MenuItem">
+                                                        <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialMenuItem}">
                                                             <Setter Property="Header" Value="{Binding Name}" />
                                                             <Setter Property="Command" Value="{Binding Tag.BoardOpenCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
                                                             <Setter Property="CommandParameter" Value="{Binding}" />
@@ -225,7 +254,14 @@
                                                 </i:EventTrigger>
                                             </i:Interaction.Triggers>
                                         </Button>
-                                        <Button Style="{StaticResource PrimaryColorButton}" Content="{StaticResource ButtonIconWindowConfig}">
+                                        <Button
+                                            Style="{StaticResource MaterialButton}"
+                                            Width="32" Height="32"
+                                            Padding="2"
+                                            Content="{StaticResource ButtonIconWindowConfig}">
+                                            <Button.Background>
+                                                <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                                            </Button.Background>
                                             <Button.ToolTip>
                                                 <ToolTip Content="設定" />
                                             </Button.ToolTip>
@@ -279,11 +315,19 @@
                                 Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                Padding="{TemplateBinding Padding}"
                                 MinHeight="64"
                                 MaxHeight="164"
                                 VerticalAlignment="Bottom"
                                 >
+                                <Border.Resources>
+                                    <Storyboard x:Key="TabHighlightStoryboard">
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(UIElement.Opacity)"
+                                            Storyboard.TargetName="White">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.0" Value="0.1"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </Border.Resources>
                                 <Border.Height>
                                     <MultiBinding Converter="{StaticResource TabItemWidthConverter}">
                                         <MultiBinding.Bindings>
@@ -294,36 +338,63 @@
                                         </MultiBinding.Bindings>
                                     </MultiBinding>
                                 </Border.Height>
-                                <Grid Background="Transparent">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-                                    <ContentPresenter 
-                                        Grid.Row="0"
-                                        Margin="0 4 0 4"
-                                        ContentSource="Header" 
-                                        HorizontalAlignment="Stretch" 
-                                        VerticalAlignment="Stretch"
-                                        ClipToBounds="True"/>
-                                    <Button
-                                        Grid.Row="1"
-                                        Style="{StaticResource TabCloseButton}"
-                                        Background="{Binding Background, Mode=OneWay, ElementName=TabItemBorder}"
-                                        Visibility="Collapsed">
-                                        <i:Interaction.Triggers>
-                                            <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="False">
-                                                <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
-                                            </i:DataTrigger>
-                                            <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="True">
-                                                <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
-                                            </i:DataTrigger>
-                                            <i:EventTrigger EventName="Click">
-                                                <ri:EventToReactiveCommand Command="{Binding DataContext.TabCloseClickButtonCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </Button>
+                                <Grid>
+                                    <Grid Background="Transparent" Margin="{TemplateBinding Padding}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <ContentPresenter 
+                                            Grid.Row="0"
+                                            Margin="0 4 0 4"
+                                            ContentSource="Header" 
+                                            HorizontalAlignment="Stretch" 
+                                            VerticalAlignment="Stretch"
+                                            ClipToBounds="True"/>
+                                        <Button
+                                            Grid.Row="1"
+                                            Style="{StaticResource TabCloseButton}"
+                                            Visibility="Collapsed">
+                                            <i:Interaction.Triggers>
+                                                <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="False">
+                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
+                                                </i:DataTrigger>
+                                                <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="True">
+                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
+                                                </i:DataTrigger>
+                                                <i:EventTrigger EventName="Click">
+                                                    <ri:EventToReactiveCommand Command="{Binding DataContext.TabCloseClickButtonCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Button>
+                                    </Grid>
+                                    <Border
+                                        x:Name="White"
+                                        Background="White"
+                                        CornerRadius="6,0,0,6"
+                                        Opacity="0"
+                                        IsHitTestVisible="False"
+                                        />
+
                                     <i:Interaction.Triggers>
+                                        <i:DataTrigger Value="True">
+                                            <i:DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource TabItemHilightConverter}">
+                                                    <Binding Path="IsSelected" RelativeSource="{RelativeSource FindAncestor, AncestorType=TabItem}" />
+                                                    <Binding Path="IsMouseOver" RelativeSource="{RelativeSource FindAncestor, AncestorType=TabItem}" />
+                                                </MultiBinding>
+                                            </i:DataTrigger.Binding>
+                                            <i:ControlStoryboardAction Storyboard="{StaticResource TabHighlightStoryboard}" ControlStoryboardOption="Play" />
+                                        </i:DataTrigger>
+                                        <i:DataTrigger Value="False">
+                                            <i:DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource TabItemHilightConverter}">
+                                                    <Binding Path="IsSelected" RelativeSource="{RelativeSource FindAncestor, AncestorType=TabItem}" />
+                                                    <Binding Path="IsMouseOver" RelativeSource="{RelativeSource FindAncestor, AncestorType=TabItem}" />
+                                                </MultiBinding>
+                                            </i:DataTrigger.Binding>
+                                            <i:ControlStoryboardAction Storyboard="{StaticResource TabHighlightStoryboard}" ControlStoryboardOption="Stop" />
+                                        </i:DataTrigger>
                                         <i:EventTrigger EventName="PreviewMouseUp">
                                             <ri:EventToReactiveCommand Command="{Binding DataContext.TabClickCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" />
                                         </i:EventTrigger>
@@ -384,7 +455,7 @@
                                         <ColumnDefinition Width="32" />
                                         <ColumnDefinition Width="32" />
                                         <ColumnDefinition Width="4" />
-                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="96" />
                                     </Grid.ColumnDefinitions>
                                     <ScrollViewer
                                         x:Name="scrollViewer" Grid.Column="1" CanContentScroll="True"
@@ -404,54 +475,40 @@
                                     </ScrollViewer>
                                     <RepeatButton
                                         x:Name="leftButton" Grid.Column="3"
-                                        Style="{StaticResource PrimaryColorRepeatButton}"
+                                        Style="{StaticResource MaterialRepeatButton}"
+                                        Width="32" Height="32"
+                                        Margin="2"
+                                        Padding="2"
                                         VerticalAlignment="Center"
                                         Content="◀"
                                         CommandTarget="{Binding ElementName=scrollViewer}"
                                         Command="ScrollBar.LineLeftCommand"
                                         Visibility="Hidden"
-                                        WindowChrome.IsHitTestVisibleInChrome="True"/>
+                                        WindowChrome.IsHitTestVisibleInChrome="True">
+                                        <RepeatButton.Background>
+                                            <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                                        </RepeatButton.Background>
+                                    </RepeatButton>
                                     <RepeatButton
                                         x:Name="rightButton" Grid.Column="4"
-                                        Style="{StaticResource PrimaryColorRepeatButton}"
+                                        Style="{StaticResource MaterialRepeatButton}"
+                                        Width="32" Height="32"
+                                        Margin="2"
+                                        Padding="2"
                                         VerticalAlignment="Center"
                                         Content="▶"
                                         CommandTarget="{Binding ElementName=scrollViewer}"
                                         Command="ScrollBar.LineRightCommand"
                                         Visibility="Hidden"
-                                        WindowChrome.IsHitTestVisibleInChrome="True"/>
-                                    <StackPanel Grid.Column="6" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
-                                        <Button Content="0" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
-                                        <Button Content="1" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MaximizeWindowCommand}">
-                                            <i:Interaction.Triggers>
-                                                <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
-                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
-                                                </i:DataTrigger>
-                                                <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
-                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
-                                                </i:DataTrigger>
-                                            </i:Interaction.Triggers>
-
-                                        </Button>
-                                        <Button Content="2" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.RestoreWindowCommand}">
-                                            <i:Interaction.Triggers>
-                                                <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
-                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
-                                                </i:DataTrigger>
-                                                <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
-                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
-                                                </i:DataTrigger>
-                                            </i:Interaction.Triggers>
-                                        </Button>
-                                        <Button Content="r" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.CloseWindowCommand}" />
-                                    </StackPanel>
+                                        WindowChrome.IsHitTestVisibleInChrome="True">
+                                        <RepeatButton.Background>
+                                            <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                                        </RepeatButton.Background>
+                                    </RepeatButton>
                                 </Grid>
 
                                 <Border
                                     Name="ContentPanel" Grid.Row="1"
-                                    BorderThickness="{TemplateBinding Border.BorderThickness}"
-                                    BorderBrush="{TemplateBinding Border.BorderBrush}"
-                                    Background="{TemplateBinding Panel.Background}"
                                     KeyboardNavigation.TabIndex="2"
                                     KeyboardNavigation.TabNavigation="Local"
                                     KeyboardNavigation.DirectionalNavigation="Contained">
@@ -463,11 +520,14 @@
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <Border
+                                            x:Name="ShrinkBorder"
                                             Grid.Column="0"
                                             Width="{Binding DataContext.Futaba.Value.FullScreenThreadContainerWidth.Value, RelativeSource={RelativeSource Self}}"
+                                            CornerRadius="{Binding Windows11CornerRadius, Mode=OneWay, ElementName=_this}"
                                             BorderThickness="0"
+                                            ClipToBounds="True"
                                             BorderBrush="Transparent"
-                                            >
+                                            Padding="2">
                                             <Border.Background>
                                                 <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                                             </Border.Background>
@@ -476,14 +536,13 @@
                                                     <SolidColorBrush Color="{DynamicResource WindowTabSelectedForegroundColor}" />
                                                 </TextBlock.Foreground>
                                                 <Button
-                                                    Style="{StaticResource ToolbarButton}"
+                                                    Style="{StaticResource MaterialTransparentButton}"
                                                     Content="{DynamicResource ButtonIconCatalogExpand}"
                                                     DataContext="{Binding DataContext.Futaba.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
-                                                    Width="32"
+                                                    HorizontalAlignment="Stretch"
+                                                    Width="Auto"
+                                                    MinWidth="0"
                                                     >
-                                                    <Button.Background>
-                                                        <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                                                    </Button.Background>
                                                     <Button.ToolTip>
                                                         <ToolTip Content="スレッド画面最大化解除" />
                                                     </Button.ToolTip>
@@ -494,14 +553,13 @@
                                                     </i:Interaction.Triggers>
                                                 </Button>
                                                 <Button
-                                                    Style="{StaticResource ToolbarButton}"
+                                                    Style="{StaticResource MaterialTransparentButton}"
                                                     Content="{DynamicResource ButtonIconViewerUpdate}"
                                                     DataContext="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=FutabaCatalogViewer}"
-                                                    Width="32"
+                                                    HorizontalAlignment="Stretch"
+                                                    Width="Auto"
+                                                    MinWidth="0"
                                                     >
-                                                    <Button.Background>
-                                                        <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                                                    </Button.Background>
                                                     <Button.ToolTip>
                                                         <ToolTip Content="更新" />
                                                     </Button.ToolTip>
@@ -519,26 +577,40 @@
                                             HorizontalAlignment="Stretch"
                                             Visibility="{Binding DataContext.Futaba.Value.FullScreenBorderVisibility.Value, RelativeSource={RelativeSource Self}}">
                                             <GridSplitter.Background>
-                                                <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                                                <SolidColorBrush Color="{DynamicResource WindowSplitterColor}" />
                                             </GridSplitter.Background>
                                         </GridSplitter>
-
+                                             
                                         <control:FutabaCatalogViewer
                                             x:Name="FutabaCatalogViewer"
                                             Grid.Column="1" Grid.ColumnSpan="{Binding DataContext.Futaba.Value.FullScreenSpan.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
+                                            CornerRadius="{Binding Windows11CornerRadius, Mode=OneWay, ElementName=_this}"
                                             Visibility="{Binding DataContext.Futaba.Value.FullScreenThreadCatalogVisibility.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
-                                            Contents="{TemplateBinding TabControl.DataContext}" />
+                                            Contents="{TemplateBinding TabControl.DataContext}">
+                                            <control:FutabaCatalogViewer.Background>
+                                                <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                                            </control:FutabaCatalogViewer.Background>
+                                        </control:FutabaCatalogViewer>
 
-                                        <ContentPresenter
+                                        <Border
                                             Grid.Column="{Binding DataContext.Futaba.Value.FullScreenThreadColumn.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
                                             Grid.ColumnSpan="{Binding DataContext.Futaba.Value.FullScreenThreadColumnSpan.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
                                             Visibility="{Binding DataContext.Futaba.Value.FullScreenCatalogVisibility.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}"
+                                            
+                                            >
+                                            <Border.Background>
+                                                <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+                                            </Border.Background>
+                                            <ContentPresenter
                                             ContentSource="SelectedContent"
                                             Content="{TemplateBinding TabControl.SelectedContent}"
                                             ContentTemplate="{TemplateBinding TabControl.SelectedContentTemplate}"
                                             ContentStringFormat="{TemplateBinding TabControl.SelectedContentStringFormat}"
                                             Margin="{TemplateBinding Control.Padding}"
                                             SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
+                                        </Border>
+
+
                                     </Grid>
                                 </Border>
                             </Grid>
@@ -564,12 +636,21 @@
                                 Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                Padding="{TemplateBinding Padding}"
                                 MinWidth="36"
                                 MaxWidth="164"
                                 Height="32"
                                 VerticalAlignment="Bottom"
+                                ClipToBounds="True"
                                 >
+                                <Border.Resources>
+                                    <Storyboard x:Key="TabHighlightStoryboard">
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(UIElement.Opacity)"
+                                            Storyboard.TargetName="White">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.0" Value="0.1"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </Border.Resources>
                                 <Border.Width>
                                     <MultiBinding Converter="{StaticResource TabItemWidthConverter}">
                                         <MultiBinding.Bindings>
@@ -580,35 +661,62 @@
                                         </MultiBinding.Bindings>
                                     </MultiBinding>
                                 </Border.Width>
-                                <Grid Background="Transparent">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <ContentPresenter 
-                                        Grid.Column="0"
-                                        ContentSource="Header" 
-                                        HorizontalAlignment="Stretch" 
-                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                        ClipToBounds="True"/>
-                                    <Button
-                                        Grid.Column="1"
-                                        Style="{StaticResource TabCloseButton}"
-                                        Background="{Binding Background, Mode=OneWay, ElementName=TabItemBorder}"
-                                        Visibility="Collapsed">
-                                        <i:Interaction.Triggers>
-                                            <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="False">
-                                                <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
-                                            </i:DataTrigger>
-                                            <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="True">
-                                                <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
-                                            </i:DataTrigger>
-                                            <i:EventTrigger EventName="Click">
-                                                <ri:EventToReactiveCommand Command="{Binding DataContext.TabCloseClickButtonCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </Button>
+                                <Grid>
+                                    <Grid Background="Transparent" Margin="{TemplateBinding Padding}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <ContentPresenter 
+                                            Grid.Column="0"
+                                            ContentSource="Header" 
+                                            HorizontalAlignment="Stretch" 
+                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                            ClipToBounds="True"/>
+                                        <Button
+                                            Grid.Column="1"
+                                            Style="{StaticResource TabCloseButton}"
+                                            Visibility="Collapsed">
+                                            <i:Interaction.Triggers>
+                                                <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="False">
+                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
+                                                </i:DataTrigger>
+                                                <i:DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType=TabItem}}" Value="True">
+                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
+                                                </i:DataTrigger>
+                                                <i:EventTrigger EventName="Click">
+                                                    <ri:EventToReactiveCommand Command="{Binding DataContext.TabCloseClickButtonCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Button>
+                                    </Grid>
+                                    <Border
+                                        x:Name="White"
+                                        Background="White"
+                                        CornerRadius="6,6,0,0"
+                                        Opacity="0"
+                                        IsHitTestVisible="False"
+                                        />
+
                                     <i:Interaction.Triggers>
+                                        <i:DataTrigger Value="True">
+                                            <i:DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource TabItemHilightConverter}">
+                                                    <Binding Path="IsSelected" RelativeSource="{RelativeSource FindAncestor, AncestorType=TabItem}" />
+                                                    <Binding Path="IsMouseOver" RelativeSource="{RelativeSource FindAncestor, AncestorType=TabItem}" />
+                                                </MultiBinding>
+                                            </i:DataTrigger.Binding>
+                                            <i:ControlStoryboardAction Storyboard="{StaticResource TabHighlightStoryboard}" ControlStoryboardOption="Play" />
+                                        </i:DataTrigger>
+                                        <i:DataTrigger Value="False">
+                                            <i:DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource TabItemHilightConverter}">
+                                                    <Binding Path="IsSelected" RelativeSource="{RelativeSource FindAncestor, AncestorType=TabItem}" />
+                                                    <Binding Path="IsMouseOver" RelativeSource="{RelativeSource FindAncestor, AncestorType=TabItem}" />
+                                                </MultiBinding>
+                                            </i:DataTrigger.Binding>
+                                            <i:ControlStoryboardAction Storyboard="{StaticResource TabHighlightStoryboard}" ControlStoryboardOption="Stop" />
+                                        </i:DataTrigger>
                                         <i:EventTrigger EventName="PreviewMouseUp">
                                             <ri:EventToReactiveCommand Command="{Binding DataContext.TabClickCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" />
                                         </i:EventTrigger>
@@ -643,27 +751,38 @@
                 </Setter>
             </Style>
 
-            <Style x:Key="CaptionButtonStyleKey" TargetType="{x:Type Button}">
+            <Style x:Key="CaptionButton" TargetType="{x:Type Button}" BasedOn="{StaticResource MaterialButton}">
                 <Setter Property="OverridesDefaultStyle" Value="True" />
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                    </Setter.Value>
+                </Setter>
+                <!--
                 <Setter Property="Foreground">
                     <Setter.Value>
                         <SolidColorBrush Color="{DynamicResource WindowTabForegroundColor}" />
                     </Setter.Value>
                 </Setter>
-                <Setter Property="FontFamily" Value="Marlett"/>
+                -->
                 <Setter Property="IsTabStop" Value="False"/>
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="VerticalAlignment" Value="Stretch" />
                 <Setter Property="HorizontalContentAlignment" Value="Center" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
-                <Setter Property="Margin" Value="2" />
-                <Setter Property="Padding" Value="1" />
+                <Setter Property="Margin" Value="0" />
+                <Setter Property="Padding" Value="2" />
                 <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="MinHeight" Value="0" />
+                <!--
                 <Setter Property="MinWidth" Value="{StaticResource WindowCaptionHeight}" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type Button}">
                             <Border x:Name="border" SnapsToDevicePixels="True">
                                 <Border.Background>
-                                    <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" Opacity="0" />
+                                    <SolidColorBrush Color="{DynamicResource MakimokiBackgroundColor}" Opacity="0" />
                                 </Border.Background>
                                 <VisualStateManager.VisualStateGroups>
                                     <VisualStateGroup x:Name="CommonStates">
@@ -702,7 +821,13 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
+                -->
                 <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            </Style>
+
+            <Style x:Key="CaptionButtonSymbol" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontFamily" Value="{DynamicResource MakimokiSymbolFont}"/>
+                <Setter Property="FontSize" Value="9"/>
             </Style>
         </ResourceDictionary>
     </Window.Resources>
@@ -727,32 +852,6 @@
                 DataContext="{DynamicResource WindowThreadTabDieOpacity}" />
             <Grid x:Name="PopupContainer" />
 
-            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
-                <Button Content="0" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
-                <Button Content="1" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.MaximizeWindowCommand}">
-                    <i:Interaction.Triggers>
-                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
-                            <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
-                        </i:DataTrigger>
-                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
-                            <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
-                        </i:DataTrigger>
-                    </i:Interaction.Triggers>
-
-                </Button>
-                <Button Content="2" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.RestoreWindowCommand}">
-                    <i:Interaction.Triggers>
-                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
-                            <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
-                        </i:DataTrigger>
-                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
-                            <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
-                        </i:DataTrigger>
-                    </i:Interaction.Triggers>
-                </Button>
-                <Button Content="r" Style="{DynamicResource CaptionButtonStyleKey}" Command="{x:Static SystemCommands.CloseWindowCommand}" />
-            </StackPanel>
-
             <!-- WPFバグ対策コンテナ -->
             <Grid
                 x:Name="BitmapRemoveConainer"
@@ -761,7 +860,7 @@
                 />
 
 
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="1" Visibility="{Binding StartUpVisibility.Value, Mode=OneWay}">
                 <Grid.ColumnDefinitions>
                 </Grid.ColumnDefinitions>
                 <ListBox
@@ -889,6 +988,9 @@
                 SelectedItem="{Binding Path=TabControlSelectedItem.Value,UpdateSourceTrigger=PropertyChanged,Mode=Twoway}"
                 TabStripPlacement="Left"
                 Padding="0">
+                <TabControl.Background>
+                    <SolidColorBrush Color="Transparent" />
+                </TabControl.Background>
                 <TabControl.ItemTemplate>
                     <DataTemplate>
                         <Grid
@@ -951,10 +1053,6 @@
                             ItemsSource="{Binding DataContext.Threads.Value, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"
                             SelectedItem="{Binding DataContext.ThreadTabSelectedItem.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}, UpdateSourceTrigger=PropertyChanged,Mode=Twoway}"
                             Padding="0">
-                            <TabControl.Background>
-                                <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
-                            </TabControl.Background>
-
                             <TabControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid
@@ -1023,13 +1121,6 @@
                                                 <Image.CacheMode>
                                                     <BitmapCache RenderAtScale="1" />
                                                 </Image.CacheMode>
-                                                <!--
-                                                <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="Loaded">
-                                                        <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
-                                                    </i:EventTrigger>
-                                                </i:Interaction.Triggers>
-                                                -->
                                             </Image>
                                         </Viewbox>
                                         <Ellipse
@@ -1063,7 +1154,40 @@
                             <TabControl.ContentTemplate>
                                 <DataTemplate>
                                     <Grid x:Name="container">
-                                        <control:FutabaThreadRegionContainer Contents="{Binding DataContext, Mode=OneWay, ElementName=container}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Viewbox
+                                            Grid.Row="1"
+                                            Grid.Column="1"
+                                            Margin="48"
+                                            Opacity="{DynamicResource FailsafeThreadImageOpacity}"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Bottom"
+                                            Visibility="{Binding FailsafeMistakePostVisibility.Value, Mode=OneWay}">
+                                            <Image
+                                                Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                                RenderOptions.EdgeMode="Aliased"
+                                                RenderOptions.BitmapScalingMode="Fant">
+                                                <Image.CacheMode>
+                                                    <BitmapCache RenderAtScale="1" />
+                                                </Image.CacheMode>
+                                                <Image.Effect>
+                                                    <BlurEffect Radius="{DynamicResource FailsafeThreadImageBlurRadius}" />
+                                                </Image.Effect>
+                                            </Image>
+                                        </Viewbox>
+
+                                        <control:FutabaThreadRegionContainer
+                                            Grid.Column="0" Grid.ColumnSpan="2"
+                                            Grid.Row="0" Grid.RowSpan="2"
+                                            Contents="{Binding DataContext, Mode=OneWay, ElementName=container}">
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="ContentsChanged">
                                                     <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
@@ -1078,39 +1202,102 @@
                 </TabControl.ContentTemplate>
             </TabControl>
 
+            <Grid Grid.Row="0" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="36" />
+                    <ColumnDefinition Width="36" />
+                    <ColumnDefinition Width="36" />
+                </Grid.ColumnDefinitions>
+                <Button
+                    Style="{StaticResource CaptionButton}"
+                    Grid.Column="0"
+                    Command="{x:Static SystemCommands.MinimizeWindowCommand}">
+                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="{StaticResource FontSymbolChromeMinimize}" />
+                </Button>
+                <Button
+                    x:Name="maximizeWindowButton"
+                    Style="{DynamicResource CaptionButton}"
+                    Grid.Column="1"
+                    Command="{x:Static SystemCommands.MaximizeWindowCommand}">
+                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="{StaticResource FontSymbolChromeMaximize}" />
+                    <i:Interaction.Triggers>
+                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
+                            <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
+                        </i:DataTrigger>
+                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
+                            <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
+                        </i:DataTrigger>
+                    </i:Interaction.Triggers>
+
+                </Button>
+                <Button
+                    x:Name="restoreWindowButton"
+                    Style="{StaticResource CaptionButton}"
+                    Grid.Column="1"
+                    Command="{x:Static SystemCommands.RestoreWindowCommand}">
+                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="{StaticResource FontSymbolChromeRestore}" />
+                    <i:Interaction.Triggers>
+                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="Equal">
+                            <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
+                        </i:DataTrigger>
+                        <i:DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}" Value="Normal" Comparison="NotEqual">
+                            <i:ChangePropertyAction PropertyName="Visibility" Value="Visible" />
+                        </i:DataTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button
+                    Style="{StaticResource CaptionButton}"
+                    Grid.Column="2"
+                    Command="{x:Static SystemCommands.CloseWindowCommand}">
+                    <TextBlock Style="{StaticResource CaptionButtonSymbol}" Text="{StaticResource FontSymbolChromeClose}" />
+                </Button>
+            </Grid>
+
+
             <ListBox
                 Grid.Row="1"
-                ItemsSource="{Binding Source={x:Static util:Futaba.Informations}, Mode=OneWay, Converter={StaticResource InformationItemConverter}}"
+                ItemsSource="{Binding Infomations.Value, Mode=OneWay}"
                 Background="Transparent"
                 BorderBrush="Transparent"
                 BorderThickness="0"
                 IsHitTestVisible="False"
                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.VirtualizationMode="Recycling"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 ScrollViewer.VerticalScrollBarVisibility="Disabled"
                 ScrollViewer.CanContentScroll="False">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel
+                            Orientation="Vertical"
+                            IsItemsHost="True" 
+                            UseLayoutRounding="False"
+                            HorizontalAlignment="Stretch"
+                            />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border Padding="8 0 8 8" IsHitTestVisible="False">
-                            <Grid MinWidth="{DynamicResource InformationMinWidth}" MinHeight="{DynamicResource InformationMinHeight}">
-                                <Grid.Background>
-                                    <SolidColorBrush Color="{DynamicResource InformationBackpoundColor}" />
-                                </Grid.Background>
-                                <TextBlock.Foreground>
-                                    <SolidColorBrush Color="{DynamicResource InformationForegroundColor}" />
-                                </TextBlock.Foreground>
-
+                        <Border
+                            CornerRadius="{Binding DataContext.InfomationCornerRadius.Value, Mode=OneWay, ElementName=_this}"
+                            Margin="0,0,8,0"
+                            IsHitTestVisible="False">
+                            <Border.Background>
+                                <SolidColorBrush Color="{DynamicResource InformationBackpoundColor}" />
+                            </Border.Background>
+                            <TextBlock.Foreground>
+                                <SolidColorBrush Color="{DynamicResource InformationForegroundColor}" />
+                            </TextBlock.Foreground>
+                            <Grid Margin="4" MinWidth="{DynamicResource InformationMinWidth}" MinHeight="{DynamicResource InformationMinHeight}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="4" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="4" />
                                 </Grid.ColumnDefinitions>
-                                <Border
-                                    Grid.RowSpan="3"
-                                    Grid.Column="0"
-                                    DataContext="{Binding ExObject, Mode=OneWay, Converter={StaticResource InformationObjectConverter}}">
-                                    <Grid Visibility="{Binding ObjectVisibility.Value, Mode=OneWay}">
+                                <Border Grid.RowSpan="3" Grid.Column="0">
+                                    <Grid Visibility="{Binding ExObject.ObjectVisibility.Value, Mode=OneWay}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="1" />
                                             <ColumnDefinition Width="Auto" />
@@ -1130,9 +1317,10 @@
                                             Stretch="Uniform"
                                             >
                                             <Image
-                                                Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                                Source="{Binding ExObject.ThumbSource.Value, Mode=OneWay}"
                                                 RenderOptions.EdgeMode="Aliased"
-                                                RenderOptions.BitmapScalingMode="Fant">
+                                                RenderOptions.BitmapScalingMode="Fant"
+                                                Unloaded="OnImageUnloaded">
                                                 <Image.CacheMode>
                                                     <BitmapCache RenderAtScale="1" />
                                                 </Image.CacheMode>
@@ -1145,14 +1333,49 @@
                                         ColorBlend="False"
                                         Text="{Binding Message, Mode=OneWay}"
                                         TextWrapping="Wrap"
-                                        FontFamily="{DynamicResource InformationFont}"
-                                        FontSize="{DynamicResource InformationFontSize}" />
+                                        FontFamily="{DynamicResource MakimokiMessageFont}"
+                                        FontSize="{DynamicResource InformationFontSize}"
+                                        FontWeight="{DynamicResource MakimokiMessageFontWeight}"/>
                                 </Border>
                             </Grid>
+
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Loaded">
+                                    <ri:EventToReactiveCommand Command="{Binding ExObject.LoadedCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
                         </Border>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
+
+            <Border
+                Grid.Row="1"
+                Visibility="{Binding TmpMouseGestureVisibility.Value, Mode=OneWay}"
+                Margin="4"
+                Padding="4"
+                CornerRadius="{Binding InfomationCornerRadius.Value, Mode=OneWay}"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom">
+                <Border.Background>
+                    <SolidColorBrush Color="{DynamicResource InformationBackpoundColor}" />
+                </Border.Background>
+                <TextBlock.Foreground>
+                    <SolidColorBrush Color="{DynamicResource InformationForegroundColor}" />
+                </TextBlock.Foreground>
+
+                <TextBlock Foreground="White">
+                    <Run FontSize="12" FontFamily="Segoe Fluent Icons,Segoe MDL2 Assets,Segoe UI Symbol" Text="{Binding TmpMouseGestureText.Value, Mode=OneWay}" />
+                    <Run FontSize="14" FontFamily="Yu Gothic UI,Meiryo UI" FontWeight="Medium" Text="{Binding TmpMouseGestureName.Value, Mode=OneWay}" />
+                </TextBlock>
+            </Border>
+
         </Grid>
     </Window.Content>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <ri:EventToReactiveCommand Command="{Binding LoadedCommand, Mode=OneWay}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
 </Window>

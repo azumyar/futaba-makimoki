@@ -24,8 +24,54 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 	/// MainWindow.xaml の相互作用ロジック
 	/// </summary>
 	public partial class MainWindow : Window {
+		public static readonly DependencyProperty Windows11CornerRadiusProperty
+			= DependencyProperty.Register(
+				nameof(Windows11CornerRadius),
+				typeof(CornerRadius),
+				typeof(MainWindow),
+				new PropertyMetadata(new CornerRadius()));
+		private WpfHelpers.FluentHelper.FluentSource source;
+
+		public CornerRadius Windows11CornerRadius {
+			get => (CornerRadius)this.GetValue(Windows11CornerRadiusProperty);
+			set { this.SetValue(Windows11CornerRadiusProperty, value); }
+		}
+
 		public MainWindow() {
 			InitializeComponent();
+
+			new WindowInteropHelper(GetWindow(this)).EnsureHandle(); // ウインドウハンドルを作る
+			this.source = WpfHelpers.FluentHelper.Attach(this);
+			WpfHelpers.FluentHelper.ApplyCompositionWindow(source);
+			if(App.OsCompat.IsWindows11Rtm) {
+				this.Windows11CornerRadius = new CornerRadius(4, 0, 0, 0);
+			}
+
+			this.Loaded += (_, _) => {
+				IntPtr wndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
+					if(App.OsCompat.IsWindows11Rtm) {
+						{
+							var r = this.Win11RoundHiteTestProc(hwnd, msg, wParam, lParam, ref handled);
+							if(handled) {
+								return r;
+							}
+						}
+
+						{
+							var r = this.Win11SnapLayoutProc(hwnd, msg, wParam, lParam, ref handled);
+							if(handled) {
+								return r;
+							}
+						}
+					}
+					return IntPtr.Zero;
+				}
+
+				var hs = HwndSource.FromHwnd(new WindowInteropHelper(GetWindow(this)).Handle);
+				hs.AddHook(new HwndSourceHook(wndProc));
+				hs.ContentRendered += (_, _) => {
+				};
+			};
 
 			ViewModels.MainWindowViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.CurrentCatalogChanged>>()
@@ -54,24 +100,72 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 			// WPF バグ対策 
 			// https://github.com/dotnet/wpf/issues/6091
 			ViewModels.MainWindowViewModel.Messenger.Instance
-				.GetEvent<PubSubEvent<System.Windows.FrameworkElement>>()
+				.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.WpfBugMessage>>()
 				.Subscribe(async x => {
+					// 現在は別アプローチで対策したので使っていない
+					return;
+
+					static async Task<(bool Sucessed, int? Index)> preRemove(FrameworkElement el) {
+						if(el is Panel p) {
+							var r = p.Children.IndexOf(el);
+							p.Children.Remove(el);
+							await Task.Yield();
+							return (true, r);
+						} else if(el is global::System.Windows.Controls.Decorator d) {
+							d.Child = null;
+							await Task.Yield();
+							return (true, null);
+						} if(el is Image) {
+							await Task.Yield();
+							return (true, null);
+						} else {
+							System.Diagnostics.Debug.WriteLine($"!!!!!!! 不明なWPFBugコンテナ { el.GetType() } !!!!!!!!");
+							await Task.Yield();
+							return (false, null);
+						}
+					}
+					static async Task remove(FrameworkElement el, Grid removeConainer) {
+						try {
+							removeConainer.Children.Add(el);
+							await Task.Yield();
+							el.UpdateLayout();
+							await Task.Yield();
+							removeConainer.Children.Remove(el);
+						}
+						catch(InvalidOperationException) { } // 再利用されるとくる再利用されて場合は多分リークしないので無視
+					}
+
 					System.Diagnostics.Debug.WriteLine("unload bag fix");
-					var p = x.Parent as Panel;
-					if(p != null) {
-						p.Children.Remove(x);
-						await Task.Yield();
-						x.DataContext = null;
-						this.BitmapRemoveConainer.Children.Add(x);
-						await Task.Yield();
-						x.UpdateLayout();
-						await Task.Yield();
-						this.BitmapRemoveConainer.Children.Remove(x);
-						//p.Children.Add(x);
+					if(x.Remove) {
+						var el = x.Element;
+						var r = await preRemove(el);
+						if(r.Sucessed) {
+							el.DataContext = null;						
+							await remove(el, this.BitmapRemoveConainer);
+						}
+					} else {
+						var el = x.Element;
+						if(el is Image im) {
+							var prt = im.Parent;
+							var r = await preRemove(el);
+							if(r.Sucessed) {
+								await remove(el, this.BitmapRemoveConainer);
+								if(el is Panel p && r.Index.HasValue) {
+									p.Children.Insert(r.Index.Value, el);
+									await Task.Yield();
+								} else if(el is global::System.Windows.Controls.Decorator d) {
+									d.Child = el;
+									await Task.Yield();
+								}
+							}
+						} else {
+							System.Diagnostics.Debug.WriteLine($"!!!!!!! 不明なWPFBugオブジェクト { x.GetType() } !!!!!!!!");
+							await Task.Yield();
+							return;
+						}
 					}
 				});
 		}
-
 
 		private void SystemCommandsCanExecute(object sender, CanExecuteRoutedEventArgs e) {
 			e.CanExecute = true;
@@ -122,6 +216,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows {
 			// テスト用強制GC
 			GC.Collect();
 			GC.WaitForPendingFinalizers();
+		}
+
+		private void OnImageUnloaded(object sender, RoutedEventArgs e) {
+			if(sender is FrameworkElement o) {
+				BindingOperations.ClearAllBindings(o);
+				if(o.DataContext != null) {
+					ViewModels.MainWindowViewModel.Messenger.Instance
+						.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.WpfBugMessage>>()
+						.Publish(new ViewModels.MainWindowViewModel.WpfBugMessage(o));
+				}
+			}
 		}
 	}
 }

@@ -96,7 +96,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 
 		private volatile static Dictionary<string, WeakReference<byte[]>> bitmapBytesDic
 			= new Dictionary<string, WeakReference<byte[]>>();
-		private static BitmapImage NgImage { get; set; } = null;
+		private volatile static Dictionary<string, WeakReference<BitmapSource>> bitmapBytesDic2
+			= new Dictionary<string, WeakReference<BitmapSource>>(); 
+		private static BitmapSource NgImage { get; set; } = null;
 
 		private static bool TryGetImage(string file, out byte[] image) {
 			lock(bitmapBytesDic) {
@@ -129,11 +131,49 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				}
 			}
 		}
-		public static BitmapImage GetNgImage() {
+
+		private static bool TryGetImage2(string file, out BitmapSource image) {
+			lock(bitmapBytesDic2) {
+				if(bitmapBytesDic2.TryGetValue(file, out var v)) {
+					if(v.TryGetTarget(out var b)) {
+						image = b;
+						return true;
+					}
+				}
+				image = null;
+				return false;
+			}
+		}
+
+		private static BitmapSource SetImage2(string file, BitmapSource image) {
+			lock(bitmapBytesDic) {
+				var r = new WeakReference<BitmapSource>(image);
+				if(bitmapBytesDic2.ContainsKey(file)) {
+					bitmapBytesDic2[file] = r;
+				} else {
+					bitmapBytesDic2.Add(file, r);
+				}
+
+				foreach(var k in bitmapBytesDic2
+					.Select(x => (Key: x.Key, Value: x.Value.TryGetTarget(out _)))
+					.Where(x => !x.Value)
+					.ToArray()) {
+
+					bitmapBytesDic2.Remove(k.Key);
+				}
+				System.Diagnostics.Debug.WriteLine($"キャッシュサイズ= {bitmapBytesDic2.Count}");
+				return image;
+			}
+		}
+
+
+
+		public static BitmapSource GetNgImage() {
 			if(NgImage == null) {
 				var asm = typeof(App).Assembly;
-				NgImage = CreateImage(asm.GetManifestResourceStream(
-					$"{ typeof(App).Namespace }.Resources.Images.NgImage.png"));
+				NgImage = new WriteableBitmap(
+					BitmapFrame.Create(asm.GetManifestResourceStream(
+						$"{ typeof(App).Namespace }.Resources.Images.NgImage.png")));
 			}
 			return NgImage;
 		}
@@ -152,7 +192,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			return null;
 		}
 
-		public static BitmapImage CreateImage(Stream stream) {
+		public static BitmapSource GetImageCache2(string path) {
+			if(TryGetImage2(path, out var b)) {
+				return b;
+			}
+			return null;
+		}
+
+		public static BitmapSource CreateImage(string file, Stream stream) {
 			if(stream == null) {
 				return null;
 			}
@@ -161,6 +208,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				return null;
 			}
 
+			if(TryGetImage2(file, out var b)) {
+				return b;
+			} else {
+				return SetImage2(file, new WriteableBitmap(BitmapFrame.Create(stream)));
+			}
+			/*
 			var bitmapImage = new BitmapImage();
 			try {
 				bitmapImage.BeginInit();
@@ -174,6 +227,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			catch(ArgumentException) { // 画像によってはエラー出てクラッシュするので対策
 				return null;
 			}
+			*/
+		}
+
+		public static BitmapSource CreateImage(string file, byte[] imageBytes) {
+			if(System.Windows.Threading.Dispatcher.CurrentDispatcher != System.Windows.Application.Current?.Dispatcher) {
+				System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!! UIスレッド外でのCreateImage !!!!!!!!!!!!!!!!!!!");
+				return null;
+			}
+
+			if(TryGetImage2(file, out var b)) {
+				return b;
+			} else {
+				var s = LoadStream(file, imageBytes);
+				return SetImage2(
+					file,
+					BitmapFrame.Create(s));
+			}
+
 		}
 
 		public static Stream LoadStream(string path, byte[] imageBytes = null) {
@@ -240,6 +311,87 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				s => { stream = s; sucessed = true; },
 				ex => { });
 			return (sucessed, stream);
+		}
+
+		// とりあえず用意しておく
+		public static IObservable<Stream> LoadStreamObservable(string path, byte[] imageBytes = null) {
+			return Observable.Create<Stream>(async o => {
+				static byte[] readStream(Stream stream) {
+					var l = new List<byte>(512);
+					var b = new byte[512];
+					while(true) {
+						var r = stream.Read(b);
+						if(0 < r) {
+							l.AddRange(b.Take(r));
+						} else {
+							break;
+						}
+					}
+					return l.ToArray();
+				}
+
+				try {
+					if(Path.GetExtension(path).ToLower() == ".webp") {
+						try {
+							static byte[] readData(string path, byte[] imageBytes) {
+								if(imageBytes != null) {
+									return imageBytes;
+								}
+								using var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+								return readStream(s);
+							}
+
+							var data = readData(path, imageBytes);
+							{
+								var w = 0;
+								var h = 0;
+								if(WebPGetInfo(data, (IntPtr)data.Length, ref w, ref h) == 0) {
+									throw new Exceptions.ImageLoadFailedException(GetErrorMessage(path));
+								}
+								var stride = w * 4;
+								var output = new byte[w * h * 4];
+								if(WebPDecodeBGRAInto(
+									data, (IntPtr)data.Length,
+									output, (IntPtr)output.Length,
+									stride) == IntPtr.Zero) {
+
+									o.OnError(new Exceptions.ImageLoadFailedException(GetErrorMessage(path)));
+								}
+
+								var wb = new WriteableBitmap(w, h, 96, 96, PixelFormats.Pbgra32, null);
+								wb.WritePixels(new System.Windows.Int32Rect(0, 0, w, h), output, stride, 0);
+
+								var ms = new MemoryStream();
+								var encoder = new PngBitmapEncoder();
+								encoder.Frames.Add(BitmapFrame.Create(wb));
+								encoder.Save(ms);
+								o.OnNext(ms);
+							}
+						}
+						catch(IOException e) {
+							await Task.Delay(500);
+							o.OnError(new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e));
+						}
+					} else {
+						if(imageBytes != null) {
+							o.OnNext(new ImageStream(imageBytes));
+						}
+
+						try {
+							using var s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+							o.OnNext(new ImageStream(readStream(s)));
+						}
+						catch(IOException e) {
+							await Task.Delay(500);
+							o.OnError(new Exceptions.ImageLoadFailedException(GetErrorMessage(path), e));
+						}
+					}
+				}
+				finally {
+					o.OnCompleted();
+				}
+				return System.Reactive.Disposables.Disposable.Empty;
+			}).Retry(5);
 		}
 
 		private static Stream LoadWebP(string path, byte[] imageBytes) {
@@ -348,6 +500,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			return string.Format("{0}の読み込みに失敗しました", Path.GetFileName(path));
 		}
 
+		public static byte[] CreatePixelsBytes(BitmapSource bitmapImage) {
+			if(System.Windows.Threading.Dispatcher.CurrentDispatcher != System.Windows.Application.Current?.Dispatcher) {
+				System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!! UIスレッド外でのCreateImage !!!!!!!!!!!!!!!!!!!");
+				return null;
+			}
+
+			var fcb = new FormatConvertedBitmap(bitmapImage, PixelFormats.Bgr32, null, 0);
+			var bytes = new byte[bitmapImage.PixelWidth * bitmapImage.PixelHeight * 4];
+			var stride = (bitmapImage.PixelWidth * bitmapImage.Format.BitsPerPixel + 7) / 8;
+			fcb.CopyPixels(bytes, stride, 0);
+			return bytes;
+		}
+
 		public static ulong CalculatePerceptualHash(BitmapSource bitmapImage) {
 #if true
 			var fcb = new FormatConvertedBitmap(bitmapImage, PixelFormats.Bgr32, null, 0);
@@ -393,24 +558,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 		}
 
-		public static Color GetMaterialSubColor(Color baseColor, PlatformData.StyleType styleType) {
+		public static Color GetMaterialSubColor(Color baseColor) {
 			var hsl = ToHsl(baseColor);
-			if(styleType == PlatformData.StyleType.Light) {
-				var l = Math.Max(hsl.Lightness - (0.05 * 2), 0);
-				var rgb = HslToRgb(hsl.Hue, hsl.Saturation, l);
-				return Color.FromArgb(baseColor.A, rgb.R, rgb.G, rgb.B);
-			} else {
-				var l = Math.Min(hsl.Lightness + (0.05 * 2), 1.0);
-				var rgb = HslToRgb(hsl.Hue, hsl.Saturation, l);
-				return Color.FromArgb(baseColor.A, rgb.R, rgb.G, rgb.B);
-			}
+			var l = Math.Max(hsl.Lightness - (0.05 * 2), 0);
+			var rgb = HslToRgb(hsl.Hue, hsl.Saturation, l);
+			return Color.FromArgb(baseColor.A, rgb.R, rgb.G, rgb.B);
 		}
 
-		public static Color GetTextColor(Color background, Color white, Color black, PlatformData.StyleType styleType, double threshold = 0.5) {
-			var w = (styleType == PlatformData.StyleType.Light) ? white : black;
-			var b = (styleType == PlatformData.StyleType.Light) ? black : white;
-
-			return (ToHsl(background).Lightness < threshold) ? w : b;
+		public static Color GetTextColor(Color background, Color white, Color black, double threshold = 0.5) {
+			return (ToHsl(background).Lightness < threshold) ? white : black;
 		}
 
 		public static (double H, double S, double V) ToHsv(Color c) {

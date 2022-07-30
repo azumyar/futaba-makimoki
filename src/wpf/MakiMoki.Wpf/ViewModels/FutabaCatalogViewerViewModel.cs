@@ -65,6 +65,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<MouseButtonEventArgs> CatalogItemClickCommand { get; } = new MakiMokiCommand<MouseButtonEventArgs>();
 		public MakiMokiCommand<MouseEventArgs> CatalogItemEnterCommand { get; } = new MakiMokiCommand<MouseEventArgs>();
 		public MakiMokiCommand<MouseEventArgs> CatalogItemLeaveCommand { get; } = new MakiMokiCommand<MouseEventArgs>();
+		public MakiMokiCommand<ScrollChangedEventArgs> CatalogScrollChangedCommand { get; } = new MakiMokiCommand<ScrollChangedEventArgs>();
 
 		public ReactiveProperty<Visibility> PostViewVisibility { get; }
 			= new ReactiveProperty<Visibility>(Visibility.Hidden);
@@ -86,6 +87,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<Model.BindableFutaba> KeyBindingSortCommand { get; } = new MakiMokiCommand<BindableFutaba>();
 		public MakiMokiCommand<Model.BindableFutaba> KeyBindingModeCommand { get; } = new MakiMokiCommand<BindableFutaba>();
 		public MakiMokiCommand<Model.BindableFutaba> KeyBindingPostCommand { get; } = new MakiMokiCommand<BindableFutaba>();
+
+		public ReactiveProperty<BitmapScalingMode> CatalogBitmapScalingMode { get; } = new ReactiveProperty<BitmapScalingMode>(BitmapScalingMode.Fant);
+		public ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdatePosition> WheelUpdatePositionHolder { get; } = new ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdatePosition>();
+		public ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdateState> WheelUpdateStateHolder { get; } = new ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdateState>();
+		public ReactiveProperty<string> WheelUpdateStatusMessageHolder { get; } = new ReactiveProperty<string>();
+
 
 		private bool isCatalogItemClicking = false;
 		public FutabaCatalogViewerViewModel() {
@@ -114,7 +121,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 			CatalogItemEnterCommand.Subscribe(x => OnItemEnter(x));
 			CatalogItemLeaveCommand.Subscribe(x => OnItemLeave(x));
+			CatalogScrollChangedCommand.Subscribe(_ => {
+				System.Diagnostics.Debug.WriteLine("CatalogScrollChangedCommand");
+				CatalogBitmapScalingMode.Value = BitmapScalingMode.NearestNeighbor;
+				Observable.Return(this.scrollToken = DateTime.Now)
+					.Delay(TimeSpan.FromMilliseconds(500))
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(x => {
+						if(x == this.scrollToken) {
+							System.Diagnostics.Debug.WriteLine("CatalogScrollChangedCommand-end");
+							CatalogBitmapScalingMode.Value = BitmapScalingMode.Fant;
+						}
+					});
+			});
 		}
+		private DateTime scrollToken = DateTime.MinValue;
 
 		public void Dispose() {
 			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
@@ -240,9 +261,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
 						if(x.Successed) {
-							Util.Futaba.PutInformation(new Information("del送信", ri.ThumbSource.Value));
+							Util.Futaba.PutInformation(new Information("del送信", ri.ThumbSource));
 						} else {
-							Util.Futaba.PutInformation(new Information(x.Message, ri.ThumbSource.Value));
+							Util.Futaba.PutInformation(new Information(x.Message, ri.ThumbSource));
 						}
 					});
 			}
@@ -254,33 +275,47 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnCatalogMenuItemWatchImage(Model.BindableFutabaResItem x) {
-			if(x.OriginSource.Value != null) {
-				var v = x.ThumbHash.Value ?? WpfUtil.ImageUtil.CalculatePerceptualHash(x.OriginSource.Value);
-				var ng = Ng.NgConfig.NgConfigLoader.WatchImageConfig.Images
-					.Where(y => y.Hash == v.ToString())
-					.FirstOrDefault();
-				if(ng != null) {
-					// Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
-				} else {
-					string r = null;
-					var w = new Windows.ImageReasonWindow() {
-						Owner = App.Current.MainWindow,
-					};
-					if(w.ShowDialog() ?? false) {
-						r = w.ReasonText;
-					}
+			if(x.ThumbDisplay.Value.HasValue) {
+				void f(ulong v) {
+					var ng = Ng.NgConfig.NgConfigLoader.WatchImageConfig.Images
+						.Where(y => y.Hash == v.ToString())
+						.FirstOrDefault();
+					if(ng != null) {
+						// Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
+					} else {
+						string r = null;
+						var w = new Windows.ImageReasonWindow() {
+							Owner = App.Current.MainWindow,
+						};
+						if(w.ShowDialog() ?? false) {
+							r = w.ReasonText;
+						}
 
-					if(r != null) {
-						Ng.NgConfig.NgConfigLoader.AddWatchImage(
-							Ng.NgData.NgImageData.FromPerceptualHash(v, r));
+						if(r != null) {
+							Ng.NgConfig.NgConfigLoader.AddWatchImage(
+								Ng.NgData.NgImageData.FromPerceptualHash(v, r));
+						}
 					}
+				}
+
+				if(x.ThumbHash.Value.HasValue) {
+					f(x.ThumbHash.Value.Value);
+				} else {
+					x.LoadBitmapSource()
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Select(y => (Pixels: WpfUtil.ImageUtil.CreatePixelsBytes(y), Width: y.PixelWidth, Height: y.PixelHeight))
+						.ObserveOn(System.Reactive.Concurrency.ThreadPoolScheduler.Instance)
+						.Select(y => Ng.NgUtil.PerceptualHash.CalculateHash(y.Pixels, y.Width, y.Height, 32))
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Subscribe(y => {
+							f(y);
+						});
 				}
 			}
 		}
 
 		private void OnCatalogMenuItemNgImage(Model.BindableFutabaResItem x) {
-			if(x.OriginSource.Value != null) {
-				var v = x.ThumbHash.Value ?? WpfUtil.ImageUtil.CalculatePerceptualHash(x.OriginSource.Value);
+			void hash(ulong v) {
 				var ng = Ng.NgConfig.NgConfigLoader.NgImageConfig.Images
 					.Where(y => y.Hash == v.ToString())
 					.FirstOrDefault();
@@ -305,12 +340,64 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					}
 				}
 			}
+
+			if(x.ThumbHash.Value.HasValue) {
+				hash(x.ThumbHash.Value.Value);
+			} else {
+				x.LoadBitmapSource()
+					.Select(y => (Pixels: WpfUtil.ImageUtil.CreatePixelsBytes(y), Width: y.PixelWidth, Height: y.PixelHeight))
+					.ObserveOn(System.Reactive.Concurrency.ThreadPoolScheduler.Instance)
+					.Select(y => Ng.NgUtil.PerceptualHash.CalculateHash(y.Pixels, y.Width, y.Height, 32))
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(y => {
+						hash(y);
+					});
+			}
 		}
+
+		[System.Runtime.InteropServices.DllImport("user32.dll")]
+		private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter,int x, int y, int cx, int cy, uint uFlags);
 
 		// .NET6でToolTipふたマキ実装ではがクラッシュするようになったので自前で処理する
 		// https://github.com/dotnet/wpf/issues/5730
 		private FrameworkElement toolTipTarget = null;
 		private void OnItemEnter(MouseEventArgs e) {
+			static void onToolTip(object _, RoutedEventArgs e) {
+				if(e.Source is ToolTip tt) {
+					tt.Opened -= onToolTip;
+					System.Windows.Controls.Primitives.Popup p = null;
+					FrameworkElement el = tt;
+					while((el = el.Parent as FrameworkElement) != null) {
+						if(el is System.Windows.Controls.Primitives.Popup pp) {
+							p = pp;
+							break;
+						}
+					}
+					if((p != null) && (p.PlacementTarget != null) && Window.GetWindow(p.PlacementTarget) is Window window) {
+						var hwnd = ((System.Windows.Interop.HwndSource)System.Windows.Interop.HwndSource.FromVisual(p.Child))?.Handle;
+						var wih = new System.Windows.Interop.WindowInteropHelper(window);
+						if(hwnd != null) {
+							// WS_EX_TOPMOSTをはずす→ふたマキウインドウの下に移動→ポップアップをふたマキのownedウインドウにする→ふたマキウインドウとポップアップを入れ替え
+							// これで非アクテイブ状態でもふたマキの上にポップアップが出るかつ前面ウインドウの邪魔をしない
+							//const int WS_EX_TOPMOST = 0x00000008;
+							const int HWND_NOTOPMOST = -2;
+							const int SWP_NOMOVE = 0x2;
+							const int SWP_NOSIZE = 0x1;
+							var wwh = new WpfHelpers.Win32WindowHelper(hwnd.Value);
+							SetWindowPos(hwnd.Value, (IntPtr)HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+							SetWindowPos(hwnd.Value, wih.Handle, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+							wwh.WindowLong.Owner = wih.Handle;
+							SetWindowPos(wih.Handle, hwnd.Value, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+						}
+						// DWMコンポジション有効化
+						WpfHelpers.FluentHelper.ApplyCompositionPopup(WpfHelpers.FluentHelper.Attach(p.Child));
+						WpfHelpers.FluentHelper.ApplyPopupBackground(tt);
+						// クリックできなくする
+						p.IsHitTestVisible = false;
+					}
+				}
+			}
+
 			if((e.Source is FrameworkElement el) && !object.ReferenceEquals(el, this.toolTipTarget)) {
 				if(this.toolTipTarget?.ToolTip is ToolTip tt) {
 					tt.IsOpen = false;
@@ -326,13 +413,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							if(this.toolTipTarget.ToolTip is ToolTip tt) {
 								tt.DataContext = x.DataContext;
 								tt.PlacementTarget = x;
+								tt.Opened += onToolTip;
 								tt.IsOpen = true;
 							}
 						}
 					});
 			}
-
 		}
+
 		private void OnItemLeave(MouseEventArgs e) {
 			if((e.Source is FrameworkElement el) && !object.ReferenceEquals(el, this.toolTipTarget)) {
 				if(this.toolTipTarget?.ToolTip is ToolTip tt) {

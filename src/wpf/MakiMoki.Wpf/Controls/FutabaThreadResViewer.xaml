@@ -23,9 +23,10 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/Material.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ViewerListBox.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/WheelUpdateNotifier.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converter:CatalogTextConverter x:Key="CatalogTextConverter"/>
             <converter:FutabaResItemConverter x:Key="FutabaResItemConverter"/>
@@ -48,17 +49,8 @@
             <converter:PostViewOpacityConverter x:Key="PostViewOpacityConverter" />
             <converter:PostViewMinWidthConverter x:Key="PostViewMinWidthConverter" />
             <converter:PostViewMaxWidthConverter x:Key="PostViewMaxWidthConverter" />
-
-            <Style x:Key="ResIndexStyle" TargetType="TextBlock">
-            </Style>
-            <Style x:Key="PostedResIndexStyle" TargetType="TextBlock">
-                <Setter Property="Foreground">
-                    <Setter.Value>
-                        <SolidColorBrush Color="{DynamicResource ThreadHeaderPostedColor}" />
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="FontWeight" Value="Bold" />
-            </Style>
+            <converter:WheelUpdatePositionConverter x:Key="WheelUpdatePositionConverter" />
+            <converter:WheelUpdateVisibleConverter x:Key="WheelUpdateVisibleConverter" />
 
             <ContextMenu
                 x:Key="ThreadResHamburgerContextMenu"
@@ -105,17 +97,13 @@
     <Grid>
         <!-- DynamicResource取得用のElement -->
         <FrameworkElement 
-            x:Name="StyleTypeGetter"
-            Visibility="Collapsed"
-            DataContext="{DynamicResource StyleType}" />
-        <FrameworkElement 
             x:Name="WhiteColorGetter"
             Visibility="Collapsed"
-            DataContext="{DynamicResource ViewerBackgroundColor}" />
+            DataContext="{DynamicResource MakimokiBackgroundColor}" />
         <FrameworkElement 
             x:Name="BlackColorGetter"
             Visibility="Collapsed"
-            DataContext="{DynamicResource ViewerForegroundColor}" />
+            DataContext="{DynamicResource MakimokiForegroundColor}" />
         <FrameworkElement 
             x:Name="ViewerBorderColorGetter"
             Visibility="Collapsed"
@@ -155,7 +143,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Margin="0" BorderThickness="0 0 0 1">
+            <Border Grid.Row="0" Margin="0" BorderThickness="0,0,0,1" Padding="0,2,0,2">
                 <Border.Background>
                     <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
                 </Border.Background>
@@ -232,7 +220,7 @@
 
                     <Button
                         Grid.Column="3"
-                        Style="{StaticResource ToolbarButton}"
+                        Style="{StaticResource MaterialTransparentButton}"
                         Content="{DynamicResource ButtonIconViewerUpdate}"
                         DataContext="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
                         Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
@@ -258,9 +246,6 @@
                                     CommandParameter="{Binding Mode=OneWay}"/>
                             </ContextMenu>
                         </Button.ContextMenu>
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="更新" />
                         </Button.ToolTip>
@@ -278,92 +263,106 @@
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    
-                    <Grid
+
+                    <Border
                         x:Name="SearchGrid"
                         Grid.Column="4"
                         Margin="2"
+                        Padding="2"
+                        BorderThickness="1"
+                        CornerRadius="8"
                         Visibility="{Binding Contents.SearchBoxVisibility.Value, Mode=OneWay, ElementName=_this}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBox
-                            x:Name="SearchTextBox"
-                            Grid.Column="0"
-                            CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
-                            Text="{Binding Contents.Futaba.Value.FilterText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ElementName=_this}"
-                            FontSize="14"
-                            VerticalAlignment="Center"
-                            local:PlaceHolderBehavior.PlaceHolderText="検索テキスト"
-                            Tag="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
-                            >
-                            <TextBox.Foreground>
-                                <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
-                            </TextBox.Foreground>
-                            <i:Interaction.Behaviors>
-                                <behavior:FocusBehavior x:Name="SearchFocusBehavior" />
-                            </i:Interaction.Behaviors>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="TextChanged">
-                                    <!--
-                                    <ri:EventToReactiveCommand Command="{Binding DataContext.FilterTextChangedCommand, ElementName=_this}" />
-                                    -->
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </TextBox>
-                        <Button
-                            Grid.Column="1"
-                            VerticalAlignment="Center"
-                            FontFamily="Marlett"
-                            Content="r">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
-                                    <i:ChangePropertyAction 
-                                        TargetObject="{Binding ElementName=SearchTextBox}" 
-                                        PropertyName="Text"
-                                        Value="" />
-                                    <i:CallMethodAction
-                                        TargetObject="{Binding Contents, Mode=OneWay, ElementName=_this}"
-                                        MethodName="HideSearchBox"
-                                        />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
-                        <!--
-                        <TextBlock
-                            Grid.Column="2"
-                            Text="0件"
-                            VerticalAlignment="Center"
-                            Margin="2"
-                            />
-                        <Button Grid.Column="3" VerticalAlignment="Center">
-                            <Button.Content>
-                                <TextBlock>
-                                     ↑
-                                </TextBlock>
-                            </Button.Content>
-                        </Button>
-                        <Button Grid.Column="4" VerticalAlignment="Center">
-                            <Button.Content>
-                                <TextBlock>
-                                     ↓
-                                </TextBlock>
-                            </Button.Content>
-                        </Button>
-                        -->
-                    </Grid>
+                        <Border.BorderBrush>
+                            <SolidColorBrush Color="{DynamicResource MakimokiPrimaryColor}" />
+                        </Border.BorderBrush>
+                        <Border.Background>
+                            <SolidColorBrush Color="{DynamicResource MakimokiBackgroundColor}" />
+                        </Border.Background>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                x:Name="SearchTextBox"
+                                Grid.Column="0"
+                                BorderBrush="Transparent"
+                                BorderThickness="0"
+                                CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
+                                Text="{Binding Contents.Futaba.Value.FilterText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ElementName=_this}"
+                                FontSize="14"
+                                VerticalAlignment="Center"
+                                local:PlaceHolderBehavior.PlaceHolderText="検索テキスト"
+                                Tag="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
+                                >
+                                <TextBox.Foreground>
+                                    <SolidColorBrush Color="{DynamicResource MakimokiForegroundColor}" />
+                                </TextBox.Foreground>
+                                <i:Interaction.Behaviors>
+                                    <behavior:FocusBehavior x:Name="SearchFocusBehavior" />
+                                </i:Interaction.Behaviors>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="TextChanged">
+                                        <!--
+                                        <ri:EventToReactiveCommand Command="{Binding DataContext.FilterTextChangedCommand, ElementName=_this}" />
+                                        -->
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </TextBox>
+                            <Button
+                                Grid.Column="1"
+                                Style="{StaticResource MaterialTransparentButton}"
+                                Width="24" Height="24"
+                                Margin="2,0,0,0"
+                                Padding="2"
+                                VerticalAlignment="Center"
+                                FontFamily="Marlett"
+                                Content="r">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <i:ChangePropertyAction 
+                                            TargetObject="{Binding ElementName=SearchTextBox}" 
+                                            PropertyName="Text"
+                                            Value="" />
+                                        <i:CallMethodAction
+                                            TargetObject="{Binding Contents, Mode=OneWay, ElementName=_this}"
+                                            MethodName="HideSearchBox"
+                                            />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                            <!--
+                            <TextBlock
+                                Grid.Column="2"
+                                Text="0件"
+                                VerticalAlignment="Center"
+                                Margin="2"
+                                />
+                            <Button Grid.Column="3" VerticalAlignment="Center">
+                                <Button.Content>
+                                    <TextBlock>
+                                         ↑
+                                    </TextBlock>
+                                </Button.Content>
+                            </Button>
+                            <Button Grid.Column="4" VerticalAlignment="Center">
+                                <Button.Content>
+                                    <TextBlock>
+                                         ↓
+                                    </TextBlock>
+                                </Button.Content>
+                            </Button>
+                            -->
+                        </Grid>
+                    </Border>
                     <Button
                         x:Name="SearchButton" Grid.Column="4"
-                        Style="{StaticResource ToolbarButton}"
+                        Style="{StaticResource MaterialTransparentButton}"
                         Content="{DynamicResource ButtonIconViewerSearch}"    
                         Visibility="{Binding Contents.SearchButtonVisibility.Value, Mode=OneWay, ElementName=_this}">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="検索" />
                         </Button.ToolTip>
@@ -379,10 +378,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="5" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconViewerArrow}">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
+                    <Button Grid.Column="5" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconViewerArrow}">
                         <Button.ToolTip>
                             <ToolTip Content="一番上に移動" />
                         </Button.ToolTip>
@@ -392,10 +388,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="6" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconViewerArrow}">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
+                    <Button Grid.Column="6" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconViewerArrow}">
                         <Button.ToolTip>
                             <ToolTip Content="一番下に移動" />
                         </Button.ToolTip>
@@ -408,7 +401,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="7" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconCanvas98}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="7" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconCanvas98}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <!--
                         <Button.Style>
                             <Style TargetType="Button">
@@ -420,9 +413,6 @@
                             </Style>
                         </Button.Style>
                         -->
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
                         <Button.ToolTip>
                             <ToolTip Content="はっちゃんキャンバス" />
                         </Button.ToolTip>
@@ -445,10 +435,7 @@
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="8" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
+                    <Button Grid.Column="8" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <Button.ToolTip>
                             <ToolTip Content="レス書き込み" />
                         </Button.ToolTip>
@@ -465,10 +452,7 @@
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="9" Style="{StaticResource ToolbarButton}" Content="{DynamicResource ButtonIconThreadMouseHamburger}" Width="16">
-                        <Button.Background>
-                            <SolidColorBrush Color="{DynamicResource WindowTabBackgroundColor}" />
-                        </Button.Background>
+                    <Button Grid.Column="9" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconThreadMouseHamburger}" Width="16">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
                                 <i:ChangePropertyAction 
@@ -513,7 +497,7 @@
                     HorizontalAlignment="Stretch"
                     Visibility="{Binding VerticalGridSplitterVisibility.Value, Mode=OneWay}">
                     <GridSplitter.Background>
-                        <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                        <SolidColorBrush Color="{DynamicResource WindowSplitterColor}" />
                     </GridSplitter.Background>
                 </GridSplitter>
                 -->
@@ -528,7 +512,7 @@
                     VerticalAlignment="Stretch"
                     Visibility="{Binding VerticalGridSplitterVisibility.Value, Mode=OneWay}">
                     <GridSplitter.Background>
-                        <SolidColorBrush Color="{DynamicResource WindowFrameColor}" />
+                        <SolidColorBrush Color="{DynamicResource WindowSplitterColor}" />
                     </GridSplitter.Background>
                 </GridSplitter>
                 
@@ -544,7 +528,7 @@
                     ScrollViewer.CanContentScroll="True"
                     VirtualizingPanel.ScrollUnit="Pixel"
                     VirtualizingPanel.IsVirtualizing="True"
-                    VirtualizingPanel.VirtualizationMode="Standard"
+                    VirtualizingPanel.VirtualizationMode="Recycling"
                     HorizontalContentAlignment="Stretch"
                     >
                     <ListBox.Effect>
@@ -564,36 +548,6 @@
                                                 <RowDefinition Height="*" />
                                                 <RowDefinition Height="2*" />
                                             </Grid.RowDefinitions>
-
-                                            <Viewbox
-                                                x:Name="ThumbView"
-                                                Grid.Row="1"
-                                                Grid.Column="1"
-                                                Margin="48"
-                                                Opacity="{DynamicResource FailsafeThreadImageOpacity}"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Bottom"
-                                                Visibility="{Binding FailsafeMistakePostVisibility.Value, Mode=OneWay}">
-                                                <Image
-                                                    Source="{Binding Contents.ThumbSource.Value, Mode=OneWay, ElementName=_this}"
-                                                    RenderOptions.EdgeMode="Aliased"
-                                                    RenderOptions.BitmapScalingMode="Fant">
-                                                    <Image.CacheMode>
-                                                        <BitmapCache RenderAtScale="1" />
-                                                    </Image.CacheMode>
-                                                    <Image.Effect>
-                                                        <BlurEffect Radius="{DynamicResource FailsafeThreadImageBlurRadius}" />
-                                                    </Image.Effect>
-
-                                                    <!--
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="Loaded">
-                                                            <ri:EventToReactiveCommand Command="{Binding ThumbLoadCommand, Mode=OneWay}" />
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                    -->
-                                                </Image>
-                                            </Viewbox>
 
                                             <Grid
                                                 Grid.Row="0" Grid.RowSpan="2"
@@ -650,17 +604,13 @@
                                 </Grid.RowDefinitions>
 
                                 <FrameworkElement 
-                                    x:Name="StyleTypeGetter"
-                                    Visibility="Collapsed"
-                                    DataContext="{DynamicResource StyleType}" />
-                                <FrameworkElement 
                                     x:Name="WhiteColorGetter"
                                     Visibility="Collapsed"
-                                    DataContext="{DynamicResource ViewerBackgroundColor}" />
+                                    DataContext="{DynamicResource MakimokiBackgroundColor}" />
                                 <FrameworkElement 
                                     x:Name="BlackColorGetter"
                                     Visibility="Collapsed"
-                                    DataContext="{DynamicResource ViewerForegroundColor}" />
+                                    DataContext="{DynamicResource MakimokiForegroundColor}" />
 
                                 <Grid
                                     x:Name="viewGrid"
@@ -808,19 +758,9 @@
                                     <local:FutabaResBlock
                                         x:Name="CommentBlock"
                                         Grid.Column="0" Grid.Row="0"
-                                        MaxWidth="1024"
-                                        >
+                                        MaxWidth="1024">
                                         <local:FutabaResBlock.Foreground>
-                                            <SolidColorBrush>
-                                                <SolidColorBrush.Color>
-                                                    <MultiBinding Converter="{StaticResource BackgroundToForegroundColorConverter}" Mode="OneWay">
-                                                        <Binding Path="Background.Color" ElementName="viewGrid" Mode="OneWay" />
-                                                        <Binding Path="DataContext" ElementName="StyleTypeGetter" Mode="OneWay" />
-                                                        <Binding Path="DataContext" ElementName="WhiteColorGetter" Mode="OneWay" />
-                                                        <Binding Path="DataContext" ElementName="BlackColorGetter" Mode="OneWay" />
-                                                    </MultiBinding>
-                                                </SolidColorBrush.Color>
-                                            </SolidColorBrush>
+                                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                                         </local:FutabaResBlock.Foreground>
 
                                         <i:Interaction.Triggers>
@@ -846,8 +786,10 @@
                                         >
                                         <StackPanel Orientation="Horizontal" Visibility="{Binding CommandPaletteVisibility.Value, Mode=OneWay}">
                                             <Button 
+                                                Style="{StaticResource MaterialTransparentButton}"
                                                 Grid.Column="1" Grid.Row="1" 
                                                 Width="32" Height="24"
+                                                Padding="2"
                                                 VerticalAlignment="Bottom"
                                                 Content="{StaticResource ButtonIconComment}"
                                                 Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}"
@@ -876,6 +818,9 @@
                                                             />
                                                     </ContextMenu>
                                                 </Button.Resources>
+                                                <Button.Background>
+                                                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                                </Button.Background>
                                                 <Button.ToolTip>
                                                     <ToolTip Content="引用" />
                                                 </Button.ToolTip>
@@ -893,11 +838,16 @@
                                                 </i:Interaction.Triggers>
                                             </Button>
                                             <Button 
+                                                Style="{StaticResource MaterialTransparentButton}"
                                                 Grid.Column="1" Grid.Row="1" 
                                                 Width="32" Height="24"
+                                                Padding="2"
                                                 VerticalAlignment="Bottom"
                                                 Content="{StaticResource ButtonIconCopy}"
                                                 Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
+                                                <Button.Background>
+                                                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                                </Button.Background>
                                                 <Button.ToolTip>
                                                     <ToolTip Content="コピー" />
                                                 </Button.ToolTip>
@@ -908,10 +858,15 @@
                                                 </i:Interaction.Triggers>
                                             </Button>
                                             <Button 
+                                                Style="{StaticResource MaterialTransparentButton}"
                                                 Grid.Column="1" Grid.Row="1" 
                                                 Width="32" Height="24"
+                                                Padding="2"
                                                 VerticalAlignment="Bottom"
                                                 Content="{StaticResource ButtonIconSoudane}">
+                                                <Button.Background>
+                                                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                                </Button.Background>
                                                 <Button.ToolTip>
                                                     <ToolTip Content="そうだね" />
                                                 </Button.ToolTip>
@@ -922,10 +877,15 @@
                                                 </i:Interaction.Triggers>
                                             </Button>
                                             <Button 
+                                                Style="{StaticResource MaterialTransparentButton}"
                                                 Grid.Column="1" Grid.Row="1" 
                                                 Width="32" Height="24"
+                                                Padding="2"
                                                 VerticalAlignment="Bottom"
                                                 Content="{StaticResource ButtonIconDel}">
+                                                <Button.Background>
+                                                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                                </Button.Background>
                                                 <Button.ToolTip>
                                                     <ToolTip Content="del" />
                                                 </Button.ToolTip>
@@ -936,8 +896,10 @@
                                                 </i:Interaction.Triggers>
                                             </Button>
                                             <Button 
+                                                Style="{StaticResource MaterialTransparentButton}"
                                                 Grid.Column="1" Grid.Row="1" 
                                                 Width="32" Height="24"
+                                                Padding="2"
                                                 VerticalAlignment="Bottom"
                                                 Content="{StaticResource ButtonIconDelete}"
                                                 Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}">
@@ -957,6 +919,9 @@
                                                             CommandParameter="{Binding Mode=OneWay}" />
                                                     </ContextMenu>
                                                 </Button.Resources>
+                                                <Button.Background>
+                                                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                                </Button.Background>
                                                 <Button.ToolTip>
                                                     <ToolTip Content="削除" />
                                                 </Button.ToolTip>
@@ -975,11 +940,16 @@
                                             </Button>
                                         </StackPanel>
                                         <Button 
+                                            Style="{StaticResource MaterialTransparentButton}"
                                             Grid.Column="1" Grid.Row="1" 
                                             Width="32" Height="24"
+                                            Padding="2"
                                             VerticalAlignment="Bottom"
                                             Content="{StaticResource ButtonIconThreadMouse}"
                                             Visibility="{Binding CopyModeButtonVisibility.Value, Mode=OneWay}">
+                                            <Button.Background>
+                                                <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                            </Button.Background>
                                             <Button.ToolTip>
                                                 <ToolTip Content="コピーモード" />
                                             </Button.ToolTip>
@@ -992,10 +962,15 @@
                                             </i:Interaction.Triggers>
                                         </Button>
                                         <Button 
+                                            Style="{StaticResource MaterialTransparentButton}"
                                             Width="72" Height="24"
+                                            Padding="2"
                                             Margin="2 0 0 0"
                                             VerticalAlignment="Bottom"
                                             Visibility="{Binding ReleaseHiddenResBuutonVisibility.Value, Mode=OneWay}">
+                                            <Button.Background>
+                                                <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                            </Button.Background>
                                             <TextBlock>非表示を解除</TextBlock>
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="Click">
@@ -1005,11 +980,16 @@
                                                 </i:EventTrigger>
                                             </i:Interaction.Triggers>
                                         </Button>
-                                        <Button 
+                                        <Button
+                                            Style="{StaticResource MaterialTransparentButton}"
                                             Width="72" Height="24"
+                                            Padding="2"
                                             Margin="2 0 0 0"
                                             VerticalAlignment="Bottom"
                                             Visibility="{Binding ShowNgResButtonVisibility.Value, Mode=OneWay}">
+                                            <Button.Background>
+                                                <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                            </Button.Background>
                                             <TextBlock Text="{Binding ShowNgResButtonText.Value, Mode=OneWay}" />
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="Click">
@@ -1054,6 +1034,7 @@
                                         TextWrapping="Wrap" Margin="4"
                                         FontFamily="{DynamicResource ThreadTextFont}"
                                         FontSize="{DynamicResource ThreadTextFontSize}"
+                                        FontWeight="{DynamicResource ThreadFontWeight}"
                                         IsReadOnly="True"
                                         DataContext="{Binding DataContext, Mode=OneWay, ElementName=_this}"
                                         Tag="{Binding Contents, Mode=OneWay, ElementName=_this}"
@@ -1145,9 +1126,13 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <Button
+                                        Style="{StaticResource MaterialButton}"
                                         Grid.Column="0" 
-                                        MinWidth="160" Height="40"
+                                        MinWidth="200" Height="40"
                                         IsEnabled="{Binding  Parent.Value, Mode=OneWay, Converter={StaticResource FutabaResItemNextButtonEnabledConverter}}">
+                                        <Button.Background>
+                                            <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                        </Button.Background>
                                         <TextBlock>
                                             続きを読む
                                         </TextBlock>
@@ -1159,11 +1144,11 @@
                                     </Button>
                                     <Border Grid.Column="2" BorderThickness="1" CornerRadius="4" Padding="4">
                                         <Border.BorderBrush>
-                                            <SolidColorBrush Color="{Binding DataContext, Mode=OneWay,ElementName=BlackColorGetter}" />
+                                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                                         </Border.BorderBrush>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" MinWidth="128" />
                                                 <ColumnDefinition Width="32" />
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
@@ -1184,7 +1169,10 @@
                                                     </SolidColorBrush>
                                                 </TextBlock.Foreground>
                                             </TextBlock>
-                                            <Button Grid.Column="2" Width="32" Height="32" Content="{StaticResource ButtonIconThreadSave}">
+                                            <Button Style="{StaticResource MaterialButton}" Grid.Column="2" Width="32" Height="32" Padding="2" Content="{StaticResource ButtonIconThreadSave}">
+                                                <Button.Background>
+                                                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                                                </Button.Background>
                                                 <Button.ToolTip>
                                                     <ToolTip Content="保存" />
                                                 </Button.ToolTip>
@@ -1204,6 +1192,9 @@
                         <behavior:ScrollBehavior x:Name="ListBoxScrollBehavior" />
                         <behavior:MakiMokiViewerBehavior />
                         <behavior:WheelUpdateBehavior
+                            UpdatePosition="{Binding WheelUpdatePositionHolder.Value, Mode=TwoWay}"
+                            UpdateState="{Binding WheelUpdateStateHolder.Value, Mode=TwoWay}"
+                            StatusMessage="{Binding WheelUpdateStatusMessageHolder.Value, Mode=TwoWay}"
                             Command="{Binding WheelUpdateCommand, Mode=OneWay}"
                             CommandParameter="{Binding Contents.Futaba.Value, ElementName=_this, Mode=OneWay}"
                             />
@@ -1273,6 +1264,7 @@
                     <local:FutabaPostView.MaxWidth>
                         <MultiBinding Converter="{StaticResource PostViewMaxWidthConverter}">
                             <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
+                            <Binding Mode="OneWay" Source="{StaticResource DefaultMaxWidth}" />
                             <Binding Path="Contents.PostData.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
                         </MultiBinding>
                     </local:FutabaPostView.MaxWidth>
@@ -1314,6 +1306,13 @@
                     Visibility="{Binding Canvas98BottomRegionVisibility.Value, Mode=OneWay}"
                     />
             </Grid>
+
+            <ContentPresenter
+                Grid.Row="1"
+                Visibility="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource WheelUpdateVisibleConverter}}"
+                VerticalAlignment="{Binding WheelUpdatePositionHolder.Value, Mode=OneWay, Converter={StaticResource WheelUpdatePositionConverter}}"
+                Content="{StaticResource WheelUpdateNotifier}"
+                />
 
             <ContentControl
                 x:Name="Canvas98FullScreen"

@@ -22,9 +22,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 	/// App.xaml の相互作用ロジック
 	/// </summary>
 	public partial class App : PrismApplication {
+		public class CompatValue {
+			public bool IsWindows10Threshold1 { get; init; }
+			public bool IsWindows10Threshold2 { get; init; }
+			public bool IsWindows10Redstone1 { get; init; }
+			public bool IsWindows10Redstone2 { get; init; }
+			public bool IsWindows10Redstone3 { get; init; }
+			public bool IsWindows10Redstone4 { get; init; }
+			public bool IsWindows10Redstone5 { get; init; }
+			public bool IsWindows10Ver19H1 { get; init; }
+			public bool IsWindows10Ver19H2 { get; init; }
+			public bool IsWindows10Ver20H1 { get; init; }
+			public bool IsWindows10Ver20H2 { get; init; }
+			public bool IsWindows10Ver21H1 { get; init; }
+			public bool IsWindows10Ver21H2 { get; init; }
+			public bool IsWindows11Rtm { get; init; }
+		}
 		private static readonly string ExeConfig = "windows.exe.json";
 
 		public static System.Net.Http.HttpClient HttpClient  { get; }
+		public static CompatValue OsCompat { get; }
 
 		static App() {
 #if CANARY
@@ -36,6 +53,27 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				WpfUtil.PlatformUtil.GetContentType());
 
 			System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+			if(Environment.OSVersion.Platform == PlatformID.Win32NT) {
+				OsCompat = new CompatValue() {
+					IsWindows10Threshold1 = new Version(10, 0, 10240) <= Environment.OSVersion.Version,
+					IsWindows10Threshold2 = new Version(10, 0, 10586) <= Environment.OSVersion.Version,
+					IsWindows10Redstone1 = new Version(10, 0, 14393) <= Environment.OSVersion.Version,
+					IsWindows10Redstone2 = new Version(10, 0, 15063) <= Environment.OSVersion.Version,
+					IsWindows10Redstone3 = new Version(10, 0, 16299) <= Environment.OSVersion.Version,
+					IsWindows10Redstone4 = new Version(10, 0, 17134) <= Environment.OSVersion.Version,
+					IsWindows10Redstone5 = new Version(10, 0, 17763) <= Environment.OSVersion.Version,
+					IsWindows10Ver19H1 = new Version(10, 0, 18362) <= Environment.OSVersion.Version,
+					IsWindows10Ver19H2 = new Version(10, 0, 18363) <= Environment.OSVersion.Version,
+					IsWindows10Ver20H1 = new Version(10, 0, 19041) <= Environment.OSVersion.Version,
+					IsWindows10Ver20H2 = new Version(10, 0, 19042) <= Environment.OSVersion.Version,
+					IsWindows10Ver21H1 = new Version(10, 0, 19042) <= Environment.OSVersion.Version,
+					IsWindows10Ver21H2 = new Version(10, 0, 19044) <= Environment.OSVersion.Version,
+					IsWindows11Rtm = new Version(10, 0, 17763) <= Environment.OSVersion.Version,
+				};
+			} else {
+				OsCompat = new CompatValue();
+			}
+
 		}
 
 		public string AppSettingRootDirectory { get; private set; }
@@ -63,6 +101,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 						System.Text.Encoding.UTF8);
 				}
 			};
+			WpfUtil.MediaFoundationUtil.StratUp();
 			var arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString().ToLower();
 			WinApi.Win32.SetDllDirectory(Path.Combine(
 				AppContext.BaseDirectory,
@@ -190,22 +229,41 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			base.OnStartup(e);
 		}
 
+		protected override void OnExit(ExitEventArgs e) {
+			try {
+				WpfUtil.MediaFoundationUtil.Shutdown();
+			}
+			catch(InvalidOperationException) { /* どうしようもないので無視する */ }
+			base.OnExit(e);
+		}
+
 		protected override Window CreateShell() {
 			return Container.Resolve<Windows.MainWindow>();
 		}
 
 		private void ApplyStyle(PlatformData.StyleConfig styleConfig = null) {
+			static Color border(Color c1, Color c2) {
+				var a = ((int)c1.A + c2.A) / 2; 
+				var r = ((int)c1.R + c2.R) / 2; 
+				var g = ((int)c1.G + c2.G) / 2; 
+				var b = ((int)c1.B + c2.B) / 2;
+				var hsv = WpfUtil.ImageUtil.ToHsv(Color.FromRgb((byte)r, (byte)g, (byte)b));
+				var c = WpfUtil.ImageUtil.HsvToRgb(hsv.H, hsv.S * 0.4, hsv.V);
+				return Color.FromArgb((byte)a, c.R, c.G, c.B);
+			}
+
 			var style = styleConfig ?? WpfConfig.WpfConfigLoader.Style;
-			this.Resources["StyleType"] = style.StyleType;
 			{
 				var white = style.ToWpfColor(style.WhiteColor);
 				var black = style.ToWpfColor(style.BlackColor);
+				var foreground = style.ToWpfColor(style.ForegroundColor);
+				var background = style.ToWpfColor(style.BackgroundColor);
 				var primary = style.ToWpfColor(style.PrimaryColor);
 				var primarySub = style.GetSubColor(primary);
 				var secondary = style.ToWpfColor(style.SecondaryColor);
 				var secondarySub = style.GetSubColor(secondary);
 				var windowFrame = style.ToWpfColor(style.WindowFrameColor);
-				var windowBorder = style.GetSubColor(windowFrame, PlatformData.StyleType.Light);
+				var windowBorder = style.GetSubColor(windowFrame);
 				var windowTabBackground = style.ToWpfColor(style.WindowTabColor);
 				var windowTabForeground = style.GetTextColor(windowFrame, white, black);
 				var windowTabActiveForeground = style.GetTextColor(windowTabBackground, white, black);
@@ -218,7 +276,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				var viewerScrollBarThumbSubSub = style.GetSubColor(viewerScrollBarThumbSub);
 				var viewerScrollBarTrack = style.ToWpfColor(style.ViewerScollbarTrackColor);
 
-				this.Resources["WindowFrameColor"] = windowFrame;
+				this.Resources["MakimokiWhiteColor"] = white;
+				this.Resources["MakimokiBlackColor"] = black;
+				this.Resources["MakimokiForegroundColor"] = foreground;
+				this.Resources["MakimokiBackgroundColor"] = background;
+				this.Resources["MakimokiBorderColor"] = border(foreground, background);
+				this.Resources["MakimokiPrimaryColor"] = primary;
+				this.Resources["MakimokiSecondaryColor"] = secondary;
+
+				this.Resources["WindowFrameColor"] = this.Resources["WindowSplitterColor"] =  windowFrame;
 				this.Resources["WindowFrameBorderColor"] = windowBorder;
 				this.Resources["WindowTabBackgroundColor"] = windowTabBackground;
 				this.Resources["WindowTabForegroundColor"] = windowTabForeground;
@@ -274,6 +340,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				this.Resources["CatalogBadgeIsolateBackgroundColor"] = catalogBadgeIsolateBackground;
 
 				var threadBackground = style.ToWpfColor(style.ThreadBackgroundColor);
+				var threadLink = style.ToWpfColor(style.ThreadLinkColor);
 				var threadSearchHitBackground = style.ToWpfColor(style.ThreadSearchHitBackgroundColor);
 				var threadQuotHitBackground = style.ToWpfColor(style.ThreadQuotHitBackgroundColor);
 				var threadOldForeground = style.ToWpfColor(style.ThreadOldForegroundColor);
@@ -284,6 +351,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 				var threadHeaerResCountForegroundColor = style.ToWpfColor(style.ThreadHeaerResCountForegroundColor);
 				var threadHeaderSoudaneForeground = style.ToWpfColor(style.ThreadHeaerSoudaneForegroundColor);
 				this.Resources["ThreadBackgroundColor"] = threadBackground;
+				this.Resources["ThreadLinkColor"] = threadLink;
 				this.Resources["ThreadBackgroundSerachHitColor"] = threadSearchHitBackground;
 				this.Resources["ThreadBackgroundQuotHitColor"] = threadQuotHitBackground;
 				this.Resources["ThreadTextOldColor"] = threadOldForeground;
@@ -315,6 +383,46 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			this.Resources["ThreadHeaderFont"] = new FontFamily(style.ThreadHeaderFont);
 			this.Resources["ThreadTextFont"] = new FontFamily(style.ThreadTextFont);
 			this.Resources["PostFont"] = new FontFamily(style.PostFont);
+
+			this.Resources["CatalogTextFontWeight"] = style.CatalogFontWeight;
+			this.Resources["CatalogBadgeFontWeight"] = style.CatalogBadgeFontWeight;
+			this.Resources["ThreadFontWeight"] = style.ThreadFontWeight;
+			this.Resources["ThreadBoldFontWeight"] = style.ThreadBoldFontWeight;
+			this.Resources["PostFontWeight"] = style.PostFontWeight;
+
+			{ // 実験的機能
+				static Color blend(float a, Color @base) {
+					return Color.FromArgb((byte)(Math.Min(Math.Max(0f, a), 1f) * 255), @base.R, @base.G, @base.B);
+				}
+				static string refValue(PlatformData.StyleConfig style, string p) {
+					return style.GetType()
+						.GetProperties()
+						.Where(x => x.GetCustomAttributes<JsonPropertyAttribute>(true).Where(y => y.PropertyName == p).Any())
+						.FirstOrDefault()
+						?.GetValue(style) as string;
+				}
+
+				this.Resources["FluentWindowType"] = style.OptionFluentTypeWidnow;
+				this.Resources["FluentPopupType"] = style.OptionFluentTypePopup;
+				this.Resources["FluentBlurOpacity"] = style.FluentBlurOpacity;
+				this.Resources["FluentWindowAccentColor"] = blend(style.FluentBlurOpacity, style.OptionFluentTypeWidnowColorOrRef switch {
+					var s when s.StartsWith("--ref:") => style.ToWpfColor(refValue(style, s.Substring("--ref:".Length))),
+					var s => style.ToWpfColor(s),
+				});
+				this.Resources["FluentPopupAccentColor"] = blend(style.FluentBlurOpacity, style.OptionFluentTypePopupColorOrRef switch {
+					var s when s.StartsWith("--ref:") => style.ToWpfColor(refValue(style, s.Substring("--ref:".Length))),
+					var s => style.ToWpfColor(s),
+				});
+
+				if(style.OptionFluentTypeWidnow switch {
+					PlatformData.FluentType.None => false,
+					PlatformData.FluentType.Auto when !OsCompat.IsWindows10Redstone5 => false,
+					_ => true
+				}) {
+					this.Resources["WindowFrameColor"] = Colors.Transparent;
+					this.Resources["WindowFrameBorderColor"] = Colors.Transparent;
+				}
+			}
 		}
 
 		protected override void RegisterTypes(IContainerRegistry containerRegistry) {

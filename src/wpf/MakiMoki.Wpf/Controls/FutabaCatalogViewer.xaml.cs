@@ -27,6 +27,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				typeof(Model.IFutabaViewerContents),
 				typeof(FutabaCatalogViewer),
 				new PropertyMetadata(OnContentsChanged));
+		public static readonly DependencyProperty CornerRadiusProperty
+			= DependencyProperty.Register(
+				nameof(CornerRadius),
+				typeof(CornerRadius),
+				typeof(FutabaCatalogViewer),
+				new PropertyMetadata(new CornerRadius())); 
 		public static readonly RoutedEvent ContentsChangedEvent
 			= EventManager.RegisterRoutedEvent(
 				nameof(ContentsChanged),
@@ -34,18 +40,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				typeof(RoutedPropertyChangedEventHandler<Model.IFutabaViewerContents>),
 				typeof(FutabaCatalogViewer));
 
-
 		public Model.IFutabaViewerContents Contents {
 			get => (Model.IFutabaViewerContents)this.GetValue(ContentsProperty);
-			set {
-				this.SetValue(ContentsProperty, value);
-			}
+			set { this.SetValue(ContentsProperty, value); }
+		}
+
+		public CornerRadius CornerRadius {
+			get => (CornerRadius)this.GetValue(ContentsProperty);
+			set { this.SetValue(CornerRadiusProperty, value); }
 		}
 
 		public event RoutedPropertyChangedEventHandler<Model.IFutabaViewerContents> ContentsChanged {
 			add { AddHandler(ContentsChangedEvent, value); }
 			remove { RemoveHandler(ContentsChangedEvent, value); }
 		}
+
 
 		private ScrollViewer scrollViewerCatalog;
 		private IDisposable CatalogUpdateCommandSubscriber { get; }
@@ -108,7 +117,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			this.CatalogListBox.Loaded += (s, e) => {
 				if((this.scrollViewerCatalog = WpfUtil.WpfHelper.FindFirstChild<ScrollViewer>(this.CatalogListBox)) != null) {
 					this.scrollViewerCatalog.ScrollChanged += (ss, arg) => {
-						if((this.Contents != null) && this.Contents.Futaba.Value.Url.IsCatalogUrl) {
+						if(this.Contents?.Futaba.Value?.Url.IsCatalogUrl ?? false) {
 							this.Contents.ScrollVerticalOffset.Value = this.scrollViewerCatalog.VerticalOffset;
 							this.Contents.ScrollHorizontalOffset.Value = this.scrollViewerCatalog.HorizontalOffset;
 						}
@@ -172,9 +181,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 
 				del(o, x => BindingOperations.ClearAllBindings(x));
 				if(o.DataContext != null) {
+					/*
 					ViewModels.MainWindowViewModel.Messenger.Instance
-						.GetEvent<PubSubEvent<System.Windows.FrameworkElement>>()
-						.Publish(o);
+						.GetEvent<PubSubEvent<ViewModels.MainWindowViewModel.WpfBugMessage>>()
+						.Publish(new ViewModels.MainWindowViewModel.WpfBugMessage(o));
+					*/
 				}
 			}
 		}

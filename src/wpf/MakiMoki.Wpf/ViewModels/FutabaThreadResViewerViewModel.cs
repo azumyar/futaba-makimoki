@@ -90,9 +90,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<object> Canvas98BookmarkletToken { get; } = new ReactiveProperty<object>(DateTime.Now);
 
-		private ReactiveProperty<bool> IsEnabledFailsafeMistakePost { get; }
-		public ReactiveProperty<Visibility> FailsafeMistakePostVisibility { get; }
-
 
 		public ReactiveProperty<string> FilterText { get; } = new ReactiveProperty<string>("");
 
@@ -156,10 +153,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<double> Canvas98RightGridMinWidth { get; }
 		public ReactiveProperty<double> Canvas98BottomGridMinHeight { get; }
 
+		public ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdatePosition> WheelUpdatePositionHolder { get; } = new ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdatePosition>();
+		public ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdateState> WheelUpdateStateHolder { get; } = new ReactiveProperty<Behaviors.WheelUpdateBehavior.WheelUpdateState>();
+		public ReactiveProperty<string> WheelUpdateStatusMessageHolder { get; } = new ReactiveProperty<string>();
 
 		public MakiMokiCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs> Canvas98SuccessedCommand { get; }
 			= new MakiMokiCommand<Canvas98.Controls.FutabaCanvas98View.RoutedSucessEventArgs>();
 
+		private IDisposable MediaViewrSubscriber { get; }
 		private IDisposable CloseToSubscriber { get; }
 		private bool isThreadImageClicking = false;
 		private readonly Action<PlatformData.WpfConfig> systemConfigNotifyAction;
@@ -171,7 +172,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<string> Canvas98BottomRegion { get; }
 
 		public FutabaThreadResViewerViewModel(IRegionManager regionManager) {
-			ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+			MediaViewrSubscriber = ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.ViewerCloseMessage>>()
 				.Subscribe(x => {
 					if(x.RegionName == this.MediaViewerRegion.Value) {
@@ -258,10 +259,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Canvas98BottomGridMinHeight = IsEnbaledCanvas98Bottom
 				.Select(x => x ? 480d : 0d)
 				.ToReactiveProperty();
-			IsEnabledFailsafeMistakePost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFailsafeMistakePost);
-			FailsafeMistakePostVisibility = IsEnabledFailsafeMistakePost
-				.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
-				.ToReactiveProperty();
 
 			GridSplitterVisibility = new[] {
 				IsEnbaledCanvas98Bottom,
@@ -283,7 +280,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Canvas98RightRegionVisibility = IsEnbaledCanvas98Right.Select(x => x ? Visibility.Visible : Visibility.Hidden).ToReactiveProperty();
 
 			systemConfigNotifyAction = (x) => {
-				IsEnabledFailsafeMistakePost.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFailsafeMistakePost;
 				if(Canvas98Position.Value != x.Canvas98Position) {
 					Canvas98Position.Value = x.Canvas98Position;
 					Canvas98.ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
@@ -317,7 +313,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnImageClick(RoutedEventArgs e) {
 			if((e.Source is FrameworkElement o) && (o.DataContext is Model.BindableFutabaResItem it)) {
-				if(object.ReferenceEquals(it.ThumbSource.Value, it.OriginSource.Value)) {
+				if(it.ThumbDisplay.Value ?? true) {
 					this.OpenMediaViewer(PlatformData.FutabaMedia.FromFutabaUrl(
 						it.Raw.Value.Url, it.Raw.Value.ResItem.Res));
 				}
@@ -615,33 +611,47 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnMenuItemWatchImage(Model.BindableFutabaResItem x) {
-			if(x.OriginSource.Value != null) {
-				var v = x.ThumbHash.Value ?? WpfUtil.ImageUtil.CalculatePerceptualHash(x.OriginSource.Value);
-				var watch = Ng.NgConfig.NgConfigLoader.WatchImageConfig.Images
-					.Where(y => y.Hash == v.ToString())
-					.FirstOrDefault();
-				if(watch != null) {
-					// Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
-				} else {
-					string r = null;
-					var w = new Windows.ImageReasonWindow() {
-						Owner = App.Current.MainWindow,
-					};
-					if(w.ShowDialog() ?? false) {
-						r = w.ReasonText;
-					}
+			if(x.ThumbDisplay.Value.HasValue) {
+				void f(ulong v) {
+					var watch = Ng.NgConfig.NgConfigLoader.WatchImageConfig.Images
+						.Where(y => y.Hash == v.ToString())
+						.FirstOrDefault();
+					if(watch != null) {
+						// Ng.NgConfig.NgConfigLoader.RemoveNgImage(ng);
+					} else {
+						string r = null;
+						var w = new Windows.ImageReasonWindow() {
+							Owner = App.Current.MainWindow,
+						};
+						if(w.ShowDialog() ?? false) {
+							r = w.ReasonText;
+						}
 
-					if(r != null) {
-						Ng.NgConfig.NgConfigLoader.AddWatchImage(
-							Ng.NgData.NgImageData.FromPerceptualHash(v, r));
+						if(r != null) {
+							Ng.NgConfig.NgConfigLoader.AddWatchImage(
+								Ng.NgData.NgImageData.FromPerceptualHash(v, r));
+						}
 					}
+				}
+
+				if(x.ThumbHash.Value.HasValue) {
+					f(x.ThumbHash.Value.Value);
+				} else {
+					x.LoadBitmapSource()
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Select(y => (Pixels: WpfUtil.ImageUtil.CreatePixelsBytes(y), Width: y.PixelWidth, Height: y.PixelHeight))
+						.ObserveOn(System.Reactive.Concurrency.ThreadPoolScheduler.Instance)
+						.Select(y => Ng.NgUtil.PerceptualHash.CalculateHash(y.Pixels, y.Width, y.Height, 32))
+						.ObserveOn(UIDispatcherScheduler.Default)
+						.Subscribe(y => {
+							f(y);
+						});
 				}
 			}
 		}
 
 		private void OnMenuItemNgImage(Model.BindableFutabaResItem x) {
-			if(x.OriginSource.Value != null) {
-				var v = x.ThumbHash.Value ?? WpfUtil.ImageUtil.CalculatePerceptualHash(x.OriginSource.Value);
+			void hash(ulong v) {
 				var ng = Ng.NgConfig.NgConfigLoader.NgImageConfig.Images
 					.Where(y => y.Hash == v.ToString())
 					.FirstOrDefault();
@@ -666,7 +676,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					}
 				}
 			}
+
+			if(x.ThumbHash.Value.HasValue) {
+				hash(x.ThumbHash.Value.Value);
+			} else {
+				x.LoadBitmapSource()
+					.Select(y => (Pixels: WpfUtil.ImageUtil.CreatePixelsBytes(y), Width: y.PixelWidth, Height: y.PixelHeight))
+					.ObserveOn(System.Reactive.Concurrency.ThreadPoolScheduler.Instance)
+					.Select(y => Ng.NgUtil.PerceptualHash.CalculateHash(y.Pixels, y.Width, y.Height, 32))
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(y => {
+						hash(y);
+					});
+			}
 		}
+
 		private void OnCopyTextboxQuot((BindableFutaba Futaba, TextBox TextBox) e) {
 			var sb = new StringBuilder();
 			foreach(var s in e.TextBox.SelectedText.Replace("\r", "").Split('\n')) {

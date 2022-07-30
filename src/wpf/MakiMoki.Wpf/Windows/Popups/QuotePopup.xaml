@@ -16,22 +16,23 @@
     <Popup.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Resources/Xaml/FlatButton.xaml"/>
+                <ResourceDictionary Source="/Resources/Xaml/Material.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ScrollViewer.xaml"/>
                 <ResourceDictionary Source="/Resources/Xaml/ViewerListBox.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converter:QuotePopupSourceConverter x:Key="QuotePopupSourceConverter" />
             <converter:FutabaResItemCopyTextBoxEventConverter x:Key="FutabaResItemCopyTextBoxEventConverter" />
+            <converter:BackgroundToForegroundColorConverter x:Key="BackgroundToForegroundColorConverter" />
         </ResourceDictionary>
     </Popup.Resources>
     <Border x:Name="border" BorderThickness="1">
         <Border.Background>
-            <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
+            <SolidColorBrush Color="{DynamicResource MakimokiBackgroundColor}" />
         </Border.Background>
         <Border.BorderBrush>
-            <SolidColorBrush Color="{DynamicResource ViewerBorderColor}" />
+            <SolidColorBrush Color="{DynamicResource MakimokiBorderColor}" />
         </Border.BorderBrush>
-        <Grid>
+        <Grid Margin="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" MinWidth="240" />
                 <ColumnDefinition Width="Auto" />
@@ -75,15 +76,16 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Grid Margin="16 4 16 4" Background="Transparent">
+                        <Grid Margin="2,0,2,0" Background="Transparent">
+                            <!-- 削除する -->
                             <FrameworkElement 
                                 x:Name="StyleTypeGetter"
                                 Visibility="Collapsed"
-                                DataContext="{DynamicResource StyleType}" />
+                                DataContext="" />
                             <FrameworkElement 
                                 x:Name="WhiteColorGetter"
                                 Visibility="Collapsed"
-                                DataContext="{DynamicResource ViewerBackgroundColor}" />
+                                DataContext="{DynamicResource MakimokiBackgroundColor}" />
                             <FrameworkElement 
                                 x:Name="BlackColorGetter"
                                 Visibility="Collapsed"
@@ -173,25 +175,35 @@
 
             <Button
                 x:Name="pinnedButton"
+                Style="{StaticResource MaterialTransparentButton}"
                 Grid.Column="1" Grid.Row="0"
+                Padding="2"
                 Width="24" Height="24"
                 Visibility="Visible"
-                VerticalAlignment="Top"
-                Content="{StaticResource ButtonIconPin}"
-                />
+                VerticalAlignment="Top">
+                <Button.Background>
+                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                </Button.Background>
+                <TextBlock
+                    FontFamily="{DynamicResource MakimokiSymbolFont}"
+                    FontSize="11"
+                    Text="{StaticResource FontSymbolPin}" />
+            </Button>
             <Button 
                 x:Name="closeButton"
+                Style="{StaticResource MaterialTransparentButton}"
                 Grid.Column="1" Grid.Row="0"
                 Width="24" Height="24"
+                Padding="2"
                 Visibility="Hidden"
                 VerticalAlignment="Top">
+                <Button.Background>
+                    <SolidColorBrush Color="{DynamicResource MakimokiSecondaryColor}" />
+                </Button.Background>
                 <TextBlock
-                    Foreground="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Text="✖"
-                    FontSize="8"
-                    FontFamily="Marlett"
+                    FontFamily="{DynamicResource MakimokiSymbolFont}"
+                    FontSize="11"
+                    Text="{StaticResource FontSymbolCancel}"
                     />
             </Button>
         </Grid>

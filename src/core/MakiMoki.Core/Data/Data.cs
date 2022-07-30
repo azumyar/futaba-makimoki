@@ -34,4 +34,28 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			this.Value = value;
 		}
 	}
+
+	public class Cookie2 : JsonObject {
+		[JsonProperty("name")]
+		public string Name { get; private set; }
+		[JsonProperty("value")]
+		public string Value { get; private set; }
+		[JsonProperty("path")]
+		public string Path { get; private set; }
+		[JsonProperty("domain")]
+		public string Domain { get; private set; }
+		[JsonProperty("expire")]
+		public DateTime Expire { get; private set; }
+
+		public Cookie2(string name, string value, string path, string domain, DateTime expire) {
+			this.Name = name;
+			this.Value = value;
+			this.Path = path;
+			this.Domain = domain;
+			this.Expire = expire switch {
+				DateTime d when d < DateTime.Now => DateTime.MaxValue,
+				DateTime d => d,
+			};
+		}
+	}
 }

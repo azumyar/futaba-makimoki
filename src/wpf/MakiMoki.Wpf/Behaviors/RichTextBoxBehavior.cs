@@ -41,17 +41,32 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Behaviors {
 		}
 
 		private static string GetText(RichTextBox rb) {
+			static string parse(Block b) {
+				if(b is Paragraph p) {
+					var sb = new StringBuilder();
+					foreach(var l in p.Inlines) {
+						sb.Append(l switch {
+							Emoji.Wpf.EmojiInline emoji => emoji.Text,
+							var x => new TextRange(x.ContentStart, x.ContentEnd).Text,
+						});
+					}
+					return sb.ToString();
+				} else {
+					return new TextRange(b.ContentStart, b.ContentEnd).Text;
+				}
+			}
+
 			if(rb == null) {
 				return "";
 			} else {
 				var sb = new StringBuilder();
 				foreach(var b in rb.Document.Blocks.SkipLast(1)) {
-					sb.AppendLine(new TextRange(b.ContentStart, b.ContentEnd).Text);
+					sb.AppendLine(parse(b));
 				}
 				{
 					var b = rb.Document.Blocks.LastOrDefault();
 					if(b != null) {
-						sb.Append(new TextRange(b.ContentStart, b.ContentEnd).Text);
+						sb.Append(parse(b));
 					}
 				}
 

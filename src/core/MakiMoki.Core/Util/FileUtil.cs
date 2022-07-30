@@ -2,6 +2,9 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reactive;
+using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 
 namespace Yarukizero.Net.MakiMoki.Util {
@@ -24,12 +27,26 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(path != null);
 			System.Diagnostics.Debug.Assert(s != null);
 			var m = File.Exists(path) ? FileMode.Truncate : FileMode.OpenOrCreate;
-			using(var fs = new FileStream(path, m)) {
-				var b = Encoding.UTF8.GetBytes(s);
-				fs.Write(b, 0, b.Length);
-				fs.Flush();
-				fs.Close();
-			}
+			var b = Encoding.UTF8.GetBytes(s);
+			Observable.Create<int>(async o => {
+				try {
+					using(var fs = new FileStream(path, m)) {
+						fs.Write(b, 0, b.Length);
+						fs.Flush();
+						fs.Close();
+					}
+					o.OnNext(0);
+					o.OnCompleted();
+				}
+				catch(IOException e) {
+					await System.Threading.Tasks.Task.Delay(500);
+					o.OnError(e);
+				}
+				return System.Reactive.Disposables.Disposable.Empty;
+			}).Retry(5)
+			.Subscribe(
+				s => { },
+				e => { throw e; });
 		}
 
 		public static void SaveJson(string path, object o) {

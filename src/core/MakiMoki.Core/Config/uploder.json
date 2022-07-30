@@ -12,11 +12,11 @@
     },
     {
       "root": "x-makimoki-complete-url://up/",
-      "file": "^f\\d+"
+      "file": "^f\\d{4,}"
     },
     {
       "root": "x-makimoki-complete-url://up/",
-      "file": "^fu\\d+"
+      "file": "^fu\\d{4,}"
     }
   ]
 }
