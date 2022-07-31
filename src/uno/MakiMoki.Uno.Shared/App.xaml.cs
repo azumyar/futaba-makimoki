@@ -13,13 +13,11 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Prism.Unity;
 using Windows.ApplicationModel;
-using Prism.Ioc;
 using Windows.ApplicationModel.Activation;
 
 namespace Yarukizero.Net.MakiMoki.Uno {
-	public sealed partial class App : PrismApplication {
+	public sealed partial class App : Application {
 		public App() {
 			this.InitializeComponent();
 		}

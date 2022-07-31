@@ -13,7 +13,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="$(MSBuildThisFileDirectory)Views\Shell.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -30,11 +29,7 @@
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)SharedAssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnoUtils\PlatformInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ModelBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ShellViewModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ViewModelBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Views\Shell.xaml.cs">
-      <DependentUpon>Shell.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>
