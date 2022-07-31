@@ -62,9 +62,9 @@ namespace Yarukizero.Net.MakiMoki.Uno.UnoModels {
 							// TODO: DBに保存処理
 							Observable.Return(r)
 								.ObserveOn(UIDispatcherScheduler.Default)
-								.Subscribe(x => {
+								.Subscribe(async x => {
 									var bi = new BitmapImage();
-									bi.SetSource(new System.IO.MemoryStream(x));
+									await bi.SetSourceAsync(new System.IO.MemoryStream(x));
 									o.OnNext(this.SetImage(url, bi));
 									o.OnCompleted();
 								});
