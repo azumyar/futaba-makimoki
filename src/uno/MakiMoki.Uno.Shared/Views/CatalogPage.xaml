@@ -1,0 +1,64 @@
+<Page    x:Class="Yarukizero.Net.MakiMoki.Uno.Views.CatalogPage"    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"    xmlns:local="using:Yarukizero.Net.MakiMoki.Uno.Views"    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"	xmlns:ui="using:Uno.Toolkit.UI"    xmlns:uen="using:Uno.Extensions.Navigation.UI"    xmlns:iv="using:Microsoft.Xaml.Interactivity"
+    xmlns:is="using:Microsoft.Xaml.Interactions.Core"
+    mc:Ignorable="d"    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">    <Grid>        <Grid.RowDefinitions>            <RowDefinition Height="Auto" />            <RowDefinition Height="*" />        </Grid.RowDefinitions>        <ui:NavigationBar            Grid.Row="0"            Content="カタログ"            x:Uid="Page_NavigationBar"            Style="{StaticResource MaterialNavigationBarStyle}">            <ui:NavigationBar.MainCommand>                <AppBarButton Foreground="{ThemeResource MaterialOnPrimaryMediumBrush}">                    <AppBarButton.Content>                        <TextBlock Text="A" />                    </AppBarButton.Content>                </AppBarButton>            </ui:NavigationBar.MainCommand>        </ui:NavigationBar>        <ListView            Grid.Row="1"            ItemsSource="{Binding Source.Value, Mode=OneWay}"            SelectionMode="None"            Clickable="False">            <ListView.ItemTemplate>                <DataTemplate>
+                    <Grid x:Name="Root">
+                        <Grid.Resources>
+                            <ControlTemplate x:Key="CatalogItem" TargetType="UserControl">
+                                <Border
+                                    Width="96" Height="112"
+                                    HorizontalAlignment="Center">                                    <Button                                        Style="{StaticResource MaterialTextButtonStyle}"                                        CornerRadius="4"                                        HorizontalAlignment="Stretch"                                        VerticalAlignment="Stretch"                                        HorizontalContentAlignment="Stretch"                                        VerticalContentAlignment="Stretch"                                        uen:Navigation.Request="Thread"                                        uen:Navigation.Data="{Binding Url}">                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="96" />
+                                            </Grid.ColumnDefinitions>                                            <Grid.RowDefinitions>                                                <RowDefinition Height="96" />                                                <RowDefinition Height="16" />                                            </Grid.RowDefinitions>
+                                            <Image
+                                                Grid.Row="0"
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Stretch"
+                                                Source="{Binding Image, Mode=OneWay}"
+                                                />
+                                            <TextBlock                                                Grid.Row="1"
+                                                Margin="4,0,4,0"                                                HorizontalAlignment="Left"                                                VerticalAlignment="Center"                                                Text="{Binding Text}"
+                                                FontSize="11"                                                />                                        </Grid>                                    </Button>                                </Border>
+                            </ControlTemplate>
+                        </Grid.Resources>
+
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <UserControl
+                                Grid.Column="0"
+                                HorizontalAlignment="Stretch"
+                                DataContext="{Binding Item00}"
+                                Visibility="{Binding DataContext.Item00Visibility, Mode=OneWay, FallbackValue=Collapsed, ElementName=Root}"
+                                Template="{StaticResource CatalogItem}"
+                                />
+                            <UserControl
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                DataContext="{Binding Item01}"
+                                Visibility="{Binding DataContext.Item01Visibility, Mode=OneWay, FallbackValue=Collapsed, ElementName=Root}"
+                                Template="{StaticResource CatalogItem}"
+                                />
+                            <UserControl
+                                Grid.Column="2"
+                                HorizontalAlignment="Stretch"
+                                DataContext="{Binding Item02}"
+                                Visibility="{Binding DataContext.Item02Visibility, Mode=OneWay, FallbackValue=Collapsed, ElementName=Root}"
+                                Template="{StaticResource CatalogItem}"
+                                />
+                            <UserControl
+                                Grid.Column="3"
+                                HorizontalAlignment="Stretch"
+                                DataContext="{Binding Item03}"
+                                Visibility="{Binding DataContext.Item03Visibility, Mode=OneWay, FallbackValue=Collapsed, ElementName=Root}"
+                                Template="{StaticResource CatalogItem}"
+                                />
+                        </Grid>
+                        
+                    </Grid>                </DataTemplate>            </ListView.ItemTemplate>        </ListView>    </Grid></Page>

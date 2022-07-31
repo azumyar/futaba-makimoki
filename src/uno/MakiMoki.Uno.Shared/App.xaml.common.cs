@@ -55,7 +55,7 @@ namespace Yarukizero.Net.MakiMoki.Uno {
 				"User-Agent",
 				ContentType);
 
-			Reactive.Bindings.UIDispatcherScheduler.Initialize();
+			global::Reactive.Bindings.UIDispatcherScheduler.Initialize();
 			Config.ConfigLoader.Initialize(new Config.ConfigLoader.Setting() {
 				RestUserAgent = ContentType,
 				/*

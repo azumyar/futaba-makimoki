@@ -15,6 +15,15 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+
+                <MaterialColors xmlns="using:Uno.Material" OverrideSource="ms-appx:///Resources/ColorPaletteOverride.xaml" />
+                <MaterialFonts xmlns="using:Uno.Material"  OverrideSource="ms-appx:///Resources/MaterialFontsOverride.xaml" />
+                <MaterialResources xmlns="using:Uno.Material" />
+
+                <!-- Load Uno.UI.Toolkit resources -->
+                <ToolkitResources xmlns="using:Uno.Toolkit.UI" />
+                <MaterialToolkitResources xmlns="using:Uno.Toolkit.UI.Material" />
             </ResourceDictionary.MergedDictionaries>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">

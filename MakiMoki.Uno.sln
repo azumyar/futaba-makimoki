@@ -22,11 +22,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakiMoki.Core", "src\core\M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakiMoki.Uno.Mobile", "src\uno\MakiMoki.Uno.Mobile\MakiMoki.Uno.Mobile.csproj", "{DC57ADE3-14D4-48DD-BC70-ECE90B4431A7}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MakiMoki.Shared.Reactive", "src\shared\MakiMoki.Shared.Reactive\MakiMoki.Shared.Reactive.shproj", "{16DB6A27-AB9D-441B-BEBE-ED0F94C07398}"
+EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		src\uno\MakiMoki.Uno.Shared\MakiMoki.Uno.Shared.projitems*{6828645f-a9ed-4d01-abb3-58d9ca626975}*SharedItemsImports = 13
-		src\uno\MakiMoki.Uno.Shared\MakiMoki.Uno.Shared.projitems*{dc57ade3-14d4-48dd-bc70-ece90b4431a7}*SharedItemsImports = 5
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -50,8 +48,15 @@ Global
 		{6828645F-A9ED-4D01-ABB3-58D9CA626975} = {2E902488-01FF-4E0A-A908-532271C9AE58}
 		{F899C94F-8100-48A7-863D-AAF75BF81B9A} = {C6F32707-EB02-4FD9-9CEC-DC0B091558C2}
 		{DC57ADE3-14D4-48DD-BC70-ECE90B4431A7} = {AEDF3A44-37C2-457A-911D-0BE9408C404C}
+		{16DB6A27-AB9D-441B-BEBE-ED0F94C07398} = {2E902488-01FF-4E0A-A908-532271C9AE58}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {09DD425B-7B31-45D5-83FD-0F8CA1AF9E75}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\shared\MakiMoki.Shared.Reactive\MakiMoki.Shared.Reactive.projitems*{16db6a27-ab9d-441b-bebe-ed0f94c07398}*SharedItemsImports = 13
+		src\uno\MakiMoki.Uno.Shared\MakiMoki.Uno.Shared.projitems*{6828645f-a9ed-4d01-abb3-58d9ca626975}*SharedItemsImports = 13
+		src\shared\MakiMoki.Shared.Reactive\MakiMoki.Shared.Reactive.projitems*{dc57ade3-14d4-48dd-bc70-ece90b4431a7}*SharedItemsImports = 5
+		src\uno\MakiMoki.Uno.Shared\MakiMoki.Uno.Shared.projitems*{dc57ade3-14d4-48dd-bc70-ece90b4431a7}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

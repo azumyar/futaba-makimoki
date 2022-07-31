@@ -7,7 +7,7 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 	internal class ShellViewModel {
 		public ShellViewModel(INavigator navigator) {
 			System.Diagnostics.Debug.WriteLine("init shell vm");
-			navigator.NavigateViewAsync<Views.MainPage>(this);
+			navigator.NavigateViewAsync<Views.MobilePage>(this);
 		}
 	}
 }
