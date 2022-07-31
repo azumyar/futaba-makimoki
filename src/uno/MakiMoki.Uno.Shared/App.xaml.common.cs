@@ -16,6 +16,8 @@ namespace Yarukizero.Net.MakiMoki.Uno {
 		public static string AppCacheDirectory { get; private set; }
 		public static string AppWorkDirectory { get; private set; }
 
+		public static new App Current => (App)Windows.UI.Xaml.Application.Current;
+
 		static App() {
 			System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 		}
@@ -49,7 +51,7 @@ namespace Yarukizero.Net.MakiMoki.Uno {
 
 			ContentType = $"FutaMaki/{ platform }/{ version }/{ device }";
 			HttpClient = new System.Net.Http.HttpClient();
-			HttpClient.DefaultRequestHeaders.Add(
+			HttpClient.DefaultRequestHeaders.TryAddWithoutValidation(
 				"User-Agent",
 				ContentType);
 
