@@ -6,7 +6,9 @@ using System.Reactive.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using AngleSharp.Html.Parser;
 using AngleSharp.Dom;
 using Reactive.Bindings;
@@ -19,16 +21,25 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 			public CatalogItem Item01 { get; }
 			public CatalogItem Item02 { get; }
 			public CatalogItem Item03 { get; }
+			public CatalogItem Item04 { get; }
 			public Windows.UI.Xaml.Visibility Item00Visibility => ConvVisibility(Item00);
 			public Windows.UI.Xaml.Visibility Item01Visibility => ConvVisibility(Item01);
 			public Windows.UI.Xaml.Visibility Item02Visibility => ConvVisibility(Item02);
 			public Windows.UI.Xaml.Visibility Item03Visibility => ConvVisibility(Item03);
+			public Windows.UI.Xaml.Visibility Item04Visibility => ConvVisibility(Item04);
 
-			public CatalogItemGroup(CatalogItem item00, CatalogItem item01, CatalogItem item02, CatalogItem item03) {
+			public CatalogItemGroup(
+				CatalogItem item00,
+				CatalogItem item01,
+				CatalogItem item02,
+				CatalogItem item03,
+				CatalogItem item04) {
+
 				this.Item00 = item00;
 				this.Item01 = item01;
 				this.Item02 = item02;
 				this.Item03 = item03;
+				this.Item04 = item04;
 			}
 
 			private Windows.UI.Xaml.Visibility ConvVisibility(CatalogItem? item) => item switch {
@@ -41,21 +52,39 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 			public string Text { get; }
 			public Data.UrlContext Url { get; }
 
-			private BitmapSource _image = null;
-			private object _imageToken = null;
-			public BitmapSource Image {
+			private WeakReference<ImageSource> _image = new WeakReference<ImageSource>(default);
+			private bool? _imageToken = null;
+			public ImageSource Image {
 				get {
-					if(this._imageToken == null) {
-						ImageResolver.Get(GetFutabaThumbImageUrl(Url, ResItem))
+					void get() {
+						ImageResolver.Get(
+							url: GetFutabaThumbImageUrl(Url, ResItem)
+#if __ANDROID__
+							, droidImageSize: 128
+#endif
+							)
 							.Subscribe(x => {
-								this.Image = x;
-							});
+								  this.Image = x;
+							  });
 					}
-					return this._image;
+
+					if(this._imageToken == null) {
+						get();
+						return null;
+					} else {
+						if(this._image.TryGetTarget(out var r)) {
+							return r;
+						} else {
+							if(this._imageToken.Value) {
+								get();
+							}
+							return null;
+						}
+					}
 				}
 				set {
-					this._image = value;
-					this._imageToken = new object();
+					this._image.SetTarget(value);
+					this._imageToken = value is not null;
 					this.PropertyChanged?.Invoke(
 						this,
 						new System.ComponentModel.PropertyChangedEventArgs(nameof(Image)));
@@ -87,19 +116,37 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 		private readonly Data.BoardData boardData;
 
 		public ReactiveProperty<IEnumerable<CatalogItemGroup>> Source { get; } = new ReactiveProperty<IEnumerable<CatalogItemGroup>>();
+		public ReactiveProperty<double> ItemWidthDouble { get; } = new ReactiveProperty<double>();
+		public ReactiveProperty<double> ItemHeightDouble { get; } = new ReactiveProperty<double>();
+		public ReactiveProperty<GridLength> ItemSizeLengh { get; } = new ReactiveProperty<GridLength>();
+		public ReactiveProperty<Windows.UI.Xaml.Visibility> NowLoadingVisibility { get; } = new ReactiveProperty<Windows.UI.Xaml.Visibility>(Windows.UI.Xaml.Visibility.Collapsed);
+		
+		public Reactive.MakiMokiCommand<FrameworkElement> LoadedCommand { get; } = new Reactive.MakiMokiCommand<FrameworkElement>();
 
 		public CatalogPageViewModel(Data.BoardData boardData, UnoModels.ImageResolver imageResolver) {
 			this.boardData = boardData;
 			this.imageResolver = imageResolver;
+
+			this.LoadedCommand.Subscribe(x => {
+				var w = (int)(x.ActualWidth / 5 / 4) * 4; // 4の倍数の整数にする
+				this.ItemWidthDouble.Value = w;
+				this.ItemHeightDouble.Value = w + 16;
+				this.ItemSizeLengh.Value = new GridLength(w, GridUnitType.Pixel);
+			});
+
+
 			this.UpdateCatalog();
 		}
 
 		private void UpdateCatalog() {
+			this.NowLoadingVisibility.Value = Windows.UI.Xaml.Visibility.Visible;
 			//Util.FutabaApiReactive.GetCatalog
 			GetCatalog(this.boardData)
 				.ObserveOn(UIDispatcherScheduler.Default)
-				.Subscribe(x => {
-					static IEnumerable<CatalogItemGroup> split(IEnumerable<CatalogItem> input, int split = 4) {
+				.Finally(() => {
+					this.NowLoadingVisibility.Value = Windows.UI.Xaml.Visibility.Collapsed;
+				}).Subscribe(x => {
+					static IEnumerable<CatalogItemGroup> split(IEnumerable<CatalogItem> input, int split = 5) {
 						var r = new List<CatalogItemGroup>();
 						var @in = input;
 						while(@in.Any()) {
@@ -108,7 +155,8 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 								@in.ElementAtOrDefault(0),
 								@in.ElementAtOrDefault(1),
 								@in.ElementAtOrDefault(2),
-								@in.ElementAtOrDefault(3)));
+								@in.ElementAtOrDefault(3),
+								@in.ElementAtOrDefault(4)));
 							@in = @in.Skip(split);
 						}
 						return r.AsReadOnly();
@@ -117,7 +165,7 @@ namespace Yarukizero.Net.MakiMoki.Uno.ViewModels {
 					var regex = new Regex("<[^>]*>");
 					Source.Value = x.Successed switch {
 						true => Source.Value = split(x.Data.ResItems.Select(x => new CatalogItem(
-							Text: regex.Replace(x.ResItem.Res.Com, "") switch {
+							Text: Util.TextUtil.RowComment2Text(x.ResItem.Res.Com) switch {
 								string s when 4 < s.Length => s.Substring(0, 4),
 								string s => s,
 								_ => throw new ArgumentException()

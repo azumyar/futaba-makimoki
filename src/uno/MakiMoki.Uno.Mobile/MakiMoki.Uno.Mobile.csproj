@@ -50,6 +50,7 @@
     <PackageReference Include="Uno.Extensions.Navigation.UI" Version="2.1.1" />
     <PackageReference Include="Uno.Extensions.Navigation.Toolkit.UI" Version="2.1.1" />
     <PackageReference Include="Uno.Material" Version="2.2.0" />
+    <PackageReference Include="Uno.Microsoft.Xaml.Behaviors.Uwp.Managed" Version="2.3.0" />
     <PackageReference Include="Uno.Toolkit.UI" Version="2.2.0" />
     <PackageReference Include="Uno.Toolkit.UI.Material" Version="2.2.0" />
     <PackageReference Include="Uno.UI" Version="4.4.13" />
