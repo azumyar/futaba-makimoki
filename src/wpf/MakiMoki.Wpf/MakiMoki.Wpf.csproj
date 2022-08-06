@@ -1,4 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\..\..\futaba-makimoki\src\shared\MakiMoki.Shared.Reactive\MakiMoki.Shared.Reactive.projitems" Label="Shared" />
+  <Import Project="..\..\shared\MakiMoki.Shared.Futaba\MakiMoki.Shared.Futaba.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')" />
 
   <PropertyGroup>
@@ -67,7 +69,6 @@
     <ProjectReference Include="..\..\core\MakiMoki.Core.Ng\MakiMoki.Core.Ng.csproj" />
     <ProjectReference Include="..\..\core\MakiMoki.Core\MakiMoki.Core.csproj" />
     <ProjectReference Include="..\MakiMoki.Wpf.Canvas98\MakiMoki.Wpf.Canvas98.csproj" />
-    <ProjectReference Include="..\MakiMoki.Wpf.Reactive\MakiMoki.Wpf.Reactive.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Emoji.Wpf" Version="0.3.3" />

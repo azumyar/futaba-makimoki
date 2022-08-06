@@ -19,7 +19,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	/// <summary>
 	/// FutabaMediaViewer.xaml の相互作用ロジック
 	/// </summary>
-	public partial class FutabaPostView : UserControl {
+	partial class FutabaPostView : UserControl {
 		public static readonly DependencyProperty ContentsProperty
 			= DependencyProperty.Register(
 				nameof(Contents),

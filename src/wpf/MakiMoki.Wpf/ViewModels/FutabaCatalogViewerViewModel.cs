@@ -18,9 +18,9 @@ using Prism.Events;
 using Prism.Mvvm;
 using Reactive.Bindings;
 using Yarukizero.Net.MakiMoki.Data;
+using Yarukizero.Net.MakiMoki.Reactive;
 using Yarukizero.Net.MakiMoki.Wpf.Controls;
 using Yarukizero.Net.MakiMoki.Wpf.Model;
-using Yarukizero.Net.MakiMoki.Wpf.Reactive;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class FutabaCatalogViewerViewModel : BindableBase, IDisposable {

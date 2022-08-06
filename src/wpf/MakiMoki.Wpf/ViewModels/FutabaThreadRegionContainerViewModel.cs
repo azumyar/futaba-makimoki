@@ -13,8 +13,8 @@ using Prism.Navigation;
 using Prism.Regions;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using Yarukizero.Net.MakiMoki.Reactive;
 using Yarukizero.Net.MakiMoki.Wpf.Model;
-using Yarukizero.Net.MakiMoki.Wpf.Reactive;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class FutabaThreadRegionContainerViewModel : BindableBase, IDisposable, IDestructible {

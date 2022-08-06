@@ -17,7 +17,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	/// <summary>
 	/// ThreadRegionContainer.xaml の相互作用ロジック
 	/// </summary>
-	public partial class FutabaThreadRegionContainer : UserControl {
+	partial class FutabaThreadRegionContainer : UserControl {
 		public static readonly DependencyProperty ContentsProperty
 			= DependencyProperty.Register(
 				nameof(Contents),

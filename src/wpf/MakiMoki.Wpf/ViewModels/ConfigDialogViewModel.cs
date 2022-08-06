@@ -11,10 +11,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using Yarukizero.Net.MakiMoki.Reactive;
 using Yarukizero.Net.MakiMoki.Wpf.PlatformData;
 using Yarukizero.Net.MakiMoki.Wpf.WpfConfig;
 using Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config;
-using Yarukizero.Net.MakiMoki.Wpf.Reactive;
 using Prism.Services.Dialogs;
 using System.Windows.Input;
 
