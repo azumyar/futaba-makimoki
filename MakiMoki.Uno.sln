@@ -24,7 +24,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakiMoki.Uno.Mobile", "src\
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MakiMoki.Shared.Reactive", "src\shared\MakiMoki.Shared.Reactive\MakiMoki.Shared.Reactive.shproj", "{16DB6A27-AB9D-441B-BEBE-ED0F94C07398}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MakiMoki.Shared.Futaba", "..\futaba-makimoki\src\shared\MakiMoki.Shared.Futaba\MakiMoki.Shared.Futaba.shproj", "{9FA605F0-AC67-4D9D-87B0-825C892ACAC2}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MakiMoki.Shared.Futaba", "src\shared\MakiMoki.Shared.Futaba\MakiMoki.Shared.Futaba.shproj", "{9FA605F0-AC67-4D9D-87B0-825C892ACAC2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,9 +59,9 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\shared\MakiMoki.Shared.Reactive\MakiMoki.Shared.Reactive.projitems*{16db6a27-ab9d-441b-bebe-ed0f94c07398}*SharedItemsImports = 13
 		src\uno\MakiMoki.Uno.Shared\MakiMoki.Uno.Shared.projitems*{6828645f-a9ed-4d01-abb3-58d9ca626975}*SharedItemsImports = 13
-		..\futaba-makimoki\src\shared\MakiMoki.Shared.Futaba\MakiMoki.Shared.Futaba.projitems*{9fa605f0-ac67-4d9d-87b0-825c892acac2}*SharedItemsImports = 13
+		src\shared\MakiMoki.Shared.Futaba\MakiMoki.Shared.Futaba.projitems*{9fa605f0-ac67-4d9d-87b0-825c892acac2}*SharedItemsImports = 13
+		src\shared\MakiMoki.Shared.Futaba\MakiMoki.Shared.Futaba.projitems*{dc57ade3-14d4-48dd-bc70-ece90b4431a7}*SharedItemsImports = 5
 		src\shared\MakiMoki.Shared.Reactive\MakiMoki.Shared.Reactive.projitems*{dc57ade3-14d4-48dd-bc70-ece90b4431a7}*SharedItemsImports = 5
 		src\uno\MakiMoki.Uno.Shared\MakiMoki.Uno.Shared.projitems*{dc57ade3-14d4-48dd-bc70-ece90b4431a7}*SharedItemsImports = 5
-		..\futaba-makimoki\src\shared\MakiMoki.Shared.Futaba\MakiMoki.Shared.Futaba.projitems*{dc57ade3-14d4-48dd-bc70-ece90b4431a7}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal
