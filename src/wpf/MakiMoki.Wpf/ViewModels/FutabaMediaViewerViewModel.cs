@@ -16,8 +16,8 @@ using Prism.Events;
 using Yarukizero.Net.MakiMoki.Wpf.Controls;
 using System.IO;
 using Yarukizero.Net.MakiMoki.Util;
+using Yarukizero.Net.MakiMoki.Reactive;
 using Yarukizero.Net.MakiMoki.Wpf.WpfUtil;
-using Yarukizero.Net.MakiMoki.Wpf.Reactive;
 using Prism.Regions;
 using Prism.Navigation;
 

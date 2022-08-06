@@ -18,13 +18,10 @@ using System.Reactive.Concurrency;
 using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Ng.NgData;
 using Yarukizero.Net.MakiMoki.Util;
-using Yarukizero.Net.MakiMoki.Wpf.Reactive;
+using Yarukizero.Net.MakiMoki.Reactive;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
-	public class BindableFutaba : INotifyPropertyChanged, IDisposable {
-#pragma warning disable CS0067
-		public event PropertyChangedEventHandler PropertyChanged;
-#pragma warning restore CS0067
+	public class BindableFutaba : Bindable.CommonBindableFutaba {
 		[Helpers.AutoDisposable.IgonoreDispose]
 		[Helpers.AutoDisposable.IgonoreDisposeBindingsValue]
 		public ReactiveCollection<BindableFutabaResItem> ResItems { get; }
@@ -290,10 +287,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			disps.Dispose();
 		}
 
-		public void Dispose() {
-			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
-		}
-
 		private void OnFullScreenCatalogClick() {
 			this.IsFullScreenCatalogMode.Value = !this.IsFullScreenCatalogMode.Value;
 		}
@@ -499,7 +492,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 	}
 
-	public class BindableFutabaResItem : INotifyPropertyChanged, IDisposable {
+	public class BindableFutabaResItem : Bindable.CommonBindableFutabaResItem {
 		private class RefValue<T> where T:struct {
 			public T Value { get; }
 
@@ -521,9 +514,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			src.ThumbHash.Value = null;
 		}
 
-#pragma warning disable CS0067
-		public event PropertyChangedEventHandler PropertyChanged;
-#pragma warning restore CS0067
 		public string Id { get; }
 		public ReactiveProperty<int> Index { get; }
 		public ReactiveProperty<string> ImageName { get; }
@@ -544,12 +534,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 									false => WpfUtil.ImageUtil.GetNgImage()
 								}
 							});
-							this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ThumbSource)));
+							this._propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ThumbSource)));
 						});
 				} else {
 					this.ThumbDisplay.Value = true;
 					this.thumbSource.SetTarget(value);
-					this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ThumbSource)));
+					this._propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ThumbSource)));
 				}
 			}
 			get {
@@ -828,10 +818,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.MenuItemUnregisterHiddenVisibility = this.IsHidden.Select(x => x ? Visibility.Visible : Visibility.Collapsed).ToReactiveProperty();
 
 			this.FutabaTextBlockMouseDownCommand.Subscribe(x => OnFutabaTextBlockMouseDown(x));
-		}
-
-		public void Dispose() {
-			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
 		public void ReleaseHiddenRes() {
