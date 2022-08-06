@@ -50,6 +50,7 @@
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)SharedAssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnoModels\ImageResolver.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UnoModels\UnoImageSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnoUtils\PlatformInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\CatalogPageViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MobilePageViewModel.cs" />
@@ -67,5 +68,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Views\ThreadPage.xaml.cs">
       <DependentUpon>ThreadPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Views\UnoImage.cs" />
   </ItemGroup>
 </Project>

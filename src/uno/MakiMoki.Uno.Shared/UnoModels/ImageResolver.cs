@@ -12,11 +12,6 @@ using Android.Graphics;
 #endif
 namespace Yarukizero.Net.MakiMoki.Uno.UnoModels {
 	class ImageResolver {
-#if __ANDROID__
-		class DroidImageSource : ImageSource {
-			public DroidImageSource(Bitmap bmp) : base(bmp) { }
-		}
-#endif
 		private readonly Helpers.ConnectionQueue<ImageSource> imageQueue = new Helpers.ConnectionQueue<ImageSource>(
 			name: "UnoイメージQueue",
 			maxConcurrency: 12,
@@ -100,7 +95,7 @@ namespace Yarukizero.Net.MakiMoki.Uno.UnoModels {
 										var y => y.Bmp,
 									};
 								})
-								.Select(x => new DroidImageSource(x))
+								.Select(x => new UnoImageSource(x))
 								.ObserveOn(UIDispatcherScheduler.Default)
 								.Subscribe(x => {
 									o.OnNext(this.SetImage(url, x));
