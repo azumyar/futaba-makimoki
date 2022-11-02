@@ -39,6 +39,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 			public int time;
 			public IntPtr dwExtraInfo;
 		}
+		[DllImport("kernel32.dll")]
+		private static extern IntPtr GetModuleHandle(string lpModuleName);
 		[DllImport("user32.dll")]
 		private static extern bool GetCursorPos(ref POINT pt);
 		[DllImport("user32.dll")]
