@@ -90,7 +90,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 			}
 
 			private void EnableDwmClient(IntPtr hwnd, bool enable) {
-				var v = enable ? -1 : 0;
+				const int WS_EX_NOREDIRECTIONBITMAP = 0x00200000;
+				const int GWL_EXSTYLE = -20;
+
+				var v = enable switch {
+					true => -1,
+					false => 0,
+				};
 				var mgn = new MARGINS() {
 					cxLeftWidth = v,
 					cxRightWidth = v,
@@ -98,6 +104,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 					cyBottomHeight = v,
 				};
 				DwmExtendFrameIntoClientArea(hwnd, ref mgn);
+				/*
+				var ex = GetWindowLongValue(hwnd, GWL_EXSTYLE).ToInt32();
+				System.Diagnostics.Debug.WriteLine($"EX_STYLE  = {ex & WS_EX_NOREDIRECTIONBITMAP}");
+				/*
+				if(!enable && ((ex & WS_EX_NOREDIRECTIONBITMAP) == WS_EX_NOREDIRECTIONBITMAP)) {
+					return;
+				}
+				*/
+				/*
+				SetWindowLongValue(hwnd, GWL_EXSTYLE, enable switch {
+					true => (IntPtr)(ex | WS_EX_NOREDIRECTIONBITMAP),
+					false => (IntPtr)(ex & ~WS_EX_NOREDIRECTIONBITMAP),
+				});
+				*/
 			}
 
 			private void SetComposition(IntPtr hwnd, ACCENT_POLICY policy) {
@@ -136,7 +156,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 				};
 				this.Source.CompositionTarget.BackgroundColor = p.C;
 				this.EnableDwmClient(hwnd, powerLine);
-				this.SetComposition(hwnd, p.P);
+				if(App.OsCompat.IsWindows11Ver22H2 && false) {
+					// Win11 22H2では公式APIを使用するのでエアロはサポートしない
+					var type = DWMSBT_TRANSIENTWINDOW;
+					DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, ref type, sizeof(int));
+				} else {
+					this.SetComposition(hwnd, p.P);
+				}
 			}
 
 			private void EnableAcryicBlur(IntPtr hwnd, (Color BaseColor, Color Accent) blur, bool powerLine) {
@@ -163,27 +189,44 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 						AnimationId = 0
 					})
 				};
-				this.Source.CompositionTarget.BackgroundColor = p.C;
-				this.EnableDwmClient(hwnd, powerLine);
-				this.SetComposition(hwnd, p.P);
+				if(App.OsCompat.IsWindows11Ver22H2 && false) {
+					if(powerLine) {
+						this.Source.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
+						this.Source.CompositionTarget.BackgroundColor = Color.FromArgb(128, blur.Accent.R, blur.Accent.G, blur.Accent.B);
+						this.ApplyDarkMode(hwnd, true);
+					} else {
+						this.Source.CompositionTarget.BackgroundColor = Color.FromRgb(blur.Accent.R, blur.Accent.G, blur.Accent.B);
+					}
+					this.EnableDwmClient(hwnd, powerLine);
+					var type = powerLine switch {
+						true => DWMSBT_TRANSIENTWINDOW,
+						false => DWMSBT_NONE
+					};
+					DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, ref type, sizeof(int));
+				} else {
+					this.Source.CompositionTarget.BackgroundColor = p.C;
+					this.EnableDwmClient(hwnd, powerLine);
+					this.SetComposition(hwnd, p.P);
+				}
 			}
 
 			private void DisableBlur(IntPtr hwnd) {
-				var policy = new ACCENT_POLICY() {
-					AccentState = ACCENT_DISABLED,
-					AccentFlags = 0,
-					GradientColor = 0,
-					AnimationId = 0
-				};
 				this.EnableDwmClient(hwnd, false);
-				this.SetComposition(hwnd, policy);
+				if(App.OsCompat.IsWindows11Ver22H2 && false) {
+					var type = DWMSBT_NONE;
+					DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, ref type, sizeof(int));
+				} else {
+					var policy = new ACCENT_POLICY() {
+						AccentState = ACCENT_DISABLED,
+						AccentFlags = 0,
+						GradientColor = 0,
+						AnimationId = 0
+					};
+					this.SetComposition(hwnd, policy);
+				}
 			}
 
-			private void EnableMica(IntPtr hwnd, bool isDark) {
-				// この処理はRTMでしか動かない
-				this.Source.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
-
-				var hsv = WpfUtil.ImageUtil.ToHsv((Color)App.Current.Resources["MakimokiBackgroundColor"]);
+			private void ApplyDarkMode(IntPtr hwnd, bool isDark) {
 				var @true = 1;
 				var @false = 0;
 				if(isDark) {
@@ -191,15 +234,32 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 				} else {
 					DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref @false, sizeof(int));
 				}
+			}
+
+			private void EnableMica(IntPtr hwnd, bool isDark) {
+				this.Source.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
+				this.ApplyDarkMode(hwnd, isDark);
 				this.EnableDwmClient(hwnd, true);
-				DwmSetWindowAttribute(hwnd, DWMWA_MICA_EFFECT, ref @true, sizeof(int));
+				if(App.OsCompat.IsWindows11Ver22H2 && false) {
+					var type = DWMSBT_MAINWINDOW;
+					DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, ref type, sizeof(int));
+				} else {
+					// この処理はRTMでしか動かない
+					var @true = 1;
+					DwmSetWindowAttribute(hwnd, DWMWA_MICA_EFFECT, ref @true, sizeof(int));
+				}
 			}
 
 			private void DisableMica(IntPtr hwnd) {
-				// この処理はRTMでしか動かない
-				var @false = 0;
-				this.EnableDwmClient(hwnd, false);
-				DwmSetWindowAttribute(hwnd, DWMWA_MICA_EFFECT, ref @false, sizeof(int));
+				this.EnableDwmClient(hwnd, false); 
+				if(App.OsCompat.IsWindows11Ver22H2 && false) {
+					var type = DWMSBT_NONE;
+					DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, ref type, sizeof(int));
+				} else {
+					// この処理はRTMでしか動かない
+					var @false = 0;
+					DwmSetWindowAttribute(hwnd, DWMWA_MICA_EFFECT, ref @false, sizeof(int));
+				}
 			}
 
 			private void EnableDwmRound(IntPtr hwnd, bool enable, bool small) {
@@ -303,6 +363,30 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 		private static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, int flags);
 		[DllImport("user32.dll")]
 		private static extern bool IsZoomed(IntPtr hWnd);
+		[DllImport("user32.dll")]
+		private static extern long SetWindowLongPtr(IntPtr hWnd, int flag, long newVal);
+		[DllImport("user32.dll")]
+		private static extern int SetWindowLong(IntPtr hWnd, int flag, int newVal);
+
+		private static IntPtr SetWindowLongValue(IntPtr hWnd, int flag, IntPtr newVal) {
+			return IntPtr.Size switch {
+				4 => (IntPtr)SetWindowLong(hWnd, flag, newVal.ToInt32()),
+				_ => (IntPtr)SetWindowLongPtr(hWnd, flag, newVal.ToInt64()),
+			};
+		}
+
+		[DllImport("user32.dll")]
+		private static extern long GetWindowLongPtr(IntPtr hWnd, int flag);
+		[DllImport("user32.dll")]
+		private static extern int GetWindowLong(IntPtr hWnd, int flag);
+
+		private static IntPtr GetWindowLongValue(IntPtr hWnd, int flag) {
+			return IntPtr.Size switch {
+				4 => (IntPtr)GetWindowLong(hWnd, flag),
+				_ => (IntPtr)GetWindowLongPtr(hWnd, flag),
+			};
+		}
+
 		[DllImport("PowrProf.dll")]
 		private static extern uint CallNtPowerInformation(int InformationLevel, IntPtr InputBuffer, int InputBufferLength, ref SYSTEM_BATTERY_STATE OutputBuffer, int OutputBufferLength);
 		[StructLayout(LayoutKind.Sequential)]
@@ -361,6 +445,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 
 		private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
 		private const int DWMWA_MICA_EFFECT = 1029;
+
+		private const int DWMWA_SYSTEMBACKDROP_TYPE = 38;
+		private const int DWMSBT_AUTO = 0;
+		private const int DWMSBT_NONE = 1;
+		private const int DWMSBT_MAINWINDOW = 2;
+		private const int DWMSBT_TRANSIENTWINDOW = 3;
+		private const int DWMSBT_TABBEDWINDOW = 4;
 
 		private const int ACCENT_DISABLED = 0;
 		private const int ACCENT_ENABLE_GRADIENT = 1;

@@ -37,6 +37,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 			public bool IsWindows10Ver21H1 { get; init; }
 			public bool IsWindows10Ver21H2 { get; init; }
 			public bool IsWindows11Rtm { get; init; }
+			public bool IsWindows11Ver22H2 { get; init; }
 		}
 		private static readonly string ExeConfig = "windows.exe.json";
 
@@ -71,6 +72,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					IsWindows10Ver21H1 = new Version(10, 0, 19042) <= Environment.OSVersion.Version,
 					IsWindows10Ver21H2 = new Version(10, 0, 19044) <= Environment.OSVersion.Version,
 					IsWindows11Rtm = new Version(10, 0, 17763) <= Environment.OSVersion.Version,
+					IsWindows11Ver22H2 = new Version(10, 0, 22621) <= Environment.OSVersion.Version,
 				};
 			} else {
 				OsCompat = new CompatValue();
