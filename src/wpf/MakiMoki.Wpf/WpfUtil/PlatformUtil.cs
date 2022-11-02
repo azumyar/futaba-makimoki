@@ -42,12 +42,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		}
 
 		public static async Task<bool> CheckNewVersion() {
-			if(Uri.TryCreate( PlatformConst.VersionCheckUrl, UriKind.Absolute, out var uri)) {
-				using(var client = new System.Net.Http.HttpClient() {
-					Timeout = TimeSpan.FromMilliseconds(5000),
-				}) {
-					client.DefaultRequestHeaders.Add("User-Agent", GetContentType());
-					var ret = await client.SendAsync(new System.Net.Http.HttpRequestMessage(
+			if(Uri.TryCreate(PlatformConst.VersionCheckUrl, UriKind.Absolute, out var uri)) {
+				try {
+					var ret = await App.HttpClient.SendAsync(new System.Net.Http.HttpRequestMessage(
 						System.Net.Http.HttpMethod.Get, uri));
 					if(ret.StatusCode == System.Net.HttpStatusCode.OK) {
 						try {
@@ -75,6 +72,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						catch(JsonSerializationException) { /* 無視する */ }
 					}
 				}
+				catch(System.Net.Http.HttpRequestException) { /* 無視する */ }
 			}
 			return false;
 		}

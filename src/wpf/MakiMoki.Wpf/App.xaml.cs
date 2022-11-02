@@ -47,7 +47,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 #if CANARY
 #warning カナリアビルド設定です
 #endif
-			HttpClient = new System.Net.Http.HttpClient();
+			HttpClient = new System.Net.Http.HttpClient() {
+				Timeout = TimeSpan.FromMilliseconds(5000),
+			};
 			HttpClient.DefaultRequestHeaders.Add(
 				"User-Agent",
 				WpfUtil.PlatformUtil.GetContentType());
