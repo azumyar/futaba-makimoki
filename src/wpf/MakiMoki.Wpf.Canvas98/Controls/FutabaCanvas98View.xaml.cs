@@ -86,6 +86,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 
 		private static string WebMessageReady { get; } = "x-makimoki-canvas98-message://ready";
 		private static string WebMessageExecuteAlbam { get; } = "x-makimoki-canvas98-message://albam";
+		private static string WebMessageExecuteRichPalette { get; } = "x-makimoki-canvas98-message://rich-palette";
 		private static string WebMessageExecuteTimelapse { get; } = "x-makimoki-canvas98-message://timelapse";
 		private static string WebMessage404 { get; } = "x-makimoki-canvas98-message://404";
 		private static string WebMessagePostSucessed { get; } = "x-makimoki-canvas98-message://post-ok";
@@ -126,6 +127,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 					this.ThreadUrl = x.Url;
 					await Task.WhenAll(webViewInitializeTask);
 					var isChildItem = (!string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptAlbam)
+						|| !string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptRichPalette)
 						|| !string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptTimelapse));
 					await this.webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(
 						new StringBuilder()
@@ -244,6 +246,19 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 							.AppendLine($"                    window.chrome.webview.postMessage('{ WebMessageExecuteTimelapse }');")
 							.AppendLine("                  });")
 							.AppendLine("                  n.parentNode.insertBefore(el, n.parentNode.firstNode);")
+							.AppendLine("                }")
+							.AppendLine($"               if({toJsBool(!string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptRichPalette))}) {{")
+							.AppendLine("                  const menuNode = document.getElementById('canvas98VerticalMainMenu');")
+							.AppendLine("                  const topMenuNode = menuNode.getElementsByClassName('canvas98MenuItemParent')[0];")
+							.AppendLine("                  const el = document.createElement('li');")
+							.AppendLine("                  el.id = 'makimokiCanvas98Extension';")
+							.AppendLine("                  el.className = 'canvas98MenuItem material-icons';")
+							.AppendLine("                  el.title = 'リッチパレット';")
+							.AppendLine("                  el.innerText = 'palette';")
+							.AppendLine("                  el.addEventListener('click', _ => {")
+							.AppendLine($"                    window.chrome.webview.postMessage('{WebMessageExecuteRichPalette}');")
+							.AppendLine("                  });")
+							.AppendLine("                  topMenuNode.insertBefore(el, topMenuNode.firstNode);")
 							.AppendLine("                }")
 							.AppendLine("                break;")
 							.AppendLine("              }")
@@ -367,10 +382,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 					await this.webView.ExecuteScriptAsync(new StringBuilder()
 						.AppendLine("'use strict';")
 						.AppendLine("const form = {")
-						.AppendLine($"  name: '{ conv(Config.ConfigLoader.FutabaApi.SavedName) }',")
-						.AppendLine($"  sub: '{ conv(Config.ConfigLoader.FutabaApi.SavedSubject) }',")
-						.AppendLine($"  email: '{ conv(Config.ConfigLoader.FutabaApi.SavedMail) }',")
-						.AppendLine($"  pwd: '{ conv(Config.ConfigLoader.FutabaApi.SavedPassword) }',")
+						.AppendLine($"  name: '{conv(Config.ConfigLoader.FutabaApi.SavedName)}',")
+						.AppendLine($"  sub: '{conv(Config.ConfigLoader.FutabaApi.SavedSubject)}',")
+						.AppendLine($"  email: '{conv(Config.ConfigLoader.FutabaApi.SavedMail)}',")
+						.AppendLine($"  pwd: '{conv(Config.ConfigLoader.FutabaApi.SavedPassword)}',")
 						.AppendLine("};")
 						.AppendLine("if(document.forms.fm.name) { document.forms.fm.name.value = form.name; }")
 						.AppendLine("if(document.forms.fm.sub) { document.forms.fm.sub.value = form.sub; }")
@@ -382,6 +397,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 					await this.webView.ExecuteScriptAsync(new StringBuilder()
 						.AppendLine("if(document.getElementById('canvas98Element') !== null) {")
 						.AppendLine(this.ConvertJs(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptAlbam))
+						.AppendLine("}")
+						.ToString());
+				} else if(message == WebMessageExecuteRichPalette) {
+					await this.webView.ExecuteScriptAsync(new StringBuilder()
+						.AppendLine("if(document.getElementById('canvas98Element') !== null) {")
+						.AppendLine(this.ConvertJs(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptRichPalette))
 						.AppendLine("}")
 						.ToString());
 				} else if(message == WebMessageExecuteTimelapse) {
@@ -457,13 +478,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 		}
 
 		private string ConvertJs(string s) {
-			if(s.Contains("let%20") || s.Contains("return%20")) { // ソースコードにありそうな感じなのがあったらデコード
-				return Uri.UnescapeDataString(s);
-			} else if(s.Contains('\"') || s.Contains('\'')) { // これはエンコードされていないので通す
-				return s;
-			} else { // デフォルトデコード
-				return Uri.UnescapeDataString(s);
-			}
+			return s switch {
+				string x when x.Contains("let%20") || x.Contains("return%20") => Uri.UnescapeDataString(x), // ソースコードにありそうな感じなのがあったらデコード
+				string x when x.Contains('\"') || x.Contains('\'') => x, // これはエンコードされていないので通す
+				string x => Uri.UnescapeDataString(x), // デフォルトデコード
+				_ => throw new ArgumentNullException(),
+			};
 		}
 	}
 }

@@ -1339,6 +1339,7 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
                                     <TextBlock
                                         Grid.Column="0" Grid.Row="0"
@@ -1384,12 +1385,26 @@
 
                                     <TextBlock
                                         Grid.Column="0" Grid.Row="3"
-                                        Text="タイムラプス"
+                                        Text="リッチパレット"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Center"
                                         />
                                     <TextBox 
                                         Grid.Column="1" Grid.Row="3"
+                                        Text="{Binding Canvas98ExtendsRichPalette.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        MaxLines="1"
+                                        HorizontalAlignment="Stretch"
+                                        c:PlaceHolderBehavior.PlaceHolderText="リッチパレットforはっちゃん"
+                                        />
+
+                                    <TextBlock
+                                        Grid.Column="0" Grid.Row="4"
+                                        Text="タイムラプス"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        />
+                                    <TextBox 
+                                        Grid.Column="1" Grid.Row="4"
                                         Text="{Binding Canvas98ExtendsTimelapse.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         MaxLines="1"
                                         HorizontalAlignment="Stretch"

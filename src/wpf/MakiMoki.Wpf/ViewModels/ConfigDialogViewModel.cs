@@ -192,6 +192,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<string> Canvas98ExtendsLayer { get; }
 		public ReactiveProperty<string> Canvas98ExtendsAlbam { get; }
 		public ReactiveProperty<string> Canvas98ExtendsMenu { get; }
+		public ReactiveProperty<string> Canvas98ExtendsRichPalette { get; }
 		public ReactiveProperty<string> Canvas98ExtendsTimelapse { get; }
 
 		public ReactiveProperty<Visibility> WebView2RuntimeVisiblity { get; }
@@ -405,6 +406,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Canvas98ExtendsLayer = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletLayer ?? "");
 			Canvas98ExtendsAlbam = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletAlbam ?? "");
 			Canvas98ExtendsMenu = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletMenu ?? "");
+			Canvas98ExtendsRichPalette = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletRichPalette ?? "");
 			Canvas98ExtendsTimelapse = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletTimelapse ?? "");
 
 			WebView2RuntimeVisiblity = new ReactiveProperty<Visibility>(Canvas98.Canvas98Util.Util.IsInstalledWebView2Runtime() ? Visibility.Collapsed : Visibility.Visible);
@@ -637,6 +639,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Canvas98ExtendsLayer.Value,
 				Canvas98ExtendsAlbam.Value,
 				Canvas98ExtendsMenu.Value,
+				Canvas98ExtendsRichPalette.Value,
 				Canvas98ExtendsTimelapse.Value);
 			// 今のところひとつしかないので不用意に設定ファイルを作らない
 			if(Config.ConfigLoader.Optout.AppCenterCrashes != OptoutAppCenterCrashes.Value) {
