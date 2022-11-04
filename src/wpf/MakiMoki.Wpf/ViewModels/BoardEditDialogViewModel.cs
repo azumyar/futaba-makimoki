@@ -11,7 +11,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Windows;
 using Newtonsoft.Json;
-using Yarukizero.Net.MakiMoki.Wpf.Reactive;
+using Yarukizero.Net.MakiMoki.Reactive;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class BoardEditDialogViewModel : BindableBase, IDialogAware, IDisposable {

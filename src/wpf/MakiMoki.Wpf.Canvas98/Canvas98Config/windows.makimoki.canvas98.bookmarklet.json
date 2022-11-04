@@ -1,9 +1,10 @@
 {
-  "version": 2022060100,
+  "version": 2022110400,
 
   "bookmarklet": "",
   "bookmarklet-layer": "",
   "bookmarklet-albam": "",
   "bookmarklet-menu": "",
+  "bookmarklet-rich-palette": "",
   "bookmarklet-timelapse": ""
 }

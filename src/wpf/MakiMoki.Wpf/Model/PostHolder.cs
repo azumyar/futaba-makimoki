@@ -8,14 +8,13 @@ using System.Reactive.Linq;
 using System.Windows.Media;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using Yarukizero.Net.MakiMoki.Wpf.Reactive;
+using Yarukizero.Net.MakiMoki.Reactive;
 using Yarukizero.Net.MakiMoki.Data;
 using System.IO;
 using System.Windows;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
-	public class PostHolder : INotifyPropertyChanged, IDisposable {
-
+	public class PostHolder : Bindable.CommonPostHolder {
 		private static readonly string FallbackUnicodeString = "\a";
 		private static readonly Encoding FutabaEncoding = Encoding.GetEncoding(
 			"Shift_JIS",
@@ -25,9 +24,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		private static string GetDefaultName(string defaultValue = "") => Config.ConfigLoader.MakiMoki.FutabaPostSavedName ? Config.ConfigLoader.FutabaApi.SavedName : defaultValue;
 		private static string GetDefaultMail(string defaultValue = "") => Config.ConfigLoader.MakiMoki.FutabaPostSavedMail ? Config.ConfigLoader.FutabaApi.SavedMail : defaultValue;
 
-#pragma warning disable CS0067
-		public event PropertyChangedEventHandler PropertyChanged;
-#pragma warning restore CS0067
 		public BoardData Board { get; }
 		public UrlContext Url { get; }
 
@@ -143,10 +139,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 			Config.ConfigLoader.PostConfigUpdateNotifyer.AddHandler(this.UpdateFromConfig);
 			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(this.UpdateFromConfig);
-		}
-
-		public void Dispose() {
-			Helpers.AutoDisposable.GetCompositeDisposable(this).Dispose();
 		}
 
 		public void Reset() {

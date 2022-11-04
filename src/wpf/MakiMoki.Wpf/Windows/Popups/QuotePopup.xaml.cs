@@ -19,7 +19,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows.Popups {
 	/// <summary>
 	/// QuotePopup.xaml の相互作用ロジック
 	/// </summary>
-	public partial class QuotePopup : Popup {
+	partial class QuotePopup : Popup {
 		public static readonly DependencyProperty ResSourceProperty =
 			DependencyProperty.Register(
 				nameof(ResSource),

@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
-	internal class GlobalMouseHook {
+	// 使っていないけど残している
+	internal static class GlobalMouseHook {
 		[System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
 		public struct POINT {
 			public int x;
@@ -120,29 +121,40 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		public static event EventHandler<MouseCaptureEventArgs> MouseMove;
 		public static event EventHandler<MouseCaptureEventArgs> MouseWheel;
 		static GlobalMouseHook() {
+			//Attach();
+			AppDomain.CurrentDomain.DomainUnload += (_, _) => {
+				Detach();
+			};
+		}
+
+		public static void Attach() {
 #if DEBUG
 			// デバッグビルドかつデバッガ起動してる時はブレークポイントでのフリーズが邪魔なのでフック無効
 			if(System.Diagnostics.Debugger.IsAttached) {
 				return;
 			}
 #endif
-
-			s_hook = SetWindowsHookEx(WH_MOUSE_LL,
-				s_proc = HookProc,
+			if(s_hook == IntPtr.Zero) {
+				s_hook = SetWindowsHookEx(WH_MOUSE_LL,
+					s_proc = HookProc,
 #if DEBUG
-				// vshostとか嚙まされると困るので自分のインスタンスを引っ張る
-				System.Runtime.InteropServices.Marshal.GetHINSTANCE(typeof(GlobalMouseHook).Module),
+					// vshostとか嚙まされると困るので自分のインスタンスを引っ張る
+					System.Runtime.InteropServices.Marshal.GetHINSTANCE(typeof(GlobalMouseHook).Module),
 #else
 				// バイナリ統合するとこっちじゃないと正しいインスタンスが取れない
 				GetModuleHandle(null),
 #endif
-				0);
-			AppDomain.CurrentDomain.DomainUnload += (_, _) => {
-				if(s_hook != IntPtr.Zero) {
-					UnhookWindowsHookEx(s_hook);
-				}
-			};
+					0);
+			}
 		}
+
+		public static void Detach() {
+			if(s_hook != IntPtr.Zero) {
+				UnhookWindowsHookEx(s_hook);
+				s_hook = IntPtr.Zero;
+			}
+		}
+
 
 		private static IntPtr HookProc(int nCode, IntPtr wParam, ref MSLLHOOKSTRUCT lParam) {
 			bool cancel = false;

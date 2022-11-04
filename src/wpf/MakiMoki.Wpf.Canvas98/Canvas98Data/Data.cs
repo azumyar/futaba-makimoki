@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 	public class Canvas98Bookmarklet : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2022060100;
+		public static int CurrentVersion { get; } = 2022110400;
 
 		[JsonProperty("bookmarklet", Required = Required.Always)]
 		public string Bookmarklet { get; private set; }
@@ -17,6 +17,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 		public string BookmarkletAlbam { get; private set; }
 		[JsonProperty("bookmarklet-menu", Required = Required.Always)]
 		public string BookmarkletMenu { get; private set; }
+		[JsonProperty("bookmarklet-rich-palette", Required = Required.Always)]
+		public string BookmarkletRichPalette { get; private set; }
 		[JsonProperty("bookmarklet-timelapse", Required = Required.Always)]
 		public string BookmarkletTimelapse { get; private set; }
 
@@ -27,6 +29,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 		private string[] CacheExtendScripts { get; set; }
 		[JsonIgnore]
 		private string CacheScriptAlbam { get; set; }
+		[JsonIgnore]
+		private string CacheScriptRichPalette { get; set; }
 		[JsonIgnore]
 		private string CacheScriptTimelapse { get; set; }
 
@@ -61,6 +65,21 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 		}
 
 		[JsonIgnore]
+		public string ScriptRichPalette {
+			get {
+				if(this.CacheScriptRichPalette != null) {
+					return this.CacheScriptRichPalette;
+				}
+
+				if(this.BookmarkletRichPalette == null) {
+					return this.CacheScriptRichPalette = "";
+				}
+
+				return this.CacheScriptRichPalette = RemovePrefix(this.BookmarkletRichPalette);
+			}
+		}
+
+		[JsonIgnore]
 		public string ScriptTimelapse {
 			get {
 				if(this.CacheScriptTimelapse != null) {
@@ -82,7 +101,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 					return this.CacheExtendScripts;
 				}
 
-				return this.CacheExtendScripts = new [] {
+				return this.CacheExtendScripts = new[] {
 					this.BookmarkletLayer,
 					this.BookmarkletMenu,
 				}.Where(x => !string.IsNullOrEmpty(x))
@@ -102,6 +121,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 			string bookmarkletLayer = null,
 			string bookmarkletAlbam = null,
 			string bookmarkletMenu = null,
+			string bookmarkletRichPalette = null,
 			string bookmarkletTimelapse = null) {
 
 			return new Canvas98Bookmarklet() {
@@ -110,6 +130,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 				BookmarkletLayer = bookmarkletLayer ?? "",
 				BookmarkletAlbam = bookmarkletAlbam ?? "",
 				BookmarkletMenu = bookmarkletMenu ?? "",
+				BookmarkletRichPalette = bookmarkletRichPalette ?? "",
 				BookmarkletTimelapse = bookmarkletTimelapse ?? "",
 			};
 		}

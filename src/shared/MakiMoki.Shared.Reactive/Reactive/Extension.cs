@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Reactive.Bindings;
 
-namespace Yarukizero.Net.MakiMoki.Wpf.Reactive {
+namespace Yarukizero.Net.MakiMoki.Reactive {
 	public static class MakiMokiCommandExtensions {
 		public static MakiMokiCommand ToMakiMokiCommand(this IObservable<bool> canExecuteSource, bool initialValue = true) {
 			return new MakiMokiCommand(canExecuteSource.ToReactiveCommand(initialValue));

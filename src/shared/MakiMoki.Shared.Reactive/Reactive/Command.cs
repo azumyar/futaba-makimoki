@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Reactive.Concurrency;
 using System.Windows.Input;
 using Reactive.Bindings;
 
-namespace Yarukizero.Net.MakiMoki.Wpf.Reactive {
+
+namespace Yarukizero.Net.MakiMoki.Reactive {
 	/*
 	 * NativeCommandはDisposeされていると例外吐いて制御が大変なので例外無視するラッパクラス
 	 * 
@@ -33,7 +36,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Reactive {
 			try {
 				this.NativeCommand?.Dispose();
 			}
-			catch(NullReferenceException) { /* とりあえず握りつぶす */ }
+			catch (NullReferenceException) { /* とりあえず握りつぶす */ }
 #endif
 			this.NativeCommand = null;
 			GC.SuppressFinalize(this);
@@ -41,12 +44,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Reactive {
 
 		public event EventHandler CanExecuteChanged {
 			add {
-				if(this.NativeCommand != null) {
+				if (this.NativeCommand != null) {
 					this.NativeCommand.CanExecuteChanged += value;
 				}
 			}
 			remove {
-				if(this.NativeCommand != null) {
+				if (this.NativeCommand != null) {
 					this.NativeCommand.CanExecuteChanged -= value;
 				}
 			}
@@ -55,7 +58,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Reactive {
 		public bool CanExecute() => this.NativeCommand?.CanExecute() ?? false;
 		public void Execute(T parameter) => this.NativeCommand?.Execute(parameter);
 		public IDisposable Subscribe(IObserver<T> observer) => this.NativeCommand?.Subscribe(observer) ?? System.Reactive.Disposables.Disposable.Empty;
-	
+
 		bool ICommand.CanExecute(object parameter) => (this.NativeCommand as ICommand)?.CanExecute(parameter) ?? false;
 		void ICommand.Execute(object parameter) => (this.NativeCommand as ICommand)?.Execute(parameter);
 	}
