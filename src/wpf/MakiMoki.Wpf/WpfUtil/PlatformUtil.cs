@@ -73,6 +73,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 					}
 				}
 				catch(System.Net.Http.HttpRequestException) { /* 無視する */ }
+				catch(System.Net.Sockets.SocketException) { /* 無視する */ }
 			}
 			return false;
 		}
