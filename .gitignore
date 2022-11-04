@@ -10,4 +10,5 @@ src/core/MakiMoki.Core/Helpers/UpdateNotifyer_Tx.cs
 src/wpf/MakiMoki.Wpf/Properties/AssemblyInfoDebug.cs
 src/wpf/MakiMoki.Wpf/Properties/appcenter-secrets.json
 src/wpf/MakiMoki.Wpf/App.AppCenter.cs
+src/wpf/MakiMoki.Wpf.Canvas98/Canvas98Data/Canvas98Bookmarklet.Gen.cs
 src/uno/MakiMoki.Uno.Mobile/Android/AndroidManifest.xml
