@@ -264,9 +264,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							fireDate = DateTime.Now.AddSeconds(sec);
 						}
 						// スレ落ち予測時間に補正する
+						/* スレ落ち時間と板の流れがあっていないと連続更新されるのでいったん削除
 						if(x.New.Raw.DieDateTime.HasValue && (x.New.Raw.DieDateTime.Value.AddSeconds(60) < fireDate)) {
 							fireDate = x.New.Raw.DieDateTime.Value;
 						}
+						*/
 					}
 				} else {
 					// 取得失敗リトライ
