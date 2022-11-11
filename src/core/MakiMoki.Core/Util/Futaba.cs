@@ -264,9 +264,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							fireDate = DateTime.Now.AddSeconds(sec);
 						}
 						// スレ落ち予測時間に補正する
+						/* スレ落ち時間と板の流れがあっていないと連続更新されるのでいったん削除
 						if(x.New.Raw.DieDateTime.HasValue && (x.New.Raw.DieDateTime.Value.AddSeconds(60) < fireDate)) {
 							fireDate = x.New.Raw.DieDateTime.Value;
 						}
+						*/
 					}
 				} else {
 					// 取得失敗リトライ
@@ -944,6 +946,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 		public static string GetGoogleImageSearchdUrl(string url) {
 			return $"https://www.google.com/searchbyimage?image_url={ System.Web.HttpUtility.UrlEncode(url) }";
+		}
+
+		public static string GetGoogleLensUrl(string url) {
+			return $"https://lens.google.com/uploadbyurl?url={System.Web.HttpUtility.UrlEncode(url)}";
 		}
 
 		public static string GetAscii2dImageSearchUrl(string url) {

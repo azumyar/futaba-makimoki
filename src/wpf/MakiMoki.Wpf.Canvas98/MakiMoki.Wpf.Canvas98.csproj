@@ -24,6 +24,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Canvas98Data\Canvas98Bookmarklet.Gen.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Canvas98Bookmarklet.Gen.tt</DependentUpon>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.992.28" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -34,6 +42,25 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\core\MakiMoki.Core\MakiMoki.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Canvas98Data\Canvas98Bookmarklet.Gen.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Canvas98Bookmarklet.Gen.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Canvas98Data\Canvas98Bookmarklet.Gen.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Canvas98Bookmarklet.Gen.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

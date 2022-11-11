@@ -50,6 +50,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			*/
 			return new RestClient(baseUrl) {
 				UserAgent = Config.ConfigLoader.InitializedSetting.RestUserAgent,
+				Timeout = 5000,
 			};
 		}
 

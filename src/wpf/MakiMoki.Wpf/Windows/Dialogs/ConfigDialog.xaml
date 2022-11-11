@@ -1331,7 +1331,7 @@
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">必要に応じてはっちゃん拡張を追加できます。</TextBlock>
                                 <Grid Width="320" HorizontalAlignment="Left">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="92" />
+                                        <ColumnDefinition Width="128" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
@@ -1371,7 +1371,7 @@
 
                                     <TextBlock
                                         Grid.Column="0" Grid.Row="2"
-                                        Text="メニュー"
+                                        Text="追加機能メニュー"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Center"
                                         />

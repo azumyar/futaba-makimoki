@@ -5,7 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
-	public class Canvas98Bookmarklet : Data.ConfigObject {
+	public partial class Canvas98Bookmarklet : Data.ConfigObject {
 		public static int CurrentVersion { get; } = 2022110400;
 
 		[JsonProperty("bookmarklet", Required = Required.Always)]
@@ -27,12 +27,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 		private string CacheScript { get; set; }
 		[JsonIgnore]
 		private string[] CacheExtendScripts { get; set; }
-		[JsonIgnore]
-		private string CacheScriptAlbam { get; set; }
-		[JsonIgnore]
-		private string CacheScriptRichPalette { get; set; }
-		[JsonIgnore]
-		private string CacheScriptTimelapse { get; set; }
 
 		[JsonIgnore]
 		public string Script {
@@ -46,51 +40,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 				}
 
 				return this.CacheScript = RemovePrefix(this.Bookmarklet);
-			}
-		}
-
-		[JsonIgnore]
-		public string ScriptAlbam {
-			get {
-				if(this.CacheScriptAlbam != null) {
-					return this.CacheScriptAlbam;
-				}
-
-				if(this.BookmarkletAlbam == null) {
-					return this.CacheScriptAlbam = "";
-				}
-
-				return this.CacheScriptAlbam = RemovePrefix(this.BookmarkletAlbam);
-			}
-		}
-
-		[JsonIgnore]
-		public string ScriptRichPalette {
-			get {
-				if(this.CacheScriptRichPalette != null) {
-					return this.CacheScriptRichPalette;
-				}
-
-				if(this.BookmarkletRichPalette == null) {
-					return this.CacheScriptRichPalette = "";
-				}
-
-				return this.CacheScriptRichPalette = RemovePrefix(this.BookmarkletRichPalette);
-			}
-		}
-
-		[JsonIgnore]
-		public string ScriptTimelapse {
-			get {
-				if(this.CacheScriptTimelapse != null) {
-					return this.CacheScriptTimelapse;
-				}
-
-				if(this.BookmarkletTimelapse == null) {
-					return this.CacheScriptTimelapse = "";
-				}
-
-				return this.CacheScriptTimelapse = RemovePrefix(this.BookmarkletTimelapse);
 			}
 		}
 
