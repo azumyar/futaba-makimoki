@@ -117,6 +117,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickSaveCommand { get; } = new MakiMokiCommand<PlatformData.FutabaMedia>();
 		public MakiMokiCommand<PlatformData.MediaQuickSaveItem> MenuItemClickQuickSaveCommand { get; } = new MakiMokiCommand<PlatformData.MediaQuickSaveItem>();
 		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickImageSearchGoogleCommand { get; } = new MakiMokiCommand<PlatformData.FutabaMedia>();
+		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickGoogleLensCommand { get; } = new MakiMokiCommand<PlatformData.FutabaMedia>();
 		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickImageSearchAscii2dCommand { get; } = new MakiMokiCommand<PlatformData.FutabaMedia>();
 		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickQuickOpenBrowserCommand { get; } = new MakiMokiCommand<PlatformData.FutabaMedia>();
 
@@ -165,6 +166,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			this.MenuItemClickSaveCommand.Subscribe(x => OnMenuItemClickSave(x));
 			this.MenuItemClickQuickSaveCommand.Subscribe(x => OnMenuItemClickQuickSave(x));
 			this.MenuItemClickImageSearchGoogleCommand.Subscribe(x => OnMenuItemClickImageSearchGoogle(x));
+			this.MenuItemClickGoogleLensCommand.Subscribe(x => OnMenuItemClickGoogleLens(x));
 			this.MenuItemClickImageSearchAscii2dCommand.Subscribe(x => OnMenuItemClickImageSearchAscii2d(x));
 			this.MenuItemClickQuickOpenBrowserCommand.Subscribe(x => OnMenuItemClickQuickOpenBrowser(x));
 
@@ -457,6 +459,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 		private void OnMenuItemClickImageSearchGoogle(PlatformData.FutabaMedia media) {
 			PlatformUtil.StartBrowser(new Uri(Util.Futaba.GetGoogleImageSearchdUrl(GetUrl(media))));
+		}
+		private void OnMenuItemClickGoogleLens(PlatformData.FutabaMedia media) {
+			PlatformUtil.StartBrowser(new Uri(Util.Futaba.GetGoogleLensUrl(GetUrl(media))));
 		}
 		private void OnMenuItemClickImageSearchAscii2d(PlatformData.FutabaMedia media) { 
 			PlatformUtil.StartBrowser(new Uri(Util.Futaba.GetAscii2dImageSearchUrl(GetUrl(media))));

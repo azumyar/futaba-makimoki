@@ -948,6 +948,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return $"https://www.google.com/searchbyimage?image_url={ System.Web.HttpUtility.UrlEncode(url) }";
 		}
 
+		public static string GetGoogleLensUrl(string url) {
+			return $"https://lens.google.com/uploadbyurl?url={System.Web.HttpUtility.UrlEncode(url)}";
+		}
+
 		public static string GetAscii2dImageSearchUrl(string url) {
 			return $"https://ascii2d.net/search/url/{ System.Web.HttpUtility.UrlEncode(url) }";
 		}
