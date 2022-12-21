@@ -88,6 +88,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (false, null, null, null);
 					}
 				}
+				catch(TimeoutException) {
+					return (false, null, null, null);
+				}
 				catch(JsonSerializationException ex) {
 					throw;
 				}
@@ -125,6 +128,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (false, null, null);
 					}
 				}
+				catch(TimeoutException) {
+					return (false, null, null);
+				}
 				finally { }
 			});
 		}
@@ -159,6 +165,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					} else {
 						return (false, null, null, null);
 					}
+				}
+				catch(TimeoutException) {
+					return (false, null, null, null);
 				}
 				catch(JsonSerializationException ex) {
 					throw;
@@ -199,6 +208,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (false, null, null, null);
 					}
 				}
+				catch(TimeoutException) {
+					return (false, null, null, null);
+				}
 				catch(JsonSerializationException ex) {
 					throw;
 				}
@@ -225,6 +237,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (false, res.StatusCode == System.Net.HttpStatusCode.NotFound, null, null);
 					}
 				}
+				catch(TimeoutException) {
+					return (false, false, null, null);
+				}
 				finally { }
 			});
 		}
@@ -243,6 +258,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					} else {
 						return null;
 					}
+				}
+				catch(TimeoutException) {
+					return null;
 				}
 				catch(JsonSerializationException) { // TODO: こない
 					throw;
@@ -265,6 +283,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					} else {
 						return null;
 					}
+				}
+				catch(TimeoutException) {
+					return null;
 				}
 				catch(JsonSerializationException) { // TODO: こない
 					throw;
@@ -289,51 +310,56 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return await Task.Run(() => {
 				// nc -vv -k -l 127.0.0.1 8080;
 				//var c = new RestClient("http://127.0.0.1:8080/");
-				var c = CreateRestClient(board.Url);
-				var r = new RestRequest(FutabaEndPoint, Method.POST);
-				c.Encoding = FutabaEncoding;
-				r.AddHeader("Content-Type", "multipart/form-data");
-				r.AddHeader("referer", string.Format("{0}futaba.htm", board.Url));
-				r.AddParameter("guid", "on", ParameterType.QueryString);
+				try {
+					var c = CreateRestClient(board.Url);
+					var r = new RestRequest(FutabaEndPoint, Method.POST);
+					c.Encoding = FutabaEncoding;
+					r.AddHeader("Content-Type", "multipart/form-data");
+					r.AddHeader("referer", string.Format("{0}futaba.htm", board.Url));
+					r.AddParameter("guid", "on", ParameterType.QueryString);
 
-				r.AlwaysMultipartFormData = true;
-				SetPostParameter(r, board, "",
-					ptua,
-					name, email, subject, comment, filePath, passwd);
-				foreach(var cookie in cookies) {
-					if(IsCookie(board.Url, cookie)) {
-						r.AddCookie(cookie.Name, cookie.Value);
+					r.AlwaysMultipartFormData = true;
+					SetPostParameter(r, board, "",
+						ptua,
+						name, email, subject, comment, filePath, passwd);
+					foreach(var cookie in cookies) {
+						if(IsCookie(board.Url, cookie)) {
+							r.AddCookie(cookie.Name, cookie.Value);
+						}
+					}
+					var res = c.Execute(r);
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+						var s = FutabaEncoding.GetString(res.RawBytes);
+						var m = Regex.Match(s,
+							"<meta\\s+http-equiv=\"refresh\"\\s+content=\"1;url=res/([0-9]+).htm\">",
+							RegexOptions.IgnoreCase);
+						if(m.Success) {
+							return (true, m.Groups[1].Value, res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
+						} else {
+							// エラー解析めどい…めどくない？
+							var msg = "不明なエラー";
+							var ln = s.Replace("\r", "").Split('\n');
+							if(1 < ln.Length) {
+								msg = Regex.Replace(ln[ln.Length - 1], "<[^>]+>", "");
+								if(msg.EndsWith("リロード")) {
+									msg = msg.Substring(0, msg.Length - "リロード".Length);
+								}
+							} else {
+								var mm = Regex.Match(s,
+									"<body>(.+)</body>",
+									RegexOptions.IgnoreCase);
+								if(mm.Success && !mm.Groups[1].Value.Contains("<")) {
+									msg = mm.Groups[1].Value;
+								}
+							}
+							return (false, msg, res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
+						}
+					} else {
+						return (false, "HTTPエラー", null, null);
 					}
 				}
-				var res = c.Execute(r);
-				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-					var s = FutabaEncoding.GetString(res.RawBytes);
-					var m = Regex.Match(s,
-						"<meta\\s+http-equiv=\"refresh\"\\s+content=\"1;url=res/([0-9]+).htm\">",
-						RegexOptions.IgnoreCase);
-					if(m.Success) {
-						return (true, m.Groups[1].Value, res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
-					} else {
-						// エラー解析めどい…めどくない？
-						var msg = "不明なエラー";
-						var ln = s.Replace("\r", "").Split('\n');
-						if(1 < ln.Length) {
-							msg = Regex.Replace(ln[ln.Length - 1], "<[^>]+>", "");
-							if(msg.EndsWith("リロード")) {
-								msg = msg.Substring(0, msg.Length - "リロード".Length);
-							}
-						} else {
-							var mm = Regex.Match(s,
-								"<body>(.+)</body>",
-								RegexOptions.IgnoreCase);
-							if(mm.Success && !mm.Groups[1].Value.Contains("<")) {
-								msg = mm.Groups[1].Value;
-							}
-						}
-						return (false, msg, res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
-					}
-				} else {
-					return (false, "HTTPエラー", null, null);
+				catch(TimeoutException) {
+					return (false, "HTTPタイムアウト", null, null);
 				}
 			});
 		}
@@ -355,30 +381,35 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			return await Task.Run(() => {
 				// nc -vv -k -l 127.0.0.1 8080;
 				//var c = new RestClient("http://127.0.0.1:8080/");
-				var c = CreateRestClient(board.Url);
-				//c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
-				//c.Encoding = Encoding.GetEncoding("Shift_JIS");
-				var r = new RestRequest(FutabaEndPoint, Method.POST);
-				r.AddHeader("Content-Type", "multipart/form-data");
-				//r.AddHeader("origin", "https://img.2chan.net");
-				r.AddHeader("referer", string.Format("{0}res/{1}.htm", board.Url, threadNo));
-				r.AddParameter("guid", "on", ParameterType.QueryString);
+				try {
+					var c = CreateRestClient(board.Url);
+					//c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
+					//c.Encoding = Encoding.GetEncoding("Shift_JIS");
+					var r = new RestRequest(FutabaEndPoint, Method.POST);
+					r.AddHeader("Content-Type", "multipart/form-data");
+					//r.AddHeader("origin", "https://img.2chan.net");
+					r.AddHeader("referer", string.Format("{0}res/{1}.htm", board.Url, threadNo));
+					r.AddParameter("guid", "on", ParameterType.QueryString);
 
-				r.AlwaysMultipartFormData = true;
-				SetPostParameter(r, board, threadNo,
-					ptua,
-					name, email, subject, comment, filePath, passwd);
-				r.AddParameter("responsemode", "ajax", ParameterType.GetOrPost);
-				foreach(var cookie in cookies) {
-					if(IsCookie(board.Url, cookie)) {
-						r.AddCookie(cookie.Name, cookie.Value);
+					r.AlwaysMultipartFormData = true;
+					SetPostParameter(r, board, threadNo,
+						ptua,
+						name, email, subject, comment, filePath, passwd);
+					r.AddParameter("responsemode", "ajax", ParameterType.GetOrPost);
+					foreach(var cookie in cookies) {
+						if(IsCookie(board.Url, cookie)) {
+							r.AddCookie(cookie.Name, cookie.Value);
+						}
+					}
+					var res = c.Execute(r);
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+						var s = FutabaEncoding.GetString(res.RawBytes);
+						return (s == "ok", res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
+					} else {
+						return (false, null, null);
 					}
 				}
-				var res = c.Execute(r);
-				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-					var s = FutabaEncoding.GetString(res.RawBytes);
-					return (s == "ok", res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
-				} else {
+				catch(TimeoutException) {
 					return (false, null, null);
 				}
 			});
@@ -436,27 +467,32 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(threadResNo != null);
 			System.Diagnostics.Debug.Assert(passwd != null);
 			return await Task.Run(() => {
-				var c = CreateRestClient(baseUrl);
-				var r = new RestRequest(FutabaEndPoint, Method.POST);
-				r.AddParameter("guid", "on", ParameterType.QueryString);
-				r.AddParameter("responsemode", "ajax", ParameterType.GetOrPost);
-				r.AddParameter(threadResNo, "delete", ParameterType.GetOrPost);
-				r.AddParameter("pwd", passwd, ParameterType.GetOrPost);
-				r.AddParameter("mode", "usrdel", ParameterType.GetOrPost);
-				if(imageOnly) {
-					r.AddParameter("onlyimgdel", "on", ParameterType.GetOrPost);
-				}
+				try {
+					var c = CreateRestClient(baseUrl);
+					var r = new RestRequest(FutabaEndPoint, Method.POST);
+					r.AddParameter("guid", "on", ParameterType.QueryString);
+					r.AddParameter("responsemode", "ajax", ParameterType.GetOrPost);
+					r.AddParameter(threadResNo, "delete", ParameterType.GetOrPost);
+					r.AddParameter("pwd", passwd, ParameterType.GetOrPost);
+					r.AddParameter("mode", "usrdel", ParameterType.GetOrPost);
+					if(imageOnly) {
+						r.AddParameter("onlyimgdel", "on", ParameterType.GetOrPost);
+					}
 
-				foreach(var cookie in cookies) {
-					if(IsCookie(baseUrl, cookie)) {
-						r.AddCookie(cookie.Name, cookie.Value);
+					foreach(var cookie in cookies) {
+						if(IsCookie(baseUrl, cookie)) {
+							r.AddCookie(cookie.Name, cookie.Value);
+						}
+					}
+					var res = c.Execute(r);
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+						var s = FutabaEncoding.GetString(res.RawBytes);
+						return (s == "ok", res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
+					} else {
+						return (false, null, null);
 					}
 				}
-				var res = c.Execute(r);
-				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-					var s = FutabaEncoding.GetString(res.RawBytes);
-					return (s == "ok", res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
-				} else {
+				catch(TimeoutException) {
 					return (false, null, null);
 				}
 			});
@@ -466,18 +502,23 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(threadResNo != null);
 			return await Task.Run(() => {
-				var url = new Uri(baseUrl);
-				var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
-				var q = string.Format("{0}.{1}", url.AbsolutePath.Replace("/", ""), threadResNo);
+				try {
+					var url = new Uri(baseUrl);
+					var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
+					var q = string.Format("{0}.{1}", url.AbsolutePath.Replace("/", ""), threadResNo);
 
-				var c = CreateRestClient(u);
-				var r = new RestRequest(FutabaSoudaneEndPoint, Method.GET);
-				r.AddParameter(q, null);
-				var res = c.Execute(r);
-				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-					var s = FutabaEncoding.GetString(res.RawBytes);
-					return (Regex.Match(s, @"^\d+$").Success, s);
-				} else {
+					var c = CreateRestClient(u);
+					var r = new RestRequest(FutabaSoudaneEndPoint, Method.GET);
+					r.AddParameter(q, null);
+					var res = c.Execute(r);
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+						var s = FutabaEncoding.GetString(res.RawBytes);
+						return (Regex.Match(s, @"^\d+$").Success, s);
+					} else {
+						return (false, null);
+					}
+				}
+				catch(TimeoutException) {
 					return (false, null);
 				}
 			});
@@ -489,23 +530,28 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			System.Diagnostics.Debug.Assert(resNo != null);
 			var reason = 110;
 			return await Task.Run(() => {
-				var url = new Uri(baseUrl);
-				var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
-				var b = url.AbsolutePath.Replace("/", "");
+				try {
+					var url = new Uri(baseUrl);
+					var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
+					var b = url.AbsolutePath.Replace("/", "");
 
-				var c = CreateRestClient(u);
-				var r = new RestRequest(FutabaDelEndPoint, Method.POST);
-				r.AddHeader("referer", string.Format("{0}res/{1}.htm", baseUrl, threadNo)); // delはリファラが必要
-				r.AddParameter("mode", "post", ParameterType.GetOrPost);
-				r.AddParameter("responsemode", "ajax", ParameterType.GetOrPost);
-				r.AddParameter("b", b, ParameterType.GetOrPost);
-				r.AddParameter("d", resNo, ParameterType.GetOrPost);
-				r.AddParameter("reason", reason, ParameterType.GetOrPost);
-				var res = c.Execute(r);
-				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-					var s = FutabaEncoding.GetString(res.RawBytes);
-					return (s == "ok", s);
-				} else {
+					var c = CreateRestClient(u);
+					var r = new RestRequest(FutabaDelEndPoint, Method.POST);
+					r.AddHeader("referer", string.Format("{0}res/{1}.htm", baseUrl, threadNo)); // delはリファラが必要
+					r.AddParameter("mode", "post", ParameterType.GetOrPost);
+					r.AddParameter("responsemode", "ajax", ParameterType.GetOrPost);
+					r.AddParameter("b", b, ParameterType.GetOrPost);
+					r.AddParameter("d", resNo, ParameterType.GetOrPost);
+					r.AddParameter("reason", reason, ParameterType.GetOrPost);
+					var res = c.Execute(r);
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+						var s = FutabaEncoding.GetString(res.RawBytes);
+						return (s == "ok", s);
+					} else {
+						return (false, null);
+					}
+				}
+				catch(TimeoutException) {
 					return (false, null);
 				}
 			});
@@ -537,36 +583,41 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						}
 					}
 
-					// アップロード
-					var c = CreateRestClient(FutabaUp2Url);
-					c.Encoding = FutabaEncoding;
-					var r = new RestRequest(FutabaUp2Endpoint, Method.POST);
-					r.AddHeader("Content-Type", "multipart/form-data");
-					r.AddParameter("MAX_FILE_SIZE", "3000000", ParameterType.GetOrPost);
-					r.AddParameter("mode", "reg", ParameterType.GetOrPost);
-					r.AddFile("up", filePath, m);
-					r.AddParameter("com", comment, ParameterType.GetOrPost);
-					r.AddParameter("pass", passwd, ParameterType.GetOrPost);
-					var res = c.Execute(r);
-					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-						// HTMLファイルから目的のファイルを見つける
-						var cc = CreateRestClient(FutabaUp2Html);
-						cc.Encoding = FutabaEncoding;
-						var html = cc.Execute(new RestRequest(Method.GET));
-						if(html.StatusCode == System.Net.HttpStatusCode.OK) {
-							var parser = new HtmlParser();
-							var doc = parser.ParseDocument(FutabaEncoding.GetString(html.RawBytes));
-							var root = doc.QuerySelector("table.files");
-							foreach(var tr in root?.QuerySelectorAll("tr")) {
-								var fnm = tr.QuerySelector("td.fnm");
-								var fco = tr.QuerySelector("td.fco");
-								if((fnm != null) && (fco != null)) {
-									if(fco.TextContent == comment) {
-										return (true, fnm.TextContent);
+					try {
+						// アップロード
+						var c = CreateRestClient(FutabaUp2Url);
+						c.Encoding = FutabaEncoding;
+						var r = new RestRequest(FutabaUp2Endpoint, Method.POST);
+						r.AddHeader("Content-Type", "multipart/form-data");
+						r.AddParameter("MAX_FILE_SIZE", "3000000", ParameterType.GetOrPost);
+						r.AddParameter("mode", "reg", ParameterType.GetOrPost);
+						r.AddFile("up", filePath, m);
+						r.AddParameter("com", comment, ParameterType.GetOrPost);
+						r.AddParameter("pass", passwd, ParameterType.GetOrPost);
+						var res = c.Execute(r);
+						if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+							// HTMLファイルから目的のファイルを見つける
+							var cc = CreateRestClient(FutabaUp2Html);
+							cc.Encoding = FutabaEncoding;
+							var html = cc.Execute(new RestRequest(Method.GET));
+							if(html.StatusCode == System.Net.HttpStatusCode.OK) {
+								var parser = new HtmlParser();
+								var doc = parser.ParseDocument(FutabaEncoding.GetString(html.RawBytes));
+								var root = doc.QuerySelector("table.files");
+								foreach(var tr in root?.QuerySelectorAll("tr")) {
+									var fnm = tr.QuerySelector("td.fnm");
+									var fco = tr.QuerySelector("td.fco");
+									if((fnm != null) && (fco != null)) {
+										if(fco.TextContent == comment) {
+											return (true, fnm.TextContent);
+										}
 									}
 								}
 							}
 						}
+					}
+					catch(TimeoutException) {
+						return (false, "アップロードタイムアウト");
 					}
 					return (false, "アップロード失敗");
 				} else {
@@ -584,21 +635,26 @@ namespace Yarukizero.Net.MakiMoki.Util {
 
 		private static string GetCachemtSync(string baseUrl) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
-			var url = new Uri(baseUrl);
-			var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
+			try {
+				var url = new Uri(baseUrl);
+				var u = string.Format("{0}://{1}/", url.Scheme, url.Authority);
 
-			var c = CreateRestClient(u);
-			var r = new RestRequest(FutabaCachemt, Method.GET);
-			var res = c.Execute(r);
-			if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-				var s = res.Content;
-				var m = Regex.Match(s, @"\d+");
-				if(m.Success) {
-					return m.Value;
+				var c = CreateRestClient(u);
+				var r = new RestRequest(FutabaCachemt, Method.GET);
+				var res = c.Execute(r);
+				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+					var s = res.Content;
+					var m = Regex.Match(s, @"\d+");
+					if(m.Success) {
+						return m.Value;
+					} else {
+						return "";
+					}
 				} else {
 					return "";
 				}
-			} else {
+			}
+			catch(TimeoutException) {
 				return "";
 			}
 		}
@@ -628,17 +684,20 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		private static string GetCompleteUrl(string threadUrl, string fileNameWitfOutExtension, Dictionary<string, string> map) {
 			var m = Regex.Match(fileNameWitfOutExtension, @"^([a-zA-Z]+)\d+$");
 			if(m.Success && map.TryGetValue(m.Groups[1].Value, out var format)) {
-				var c = CreateRestClient(string.Format(format, fileNameWitfOutExtension));
-				var r = new RestRequest(Method.GET);
+				try {
+					var c = CreateRestClient(string.Format(format, fileNameWitfOutExtension));
+					var r = new RestRequest(Method.GET);
 
-				// https://appsweets.net/thumbnail はリファラ設定が必要
-				var u = new Uri(threadUrl);
-				r.AddHeader("referer", threadUrl);
-				r.AddHeader("origin", $"{ u.Scheme }://{ u.Authority }/");
-				var res = c.Execute(r);
-				if(res.StatusCode == System.Net.HttpStatusCode.OK) {
-					return res.Content;
+					// https://appsweets.net/thumbnail はリファラ設定が必要
+					var u = new Uri(threadUrl);
+					r.AddHeader("referer", threadUrl);
+					r.AddHeader("origin", $"{u.Scheme}://{u.Authority}/");
+					var res = c.Execute(r);
+					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
+						return res.Content;
+					}
 				}
+				catch(TimeoutException) { }
 			}
 			return "";
 		}
