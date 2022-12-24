@@ -21,7 +21,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 	internal class CatalogViewerFragment : global::AndroidX.Fragment.App.Fragment {
 		class ResponseObject : Data.JsonObject {
 			[JsonProperty("res")]
-			public Data.FutabaResonse Response { get; init; }
+			public Data.FutabaResponse Response { get; init; }
 			[JsonProperty("html")]
 			public string Html { get; init; }
 
@@ -300,16 +300,16 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 			Data.FutabaContext? Data,
 			string ErrorMessage,
 			string? RawHtml,
-			Data.FutabaResonse? RawResponse,
+			Data.FutabaResponse? RawResponse,
 			Data.Cookie2[]? Cookies
 			)> GetCatalog(Data.BoardData board, Data.CatalogSortItem sort = null) {
-			return Observable.Create<(bool, Data.FutabaContext?, string, string?, Data.FutabaResonse?, Data.Cookie2[]?)>(o => {
+			return Observable.Create<(bool, Data.FutabaContext?, string, string?, Data.FutabaResponse?, Data.Cookie2[]?)>(o => {
 				_ = Task.Run(async () => {
 					var successed = false;
 					Data.FutabaContext result = null;
 					var error = "";
 					var html = default(string);
-					var response = default(Data.FutabaResonse);
+					var response = default(Data.FutabaResponse);
 					var cookie = default(Data.Cookie2[]?);
 					try {
 						var r = await Util.FutabaApi.GetCatalog(
