@@ -318,7 +318,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public UrlContext Url { get; private set; }
 
 		[JsonProperty("catalog-response", Required = Required.Always)]
-		public Data.FutabaResonse Catalog { get; private set; }
+		public Data.FutabaResponse Catalog { get; private set; }
 		[JsonProperty("catalog-sort-index", Required = Required.Always)]
 		public string[] CatalogSortRes { get; private set; }
 		[JsonProperty("catalog-res-counter", Required = Required.Always)]
@@ -347,7 +347,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		public UrlContext Url { get; private set; }
 
 		[JsonProperty("thread-response", Required = Required.Always)]
-		public Data.FutabaResonse Thread { get; private set; }
+		public Data.FutabaResponse Thread { get; private set; }
 
 		public static FutabaSavedThreadData From(FutabaContext thread) {
 			var t = thread.GetFullResponse();

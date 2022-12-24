@@ -54,7 +54,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			};
 		}
 
-		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie2[] Cookies, string Raw)> GetCatalog(string baseUrl, Data.Cookie2[] cookies, Data.CatalogSortItem sort = null) {
+		public static async Task<(bool Successed, Data.FutabaResponse Response, Data.Cookie2[] Cookies, string Raw)> GetCatalog(string baseUrl, Data.Cookie2[] cookies, Data.CatalogSortItem sort = null) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			return await Task.Run(() => {
 				try {
@@ -82,7 +82,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						} else {
 							var s = res.Content;
 							System.Diagnostics.Debug.WriteLine(s);
-							return (true, JsonConvert.DeserializeObject<Data.FutabaResonse>(s), rc, s);
+							return (true, JsonConvert.DeserializeObject<Data.FutabaResponse>(s), rc, s);
 						}
 					} else {
 						return (false, null, null, null);
@@ -135,7 +135,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie2[] cookies, string Raw)> GetThreadRes(string baseUrl, string threadNo, Data.Cookie2[] cookies) {
+		public static async Task<(bool Successed, Data.FutabaResponse Response, Data.Cookie2[] cookies, string Raw)> GetThreadRes(string baseUrl, string threadNo, Data.Cookie2[] cookies) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(threadNo != null);
 			return await Task.Run(() => {
@@ -160,7 +160,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							return (false, null, rc, s);
 						} else {
 							var s = res.Content;
-							return (true, JsonConvert.DeserializeObject<Data.FutabaResonse>(s), rc, s);
+							return (true, JsonConvert.DeserializeObject<Data.FutabaResponse>(s), rc, s);
 						}
 					} else {
 						return (false, null, null, null);
@@ -175,7 +175,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static async Task<(bool Successed, Data.FutabaResonse Response, Data.Cookie2[] cookies, string Raw)> GetThreadRes(string baseUrl, string threadNo, string startRes, Data.Cookie2[] cookies) {
+		public static async Task<(bool Successed, Data.FutabaResponse Response, Data.Cookie2[] cookies, string Raw)> GetThreadRes(string baseUrl, string threadNo, string startRes, Data.Cookie2[] cookies) {
 			System.Diagnostics.Debug.Assert(baseUrl != null);
 			System.Diagnostics.Debug.Assert(threadNo != null);
 			System.Diagnostics.Debug.Assert(startRes != null);
@@ -202,7 +202,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							return (false, null, rc, s);
 						} else {
 							var s = res.Content;
-							return (true, JsonConvert.DeserializeObject<Data.FutabaResonse>(s), rc, s);
+							return (true, JsonConvert.DeserializeObject<Data.FutabaResponse>(s), rc, s);
 						}
 					} else {
 						return (false, null, null, null);

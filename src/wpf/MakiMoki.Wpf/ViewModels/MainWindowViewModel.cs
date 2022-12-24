@@ -649,10 +649,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnCatalogThreadUpdate(Model.BindableFutaba futaba) {
 			if(futaba.Url.IsCatalogUrl) {
-				Util.Futaba.UpdateCatalog(futaba.Raw.Bord)
+				Util.Futaba.UpdateCatalog(futaba.Raw.Board)
 					.Subscribe();
 			} else {
-				Util.Futaba.UpdateThreadRes(futaba.Raw.Bord, futaba.Raw.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
+				Util.Futaba.UpdateThreadRes(futaba.Raw.Board, futaba.Raw.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
 					.Subscribe();
 			}
 		}
