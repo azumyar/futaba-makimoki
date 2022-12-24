@@ -50,7 +50,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				foreach(var it in PassiveReloadQueue.ExceptTag(d3.Keys)) {
 					if(d3.TryGetValue(it, out var v)) {
 						// TODO: 直後発火で本当に良いのか？
-						UpdateThreadRes(v.Bord, v.Url.ThreadNo, true, true)
+						UpdateThreadRes(v.Board, v.Url.ThreadNo, true, true)
 							.Subscribe();
 					}
 				}
@@ -110,7 +110,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			foreach(var it in Threads.Value) {
 				if(!it.Raw.IsDie) {
 					UpdateThreadRes(
-						it.Bord,
+						it.Board,
 						it.Url.ThreadNo,
 						true,
 						true)
@@ -195,7 +195,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 									.Select(x => new Data.NumberedResItem(x.No, x.Res, true)));
 							lock(lockObj) {
 								for(var i = 0; i < Catalog.Value.Length; i++) {
-									if(Catalog.Value[i].Bord.Url == board.Url) {
+									if(Catalog.Value[i].Board.Url == board.Url) {
 										successed = true;
 										result = Data.FutabaContext.FromCatalogResponse(
 											board,
@@ -355,7 +355,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 										var fc2 = default(Data.FutabaContext);
 										if(x.RawResponse != null) {
 											fc2 = Data.FutabaContext.FromThreadResResponse404(
-												Catalog.Value.Where(x => x.Bord.Url == board.Url).FirstOrDefault(),
+												Catalog.Value.Where(x => x.Board.Url == board.Url).FirstOrDefault(),
 												fc, x.RawResponse);
 										}
 										if(fc2 != null) {

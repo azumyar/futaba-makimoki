@@ -371,7 +371,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 				if((values[0] is Model.BindableFutabaResItem f)
 					&& (values[1] is IEnumerable<Data.PostedResItem> res)) {
 
-					return (res.Where(x => x.BordUrl == f.Parent.Value.Url.BaseUrl)
+					return (res.Where(x => x.BoardUrl == f.Parent.Value.Url.BaseUrl)
 						.Where(x => x.Res.No == f.ThreadResNo.Value)
 						.FirstOrDefault() != null)
 							? values[3] : values[2];
@@ -527,7 +527,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if(values.Length == 2) {
 				if(Canvas98.Canvas98Util.Util.IsEnabledCanvas98()
 					&& (values[0] is Model.BindableFutaba f)
-					&& (f.Raw.Bord.Extra.ResTegaki)) {
+					&& (f.Raw.Board.Extra.ResTegaki)) {
 
 					return System.Windows.Visibility.Visible;
 				} else {

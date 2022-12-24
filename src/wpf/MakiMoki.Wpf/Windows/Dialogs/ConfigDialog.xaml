@@ -473,19 +473,19 @@
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>コマンドパレット表示位置</TextBlock>
                                 <ComboBox SelectedIndex="{Binding CommandPalettePosition.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
-                                    <ComboBoxItem Visibility="Collapsed">標準</ComboBoxItem>
+                                    <!-- ComboBoxItem Visibility="Collapsed">標準</ComboBoxItem -->
                                     <ComboBoxItem>左寄せ</ComboBoxItem>
-                                    <ComboBoxItem Visibility="Collapsed">上寄せ</ComboBoxItem>
+                                    <!-- ComboBoxItem Visibility="Collapsed">上寄せ</ComboBoxItem -->
                                     <ComboBoxItem>右寄せ</ComboBoxItem>
-                                    <ComboBoxItem Visibility="Collapsed">下寄せ</ComboBoxItem>
+                                    <!-- ComboBoxItem Visibility="Collapsed">下寄せ</ComboBoxItem -->
                                 </ComboBox>
                             </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>はっちゃんキャンバス表示位置</TextBlock>
                                 <ComboBox SelectedIndex="{Binding Canvas98Position.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
                                     <ComboBoxItem>標準</ComboBoxItem>
-                                    <ComboBoxItem Visibility="Collapsed">左寄せ</ComboBoxItem>
-                                    <ComboBoxItem Visibility="Collapsed">上寄せ</ComboBoxItem>
+                                    <!-- ComboBoxItem Visibility="Collapsed">左寄せ</ComboBoxItem -->
+                                    <!-- ComboBoxItem Visibility="Collapsed">上寄せ</ComboBoxItem -->
                                     <ComboBoxItem>右寄せ</ComboBoxItem>
                                     <ComboBoxItem>下寄せ</ComboBoxItem>
                                 </ComboBox>

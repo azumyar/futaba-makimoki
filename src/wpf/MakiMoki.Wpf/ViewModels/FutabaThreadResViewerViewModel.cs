@@ -304,7 +304,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				return;
 			}
 
-			Util.Futaba.UpdateThreadRes(x.Raw.Bord, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe();
+			Util.Futaba.UpdateThreadRes(x.Raw.Board, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe();
 		}
 
 		private void UpdatePost(Model.BindableFutaba x) {
@@ -487,7 +487,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnMenuItemFullUpdateClick(BindableFutaba futaba) {
-			Util.Futaba.UpdateThreadRes(futaba.Raw.Bord, futaba.Url.ThreadNo)
+			Util.Futaba.UpdateThreadRes(futaba.Raw.Board, futaba.Url.ThreadNo)
 				.Subscribe();
 		}
 

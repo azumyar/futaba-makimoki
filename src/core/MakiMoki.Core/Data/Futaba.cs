@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 
 namespace Yarukizero.Net.MakiMoki.Data {
-	public class FutabaResonse : JsonObject {
+	public class FutabaResponse : JsonObject {
 		public class ResConverter : JsonConverter {
 			public override bool CanConvert(Type objectType) {
 				return typeof(NumberedResItem) == objectType;
@@ -326,8 +326,8 @@ namespace Yarukizero.Net.MakiMoki.Data {
 	}
 
 	public class PostedResItem : JsonObject {
-		[JsonProperty("bord", Required = Required.Always)]
-		public string BordUrl { get; private set; }
+		[JsonProperty("bord", Required = Required.Always)] // TODO: タイポなおす
+		public string BoardUrl { get; private set; }
 
 		[JsonProperty("res", Required = Required.Always)]
 		public NumberedResItem Res { get; private set; }
@@ -335,8 +335,8 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		// JSONシリアライザ用
 		private PostedResItem() { }
 
-		public PostedResItem(string bordUrl, NumberedResItem res) {
-			this.BordUrl = bordUrl;
+		public PostedResItem(string boardUrl, NumberedResItem res) {
+			this.BoardUrl = boardUrl;
 			this.Res = res;
 		}
 	}
@@ -513,9 +513,9 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 			public string Name { get; set; }
 
-			public BoardData Bord { get; private set; }
+			public BoardData Board { get; private set; }
 			public UrlContext Url { get; private set; }
-			public FutabaResonse Raw { get; private set; }
+			public FutabaResponse Raw { get; private set; }
 
 			public Item[] ResItems { get; private set; }
 
@@ -525,21 +525,21 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				this.Token = DateTime.Now.Ticks;
 			}
 
-			public static FutabaContext FromCatalogEmpty(BoardData bord) {
+			public static FutabaContext FromCatalogEmpty(BoardData board) {
 				return new FutabaContext() {
-					Name = bord.Name,
-					Bord = bord,
-					Url = new UrlContext(bord.Url),
+					Name = board.Name,
+					Board = board,
+					Url = new UrlContext(board.Url),
 					ResItems = new Item[] { },
 					Raw = null,
 				};
 			}
 
-			public static FutabaContext FromCatalogResponse(BoardData bord, FutabaResonse response, Data.NumberedResItem[] sortRes, Dictionary<string, int> counter, Data.FutabaContext oldValue) {
-				var url = new UrlContext(bord.Url);
+			public static FutabaContext FromCatalogResponse(BoardData board, FutabaResponse response, Data.NumberedResItem[] sortRes, Dictionary<string, int> counter, Data.FutabaContext oldValue) {
+				var url = new UrlContext(board.Url);
 				return new FutabaContext() {
-					Name = bord.Name,
-					Bord = bord,
+					Name = board.Name,
+					Board = board,
 					Url = url,
 					// ResItems = response.Res.Reverse().Select(x => {
 					ResItems = sortRes.Select(x => {
@@ -551,17 +551,17 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				};
 			}
 
-			public static FutabaContext FromThreadEmpty(BoardData bord, string threadNo) {
+			public static FutabaContext FromThreadEmpty(BoardData board, string threadNo) {
 				return new FutabaContext() {
 					Name = string.Format("No.{0}", threadNo),
-					Bord = bord,
-					Url = new UrlContext(bord.Url, threadNo),
+					Board = board,
+					Url = new UrlContext(board.Url, threadNo),
 					ResItems = new Item[] { },
 					Raw = null,
 				};
 			}
 
-			public static FutabaContext FromThreadResResponse(FutabaContext parent, FutabaResonse response) {
+			public static FutabaContext FromThreadResResponse(FutabaContext parent, FutabaResponse response) {
 				var list = parent.ResItems?.ToList() ?? new List<Item>();
 				// そうだねの更新
 				for(var i = 0; i < list.Count; i++) {
@@ -581,15 +581,15 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				}
 				return new FutabaContext() {
 					Name = parent.Name,
-					Bord = parent.Bord,
+					Board = parent.Board,
 					Url = parent.Url,
 					ResItems = list.ToArray(),
 					Raw = response,
 				};
 			}
 
-			public static FutabaContext FromThreadResResponse(BoardData bord, string threadNo, FutabaResonse response, Data.NumberedResItem parent, int soudane) {
-				var url = new UrlContext(bord.Url, threadNo);
+			public static FutabaContext FromThreadResResponse(BoardData board, string threadNo, FutabaResponse response, Data.NumberedResItem parent, int soudane) {
+				var url = new UrlContext(board.Url, threadNo);
 				var list = new List<Item>() { Item.FromThreadRes(url, parent, soudane, new List<NumberedResItem>()) };
 				if(response.Res != null) {
 					AddResponseToList(list, url, response.Res, response.Sd);
@@ -599,14 +599,14 @@ namespace Yarukizero.Net.MakiMoki.Data {
 						Util.TextUtil.RemoveCrLf(
 							Util.TextUtil.RowComment2Text(parent.Res.Com)
 						), 8),
-					Bord = bord,
+					Board = board,
 					Url = url,
 					ResItems = list.ToArray(),
 					Raw = response,
 				};
 			}
 
-		public static FutabaContext FromThreadResResponse404(FutabaContext catalog, FutabaContext thread, FutabaResonse response) {
+		public static FutabaContext FromThreadResResponse404(FutabaContext catalog, FutabaContext thread, FutabaResponse response) {
 			if(response == null) {
 				return null;
 			}
@@ -681,7 +681,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 				}
 				return new FutabaContext() {
 					Name = thread.Name,
-					Bord = thread.Bord,
+					Board = thread.Board,
 					Url = thread.Url,
 					ResItems = ad.ToArray(),
 					Raw = response,
@@ -703,7 +703,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 
 				return new FutabaContext() {
 					Name = thread.Name,
-					Bord = thread.Bord,
+					Board = thread.Board,
 					Url = thread.Url,
 					ResItems = thread.ResItems.Concat(list).ToArray(),
 					Raw = response,
@@ -758,8 +758,8 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			return result;
 		}
 
-		public static FutabaContext FromCatalog_(BoardData bord, FutabaResonse response, string[] sortRes, Dictionary<string, int> counter) {
-			var url = new UrlContext(bord.Url);
+		public static FutabaContext FromCatalog_(BoardData board, FutabaResponse response, string[] sortRes, Dictionary<string, int> counter) {
+			var url = new UrlContext(board.Url);
 			var res = new List<NumberedResItem>(response.Res);
 			var resItems = sortRes.Select(x => {
 				var r = res.Where(y => y.No == x).FirstOrDefault();
@@ -773,25 +773,25 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			}).Where(x => x != null).ToList();
 			resItems.AddRange(res.Select(x => Item.FromCatalog(url, new NumberedResItem(x.No, x.Res, true), 0, 0)));
 			return new FutabaContext() {
-				Name = bord.Name,
-				Bord = bord,
+				Name = board.Name,
+				Board = board,
 				Url = url,
 				ResItems = resItems.ToArray(),
 				Raw = response,
 			};
 		}
 
-		public static FutabaContext FromThread_(BoardData bord, UrlContext url, FutabaResonse response) {
+		public static FutabaContext FromThread_(BoardData board, UrlContext url, FutabaResponse response) {
 			var res = response.Res.FirstOrDefault();
 			if(res == null) {
-				return FromThreadEmpty(bord, url.ThreadNo);
+				return FromThreadEmpty(board, url.ThreadNo);
 			} else {
 				return new FutabaContext() {
 					Name = Util.TextUtil.SafeSubstring(
 						Util.TextUtil.RemoveCrLf(
 							Util.TextUtil.RowComment2Text(res.Res.Com)
 						), 8),
-					Bord = bord,
+					Board = board,
 					Url = url,
 					// ResItems = response.Res.Reverse().Select(x => {
 					ResItems = response.Res.Select((x, i) => {
@@ -807,11 +807,11 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			}
 		}
 
-		public FutabaResonse GetFullResponse() {
+		public FutabaResponse GetFullResponse() {
 			if(Raw != null) {
 				try {
 					//var s = JsonConvert.SerializeObject(Raw);
-					var r = JsonConvert.DeserializeObject<FutabaResonse>(Raw.ToString());
+					var r = JsonConvert.DeserializeObject<FutabaResponse>(Raw.ToString());
 					r.Res = ResItems.Select(x => x.ResItem).ToArray();
 					return r;
 				}

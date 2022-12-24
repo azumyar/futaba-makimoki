@@ -301,8 +301,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			ThreadDelResVisibility = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility);
 			ThreadIsEnabledQuotLink = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledQuotLink);
 			IsEnabledThreadCommandPalette = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledThreadCommandPalette);
-			CommandPalettePosition = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.CommandPalettePosition);
-			Canvas98Position = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.Canvas98Position);
+			CommandPalettePosition = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.CommandPalettePosition switch {
+				var x when x == 1 => 0,
+				var x when x == 3 => 1,
+				var x => x
+			});
+			Canvas98Position = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.Canvas98Position switch {
+				var x when x == 3 => 1,
+				var x when x == 4 => 2,
+				var x => x
+			});
 			IsEnabledFailsafeMistakePost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFailsafeMistakePost);
 
 			ClipbordJpegQuality = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.ClipbordJpegQuality.ToString());
@@ -592,8 +600,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				isEnabledThreadCommandPalette: IsEnabledThreadCommandPalette.Value,
 				// 2021012000
 				isEnabledFetchThumbnail: CatalogFetchImageThumbnail.Value,
-				commandPalettePosition: (PlatformData.UiPosition)CommandPalettePosition.Value,
-				canvas98Position: (PlatformData.UiPosition)Canvas98Position.Value,
+				commandPalettePosition: (PlatformData.UiPosition)(CommandPalettePosition.Value switch {
+					var x when x == 0 => 1,
+					var x when x == 1 => 3,
+					var x => x,
+				}),
+				canvas98Position: (PlatformData.UiPosition)(Canvas98Position.Value switch {
+					var x when x == 1 => 3,
+					var x when x == 2 => 4,
+					var x => x,
+				}),
 				// 2021020100
 				isEnabledFailsafeMistakePost: IsEnabledFailsafeMistakePost.Value
 			));

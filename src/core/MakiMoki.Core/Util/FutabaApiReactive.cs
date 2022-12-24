@@ -16,7 +16,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			bool Successed,
 			Data.FutabaContext Data,
 			string ErrorMessage,
-			Data.FutabaResonse RawResponse,
+			Data.FutabaResponse RawResponse,
 			Data.Cookie2[] Cookies
 		)>GetThreadRes(
 			Data.BoardData board, string threadNo,
@@ -29,13 +29,13 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					.Select(x => (x.Successed && !x.IsDie, x.Data, x.ErrorMessage, x.RawResponse, x.Cookies));
 			}
 
-			return Observable.Create<(bool Successed, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResonse RawResponse, Data.Cookie2[] Cookies)>(async o => {
+			return Observable.Create<(bool Successed, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResponse RawResponse, Data.Cookie2[] Cookies)>(async o => {
 				try {
-					var ctx = await Task.Run<(bool Successed, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResonse RawResponse, Data.Cookie2[] Cookies)>(() => {
+					var ctx = await Task.Run<(bool Successed, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResponse RawResponse, Data.Cookie2[] Cookies)>(() => {
 					var successed = false;
 					var result = default(Data.FutabaContext);
 					var cookies = Array.Empty<Data.Cookie2>();
-					var response = default(Data.FutabaResonse);
+					var response = default(Data.FutabaResponse);
 						var error = "";
 						try {
 							var res = parent.ResItems.Last().ResItem.No;
@@ -90,16 +90,16 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			bool IsDie,
 			Data.FutabaContext Data,
 			string ErrorMessage,
-			Data.FutabaResonse RawResponse,
+			Data.FutabaResponse RawResponse,
 			Data.Cookie2[] Cookies
 		)> GetThreadResAll(Data.BoardData board, string threadNo) {
-			return Observable.Create<(bool Successed, bool IsDie, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResonse RawResponse, Data.Cookie2[] Cookies)>(async o => {
+			return Observable.Create<(bool Successed, bool IsDie, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResponse RawResponse, Data.Cookie2[] Cookies)>(async o => {
 				try {
-					var ctx = await Task.Run<(bool Successed, bool IsDie, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResonse RawResponse, Data.Cookie2[] Cookies)>(() => {
+					var ctx = await Task.Run<(bool Successed, bool IsDie, Data.FutabaContext Data, string ErrorMessage, Data.FutabaResponse RawResponse, Data.Cookie2[] Cookies)>(() => {
 						var successed = false;
 						var isDie = false;
 						var result = default(Data.FutabaContext);
-						var response = default(Data.FutabaResonse);
+						var response = default(Data.FutabaResponse);
 						var cookies = Array.Empty<Data.Cookie2>();
 						var error = "";
 						try {

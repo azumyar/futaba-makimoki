@@ -404,14 +404,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			}
 
 			if((e.Source is Hyperlink link) && (link.Tag is Model.BindableFutabaResItem ri)) {
-				if(link.NavigateUri.Scheme == SharadConst.MkiMokiSchemeCompleteUrl) {
+				if(link.NavigateUri.Scheme == SharedConst.MkiMokiSchemeCompleteUrl) {
 					if(uriCache.TryGetTarget(link.NavigateUri, out var uri1)) {
-						if(uri1.Scheme != SharadConst.MkiMokiSchemeNull) {
+						if(uri1.Scheme != SharedConst.MkiMokiSchemeNull) {
 							setLink(link, uri1);
 						}
 					} else {
 						IObservable<(bool Successed, string UrlOrMessage, object Raw)> o = null;
-						if(link.NavigateUri.Authority == SharadConst.MkiMokiCompleteUrlAuthorityUp) {
+						if(link.NavigateUri.Authority == SharedConst.MkiMokiCompleteUrlAuthorityUp) {
 							o = Futaba.GetCompleteUrlUp(ri.Parent.Value.Url, link.NavigateUri.AbsolutePath.Substring(1));
 						} else {
 							Futaba.PutInformation(new Data.Information($"不明なURL{ link.NavigateUri }", ri.Parent.Value));
@@ -425,7 +425,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 							} else {
 								if(x.Raw != null) {
 									// エラーオブジェクトは返却されているので通信エラーではないと判断する
-									uriCache.Add(link.NavigateUri, new Uri($"{ SharadConst.MkiMokiSchemeNull }://"));
+									uriCache.Add(link.NavigateUri, new Uri($"{ SharedConst.MkiMokiSchemeNull }://"));
 								}
 								Futaba.PutInformation(new Data.Information($"アップロードファイル補完エラー:{ x.UrlOrMessage }", ri.Parent.Value));
 							}
