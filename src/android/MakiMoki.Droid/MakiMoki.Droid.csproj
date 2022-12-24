@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-android</TargetFramework>
+    <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
+    <SupportedOSPlatformVersion>31.0</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Yarukizero.Net.MakiMoki.Droid</RootNamespace>
+    <Nullable>annotations</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationId>net.yarukizero.makimoki.android.dev</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <EnableLLVM>True</EnableLLVM>
+    <MandroidI18n>CJK;</MandroidI18n>
+    <JavaMaximumHeapSize>1G</JavaMaximumHeapSize>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AngleSharp" Version="0.17.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="ReactiveProperty.XamarinAndroid" Version="8.1.2" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+    <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.5.1.1" />
+    <PackageReference Include="Xamarin.AndroidX.RecyclerView" Version="1.2.1.8" />
+    <PackageReference Include="Xamarin.Google.Android.Material" Version="1.7.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\core\MakiMoki.Core\MakiMoki.Core.csproj" />
+    <ProjectReference Include="..\..\core\MakiMoki.Core.Ng\MakiMoki.Core.Ng.csproj" />
+  </ItemGroup>
+</Project>

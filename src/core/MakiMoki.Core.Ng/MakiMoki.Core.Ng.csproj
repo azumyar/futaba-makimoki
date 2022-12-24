@@ -1,14 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')" />
-
   <PropertyGroup>
-    <TargetFrameworks>net6.0-windows</TargetFrameworks>
-    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
+    <TargetFrameworks>net6.0</TargetFrameworks>
+    <!-- RuntimeIdentifiers>win-x86;win-x64;android-arm64</RuntimeIdentifiers -->
     <RootNamespace>Yarukizero.Net.MakiMoki.Ng</RootNamespace>
     <TransformOnBuild Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')">true</TransformOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>

@@ -1,0 +1,29 @@
+using Android.Views;
+using Android.OS;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
+	internal class MainFragment : global::AndroidX.Fragment.App.Fragment {
+		public MainFragment() : base() { }
+		protected MainFragment(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
+
+		public override View? OnCreateView(LayoutInflater inflater, ViewGroup? container, Bundle? savedInstanceState) {
+			return inflater.Inflate(Resource.Layout.fragment_main, container, false);
+		}
+
+		public override void OnViewCreated(View view, Bundle? savedInstanceState) {
+			base.OnViewCreated(view, savedInstanceState);
+		}
+
+		public static MainFragment NewInstance() {
+			var b = new Bundle();
+			return new MainFragment() {
+				Arguments = b,
+			};
+		}
+	}
+}

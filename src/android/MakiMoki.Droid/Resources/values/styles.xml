@@ -1,0 +1,19 @@
+<resources>
+	<style name="app_theme" parent="Theme.Material3.DayNight">
+		<!-- This removes the ActionBar -->
+		<!--
+		<item name="windowActionBar">false</item>
+		<item name="android:windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+		<item name="android:windowNoTitle">true</item>
+		-->
+	</style>
+
+	<!--
+	<style name="Theme.AppCompat.Translucent">
+		<item name="android:windowBackground">@android:color/transparent</item>
+		<item name="android:colorBackgroundCacheHint">@null</item>
+		<item name="android:windowIsTranslucent">true</item>
+	</style>
+	-->
+</resources>

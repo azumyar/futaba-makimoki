@@ -1,27 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- net6.0はT4がうまく動かないので細工する -->
-  <Import
-    Project="Sdk.props" Sdk="Microsoft.NET.Sdk"
-    Condition="$(Github) == 'True'"
-    />
-  <Import
-    Project="Sdk.targets" Sdk="Microsoft.NET.Sdk"
-    Condition="$(Github) == 'True'"
-    />
-  <Import
-    Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets"
-    Condition="$(Github) == 'True' And Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')"
-    />
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" Condition="$(Github) == 'True'" />
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" Condition="$(Github) == 'True'" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets" Condition="$(Github) == 'True' And Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')" />
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0-windows</TargetFrameworks>
-    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
-    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <TargetFrameworks>net6.0</TargetFrameworks>
+    <!-- RuntimeIdentifiers>win-x86;win-x64;android-arm64</RuntimeIdentifiers -->
     <RootNamespace>Yarukizero.Net.MakiMoki</RootNamespace>
     <TransformOnBuild Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TextTemplating\Microsoft.TextTemplating.targets')">true</TransformOnBuild>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
@@ -54,8 +44,8 @@
 
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.16.1" />
-    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="4.4.0" />
-    <PackageReference Include="Microsoft.AppCenter.Crashes" Version="4.4.0" />
+    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.1" />
+    <PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="ReactiveProperty" Version="8.1.2" />
     <PackageReference Include="RestSharp" Version="106.15.0" />

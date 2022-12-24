@@ -159,7 +159,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		private NumberedResItem() { }
 
 
-		internal NumberedResItem(string no, ResItem res, bool? isolate = null) {
+		public NumberedResItem(string no, ResItem res, bool? isolate = null) {
 			this.No = no;
 			this.Res = res;
 			this.Isolate = isolate;
