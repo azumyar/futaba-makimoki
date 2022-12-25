@@ -16,6 +16,9 @@ using AndroidX.RecyclerView.Widget;
 using Android.Widget;
 using System.Diagnostics.Metrics;
 using Newtonsoft.Json;
+using AndroidX.SwipeRefreshLayout.Widget;
+using AndroidX.Lifecycle;
+using Android.Content;
 
 namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 	internal class CatalogViewerFragment : global::AndroidX.Fragment.App.Fragment {
@@ -169,8 +172,11 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 
 			var isInit = this.adapter == null;
 			var rv = view.FindViewById<RecyclerView>(Resource.Id.recyclerview);
-			rv.SetLayoutManager(new GridLayoutManager(this.Context, 4));
-			
+			App.RecyclerViewSwipeUpdateHelper.AttachGridLayout(rv, 4).Updating +=(_, e) => {
+				e.UpdateObject.EndUpdate();
+				this.UpdateCatalog();
+			};
+
 			if(!isInit) {
 				rv.SetAdapter(this.adapter);
 				return;
