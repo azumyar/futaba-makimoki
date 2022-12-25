@@ -275,14 +275,11 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 			base.OnViewStateRestored(savedInstanceState);
 			if(savedInstanceState != null) {
 				this.Properties.Board = savedInstanceState.OutJson<Data.BoardData>();
-				this.Properties.Response.Value = savedInstanceState.OutJson<ResponseObject>();
 			}
 		}
 
 		public override void OnSaveInstanceState(Bundle outState) {
-			outState
-				.InJson(this.Properties.Board)
-				.InJson(this.Properties.Response.Value);
+			outState.InJson(this.Properties.Board);
 
 			base.OnSaveInstanceState(outState);
 		}
