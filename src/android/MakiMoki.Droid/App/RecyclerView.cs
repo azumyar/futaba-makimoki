@@ -5,6 +5,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidX.ConstraintLayout.Core.Widgets;
+using AndroidX.Interpolator.View.Animation;
 using AndroidX.RecyclerView.Widget;
 using System;
 using System.Collections;
@@ -197,6 +198,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 
 		private class OverScrollRunner : ISwipeUpdater, ISwipeUpdateObject {
 			private class ItemTouchListener : Java.Lang.Object, RecyclerView.IOnItemTouchListener {
+				private readonly FastOutSlowInInterpolator interpolator = new FastOutSlowInInterpolator();
 				private OverScrollRunner runner;
 				private volatile bool isView = false;
 				private (float X, float Y) pointerPos = (0, 0);
@@ -273,22 +275,46 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 							var x = this.pointerPos.X - @event.RawX;
 							var y = this.pointerPos.Y - @event.RawY;
 							var length = (int)Math.Sqrt(x * x + y * y);
+							var viewHeight = this.runner.updateView.Height;
+							var maxLength = this.runner.overscrollPx + viewHeight;
 							if(this.runner.updateTop.Value) {
-								lp.AddRule(LayoutRules.CenterHorizontal);
-								lp.AddRule(LayoutRules.AlignParentTop);
-								lp.TopMargin = Math.Min(this.runner.overscrollPx, length * (y < 0) switch {
+								var @in = (float)Math.Min(maxLength, length * (y < 0) switch {
 									true => 1,
 									false => -1,
 								});
-								lp.BottomMargin = 0;
-							} else {
+								var val = @in switch {
+									var v when 0 < v => this.interpolator.GetInterpolation(@in / maxLength) * maxLength,
+									var v => v
+								};
+								var deg = val switch {
+									var v when 0 < v => v / maxLength * 360,
+									_ => 0f,
+								};
+
 								lp.AddRule(LayoutRules.CenterHorizontal);
-								lp.AddRule(LayoutRules.AlignParentBottom);
-								lp.TopMargin = 0;
-								lp.BottomMargin = Math.Min(this.runner.overscrollPx, length * (y < 0) switch {
+								lp.AddRule(LayoutRules.AlignParentTop);
+								lp.TopMargin = (int)val - viewHeight;
+								lp.BottomMargin = 0;
+								this.runner.updateView.Rotation = deg;
+							} else {
+								var @in = (float)Math.Min(maxLength, length * (y < 0) switch {
 									true => -1,
 									false => 1,
 								});
+								var val = @in switch {
+									var v when 0 < v => this.interpolator.GetInterpolation(@in / maxLength) * maxLength,
+									var v => v
+								};
+								var deg = val switch {
+									var v when 0 < v => v / maxLength * 360,
+									_ => 0f,
+								};
+								
+								lp.AddRule(LayoutRules.CenterHorizontal);
+								lp.AddRule(LayoutRules.AlignParentBottom);
+								lp.TopMargin = 0;
+								lp.BottomMargin = (int)val - viewHeight;
+								this.runner.updateView.Rotation = deg;
 							}
 							this.runner.updateView.LayoutParameters = lp;
 							if(!this.isView) {
