@@ -3,6 +3,7 @@ using Android.Graphics;
 using Android.Graphics.Drawables.Shapes;
 using Android.Runtime;
 using Android.Views;
+using Android.Views.Animations;
 using Android.Widget;
 using AndroidX.ConstraintLayout.Core.Widgets;
 using AndroidX.Interpolator.View.Animation;
@@ -200,7 +201,6 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 			private class ItemTouchListener : Java.Lang.Object, RecyclerView.IOnItemTouchListener {
 				private readonly FastOutSlowInInterpolator interpolator = new FastOutSlowInInterpolator();
 				private OverScrollRunner runner;
-				private volatile bool isView = false;
 				private (float X, float Y) pointerPos = (0, 0);
 				public ItemTouchListener(OverScrollRunner @this) {
 					this.runner = @this;
@@ -218,8 +218,8 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 						this.pointerPos = (@event.RawX, @event.RawY);
 						break;
 					case MotionEventActions.Move:
-						if(this.runner.updateTop.HasValue) {
-							if(this.runner.updateTop.Value) {
+						if(this.runner.updateTopOrBottom.HasValue) {
+							if(this.runner.updateTopOrBottom.Value) {
 								if(this.pointerPos.Y < @event.RawY) {
 									return true;
 								}
@@ -229,8 +229,8 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 								}
 							}
 						} else {
-							if(this.isView) {
-								this.isView = false;
+							if(this.runner.isViewAttached) {
+								this.runner.isViewAttached = false;
 								ac.FindViewById<ViewGroup>(Resource.Id.container_topmost).RemoveView(this.runner.updateView);
 							}
 						}
@@ -249,7 +249,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 							var x = this.pointerPos.X - @event.RawX;
 							var y = this.pointerPos.Y - @event.RawY;
 							var length = (int)Math.Sqrt(x * x + y * y);
-							if((this.runner.overscrollPx < length) && (IsTop: this.runner.updateTop.Value, Y: y) switch {
+							if((this.runner.overscrollPx < length) && (IsTop: this.runner.updateTopOrBottom.Value, Y: y) switch {
 								var v when v.IsTop => v switch {
 									var vv when vv.Y < 0 => true,
 									_ => false,
@@ -261,30 +261,52 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 							}) {
 								this.runner.isUpdating = true;
 								this.runner.Updating?.Invoke(recyclerView, new SwipeUpdateEventArgs(this.runner));
+								if(this.runner.updateTopOrBottom.Value) {
+									var lp = new RelativeLayout.LayoutParams(this.runner.sizePx, this.runner.sizePx);
+									lp.AddRule(LayoutRules.CenterHorizontal);
+									lp.AddRule(LayoutRules.AlignParentTop);
+									lp.TopMargin = this.runner.updatePosPx;
+									this.runner.updateView.LayoutParameters = lp;
+								} else {
+									var lp = new RelativeLayout.LayoutParams(this.runner.sizePx, this.runner.sizePx);
+									lp.AddRule(LayoutRules.CenterHorizontal);
+									lp.AddRule(LayoutRules.AlignParentBottom);
+									lp.BottomMargin = this.runner.updatePosPx;
+									this.runner.updateView.LayoutParameters = lp;
+								}
+
+								this.runner.updateView.StartAnimation(new RotateAnimation(
+									0f, 360f,
+									Dimension.RelativeToSelf, 0.5f,
+									Dimension.RelativeToSelf, 0.5f) {
+									Duration = 500,
+									RepeatCount = Animation.Infinite,
+									FillAfter= false,
+								});
 							}
-							this.runner.updateTop = null;
+							this.runner.updateTopOrBottom = null;
 						}
-						if(this.isView) {
-							this.isView = false;
+						if(this.runner.isViewAttached && !this.runner.isUpdating) {
+							this.runner.isViewAttached = false;
 							ac.FindViewById<ViewGroup>(Resource.Id.container_topmost).RemoveView(this.runner.updateView);
 						}
 						break;
 					case MotionEventActions.Move:
-						if(this.runner.updateTop.HasValue) {
-							var lp = new RelativeLayout.LayoutParams(this.runner.sizePx, this.runner.sizePx);
+						if(this.runner.updateTopOrBottom.HasValue) {
 							var x = this.pointerPos.X - @event.RawX;
 							var y = this.pointerPos.Y - @event.RawY;
 							var length = (int)Math.Sqrt(x * x + y * y);
 							var viewHeight = this.runner.updateView.Height;
 							var maxLength = this.runner.overscrollPx + viewHeight;
-							if(this.runner.updateTop.Value) {
+							if(this.runner.updateTopOrBottom.Value) {
+								var lp = new RelativeLayout.LayoutParams(this.runner.sizePx, this.runner.sizePx);
 								var @in = (float)Math.Min(maxLength, length * (y < 0) switch {
 									true => 1,
 									false => -1,
 								});
 								var val = @in switch {
 									var v when 0 < v => this.interpolator.GetInterpolation(@in / maxLength) * maxLength,
-									var v => v
+									_ => 0,
 								};
 								var deg = val switch {
 									var v when 0 < v => v / maxLength * 360,
@@ -294,16 +316,17 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 								lp.AddRule(LayoutRules.CenterHorizontal);
 								lp.AddRule(LayoutRules.AlignParentTop);
 								lp.TopMargin = (int)val - viewHeight;
-								lp.BottomMargin = 0;
 								this.runner.updateView.Rotation = deg;
+								this.runner.updateView.LayoutParameters = lp;
 							} else {
+								var lp = new RelativeLayout.LayoutParams(this.runner.sizePx, this.runner.sizePx);
 								var @in = (float)Math.Min(maxLength, length * (y < 0) switch {
 									true => -1,
 									false => 1,
 								});
 								var val = @in switch {
 									var v when 0 < v => this.interpolator.GetInterpolation(@in / maxLength) * maxLength,
-									var v => v
+									_ => 0,
 								};
 								var deg = val switch {
 									var v when 0 < v => v / maxLength * 360,
@@ -312,13 +335,12 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 								
 								lp.AddRule(LayoutRules.CenterHorizontal);
 								lp.AddRule(LayoutRules.AlignParentBottom);
-								lp.TopMargin = 0;
 								lp.BottomMargin = (int)val - viewHeight;
 								this.runner.updateView.Rotation = deg;
+								this.runner.updateView.LayoutParameters = lp;
 							}
-							this.runner.updateView.LayoutParameters = lp;
-							if(!this.isView) {
-								this.isView = true;
+							if(!this.runner.isViewAttached) {
+								this.runner.isViewAttached = true;
 								ac.FindViewById<ViewGroup>(Resource.Id.container_topmost).AddView(this.runner.updateView);
 							}
 						}
@@ -327,23 +349,26 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 				}
 			}
 
+			private readonly int updatePosPx;
 			private readonly int overscrollPx;
-			private volatile bool isFire = false;
 			private volatile bool isUpdating = false;
+			private volatile bool isViewAttached = false;
 
-			private RecyclerView recyclerView;
-			private ImageView updateView;
-			private int sizePx;
-			private bool? updateTop = null;
+			private readonly RecyclerView recyclerView;
+			private readonly ImageView updateView;
+			private readonly int sizePx;
+			private bool? updateTopOrBottom = null;
+
 			public event EventHandler<SwipeUpdateEventArgs> Updating;
 
 			public OverScrollRunner(RecyclerView @this) {
+				this.updatePosPx = DroidUtil.Util.Dp2Px(96, @this.Context);
 				this.overscrollPx = DroidUtil.Util.Dp2Px(128, @this.Context);
 
 				this.recyclerView = @this;
 				this.updateView = new ImageView(@this.Context);
 				this.updateView.SetBackgroundColor(Color.Blue);
-				this.sizePx = DroidUtil.Util.Dp2Px(48, @this.Context);
+				this.sizePx = DroidUtil.Util.Dp2Px(64, @this.Context);
 				this.updateView.LayoutParameters = new ViewGroup.LayoutParams(DroidUtil.Util.Dp2Px(24, @this.Context), DroidUtil.Util.Dp2Px(24, @this.Context));
 
 				this.recyclerView.AddOnItemTouchListener(new ItemTouchListener(this));
@@ -351,26 +376,30 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 
 			public void EndUpdate() {
 				this.isUpdating = false;
+				if(this.isViewAttached) {
+					this.isViewAttached = false;
+					this.updateView.Animate()
+						.SetDuration(200)
+						.SetInterpolator(new FastOutLinearInInterpolator())
+						.Alpha(0f)
+						.WithEndAction(new App.Runnable(() => {
+							this.updateView.ClearAnimation();
+							((Android.App.Activity)this.recyclerView.Context).FindViewById<ViewGroup>(Resource.Id.container_topmost).RemoveView(this.updateView);
+							this.updateView.Alpha = 1f;
+						}))
+						.Start();
+				}
 			}
 
 			public int ScrollVerticallyBy(Func<int, RecyclerView.Recycler?, RecyclerView.State?, int> @base, int dy, RecyclerView.Recycler? recycler, RecyclerView.State? state) {
 				var range = @base(dy, recycler, state);
 				var overscroll = dy - range;
 
-				if((range == 0) && (0 < Math.Abs(dy))) {
-					this.updateTop = overscroll < 0;
-					if(this.overscrollPx < Math.Abs(overscroll)) {
-						if(!this.isFire && !this.isUpdating) {
-							this.isFire = true;
-							if(!this.isUpdating) {
-								this.isUpdating = true;
-							}
-						}
-					}
-				} else {
-					this.updateTop = null;
-					this.isFire = false;
-				}
+				this.updateTopOrBottom = ((range == 0) && (0 < Math.Abs(dy))) switch {
+					true => overscroll < 0,
+					false => null,
+				};
+
 				return range;
 			}
 		}

@@ -19,6 +19,7 @@ using Newtonsoft.Json;
 using AndroidX.SwipeRefreshLayout.Widget;
 using AndroidX.Lifecycle;
 using Android.Content;
+using Google.Android.Material.FloatingActionButton;
 
 namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 	internal class CatalogViewerFragment : global::AndroidX.Fragment.App.Fragment {
@@ -30,7 +31,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 
 		}
 
-		public class RecyclerAdapter : App.RecyclerViewAdapter<Data.FutabaContext.Item> {
+		public class RecyclerAdapter : App.RecyclerViewAdapter<Data.FutabaContext.Item?> {
 			private class ViewHolder : RecyclerView.ViewHolder {
 				public View Root { get; }
 				public global::AndroidX.CardView.Widget.CardView Card { get; }
@@ -93,7 +94,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 				bool isOld(Data.FutabaContext.Item item) {
 					var old = false;
 					var curNo = long.TryParse(item.ResItem.No, out var cno) ? cno : 0;
-					var lastNo = this.Source.Select(x => long.TryParse(x.ResItem.No, out var lno) ? lno : 0)
+					var lastNo = this.Source.Select(x => long.TryParse(x?.ResItem.No, out var lno) ? lno : 0)
 						.Max();
 					if((0 < curNo)
 						&& (0 < lastNo)
@@ -116,25 +117,32 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 
 				if(holder is ViewHolder vh) {
 					var s = this.Source[position];
-					vh.Card.Tag = new Java.Lang.String(s.Url.ToString());
-					vh.Title.Text = Util.TextUtil.SafeSubstring(s.ResItem.Res.Com, 4);
-					vh.Counter.Text = s.CounterCurrent.ToString();
+					if(s == null) {
+						vh.Card.Tag = null;
+						vh.Card.Visibility = ViewStates.Invisible;
+					} else {
+						vh.Card.Tag = new Java.Lang.String(s.Url.ToString());
+						vh.Card.Visibility = ViewStates.Visible;
 
-					vh.BadgeOld.Visibility = conv(isOld(s));
-					vh.BadgeIsolate.Visibility = conv(s.ResItem.IsolateValue);
-					{
-						var isId = !string.IsNullOrEmpty(s.ResItem.Res.Id);
-						var thId = s.ResItem.Res.Email.ToLower() != "id表示";
-						var thIp = s.ResItem.Res.Email.ToLower() != "ip表示";
-						vh.BadgeId.Visibility = conv(isId && (thId || thIp));
+						vh.Title.Text = Util.TextUtil.SafeSubstring(s.ResItem.Res.Com, 4);
+						vh.Counter.Text = s.CounterCurrent.ToString();
+
+						vh.BadgeOld.Visibility = conv(isOld(s));
+						vh.BadgeIsolate.Visibility = conv(s.ResItem.IsolateValue);
+						{
+							var isId = !string.IsNullOrEmpty(s.ResItem.Res.Id);
+							var thId = s.ResItem.Res.Email.ToLower() != "id表示";
+							var thIp = s.ResItem.Res.Email.ToLower() != "ip表示";
+							vh.BadgeId.Visibility = conv(isId && (thId || thIp));
+						}
+						vh.BadgeNewCounter.Visibility = conv(!s.ResItem.IsolateValue && (0 < (s.CounterCurrent - s.CounterPrev)));
+						vh.BadgeMovie.Visibility = conv(Config.ConfigLoader.MimeFutaba.Types
+							.Where(x => x.MimeContents == Data.MimeContents.Video)
+							.Select(x => x.Ext)
+							.Any(x => s.ResItem.Res.Ext.ToLower() == x));
+
+						vh.NewCounter.Text = (s.CounterCurrent - s.CounterPrev).ToString();
 					}
-					vh.BadgeNewCounter.Visibility = conv(!s.ResItem.IsolateValue && (0 < (s.CounterCurrent - s.CounterPrev)));
-					vh.BadgeMovie.Visibility = conv(Config.ConfigLoader.MimeFutaba.Types
-						.Where(x => x.MimeContents == Data.MimeContents.Video)
-						.Select(x => x.Ext)
-						.Any(x => s.ResItem.Res.Ext.ToLower() == x));
-
-					vh.NewCounter.Text = (s.CounterCurrent - s.CounterPrev).ToString();
 				}
 			}
 		}
@@ -158,7 +166,9 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 		}
 
 		private PropertiesHolder Properties { get; } = new PropertiesHolder();
+		private RecyclerView recyclerView;
 		private RecyclerAdapter adapter;
+		private int scrollShrinkPx;
 
 		public CatalogViewerFragment() : base() { }
 		protected CatalogViewerFragment(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
@@ -170,46 +180,66 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 		public override void OnViewCreated(View view, Bundle? savedInstanceState) {
 			base.OnViewCreated(view, savedInstanceState);
 
+			this.scrollShrinkPx = DroidUtil.Util.Dp2Px(32, view.Context);
 			var isInit = this.adapter == null;
-			var rv = view.FindViewById<RecyclerView>(Resource.Id.recyclerview);
-			App.RecyclerViewSwipeUpdateHelper.AttachGridLayout(rv, 4).Updating +=(_, e) => {
-				e.UpdateObject.EndUpdate();
-				this.UpdateCatalog();
+			this.recyclerView = view.FindViewById<RecyclerView>(Resource.Id.recyclerview);
+			App.RecyclerViewSwipeUpdateHelper.AttachGridLayout(this.recyclerView, 4).Updating +=(_, e) => {
+				this.UpdateCatalog()
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Subscribe(_ => {
+						e.UpdateObject.EndUpdate();
+					});
+			};
+			this.recyclerView.ScrollChange += (_, e) => {
+				if(this.recyclerView.GetLayoutManager() is LinearLayoutManager lm) {
+					var @new = view.FindViewById<ExtendedFloatingActionButton>(Resource.Id.button_new);
+					if(@new.Extended && (0 < lm.FindFirstVisibleItemPosition())) {
+						@new.Shrink();
+					} else if(!@new.Extended && (lm.FindFirstVisibleItemPosition() == 0)) {
+						@new.Extend();
+					}
+				}
 			};
 
 			if(!isInit) {
-				rv.SetAdapter(this.adapter);
+				this.recyclerView.SetAdapter(this.adapter);
 				return;
 			} else {
-				rv.SetAdapter(this.adapter = new RecyclerAdapter(this));
+				this.recyclerView.SetAdapter(this.adapter = new RecyclerAdapter(this));
 
 				this.Properties.Board = this.Arguments.OutJson<Data.BoardData>();
 				this.Properties.FutabaContext.Value = Data.FutabaContext.FromCatalogEmpty(this.Properties.Board);
 				this.Properties.ResponseSubscriber = this.SubscribeResponse();
 				this.Properties.CatalogSubscriber = this.SubscribeCatalog();
 				if(savedInstanceState == null) {
-					this.UpdateCatalog();
+					this.UpdateCatalog()
+						.Subscribe();
 				}
 			}
 		}
 
-		private void UpdateCatalog() {
-			this.Properties.IsUpdating.Value = true;
-			//this.adapter.Source.Clear();
-			GetCatalog(this.Properties.Board)
-				.ObserveOn(UIDispatcherScheduler.Default)
-				.Finally(() => {
-					this.Properties.IsUpdating.Value = false;
-				}).Subscribe(x => {
-					if(x.Successed) {
-						this.Properties.Response.Value = new ResponseObject() {
-							Response = x.RawResponse,
-							Html = x.RawHtml,
-						};
-					} else {
+		private IObservable<bool> UpdateCatalog() {
+			return Observable.Create<bool>(o => {
+				this.Properties.IsUpdating.Value = true;
+				//this.adapter.Source.Clear();
+				GetCatalog(this.Properties.Board)
+					.ObserveOn(UIDispatcherScheduler.Default)
+					.Finally(() => {
+						this.Properties.IsUpdating.Value = false;
+						o.OnCompleted();
+					}).Subscribe(x => {
+						o.OnNext(x.Successed);
+						if(x.Successed) {
+							this.Properties.Response.Value = new ResponseObject() {
+								Response = x.RawResponse,
+								Html = x.RawHtml,
+							};
+						} else {
 
-					}
-				});
+						}
+					});
+				return System.Reactive.Disposables.Disposable.Empty;
+			});
 		}
 
 
@@ -267,7 +297,9 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 					this.adapter.Source.BeginUpdate()
 						.Clear()
 						.AddRange(x.Futaba.ResItems)
+						.AddRange(new Data.FutabaContext.Item[4])
 						.Commit();
+					this.recyclerView.GetLayoutManager().ScrollToPosition(0);               
 				});
 		}
 
