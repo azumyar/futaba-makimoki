@@ -637,40 +637,45 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					if(File.Exists(localPath)) {
 						o.OnNext((true, localPath, null));
 					} else {
-						var res = request(client, url);
-						if(res.IsSucceeded && res.StatusCode == System.Net.HttpStatusCode.OK) {
-							Observable.Create<byte[]>(async (oo) => {
-								try {
-									var b = res.Content;
+						try {
+							var res = request(client, url);
+							if(res.IsSucceeded && res.StatusCode == System.Net.HttpStatusCode.OK) {
+								Observable.Create<byte[]>(async (oo) => {
 									try {
-										if(!File.Exists(localPath)) {
-											using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
-												fs.Write(b, 0, b.Length);
-												fs.Flush();
+										var b = res.Content;
+										try {
+											if(!File.Exists(localPath)) {
+												using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
+													fs.Write(b, 0, b.Length);
+													fs.Flush();
+												}
 											}
+											oo.OnNext(b);
 										}
-										oo.OnNext(b);
+										catch(IOException e) {
+											await Task.Delay(500);
+											oo.OnError(e);
+										}
 									}
-									catch(IOException e) {
-										await Task.Delay(500);
-										oo.OnError(e);
+									finally {
+										oo.OnCompleted();
 									}
-								}
-								finally {
-									oo.OnCompleted();
-								}
-								return System.Reactive.Disposables.Disposable.Empty;
-							}).Retry(5)
-							.Subscribe(
-								s => {
-									o.OnNext((true, localPath, s));
-								},
-								ex => {
-									o.OnNext((false, null, null));
-								});
-						} else {
+									return System.Reactive.Disposables.Disposable.Empty;
+								}).Retry(5)
+								.Subscribe(
+									s => {
+										o.OnNext((true, localPath, s));
+									},
+									ex => {
+										o.OnNext((false, null, null));
+									});
+							} else {
+								o.OnNext((false, null, null));
+								// TODO: o.OnError();
+							}
+						}
+						catch(TimeoutException) {
 							o.OnNext((false, null, null));
-							// TODO: o.OnError();
 						}
 					}
 				}
@@ -699,38 +704,43 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					if(File.Exists(localPath)) {
 						o.OnNext((true, localPath, null));
 					} else {
-						var res = await request(client, url);
-						if(res.IsSucceeded && res.StatusCode == System.Net.HttpStatusCode.OK) {
-							Observable.Create<byte[]>(async (oo) => {
-								var b = res.Content;
-								try {
-									if(!File.Exists(localPath)) {
-										using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
-											fs.Write(b, 0, b.Length);
-											fs.Flush();
+						try {
+							var res = await request(client, url);
+							if(res.IsSucceeded && res.StatusCode == System.Net.HttpStatusCode.OK) {
+								Observable.Create<byte[]>(async (oo) => {
+									var b = res.Content;
+									try {
+										if(!File.Exists(localPath)) {
+											using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
+												fs.Write(b, 0, b.Length);
+												fs.Flush();
+											}
 										}
+										oo.OnNext(b);
 									}
-									oo.OnNext(b);
-								}
-								catch(IOException e) {
-									await Task.Delay(500);
-									oo.OnError(e);
-								}
-								finally {
-									oo.OnCompleted();
-								}
-								return System.Reactive.Disposables.Disposable.Empty;
-							}).Retry(5)
-							.Subscribe(
-								s => {
-									o.OnNext((true, localPath, s));
-								},
-								ex => {
-									o.OnNext((false, null, null));
-								});
-						} else {
+									catch(IOException e) {
+										await Task.Delay(500);
+										oo.OnError(e);
+									}
+									finally {
+										oo.OnCompleted();
+									}
+									return System.Reactive.Disposables.Disposable.Empty;
+								}).Retry(5)
+								.Subscribe(
+									s => {
+										o.OnNext((true, localPath, s));
+									},
+									ex => {
+										o.OnNext((false, null, null));
+									});
+							} else {
+								o.OnNext((false, null, null));
+								// TODO: o.OnError();
+							}
+						}
+						catch(TimeoutException) {
 							o.OnNext((false, null, null));
-							// TODO: o.OnError();
 						}
 					}
 				}
