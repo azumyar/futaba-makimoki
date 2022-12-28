@@ -103,7 +103,6 @@
                         </MenuItem>
                         <Separator />
                         <MenuItem
-                            Visibility="Collapsed"
                             Header="google画像検索(_G)"
                             Command="{Binding MenuItemClickImageSearchGoogleCommand,Mode=OneWay}"
                             CommandParameter="{Binding Media.Value, Mode=OneWay}" />
