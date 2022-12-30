@@ -24,7 +24,7 @@
         android:layout_margin="16dp"
         android:contentDescription="スレッドをたてる"
         android:text="スレ立て"
-        app:icon="@mipmap/appicon_foreground"
+        app:icon="@drawable/dummy"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/button_opt"       
         />
@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:contentDescription="カタログオプション"
-        app:srcCompat="@mipmap/appicon_foreground"
+        app:srcCompat="@drawable/dummy"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"       
         />

@@ -20,6 +20,7 @@ using AndroidX.SwipeRefreshLayout.Widget;
 using AndroidX.Lifecycle;
 using Android.Content;
 using Google.Android.Material.FloatingActionButton;
+using Java.Net;
 
 namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 	internal class CatalogViewerFragment : global::AndroidX.Fragment.App.Fragment {
@@ -142,6 +143,20 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 							.Any(x => s.ResItem.Res.Ext.ToLower() == x));
 
 						vh.NewCounter.Text = (s.CounterCurrent - s.CounterPrev).ToString();
+
+						if(!string.IsNullOrEmpty(s.ResItem.Res.Thumb) && 0 < s.ResItem.Res.Fsize) {
+							var uri = new Uri(s.Url.BaseUrl);
+							var th = $"{uri.Scheme}://{uri.Authority}{s.ResItem.Res.Thumb}";
+							vh.Image.Tag = new Java.Lang.String(th);
+							vh.Image.SetImageBitmap(null);
+							App.ImageResolver.Instance.Get(th, 256)
+								.Subscribe(x => {
+									if(vh.Image.Tag.ToString() == th) {
+										vh.Image.SetImageBitmap(x);
+									}
+								});
+						}
+
 					}
 				}
 			}
