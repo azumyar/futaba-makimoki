@@ -407,7 +407,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						using(var sf = new FileStream(sfd.FileName, fm)) {
 							Util.ExportUtil.ExportHtmlTestImpl(sf,
 								new Data.ExportHolder(
-									futaba.Bord.Name, futaba.Bord.Extra.Name,
+									futaba.Board.Name, futaba.Board.Extra.Name,
 									resitems.Select(x => {
 										var ngRes = false; // x.IsHidden.Value || x.IsNg.Value;
 										var ngImage = false;
@@ -457,7 +457,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						using(var sf = new FileStream(sfd.FileName, fm)) {
 							Util.ExportUtil.ExportHtml(sf,
 								new Data.ExportHolder(
-									this.Raw.Bord.Name, this.Raw.Bord.Extra.Name,
+									this.Raw.Board.Name, this.Raw.Board.Extra.Name,
 									this.ResItems.Select(x => {
 										var ngRes = x.IsHidden.Value || x.IsNg.Value;
 										var ngImage = !(x.ThumbDisplay.Value ?? true)

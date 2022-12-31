@@ -68,7 +68,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.LastRescount = new ReactiveProperty<int>(this.Futaba.Value.ResCount.Value);
 			this.ThumbSource = new ReactiveProperty<ImageSource>();
 			this.ThreadView = new ReactiveProperty<object>();
-			this.PostData = new ReactiveProperty<PostHolder>(new PostHolder(f.Bord, f.Url));
+			this.PostData = new ReactiveProperty<PostHolder>(new PostHolder(f.Board, f.Url));
 			this.Name = this.Futaba
 				.Select(x => {
 					if(this.Url.IsCatalogUrl) {
