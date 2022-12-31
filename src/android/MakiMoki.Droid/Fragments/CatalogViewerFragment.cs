@@ -20,7 +20,6 @@ using AndroidX.SwipeRefreshLayout.Widget;
 using AndroidX.Lifecycle;
 using Android.Content;
 using Google.Android.Material.FloatingActionButton;
-using Java.Net;
 
 namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 	internal class CatalogViewerFragment : global::AndroidX.Fragment.App.Fragment {
@@ -198,7 +197,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 			this.scrollShrinkPx = DroidUtil.Util.Dp2Px(32, view.Context);
 			var isInit = this.adapter == null;
 			this.recyclerView = view.FindViewById<RecyclerView>(Resource.Id.recyclerview);
-			App.RecyclerViewSwipeUpdateHelper.AttachGridLayout(this.recyclerView, 4).Updating +=(_, e) => {
+			App.RecyclerViewSwipeUpdateHelper.AttachGridLayout(this.recyclerView, 4).Updating += (_, e) => {
 				this.UpdateCatalog()
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(_ => {
@@ -214,6 +213,22 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 						@new.Extend();
 					}
 				}
+			};
+
+			view.FindViewById<FloatingActionButton>(Resource.Id.button_opt).Click += (_, _) => {
+				this.Activity.SupportFragmentManager.BeginTransaction()
+					/*
+					.SetCustomAnimations(
+						Resource.Animation.option_back_in, 0,
+						0, Resource.Animation.option_back_out)
+					.Add(Resource.Id.container, OptionBackFragment.NewInstance())
+					*/
+					.SetCustomAnimations(
+						Resource.Animation.option_in, 0,
+						0, Resource.Animation.option_out)
+					.Add(Resource.Id.container, CatalogOptionFragment.NewInstance())
+					.AddToBackStack(null)
+					.Commit();
 			};
 
 			if(!isInit) {
