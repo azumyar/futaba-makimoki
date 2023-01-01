@@ -78,7 +78,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 					if(s is View vv && vv.Tag?.ToString() is string json) {
 						var p = Newtonsoft.Json.JsonConvert.DeserializeObject<Data.UrlContext>(json);
 						this.fragment.Activity.SupportFragmentManager.BeginTransaction()
-							.Replace(Resource.Id.container, ThreadViewerFragment.NewInstance(p))
+							.Replace(Resource.Id.container, ThreadViewerFragment.NewInstance(this.fragment.Properties.Board, p))
 							.AddToBackStack(null)
 							.Commit();
 					}
@@ -121,7 +121,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 						vh.Card.Tag = null;
 						vh.Card.Visibility = ViewStates.Invisible;
 					} else {
-						vh.Card.Tag = new Java.Lang.String(s.Url.ToString());
+						vh.Card.Tag = new Java.Lang.String(new Data.UrlContext(s.Url.BaseUrl, s.ResItem.No).ToString());
 						vh.Card.Visibility = ViewStates.Visible;
 
 						vh.Title.Text = Util.TextUtil.SafeSubstring(s.ResItem.Res.Com, 4);
