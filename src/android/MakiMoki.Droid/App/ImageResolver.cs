@@ -99,7 +99,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 							}).ObserveOn(MakiMokiApplication.Current.MakiMoki.Db.DbScheduler)
 							.Select(x => {
 								if(x != null) {
-									con.Insert(new DroidData.Db.ImageTable(url, x));
+									con.InsertOrReplace(new DroidData.Db.ImageTable(url, x));
 								}
 								return x;
 							});
