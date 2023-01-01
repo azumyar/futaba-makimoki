@@ -16,6 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\core\MakiMoki.Core\MakiMoki.Core.csproj" />
+    <ProjectReference Include="..\..\core\MakiMoki.Core\MakiMoki.Core.csproj" />
   </ItemGroup>
 </Project>

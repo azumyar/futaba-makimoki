@@ -28,6 +28,29 @@ namespace Yarukizero.Net.MakiMoki.Droid.DroidData.Db {
 		}
 	}
 
+	[Table("FutabaResponse")]
+	public class FutabaResponseTable : TableOject {
+		[PrimaryKey]
+		[Column("url")]
+		public string? Url { get; set; }
+		[Column("json")]
+		[NotNull]
+		public string? ResJson { get; set; }
+		[Column("count")]
+		[NotNull]
+		public int ResCount { get; set; }
+		[Column("thread_text")]
+		[NotNull]
+		public int ThreadText { get; set; }
+		[Column("thread_thumbnail")]
+		[NotNull]
+		public string? ThreadThumbnail { get; set; }
+
+		public FutabaResponseTable() { }
+		public FutabaResponseTable(string url, Data.FutabaResponse[] data) : base(DateTime.Now) {
+			this.Url = url;
+		}
+	}
 
 	[Table("Image")]
 	public class ImageTable : TableOject {

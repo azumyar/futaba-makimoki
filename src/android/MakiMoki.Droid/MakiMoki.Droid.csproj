@@ -33,5 +33,6 @@
     <ProjectReference Include="..\..\..\MakiMoki.Droid.Db\MakiMoki.Droid.Db.csproj" />
     <ProjectReference Include="..\..\core\MakiMoki.Core\MakiMoki.Core.csproj" />
     <ProjectReference Include="..\..\core\MakiMoki.Core.Ng\MakiMoki.Core.Ng.csproj" />
+    <ProjectReference Include="..\MakiMoki.Droid.Db\MakiMoki.Droid.Db.csproj" />
   </ItemGroup>
 </Project>

@@ -1,3 +1,4 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32630.192
@@ -20,7 +21,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MakiMoki.Shared.Futaba", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakiMoki.Droid", "src\android\MakiMoki.Droid\MakiMoki.Droid.csproj", "{624CC2F8-7211-4B81-9ACF-0CC178C1A04C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MakiMoki.Droid.Db", "MakiMoki.Droid.Db\MakiMoki.Droid.Db.csproj", "{0EDC0D2E-A9BF-4ABD-9106-EB37C47781D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakiMoki.Droid.Db", "src\android\MakiMoki.Droid.Db\MakiMoki.Droid.Db.csproj", "{46CE4637-494C-489C-9400-0EB7846F6C71}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,10 +43,10 @@ Global
 		{624CC2F8-7211-4B81-9ACF-0CC178C1A04C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{624CC2F8-7211-4B81-9ACF-0CC178C1A04C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{624CC2F8-7211-4B81-9ACF-0CC178C1A04C}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{0EDC0D2E-A9BF-4ABD-9106-EB37C47781D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0EDC0D2E-A9BF-4ABD-9106-EB37C47781D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0EDC0D2E-A9BF-4ABD-9106-EB37C47781D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0EDC0D2E-A9BF-4ABD-9106-EB37C47781D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46CE4637-494C-489C-9400-0EB7846F6C71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46CE4637-494C-489C-9400-0EB7846F6C71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46CE4637-494C-489C-9400-0EB7846F6C71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46CE4637-494C-489C-9400-0EB7846F6C71}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
