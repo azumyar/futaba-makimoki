@@ -232,11 +232,30 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 				(x, y) => (Futaba: x, Search: y))
 				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => {
-					this.adapter.Source.BeginUpdate()
-						.Clear()
-						.AddRange(x.Futaba.ResItems)
-						.AddRange(new Data.FutabaContext.Item[2])
-						.Commit();
+					var c = this.adapter.ItemCount - 2;
+					if(c < 0) {
+						this.adapter.Source.BeginUpdate()
+							.Clear()
+							.AddRange(x.Futaba.ResItems)
+							.AddRange(new Data.FutabaContext.Item[2])
+							.Commit();
+						return;
+					}
+					
+					if(c < x.Futaba.ResItems.Length) {
+						var uo = this.adapter.Source.BeginUpdate();
+						for(var i = 0; i < 2; i++) {
+							uo.RemoveAt(this.adapter.ItemCount - 1);
+						}
+						uo.AddRange(x.Futaba.ResItems.Skip(c))
+							.AddRange(new Data.FutabaContext.Item[2])
+							.Commit();
+					}
+					foreach(var it in x.Futaba.ResItems.Take(c).Select((x, i) => (Val: x, Index: i))) {
+						if(this.adapter.Source[it.Index].HashText != it.Val.HashText) {
+							this.adapter.Source[it.Index] = it.Val;
+						}
+					}
 				});
 		}
 

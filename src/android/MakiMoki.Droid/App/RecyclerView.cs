@@ -79,7 +79,16 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 				this.batchObj = new BatchObject(this);
 			}
 
-			public T this[int index] => this.collection.ElementAt(index);
+			public T this[int index] {
+				get { return this.collection.ElementAt(index); }
+				set {
+					var rm = this.collection[index];
+					this.collection[index] = value;
+					this.RemoveHook(rm);
+					this.AddHook(value);
+					this.adapter.NotifyItemChanged(index);
+				}
+			}
 
 			public int Count => collection.Count;
 
@@ -201,7 +210,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 			private class ItemTouchListener : Java.Lang.Object, RecyclerView.IOnItemTouchListener {
 				private readonly FastOutSlowInInterpolator interpolator = new FastOutSlowInInterpolator();
 				private OverScrollRunner runner;
-				private (float X, float Y) pointerPos = (0, 0);
+				private (float X, float Y)? pointerPos = null;
 				public ItemTouchListener(OverScrollRunner @this) {
 					this.runner = @this;
 				}
@@ -215,23 +224,29 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 					var ac = (Android.App.Activity)recyclerView.Context;
 					switch(@event.Action) {
 					case MotionEventActions.Down:
-						this.pointerPos = (@event.RawX, @event.RawY);
+						this.pointerPos = this.runner.isUpdating switch {
+							true => null,
+							false => (@event.RawX, @event.RawY)
+						};
 						break;
 					case MotionEventActions.Move:
 						if(this.runner.updateTopOrBottom.HasValue) {
+							if(this.runner.isUpdating || !this.pointerPos.HasValue) {
+								break;
+							}
+
 							if(this.runner.updateTopOrBottom.Value) {
-								if(this.pointerPos.Y < @event.RawY) {
+								if(this.pointerPos.Value.Y < @event.RawY) {
 									return true;
 								}
 							} else {
-								if(@event.RawY < this.pointerPos.Y) {
+								if(@event.RawY < this.pointerPos.Value.Y) {
 									return true;
 								}
 							}
 						} else {
-							if(this.runner.isViewAttached) {
-								this.runner.isViewAttached = false;
-								ac.FindViewById<ViewGroup>(Resource.Id.container_topmost).RemoveView(this.runner.updateView);
+							if(!this.runner.isUpdating && this.runner.isViewAttached) {
+								this.runner.EndUpdate();
 							}
 						}
 						break;
@@ -245,9 +260,9 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 					var ac = (Android.App.Activity)recyclerView.Context;
 					switch(@event.Action) {
 					case MotionEventActions.Up:
-						if(!this.runner.isUpdating) {
-							var x = this.pointerPos.X - @event.RawX;
-							var y = this.pointerPos.Y - @event.RawY;
+						if(!this.runner.isUpdating && this.pointerPos.HasValue) {
+							var x = this.pointerPos.Value.X - @event.RawX;
+							var y = this.pointerPos.Value.Y - @event.RawY;
 							var length = (int)Math.Sqrt(x * x + y * y);
 							if((this.runner.overscrollPx < length) && (IsTop: this.runner.updateTopOrBottom.Value, Y: y) switch {
 								var v when v.IsTop => v switch {
@@ -281,20 +296,18 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 									Dimension.RelativeToSelf, 0.5f) {
 									Duration = 500,
 									RepeatCount = Animation.Infinite,
-									FillAfter= false,
+									FillAfter = false,
 								});
+							} else if(this.runner.isViewAttached) {
+								this.runner.EndUpdate();
 							}
 							this.runner.updateTopOrBottom = null;
 						}
-						if(this.runner.isViewAttached && !this.runner.isUpdating) {
-							this.runner.isViewAttached = false;
-							ac.FindViewById<ViewGroup>(Resource.Id.container_topmost).RemoveView(this.runner.updateView);
-						}
 						break;
 					case MotionEventActions.Move:
-						if(this.runner.updateTopOrBottom.HasValue) {
-							var x = this.pointerPos.X - @event.RawX;
-							var y = this.pointerPos.Y - @event.RawY;
+						if(this.runner.updateTopOrBottom.HasValue && this.pointerPos.HasValue) {
+							var x = this.pointerPos.Value.X - @event.RawX;
+							var y = this.pointerPos.Value.Y - @event.RawY;
 							var length = (int)Math.Sqrt(x * x + y * y);
 							var viewHeight = this.runner.updateView.Height;
 							var maxLength = this.runner.overscrollPx + viewHeight;
@@ -341,7 +354,10 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 							}
 							if(!this.runner.isViewAttached) {
 								this.runner.isViewAttached = true;
-								ac.FindViewById<ViewGroup>(Resource.Id.container_topmost).AddView(this.runner.updateView);
+								try {
+									ac.FindViewById<ViewGroup>(Resource.Id.container_topmost).AddView(this.runner.updateView);
+								}
+								catch(Java.Lang.IllegalStateException) { }
 							}
 						}
 						break;
