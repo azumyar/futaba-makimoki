@@ -152,6 +152,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 		private PropertiesHolder Properties { get; } = new PropertiesHolder();
 		private RecyclerView recyclerView;
 		private RecyclerAdapter adapter;
+		private static readonly int DummyItemNum = 2;
 
 		public ThreadViewerFragment() : base() { }
 		protected ThreadViewerFragment(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
@@ -232,24 +233,32 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 				(x, y) => (Futaba: x, Search: y))
 				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => {
-					var c = this.adapter.ItemCount - 2;
+					var c = this.adapter.ItemCount - DummyItemNum;
 					if(c < 0) {
 						this.adapter.Source.BeginUpdate()
 							.Clear()
 							.AddRange(x.Futaba.ResItems)
-							.AddRange(new Data.FutabaContext.Item[2])
+							.AddRange(new Data.FutabaContext.Item[DummyItemNum])
 							.Commit();
 						return;
 					}
 					
 					if(c < x.Futaba.ResItems.Length) {
-						var uo = this.adapter.Source.BeginUpdate();
-						for(var i = 0; i < 2; i++) {
-							uo.RemoveAt(this.adapter.ItemCount - 1);
+						var @new = x.Futaba.ResItems.Skip(c);
+						if(@new.Count() <= DummyItemNum) {
+							foreach(var it in @new.Select((y, i) => (Value: y, Index: i))) {
+								this.adapter.Source[c + it.Index] = @new.ElementAt(it.Index);
+							}
+							for(var i = 0; i < DummyItemNum - @new.Count(); i++) {
+								this.adapter.Source.Add(null);
+							}
+						} else {
+							foreach(var it in @new.Take(DummyItemNum).Select((y, i) => (Value: y, Index: i))) {
+								this.adapter.Source[c + it.Index] = @new.ElementAt(it.Index);
+							}
+							this.adapter.Source.AddRange(@new.Skip(DummyItemNum));
+							this.adapter.Source.AddRange(new Data.FutabaContext.Item[DummyItemNum]);
 						}
-						uo.AddRange(x.Futaba.ResItems.Skip(c))
-							.AddRange(new Data.FutabaContext.Item[2])
-							.Commit();
 					}
 					foreach(var it in x.Futaba.ResItems.Take(c).Select((x, i) => (Val: x, Index: i))) {
 						if(this.adapter.Source[it.Index].HashText != it.Val.HashText) {
