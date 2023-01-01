@@ -53,7 +53,7 @@ namespace Yarukizero.Net.MakiMoki.Data {
 			this.Path = path;
 			this.Domain = domain;
 			this.Expire = expire switch {
-				DateTime d when d < DateTime.Now => DateTime.MaxValue,
+				DateTime d when d < DateTime.Now => new DateTime(2038, 1, 19),
 				DateTime d => d,
 			};
 		}

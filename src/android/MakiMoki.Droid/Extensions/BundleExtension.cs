@@ -1,3 +1,4 @@
+using Android.Content;
 using Android.OS;
 using System;
 using System.Collections.Generic;
@@ -13,10 +14,23 @@ namespace Yarukizero.Net.MakiMoki.Droid.Extensions {
 		}
 
 		public static T OutJson<T>(this Bundle @this, string? suffix = null) where T:Data.JsonObject {
-			var s = @this.GetString(ToKey(typeof(T), suffix));
-			return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(s);
+			return @this.GetString(ToKey(typeof(T), suffix)) switch {
+				string s => Newtonsoft.Json.JsonConvert.DeserializeObject<T>(s),
+				_ => default,
+			};
 		}
 
+
+		public static Intent InJson(this Intent @this, Data.JsonObject json, string? suffix = null) {
+			@this.PutExtra(ToKey(json.GetType(), suffix), json.ToString());
+			return @this;
+		}
+		public static T OutJson<T>(this Intent @this, string? suffix = null) where T : Data.JsonObject {
+			return @this.GetStringExtra(ToKey(typeof(T), suffix)) switch {
+				string s => Newtonsoft.Json.JsonConvert.DeserializeObject<T>(s),
+				_ => default,
+			};
+		}
 
 		private static string ToKey(Type t, string? suffix) => $"{t.FullName}::{suffix ?? ""}";
 	}

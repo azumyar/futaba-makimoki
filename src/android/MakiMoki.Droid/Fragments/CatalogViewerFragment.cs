@@ -124,7 +124,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 						vh.Card.Tag = new Java.Lang.String(new Data.UrlContext(s.Url.BaseUrl, s.ResItem.No).ToString());
 						vh.Card.Visibility = ViewStates.Visible;
 
-						vh.Title.Text = Util.TextUtil.SafeSubstring(s.ResItem.Res.Com, 4);
+						vh.Title.Text = Util.TextUtil.SafeSubstring(Util.TextUtil.RowComment2Text(s.ResItem.Res.Com), 4);
 						vh.Counter.Text = s.CounterCurrent.ToString();
 
 						vh.BadgeOld.Visibility = conv(isOld(s));
@@ -266,6 +266,9 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 							};
 						} else {
 
+						}
+						if(x.Cookies!= null) {
+							Config.ConfigLoader.UpdateCookie(this.Properties.Board.Url, x.Cookies);
 						}
 					});
 				return System.Reactive.Disposables.Disposable.Empty;

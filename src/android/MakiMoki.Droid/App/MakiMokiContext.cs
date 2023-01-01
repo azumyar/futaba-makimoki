@@ -1,4 +1,3 @@
-using Org.Apache.Http.Client.Utils;
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -6,9 +5,60 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Android.Content;
+using Newtonsoft.Json;
+using Yarukizero.Net.MakiMoki.Util;
 
 namespace Yarukizero.Net.MakiMoki.Droid.App {
 	internal class MakiMokiContext {
+		internal class DroidDataProvider : Config.ConfigLoader.IDataProvider {
+			private readonly Context context;
+
+			public DroidDataProvider(Context context) {
+				this.context = context;
+			}
+
+			private T Load<T>(string name, T defaultValue, Dictionary<int, Type>? migrateTable = null, Func<string, Exception, Exception>? exception = null) where T : Data.ConfigObject {
+				var r = defaultValue;
+				exception ??= (m, e) => new Exceptions.InitializeFailedException(m, e);
+				try {
+					var json = this.context.GetSharedPreferences(DroidConst.PreferencesName, FileCreationMode.Private).GetString(name, null);
+					if(json != null) {
+						r = CompatUtil.Migrate<T>(json, migrateTable);
+					}
+				}
+				catch(JsonReaderException e) {
+					throw exception($"JSONファイル[{name}]が不正な形式です{Environment.NewLine}{Environment.NewLine}{e.Message}", e);
+				}
+				catch(JsonSerializationException e) {
+					throw exception($"JSONファイル[{name}]が不正な形式です{Environment.NewLine}{Environment.NewLine}{e.Message}", e);
+				}
+
+				return r;
+			}
+			public void Save(string name, Data.JsonObject config)  => this.context.GetSharedPreferences(DroidConst.PreferencesName, FileCreationMode.Private)
+				.Edit()
+				.PutString(name, config.ToString())
+				.Commit();
+			public void Remove(string name) => this.context.GetSharedPreferences(DroidConst.PreferencesName, FileCreationMode.Private)
+				.Edit()
+				.Remove(name)
+				.Commit();
+
+			public T LoadSystem<T>(string name, T defaultValue, Dictionary<int, Type>? migrateTable = null, Func<string, Exception, Exception>? exception = null) where T : Data.ConfigObject => defaultValue;
+
+
+			public T LoadUser<T>(string name, T defaultValue, Dictionary<int, Type>? migrateTable = null, Func<string, Exception, Exception>? exception = null) where T : Data.ConfigObject
+				=> Load(name, defaultValue, migrateTable, exception);
+			public void SaveUser(string name, Data.JsonObject config) => Save(name, config);
+			public void RemoveUser(string name) => Remove(name);
+
+			public T LoadWork<T>(string name, T defaultValue, Dictionary<int, Type>? migrateTable = null, Func<string, Exception, Exception>? exception = null) where T : Data.ConfigObject
+				=> Load(name, defaultValue, migrateTable, exception);
+			public void SaveWork(string name, Data.JsonObject config) => Save(name, config);
+			public void RemoveWork(string name) => Remove(name);
+		}
+
 		private string ContentType { get; set; }
 		private string AppInternalRootDirectory { get; set; }
 		private string AppExternalRootDirectory { get; set; }
@@ -20,6 +70,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 		public System.Net.Http.HttpClient HttpClient { get; private set; }
 		public DbConnection Db { get; private set; }
 
+		public long InitUnixTime { get; private set; }
 
 		public MakiMokiContext() {
 			this.DoInitilize();
@@ -50,6 +101,19 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 				ContentType);
 			Db = new DbConnection(Path.Combine(AppInternalRootDirectory, DroidConst.DbName));
 
+			this.InitUnixTime = MakiMokiApplication.Current.GetSharedPreferences(DroidConst.PreferencesName, FileCreationMode.Private)
+				.GetLong(DroidConst.PreferencesKeyInitTime, 0);
+			if(this.InitUnixTime == 0) {
+				this.InitUnixTime = Util.TimeUtil.ToUnixTimeSeconds();
+#if DEBUG
+				this.InitUnixTime = Util.TimeUtil.ToUnixTimeSeconds(DateTime.Now.AddHours(-2));
+#endif
+				MakiMokiApplication.Current.GetSharedPreferences(DroidConst.PreferencesName, FileCreationMode.Private)
+					.Edit()
+					.PutLong(DroidConst.PreferencesKeyInitTime, this.InitUnixTime)
+					.Commit();
+			}
+
 			global::Reactive.Bindings.UIDispatcherScheduler.Initialize();
 			Config.ConfigLoader.Initialize(new Config.ConfigLoader.Setting() {
 				RestUserAgent = ContentType,
@@ -57,11 +121,12 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 				SystemDirectory = Path.Combine(
 					System.AppContext.BaseDirectory,
 					"Config.d"),
-				UserDirectory = UserConfigDirectory,
 				AppCenterSecrets = AppCenterSecrets,
 				*/
+				UserDirectory = AppInternalRootDirectory,
 				CacheDirectory = AppCacheDirectory,
-				WorkDirectory = AppWorkDirectory
+				WorkDirectory = AppWorkDirectory,
+				DataProvider = new DroidDataProvider(MakiMokiApplication.Current),
 			});
 
 			var imgBoard = Data.BoardData.From(
@@ -76,7 +141,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 					mailId: true,
 					alwaysIp: false,
 					alwaysId: false,
-					maxStoredRes: 20000,
+					maxStoredRes: 30000,
 					maxStoredTime: 3600,
 					resTegaki: true),
 				makimokiExtra: Data.MakiMokiBoardDataExtra.From(

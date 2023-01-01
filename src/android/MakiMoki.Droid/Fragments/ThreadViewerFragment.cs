@@ -183,6 +183,12 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 					}
 				}
 			};
+			view.FindViewById<Button>(Resource.Id.button_new).Click += (_, _) => {
+				this.Activity.StartActivity(
+					new Android.Content.Intent(this.Activity, typeof(Activities.PostActivity))
+						.InJson(this.Properties.Board)
+						.InJson(this.Properties.Url));
+			};
 
 			if(!isInit) {
 				this.recyclerView.SetAdapter(this.adapter);
@@ -221,6 +227,9 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 							this.Properties.FutabaContext.Value = x.Data;
 						} else {
 
+						}
+						if(x.Cookies != null) {
+							Config.ConfigLoader.UpdateCookie(this.Properties.Board.Url, x.Cookies);
 						}
 					});
 				return System.Reactive.Disposables.Disposable.Empty;

@@ -7,6 +7,7 @@ using System.Text;
 using System.Linq;
 using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Util;
+using System.Configuration;
 
 namespace Yarukizero.Net.MakiMoki.Config {
 	public static partial class ConfigLoader {
@@ -21,10 +22,6 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		internal static readonly string FutabaSavedFile = "makimoki.response.json";
 		internal static readonly string FutabaPostedFile = "makimoki.post.json";
 
-#pragma warning disable IDE0044
-		private static volatile object lockObj = new object();
-#pragma warning restore IDE0044
-
 		public class Setting {
 			public string RestUserAgent { get; set; } = "MakiMoki/Core";
 			public string SystemDirectory { get; set; } = null;
@@ -34,13 +31,21 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			public string CacheDirectory { get; set; } = null;
 
 			public string AppCenterSecrets { get; set; } = null;
+
+			public IDataProvider DataProvider { get; set; } = null;
 		}
+
+#pragma warning disable IDE0044
+		private static volatile object lockObj = new object();
+#pragma warning restore IDE0044
+		private static IDataProvider dataProvider = null;
 
 		public static void Initialize(Setting setting) {
 			System.Diagnostics.Debug.Assert(setting != null);
 			System.Diagnostics.Debug.Assert(setting.RestUserAgent != null);
 			System.Diagnostics.Debug.Assert(setting.WorkDirectory != null);
 			InitializedSetting = setting;
+			dataProvider = InitializedSetting.DataProvider ?? new FileSaveProvider(InitializedSetting);
 
 			var loader = new Util.ResourceLoader(typeof(ConfigLoader));
 			var board = Util.FileUtil.LoadMigrate(
@@ -63,8 +68,8 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			Uploder = Util.FileUtil.LoadMigrate(
 				loader.Get(UploderConfigFile),
 				default(UploderConfig));
-			FutabaApi = Util.FileUtil.LoadMigrate(
-				Path.Combine(setting.WorkDirectory, FutabaApiFile),
+			FutabaApi = dataProvider.LoadWork(
+				FutabaApiFile,
 				FutabaApiConfig.CreateDefault(),
 				new Dictionary<int, Type>() {
 					{Data.Compat.FutabaApiConfig2020062900.CurrentVersion, typeof(Data.Compat.FutabaApiConfig2020062900)}
@@ -80,6 +85,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 				FutabaApi.Ptua = CreatePtua();
 			}
 
+			// TODO: 作り直す
 			foreach(var confDir in new string[] { setting.SystemDirectory, setting.UserDirectory }) {
 				if(confDir != null) {
 					{
@@ -126,11 +132,11 @@ namespace Yarukizero.Net.MakiMoki.Config {
 					.OrderBy(x => x.SortIndex)
 					.ToArray());
 			UserConfBoard ??= BoardConfig.CreateDefault();
-			SavedFutaba = Util.FileUtil.LoadMigrate(
-				Path.Combine(InitializedSetting.WorkDirectory, FutabaSavedFile),
+			SavedFutaba = dataProvider.LoadWork(
+				FutabaSavedFile,
 				Data.FutabaSavedConfig.CreateDefault());
-			PostedItem = Util.FileUtil.LoadMigrate(
-				Path.Combine(InitializedSetting.WorkDirectory, FutabaPostedFile),
+			PostedItem = dataProvider.LoadWork(
+				FutabaPostedFile,
 				Data.FutabaPostItemConfig.CreateDefault());
 			if(PostedItem.Items.Any()) {
 				var time = DateTime.Now.AddDays(-MakiMoki.FutabaPostDataExpireDay);
@@ -188,15 +194,11 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		public static void UpdateOptout(Data.MakiMokiOptout optout) {
 			Optout = optout;
 			lock(lockObj) {
-				if(Directory.Exists(InitializedSetting.UserDirectory)) {
-					Util.FileUtil.SaveJson(
-						Path.Combine(InitializedSetting.UserDirectory, MakiMokiOptoutConfigFile),
-						Optout);
-				}
+				dataProvider.SaveUser(MakiMokiOptoutConfigFile, Optout);
 			}
 		}
 
-		internal static void UpdateCookie(string url, Data.Cookie2[] cookies) {
+		public static void UpdateCookie(string url, Data.Cookie2[] cookies) {
 			lock(lockObj) {
 				var l = FutabaApi.Cookies.ToList();
 				var uri = new Uri(url);
@@ -206,37 +208,31 @@ namespace Yarukizero.Net.MakiMoki.Config {
 				l.AddRange(cookies);
 				FutabaApi.Cookies = l.ToArray();
 
-				Util.FileUtil.SaveJson(
-					Path.Combine(InitializedSetting.WorkDirectory, FutabaApiFile),
-					FutabaApi);
+				dataProvider.SaveWork(FutabaApiFile, FutabaApi);
 			}
 		}
 
-		public static void UpdateFutabaInputData(BoardData bord, string subject, string name, string mail, string password) {
+		public static void UpdateFutabaInputData(BoardData board, string subject, string name, string mail, string password) {
 			System.Diagnostics.Debug.Assert(subject != null);
 			System.Diagnostics.Debug.Assert(name != null);
 			System.Diagnostics.Debug.Assert(mail != null);
 			System.Diagnostics.Debug.Assert(password != null);
 
-			if(bord.Extra?.Name ?? true) {
+			if(board.Extra?.Name ?? true) {
 				FutabaApi.SavedSubject = MakiMoki.FutabaPostSavedSubject ? subject : "";
 				FutabaApi.SavedName = MakiMoki.FutabaPostSavedName ? name : "";
 			}
 			FutabaApi.SavedMail = MakiMoki.FutabaPostSavedMail ? mail : "";
 			FutabaApi.SavedPassword = password;
-			Util.FileUtil.SaveJson(
-				Path.Combine(InitializedSetting.WorkDirectory, FutabaApiFile),
-				FutabaApi);
+			dataProvider.SaveWork(FutabaApiFile, FutabaApi);
 			PostConfigUpdateNotifyer.Notify();
 		}
 
-		internal static void UpdateFutabaPassword(string password) {
+		public static void UpdateFutabaPassword(string password) {
 			System.Diagnostics.Debug.Assert(password != null);
 
 			FutabaApi.SavedPassword = password;
-			Util.FileUtil.SaveJson(
-				Path.Combine(InitializedSetting.WorkDirectory, FutabaApiFile),
-				FutabaApi);
+			dataProvider.SaveWork(FutabaApiFile, FutabaApi);
 			PostConfigUpdateNotifyer.Notify();
 		}
 
@@ -261,11 +257,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 				isSavedPostName: isSavedPostName,
 				isSavedPostMail: isSavedPostMail);
 			lock(lockObj) {
-				if(Directory.Exists(InitializedSetting.UserDirectory)) {
-					Util.FileUtil.SaveJson(
-						Path.Combine(InitializedSetting.UserDirectory, MakiMokiConfigFile),
-						MakiMoki);
-				}
+				dataProvider.SaveUser(MakiMokiConfigFile, MakiMoki);
 			}
 
 			// notifyerいる？
@@ -279,8 +271,8 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			var boardDic = new Dictionary<string, Data.BoardData>();
 			MergeDictionary(boardDic, board.Boards);
 			if(InitializedSetting.SystemDirectory != null) {
-				var b = Util.FileUtil.LoadMigrate(
-					Path.Combine(InitializedSetting.SystemDirectory, BoardConfigFile),
+				var b = dataProvider.LoadSystem(
+					BoardConfigFile,
 					default(BoardConfig),
 					new Dictionary<int, Type>() {
 						{ Data.Compat.BoardConfig2020062900.CurrentVersion, typeof(Data.Compat.BoardConfig2020062900) },
@@ -296,11 +288,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 					.OrderBy(x => x.SortIndex)
 					.ToArray());
 			lock(lockObj) {
-				if(Directory.Exists(InitializedSetting.UserDirectory)) {
-					Util.FileUtil.SaveJson(
-						Path.Combine(InitializedSetting.UserDirectory, BoardConfigFile),
-						UserConfBoard);
-				}
+				dataProvider.SaveUser(BoardConfigFile, UserConfBoard);
 			}
 			BoardConfigUpdateNotifyer.Notify();
 		}
@@ -309,9 +297,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			if(MakiMoki.FutabaResponseSave) {
 				lock(lockObj) {
 					SavedFutaba = Data.FutabaSavedConfig.From(catalogs, threads);
-					Util.FileUtil.SaveJson(
-						Path.Combine(InitializedSetting.WorkDirectory, FutabaSavedFile),
-						SavedFutaba);
+					dataProvider.SaveWork(FutabaSavedFile, SavedFutaba);
 				}
 			}
 		}
@@ -328,9 +314,7 @@ namespace Yarukizero.Net.MakiMoki.Config {
 		public static void SavePostItems(Data.PostedResItem[] items) {
 			lock(lockObj) {
 				PostedItem = Data.FutabaPostItemConfig.From(items);
-				Util.FileUtil.SaveJson(
-					Path.Combine(InitializedSetting.WorkDirectory, FutabaPostedFile),
-					PostedItem);
+				dataProvider.SaveWork(FutabaPostedFile, PostedItem);
 			}
 		}
 	}

@@ -17,6 +17,9 @@
     <JavaMaximumHeapSize>1G</JavaMaximumHeapSize>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Resources\layout\activity_post.xml" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.17.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="ReactiveProperty.XamarinAndroid" Version="8.1.2" />
