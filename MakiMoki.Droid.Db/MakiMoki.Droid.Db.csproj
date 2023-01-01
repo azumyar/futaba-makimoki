@@ -8,10 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
-    <PackageReference Include="SQLitePCLRaw.core" Version="2.1.0-pre20220207221914" />
-    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.0-pre20220207221914" />
-    <PackageReference Include="SQLitePCLRaw.provider.dynamic_cdecl" Version="2.1.0-pre20220207221914" />
-    <PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="2.1.0-pre20220207221914" />
+    <PackageReference Include="SQLitePCLRaw.core" Version="2.1.0" />
+    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.0" />
+    <PackageReference Include="SQLitePCLRaw.provider.dynamic_cdecl" Version="2.1.0" />
+    <PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="2.1.0" />
     <PackageReference Include="System.Reactive.Linq" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\core\MakiMoki.Core\MakiMoki.Core.csproj" />
   </ItemGroup>
 </Project>
