@@ -9,14 +9,16 @@ using System.Threading.Tasks;
 
 namespace Yarukizero.Net.MakiMoki.Droid.App {
 	internal class MakiMokiContext {
-		private static string ContentType { get; set; }
-		private static string AppInternalRootDirectory { get; set; }
-		private static string AppExternalRootDirectory { get; set; }
+		private string ContentType { get; set; }
+		private string AppInternalRootDirectory { get; set; }
+		private string AppExternalRootDirectory { get; set; }
 
-		public static System.Net.Http.HttpClient HttpClient { get; private set; }
+		public string AppCacheDirectory { get; private set; }
+		public string AppWorkDirectory { get; private set; }
 
-		public static string AppCacheDirectory { get; private set; }
-		public static string AppWorkDirectory { get; private set; }
+
+		public System.Net.Http.HttpClient HttpClient { get; private set; }
+		public DbConnection Db { get; private set; }
 
 
 		public MakiMokiContext() {
@@ -46,6 +48,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 			HttpClient.DefaultRequestHeaders.TryAddWithoutValidation(
 				"User-Agent",
 				ContentType);
+			Db = new DbConnection(Path.Combine(AppInternalRootDirectory, DroidConst.DbName));
 
 			global::Reactive.Bindings.UIDispatcherScheduler.Initialize();
 			Config.ConfigLoader.Initialize(new Config.ConfigLoader.Setting() {

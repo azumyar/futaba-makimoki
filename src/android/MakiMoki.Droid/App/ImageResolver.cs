@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using Reactive.Bindings;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 
 namespace Yarukizero.Net.MakiMoki.Droid.App {
 	internal class ImageResolver {
@@ -72,40 +73,83 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 				return Observable.Return(src)
 					.ObserveOn(UIDispatcherScheduler.Default);
 			} else {
-				return this.imageQueue.Push(Helpers.ConnectionQueueItem<Bitmap>.From(
-					async o => {
-						try {
-							// TODO: DB保存確認
-
-							var r = await App.MakiMokiContext.HttpClient.GetByteArrayAsync(url);
-							// TODO: DBに保存処理
-							Observable.Return(r)
-								.Select(x => {
-									using var s = new MemoryStream(x);
-									return (Bmp: BitmapFactory.DecodeStream(s), Resize: droidImageSize) switch {
-										var y when y.Resize is not null => resize(y.Bmp, y.Resize.Value),
-										var y => y.Bmp,
+				return MakiMokiApplication.Current.MakiMoki.Db.Connect()
+					.SelectMany(con => {
+						var image = con.Table<DroidData.Db.ImageTable>().FirstOrDefault(x => x.Url == url);
+						if(image == null) {
+							return Observable.Create<byte[]?>(async o => {
+								try {
+									o.OnNext(await MakiMokiApplication.Current.MakiMoki.HttpClient.GetByteArrayAsync(url));
+								}
+								catch(Exception e) {
+									System.Diagnostics.Debug.WriteLine(e);
+									var @throw = e switch {
+										System.Net.Http.HttpRequestException _ => false,
+										System.Threading.Tasks.TaskCanceledException _ => false,
+										_ => true,
 									};
-								})
-								.ObserveOn(UIDispatcherScheduler.Default)
-								.Subscribe(x => {
-									o.OnNext(this.SetImage(url, x));
+									if(@throw) {
+										o.OnNext(null);
+										o.OnError(e);
+									}
+								}
+								finally {
 									o.OnCompleted();
-								});
+								}
+							}).ObserveOn(MakiMokiApplication.Current.MakiMoki.Db.DbScheduler)
+							.Select(x => {
+								if(x != null) {
+									con.Insert(new DroidData.Db.ImageTable(url, x));
+								}
+								return x;
+							});
+							/*
+							return this.imageQueue.Push(Helpers.ConnectionQueueItem<(SQLite.SQLiteConnection Con, byte[]? Data)>.From(async o => {
+								try {
+									o.OnNext((con, await MakiMokiApplication.Current.MakiMoki.HttpClient.GetByteArrayAsync(url)));
+								}
+								catch(Exception e) {
+									System.Diagnostics.Debug.WriteLine(e);
+									var @throw = e switch {
+										System.Net.Http.HttpRequestException _ => false,
+										System.Threading.Tasks.TaskCanceledException _ => false,
+										_ => true,
+									};
+									if(@throw) {
+										o.OnNext((con, null));
+										o.OnError(e);
+									}
+								}
+								finally {
+									o.OnCompleted();
+								}
+							})).ObserveOn(MakiMokiApplication.Current.MakiMoki.Db.DbScheduler)
+							.Select(x => {
+								if(x.Data != null) {
+									x.Con.Insert(new DroidData.Db.ImageTable(url, x.Data));
+								}
+								return x.Data;
+							});
+							*/
+						} else {
+							return Observable.Return(image.Data);
 						}
-						catch(Exception e) {
-							System.Diagnostics.Debug.WriteLine(e);
-							var @throw = e switch {
-								System.Net.Http.HttpRequestException _ => false,
-								System.Threading.Tasks.TaskCanceledException _ => false,
-								_ => true,
+					}).ObserveOn(System.Reactive.Concurrency.ThreadPoolScheduler.Instance)
+					.Select(x => {
+						if(x == null) {
+							return null;
+						} else {
+							using var s = new MemoryStream(x);
+							return (Bmp: BitmapFactory.DecodeStream(s), Resize: droidImageSize) switch {
+								var y when y.Resize is not null => resize(y.Bmp, y.Resize.Value),
+								var y => y.Bmp,
 							};
-							if(@throw) {
-								o.OnError(e);
-							}
-							o.OnCompleted();
 						}
-					}));
+					}).ObserveOn(UIDispatcherScheduler.Default)
+					.Select(x => x switch {
+						Bitmap b => this.SetImage(url, x),
+						_ => null
+					});
 			}
 		}
 	}

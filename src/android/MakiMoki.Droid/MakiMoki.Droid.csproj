@@ -27,6 +27,7 @@
     <PackageReference Include="Xamarin.Google.Android.Material" Version="1.7.0.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\MakiMoki.Droid.Db\MakiMoki.Droid.Db.csproj" />
     <ProjectReference Include="..\..\core\MakiMoki.Core\MakiMoki.Core.csproj" />
     <ProjectReference Include="..\..\core\MakiMoki.Core.Ng\MakiMoki.Core.Ng.csproj" />
   </ItemGroup>
