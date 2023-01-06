@@ -7,19 +7,43 @@ using System.Reactive.Linq;
 using Reactive.Bindings;
 using Android.Graphics;
 using Android.Graphics.Drawables;
+using AndroidX.Collection;
+using Android.Runtime;
 
 namespace Yarukizero.Net.MakiMoki.Droid.App {
 	internal class ImageResolver {
+		private class ImageLruCache : LruCache {
+			public ImageLruCache(int cacheSize) : base(cacheSize) {}
+			protected ImageLruCache(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
+
+			protected override int SizeOf(Java.Lang.Object key, Java.Lang.Object value) {
+				if(value is Bitmap b) {
+					return b.ByteCount / 1024;
+				}
+				throw new NotImplementedException();
+			}
+		}
+
 		private readonly Helpers.ConnectionQueue<Bitmap> imageQueue = new Helpers.ConnectionQueue<Bitmap>(
 			name: "AndroidイメージQueue",
 			maxConcurrency: 12,
 			forceWait: false);
 		private volatile Dictionary<string, WeakReference<Bitmap>> imageDic
 			= new Dictionary<string, WeakReference<Bitmap>>();
+		private volatile ImageLruCache lruCache = new ImageLruCache((int)Java.Lang.Runtime.GetRuntime().MaxMemory() / 1024 / 8);
 
 		public static ImageResolver Instance { get; } = new ImageResolver();
 
 		private bool TryGetImage(string file, out Bitmap image) {
+			lock(lruCache) {
+				if(lruCache.Get(new Java.Lang.String(file)) is Bitmap b) {
+					image = b;
+					return true;
+				}
+				image = null;
+				return false;
+			}
+			/*
 			lock(imageDic) {
 				if(imageDic.TryGetValue(file, out var v)) {
 					if(v.TryGetTarget(out var b)) {
@@ -30,32 +54,42 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 				image = null;
 				return false;
 			}
+			*/
 		}
 
 		private Bitmap SetImage(string file, Bitmap image) {
-			lock(imageDic) {
-				var r = new WeakReference<Bitmap>(image);
-				if(imageDic.ContainsKey(file)) {
-					imageDic[file] = r;
-				} else {
-					imageDic.Add(file, r);
+			lock(lruCache) {
+				if(!TryGetImage(file, out var _)) {
+					lruCache.Put(new Java.Lang.String(file), image);
 				}
-
-				foreach(var k in imageDic
-					.Select(x => (Key: x.Key, Value: x.Value.TryGetTarget(out _)))
-					.Where(x => !x.Value)
-					.ToArray()) {
-
-					imageDic.Remove(k.Key);
-				}
-				System.Diagnostics.Debug.WriteLine($"キャッシュサイズ= {imageDic.Count}");
 				return image;
 			}
+			/*
+				lock(imageDic) {
+					var r = new WeakReference<Bitmap>(image);
+					if(imageDic.ContainsKey(file)) {
+						imageDic[file] = r;
+					} else {
+						imageDic.Add(file, r);
+					}
+
+					foreach(var k in imageDic
+						.Select(x => (Key: x.Key, Value: x.Value.TryGetTarget(out _)))
+						.Where(x => !x.Value)
+						.ToArray()) {
+
+						imageDic.Remove(k.Key);
+					}
+					System.Diagnostics.Debug.WriteLine($"キャッシュサイズ= {imageDic.Count}");
+					return image;
+				}
+				*/
 		}
 
 
-		public IObservable<Bitmap> Get(string url, int? droidImageSize = null) {
+			public IObservable<Bitmap> Get(string url, int? droidImageSize = null) {
 			static Bitmap resize(Bitmap @in, int maxSize) {
+				return @in;
 				var scale = (@in.Height < @in.Width) switch {
 					true => (double)maxSize / @in.Width,
 					false => (double)maxSize / @in.Height,
