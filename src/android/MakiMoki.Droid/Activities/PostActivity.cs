@@ -4,6 +4,7 @@ using System;
 using System.Reactive.Linq;
 using Reactive.Bindings;
 using Yarukizero.Net.MakiMoki.Droid.Extensions;
+using Android.Content;
 
 namespace Yarukizero.Net.MakiMoki.Droid.Activities {
 	[global::Android.App.Activity(Label = "@string/app_name")]
@@ -44,6 +45,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Activities {
 						.Subscribe(x => {
 							if(x.Successed) {
 								Config.ConfigLoader.UpdateFutabaInputData(board, "", "", "", pass);
+								this.SetResult((Android.App.Result)DroidConst.ActivityResultCodePost, new Intent());
 								this.Finish();
 							} else {
 								Toast.MakeText(this, x.Message, ToastLength.Long).Show();

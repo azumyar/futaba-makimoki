@@ -12,6 +12,8 @@ using Android.Widget;
 using AndroidX.RecyclerView.Widget;
 using Google.Android.Material.FloatingActionButton;
 using Reactive.Bindings;
+using AndroidX.Activity.Result;
+using AndroidX.Activity.Result.Contract;
 
 namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 	internal class ThreadViewerFragment : global::AndroidX.Fragment.App.Fragment {
@@ -134,6 +136,44 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 			}
 		}
 
+		public class Contract : ActivityResultContract {
+			private readonly ThreadViewerFragment fragment;
+
+			public Contract(ThreadViewerFragment @this) : base() {
+				this.fragment = @this;
+			}
+			protected Contract(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
+
+			public override Android.Content.Intent CreateIntent(Android.Content.Context context, Java.Lang.Object? input) {
+				return new Android.Content.Intent(context, typeof(Activities.PostActivity))
+					.InJson(this.fragment.Properties.Board)
+					.InJson(this.fragment.Properties.Url);
+			}
+
+			public override Java.Lang.Object? ParseResult(int resultCode, Android.Content.Intent? intent) {
+				return resultCode switch {
+					var v when v == DroidConst.ActivityResultCodePost => new Java.Lang.Boolean(true),
+					_ => throw new NotImplementedException()
+				};
+			}
+		}
+
+		public class ActivityResultCallback : Java.Lang.Object, IActivityResultCallback {
+			private readonly ThreadViewerFragment fragment;
+
+			public ActivityResultCallback(ThreadViewerFragment @this) : base() {
+				this.fragment = @this;
+			}
+			protected ActivityResultCallback(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
+
+			public void OnActivityResult(Java.Lang.Object? p) {
+				if(p is Java.Lang.Boolean b && b.BooleanValue()) {
+					this.fragment.UpdateThread()
+						.Subscribe();
+				}
+			}
+		}
+
 		private class PropertiesHolder : IDisposable {
 			public Data.BoardData Board { get; set; }
 			public Data.UrlContext Url { get; set; }
@@ -152,6 +192,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 		private PropertiesHolder Properties { get; } = new PropertiesHolder();
 		private RecyclerView recyclerView;
 		private RecyclerAdapter adapter;
+		private ActivityResultLauncher activityLuncher;
 		private static readonly int DummyItemNum = 2;
 
 		public ThreadViewerFragment() : base() { }
@@ -164,6 +205,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 		public override void OnViewCreated(View view, Bundle? savedInstanceState) {
 			base.OnViewCreated(view, savedInstanceState);
 
+			this.activityLuncher = this.RegisterForActivityResult(new Contract(this), new ActivityResultCallback(this));
 			var isInit = this.adapter == null;
 			this.recyclerView = view.FindViewById<RecyclerView>(Resource.Id.recyclerview);
 			App.RecyclerViewSwipeUpdateHelper.AttachLinearLayout(this.recyclerView).Updating += (_, e) => {
@@ -184,10 +226,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 				}
 			};
 			view.FindViewById<Button>(Resource.Id.button_new).Click += (_, _) => {
-				this.Activity.StartActivity(
-					new Android.Content.Intent(this.Activity, typeof(Activities.PostActivity))
-						.InJson(this.Properties.Board)
-						.InJson(this.Properties.Url));
+				this.activityLuncher.Launch(null);
 			};
 
 			if(!isInit) {
