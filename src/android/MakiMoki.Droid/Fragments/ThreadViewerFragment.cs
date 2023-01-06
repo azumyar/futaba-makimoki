@@ -152,7 +152,8 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 
 			public override Java.Lang.Object? ParseResult(int resultCode, Android.Content.Intent? intent) {
 				return resultCode switch {
-					var v when v == DroidConst.ActivityResultCodePost => new Java.Lang.Boolean(true),
+					var v when v == DroidConst.ActivityResultCodePost => new Java.Lang.Boolean(
+						intent.GetBooleanExtra(Activities.PostActivity.ResultCodeSucessed, false)),
 					_ => throw new NotImplementedException()
 				};
 			}

@@ -9,6 +9,8 @@ using Android.Content;
 namespace Yarukizero.Net.MakiMoki.Droid.Activities {
 	[global::Android.App.Activity(Label = "@string/app_name")]
 	public class PostActivity : global::AndroidX.AppCompat.App.AppCompatActivity {
+		public static readonly string ResultCodeSucessed = "sucessed";
+
 		public PostActivity() : base() { }
 		protected PostActivity(IntPtr javaReference, global::Android.Runtime.JniHandleOwnership transfer) : base(javaReference, transfer) {}
 
@@ -16,9 +18,11 @@ namespace Yarukizero.Net.MakiMoki.Droid.Activities {
 			base.OnCreate(savedInstanceState);
 
 			SetContentView(Resource.Layout.activity_post);
-
 			var board = this.Intent.OutJson<Data.BoardData>();
 			var url = this.Intent.OutJson<Data.UrlContext>();
+			this.SetResult((Android.App.Result)DroidConst.ActivityResultCodePost, new Intent()
+				.PutExtra(ResultCodeSucessed, false)
+				.InJson(board));
 			this.FindViewById<TextInputLayout>(Resource.Id.password).EditText.Text = Config.ConfigLoader.FutabaApi.SavedPassword;
 			this.FindViewById<Button>(Resource.Id.button_send).Click += (_, _) => {
 				var time = Util.TimeUtil.ToUnixTimeSeconds(DateTime.Now) - MakiMokiApplication.Current.MakiMoki.InitUnixTime;
@@ -45,7 +49,10 @@ namespace Yarukizero.Net.MakiMoki.Droid.Activities {
 						.Subscribe(x => {
 							if(x.Successed) {
 								Config.ConfigLoader.UpdateFutabaInputData(board, "", "", "", pass);
-								this.SetResult((Android.App.Result)DroidConst.ActivityResultCodePost, new Intent());
+								this.SetResult((Android.App.Result)DroidConst.ActivityResultCodePost, new Intent()
+									.PutExtra(ResultCodeSucessed, true)
+									.InJson(board)
+									.InJson(url));
 								this.Finish();
 							} else {
 								Toast.MakeText(this, x.Message, ToastLength.Long).Show();
