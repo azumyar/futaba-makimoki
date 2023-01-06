@@ -125,6 +125,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 						vh.Card.Visibility = ViewStates.Visible;
 
 						vh.Title.Text = Util.TextUtil.SafeSubstring(Util.TextUtil.RowComment2Text(s.ResItem.Res.Com), 4);
+						vh.Counter.Visibility = conv(!s.ResItem.IsolateValue);
 						vh.Counter.Text = s.CounterCurrent.ToString();
 
 						vh.BadgeOld.Visibility = conv(isOld(s));
@@ -141,7 +142,10 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 							.Select(x => x.Ext)
 							.Any(x => s.ResItem.Res.Ext.ToLower() == x));
 
-						vh.NewCounter.Text = (s.CounterCurrent - s.CounterPrev).ToString();
+						vh.NewCounter.Text = (s.CounterCurrent - s.CounterPrev) switch {
+							int v when 100 <= v => "9+",
+							int v => v.ToString()
+						};
 
 						if(!string.IsNullOrEmpty(s.ResItem.Res.Thumb) && 0 < s.ResItem.Res.Fsize) {
 							var uri = new Uri(s.Url.BaseUrl);

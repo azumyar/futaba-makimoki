@@ -297,7 +297,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 							foreach(var it in @new.Select((y, i) => (Value: y, Index: i))) {
 								this.adapter.Source[c + it.Index] = @new.ElementAt(it.Index);
 							}
-							for(var i = 0; i < DummyItemNum - @new.Count(); i++) {
+							for(var i = 0; i < @new.Count(); i++) {
 								this.adapter.Source.Add(null);
 							}
 						} else {
