@@ -264,7 +264,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 							var x = this.pointerPos.Value.X - @event.RawX;
 							var y = this.pointerPos.Value.Y - @event.RawY;
 							var length = (int)Math.Sqrt(x * x + y * y);
-							if((this.runner.overscrollPx < length) && (IsTop: this.runner.updateTopOrBottom.Value, Y: y) switch {
+							if((this.runner.overscrollLengthPx < length) && (IsTop: this.runner.updateTopOrBottom.Value, Y: y) switch {
 								var v when v.IsTop => v switch {
 									var vv when vv.Y < 0 => true,
 									_ => false,
@@ -310,19 +310,20 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 							var y = this.pointerPos.Value.Y - @event.RawY;
 							var length = (int)Math.Sqrt(x * x + y * y);
 							var viewHeight = this.runner.updateView.Height;
-							var maxLength = this.runner.overscrollPx + viewHeight;
+							var displayLength = this.runner.overscrollDisplayPx + viewHeight;
+							var touchLength = this.runner.overscrollLengthPx;
 							if(this.runner.updateTopOrBottom.Value) {
 								var lp = new RelativeLayout.LayoutParams(this.runner.sizePx, this.runner.sizePx);
-								var @in = (float)Math.Min(maxLength, length * (y < 0) switch {
+								var @in = (float)Math.Min(touchLength, length * (y < 0) switch {
 									true => 1,
 									false => -1,
 								});
 								var val = @in switch {
-									var v when 0 < v => this.interpolator.GetInterpolation(@in / maxLength) * maxLength,
+									var v when 0 < v => this.interpolator.GetInterpolation(@in / touchLength) * displayLength,
 									_ => 0,
 								};
 								var deg = val switch {
-									var v when 0 < v => v / maxLength * 360,
+									var v when 0 < v => v / displayLength * 360,
 									_ => 0f,
 								};
 
@@ -333,16 +334,16 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 								this.runner.updateView.LayoutParameters = lp;
 							} else {
 								var lp = new RelativeLayout.LayoutParams(this.runner.sizePx, this.runner.sizePx);
-								var @in = (float)Math.Min(maxLength, length * (y < 0) switch {
+								var @in = (float)Math.Min(touchLength, length * (y < 0) switch {
 									true => -1,
 									false => 1,
 								});
 								var val = @in switch {
-									var v when 0 < v => this.interpolator.GetInterpolation(@in / maxLength) * maxLength,
+									var v when 0 < v => this.interpolator.GetInterpolation(@in / touchLength) * displayLength,
 									_ => 0,
 								};
 								var deg = val switch {
-									var v when 0 < v => v / maxLength * 360,
+									var v when 0 < v => v / displayLength * 360,
 									_ => 0f,
 								};
 								
@@ -366,7 +367,8 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 			}
 
 			private readonly int updatePosPx;
-			private readonly int overscrollPx;
+			private readonly int overscrollDisplayPx;
+			private readonly int overscrollLengthPx;
 			private volatile bool isUpdating = false;
 			private volatile bool isViewAttached = false;
 
@@ -379,7 +381,8 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 
 			public OverScrollRunner(RecyclerView @this) {
 				this.updatePosPx = DroidUtil.Util.Dp2Px(96, @this.Context);
-				this.overscrollPx = DroidUtil.Util.Dp2Px(128, @this.Context);
+				this.overscrollDisplayPx = DroidUtil.Util.Dp2Px(128, @this.Context);
+				this.overscrollLengthPx = DroidUtil.Util.Dp2Px(240, @this.Context);
 
 				this.recyclerView = @this;
 				this.updateView = new ImageView(@this.Context);
