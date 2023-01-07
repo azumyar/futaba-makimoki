@@ -98,6 +98,15 @@
             app:layout_constraintTop_toBottomOf="@id/textview_imagefile"
             />
 
+        <TextView
+            android:id="@+id/textview_alert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ff0000"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/image"
+            />
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textview_text"
             android:layout_width="match_parent"
@@ -106,7 +115,7 @@
             android:textAppearance="?attr/textAppearanceBodyMedium"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/image"
+            app:layout_constraintTop_toBottomOf="@id/textview_alert"
             />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

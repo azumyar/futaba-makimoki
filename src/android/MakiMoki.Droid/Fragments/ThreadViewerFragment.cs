@@ -32,6 +32,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 				public TextView Date { get; }
 				public TextView No { get; }
 				public TextView Soudane { get; }
+				public TextView Alert { get; }
 				public TextView Text { get; }
 
 				public ViewHolder(View v) : base(v) {
@@ -46,6 +47,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 					this.Date = v.FindViewById<TextView>(Resource.Id.textview_date);
 					this.No = v.FindViewById<TextView>(Resource.Id.textview_no);
 					this.Soudane = v.FindViewById<TextView>(Resource.Id.textview_soudane);
+					this.Alert = v.FindViewById<TextView>(Resource.Id.textview_alert);
 					this.Text = v.FindViewById<TextView>(Resource.Id.textview_text);
 				}
 				protected ViewHolder(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
@@ -116,9 +118,26 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 						vh.Date.Text = s.ResItem.Res.Now;
 						vh.No.Text = $"No.{s.ResItem.No}";
 						vh.Soudane.Text = $"x{s.Soudane}";
+
+						{
+							var sb = new StringBuilder();
+							if(s.ResItem.Res.IsDel) {
+								sb.Append("スレッドを立てた人によって削除されました");
+							} else if(s.ResItem.Res.IsDel2) {
+								sb.Append("削除依頼によって隔離されました");
+							}
+							if(!string.IsNullOrEmpty(s.ResItem.Res.Host)) {
+								if(0 < sb.Length) {
+									sb.AppendLine();
+								}
+								sb.Append($"[{s.ResItem.Res.Host}]");
+							}
+							vh.Alert.Text = sb.ToString();
+							vh.Alert.Visibility = conv(0 < sb.Length);
+						}
 						vh.Text.SetText(DroidUtil.Util.ParseFutabaComment(s), null);
 
-						if(!string.IsNullOrEmpty(s.ResItem.Res.Thumb) && 0 < s.ResItem.Res.Fsize) {
+						if(!string.IsNullOrEmpty(s.ResItem.Res.Src) && 0 < s.ResItem.Res.Fsize) {
 							var uri = new Uri(s.Url.BaseUrl);
 							var th = $"{uri.Scheme}://{uri.Authority}{s.ResItem.Res.Thumb}";
 							vh.Image.Tag = new Java.Lang.String(th);

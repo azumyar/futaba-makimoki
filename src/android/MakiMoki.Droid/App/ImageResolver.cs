@@ -87,7 +87,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 		}
 
 
-			public IObservable<Bitmap> Get(string url, int? droidImageSize = null) {
+		public IObservable<Bitmap?> Get(string url, int? droidImageSize = null) {
 			static Bitmap resize(Bitmap @in, int maxSize) {
 				return @in;
 				var scale = (@in.Height < @in.Width) switch {
@@ -118,6 +118,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 								catch(Exception e) {
 									System.Diagnostics.Debug.WriteLine(e);
 									var @throw = e switch {
+										TimeoutException _ => false,
 										System.Net.Http.HttpRequestException _ => false,
 										System.Threading.Tasks.TaskCanceledException _ => false,
 										_ => true,
