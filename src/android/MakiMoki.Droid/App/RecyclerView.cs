@@ -382,7 +382,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 			public OverScrollRunner(RecyclerView @this) {
 				this.updatePosPx = DroidUtil.Util.Dp2Px(96, @this.Context);
 				this.overscrollDisplayPx = DroidUtil.Util.Dp2Px(128, @this.Context);
-				this.overscrollLengthPx = DroidUtil.Util.Dp2Px(240, @this.Context);
+				this.overscrollLengthPx = DroidUtil.Util.Dp2Px(200, @this.Context);
 
 				this.recyclerView = @this;
 				this.updateView = new ImageView(@this.Context);

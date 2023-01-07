@@ -14,6 +14,8 @@ using Google.Android.Material.FloatingActionButton;
 using Reactive.Bindings;
 using AndroidX.Activity.Result;
 using AndroidX.Activity.Result.Contract;
+using Android.Graphics;
+using Yarukizero.Net.MakiMoki.Util;
 
 namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 	internal class ThreadViewerFragment : global::AndroidX.Fragment.App.Fragment {
@@ -21,6 +23,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 			private class ViewHolder : RecyclerView.ViewHolder {
 				public View Root { get; }
 				public View Container { get; }
+				public TextView ImageFile { get; }
 				public ImageView Image { get; }
 				public TextView Index { get; }
 				public TextView Mail { get; }
@@ -34,6 +37,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 				public ViewHolder(View v) : base(v) {
 					this.Root = v;
 					this.Container = v.FindViewById<View>(Resource.Id.container);
+					this.ImageFile = v.FindViewById<TextView>(Resource.Id.textview_imagefile);
 					this.Image = v.FindViewById<ImageView>(Resource.Id.image);
 					this.Index = v.FindViewById<TextView>(Resource.Id.textview_index);
 					this.Mail = v.FindViewById<TextView>(Resource.Id.textview_mail);
@@ -89,15 +93,17 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 							var th = $"{uri.Scheme}://{uri.Authority}{s.ResItem.Res.Thumb}";
 							vh.Image.Tag = new Java.Lang.String(th);
 							vh.Image.SetImageBitmap(null);
+							vh.ImageFile.Text = global::System.IO.Path.GetFileName(s.ResItem.Res.Src);
+							vh.ImageFile.Visibility = ViewStates.Visible;
 							App.ImageResolver.Instance.Get(th, 256)
 								.Subscribe(x => {
 									if(vh.Image.Tag.ToString() == th) {
-										vh.Image.Visibility = conv(true);
+										vh.Image.Visibility = ViewStates.Visible;
 										vh.Image.SetImageBitmap(x);
 									}
 								});
 						} else {
-							vh.Image.Visibility = conv(false);
+							vh.Image.Visibility = vh.ImageFile.Visibility = ViewStates.Gone;
 						}
 						vh.Mail.Visibility = conv(!string.IsNullOrEmpty(s.ResItem.Res.Email));
 						vh.Name.Visibility = vh.Title.Visibility = conv(this.fragment.Properties.Board.Extra.Name);
@@ -110,7 +116,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 						vh.Date.Text = s.ResItem.Res.Now;
 						vh.No.Text = $"No.{s.ResItem.No}";
 						vh.Soudane.Text = $"x{s.Soudane}";
-						vh.Text.Text = Util.TextUtil.RowComment2Text(s.ResItem.Res.Com);
+						vh.Text.SetText(DroidUtil.Util.ParseFutabaComment(s), null);
 
 						if(!string.IsNullOrEmpty(s.ResItem.Res.Thumb) && 0 < s.ResItem.Res.Fsize) {
 							var uri = new Uri(s.Url.BaseUrl);
@@ -136,44 +142,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 			}
 		}
 
-		public class Contract : ActivityResultContract {
-			private readonly ThreadViewerFragment fragment;
 
-			public Contract(ThreadViewerFragment @this) : base() {
-				this.fragment = @this;
-			}
-			protected Contract(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
-
-			public override Android.Content.Intent CreateIntent(Android.Content.Context context, Java.Lang.Object? input) {
-				return new Android.Content.Intent(context, typeof(Activities.PostActivity))
-					.InJson(this.fragment.Properties.Board)
-					.InJson(this.fragment.Properties.Url);
-			}
-
-			public override Java.Lang.Object? ParseResult(int resultCode, Android.Content.Intent? intent) {
-				return resultCode switch {
-					var v when v == DroidConst.ActivityResultCodePost => new Java.Lang.Boolean(
-						intent.GetBooleanExtra(Activities.PostActivity.ResultCodeSucessed, false)),
-					_ => throw new NotImplementedException()
-				};
-			}
-		}
-
-		public class ActivityResultCallback : Java.Lang.Object, IActivityResultCallback {
-			private readonly ThreadViewerFragment fragment;
-
-			public ActivityResultCallback(ThreadViewerFragment @this) : base() {
-				this.fragment = @this;
-			}
-			protected ActivityResultCallback(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
-
-			public void OnActivityResult(Java.Lang.Object? p) {
-				if(p is Java.Lang.Boolean b && b.BooleanValue()) {
-					this.fragment.UpdateThread()
-						.Subscribe();
-				}
-			}
-		}
 
 		private class PropertiesHolder : IDisposable {
 			public Data.BoardData Board { get; set; }
@@ -193,7 +162,8 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 		private PropertiesHolder Properties { get; } = new PropertiesHolder();
 		private RecyclerView recyclerView;
 		private RecyclerAdapter adapter;
-		private ActivityResultLauncher activityLuncher;
+		private TextView textviewDie;
+		private DroidUtil.Util.IActivityResultLauncher activityLuncher;
 		private static readonly int DummyItemNum = 2;
 
 		public ThreadViewerFragment() : base() { }
@@ -206,8 +176,21 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 		public override void OnViewCreated(View view, Bundle? savedInstanceState) {
 			base.OnViewCreated(view, savedInstanceState);
 
-			this.activityLuncher = this.RegisterForActivityResult(new Contract(this), new ActivityResultCallback(this));
+			this.activityLuncher = DroidUtil.Util.RegisterForActivityResult<bool>(this,
+				(context, _) =>  new Android.Content.Intent(context, typeof(Activities.PostActivity))
+						.InJson(this.Properties.Board)
+						.InJson(this.Properties.Url),
+				(resultCode, intent) => resultCode switch {
+					var v when v == DroidConst.ActivityResultCodePost => intent.GetBooleanExtra(Activities.PostActivity.ResultCodeSucessed, false),
+					_ => throw new NotImplementedException()
+				},(b) => {
+					if(b) {
+						this.UpdateThread()
+							.Subscribe();
+					}
+				});
 			var isInit = this.adapter == null;
+			this.textviewDie = view.FindViewById<TextView>(Resource.Id.textview_die);
 			this.recyclerView = view.FindViewById<RecyclerView>(Resource.Id.recyclerview);
 			App.RecyclerViewSwipeUpdateHelper.AttachLinearLayout(this.recyclerView).Updating += (_, e) => {
 				this.UpdateThread()
@@ -227,7 +210,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 				}
 			};
 			view.FindViewById<Button>(Resource.Id.button_new).Click += (_, _) => {
-				this.activityLuncher.Launch(null);
+				this.activityLuncher.Launch();
 			};
 
 			if(!isInit) {
@@ -265,6 +248,25 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 						o.OnNext(x.Successed);
 						if(x.Successed) {
 							this.Properties.FutabaContext.Value = x.Data;
+
+							var t = x.Data.Raw.DieDateTime;
+							if(t.HasValue) {
+								var ts = t.Value - (x.Data.Raw.NowDateTime ?? DateTime.Now);
+								var tt = DateTime.Now.Add(ts); // 消滅時間表示はPCの時計を使用
+								this.textviewDie.Text = ts switch {
+									TimeSpan y when y.TotalSeconds < 0 => $"スレ消滅：{Math.Abs(((x.Data.Raw.NowDateTime ?? DateTime.Now) - t.Value).TotalSeconds):00}秒経過(消滅時間を過ぎました)",
+									TimeSpan y when 0 < y.Days => $"スレ消滅：{tt.ToString("MM/dd")}(あと{ts.ToString(@"dd\日hh\時\間")})",
+									TimeSpan y when 0 < y.Hours => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"hh\時\間mm\分")})",
+									TimeSpan y when 0 < y.Minutes => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"mm\分ss\秒")})",
+									_ => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"ss\秒")})",
+								};
+							} else {
+								this.textviewDie.Text = "スレ消滅：不明";
+							}
+							this.textviewDie.SetTextColor(x.Data.Raw.IsOld switch {
+								true => Color.Red,
+								false => Color.Black,
+							});
 						} else {
 
 						}
