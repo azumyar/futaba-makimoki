@@ -750,6 +750,28 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe();
 				}
 			}
+			/*
+			switch(this.Canvas98Position.Value) {
+			case PlatformData.UiPosition.Default:
+				this.ThreadViewRegionManager.Value.RequestNavigate(
+					Canvas98FullScreenRegion.Value,
+					nameof(Canvas98.Controls.FutabaCanvas98View),
+					param);
+				return;
+			case PlatformData.UiPosition.Right:
+				this.ThreadViewRegionManager.Value.RequestNavigate(
+					Canvas98RightRegion.Value,
+					nameof(Canvas98.Controls.FutabaCanvas98View),
+					param);
+				return;
+			case PlatformData.UiPosition.Bottom:
+				this.ThreadViewRegionManager.Value.RequestNavigate(
+					Canvas98BottomRegion.Value,
+					nameof(Canvas98.Controls.FutabaCanvas98View),
+					param);
+				return;
+			}
+			*/
 		}
 
 		private void OpenMediaViewer(PlatformData.FutabaMedia media) {

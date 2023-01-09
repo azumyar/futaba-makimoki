@@ -47,12 +47,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 		}
 		public delegate void RoutedSucessEventHandler(object sender, RoutedSucessEventArgs e);
 
-		public static readonly DependencyProperty ContentsProperty
-			= DependencyProperty.Register(
-				nameof(ThreadUrl),
-				typeof(Data.UrlContext),
-				typeof(FutabaCanvas98View),
-				new PropertyMetadata(OnThreadUrlChanged));
 		public static readonly DependencyProperty NavigationVisibilityProperty
 			= DependencyProperty.Register(
 				nameof(NavigationVisibility),
@@ -64,13 +58,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				RoutingStrategy.Tunnel,
 				typeof(RoutedSucessEventHandler),
 				typeof(FutabaCanvas98View));
-
-		public Data.UrlContext ThreadUrl {
-			get => (Data.UrlContext)this.GetValue(ContentsProperty);
-			set {
-				this.SetValue(ContentsProperty, value);
-			}
-		}
 
 		public Visibility NavigationVisibility {
 			get => (Visibility)this.GetValue(NavigationVisibilityProperty);
@@ -123,8 +110,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				.Subscribe(async x => {
 					static string toJsBool(bool b) => b.ToString().ToLower();
 
-					var f = this.ThreadUrl != null;
-					this.ThreadUrl = x.Url;
+					//var f = this.ThreadUrl != null;
+					var threadUrl = x.Url;
+					{
+						if(this.DataContext is ViewModels.FutabaCanvas98ViewViewModel vm) {
+							if(threadUrl != vm.Url) {
+								return;
+							}
+						}
+					}
 					await Task.WhenAll(webViewInitializeTask);
 					var isChildItem = (!string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptAlbam)
 						|| !string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptRichPalette)
@@ -209,7 +203,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 							.AppendLine("               pwd: document.forms.fm.pwd.value,")
 							.AppendLine("             });")
 							.AppendLine($"             window.chrome.webview.postMessage('{ WebMessagePostStore }?' + encodeURI(json));")
-							.AppendLine($"             ptfk({ this.ThreadUrl.ThreadNo });")
+							.AppendLine($"             ptfk({ threadUrl.ThreadNo });")
 							.AppendLine($"             return true;")
 							.AppendLine($"           }});")
 							.AppendLine("          tr.appendChild(input);")
@@ -286,14 +280,33 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 						}
 					}
 				});
-			if(this.DataContext is ViewModels.FutabaCanvas98ViewViewModel vm) {
-				this.ThreadUrl = vm.Url;
-			}
+			ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaCanvas98ViewViewModel.CloseTo>>()
+				.Subscribe(x => {
+					var threadUrl = x.Url;
+					if(threadUrl != null) {
+						if(this.DataContext is ViewModels.FutabaCanvas98ViewViewModel vm) {
+							if(threadUrl != vm.Url) {
+								return;
+							}
+						}
+					}
+					// TODO: WebViewのインスタンスを破棄したい
+					// Disposeは再度手書きを開いたときにダメ
+					//this.grid.Children.Clear();
+				});
+
 			webViewInitializeTask = webView.EnsureCoreWebView2Async();
 			this.webView.NavigationStarting += async (s, e) => {
 				System.Diagnostics.Debug.Assert(!this.urlCache.ContainsKey(e.NavigationId));
-				System.Diagnostics.Debug.Assert(this.ThreadUrl != null);
-				System.Diagnostics.Debug.Assert(this.ThreadUrl.IsThreadUrl);
+				var threadUrl = default(Data.UrlContext);
+				{
+					if(this.DataContext is ViewModels.FutabaCanvas98ViewViewModel vm) {
+						threadUrl = vm.Url;
+					}
+				}
+				System.Diagnostics.Debug.Assert(threadUrl != null);
+				System.Diagnostics.Debug.Assert(threadUrl.IsThreadUrl);
 
 				/*
 				if(e.Uri.StartsWith("data:text/html")) {
@@ -302,10 +315,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				*/
 				if(e.Uri.EndsWith(".htm")) {
 					this.NavigationVisibility = Visibility.Hidden;
-					urlCache.Add(e.NavigationId, (UrlType.ThreadHtml, this.ThreadUrl));
+					urlCache.Add(e.NavigationId, (UrlType.ThreadHtml, threadUrl));
 				} else if(e.Uri.Contains("/futaba.php")) {
 					//e.Cancel = true;
-					urlCache.Add(e.NavigationId, (UrlType.FutbaPhp, this.ThreadUrl));
+					urlCache.Add(e.NavigationId, (UrlType.FutbaPhp, threadUrl));
 				} else if(e.Uri.StartsWith(MakiMokiProtocolViewClose)) {
 					e.Cancel = true;
 					if(DataContext is ViewModels.FutabaCanvas98ViewViewModel vm) {
@@ -422,7 +435,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 						// TODO: 成功メッセージをリレー
 						ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
 							.GetEvent<PubSubEvent<ViewModels.FutabaCanvas98ViewViewModel.PostFrom>>()
-							.Publish(new ViewModels.FutabaCanvas98ViewViewModel.PostFrom(this.ThreadUrl, this.formCache));
+							.Publish(new ViewModels.FutabaCanvas98ViewViewModel.PostFrom(vm.Url, this.formCache));
 						vm.Close();
 					}
 					/*
