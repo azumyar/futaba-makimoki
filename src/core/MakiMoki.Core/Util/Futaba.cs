@@ -788,6 +788,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					catch(HttpRequestException) {
 						return (false, default, default);
 					}
+					catch(TimeoutException) {
+						return (false, default, default);
+					}
 				}, url, localPath,
 				isAsync);
 		}
