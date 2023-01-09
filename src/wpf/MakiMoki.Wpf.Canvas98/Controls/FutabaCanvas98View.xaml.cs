@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Newtonsoft.Json;
 using Prism.Events;
+using System.Reactive.Linq;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 	/// <summary>
@@ -102,10 +103,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 		private readonly Dictionary<ulong, (UrlType Type, Data.UrlContext Url)> urlCache
 			= new Dictionary<ulong, (UrlType Type, Data.UrlContext Url)>();
 		private Canvas98Data.StoredForm formCache;
+		private IDisposable NavigateToSubscriber { get; }
+		private IDisposable CloseToSubscriber { get; }
 
 		public FutabaCanvas98View() {
 			InitializeComponent();
-			ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
+			this.NavigateToSubscriber = ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaCanvas98ViewViewModel.NavigateTo>>()
 				.Subscribe(async x => {
 					static string toJsBool(bool b) => b.ToString().ToLower();
@@ -280,7 +283,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 						}
 					}
 				});
-			ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
+			this.CloseToSubscriber = ViewModels.FutabaCanvas98ViewViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaCanvas98ViewViewModel.CloseTo>>()
 				.Subscribe(x => {
 					var threadUrl = x.Url;
@@ -291,9 +294,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 							}
 						}
 					}
-					// TODO: WebViewのインスタンスを破棄したい
-					// Disposeは再度手書きを開いたときにダメ
-					//this.grid.Children.Clear();
+
+					this.NavigateToSubscriber.Dispose();
+					this.CloseToSubscriber.Dispose();
+					{
+						if(this.DataContext is IDisposable d) {
+							d.Dispose();
+						}
+					}
+					this.grid.Children.Clear();
+					Observable.Return(0)
+						.ObserveOn(Reactive.Bindings.UIDispatcherScheduler.Default)
+						.Subscribe(_ => {
+							this.webView.Dispose();
+						});
 				});
 
 			webViewInitializeTask = webView.EnsureCoreWebView2Async();
