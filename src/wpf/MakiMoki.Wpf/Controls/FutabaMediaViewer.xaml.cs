@@ -127,14 +127,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			this.ViewerCloseSubscriber = ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
 				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.ViewerCloseMessage>>()
 				.Subscribe(async x => {
-					if(!this.isDisposed && this.IsThisMedia(x.Media)) {
-						BindingOperations.ClearBinding(this.image, WpfAnimatedGif.ImageBehavior.AnimatedSourceProperty);
-						WpfAnimatedGif.ImageBehavior.SetAnimatedSource(this.image, null);
-						this.image.Source = null;
-						this.image.UpdateLayout();
-						await Task.Yield();
-					}
-
 					lock(this.VideoView) {
 						if(!this.isDisposed && this.IsThisMedia(x.Media)) {
 							this.isDisposed = true;

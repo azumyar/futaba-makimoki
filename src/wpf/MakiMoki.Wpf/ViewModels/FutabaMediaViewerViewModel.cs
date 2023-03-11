@@ -100,9 +100,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Visibility> ImageViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Collapsed);
 		public ReactiveProperty<MatrixTransform> ImageMatrix { get; }
 			= new ReactiveProperty<MatrixTransform>(new MatrixTransform(Matrix.Identity));
-
-		public ReactiveProperty<ImageSource> PngImageSource { get; }
-		public MakiMokiCommand<RoutedEventArgs> PngLoadedCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
+		public MakiMokiCommand<RoutedEventArgs> ImageLoadedCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
 		public ReactiveProperty<Visibility> VideoViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Hidden);
 		public ReactiveProperty<Visibility> VideoPlayButtonVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Visible);
@@ -177,14 +175,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			this.MenuItemClickQuickOpenBrowserCommand.Subscribe(x => OnMenuItemClickQuickOpenBrowser(x));
 
 			 this.ImageSource = this.ImageSourceObject.Select(x => x switch {
-				ImageObject v when v.AnimationSource is null => v.Image as ImageSource,
+				ImageObject v => v.Image as ImageSource,
 				_ => null,
 			}).ToReactiveProperty();
-			this.PngImageSource = this.ImageSourceObject.Select(x => x switch {
-				ImageObject v when v.AnimationSource is not null => x.Image as ImageSource,
-				_ => null
-			}).ToReactiveProperty();
-			this.PngLoadedCommand.Subscribe(x => {
+			this.ImageLoadedCommand.Subscribe(x => {
 				if((this.ImageSourceObject.Value?.AnimationSource != null) &&(x.Source is Image img)) {
 					var storyboard = new Storyboard();
 
