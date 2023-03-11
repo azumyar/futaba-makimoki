@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWPF>true</UseWPF>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\WpfAnimatedGif\WpfAnimatedGif.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WpfAnimatedGif\WpfAnimatedGif.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\siteoforigin.gif" CopyToOutputDirectory="PreserveNewest" />
+    <Resource Include="Images\bomb-once.gif" />
+    <Resource Include="Images\Bomb.gif" />
+    <Resource Include="Images\earth.gif" />
+    <Resource Include="Images\monster.gif" />
+    <Resource Include="Images\nonanimated.png" />
+    <Resource Include="Images\partialfirstframe.gif" />
+    <Resource Include="Images\pause.png" />
+    <Resource Include="Images\play.png" />
+    <Resource Include="Images\radar.gif" />
+    <Resource Include="Images\working.gif" />
+  </ItemGroup>
+</Project>

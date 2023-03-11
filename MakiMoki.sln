@@ -26,7 +26,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lib", "Lib", "{828FC0D5-919
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibAPNG", "src\lib\APNG.NET-netstandard_and_wpf\LibAPNG\LibAPNG.csproj", "{547FD4C1-5B4C-4DEF-A366-9AE3240B7CD9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibAPNG.WPF", "src\lib\APNG.NET-netstandard_and_wpf\LibAPNG.WPF\LibAPNG.WPF.csproj", "{455F16BC-AE64-4620-B55D-D4E70467CF9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibAPNG.WPF", "src\lib\APNG.NET-netstandard_and_wpf\LibAPNG.WPF\LibAPNG.WPF.csproj", "{455F16BC-AE64-4620-B55D-D4E70467CF9D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfAnimatedGif", "src\lib\WpfAnimatedGif\WpfAnimatedGif\WpfAnimatedGif.csproj", "{74350897-25E7-4510-BC89-E0A374F101C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +77,12 @@ Global
 		{455F16BC-AE64-4620-B55D-D4E70467CF9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{455F16BC-AE64-4620-B55D-D4E70467CF9D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{455F16BC-AE64-4620-B55D-D4E70467CF9D}.T4Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{74350897-25E7-4510-BC89-E0A374F101C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74350897-25E7-4510-BC89-E0A374F101C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74350897-25E7-4510-BC89-E0A374F101C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74350897-25E7-4510-BC89-E0A374F101C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74350897-25E7-4510-BC89-E0A374F101C3}.T4Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74350897-25E7-4510-BC89-E0A374F101C3}.T4Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -82,6 +90,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{547FD4C1-5B4C-4DEF-A366-9AE3240B7CD9} = {828FC0D5-9194-4403-9475-073032BB7742}
 		{455F16BC-AE64-4620-B55D-D4E70467CF9D} = {828FC0D5-9194-4403-9475-073032BB7742}
+		{74350897-25E7-4510-BC89-E0A374F101C3} = {828FC0D5-9194-4403-9475-073032BB7742}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {09DD425B-7B31-45D5-83FD-0F8CA1AF9E75}
