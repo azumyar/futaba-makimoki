@@ -112,6 +112,8 @@ jobs:
           -p:Configuration=T4$env:Configuration `
           -p:Github=True `
           $env:Solution_Name
+      env:
+        Configuration: ${{ matrix.configuration }}
 
     - name: Build app
       run: |
