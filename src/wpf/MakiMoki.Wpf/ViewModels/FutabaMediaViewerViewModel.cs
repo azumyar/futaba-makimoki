@@ -20,6 +20,9 @@ using Yarukizero.Net.MakiMoki.Reactive;
 using Yarukizero.Net.MakiMoki.Wpf.WpfUtil;
 using Prism.Regions;
 using Prism.Navigation;
+using System.Windows.Media.Animation;
+using LibAPNG;
+using Yarukizero.Net.MakiMoki.Wpf.Model;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class FutabaMediaViewerViewModel : BindableBase, IDisposable, INavigationAware, IJournalAware, IDestructible {
@@ -92,11 +95,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<Visibility> ErrorViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Collapsed);
 
-		public ReactiveProperty<ImageSource> ImageSource { get; } = new ReactiveProperty<ImageSource>();
-		public ReactiveProperty<ImageSource> AnimationGifImageSource { get; } = new ReactiveProperty<ImageSource>();
+		public ReactiveProperty<Model.ImageObject> ImageSourceObject { get; } = new ReactiveProperty<Model.ImageObject>();
+		public ReactiveProperty<ImageSource> ImageSource { get; }
 		public ReactiveProperty<Visibility> ImageViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Collapsed);
 		public ReactiveProperty<MatrixTransform> ImageMatrix { get; }
 			= new ReactiveProperty<MatrixTransform>(new MatrixTransform(Matrix.Identity));
+
+		public ReactiveProperty<ImageSource> PngImageSource { get; }
+		public MakiMokiCommand<RoutedEventArgs> PngLoadedCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
 		public ReactiveProperty<Visibility> VideoViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Hidden);
 		public ReactiveProperty<Visibility> VideoPlayButtonVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Visible);
@@ -170,6 +176,38 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			this.MenuItemClickImageSearchAscii2dCommand.Subscribe(x => OnMenuItemClickImageSearchAscii2d(x));
 			this.MenuItemClickQuickOpenBrowserCommand.Subscribe(x => OnMenuItemClickQuickOpenBrowser(x));
 
+			 this.ImageSource = this.ImageSourceObject.Select(x => x switch {
+				ImageObject v when v.AnimationSource is null => v.Image as ImageSource,
+				_ => null,
+			}).ToReactiveProperty();
+			this.PngImageSource = this.ImageSourceObject.Select(x => x switch {
+				ImageObject v when v.AnimationSource is not null => x.Image as ImageSource,
+				_ => null
+			}).ToReactiveProperty();
+			this.PngLoadedCommand.Subscribe(x => {
+				if((this.ImageSourceObject.Value?.AnimationSource != null) &&(x.Source is Image img)) {
+					var storyboard = new Storyboard();
+
+					void unload(object _, RoutedEventArgs __) {
+						img.Unloaded -= unload;
+						storyboard.Stop();
+					}
+
+
+					Storyboard.SetTarget(
+						this.ImageSourceObject.Value.AnimationSource,
+						img);
+					Storyboard.SetTargetProperty(
+						this.ImageSourceObject.Value.AnimationSource,
+						new PropertyPath(Image.SourceProperty));
+
+					storyboard.Children.Add(this.ImageSourceObject.Value.AnimationSource);
+					storyboard.Begin(img);
+
+					img.Unloaded += unload;
+				}
+			});
+
 			this.ImageContextMenuOpened.Subscribe(x => {
 				if(x) {
 					this.isMenuOpend = true;
@@ -223,8 +261,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnClose() {
 			this.ImageViewVisibility.Value = Visibility.Hidden;
 			this.VideoViewVisibility.Value = Visibility.Hidden;
-			this.ImageSource.Value = null;
-			this.AnimationGifImageSource.Value = null;
+			this.ImageSourceObject.Value = null;
 
 			this.RegionNavigationService.Region.RemoveAll();
 		}
@@ -236,7 +273,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					if(x.Successed) {
 						if(this.IsImageFile(res.Src)) {
 							this.ImageViewVisibility.Value = Visibility.Visible;
-							this.ImageSource.Value = WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes);
+							this.ImageSourceObject.Value = WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes);
 						} else if(this.IsMovieFile(res.Src)) {
 							this.VideoViewVisibility.Value = Visibility.Visible;
 							Messenger.Instance.GetEvent<PubSubEvent<VideoLoadMessage>>()
@@ -258,16 +295,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					if(x.Successed) {
 						if(this.IsImageFile(u)) {
 							this.ImageViewVisibility.Value = Visibility.Visible;
-							this.ImageSource.Value = WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes);
+							this.ImageSourceObject.Value = WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes);
 						} else if(this.IsMovieFile(u)) {
 							this.VideoViewVisibility.Value = Visibility.Visible;
 							Messenger.Instance.GetEvent<PubSubEvent<VideoLoadMessage>>()
 								.Publish(new VideoLoadMessage(this.Media.Value, x.LocalPath));
 						} else {
 							// TODO: 不明なファイル
+							this.ErrorViewVisibility.Value = Visibility.Visible;
 						}
 					} else {
 						// TODO: なんかエラー画像出す
+						this.ErrorViewVisibility.Value = Visibility.Visible;
 					}
 				});
 		}
@@ -445,7 +484,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			};
 			if(sfd.ShowDialog() ?? false) {
 				File.Copy(GetPath(media), sfd.FileName);
-				Util.Futaba.PutInformation(new Data.Information("保存しました", this.AnimationGifImageSource.Value));
+				Util.Futaba.PutInformation(new Data.Information("保存しました", this.ImageSourceObject.Value.Image));
 			}
 		}
 		private void OnMenuItemClickQuickSave(PlatformData.MediaQuickSaveItem media) {
@@ -454,7 +493,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if(m.Success) {
 				File.Copy(GetPath(media.Media.Value), GetSavePath(Path.Combine(media.Path.Value, m.Groups[1].Value)));
 
-				Util.Futaba.PutInformation(new Data.Information("保存しました", this.AnimationGifImageSource.Value));
+				Util.Futaba.PutInformation(new Data.Information("保存しました", this.ImageSourceObject.Value.Image));
 			}
 		}
 		private void OnMenuItemClickImageSearchGoogle(PlatformData.FutabaMedia media) {

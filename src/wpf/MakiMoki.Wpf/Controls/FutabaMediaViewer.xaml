@@ -62,19 +62,38 @@
                 <Viewbox 
                     StretchDirection="DownOnly"
                     RenderTransform="{Binding ImageMatrix.Value, Mode=TwoWay}">
-                    <Image
-                        x:Name="image"
-                        gif:ImageBehavior.RepeatBehavior="Forever"
-                        gif:ImageBehavior.AnimatedSource="{Binding ImageSource.Value, Mode=OneWay}"
-                        Width="{Binding ImageSource.Value.PixelWidth, Mode=OneWay}"
-                        Height="{Binding ImageSource.Value.PixelHeight, Mode=OneWay}"
-                        IsHitTestVisible="False"
-                        RenderOptions.EdgeMode="Aliased"
-                        RenderOptions.BitmapScalingMode="Fant">
-                        <Image.CacheMode>
-                            <BitmapCache RenderAtScale="1" />
-                        </Image.CacheMode>
-                    </Image>
+                    <Grid>
+                        <Image
+                            x:Name="image"
+                            gif:ImageBehavior.RepeatBehavior="Forever"
+                            gif:ImageBehavior.AnimatedSource="{Binding ImageSource.Value, Mode=OneWay}"
+                            Width="{Binding ImageSource.Value.PixelWidth, Mode=OneWay}"
+                            Height="{Binding ImageSource.Value.PixelHeight, Mode=OneWay}"
+                            IsHitTestVisible="False"
+                            RenderOptions.EdgeMode="Aliased"
+                            RenderOptions.BitmapScalingMode="Fant">
+                            <Image.CacheMode>
+                                <BitmapCache RenderAtScale="1" />
+                            </Image.CacheMode>
+                        </Image>
+                        
+                        <Image
+                            Source="{Binding PngImageSource.Value, Mode=OneWay}"
+                            Width="{Binding ApngImageSource.Value.PixelWidth, Mode=OneWay}"
+                            Height="{Binding ApngImageSource.Value.PixelHeight, Mode=OneWay}"
+                            IsHitTestVisible="False"
+                            RenderOptions.EdgeMode="Aliased"
+                            RenderOptions.BitmapScalingMode="Fant">
+                            <Image.CacheMode>
+                                <BitmapCache RenderAtScale="1" />
+                            </Image.CacheMode>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Loaded">
+                                    <ri:EventToReactiveCommand Command="{Binding PngLoadedCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Image>
+                    </Grid>
                 </Viewbox>
                 <ScrollViewer.ContextMenu>
                     <ContextMenu

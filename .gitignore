@@ -2,6 +2,7 @@
 /**/**/obj
 
 .vs/
+packages/
 publish/
 MakiMoki/
 *.csproj.user

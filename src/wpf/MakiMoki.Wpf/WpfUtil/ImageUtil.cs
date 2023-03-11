@@ -1,3 +1,5 @@
+using LibAPNG;
+using LibAPNG.WPF;
 using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
@@ -8,8 +10,11 @@ using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using Yarukizero.Net.MakiMoki.Wpf.Model;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 	static class ImageUtil {
@@ -96,9 +101,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 
 		private volatile static Dictionary<string, WeakReference<byte[]>> bitmapBytesDic
 			= new Dictionary<string, WeakReference<byte[]>>();
-		private volatile static Dictionary<string, WeakReference<BitmapSource>> bitmapBytesDic2
-			= new Dictionary<string, WeakReference<BitmapSource>>(); 
-		private static BitmapSource NgImage { get; set; } = null;
+		private volatile static Dictionary<string, WeakReference<ImageObject>> bitmapBytesDic2
+			= new Dictionary<string, WeakReference<ImageObject>>(); 
+		private static ImageObject NgImage { get; set; } = null;
 
 		private static bool TryGetImage(string file, out byte[] image) {
 			lock(bitmapBytesDic) {
@@ -132,7 +137,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 		}
 
-		private static bool TryGetImage2(string file, out BitmapSource image) {
+		private static bool TryGetImage2(string file, out ImageObject image) {
 			lock(bitmapBytesDic2) {
 				if(bitmapBytesDic2.TryGetValue(file, out var v)) {
 					if(v.TryGetTarget(out var b)) {
@@ -145,9 +150,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 		}
 
-		private static BitmapSource SetImage2(string file, BitmapSource image) {
+		private static ImageObject SetImage2(string file, ImageObject image) {
 			lock(bitmapBytesDic) {
-				var r = new WeakReference<BitmapSource>(image);
+				var r = new WeakReference<ImageObject>(image);
 				if(bitmapBytesDic2.ContainsKey(file)) {
 					bitmapBytesDic2[file] = r;
 				} else {
@@ -168,12 +173,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 
 
 
-		public static BitmapSource GetNgImage() {
+		public static ImageObject GetNgImage() {
 			if(NgImage == null) {
 				var asm = typeof(App).Assembly;
-				NgImage = new WriteableBitmap(
+				NgImage = new ImageObject(new WriteableBitmap(
 					BitmapFrame.Create(asm.GetManifestResourceStream(
-						$"{ typeof(App).Namespace }.Resources.Images.NgImage.png")));
+						$"{typeof(App).Namespace}.Resources.Images.NgImage.png"))));
 			}
 			return NgImage;
 		}
@@ -192,13 +197,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			return null;
 		}
 
-		public static BitmapSource GetImageCache2(string path) {
+		public static ImageObject GetImageCache2(string path) {
 			if(TryGetImage2(path, out var b)) {
 				return b;
 			}
 			return null;
 		}
 
+#if false
 		public static BitmapSource CreateImage(string file, Stream stream) {
 			if(stream == null) {
 				return null;
@@ -229,8 +235,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 			*/
 		}
+#endif
 
-		public static BitmapSource CreateImage(string file, byte[] imageBytes) {
+		public static ImageObject CreateImage(string file, byte[] imageBytes = null) {
 			if(System.Windows.Threading.Dispatcher.CurrentDispatcher != System.Windows.Application.Current?.Dispatcher) {
 				System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!! UIスレッド外でのCreateImage !!!!!!!!!!!!!!!!!!!");
 				return null;
@@ -239,12 +246,37 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			if(TryGetImage2(file, out var b)) {
 				return b;
 			} else {
-				var s = LoadStream(file, imageBytes);
-				return SetImage2(
-					file,
-					BitmapFrame.Create(s));
-			}
+				static ImageObject? APng(string file, byte[]? imageBytes) {
+					var p = imageBytes switch {
+						byte[] v => new LibAPNG.APNG(imageBytes),
+						_ => new LibAPNG.APNG(file),
+					};
 
+					var img = BitmapFrame.Create(
+						p.DefaultImage.GetStream(),
+						BitmapCreateOptions.None,
+						BitmapCacheOption.OnLoad);
+					if(p.IsSimplePNG) {
+						return new Model.ImageObject(img);
+					} else {
+						var animation = p.ToAnimation();
+						var storyboard = new Storyboard();
+						//Storyboard.SetTargetName(animation, Path.GetFileNameWithoutExtension());
+						Storyboard.SetTargetProperty(
+							animation,
+							new PropertyPath(System.Windows.Controls.Image.SourceProperty));
+						storyboard.Children.Add(animation);
+						return new Model.ImageObject(img, storyboard);
+					}
+				}
+
+				ImageObject r;
+				var ex = Path.GetExtension(file).ToLower();
+				return SetImage2(file, ex switch {
+					".png" => APng(file, imageBytes),
+					_ => new ImageObject(BitmapFrame.Create(LoadStream(file, imageBytes))),
+				});
+			}
 		}
 
 		public static Stream LoadStream(string path, byte[] imageBytes = null) {

@@ -639,7 +639,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				} else {
 					x.LoadBitmapSource()
 						.ObserveOn(UIDispatcherScheduler.Default)
-						.Select(y => (Pixels: WpfUtil.ImageUtil.CreatePixelsBytes(y), Width: y.PixelWidth, Height: y.PixelHeight))
+						.Select(y => (
+							Pixels: WpfUtil.ImageUtil.CreatePixelsBytes(y.Image),
+							Width: y.Image.PixelWidth,
+							Height: y.Image.PixelHeight))
 						.ObserveOn(System.Reactive.Concurrency.ThreadPoolScheduler.Instance)
 						.Select(y => Ng.NgUtil.PerceptualHash.CalculateHash(y.Pixels, y.Width, y.Height, 32))
 						.ObserveOn(UIDispatcherScheduler.Default)
@@ -681,7 +684,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				hash(x.ThumbHash.Value.Value);
 			} else {
 				x.LoadBitmapSource()
-					.Select(y => (Pixels: WpfUtil.ImageUtil.CreatePixelsBytes(y), Width: y.PixelWidth, Height: y.PixelHeight))
+					.Select(y => (
+						Pixels: WpfUtil.ImageUtil.CreatePixelsBytes(y.Image),
+						Width: y.Image.PixelWidth,
+						Height: y.Image.PixelHeight))
 					.ObserveOn(System.Reactive.Concurrency.ThreadPoolScheduler.Instance)
 					.Select(y => Ng.NgUtil.PerceptualHash.CalculateHash(y.Pixels, y.Width, y.Height, 32))
 					.ObserveOn(UIDispatcherScheduler.Default)

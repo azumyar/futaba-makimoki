@@ -22,6 +22,12 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MakiMoki.Shared.Reactive", 
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MakiMoki.Shared.Futaba", "src\shared\MakiMoki.Shared.Futaba\MakiMoki.Shared.Futaba.shproj", "{9FA605F0-AC67-4D9D-87B0-825C892ACAC2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lib", "Lib", "{828FC0D5-9194-4403-9475-073032BB7742}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibAPNG", "src\lib\APNG.NET-netstandard_and_wpf\LibAPNG\LibAPNG.csproj", "{547FD4C1-5B4C-4DEF-A366-9AE3240B7CD9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibAPNG.WPF", "src\lib\APNG.NET-netstandard_and_wpf\LibAPNG.WPF\LibAPNG.WPF.csproj", "{455F16BC-AE64-4620-B55D-D4E70467CF9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,9 +50,21 @@ Global
 		{72B70F93-45D8-42AE-A24A-CF5D4722E82A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72B70F93-45D8-42AE-A24A-CF5D4722E82A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72B70F93-45D8-42AE-A24A-CF5D4722E82A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{547FD4C1-5B4C-4DEF-A366-9AE3240B7CD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{547FD4C1-5B4C-4DEF-A366-9AE3240B7CD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{547FD4C1-5B4C-4DEF-A366-9AE3240B7CD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{547FD4C1-5B4C-4DEF-A366-9AE3240B7CD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{455F16BC-AE64-4620-B55D-D4E70467CF9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{455F16BC-AE64-4620-B55D-D4E70467CF9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{455F16BC-AE64-4620-B55D-D4E70467CF9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{455F16BC-AE64-4620-B55D-D4E70467CF9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{547FD4C1-5B4C-4DEF-A366-9AE3240B7CD9} = {828FC0D5-9194-4403-9475-073032BB7742}
+		{455F16BC-AE64-4620-B55D-D4E70467CF9D} = {828FC0D5-9194-4403-9475-073032BB7742}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {09DD425B-7B31-45D5-83FD-0F8CA1AF9E75}

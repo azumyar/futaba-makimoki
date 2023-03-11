@@ -43,6 +43,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> ImagePath { get; } = new ReactiveProperty<string>("");
 
 		public ReactiveProperty<string> ImageName { get; }
+		private ReactiveProperty<Model.ImageObject> ImagePreviewObject { get; }
 		public ReactiveProperty<ImageSource> ImagePreview { get; }
 
 		public ReactiveProperty<bool> CommentValidFlag { get; }
@@ -68,9 +69,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					return Path.GetFileName(x);
 				}
 			}).ToReactiveProperty("");
-			this.ImagePreview = this.ImagePath
+			this.ImagePreviewObject = this.ImagePath
 				.ObserveOn(UIDispatcherScheduler.Default)
-				.Select<string, ImageSource>(x => {
+				.Select(x => {
 
 				if(File.Exists(x)) {
 					var ext = Path.GetExtension(x).ToLower();
@@ -83,15 +84,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						.Select(y => y.Ext)
 						.ToArray();
 					if(imageExt.Contains(ext)) {
-						return WpfUtil.ImageUtil.CreateImage(
-							x,
-							WpfUtil.ImageUtil.LoadStream(x));
+						return WpfUtil.ImageUtil.CreateImage(x);
 					} else if(movieExt.Contains(ext)) {
-						return WpfUtil.MediaFoundationUtil.CreateThumbnail(x);
+						return new Model.ImageObject(WpfUtil.MediaFoundationUtil.CreateThumbnail(x));
 					}
 				}
 				return null;
 			}).ToReactiveProperty();
+			this.ImagePreview = this.ImagePreviewObject.Select(x => x?.Image as ImageSource).ToReactiveProperty();
 			this.PostTitle = new ReactiveProperty<string>(url.IsCatalogUrl ? "スレッド作成" : "レス投稿");
 			this.PostNameVisibility = new ReactiveProperty<Visibility>(
 				(board.Extra.Name) ? Visibility.Visible : Visibility.Collapsed);

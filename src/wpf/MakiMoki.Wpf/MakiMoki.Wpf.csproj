@@ -68,6 +68,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\core\MakiMoki.Core.Ng\MakiMoki.Core.Ng.csproj" />
     <ProjectReference Include="..\..\core\MakiMoki.Core\MakiMoki.Core.csproj" />
+    <ProjectReference Include="..\..\lib\APNG.NET-netstandard_and_wpf\LibAPNG.WPF\LibAPNG.WPF.csproj" />
     <ProjectReference Include="..\MakiMoki.Wpf.Canvas98\MakiMoki.Wpf.Canvas98.csproj" />
   </ItemGroup>
   <ItemGroup>
