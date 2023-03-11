@@ -109,7 +109,7 @@ jobs:
         msbuild `
           -t:TransformAll `
           -m `
-          -p:Configuration=T4 `
+          -p:Configuration=T4$env:Configuration `
           -p:Github=True `
           $env:Solution_Name
 
