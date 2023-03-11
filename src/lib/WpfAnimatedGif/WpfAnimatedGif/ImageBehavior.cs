@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Packaging;
@@ -951,7 +951,7 @@ namespace WpfAnimatedGif
             public FrameDisposalMethod DisposalMethod { get; set; }
         }
 
-        private enum FrameDisposalMethod
+        public enum FrameDisposalMethod
         {
             None = 0,
             DoNotDispose = 1,
