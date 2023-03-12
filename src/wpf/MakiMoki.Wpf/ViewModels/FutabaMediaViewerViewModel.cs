@@ -100,7 +100,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Visibility> ImageViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Collapsed);
 		public ReactiveProperty<MatrixTransform> ImageMatrix { get; }
 			= new ReactiveProperty<MatrixTransform>(new MatrixTransform(Matrix.Identity));
-		public MakiMokiCommand<RoutedEventArgs> ImageLoadedCommand { get; } = new MakiMokiCommand<RoutedEventArgs>();
 
 		public ReactiveProperty<Visibility> VideoViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Hidden);
 		public ReactiveProperty<Visibility> VideoPlayButtonVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Visible);
@@ -178,29 +177,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				ImageObject v => v.Image as ImageSource,
 				_ => null,
 			}).ToReactiveProperty();
-			this.ImageLoadedCommand.Subscribe(x => {
-				if((this.ImageSourceObject.Value?.AnimationSource != null) &&(x.Source is Image img)) {
-					var storyboard = new Storyboard();
-
-					void unload(object _, RoutedEventArgs __) {
-						img.Unloaded -= unload;
-						storyboard.Stop();
-					}
-
-
-					Storyboard.SetTarget(
-						this.ImageSourceObject.Value.AnimationSource,
-						img);
-					Storyboard.SetTargetProperty(
-						this.ImageSourceObject.Value.AnimationSource,
-						new PropertyPath(Image.SourceProperty));
-
-					storyboard.Children.Add(this.ImageSourceObject.Value.AnimationSource);
-					storyboard.Begin(img);
-
-					img.Unloaded += unload;
-				}
-			});
 
 			this.ImageContextMenuOpened.Subscribe(x => {
 				if(x) {

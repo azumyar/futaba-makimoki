@@ -9,6 +9,7 @@
     xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
+    xmlns:b="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Behaviors"
     xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
     mc:Ignorable="d" 
     prism:ViewModelLocator.AutoWireViewModel="True"
@@ -72,11 +73,9 @@
                         <Image.CacheMode>
                             <BitmapCache RenderAtScale="1" />
                         </Image.CacheMode>
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="Loaded">
-                                <ri:EventToReactiveCommand Command="{Binding ImageLoadedCommand}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
+                        <i:Interaction.Behaviors>
+                            <b:ImageBehavior Source="{Binding ImageSourceObject.Value, Mode=OneWay}" />
+                        </i:Interaction.Behaviors>
                     </Image>
                 </Viewbox>
                 <ScrollViewer.ContextMenu>
