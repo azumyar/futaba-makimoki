@@ -10,6 +10,7 @@ using System.IO;
 using AngleSharp.Html.Parser;
 using AngleSharp.Dom;
 using Yarukizero.Net.MakiMoki.Data;
+using System.Net.Sockets;
 
 namespace Yarukizero.Net.MakiMoki.Util {
 	public static class FutabaApi {
@@ -88,7 +89,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (false, null, null, null);
 					}
 				}
-				catch(TimeoutException) {
+				catch(Exception e) when(e is SocketException || e is TimeoutException) {
 					return (false, null, null, null);
 				}
 				catch(JsonSerializationException ex) {
@@ -128,7 +129,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (false, null, null);
 					}
 				}
-				catch(TimeoutException) {
+				catch(Exception e) when(e is SocketException || e is TimeoutException) {
 					return (false, null, null);
 				}
 				finally { }
@@ -166,7 +167,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (false, null, null, null);
 					}
 				}
-				catch(TimeoutException) {
+				catch(Exception e) when(e is SocketException || e is TimeoutException) {
 					return (false, null, null, null);
 				}
 				catch(JsonSerializationException ex) {
@@ -208,7 +209,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (false, null, null, null);
 					}
 				}
-				catch(TimeoutException) {
+				catch(Exception e) when(e is SocketException || e is TimeoutException) {
 					return (false, null, null, null);
 				}
 				catch(JsonSerializationException ex) {
@@ -237,7 +238,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (false, res.StatusCode == System.Net.HttpStatusCode.NotFound, null, null);
 					}
 				}
-				catch(TimeoutException) {
+				catch(Exception e) when(e is SocketException || e is TimeoutException) {
 					return (false, false, null, null);
 				}
 				finally { }
@@ -259,7 +260,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return null;
 					}
 				}
-				catch(TimeoutException) {
+				catch(Exception e) when(e is SocketException || e is TimeoutException) {
 					return null;
 				}
 				catch(JsonSerializationException) { // TODO: こない
@@ -284,7 +285,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return null;
 					}
 				}
-				catch(TimeoutException) {
+				catch(Exception e) when(e is SocketException || e is TimeoutException) {
 					return null;
 				}
 				catch(JsonSerializationException) { // TODO: こない
@@ -358,6 +359,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (false, "HTTPエラー", null, null);
 					}
 				}
+				catch(SocketException) {
+					return (false, "ソケットエラー", null, null);
+				}
 				catch(TimeoutException) {
 					return (false, "HTTPタイムアウト", null, null);
 				}
@@ -409,7 +413,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (false, null, null);
 					}
 				}
-				catch(TimeoutException) {
+				catch(Exception e) when(e is SocketException || e is TimeoutException) {
 					return (false, null, null);
 				}
 			});
@@ -492,7 +496,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (false, null, null);
 					}
 				}
-				catch(TimeoutException) {
+				catch(Exception e) when(e is SocketException || e is TimeoutException) {
 					return (false, null, null);
 				}
 			});
@@ -518,7 +522,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (false, null);
 					}
 				}
-				catch(TimeoutException) {
+				catch(Exception e) when(e is SocketException || e is TimeoutException) {
 					return (false, null);
 				}
 			});
@@ -551,7 +555,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (false, null);
 					}
 				}
-				catch(TimeoutException) {
+				catch(Exception e) when(e is SocketException || e is TimeoutException) {
 					return (false, null);
 				}
 			});
@@ -616,6 +620,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							}
 						}
 					}
+					catch(SocketException) { }
 					catch(TimeoutException) {
 						return (false, "アップロードタイムアウト");
 					}
@@ -654,7 +659,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					return "";
 				}
 			}
-			catch(TimeoutException) {
+			catch(Exception e) when(e is SocketException || e is TimeoutException) {
 				return "";
 			}
 		}
@@ -697,7 +702,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return res.Content;
 					}
 				}
-				catch(TimeoutException) { }
+				catch(Exception e) when(e is SocketException || e is TimeoutException) { }
 			}
 			return "";
 		}

@@ -92,7 +92,7 @@
                             StretchDirection="DownOnly"
                             Visibility="{Binding ResImageVisibility.Value, Mode=OneWay}">
                             <Image 
-                                Source="{Binding ThumbSource, Mode=OneWay}"
+                                Source="{Binding ThumbSource.Image, Mode=OneWay}"
                                 RenderOptions.EdgeMode="Aliased"
                                 RenderOptions.BitmapScalingMode="Fant">
                                 <Image.CacheMode>
@@ -629,7 +629,7 @@
                                         Stretch="Uniform"
                                         >
                                         <Image
-                                            Source="{Binding ThumbSource, Mode=OneWay}"
+                                            Source="{Binding ThumbSource.Image, Mode=OneWay}"
                                             RenderOptions.EdgeMode="Aliased"
                                             RenderOptions.BitmapScalingMode="{Binding DataContext.CatalogBitmapScalingMode.Value, ElementName=_this}"
                                             Unloaded="OnImageUnloaded">

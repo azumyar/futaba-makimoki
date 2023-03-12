@@ -35,7 +35,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
@@ -83,7 +83,7 @@ jobs:
 
     # Install the .NET Core workload
     - name: Install .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
 
@@ -109,8 +109,11 @@ jobs:
         msbuild `
           -t:TransformAll `
           -m `
+          -p:Configuration=T4$env:Configuration `
           -p:Github=True `
           $env:Solution_Name
+      env:
+        Configuration: ${{ matrix.configuration }}
 
     - name: Build app
       run: |

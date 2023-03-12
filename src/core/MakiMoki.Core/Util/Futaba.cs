@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using System.IO;
+using System.Net.Sockets;
 
 namespace Yarukizero.Net.MakiMoki.Util {
 	public static class Futaba {
@@ -674,7 +675,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								// TODO: o.OnError();
 							}
 						}
-						catch(TimeoutException) {
+						catch(Exception e) when (e is SocketException || e is TimeoutException) {
 							o.OnNext((false, null, null));
 						}
 					}
@@ -739,7 +740,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								// TODO: o.OnError();
 							}
 						}
-						catch(TimeoutException) {
+						catch(Exception e) when(e is SocketException || e is TimeoutException) {
 							o.OnNext((false, null, null));
 						}
 					}
@@ -786,6 +787,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						}
 					}
 					catch(HttpRequestException) {
+						return (false, default, default);
+					}
+					catch(Exception e) when(e is SocketException || e is TimeoutException) {
 						return (false, default, default);
 					}
 				}, url, localPath,

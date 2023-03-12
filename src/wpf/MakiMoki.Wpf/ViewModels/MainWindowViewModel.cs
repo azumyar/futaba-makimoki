@@ -202,9 +202,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									if((fc.ResItems.FirstOrDefault() is FutabaContext.Item fit)
 										&& WpfUtil.ImageUtil.GetImageCache2(
 											Util.Futaba.GetThumbImageLocalFilePath(
-												fc.Url, fit.ResItem.Res)) is ImageSource isc) {
+												fc.Url, fit.ResItem.Res)) is Model.ImageObject io) {
 
-										return new InformationBindableExObject(isc);
+										return new InformationBindableExObject(io);
 									}
 									return new InformationBindableExObject();
 								}
@@ -216,7 +216,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									it.Message,
 									it.ExObject switch {
 										BindableFutaba bf => new InformationBindableExObject(bf),
-										ImageSource isc => new InformationBindableExObject(isc),
+										Model.ImageObject io => new InformationBindableExObject(io),
 										FutabaContext fc when fc.Url.IsThreadUrl => gen1(fc),
 										UrlContext uc when uc.IsThreadUrl => gen2(uc),
 										_ => new InformationBindableExObject()
@@ -491,20 +491,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 												tab.Futaba.Value.Url,
 												items.Select(x => x.Item.Raw.Value.ResItem.Res).ToArray(),
 												false)
-												.Select<
-													(bool Successed, string LocalPath, byte[] FileBytes),
-													(System.IO.Stream Stream, string Path)
-												>(
-													x => x.Successed ? (WpfUtil.ImageUtil.LoadStream(x.LocalPath, x.FileBytes), x.LocalPath)
-														: (null, null))
 												.ObserveOn(UIDispatcherScheduler.Default)
 												.Subscribe(x => {
-													if(x.Stream != null) {
-														var it = c.Where(y => y.Path == x.Path)
+													if(x.Successed) {
+														var it = c.Where(y => y.Path == x.LocalPath)
 															.Select(y => y.Item)
 															.FirstOrDefault();
 														if(it != null) {
-															it.SetThumbSource(WpfUtil.ImageUtil.CreateImage(x.Path, x.Stream));
+															it.SetThumbSource(WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes));
 														}
 													}
 													o.OnNext(x);

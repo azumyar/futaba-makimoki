@@ -26,8 +26,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					this.loaded = true;
 					loader().Select(x => {
 						if(x.Successed) {
-							return WpfUtil.ImageUtil.CreateImage(x.LocalPath,
-								WpfUtil.ImageUtil.LoadStream(x.LocalPath, x.FileBytes));
+							return WpfUtil.ImageUtil.CreateImage(x.LocalPath,  x.FileBytes);
 						} else {
 							return null;
 						}
@@ -35,7 +34,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						.Subscribe(x => {
 							if(x != null) {
 								Content = new Image() {
-									Source = x,
+									Source = x.Image,
 								};
 								Opacity = 1;
 							}

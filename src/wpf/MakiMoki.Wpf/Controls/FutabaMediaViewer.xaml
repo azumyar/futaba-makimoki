@@ -1,19 +1,20 @@
-<UserControl x:Class="Yarukizero.Net.MakiMoki.Wpf.Controls.FutabaMediaViewer"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
-             xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
-             xmlns:gif="http://wpfanimatedgif.codeplex.com"
-             xmlns:prism="http://prismlibrary.com/"
-             xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
-             xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
-             mc:Ignorable="d" 
-             prism:ViewModelLocator.AutoWireViewModel="True"
-             d:DesignHeight="450" d:DesignWidth="800"
-             Background="#88000000">
+<UserControl
+    x:Class="Yarukizero.Net.MakiMoki.Wpf.Controls.FutabaMediaViewer"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:ri="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
+    xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
+    xmlns:b="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Behaviors"
+    xmlns:local="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Controls"
+    mc:Ignorable="d" 
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    d:DesignHeight="450" d:DesignWidth="800"
+    Background="#88000000">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -63,9 +64,7 @@
                     StretchDirection="DownOnly"
                     RenderTransform="{Binding ImageMatrix.Value, Mode=TwoWay}">
                     <Image
-                        x:Name="image"
-                        gif:ImageBehavior.RepeatBehavior="Forever"
-                        gif:ImageBehavior.AnimatedSource="{Binding ImageSource.Value, Mode=OneWay}"
+                        Source="{Binding ImageSource.Value, Mode=OneWay}"
                         Width="{Binding ImageSource.Value.PixelWidth, Mode=OneWay}"
                         Height="{Binding ImageSource.Value.PixelHeight, Mode=OneWay}"
                         IsHitTestVisible="False"
@@ -74,6 +73,9 @@
                         <Image.CacheMode>
                             <BitmapCache RenderAtScale="1" />
                         </Image.CacheMode>
+                        <i:Interaction.Behaviors>
+                            <b:ImageBehavior Source="{Binding ImageSourceObject.Value, Mode=OneWay}" />
+                        </i:Interaction.Behaviors>
                     </Image>
                 </Viewbox>
                 <ScrollViewer.ContextMenu>
