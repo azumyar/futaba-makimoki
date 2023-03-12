@@ -26,7 +26,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			var item = futaba.ResItems.FirstOrDefault();
 			if(futaba.Url.IsThreadUrl && (item != null)) {
 				ThumbSource = item.LoadBitmapSource()
-					.Cast<ImageSource>()
+					.Select(x => x?.Image as ImageSource)
 					.ToReactiveProperty();
 				ObjectVisibility = ThumbSource
 					.Select(x => (x != null) ? Visibility.Visible : Visibility.Collapsed)
