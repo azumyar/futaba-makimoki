@@ -708,8 +708,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						try {
 							var res = await request(client, url);
 							if(res.IsSucceeded && res.StatusCode == System.Net.HttpStatusCode.OK) {
+								var b = new byte[res.Content.Length];
+								Array.Copy(res.Content, b, res.Content.Length);
 								Observable.Create<byte[]>(async (oo) => {
-									var b = res.Content;
 									try {
 										if(!File.Exists(localPath)) {
 											using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
@@ -740,7 +741,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								// TODO: o.OnError();
 							}
 						}
-						catch(Exception e) when(e is SocketException || e is TimeoutException) {
+						catch(Exception e) when(
+							e is SocketException
+								|| e is TimeoutException
+								|| e is TaskCanceledException
+								|| e is ObjectDisposedException) {
 							o.OnNext((false, null, null));
 						}
 					}
