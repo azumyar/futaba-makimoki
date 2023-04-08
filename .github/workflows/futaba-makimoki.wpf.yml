@@ -189,7 +189,7 @@ jobs:
 
   distribute:
     needs: build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     env:
       Artifact_Name: Release-win-x64
       Artifact_File_Zip: futamaki.zip
@@ -235,13 +235,13 @@ jobs:
     - name: FTP Put Json(Release)
       run: |
         mkdir ${Ftp_Root}
-        echo "{ \"version\": \"${VERSION}\" }" > ${Ftp_Release_Json}
+        echo "{ \"version\": \"${VERSION}\", \"app-center-version\": \"${App_Center_Version}\" }" > ${Ftp_Release_Json}
       if: ${{ env.App_Center_Group == 'Release' }}
 
     - name: FTP Put Json(Canary)
       run: |
         mkdir ${Ftp_Root}
-        echo "{ \"version\": \"${VERSION}\" }" > ${Ftp_Canary_Json}
+        echo "{ \"version\": \"${VERSION}\", \"app-center-version\": \"${App_Center_Version}\" }" > ${Ftp_Canary_Json}
       if: ${{ env.App_Center_Group == 'Canary' }}
 
     - name: FTP Upload
