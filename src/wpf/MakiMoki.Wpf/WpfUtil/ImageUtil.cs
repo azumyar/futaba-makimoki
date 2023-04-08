@@ -520,7 +520,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						var keyFrames = new ObjectKeyFrameCollection();
 						var totalDuration = TimeSpan.Zero;
 						var baseFrame = default(BitmapSource);
-						var ggce = gifFile.Extensions.OfType<GifGraphicControlExtension>().FirstOrDefault();
 						foreach(var rawFrame in decoder.Frames) {
 							static bool isFull(GifImageDescriptor metadata, int w, int h) {
 								return metadata.Left == 0
@@ -555,6 +554,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 								return result;
 							}
 
+							var ggce = gifFile.Frames[index].Extensions.OfType<GifGraphicControlExtension>().FirstOrDefault();
 							var metadata = new {
 								Descriptor = gifFile.Frames[index].Descriptor,
 								Left = gifFile.Frames[index].Descriptor.Left,
@@ -600,7 +600,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 							baseFrame = metadata switch {
 								var v when (v.DisposalMethod == ImageBehavior.FrameDisposalMethod.None) => frame,
 								var v when (v.DisposalMethod == ImageBehavior.FrameDisposalMethod.DoNotDispose) => frame,
-								var v when (v.DisposalMethod == ImageBehavior.FrameDisposalMethod.RestoreBackground) && isFull(v.Descriptor, width, height) => frame,
+								var v when (v.DisposalMethod == ImageBehavior.FrameDisposalMethod.RestoreBackground) && isFull(v.Descriptor, width, height) => null,
 								var v when (v.DisposalMethod == ImageBehavior.FrameDisposalMethod.RestoreBackground) => clear(frame, v.Descriptor),
 								var v when (v.DisposalMethod == ImageBehavior.FrameDisposalMethod.RestorePrevious) => baseFrame,
 								_ => throw new ArgumentException(),
