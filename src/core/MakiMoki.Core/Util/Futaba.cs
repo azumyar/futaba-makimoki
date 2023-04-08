@@ -741,7 +741,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								// TODO: o.OnError();
 							}
 						}
-						catch(Exception e) when(e is SocketException || e is TimeoutException || e is ObjectDisposedException) {
+						catch(Exception e) when(
+							e is SocketException
+								|| e is TimeoutException
+								|| e is TaskCanceledException
+								|| e is ObjectDisposedException) {
 							o.OnNext((false, null, null));
 						}
 					}
