@@ -459,8 +459,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				_ => new LibAPNG.APNG(file),
 			};
 
+			// 8bitインデックスカラーPNGが読めないので対策する
+			static Stream fixIndexdPng(string file, byte[]? imageBytes) {
+				var stream = new MemoryStream();
+				if(imageBytes is byte[]) {
+					using var ms = new MemoryStream(imageBytes);
+					using var bmp = new System.Drawing.Bitmap(ms);
+					bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+				} else {
+					using var bmp = new System.Drawing.Bitmap(file);
+					bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+				}
+				stream.Seek(0, SeekOrigin.Begin);
+				return stream;
+			}
+
 			var img = BitmapFrame.Create(
-				p.DefaultImage.GetStream(),
+				((p.IHDRChunk.ColorType == 3) && p.IsSimplePNG) switch {
+					true => fixIndexdPng(file, imageBytes),
+					false => p.DefaultImage.GetStream(),
+				},
 				BitmapCreateOptions.None,
 				BitmapCacheOption.OnLoad);
 			if(p.IsSimplePNG) {
