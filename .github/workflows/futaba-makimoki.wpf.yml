@@ -189,7 +189,7 @@ jobs:
 
   distribute:
     needs: build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     env:
       Artifact_Name: Release-win-x64
       Artifact_File_Zip: futamaki.zip
