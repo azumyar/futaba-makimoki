@@ -10,10 +10,9 @@
 </head>
 <body>
     <h1>ふたマキ</h1>
-    <p style="font-weight: bold;">2021/06/17 現在/futamaki/配下が参照できない問題が発生しているため設定を変更してます。/futamaki/は403ですが配下のzip,apkファイルにはアクセスできるようになっています。最新の安定版以外をお探しの方はカナリアビルドからお探しください。</p>
     <ul>
-        <li class="checked" id="futamaki-bin-link"><a href="futamaki/">ダウンロード</a></li>
-        <li class="checked"><a href="https://install.appcenter.ms/users/azumyar/apps/futamaki/distribution_groups/canary/">カナリアビルド(人柱向け)</a></li>
+        <li class="checked" id="futamaki-release-link"><a href="https://install.appcenter.ms/users/azumyar/apps/futamaki/distribution_groups/release">ダウンロード</a></li>
+        <li class="checked" id="futamaki-canary-link"><a href="https://install.appcenter.ms/users/azumyar/apps/futamaki/distribution_groups/canary/">カナリアビルド(人柱向け)</a></li>
         <li class="checked"><a href="https://github.com/azumyar/futaba-makimoki">ソースコード</a></li>
         <li class="checked"><a href="https://marshmallow-qa.com/yarukizero_dev">マシュマロ(連絡先)</a></li>
         <li class="checked"><a href="release-history.html">更新履歴</a></li>
@@ -382,11 +381,8 @@ if(fetch && String.prototype.padStart) {
             return response.json();
         })
         .then((json) => {
-            const target = document.getElementById("futamaki-bin-link");
-            const a = document.createElement("a");
-            a.setAttribute("href", json.url);
-            a.textContent = "period." + json.period.toString().padStart(2, "0");
-            target.append("(最新:", a, ")");
+            document.getElementById("futamaki-release-link").append("(最新:", json["release-app-center-version"], ")")
+            document.getElementById("futamaki-canary-link").append("(最新:", json["canary-app-center-version"], ")")
         });
 }
 
