@@ -791,10 +791,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							}
 						}
 					}
-					catch(HttpRequestException) {
-						return (false, default, default);
-					}
-					catch(Exception e) when(e is SocketException || e is TimeoutException) {
+					catch(Exception e) when(
+						e is SocketException
+						|| e is HttpRequestException
+						|| e is TaskCanceledException
+						|| e is OperationCanceledException
+						|| e is TimeoutException) {
 						return (false, default, default);
 					}
 				}, url, localPath,
