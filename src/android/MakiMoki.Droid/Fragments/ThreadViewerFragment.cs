@@ -267,25 +267,6 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 						o.OnNext(x.Successed);
 						if(x.Successed) {
 							this.Properties.FutabaContext.Value = x.Data;
-
-							var t = x.Data.Raw.DieDateTime;
-							if(t.HasValue) {
-								var ts = t.Value - (x.Data.Raw.NowDateTime ?? DateTime.Now);
-								var tt = DateTime.Now.Add(ts); // 消滅時間表示はPCの時計を使用
-								this.textviewDie.Text = ts switch {
-									TimeSpan y when y.TotalSeconds < 0 => $"スレ消滅：{Math.Abs(((x.Data.Raw.NowDateTime ?? DateTime.Now) - t.Value).TotalSeconds):00}秒経過(消滅時間を過ぎました)",
-									TimeSpan y when 0 < y.Days => $"スレ消滅：{tt.ToString("MM/dd")}(あと{ts.ToString(@"dd\日hh\時\間")})",
-									TimeSpan y when 0 < y.Hours => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"hh\時\間mm\分")})",
-									TimeSpan y when 0 < y.Minutes => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"mm\分ss\秒")})",
-									_ => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"ss\秒")})",
-								};
-							} else {
-								this.textviewDie.Text = "スレ消滅：不明";
-							}
-							this.textviewDie.SetTextColor(x.Data.Raw.IsOld switch {
-								true => Color.Red,
-								false => Color.Black,
-							});
 						} else {
 
 						}
@@ -303,37 +284,61 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 				(x, y) => (Futaba: x, Search: y))
 				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(x => {
-					var c = this.adapter.ItemCount - DummyItemNum;
-					if(c < 0) {
-						this.adapter.Source.BeginUpdate()
-							.Clear()
-							.AddRange(x.Futaba.ResItems)
-							.AddRange(new Data.FutabaContext.Item[DummyItemNum])
-							.Commit();
-						return;
+					{ // adapterの更新
+						var c = this.adapter.ItemCount - DummyItemNum;
+						if(c < 0) {
+							this.adapter.Source.BeginUpdate()
+								.Clear()
+								.AddRange(x.Futaba.ResItems)
+								.AddRange(new Data.FutabaContext.Item[DummyItemNum])
+								.Commit();
+							return;
+						}
+
+						if(c < x.Futaba.ResItems.Length) {
+							var @new = x.Futaba.ResItems.Skip(c);
+							if(@new.Count() <= DummyItemNum) {
+								foreach(var it in @new.Select((y, i) => (Value: y, Index: i))) {
+									this.adapter.Source[c + it.Index] = @new.ElementAt(it.Index);
+								}
+								for(var i = 0; i < @new.Count(); i++) {
+									this.adapter.Source.Add(null);
+								}
+							} else {
+								foreach(var it in @new.Take(DummyItemNum).Select((y, i) => (Value: y, Index: i))) {
+									this.adapter.Source[c + it.Index] = @new.ElementAt(it.Index);
+								}
+								this.adapter.Source.AddRange(@new.Skip(DummyItemNum));
+								this.adapter.Source.AddRange(new Data.FutabaContext.Item[DummyItemNum]);
+							}
+						}
+						foreach(var it in x.Futaba.ResItems.Take(c).Select((x, i) => (Val: x, Index: i))) {
+							if(this.adapter.Source[it.Index].HashText != it.Val.HashText) {
+								this.adapter.Source[it.Index] = it.Val;
+							}
+						}
 					}
-					
-					if(c < x.Futaba.ResItems.Length) {
-						var @new = x.Futaba.ResItems.Skip(c);
-						if(@new.Count() <= DummyItemNum) {
-							foreach(var it in @new.Select((y, i) => (Value: y, Index: i))) {
-								this.adapter.Source[c + it.Index] = @new.ElementAt(it.Index);
-							}
-							for(var i = 0; i < @new.Count(); i++) {
-								this.adapter.Source.Add(null);
-							}
+
+					{ // スレ残り時間の更新
+						if(x.Futaba.Raw.IsDie) {
+							this.textviewDie.Text = "スレッドは落ちました";
+						} else if(x.Futaba.Raw.DieDateTime is var t && t.HasValue) {
+							var ts = t.Value - (x.Futaba.Raw.NowDateTime ?? DateTime.Now);
+							var tt = DateTime.Now.Add(ts); // 消滅時間表示はPCの時計を使用
+							this.textviewDie.Text = ts switch {
+								TimeSpan y when y.TotalSeconds < 0 => $"スレ消滅：{Math.Abs(((x.Futaba.Raw.NowDateTime ?? DateTime.Now) - t.Value).TotalSeconds):00}秒経過(消滅時間を過ぎました)",
+								TimeSpan y when 0 < y.Days => $"スレ消滅：{tt.ToString("MM/dd")}(あと{ts.ToString(@"dd\日hh\時\間")})",
+								TimeSpan y when 0 < y.Hours => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"hh\時\間mm\分")})",
+								TimeSpan y when 0 < y.Minutes => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"mm\分ss\秒")})",
+								_ => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"ss\秒")})",
+							};
 						} else {
-							foreach(var it in @new.Take(DummyItemNum).Select((y, i) => (Value: y, Index: i))) {
-								this.adapter.Source[c + it.Index] = @new.ElementAt(it.Index);
-							}
-							this.adapter.Source.AddRange(@new.Skip(DummyItemNum));
-							this.adapter.Source.AddRange(new Data.FutabaContext.Item[DummyItemNum]);
+							this.textviewDie.Text = "スレ消滅：不明";
 						}
-					}
-					foreach(var it in x.Futaba.ResItems.Take(c).Select((x, i) => (Val: x, Index: i))) {
-						if(this.adapter.Source[it.Index].HashText != it.Val.HashText) {
-							this.adapter.Source[it.Index] = it.Val;
-						}
+						this.textviewDie.SetTextColor((x.Futaba.Raw.IsOld || x.Futaba.Raw.IsDie) switch {
+							true => Color.Red,
+							false => Color.Black,
+						});
 					}
 				});
 		}
