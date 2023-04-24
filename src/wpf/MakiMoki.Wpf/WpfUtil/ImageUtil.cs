@@ -1,6 +1,9 @@
+using LibAPNG;
+using LibAPNG.WPF;
 using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
@@ -8,8 +11,12 @@ using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using WpfAnimatedGif;
+using WpfAnimatedGif.Decoding;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 	static class ImageUtil {
@@ -96,9 +103,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 
 		private volatile static Dictionary<string, WeakReference<byte[]>> bitmapBytesDic
 			= new Dictionary<string, WeakReference<byte[]>>();
-		private volatile static Dictionary<string, WeakReference<BitmapSource>> bitmapBytesDic2
-			= new Dictionary<string, WeakReference<BitmapSource>>(); 
-		private static BitmapSource NgImage { get; set; } = null;
+		private volatile static Dictionary<string, WeakReference<Model.ImageObject>> bitmapBytesDic2
+			= new Dictionary<string, WeakReference<Model.ImageObject>>(); 
+		private static Model.ImageObject NgImage { get; set; } = null;
 
 		private static bool TryGetImage(string file, out byte[] image) {
 			lock(bitmapBytesDic) {
@@ -132,7 +139,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 		}
 
-		private static bool TryGetImage2(string file, out BitmapSource image) {
+		private static bool TryGetImage2(string file, out Model.ImageObject image) {
 			lock(bitmapBytesDic2) {
 				if(bitmapBytesDic2.TryGetValue(file, out var v)) {
 					if(v.TryGetTarget(out var b)) {
@@ -145,9 +152,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 		}
 
-		private static BitmapSource SetImage2(string file, BitmapSource image) {
+		private static Model.ImageObject SetImage2(string file, Model.ImageObject image) {
 			lock(bitmapBytesDic) {
-				var r = new WeakReference<BitmapSource>(image);
+				var r = new WeakReference<Model.ImageObject>(image);
 				if(bitmapBytesDic2.ContainsKey(file)) {
 					bitmapBytesDic2[file] = r;
 				} else {
@@ -167,13 +174,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		}
 
 
-
-		public static BitmapSource GetNgImage() {
+		public static Model.ImageObject GetNgImage() {
 			if(NgImage == null) {
 				var asm = typeof(App).Assembly;
-				NgImage = new WriteableBitmap(
+				NgImage = new Model.ImageObject(new WriteableBitmap(
 					BitmapFrame.Create(asm.GetManifestResourceStream(
-						$"{ typeof(App).Namespace }.Resources.Images.NgImage.png")));
+						$"{typeof(App).Namespace}.Resources.Images.NgImage.png"))));
 			}
 			return NgImage;
 		}
@@ -192,13 +198,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			return null;
 		}
 
-		public static BitmapSource GetImageCache2(string path) {
+		public static Model.ImageObject GetImageCache2(string path) {
 			if(TryGetImage2(path, out var b)) {
 				return b;
 			}
 			return null;
 		}
 
+#if false
 		public static BitmapSource CreateImage(string file, Stream stream) {
 			if(stream == null) {
 				return null;
@@ -229,8 +236,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 			*/
 		}
+#endif
 
-		public static BitmapSource CreateImage(string file, byte[] imageBytes) {
+		public static Model.ImageObject CreateImage(string file, byte[] imageBytes = null) {
 			if(System.Windows.Threading.Dispatcher.CurrentDispatcher != System.Windows.Application.Current?.Dispatcher) {
 				System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!! UIスレッド外でのCreateImage !!!!!!!!!!!!!!!!!!!");
 				return null;
@@ -239,12 +247,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			if(TryGetImage2(file, out var b)) {
 				return b;
 			} else {
-				var s = LoadStream(file, imageBytes);
-				return SetImage2(
-					file,
-					BitmapFrame.Create(s));
+				var ex = Path.GetExtension(file).ToLower();
+				return SetImage2(file, ex switch {
+					".png" => LoadPng(file, imageBytes),
+					".gif" => LoadGif(file, imageBytes),
+					_ => new Model.ImageObject(BitmapFrame.Create(LoadStream(file, imageBytes))),
+				});
 			}
-
 		}
 
 		public static Stream LoadStream(string path, byte[] imageBytes = null) {
@@ -442,6 +451,175 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			encoder.Save(ms);
 			//ms.Position = 0;			
 			return ms;
+		}
+
+		private static Model.ImageObject? LoadPng(string file, byte[]? imageBytes) {
+			var p = imageBytes switch {
+				byte[] v => new LibAPNG.APNG(imageBytes),
+				_ => new LibAPNG.APNG(file),
+			};
+
+			// 8bitインデックスカラーPNGが読めないので対策する
+			static Stream fixIndexdPng(string file, byte[]? imageBytes) {
+				var stream = new MemoryStream();
+				if(imageBytes is byte[]) {
+					using var ms = new MemoryStream(imageBytes);
+					using var bmp = new System.Drawing.Bitmap(ms);
+					bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+				} else {
+					using var bmp = new System.Drawing.Bitmap(file);
+					bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+				}
+				stream.Seek(0, SeekOrigin.Begin);
+				return stream;
+			}
+
+			var img = BitmapFrame.Create(
+				((p.IHDRChunk.ColorType == 3) && p.IsSimplePNG) switch {
+					true => fixIndexdPng(file, imageBytes),
+					false => p.DefaultImage.GetStream(),
+				},
+				BitmapCreateOptions.None,
+				BitmapCacheOption.OnLoad);
+			if(p.IsSimplePNG) {
+				return new Model.ImageObject(img);
+			} else {
+				var animation = p.ToAnimation();
+				var storyboard = new Storyboard();
+				//Storyboard.SetTargetName(animation, Path.GetFileNameWithoutExtension());
+				Storyboard.SetTargetProperty(
+					animation,
+					new PropertyPath(System.Windows.Controls.Image.SourceProperty));
+				storyboard.Children.Add(animation);
+				return new Model.ImageObject(img, storyboard);
+			}
+		}
+
+		private static Model.ImageObject? LoadGif(string file, byte[] imageBytes) {
+			Stream stream;
+			if(imageBytes != null) {
+				stream = new MemoryStream(imageBytes);
+			} else {
+				var s = CreateStream(file);
+				if(!s.Sucessed) {
+					return null;
+				}
+				stream = s.Stream;
+			}
+			if(BitmapDecoder.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad) is GifBitmapDecoder decoder) {
+				try {
+					if(decoder?.Metadata != null) {
+						if(!decoder.Frames.Skip(1).Any()) {
+							return new Model.ImageObject(decoder.Frames.First());
+						}
+
+						var gifFile = GifFile.ReadGifFile(stream, true);
+						var width = gifFile.Header.LogicalScreenDescriptor.Width;
+						var height = gifFile.Header.LogicalScreenDescriptor.Height;
+						int index = 0;
+						var keyFrames = new ObjectKeyFrameCollection();
+						var totalDuration = TimeSpan.Zero;
+						var baseFrame = default(BitmapSource);
+						foreach(var rawFrame in decoder.Frames) {
+							static bool isFull(GifImageDescriptor metadata, int w, int h) {
+								return metadata.Left == 0
+									   && metadata.Top == 0
+									   && metadata.Width == w
+									   && metadata.Height == h;
+							}
+							static BitmapSource clear(BitmapSource frame, GifImageDescriptor metadata) {
+								DrawingVisual visual = new DrawingVisual();
+								using(var context = visual.RenderOpen()) {
+									var fullRect = new Rect(0, 0, frame.PixelWidth, frame.PixelHeight);
+									var clearRect = new Rect(metadata.Left, metadata.Top, metadata.Width, metadata.Height);
+									var clip = Geometry.Combine(
+										new RectangleGeometry(fullRect),
+										new RectangleGeometry(clearRect),
+										GeometryCombineMode.Exclude,
+										null);
+									context.PushClip(clip);
+									context.DrawImage(frame, fullRect);
+								}
+
+								var bitmap = new RenderTargetBitmap(
+										frame.PixelWidth, frame.PixelHeight,
+										frame.DpiX, frame.DpiY,
+										PixelFormats.Pbgra32);
+								bitmap.Render(visual);
+
+								var result = new WriteableBitmap(bitmap);
+
+								if(result.CanFreeze && !result.IsFrozen)
+									result.Freeze();
+								return result;
+							}
+
+							var ggce = gifFile.Frames[index].Extensions.OfType<GifGraphicControlExtension>().FirstOrDefault();
+							var metadata = new {
+								Descriptor = gifFile.Frames[index].Descriptor,
+								Left = gifFile.Frames[index].Descriptor.Left,
+								Top = gifFile.Frames[index].Descriptor.Top,
+								Width = gifFile.Frames[index].Descriptor.Width,
+								Height = gifFile.Frames[index].Descriptor.Height,
+								Delay = ggce switch {
+									GifGraphicControlExtension v when v.Delay != 0 => TimeSpan.FromMilliseconds(v.Delay),
+									_ => TimeSpan.FromMilliseconds(100),
+								},
+								DisposalMethod = ggce switch {
+									GifGraphicControlExtension v => (ImageBehavior.FrameDisposalMethod)v.DisposalMethod,
+									_ => ImageBehavior.FrameDisposalMethod.None
+								}
+							};
+							BitmapSource frame;
+							if((baseFrame == null) && isFull(metadata.Descriptor, width, height)) {
+								frame = rawFrame;
+							} else {
+								var visual = new DrawingVisual();
+								using(var context = visual.RenderOpen()) {
+									if(baseFrame != null) {
+										context.DrawImage(baseFrame, new Rect(0, 0, width, height));
+									}
+
+									var rect = new Rect(metadata.Left, metadata.Top, metadata.Width, metadata.Height);
+									context.DrawImage(rawFrame, rect);
+								}
+								var bitmap = new RenderTargetBitmap(
+									width, height,
+									96, 96,
+									PixelFormats.Pbgra32);
+								bitmap.Render(visual);
+
+								frame = new WriteableBitmap(bitmap);
+								if(frame.CanFreeze && !frame.IsFrozen) {
+									frame.Freeze();
+								}
+							}
+
+							keyFrames.Add(new DiscreteObjectKeyFrame(frame, totalDuration));
+							totalDuration += metadata.Delay;
+							baseFrame = metadata switch {
+								var v when (v.DisposalMethod == ImageBehavior.FrameDisposalMethod.None) => frame,
+								var v when (v.DisposalMethod == ImageBehavior.FrameDisposalMethod.DoNotDispose) => frame,
+								var v when (v.DisposalMethod == ImageBehavior.FrameDisposalMethod.RestoreBackground) && isFull(v.Descriptor, width, height) => null,
+								var v when (v.DisposalMethod == ImageBehavior.FrameDisposalMethod.RestoreBackground) => clear(frame, v.Descriptor),
+								var v when (v.DisposalMethod == ImageBehavior.FrameDisposalMethod.RestorePrevious) => baseFrame,
+								_ => throw new ArgumentException(),
+							};
+							index++;
+						}
+						// 無限に固定
+						//var repeatCount = gifFile.RepeatCount;
+						return new Model.ImageObject(decoder.Frames.First(), new ObjectAnimationUsingKeyFrames {
+							KeyFrames = keyFrames,
+							Duration = totalDuration,
+							RepeatBehavior = RepeatBehavior.Forever,
+							SpeedRatio = 1.0
+						});
+					}
+				}
+				catch { }
+			}
+			return null;
 		}
 
 #if false

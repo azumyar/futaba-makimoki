@@ -22,7 +22,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.ViewModels {
 			}
 		}
 
-		public class CloseTo {}
+		public class CloseTo {
+			public Data.UrlContext Url { get; }
+
+			public CloseTo() {
+				this.Url = null;
+			}
+
+			public CloseTo(Data.UrlContext url) {
+				this.Url = url;
+			}
+		}
 
 		public class PostFrom {
 			public Data.UrlContext Url { get; }
@@ -40,7 +50,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.ViewModels {
 
 		public FutabaCanvas98ViewViewModel() {
 			Subscribe = Messenger.Instance.GetEvent<PubSubEvent<CloseTo>>()
-				.Subscribe(_ => {
+				.Subscribe(x => {
+					if(x.Url != null && x.Url != this.Url) {
+						return;
+					}
+
 					if(RegionNavigationService?.Region?.ActiveViews?.Any() ?? false) {
 						RegionNavigationService?.Region.RemoveAll();
 					}
@@ -49,7 +63,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.ViewModels {
 
 		public void Close() {
 			Messenger.Instance.GetEvent<PubSubEvent<CloseTo>>()
-				.Publish(new CloseTo());
+				.Publish(new CloseTo(this.Url));
 		}
 
 		public void Dispose() {

@@ -12,6 +12,7 @@ using Reactive.Bindings;
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	class InformationBindableExObject : IDisposable {
 		public ReactiveProperty<Visibility> ObjectVisibility { get; }
+		public ImageObject ThumbSourceObject { get; }
 		public ReactiveProperty<ImageSource> ThumbSource { get; }
 		public Reactive.MakiMokiCommand<RoutedEventArgs> LoadedCommand { get; } = new();
 
@@ -25,7 +26,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			var item = futaba.ResItems.FirstOrDefault();
 			if(futaba.Url.IsThreadUrl && (item != null)) {
 				ThumbSource = item.LoadBitmapSource()
-					.Cast<ImageSource>()
+					.Select(x => x?.Image as ImageSource)
 					.ToReactiveProperty();
 				ObjectVisibility = ThumbSource
 					.Select(x => (x != null) ? Visibility.Visible : Visibility.Collapsed)
@@ -37,12 +38,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.LoadedCommand.Subscribe(x => this.OnLoaded(x));
 		}
 
-		public InformationBindableExObject(ImageSource image) {
+		public InformationBindableExObject(ImageObject image) {
 			if(image != null) {
 				ObjectVisibility = new ReactiveProperty<Visibility>(Visibility.Visible);
-				ThumbSource = new ReactiveProperty<ImageSource>(image);
+				ThumbSourceObject = image;
+				ThumbSource = new ReactiveProperty<ImageSource>(image.Image);
 			} else {
 				ObjectVisibility = new ReactiveProperty<Visibility>(Visibility.Collapsed);
+				ThumbSourceObject = null;
 				ThumbSource = new ReactiveProperty<ImageSource>(default(ImageSource));
 			}
 			this.LoadedCommand.Subscribe(x => this.OnLoaded(x));

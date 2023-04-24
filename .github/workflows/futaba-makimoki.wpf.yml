@@ -29,13 +29,13 @@ jobs:
       Wap_Publish_Output: publish/FutaMaki
       Wap_Publish_Zip: publish/futamaki.zip
       Wap_Version_ConfFile: src/wpf/MakiMoki.Wpf/Properties/publish.conf.json
-      App_Center_Group: Collaborators
+      App_Center_Group: Release
       App_Center_T4_Conf: src/wpf/MakiMoki.Wpf/Properties/appcenter-secrets.json
       Artifact_Conf: publish/appcenter.conf.json
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
@@ -83,7 +83,7 @@ jobs:
 
     # Install the .NET Core workload
     - name: Install .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
 
@@ -109,8 +109,11 @@ jobs:
         msbuild `
           -t:TransformAll `
           -m `
+          -p:Configuration=T4$env:Configuration `
           -p:Github=True `
           $env:Solution_Name
+      env:
+        Configuration: ${{ matrix.configuration }}
 
     - name: Build app
       run: |
@@ -186,14 +189,15 @@ jobs:
 
   distribute:
     needs: build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     env:
       Artifact_Name: Release-win-x64
       Artifact_File_Zip: futamaki.zip
       Artifact_File_Conf: appcenter.conf.json
-      Ftp_Canary_Root: canary/
-      Ftp_Canary_Json: canary/canary.version.json
-      Ftp_Canary_Upload: /canary/
+      Ftp_Root: futamaki/
+      Ftp_Upload: /futamaki/
+      Ftp_Release_Json: futamaki/release.version.json
+      Ftp_Canary_Json: futamaki/canary.version.json
 
     steps:
     - name: Download Artifact
@@ -228,21 +232,27 @@ jobs:
       env:
         token: ${{ secrets.APP_CENTER_TOKEN }}
 
+    - name: FTP Put Json(Release)
+      run: |
+        mkdir ${Ftp_Root}
+        echo "{ \"version\": \"${VERSION}\", \"app-center-version\": \"${App_Center_Version}\" }" > ${Ftp_Release_Json}
+      if: ${{ env.App_Center_Group == 'Release' }}
+
     - name: FTP Put Json(Canary)
       run: |
-        mkdir ${Ftp_Canary_Root}
-        echo "{ \"version\": \"${VERSION}\" }" > ${Ftp_Canary_Json}
+        mkdir ${Ftp_Root}
+        echo "{ \"version\": \"${VERSION}\", \"app-center-version\": \"${App_Center_Version}\" }" > ${Ftp_Canary_Json}
       if: ${{ env.App_Center_Group == 'Canary' }}
 
-    - name: FTP Upload(Canary)
+    - name: FTP Upload
       uses: SamKirkland/FTP-Deploy-Action@4.0.0
       with:
         server:  ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ${{ env.Ftp_Canary_Root }}
-        server-dir: ${{ env.Ftp_Canary_Upload }}
-      if: ${{ env.App_Center_Group == 'Canary' }}
+        local-dir: ${{ env.Ftp_Root }}
+        server-dir: ${{ env.Ftp_Upload }}
+      if: ${{ env.App_Center_Group == 'Release' || env.App_Center_Group == 'Canary' }}
 
     #- name: Create the app package
     #  run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}

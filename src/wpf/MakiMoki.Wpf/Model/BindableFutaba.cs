@@ -520,9 +520,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 
 		private ReactiveProperty<object> ThumbToken { get; } = new ReactiveProperty<object>(initialValue: null);
-		private WeakReference<BitmapSource> thumbSource = new WeakReference<BitmapSource>(default);
+		private WeakReference<Model.ImageObject> thumbSource = new WeakReference<Model.ImageObject>(default);
 		public ReactiveProperty<bool?> ThumbDisplay { get; } = new ReactiveProperty<bool?>(); // NGではない場合true
-		public BitmapSource ThumbSource {
+		public Model.ImageObject ThumbSource {
 			set {
 				if((value != null) && Ng.NgUtil.NgHelper.IsEnabledNgImage()) {
 					this.StoreHash(value)
@@ -543,7 +543,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				}
 			}
 			get {
-				static BitmapSource apply(BindableFutabaResItem item, BitmapSource bitmap, bool? display) {
+				static Model.ImageObject apply(BindableFutabaResItem item, Model.ImageObject bitmap, bool? display) {
 					return (display ?? true) switch {
 						true => bitmap,
 						false => (Ng.NgConfig.NgConfigLoader.NgImageConfig.NgMethod == ImageNgMethod.Hidden) switch {
@@ -569,7 +569,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				{
 					if(WpfUtil.ImageUtil.GetImageCache2(
 						Util.Futaba.GetThumbImageLocalFilePath(
-							this.Parent.Value.Url, this.Raw.Value.ResItem.Res)) is BitmapSource bmp) {
+							this.Parent.Value.Url, this.Raw.Value.ResItem.Res)) is Model.ImageObject bmp) {
 						this.ThumbToken.Value ??= new object();
 						this.thumbSource.SetTarget(bmp);
 						return bmp;
@@ -851,7 +851,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 
-		public void SetThumbSource(BitmapSource bmp) {
+		public void SetThumbSource(Model.ImageObject bmp) {
 			// Watch画像から送られてくる
 			this.ThumbSource = bmp;
 		}
@@ -930,14 +930,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}
 		}
 
-		private IObservable<ulong> StoreHash(BitmapSource bmp) {
+		private IObservable<ulong> StoreHash(Model.ImageObject bmp) {
 			IObservable<(bool IsNew, ulong Value)> f() {
 				if(HashCache.TryGetTarget(this.GetCacheKey(), out var hash)) {
 					return Observable.Return((false, hash.Value));
 				} else {
-					var w = bmp.PixelWidth;
-					var h = bmp.PixelHeight;
-					var bytes = WpfUtil.ImageUtil.CreatePixelsBytes(bmp);
+					var w = bmp.Image.PixelWidth;
+					var h = bmp.Image.PixelHeight;
+					var bytes = WpfUtil.ImageUtil.CreatePixelsBytes(bmp.Image);
 					return Observable.Create<(bool, ulong)>(o => {
 						o.OnNext((true, Ng.NgUtil.PerceptualHash.CalculateHash(bytes, w, h, 32)));
 						o.OnCompleted();
@@ -959,41 +959,38 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		}
 
-		public IObservable<BitmapSource> LoadBitmapSource(bool forceLoad = false) {
+		public IObservable<Model.ImageObject> LoadBitmapSource(bool forceLoad = false) {
 			if(!forceLoad) {
 				if(this.Raw.Value.ResItem.Res.Fsize == 0) {
-					return Observable.Return<BitmapSource>(null);
+					return Observable.Return<Model.ImageObject>(null);
 				}
 
 				if(this.thumbSource.TryGetTarget(out var bitmapSource)) {
 					this.ThumbToken.Value ??= new object();
-					return Observable.Return<BitmapSource>(bitmapSource);
+					return Observable.Return<Model.ImageObject>(bitmapSource);
 				}
 				if(this.ThumbDisplay.Value.HasValue && !this.ThumbDisplay.Value.Value) {
 					var bmp = WpfUtil.ImageUtil.GetNgImage();
 					this.ThumbToken.Value ??= new object();
 					this.thumbSource.SetTarget(bmp);
-					return Observable.Return<BitmapSource>(bmp);
+					return Observable.Return<Model.ImageObject>(bmp);
 				} else {
 					if(WpfUtil.ImageUtil.GetImageCache2(
 						Util.Futaba.GetThumbImageLocalFilePath(
-							this.Parent.Value.Url, this.Raw.Value.ResItem.Res)) is BitmapSource bmp) {
+							this.Parent.Value.Url, this.Raw.Value.ResItem.Res)) is Model.ImageObject bmp) {
 						this.ThumbToken.Value ??= new object();
 						this.thumbSource.SetTarget(bmp);
-						return Observable.Return<BitmapSource>(bmp);
+						return Observable.Return<Model.ImageObject>(bmp);
 					}
 				}
 			}
 
 			return Util.Futaba.GetThumbImage(Raw.Value.Url, Raw.Value.ResItem.Res)
-				.Select(x => {
-					if(x.Successed) {
-						return (Path: x.LocalPath, Stream: WpfUtil.ImageUtil.LoadStream(x.LocalPath, x.FileBytes));
-					} else {
-						return (null, null);
-					}
-				}).ObserveOn(UIDispatcherScheduler.Default)
-				.Select(x => WpfUtil.ImageUtil.CreateImage(x.Path, x.Stream));
+				.ObserveOn(UIDispatcherScheduler.Default)
+				.Select(x => x switch {
+					var v when v.Successed => WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes),
+					_ => null,
+				});
 		}
 	}
 }

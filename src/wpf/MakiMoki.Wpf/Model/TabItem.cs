@@ -21,6 +21,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public Data.UrlContext Url { get; }
 		public ReactiveProperty<string> Name { get; }
+		public ReactiveProperty<Model.ImageObject> ThumbSourceObject { get; }
 		public ReactiveProperty<ImageSource> ThumbSource { get; }
 		public ReactiveProperty<Visibility> ThumbVisibility { get; }
 		
@@ -66,7 +67,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.FutabaProperty = new ReactiveProperty<BindableFutaba>(new BindableFutaba(f));
 			this.Futaba = this.FutabaProperty.ToReadOnlyReactiveProperty();
 			this.LastRescount = new ReactiveProperty<int>(this.Futaba.Value.ResCount.Value);
-			this.ThumbSource = new ReactiveProperty<ImageSource>();
+			this.ThumbSourceObject = new ReactiveProperty<Model.ImageObject>();
+			this.ThumbSource = this.ThumbSourceObject.Select(x => x?.Image as ImageSource).ToReactiveProperty();
 			this.ThreadView = new ReactiveProperty<object>();
 			this.PostData = new ReactiveProperty<PostHolder>(new PostHolder(f.Board, f.Url));
 			this.Name = this.Futaba
@@ -95,7 +97,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				}
 
 				if(res.ThumbSource != null) {
-					this.ThumbSource.Value = res.ThumbSource;
+					this.ThumbSourceObject.Value = res.ThumbSource;
 				}
 
 				if(!res.Raw.Value.ResItem.Res.IsHavedImage) {
@@ -103,11 +105,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				}
 
 				Util.Futaba.GetThumbImage(this.Url, res.Raw.Value.ResItem.Res)
-					.Select(x => x.Successed 
-						? (Path: x.LocalPath, Stream: WpfUtil.ImageUtil.LoadStream(x.LocalPath, x.FileBytes)) : (null, null))
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
-						this.ThumbSource.Value = WpfUtil.ImageUtil.CreateImage(x.Path, x.Stream);
+						this.ThumbSourceObject.Value = x.Successed switch {
+							true => WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes),
+							false => null,
+						};
 					});
 			});
 			this.ThumbVisibility = this.ThumbSource

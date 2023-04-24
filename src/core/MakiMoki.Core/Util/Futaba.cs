@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using System.IO;
+using System.Net.Sockets;
 
 namespace Yarukizero.Net.MakiMoki.Util {
 	public static class Futaba {
@@ -637,40 +638,45 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					if(File.Exists(localPath)) {
 						o.OnNext((true, localPath, null));
 					} else {
-						var res = request(client, url);
-						if(res.IsSucceeded && res.StatusCode == System.Net.HttpStatusCode.OK) {
-							Observable.Create<byte[]>(async (oo) => {
-								try {
-									var b = res.Content;
+						try {
+							var res = request(client, url);
+							if(res.IsSucceeded && res.StatusCode == System.Net.HttpStatusCode.OK) {
+								Observable.Create<byte[]>(async (oo) => {
 									try {
-										if(!File.Exists(localPath)) {
-											using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
-												fs.Write(b, 0, b.Length);
-												fs.Flush();
+										var b = res.Content;
+										try {
+											if(!File.Exists(localPath)) {
+												using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
+													fs.Write(b, 0, b.Length);
+													fs.Flush();
+												}
 											}
+											oo.OnNext(b);
 										}
-										oo.OnNext(b);
+										catch(IOException e) {
+											await Task.Delay(500);
+											oo.OnError(e);
+										}
 									}
-									catch(IOException e) {
-										await Task.Delay(500);
-										oo.OnError(e);
+									finally {
+										oo.OnCompleted();
 									}
-								}
-								finally {
-									oo.OnCompleted();
-								}
-								return System.Reactive.Disposables.Disposable.Empty;
-							}).Retry(5)
-							.Subscribe(
-								s => {
-									o.OnNext((true, localPath, s));
-								},
-								ex => {
-									o.OnNext((false, null, null));
-								});
-						} else {
+									return System.Reactive.Disposables.Disposable.Empty;
+								}).Retry(5)
+								.Subscribe(
+									s => {
+										o.OnNext((true, localPath, s));
+									},
+									ex => {
+										o.OnNext((false, null, null));
+									});
+							} else {
+								o.OnNext((false, null, null));
+								// TODO: o.OnError();
+							}
+						}
+						catch(Exception e) when (e is SocketException || e is TimeoutException) {
 							o.OnNext((false, null, null));
-							// TODO: o.OnError();
 						}
 					}
 				}
@@ -699,38 +705,48 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					if(File.Exists(localPath)) {
 						o.OnNext((true, localPath, null));
 					} else {
-						var res = await request(client, url);
-						if(res.IsSucceeded && res.StatusCode == System.Net.HttpStatusCode.OK) {
-							Observable.Create<byte[]>(async (oo) => {
-								var b = res.Content;
-								try {
-									if(!File.Exists(localPath)) {
-										using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
-											fs.Write(b, 0, b.Length);
-											fs.Flush();
+						try {
+							var res = await request(client, url);
+							if(res.IsSucceeded && res.StatusCode == System.Net.HttpStatusCode.OK) {
+								var b = new byte[res.Content.Length];
+								Array.Copy(res.Content, b, res.Content.Length);
+								Observable.Create<byte[]>(async (oo) => {
+									try {
+										if(!File.Exists(localPath)) {
+											using(var fs = new FileStream(localPath, FileMode.OpenOrCreate)) {
+												fs.Write(b, 0, b.Length);
+												fs.Flush();
+											}
 										}
+										oo.OnNext(b);
 									}
-									oo.OnNext(b);
-								}
-								catch(IOException e) {
-									await Task.Delay(500);
-									oo.OnError(e);
-								}
-								finally {
-									oo.OnCompleted();
-								}
-								return System.Reactive.Disposables.Disposable.Empty;
-							}).Retry(5)
-							.Subscribe(
-								s => {
-									o.OnNext((true, localPath, s));
-								},
-								ex => {
-									o.OnNext((false, null, null));
-								});
-						} else {
+									catch(IOException e) {
+										await Task.Delay(500);
+										oo.OnError(e);
+									}
+									finally {
+										oo.OnCompleted();
+									}
+									return System.Reactive.Disposables.Disposable.Empty;
+								}).Retry(5)
+								.Subscribe(
+									s => {
+										o.OnNext((true, localPath, s));
+									},
+									ex => {
+										o.OnNext((false, null, null));
+									});
+							} else {
+								o.OnNext((false, null, null));
+								// TODO: o.OnError();
+							}
+						}
+						catch(Exception e) when(
+							e is SocketException
+								|| e is TimeoutException
+								|| e is TaskCanceledException
+								|| e is ObjectDisposedException) {
 							o.OnNext((false, null, null));
-							// TODO: o.OnError();
 						}
 					}
 				}
@@ -775,7 +791,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							}
 						}
 					}
-					catch(HttpRequestException) {
+					catch(Exception e) when(
+						e is SocketException
+						|| e is HttpRequestException
+						|| e is TaskCanceledException
+						|| e is OperationCanceledException
+						|| e is TimeoutException) {
 						return (false, default, default);
 					}
 				}, url, localPath,
@@ -945,7 +966,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 		public static string GetGoogleImageSearchdUrl(string url) {
-			return $"https://www.google.com/searchbyimage?image_url={ System.Web.HttpUtility.UrlEncode(url) }";
+			return $"https://www.google.com/searchbyimage?sbisrc=app&image_url={ System.Web.HttpUtility.UrlEncode(url) }";
 		}
 
 		public static string GetGoogleLensUrl(string url) {

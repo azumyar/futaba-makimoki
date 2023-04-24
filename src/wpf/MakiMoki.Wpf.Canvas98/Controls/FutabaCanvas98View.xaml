@@ -9,7 +9,7 @@
              mc:Ignorable="d" 
              prism:ViewModelLocator.AutoWireViewModel="True"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <Grid x:Name="grid">
         <Grid Background="#FFFFEE">
             <TextBlock
                 Foreground="#800000"

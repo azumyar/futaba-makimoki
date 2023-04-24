@@ -68,10 +68,12 @@
   <ItemGroup>
     <ProjectReference Include="..\..\core\MakiMoki.Core.Ng\MakiMoki.Core.Ng.csproj" />
     <ProjectReference Include="..\..\core\MakiMoki.Core\MakiMoki.Core.csproj" />
+    <ProjectReference Include="..\..\lib\APNG.NET-netstandard_and_wpf\LibAPNG.WPF\LibAPNG.WPF.csproj" />
+    <ProjectReference Include="..\..\lib\WpfAnimatedGif\WpfAnimatedGif\WpfAnimatedGif.csproj" />
     <ProjectReference Include="..\MakiMoki.Wpf.Canvas98\MakiMoki.Wpf.Canvas98.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Emoji.Wpf" Version="0.3.3" />
+    <PackageReference Include="Emoji.Wpf" Version="0.3.4" />
     <PackageReference Include="LibVLCSharp.WPF" Version="3.6.7" />
     <PackageReference Include="Microsoft-Windows10-APICodePack-Shell" Version="1.1.8" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
@@ -83,7 +85,6 @@
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.18" />
     <PackageReference Include="VirtualizingWrapPanel" Version="1.5.7" />
-    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="App.ico" />
