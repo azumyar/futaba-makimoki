@@ -96,12 +96,14 @@ jobs:
         pass_key: ${{ secrets.DROID_CANARY_PASS_KEY }}
 
     - name: Archive Zip
-      run: Compress-Archive -Path $env:Wap_Publish_Output -DestinationPath $env:Wap_Publish_Zip
+      run: |
+        del $pwd\github.keystore
+        Compress-Archive -Path $pwd -DestinationPath "output.zip"
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
         name: "test.zip"
-        path: ${{ env.Wap_Publish_Zip }}
+        path: "output.zip"
         retention-days: 7
 
