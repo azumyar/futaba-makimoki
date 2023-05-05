@@ -84,7 +84,7 @@ jobs:
           -p:OutDir=$env:Wap_Publish_Output `
           -p:Configuration=Release `
           -p:AndroidKeyStore=True `
-          -p:AndroidSigningKeyStore=github.keystore `
+          "-p:AndroidSigningKeyStore=$pwd\github.keystore" `
           -p:AndroidSigningStorePass=$env:pass_store `
           -p:AndroidSigningKeyAlias=github `
           -p:AndroidSigningKeyPass=$env:pass_key `
