@@ -50,6 +50,10 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
+        
+    - name: Install Workload Android
+      run: |
+        dotnet workload install android
 
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1
