@@ -104,7 +104,7 @@ jobs:
         echo "$pwd/$env:Wap_Publish_Apk"
         npx appcenter-cli distribute release `
           --disable-telemetry `
-          --token ${token} `
+          --token $env:token `
           -f "$pwd/$env:Wap_Publish_Apk" `
           -g $env:App_Center_Group `
           -b "build.$env:build" `
