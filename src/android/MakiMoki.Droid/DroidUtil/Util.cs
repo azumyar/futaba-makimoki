@@ -19,16 +19,17 @@ using Android.Graphics;
 using System.Text.RegularExpressions;
 using static Android.Provider.ContactsContract.CommonDataKinds;
 using Android.OS;
+using Android.Provider;
 
 namespace Yarukizero.Net.MakiMoki.Droid.DroidUtil {
 	internal static class Util {
-		private class Javat2CsObject<T> : Java.Lang.Object {
+		private class Java2CsObject<T> : Java.Lang.Object {
 			public T? Value { get; }
 
-			public Javat2CsObject(T value) : base() {
+			public Java2CsObject(T value) : base() {
 				this.Value = value;
 			}
-			protected Javat2CsObject(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
+			protected Java2CsObject(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
 		}
 
 		public interface IActivityResultLauncher {
@@ -48,7 +49,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.DroidUtil {
 			}
 
 			public void Launch() => this.launcher.Launch(default);
-			public void Launch(TParam value) => this.launcher.Launch(new Javat2CsObject<TParam>(value));
+			public void Launch(TParam value) => this.launcher.Launch(new Java2CsObject<TParam>(value));
 			public void Unregister() => this.launcher.Unregister();
 		}
 
@@ -70,14 +71,14 @@ namespace Yarukizero.Net.MakiMoki.Droid.DroidUtil {
 			public override Android.Content.Intent CreateIntent(Android.Content.Context context, Java.Lang.Object? input) {
 				if(input == null) {
 					return this.creater(context, default);
-				} else if(input is Javat2CsObject<TParam> p) {
+				} else if(input is Java2CsObject<TParam> p) {
 					return this.creater(context, p.Value);
 				}
 				throw new ArgumentException();
 			}
 
 			public override Java.Lang.Object? ParseResult(int resultCode, Android.Content.Intent? intent)
-				=> new Javat2CsObject<TResult>(this.parser(resultCode, intent));
+				=> new Java2CsObject<TResult>(this.parser(resultCode, intent));
 		}
 
 		private class ActivityResultCallback<TResult> : Java.Lang.Object, IActivityResultCallback {
@@ -89,7 +90,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.DroidUtil {
 			protected ActivityResultCallback(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
 
 			public void OnActivityResult(Java.Lang.Object? p) {
-				if(p is Javat2CsObject<TResult> o) {
+				if(p is Java2CsObject<TResult> o) {
 					this.onResult.Invoke(o.Value);
 				}
 			}
@@ -178,5 +179,18 @@ namespace Yarukizero.Net.MakiMoki.Droid.DroidUtil {
 			return r;
 		}
 
+
+		public static string? Uri2Path(Android.Content.Context context, Android.Net.Uri uri) {
+			var c = context.ContentResolver.Query(uri, new[] { MediaStore.MediaColumns.DisplayName }, null, null, null);
+			try {
+				if(c?.MoveToFirst() ?? false) {
+					return c.GetString(c.GetColumnIndex(MediaStore.MediaColumns.DisplayName));
+				}
+				return default;
+			}
+			finally {
+				c?.Close();
+			}
+		}
 	}
 }

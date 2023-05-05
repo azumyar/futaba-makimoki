@@ -44,6 +44,9 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		}
 
 		public static bool operator ==(UrlContext z, UrlContext w) {
+			if(z is null && w is null) {
+				return true;
+			}
 			if(z is null || w is null) {
 				return false;
 			}

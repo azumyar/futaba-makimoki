@@ -187,6 +187,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 		private RecyclerView recyclerView;
 		private RecyclerAdapter adapter;
 		private int scrollShrinkPx;
+		private DroidUtil.Util.IActivityResultLauncher activityLuncher;
 
 		public CatalogViewerFragment() : base() { }
 		protected CatalogViewerFragment(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer) { }
@@ -197,6 +198,26 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 
 		public override void OnViewCreated(View view, Bundle? savedInstanceState) {
 			base.OnViewCreated(view, savedInstanceState);
+
+			this.activityLuncher = DroidUtil.Util.RegisterForActivityResult<(bool Sucessed, string Next)> (this,
+				(context, _) => new Android.Content.Intent(context, typeof(Activities.PostActivity))
+						.InJson(this.Properties.Board),
+				(resultCode, intent) => resultCode switch {
+					var v when v == DroidConst.ActivityResultCodePost => (
+						Sucessed: intent.GetBooleanExtra(Activities.PostActivity.ResultCodeSucessed, false),
+						Next: intent.GetStringExtra(Activities.PostActivity.ResultThreadNo) ?? ""),
+					_ => throw new NotImplementedException()
+				}, (x) => {
+					if(x.Sucessed) {
+						this.Activity.SupportFragmentManager.BeginTransaction()
+							.Replace(Resource.Id.container,
+								ThreadViewerFragment.NewInstance(
+									this.Properties.Board,
+									new Data.UrlContext(this.Properties.Board.Url, x.Next)))
+							.AddToBackStack(null)
+							.Commit();
+					}
+				});
 
 			this.scrollShrinkPx = DroidUtil.Util.Dp2Px(32, view.Context);
 			var isInit = this.adapter == null;
@@ -219,6 +240,9 @@ namespace Yarukizero.Net.MakiMoki.Droid.Fragments {
 				}
 			};
 
+			view.FindViewById<ExtendedFloatingActionButton>(Resource.Id.button_new).Click += (_, _) => {
+				this.activityLuncher.Launch();
+			};
 			view.FindViewById<FloatingActionButton>(Resource.Id.button_opt).Click += (_, _) => {
 				this.Activity.SupportFragmentManager.BeginTransaction()
 					/*
