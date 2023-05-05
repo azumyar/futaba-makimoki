@@ -19,9 +19,8 @@ jobs:
       Solution_Name: MakiMoki.Droid.sln
       Wap_Project_Directory: ""
       Wap_Project_Path: src/android/MakiMoki.Droid/MakiMoki.Droid.csproj 
-      Wap_Publish_Base: publish
-      Wap_Publish_Output: publish/FutaMaki
-      Wap_Publish_Zip: publish/futamaki.zip
+      Wap_Publish_Output: publish
+      Wap_Publish_Apk: futaba-makimoki/src/android/MakiMoki.Droid/publish/net.yarukizero.makimoki.android.dev-Signed.apk
       Wap_Version_ConfFile: src/wpf/MakiMoki.Wpf/Properties/publish.conf.json
       App_Center_Group: Canary
       Artifact_Conf: publish/appcenter.conf.json    
@@ -95,15 +94,33 @@ jobs:
         pass_store: ${{ secrets.DROID_CANARY_PASS_STORE }}
         pass_key: ${{ secrets.DROID_CANARY_PASS_KEY }}
 
-    - name: Archive Zip
-      run: |
-        del $pwd\github.keystore
-        Compress-Archive -Path $pwd -DestinationPath "output.zip"
-
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v2
+    - name: Install node
+      uses: actions/setup-node@v1
       with:
-        name: "test.zip"
-        path: "output.zip"
-        retention-days: 7
+        node-version: 16.x
+
+    - name: Upload Artefact to App Center
+      run: |
+        npx appcenter-cli distribute release `
+          --disable-telemetry `
+          --token ${token} `
+          -f "$pwd/$env:Wap_Publish_Apk" `
+          -g $env:App_Center_Group `
+          -b "build.$env:build" `
+          -a azumyar/doromaki
+      env:
+        build: ${{ github.run_number }}
+        token: ${{ secrets.APP_CENTER_TOKEN }}
+
+#   - name: Archive Zip
+#      run: |
+#        del $pwd\github.keystore
+#        Compress-Archive -Path $pwd -DestinationPath "output.zip"
+#
+#    - name: Upload Artifact
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: "test.zip"
+#        path: "output.zip"
+#        retention-days: 7
 
