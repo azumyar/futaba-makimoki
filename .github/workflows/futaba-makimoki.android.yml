@@ -101,6 +101,7 @@ jobs:
 
     - name: Upload Artefact to App Center
       run: |
+        echo "$pwd/$env:Wap_Publish_Apk"
         npx appcenter-cli distribute release `
           --disable-telemetry `
           --token ${token} `
