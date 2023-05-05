@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-android</TargetFramework>
+    <TargetFramework>net7.0-android</TargetFramework>
     <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
     <SupportedOSPlatformVersion>31.0</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
@@ -16,9 +16,6 @@
     <MandroidI18n>CJK;</MandroidI18n>
     <JavaMaximumHeapSize>1G</JavaMaximumHeapSize>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Resources\layout\activity_post.xml" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.17.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
