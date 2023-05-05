@@ -88,7 +88,6 @@ jobs:
           -p:AndroidSigningKeyAlias=github `
           -p:AndroidSigningKeyPass=$env:pass_key `
           -p:AndroidPackageFormat=apk `
-          -p:AotAssemblies=true `
           -p:EnableLLVM=true
       env:
         pass_store: ${{ secrets.DROID_CANARY_PASS_STORE }}
