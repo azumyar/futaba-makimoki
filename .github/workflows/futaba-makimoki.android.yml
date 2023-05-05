@@ -1,6 +1,5 @@
 name: MakiMoki-Android
 
-# on: [push]
 on:
   push:
     branches:
