@@ -1,6 +1,5 @@
 name: MakiMoki-Windows
 
-# on: [push]
 on:
   push:
     branches:
@@ -179,7 +178,7 @@ jobs:
         Target_Arch: ${{ matrix.arch }}
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ env.Artifact_Name }}
         path: |
@@ -201,7 +200,7 @@ jobs:
 
     steps:
     - name: Download Artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: ${{ env.Artifact_Name }}[${{ github.run_id }}]
 
@@ -217,7 +216,7 @@ jobs:
     - name: Install node
       uses: actions/setup-node@v1
       with:
-        node-version: 12.x
+        node-version: 16.x
 
     - name: Upload Artefact to App Center
       run: |
