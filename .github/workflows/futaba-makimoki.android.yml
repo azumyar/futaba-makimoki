@@ -47,7 +47,7 @@ jobs:
     - name: Install .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.0.x
         
     - name: Install Workload Android
       run: |
@@ -82,6 +82,7 @@ jobs:
           -t:SignAndroidPackage `
           -p:OutDir=$env:Wap_Publish_Output `
           -p:Configuration=Release `
+          -p:RuntimeIdentifier=android-arm64
           -p:AndroidKeyStore=True `
           "-p:AndroidSigningKeyStore=$pwd\github.keystore" `
           -p:AndroidSigningStorePass=$env:pass_store `
