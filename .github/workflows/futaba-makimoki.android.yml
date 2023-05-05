@@ -82,7 +82,7 @@ jobs:
           -t:SignAndroidPackage `
           -p:OutDir=$env:Wap_Publish_Output `
           -p:Configuration=Release `
-          -p:RuntimeIdentifier=android-arm64
+          -p:RuntimeIdentifier=android-arm64 `
           -p:AndroidKeyStore=True `
           "-p:AndroidSigningKeyStore=$pwd\github.keystore" `
           -p:AndroidSigningStorePass=$env:pass_store `
