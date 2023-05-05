@@ -20,7 +20,7 @@ jobs:
       Wap_Project_Directory: ""
       Wap_Project_Path: src/android/MakiMoki.Droid/MakiMoki.Droid.csproj 
       Wap_Publish_Output: publish
-      Wap_Publish_Apk: futaba-makimoki/src/android/MakiMoki.Droid/publish/net.yarukizero.makimoki.android.dev-Signed.apk
+      Wap_Publish_Apk: src/android/MakiMoki.Droid/publish/net.yarukizero.makimoki.android.dev-Signed.apk
       Wap_Version_ConfFile: src/wpf/MakiMoki.Wpf/Properties/publish.conf.json
       App_Center_Group: Canary
       Artifact_Conf: publish/appcenter.conf.json    
