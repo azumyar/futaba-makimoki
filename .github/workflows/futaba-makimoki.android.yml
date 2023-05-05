@@ -27,19 +27,19 @@ jobs:
       App_Center_Group: Canary
       Artifact_Conf: publish/appcenter.conf.json    
     
-  steps:
+    steps:
     - name: Checkout
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
         
-   - name: Print Config
+    - name: Print Config
       run: |
         echo "GITHUB_REPOSITORY=$env:GITHUB_REPOSITORY"
         echo "GITHUB_EVENT_NAME=$env:GITHUB_EVENT_NAME"
         echo "GITHUB_REF=$env:GITHUB_REF"
 
-     - name: Put KEYSTORE
+    - name: Put KEYSTORE
       run: |
         $b = [System.Convert]::FromBase64String($env:keystore)
         [System.IO.File]::WriteAllBytes("$pwd\github.keystore", $b)
@@ -70,7 +70,7 @@ jobs:
           -p:Github=True `
           $env:Solution_Name
 
-     - name: Build app
+    - name: Build app
       run: |
         msbuild $env:Wap_Project_Path `
           -m `
