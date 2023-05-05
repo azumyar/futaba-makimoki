@@ -95,15 +95,16 @@ jobs:
         pass_key: ${{ secrets.DROID_CANARY_PASS_KEY }}
 
     - name: Install node
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: 16.x
 
     - name: Upload Artefact to App Center
       run: |
+        echo "$pwd/$env:Wap_Publish_Apk"
         npx appcenter-cli distribute release `
           --disable-telemetry `
-          --token ${token} `
+          --token $env:token `
           -f "$pwd/$env:Wap_Publish_Apk" `
           -g $env:App_Center_Group `
           -b "build.$env:build" `
