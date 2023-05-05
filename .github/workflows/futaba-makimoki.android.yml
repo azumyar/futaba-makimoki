@@ -12,93 +12,93 @@ on:
       - android
 #  workflow_dispatch:
 
-
-build:
-  run-on: windows-latest 
-  env:
-    DOTNET_CLI_TELEMETRY_OPTOUT: 1
-    Solution_Name: MakiMoki.Droid.sln
-    Wap_Project_Directory: ""
-    Wap_Project_Path: src/android/MakiMoki.Droid/MakiMoki.Droid.csproj 
-    Wap_Publish_Base: publish
-    Wap_Publish_Output: publish/FutaMaki
-    Wap_Publish_Zip: publish/futamaki.zip
-    Wap_Version_ConfFile: src/wpf/MakiMoki.Wpf/Properties/publish.conf.json
-    App_Center_Group: Canary
-    Artifact_Conf: publish/appcenter.conf.json    
+jobs:
+  build:
+    run-on: windows-latest 
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      Solution_Name: MakiMoki.Droid.sln
+      Wap_Project_Directory: ""
+      Wap_Project_Path: src/android/MakiMoki.Droid/MakiMoki.Droid.csproj 
+      Wap_Publish_Base: publish
+      Wap_Publish_Output: publish/FutaMaki
+      Wap_Publish_Zip: publish/futamaki.zip
+      Wap_Version_ConfFile: src/wpf/MakiMoki.Wpf/Properties/publish.conf.json
+      App_Center_Group: Canary
+      Artifact_Conf: publish/appcenter.conf.json    
     
   steps:
-  - name: Checkout
-    uses: actions/checkout@v3
-    with:
-      fetch-depth: 0
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
         
    - name: Print Config
-    run: |
-      echo "GITHUB_REPOSITORY=$env:GITHUB_REPOSITORY"
-      echo "GITHUB_EVENT_NAME=$env:GITHUB_EVENT_NAME"
-      echo "GITHUB_REF=$env:GITHUB_REF"
+      run: |
+        echo "GITHUB_REPOSITORY=$env:GITHUB_REPOSITORY"
+        echo "GITHUB_EVENT_NAME=$env:GITHUB_EVENT_NAME"
+        echo "GITHUB_REF=$env:GITHUB_REF"
 
-   - name: Put KEYSTORE
-    run: |
-      $b = [System.Convert]::FromBase64String($env:keystore)
-      [System.IO.File]::WriteAllBytes("$pwd\github.keystore", $b)
-    env:
-      keystore: ${{ secrets.DROID_CANARY_KEYSTORE }}
+     - name: Put KEYSTORE
+      run: |
+        $b = [System.Convert]::FromBase64String($env:keystore)
+        [System.IO.File]::WriteAllBytes("$pwd\github.keystore", $b)
+      env:
+        keystore: ${{ secrets.DROID_CANARY_KEYSTORE }}
 
-  - name: Install .NET
-    uses: actions/setup-dotnet@v3
-    with:
-      dotnet-version: 6.0.x
-        
-  - name: Setup MSBuild.exe
-    uses: microsoft/setup-msbuild@v1
+    - name: Install .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
 
-  - name: Restore the application
-    run: |
-      msbuild `
-        -t:Restore `
-        -p:Configuration=Release `
-        $env:Solution_Name
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1
 
-  - name: Exec T4
-    run: |
-      msbuild `
-        -t:TransformAll `
-        -m `
-        -p:Configuration=T4Release `
-        -p:Github=True `
-        $env:Solution_Name
- 
-   - name: Build app
-    run: |
-      msbuild $env:Wap_Project_Path `
-        -m `
-        -verbosity:normal `
-        -t:Rebuild `
-        -t:PackageForAndroid `
-        -t:SignAndroidPackage `
-        -p:OutDir=$env:Wap_Publish_Output `
-        -p:Configuration=Release `
-        -p:AndroidKeyStore=True `
-        -p:AndroidSigningKeyStore=github.keystore `
-        -p:AndroidSigningStorePass=$env:pass_store `
-        -p:AndroidSigningKeyAlias=github `
-        -p:AndroidSigningKeyPass=$env:pass_key `
-        -p:AndroidPackageFormat=apk `
-        -p:AotAssemblies=true `
-        -p:EnableLLVM=true
-    env:
-      pass_store: ${{ secrets.DROID_CANARY_PASS_STORE }}
-      pass_key: ${{ secrets.DROID_CANARY_PASS_KEY }}
+    - name: Restore the application
+      run: |
+        msbuild `
+          -t:Restore `
+          -p:Configuration=Release `
+          $env:Solution_Name
 
-  - name: Archive Zip
-    run: Compress-Archive -Path $env:Wap_Publish_Output -DestinationPath $env:Wap_Publish_Zip
+    - name: Exec T4
+      run: |
+        msbuild `
+          -t:TransformAll `
+          -m `
+          -p:Configuration=T4Release `
+          -p:Github=True `
+          $env:Solution_Name
 
-  - name: Upload Artifact
-    uses: actions/upload-artifact@v2
-    with:
-      name: "test.zip"
-      path: ${{ env.Wap_Publish_Zip }}
-      retention-days: 7
+     - name: Build app
+      run: |
+        msbuild $env:Wap_Project_Path `
+          -m `
+          -verbosity:normal `
+          -t:Rebuild `
+          -t:PackageForAndroid `
+          -t:SignAndroidPackage `
+          -p:OutDir=$env:Wap_Publish_Output `
+          -p:Configuration=Release `
+          -p:AndroidKeyStore=True `
+          -p:AndroidSigningKeyStore=github.keystore `
+          -p:AndroidSigningStorePass=$env:pass_store `
+          -p:AndroidSigningKeyAlias=github `
+          -p:AndroidSigningKeyPass=$env:pass_key `
+          -p:AndroidPackageFormat=apk `
+          -p:AotAssemblies=true `
+          -p:EnableLLVM=true
+      env:
+        pass_store: ${{ secrets.DROID_CANARY_PASS_STORE }}
+        pass_key: ${{ secrets.DROID_CANARY_PASS_KEY }}
+
+    - name: Archive Zip
+      run: Compress-Archive -Path $env:Wap_Publish_Output -DestinationPath $env:Wap_Publish_Zip
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: "test.zip"
+        path: ${{ env.Wap_Publish_Zip }}
+        retention-days: 7
 
