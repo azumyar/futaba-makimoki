@@ -513,6 +513,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 							return new Model.ImageObject(decoder.Frames.First());
 						}
 
+						stream.Seek(0, SeekOrigin.Begin);
 						var gifFile = GifFile.ReadGifFile(stream, true);
 						var width = gifFile.Header.LogicalScreenDescriptor.Width;
 						var height = gifFile.Header.LogicalScreenDescriptor.Height;
