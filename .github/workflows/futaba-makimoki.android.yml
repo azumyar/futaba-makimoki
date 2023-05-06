@@ -21,7 +21,8 @@ jobs:
       Wap_Project_Path: src/android/MakiMoki.Droid/MakiMoki.Droid.csproj 
       Wap_Publish_Output: publish
       Wap_Publish_Apk: src/android/MakiMoki.Droid/publish/net.yarukizero.makimoki.android.dev-Signed.apk
-      Wap_Version_ConfFile: src/wpf/MakiMoki.Wpf/Properties/publish.conf.json
+#      Wap_Version_ConfFile: src/android/MakiMoki.Droid/Properties/publish.conf.json
+      App_Center_T4_Conf: src/android/MakiMoki.Droid/Properties/appcenter-secrets.json
       App_Center_Group: Canary
       Artifact_Conf: publish/appcenter.conf.json    
     
@@ -37,11 +38,14 @@ jobs:
         echo "GITHUB_EVENT_NAME=$env:GITHUB_EVENT_NAME"
         echo "GITHUB_REF=$env:GITHUB_REF"
 
-    - name: Put KEYSTORE
+    - name: Put KEYSTORE/AppCenter Secrets
       run: |
+        $a = '{ "secrets": "$env:secrets" }'
+        echo $a | Set-Content -Path $env:App_Center_T4_Conf
         $b = [System.Convert]::FromBase64String($env:keystore)
         [System.IO.File]::WriteAllBytes("$pwd\github.keystore", $b)
       env:
+        secrets: ${{ secrets.APP_CENTER_APPSECRETS_DROID }}
         keystore: ${{ secrets.DROID_CANARY_KEYSTORE }}
 
     - name: Install .NET
@@ -82,15 +86,18 @@ jobs:
           -t:SignAndroidPackage `
           -p:OutDir=$env:Wap_Publish_Output `
           -p:Configuration=Release `
-          -p:RuntimeIdentifier=android-arm64
+          -p:RuntimeIdentifier=android-arm64 `
           -p:AndroidKeyStore=True `
           "-p:AndroidSigningKeyStore=$pwd\github.keystore" `
           -p:AndroidSigningStorePass=$env:pass_store `
           -p:AndroidSigningKeyAlias=github `
           -p:AndroidSigningKeyPass=$env:pass_key `
           -p:AndroidPackageFormat=apk `
-          -p:EnableLLVM=true
+          -p:EnableLLVM=true `
+          -p:AndroidVersionCode=$env:build `
+          "-p:ApplicationVersion=alpha-dev"
       env:
+        build: ${{ github.run_number }}
         pass_store: ${{ secrets.DROID_CANARY_PASS_STORE }}
         pass_key: ${{ secrets.DROID_CANARY_PASS_KEY }}
 
@@ -107,10 +114,8 @@ jobs:
           --token $env:token `
           -f "$pwd/$env:Wap_Publish_Apk" `
           -g $env:App_Center_Group `
-          -b "build.$env:build" `
           -a azumyar/doromaki
       env:
-        build: ${{ github.run_number }}
         token: ${{ secrets.APP_CENTER_TOKEN }}
 
 #   - name: Archive Zip
