@@ -94,7 +94,7 @@ jobs:
           -p:AndroidSigningKeyPass=$env:pass_key `
           -p:AndroidPackageFormat=apk `
           -p:EnableLLVM=true `
-          -p:AndroidVersionCode=$env:build `
+          -p:ApplicationVersion=$env:build `
           "-p:ApplicationDisplayVersion=alpha-dev"
       env:
         build: ${{ github.run_number }}
