@@ -154,7 +154,7 @@ namespace Yarukizero.Net.MakiMoki.Droid.DroidUtil {
 			var c = 0;
 			foreach(var line in com.Split('\n').Select((x, i) => (Value: x, Index: i))) {
 				if(line.Value.FirstOrDefault() == '>') {
-					r.SetSpan(new __URLSpan($"x-makimoki-android://q&line={line.Index}"), c, c + line.Value.Length, SpanTypes.ExclusiveExclusive);
+					r.SetSpan(new __URLSpan($"x-makimoki-android://q?line={line.Index}"), c, c + line.Value.Length, SpanTypes.ExclusiveExclusive);
 					r.SetSpan(new ForegroundColorSpan(Color.DarkGreen), c, c + line.Value.Length, SpanTypes.ExclusiveExclusive);
 				} else {
 					for(var i=0; i<line.Value.Length; i++) {
@@ -181,10 +181,10 @@ namespace Yarukizero.Net.MakiMoki.Droid.DroidUtil {
 
 
 		public static string? Uri2Path(Android.Content.Context context, Android.Net.Uri uri) {
-			var c = context.ContentResolver.Query(uri, new[] { MediaStore.MediaColumns.DisplayName }, null, null, null);
+			var c = context.ContentResolver.Query(uri, new[] { MediaStore.IMediaColumns.DisplayName }, null, null, null);
 			try {
 				if(c?.MoveToFirst() ?? false) {
-					return c.GetString(c.GetColumnIndex(MediaStore.MediaColumns.DisplayName));
+					return c.GetString(c.GetColumnIndex(MediaStore.IMediaColumns.DisplayName));
 				}
 				return default;
 			}

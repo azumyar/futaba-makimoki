@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Yarukizero.Net.MakiMoki.Droid {
-	internal static class DroidConst {
+	internal static partial class DroidConst {
 		public static string PreferencesName { get; } = "makimoki";
 		public static string PreferencesKeyInitTime { get; } = "__init_time";
 

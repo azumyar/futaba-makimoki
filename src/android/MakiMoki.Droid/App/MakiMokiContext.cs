@@ -121,12 +121,12 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 				SystemDirectory = Path.Combine(
 					System.AppContext.BaseDirectory,
 					"Config.d"),
-				AppCenterSecrets = AppCenterSecrets,
 				*/
 				UserDirectory = AppInternalRootDirectory,
 				CacheDirectory = AppCacheDirectory,
 				WorkDirectory = AppWorkDirectory,
 				DataProvider = new DroidDataProvider(MakiMokiApplication.Current),
+				AppCenterSecrets = DroidConst.AppCenterSecrets,
 			});
 
 			var imgBoard = Data.BoardData.From(
