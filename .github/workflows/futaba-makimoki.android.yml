@@ -73,6 +73,7 @@ jobs:
           -t:TransformAll `
           -m `
           -p:Configuration=T4Release `
+          -p:DefineConstants=MAKIMOKI_DROID `
           -p:Github=True `
           $env:Solution_Name
 
@@ -87,6 +88,7 @@ jobs:
           -p:OutDir=$env:Wap_Publish_Output `
           -p:Configuration=Release `
           -p:RuntimeIdentifier=android-arm64 `
+          -p:DefineConstants=MAKIMOKI_DROID `
           -p:AndroidKeyStore=True `
           "-p:AndroidSigningKeyStore=$pwd\github.keystore" `
           -p:AndroidSigningStorePass=$env:pass_store `
