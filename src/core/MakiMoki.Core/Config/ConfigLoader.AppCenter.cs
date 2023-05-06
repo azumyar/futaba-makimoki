@@ -15,6 +15,13 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			if(Optout.AppCenterCrashes) {
 				AppCenter.Start(secrets, typeof(Analytics));
 			} else {
+#if MAKIMOKI_DROID
+				AppDomain.CurrentDomain.UnhandledException += (_, e) => {
+					if(e.ExceptionObject is Exception ex) {
+						Crashes.TrackError(ex);
+					}
+				};
+#endif
 				AppCenter.Start(secrets, typeof(Analytics), typeof(Crashes));
 			}
 		}
