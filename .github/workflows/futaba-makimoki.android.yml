@@ -95,7 +95,7 @@ jobs:
           -p:AndroidPackageFormat=apk `
           -p:EnableLLVM=true `
           -p:AndroidVersionCode=$env:build `
-          "-p:ApplicationVersion=alpha-dev"
+          "-p:ApplicationDisplayVersion=alpha-dev"
       env:
         build: ${{ github.run_number }}
         pass_store: ${{ secrets.DROID_CANARY_PASS_STORE }}
