@@ -77,6 +77,11 @@ namespace Yarukizero.Net.MakiMoki.Droid.App {
 		}
 
 		private void DoInitilize() {
+			AppDomain.CurrentDomain.UnhandledException += (_, e) => {
+				if(e.ExceptionObject is Exception ex) {
+					File.WriteAllText(Path.Combine(AppCacheDirectory, "crash.log"), ex.ToString());
+				}
+			};
 			var platform = "Android";
 			{
 				var intl = Droid.MakiMokiApplication.Current.FilesDir;
