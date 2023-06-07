@@ -63,12 +63,16 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			Uploder = Util.FileUtil.LoadMigrate(
 				loader.Get(UploderConfigFile),
 				default(UploderConfig));
-			FutabaApi = Util.FileUtil.LoadMigrate(
-				Path.Combine(setting.WorkDirectory, FutabaApiFile),
-				FutabaApiConfig.CreateDefault(),
-				new Dictionary<int, Type>() {
-					{Data.Compat.FutabaApiConfig2020062900.CurrentVersion, typeof(Data.Compat.FutabaApiConfig2020062900)}
-				});
+			FutabaApi = FutabaApiConfig.CreateDefault();
+			try {
+				FutabaApi = Util.FileUtil.LoadMigrate(
+					Path.Combine(setting.WorkDirectory, FutabaApiFile),
+					FutabaApi,
+					new Dictionary<int, Type>() {
+						{Data.Compat.FutabaApiConfig2020062900.CurrentVersion, typeof(Data.Compat.FutabaApiConfig2020062900)}
+					});
+			}
+			catch(Exceptions.ConfigLoadFailedException) { }
 			System.Diagnostics.Debug.Assert(MakiMoki != null);
 			System.Diagnostics.Debug.Assert(Optout != null);
 			System.Diagnostics.Debug.Assert(MimeFutaba != null);
@@ -96,15 +100,21 @@ namespace Yarukizero.Net.MakiMoki.Config {
 						}
 					}
 
+					try {
 					MakiMoki = Util.FileUtil.LoadMigrate(
 						Path.Combine(confDir, MakiMokiConfigFile),
 						MakiMoki,
 						new Dictionary<int, Type>() {
 							{ Data.Compat.MakiMokiConfig2020062900.CurrentVersion, typeof(Data.Compat.MakiMokiConfig2020062900) },
 						});
-					Optout = Util.FileUtil.LoadMigrate(
-						Path.Combine(confDir, MakiMokiOptoutConfigFile),
-						Optout);
+					}
+					catch(Exceptions.ConfigLoadFailedException) { }
+					try {
+						Optout = Util.FileUtil.LoadMigrate(
+							Path.Combine(confDir, MakiMokiOptoutConfigFile),
+							Optout);
+					}
+					catch(Exceptions.ConfigLoadFailedException) { }
 					var b = Util.FileUtil.LoadMigrate(
 						Path.Combine(confDir, BoardConfigFile),
 						default(BoardConfig),
@@ -126,12 +136,20 @@ namespace Yarukizero.Net.MakiMoki.Config {
 					.OrderBy(x => x.SortIndex)
 					.ToArray());
 			UserConfBoard ??= BoardConfig.CreateDefault();
-			SavedFutaba = Util.FileUtil.LoadMigrate(
-				Path.Combine(InitializedSetting.WorkDirectory, FutabaSavedFile),
-				Data.FutabaSavedConfig.CreateDefault());
-			PostedItem = Util.FileUtil.LoadMigrate(
-				Path.Combine(InitializedSetting.WorkDirectory, FutabaPostedFile),
-				Data.FutabaPostItemConfig.CreateDefault());
+			SavedFutaba = Data.FutabaSavedConfig.CreateDefault();
+			PostedItem = Data.FutabaPostItemConfig.CreateDefault();
+			try {
+				SavedFutaba = Util.FileUtil.LoadMigrate(
+					Path.Combine(InitializedSetting.WorkDirectory, FutabaSavedFile),
+					SavedFutaba);
+			}
+			catch(Exceptions.ConfigLoadFailedException) { }
+			try {
+				PostedItem = Util.FileUtil.LoadMigrate(
+					Path.Combine(InitializedSetting.WorkDirectory, FutabaPostedFile),
+					PostedItem);
+			}
+			catch(Exceptions.ConfigLoadFailedException) { }
 			if(PostedItem.Items.Any()) {
 				var time = DateTime.Now.AddDays(-MakiMoki.FutabaPostDataExpireDay);
 				var t = PostedItem.Items.Where(x => time <= x.Res.Res.NowDateTime).ToArray();
