@@ -64,6 +64,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<int> FullScreenThreadColumnSpan { get; }
 		public ReactiveProperty<Visibility> FullScreenBorderVisibility { get; }
 
+		public ReactiveProperty<bool> IsDisableNg { get; } = new ReactiveProperty<bool>(false);
+
+
 		public ReactiveProperty<int> CatalogResCount { get; } = new ReactiveProperty<int>(0);
 		public ReactiveProperty<object> UpdateToken { get; } = new ReactiveProperty<object>(DateTime.Now);
 
@@ -708,8 +711,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.SetCommentHtml();
 				this.IsVisibleOriginComment = this.IsHidden
 					.CombineLatest(
-						this.IsNg, this.IsDel,
-						(x, y, z) => !(x || y || z))
+						this.IsNg, this.IsDel, parent.IsDisableNg,
+						(x, y, z, a) => !(x || y || z) || a)
 					.ToReactiveProperty();
 				this.DisplayHtml = IsVisibleOriginComment
 					.Select(x => x ? this.OriginHtml.Value : this.CommentHtml.Value)
@@ -886,9 +889,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		// TODO: 名前変える
 		private void a() {
 			// NGとHiddenの設定前にコメントを更新する
-			var ng = this.Raw.Value.Url.IsCatalogUrl
-				? Ng.NgUtil.NgHelper.CheckCatalogNg(this.Parent.Value.Raw, this.Raw.Value)
-					: Ng.NgUtil.NgHelper.CheckThreadNg(this.Parent.Value.Raw, this.Raw.Value);
+			var ng = this.Raw.Value.Url.IsCatalogUrl switch {
+				true => Ng.NgUtil.NgHelper.CheckCatalogNg(this.Parent.Value.Raw, this.Raw.Value),
+				false => Ng.NgUtil.NgHelper.CheckThreadNg(this.Parent.Value.Raw, this.Raw.Value),
+			};
 			var hidden = Ng.NgUtil.NgHelper.CheckHidden(this.Parent.Value.Raw, this.Raw.Value);
 			this.IsWatchWord.Value = Ng.NgUtil.NgHelper.CheckCatalogWatch(this.Parent.Value.Raw, this.Raw.Value);
 			this.IsCopyMode.Value = false;
