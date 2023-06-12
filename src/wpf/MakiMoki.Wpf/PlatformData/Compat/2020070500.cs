@@ -67,15 +67,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				// 2020070500
 				catalogSearchResult: conf.CatalogSearchResult,
 				isVisibleCatalogIsolateThread: conf.IsVisibleCatalogIsolateThread,
-				minWidthPostView: conf.MinWidthPostView,
 				maxWidthPostView: conf.MaxWidthPostView,
 				isEnabledOpacityPostView: conf.IsEnabledOpacityPostView,
 				opacityPostView: conf.OpacityPostView,
 
 				// 2020071900
-				isEnabledQuotLink: conf.IsEnabledQuotLink,
 				windowTopmost: conf.IsEnabledWindowTopmost,
-				ngResonInput: conf.IsEnabledNgReasonInput,
+				ngReasonInput: conf.IsEnabledNgReasonInput,
 
 				// 2020102900
 				windowTheme: conf.WindowTheme,
@@ -88,48 +86,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				canvas98Position: conf.Canvas98Position,
 
 				// 2021020100
-				isEnabledFailsafeMistakePost: conf.IsEnabledFailsafeMistakePost
+				isEnabledFailsafeMistakePost: conf.IsEnabledFailsafeMistakePost,
+
+				// 2023061200
+				bouyomiChanEndPoint: conf.BouyomiChanEndPoint
 			);
 		}
 
-		/*
-		public static WpfConfig CreateDefault() {
-			// ここは使われない
-			return new WpfConfig() {
-				Version = CurrentVersion,
-			};
-		}
-
-		public static WpfConfig Create(
-			bool isEnabledMovieMarker, bool isEnabledOldMarker,
-			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility,
-			int clipbordJpegQuality, bool clipbordIsEnabledUrl,
-			string[] mediaExportPath, int cacheExpireDay,
-			ExportNgRes exportNgRes, ExportNgImage exportNgImage,
-			string browserPath) {
-
-			System.Diagnostics.Debug.Assert(catalogNgImage <= CatalogNgImage.MaxValue);
-			System.Diagnostics.Debug.Assert(threadDelResVisibility <= ThreadDelResVisibility.MaxValue);
-			System.Diagnostics.Debug.Assert(mediaExportPath != null);
-			System.Diagnostics.Debug.Assert((0 <= cacheExpireDay) && (cacheExpireDay <= 100));
-			System.Diagnostics.Debug.Assert(browserPath != null);
-
-			return new WpfConfig() {
-				Version = CurrentVersion,
-				IsEnabledMovieMarker = isEnabledMovieMarker,
-				IsEnabledOldMarker = isEnabledOldMarker,
-				CatalogNgImage = catalogNgImage,
-				ThreadDelResVisibility = threadDelResVisibility,
-				ClipbordJpegQuality = clipbordJpegQuality,
-				ClipbordIsEnabledUrl = clipbordIsEnabledUrl,
-				MediaExportPath = mediaExportPath,
-				CacheExpireDay = cacheExpireDay,
-				ExportNgRes = exportNgRes,
-				ExportNgImage = exportNgImage,
-				BrowserPath = browserPath,
-			};
-		}
-		*/
 	}
 
 }

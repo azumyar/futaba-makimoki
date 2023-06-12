@@ -26,8 +26,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	}
 
 	class WpfConfig : Data.ConfigObject {
-		//public static int CurrentVersion { get; } = 2023061200;
-		public static int CurrentVersion { get; } = 2021020100;
+		public static int CurrentVersion { get; } = 2023061300;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
 		public bool IsEnabledMovieMarker { get; private set; }
@@ -110,8 +109,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public bool IsEnabledFailsafeMistakePost { get; private set; }
 
 		// 2023061200
-		[JsonProperty("bouyomichan-endpoint" /*, Required = Required.Always*/)]
-		public string BouyomiChanEndpoint { get; private set; } = "http://localhost:50080/";
+		[JsonProperty("bouyomichan-endpoint", Required = Required.Always)]
+		public string BouyomiChanEndPoint { get; private set; }
 
 		public static WpfConfig CreateDefault() {
 			// ここは使われない
@@ -124,16 +123,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			WindowTheme windowTheme,
 			bool isEnabledFetchThumbnail,
 			bool isEnabledMovieMarker, bool isEnabledIdMarker, bool isEnabledOldMarker,
-			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility, bool isEnabledQuotLink,
+			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility,
 			bool isVisibleCatalogIsolateThread, CatalogSearchResult catalogSearchResult,
 			bool isEnabledThreadCommandPalette, UiPosition commandPalettePosition,
 			UiPosition canvas98Position,
 			bool isEnabledFailsafeMistakePost,
 			int clipbordJpegQuality, bool clipbordIsEnabledUrl,
-			int minWidthPostView, int maxWidthPostView, bool isEnabledOpacityPostView, int opacityPostView,
+			int maxWidthPostView, bool isEnabledOpacityPostView, int opacityPostView,
 			string[] mediaExportPath, int cacheExpireDay,
 			ExportNgRes exportNgRes, ExportNgImage exportNgImage,
-			bool windowTopmost, bool ngResonInput, string browserPath) {
+			bool windowTopmost, bool ngReasonInput, string browserPath,
+			string bouyomiChanEndPoint) {
 
 			System.Diagnostics.Debug.Assert(catalogNgImage <= CatalogNgImage.MaxValue);
 			System.Diagnostics.Debug.Assert(threadDelResVisibility <= ThreadDelResVisibility.MaxValue);
@@ -142,6 +142,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			System.Diagnostics.Debug.Assert(browserPath != null);
 			System.Diagnostics.Debug.Assert(new[] { UiPosition.Left, UiPosition.Right }.Contains(commandPalettePosition));
 			System.Diagnostics.Debug.Assert(new[] { UiPosition.Default, UiPosition.Right, UiPosition.Bottom }.Contains(canvas98Position));
+			System.Diagnostics.Debug.Assert(bouyomiChanEndPoint != null);
 
 			return new WpfConfig() {
 				Version = CurrentVersion,
@@ -168,8 +169,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				ExportNgRes = exportNgRes,
 				ExportNgImage = exportNgImage,
 				IsEnabledWindowTopmost = windowTopmost,
-				IsEnabledNgReasonInput = ngResonInput,
+				IsEnabledNgReasonInput = ngReasonInput,
 				BrowserPath = browserPath,
+
+				// 2023061200
+				BouyomiChanEndPoint = bouyomiChanEndPoint,
 			};
 		}
 	}

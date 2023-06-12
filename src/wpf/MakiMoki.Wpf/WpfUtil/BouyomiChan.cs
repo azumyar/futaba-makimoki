@@ -26,7 +26,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 
 							// awaitだとスレッドスタックが変わるのでちゃんとwaitする
 							var r = Config.ConfigLoader.InitializedSetting.HttpClient.GetAsync(
-								$"{WpfConfig.WpfConfigLoader.SystemConfig.BouyomiChanEndpoint}Talk?text={line}");
+								$"{WpfConfig.WpfConfigLoader.SystemConfig.BouyomiChanEndPoint}Talk?text={line}");
 							r.Wait();
 							if(r.Result.StatusCode != System.Net.HttpStatusCode.OK) {
 								// エラー

@@ -93,13 +93,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				browserPath: BrowserPath,
 				catalogSearchResult: CatalogSearchResult,
 				isVisibleCatalogIsolateThread: IsVisibleCatalogIsolateThread,
-				minWidthPostView: MinWidthPostView,
 				maxWidthPostView: MaxWidthPostView,
 				isEnabledOpacityPostView: IsEnabledOpacityPostView,
 				opacityPostView: OpacityPostView,
-				isEnabledQuotLink: IsEnabledQuotLink,
 				windowTopmost: IsEnabledWindowTopmost,
-				ngResonInput: IsEnabledNgReasonInput,
+				ngReasonInput: IsEnabledNgReasonInput,
 
 				// 2020102900
 				windowTheme: conf.WindowTheme,
@@ -112,59 +110,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				canvas98Position: conf.Canvas98Position,
 
 				// 2021020100
-				isEnabledFailsafeMistakePost: conf.IsEnabledFailsafeMistakePost
+				isEnabledFailsafeMistakePost: conf.IsEnabledFailsafeMistakePost,
+
+				// 2023061200
+				bouyomiChanEndPoint: conf.BouyomiChanEndPoint
 			);
 		}
-
-		/*
-		public static WpfConfig CreateDefault() {
-			// ここは使われない
-			return new WpfConfig() {
-				Version = CurrentVersion,
-			};
-		}
-
-		public static WpfConfig Create(
-			bool isEnabledMovieMarker, bool isEnabledOldMarker,
-			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility, bool isEnabledQuotLink,
-			bool isVisibleCatalogIsolateThread, CatalogSearchResult catalogSearchResult,
-			int clipbordJpegQuality, bool clipbordIsEnabledUrl,
-			int minWidthPostView, int maxWidthPostView, bool isEnabledOpacityPostView, int opacityPostView,
-			string[] mediaExportPath, int cacheExpireDay,
-			ExportNgRes exportNgRes, ExportNgImage exportNgImage,
-			bool windowTopmost, bool ngResonInput, string browserPath) {
-
-			System.Diagnostics.Debug.Assert(catalogNgImage <= CatalogNgImage.MaxValue);
-			System.Diagnostics.Debug.Assert(threadDelResVisibility <= ThreadDelResVisibility.MaxValue);
-			System.Diagnostics.Debug.Assert(mediaExportPath != null);
-			System.Diagnostics.Debug.Assert((0 <= cacheExpireDay) && (cacheExpireDay <= 100));
-			System.Diagnostics.Debug.Assert(browserPath != null);
-
-			return new WpfConfig() {
-				Version = CurrentVersion,
-				IsEnabledMovieMarker = isEnabledMovieMarker,
-				IsEnabledOldMarker = isEnabledOldMarker,
-				CatalogNgImage = catalogNgImage,
-				IsVisibleCatalogIsolateThread = isVisibleCatalogIsolateThread,
-				CatalogSearchResult = catalogSearchResult,
-				ThreadDelResVisibility = threadDelResVisibility,
-				IsEnabledQuotLink = isEnabledQuotLink,
-				ClipbordJpegQuality = clipbordJpegQuality,
-				ClipbordIsEnabledUrl = clipbordIsEnabledUrl,
-				MinWidthPostView = minWidthPostView,
-				MaxWidthPostView = maxWidthPostView,
-				IsEnabledOpacityPostView = isEnabledOpacityPostView,
-				OpacityPostView = opacityPostView,
-				MediaExportPath = mediaExportPath,
-				CacheExpireDay = cacheExpireDay,
-				ExportNgRes = exportNgRes,
-				ExportNgImage = exportNgImage,
-				IsEnabledWindowTopmost = windowTopmost,
-				IsEnabledNgReasonInput = ngResonInput,
-				BrowserPath = browserPath,
-			};
-		}
-		*/
 	}
-
 }

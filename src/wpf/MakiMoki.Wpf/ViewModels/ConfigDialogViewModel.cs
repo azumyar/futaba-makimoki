@@ -185,6 +185,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<GestureItem> GesturePostViewPasteImage { get; }
 		public ReactiveProperty<GestureItem> GesturePostViewPasteUploader { get; }
 
+		public ReactiveProperty<string> BouyomiChanEndPoint { get; }
+
 		public ReactiveProperty<string> Canvas98Bookmarklet { get; }
 		public ReactiveProperty<string> Canvas98ExtendsLayer { get; }
 		public ReactiveProperty<string> Canvas98ExtendsAlbam { get; }
@@ -397,6 +399,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			GesturePostViewPasteUploader = new ReactiveProperty<GestureItem>(
 				new GestureItem(WpfConfig.WpfConfigLoader.Gesture.KeyGesturePostViewPasteUploader));
 
+			BouyomiChanEndPoint = new ReactiveProperty<string>(WpfConfigLoader.SystemConfig.BouyomiChanEndPoint);
+
 			Canvas98Bookmarklet = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.Bookmarklet ?? "");
 			Canvas98ExtendsLayer = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletLayer ?? "");
 			Canvas98ExtendsAlbam = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletAlbam ?? "");
@@ -577,7 +581,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				opacityPostView: int.Parse(PostViewOpacity.Value),
 				// 2020071900
 				windowTopmost: WindowTopmost.Value,
-				ngResonInput: NgConfigResonInput.Value,
+				ngReasonInput: NgConfigResonInput.Value,
 				//2020102900
 				windowTheme: (PlatformData.WindowTheme)WindowTheme.Value,
 				isEnabledIdMarker: CatalogIsEnabledIdMarker.Value,
@@ -596,11 +600,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				}),
 				// 2021020100
 				isEnabledFailsafeMistakePost: IsEnabledFailsafeMistakePost.Value,
-
-				// 削除
-				minWidthPostView: 0,
-				isEnabledQuotLink: false
-				
+				// 2023061200
+				bouyomiChanEndPoint: BouyomiChanEndPoint.Value
 			));
 			WpfConfig.WpfConfigLoader.UpdateGestureConfig(PlatformData.GestureConfig.From(
 				keyGestureCatalogUpdate: GestureMainWindowCatalogUpdate.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),

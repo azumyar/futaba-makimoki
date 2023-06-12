@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Yarukizero.Net.MakiMoki.Data;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 
-	class WpfConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2023061200;
+	class WpfConfig2021020100 : Data.ConfigObject, Data.IMigrateCompatObject {
+		public static int CurrentVersion { get; } = 2021020100;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
 		public bool IsEnabledMovieMarker { get; private set; }
@@ -98,66 +99,42 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 		[JsonProperty("thread-enable-failsafe-mistake-post", Required = Required.Always)]
 		public bool IsEnabledFailsafeMistakePost { get; private set; }
 
-		public static WpfConfig CreateDefault() {
-			// ここは使われない
-			return new WpfConfig() {
-				Version = CurrentVersion,
-			};
-		}
+		public ConfigObject Migrate() {
+			var conf = JsonConvert.DeserializeObject<WpfConfig>(
+				Util.FileUtil.LoadFileString(new Util.ResourceLoader(
+					typeof(Wpf.WpfConfig.WpfConfigLoader))
+						.Get(Wpf.WpfConfig.WpfConfigLoader.SystemConfigFile)
+					));
 
-		public static WpfConfig Create(
-			WindowTheme windowTheme,
-			bool isEnabledFetchThumbnail,
-			bool isEnabledMovieMarker, bool isEnabledIdMarker, bool isEnabledOldMarker,
-			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility, bool isEnabledQuotLink,
-			bool isVisibleCatalogIsolateThread, CatalogSearchResult catalogSearchResult,
-			bool isEnabledThreadCommandPalette, UiPosition commandPalettePosition,
-			UiPosition canvas98Position,
-			bool isEnabledFailsafeMistakePost,
-			int clipbordJpegQuality, bool clipbordIsEnabledUrl,
-			int minWidthPostView, int maxWidthPostView, bool isEnabledOpacityPostView, int opacityPostView,
-			string[] mediaExportPath, int cacheExpireDay,
-			ExportNgRes exportNgRes, ExportNgImage exportNgImage,
-			bool windowTopmost, bool ngResonInput, string browserPath) {
-
-			System.Diagnostics.Debug.Assert(catalogNgImage <= CatalogNgImage.MaxValue);
-			System.Diagnostics.Debug.Assert(threadDelResVisibility <= ThreadDelResVisibility.MaxValue);
-			System.Diagnostics.Debug.Assert(mediaExportPath != null);
-			System.Diagnostics.Debug.Assert((0 <= cacheExpireDay) && (cacheExpireDay <= 100));
-			System.Diagnostics.Debug.Assert(browserPath != null);
-			System.Diagnostics.Debug.Assert(new[] { UiPosition.Left, UiPosition.Right }.Contains(commandPalettePosition));
-			System.Diagnostics.Debug.Assert(new[] { UiPosition.Default, UiPosition.Right, UiPosition.Bottom }.Contains(canvas98Position));
-
-			return new WpfConfig() {
-				Version = CurrentVersion,
-				WindowTheme = windowTheme,
-				IsEnabledFetchThumbnail = isEnabledFetchThumbnail,
-				IsEnabledMovieMarker = isEnabledMovieMarker,
-				IsEnabledIdMarker = isEnabledIdMarker,
-				IsEnabledOldMarker = isEnabledOldMarker,
-				CatalogNgImage = catalogNgImage,
-				IsVisibleCatalogIsolateThread = isVisibleCatalogIsolateThread,
-				CatalogSearchResult = catalogSearchResult,
-				ThreadDelResVisibility = threadDelResVisibility,
-				IsEnabledThreadCommandPalette = isEnabledThreadCommandPalette,
-				CommandPalettePosition = commandPalettePosition,
-				Canvas98Position = canvas98Position,
-				IsEnabledFailsafeMistakePost = isEnabledFailsafeMistakePost,
-				IsEnabledQuotLink = isEnabledQuotLink,
-				ClipbordJpegQuality = clipbordJpegQuality,
-				ClipbordIsEnabledUrl = clipbordIsEnabledUrl,
-				MinWidthPostView = minWidthPostView,
-				MaxWidthPostView = maxWidthPostView,
-				IsEnabledOpacityPostView = isEnabledOpacityPostView,
-				OpacityPostView = opacityPostView,
-				MediaExportPath = mediaExportPath,
-				CacheExpireDay = cacheExpireDay,
-				ExportNgRes = exportNgRes,
-				ExportNgImage = exportNgImage,
-				IsEnabledWindowTopmost = windowTopmost,
-				IsEnabledNgReasonInput = ngResonInput,
-				BrowserPath = browserPath,
-			};
+			return WpfConfig.Create(
+				windowTheme: this.WindowTheme,
+				isEnabledFetchThumbnail: this.IsEnabledFetchThumbnail,
+				isEnabledMovieMarker: this.IsEnabledMovieMarker,
+				isEnabledIdMarker: this.IsEnabledIdMarker,
+				isEnabledOldMarker: this.IsEnabledOldMarker,
+				catalogNgImage: this.CatalogNgImage,
+				isVisibleCatalogIsolateThread: this.IsVisibleCatalogIsolateThread,
+				catalogSearchResult: this.CatalogSearchResult,
+				threadDelResVisibility: this.ThreadDelResVisibility,
+				isEnabledThreadCommandPalette: this.IsEnabledThreadCommandPalette,
+				commandPalettePosition: this.CommandPalettePosition,
+				canvas98Position: this.Canvas98Position	,
+				isEnabledFailsafeMistakePost: this.IsEnabledFailsafeMistakePost,
+				clipbordJpegQuality: this.ClipbordJpegQuality,
+				clipbordIsEnabledUrl: this.ClipbordIsEnabledUrl,
+				maxWidthPostView: this.MaxWidthPostView,
+				isEnabledOpacityPostView: this.IsEnabledOpacityPostView,
+				opacityPostView: this.OpacityPostView,
+				mediaExportPath: this.MediaExportPath,
+				cacheExpireDay: this.CacheExpireDay,
+				exportNgRes: this.ExportNgRes,
+				exportNgImage: this.ExportNgImage,
+				windowTopmost: this.IsEnabledWindowTopmost,
+				ngReasonInput: this.IsEnabledNgReasonInput,
+				browserPath: this.BrowserPath,
+				bouyomiChanEndPoint: conf.BouyomiChanEndPoint
+			);;
+			throw new NotImplementedException();
 		}
 	}
 }
