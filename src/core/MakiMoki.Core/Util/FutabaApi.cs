@@ -313,6 +313,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				//var c = new RestClient("http://127.0.0.1:8080/");
 				try {
 					var c = CreateRestClient(board.Url);
+					// WebMはふたば内部でエンコードが走るのでタイムアウト時間を10秒に伸ばす
+					if(Path.GetExtension(filePath).ToLower() == ".webm") {
+						c.Timeout = 10 * 1000;
+					}
 					var r = new RestRequest(FutabaEndPoint, Method.POST);
 					c.Encoding = FutabaEncoding;
 					r.AddHeader("Content-Type", "multipart/form-data");
