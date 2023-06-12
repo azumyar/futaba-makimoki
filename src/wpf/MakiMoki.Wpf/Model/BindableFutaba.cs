@@ -65,6 +65,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Visibility> FullScreenBorderVisibility { get; }
 
 		public ReactiveProperty<bool> IsDisableNg { get; } = new ReactiveProperty<bool>(false);
+		public ReactiveProperty<bool> EnableSpeach { get; } = new ReactiveProperty<bool>(false);
 
 
 		public ReactiveProperty<int> CatalogResCount { get; } = new ReactiveProperty<int>(0);
@@ -113,12 +114,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			Ng.NgConfig.NgConfigLoader.AddHiddenUpdateNotifyer(hiddenUpdateAction);
 			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(systemUpdateAction);
 			if(old != null) {
-				FilterText.Value = old.FilterText.Value;
-				CatalogSortItem.Value = old.CatalogSortItem.Value;
-				CatalogListMode.Value = old.CatalogListMode.Value;
-				CatalogResCount.Value = old.CatalogResCount.Value;
-				IsFullScreenCatalogMode.Value = old.IsFullScreenCatalogMode.Value;
-				IsFullScreenThreadMode.Value = old.IsFullScreenThreadMode.Value;
+				this.FilterText.Value = old.FilterText.Value;
+				this.CatalogSortItem.Value = old.CatalogSortItem.Value;
+				this.CatalogListMode.Value = old.CatalogListMode.Value;
+				this.CatalogResCount.Value = old.CatalogResCount.Value;
+				this.IsFullScreenCatalogMode.Value = old.IsFullScreenCatalogMode.Value;
+				this.IsFullScreenThreadMode.Value = old.IsFullScreenThreadMode.Value;
+				this.IsDisableNg.Value = old.IsDisableNg.Value;
+				this.EnableSpeach.Value = old.EnableSpeach.Value;
 			}
 
 
@@ -244,6 +247,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 							.ToArray()) {
 
 						this.ResItems.Add(it);
+						if(this.EnableSpeach.Value && !(it.IsNg.Value || it.IsDel.Value)) {
+							Util.BouyomiChan.Speach(Util.TextUtil.RowComment2Text(it.Raw.Value.ResItem.Res.Com));
+						}
 					}
 				}
 			}

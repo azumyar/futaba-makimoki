@@ -7,6 +7,7 @@ using System.Text;
 using System.Linq;
 using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Util;
+using System.Net.Http;
 
 namespace Yarukizero.Net.MakiMoki.Config {
 	public static partial class ConfigLoader {
@@ -34,6 +35,8 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			public string CacheDirectory { get; set; } = null;
 
 			public string AppCenterSecrets { get; set; } = null;
+
+			public HttpClient? HttpClient { get; set; } = null;
 		}
 
 		public static void Initialize(Setting setting) {

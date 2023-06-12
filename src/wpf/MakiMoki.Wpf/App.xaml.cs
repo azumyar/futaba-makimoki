@@ -173,6 +173,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					CacheDirectory = AppCacheDirectory,
 					WorkDirectory = AppWorkDirectory,
 					AppCenterSecrets = AppCenterSecrets,
+					HttpClient = HttpClient,
 				});
 				Util.Futaba.Initialize(HttpClient);
 				Ng.NgConfig.NgConfigLoader.Initialize(new Ng.NgConfig.NgConfigLoader.Setting() {
