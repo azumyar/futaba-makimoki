@@ -248,7 +248,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 						this.ResItems.Add(it);
 						if(this.EnableSpeach.Value && !(it.IsNg.Value || it.IsDel.Value)) {
-							Util.BouyomiChan.Speach(Util.TextUtil.RowComment2Text(it.Raw.Value.ResItem.Res.Com));
+							WpfUtil.BouyomiChan.Speach(Util.TextUtil.RowComment2Text(it.Raw.Value.ResItem.Res.Com));
 						}
 					}
 				}

@@ -32,5 +32,7 @@
   "platform-window-theme": "Light",
   "platform-window-topmost": false,
   "platform-ng-reason-input": true,
-  "platform-browser-path": ""
+  "platform-browser-path": "",
+
+  "bouyomichan-endpoint": "http://localhost:50080/"
 }

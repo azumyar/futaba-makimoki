@@ -26,6 +26,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	}
 
 	class WpfConfig : Data.ConfigObject {
+		//public static int CurrentVersion { get; } = 2023061200;
 		public static int CurrentVersion { get; } = 2021020100;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
@@ -69,10 +70,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("catalog-visible-isolate-thread", Required = Required.Always)]
 		public bool IsVisibleCatalogIsolateThread { get; private set; }
 
-		[Obsolete] // 定義を変えるとめどいのでなんか増やすまで残しておく
-		[JsonProperty("post-view-min-width", Required = Required.Always)]
-		public int MinWidthPostView { get; private set; }
-
 		[JsonProperty("post-view-max-width", Required = Required.Always)]
 		public int MaxWidthPostView { get; private set; }
 
@@ -83,10 +80,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public int OpacityPostView { get; private set; }
 
 		// 2020071900
-		[Obsolete] // 定義を変えるとめどいのでなんか増やすまで残しておく
-		[JsonProperty("thread-enable-quot-link", Required = Required.Always)]
-		public bool IsEnabledQuotLink { get; private set; }
-
 		[JsonProperty("platform-window-topmost", Required = Required.Always)]
 		public bool IsEnabledWindowTopmost { get; private set; }
 
@@ -115,6 +108,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		// 2021020100
 		[JsonProperty("thread-enable-failsafe-mistake-post", Required = Required.Always)]
 		public bool IsEnabledFailsafeMistakePost { get; private set; }
+
+		// 2023061200
+		[JsonProperty("bouyomichan-endpoint" /*, Required = Required.Always*/)]
+		public string BouyomiChanEndpoint { get; private set; } = "http://localhost:50080/";
 
 		public static WpfConfig CreateDefault() {
 			// ここは使われない
@@ -161,10 +158,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				CommandPalettePosition = commandPalettePosition,
 				Canvas98Position = canvas98Position,
 				IsEnabledFailsafeMistakePost = isEnabledFailsafeMistakePost,
-				IsEnabledQuotLink = isEnabledQuotLink,
 				ClipbordJpegQuality = clipbordJpegQuality,
 				ClipbordIsEnabledUrl = clipbordIsEnabledUrl,
-				MinWidthPostView = minWidthPostView,
 				MaxWidthPostView = maxWidthPostView,
 				IsEnabledOpacityPostView = isEnabledOpacityPostView,
 				OpacityPostView = opacityPostView,

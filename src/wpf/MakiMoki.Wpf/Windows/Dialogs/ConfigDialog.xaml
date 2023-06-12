@@ -448,12 +448,6 @@
                             </StackPanel>
 
                             <TextBlock Style="{StaticResource ConfigHeaderText}">スレッド</TextBlock>
-                            <!--
-                            <StackPanel Style="{StaticResource ConfigContents}">
-                                <TextBlock>引用に該当レスへのリンクを張る</TextBlock>
-                                <CheckBox Content="有効" IsChecked="{Binding ThreadIsEnabledQuotLink.Value, Mode=TwoWay}" />
-                            </StackPanel>
-                            -->
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>誤爆防止として背景にスレ画を表示</TextBlock>
                                 <CheckBox Content="有効" IsChecked="{Binding IsEnabledFailsafeMistakePost.Value, Mode=TwoWay}" />

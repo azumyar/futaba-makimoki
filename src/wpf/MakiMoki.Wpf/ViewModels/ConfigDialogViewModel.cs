@@ -139,7 +139,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> CatalogIsVisibleIsolateThread { get; }
 		public ReactiveProperty<int> CatalogSearchResult { get; }
 		public ReactiveProperty<int> ThreadDelResVisibility { get; }
-		public ReactiveProperty<bool> ThreadIsEnabledQuotLink { get; }
 		public ReactiveProperty<string> ClipbordJpegQuality { get; }
 		public ReactiveProperty<bool> ClipbordJpegQualityValid { get; }
 		public ReactiveProperty<bool> ClipbordIsEnabledUrl { get; }
@@ -151,8 +150,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> PostViewSavedSubject { get; }
 		public ReactiveProperty<bool> PostViewSavedName { get; }
 		public ReactiveProperty<bool> PostViewSavedMail { get; }
-		public ReactiveProperty<string> PostViewMinWidth { get; }
-		public ReactiveProperty<bool> PostViewMinWidthValid { get; }
 		public ReactiveProperty<string> PostViewMaxWidth { get; }
 		public ReactiveProperty<bool> PostViewMaxWidthValid { get; }
 		public ReactiveProperty<bool> PostViewIsEnabledOpacity { get; }
@@ -299,7 +296,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			CatalogIsVisibleIsolateThread = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleCatalogIsolateThread);
 			CatalogSearchResult = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.CatalogSearchResult);
 			ThreadDelResVisibility = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility);
-			ThreadIsEnabledQuotLink = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledQuotLink);
 			IsEnabledThreadCommandPalette = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledThreadCommandPalette);
 			CommandPalettePosition = new ReactiveProperty<int>((int)WpfConfig.WpfConfigLoader.SystemConfig.CommandPalettePosition switch {
 				var x when x == 1 => 0,
@@ -325,19 +321,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			PostViewSavedSubject = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaPostSavedSubject);
 			PostViewSavedName = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaPostSavedName);
 			PostViewSavedMail = new ReactiveProperty<bool>(Config.ConfigLoader.MakiMoki.FutabaPostSavedMail);
-			PostViewMinWidth = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.MinWidthPostView.ToString());
-			PostViewMinWidthValid = PostViewMinWidth.Select(x => {
-				if(int.TryParse(x, out var v)) {
-					if((v == 0) || (360 <= v)) {
-						return true;
-					}
-				}
-				return false;
-			}).ToReactiveProperty();
 			PostViewMaxWidth = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.MaxWidthPostView.ToString());
 			PostViewMaxWidthValid = PostViewMaxWidth.Select(x => {
-				if(int.TryParse(x, out var v) && int.TryParse(PostViewMinWidth.Value, out var min)) {
-					if((v == 0) || ((360 <= v)) && (min <= v)) {
+				if(int.TryParse(x, out var v)) {
+					if((v == 0) || ((360 <= v))) {
 						return true;
 					}
 				}
@@ -429,7 +416,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				ClipbordJpegQualityValid,
 				MediaCacheExpireDayValid,
 				PostViewMaxWidthValid,
-				PostViewMinWidthValid,
 				PostViewOpacityValid,
 			}.CombineLatest(x => x.All(y => y)).ToReactiveProperty();
 			AddBoardConfigCommand.Subscribe(_ => OnAddBoardConfig());
@@ -586,12 +572,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				// 2020070500
 				catalogSearchResult: (PlatformData.CatalogSearchResult)CatalogSearchResult.Value,
 				isVisibleCatalogIsolateThread: CatalogIsVisibleIsolateThread.Value,
-				minWidthPostView: int.Parse(PostViewMinWidth.Value),
 				maxWidthPostView: int.Parse(PostViewMaxWidth.Value),
 				isEnabledOpacityPostView: PostViewIsEnabledOpacity.Value,
 				opacityPostView: int.Parse(PostViewOpacity.Value),
 				// 2020071900
-				isEnabledQuotLink: ThreadIsEnabledQuotLink.Value,
 				windowTopmost: WindowTopmost.Value,
 				ngResonInput: NgConfigResonInput.Value,
 				//2020102900
@@ -611,7 +595,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					var x => x,
 				}),
 				// 2021020100
-				isEnabledFailsafeMistakePost: IsEnabledFailsafeMistakePost.Value
+				isEnabledFailsafeMistakePost: IsEnabledFailsafeMistakePost.Value,
+
+				// 削除
+				minWidthPostView: 0,
+				isEnabledQuotLink: false
+				
 			));
 			WpfConfig.WpfConfigLoader.UpdateGestureConfig(PlatformData.GestureConfig.From(
 				keyGestureCatalogUpdate: GestureMainWindowCatalogUpdate.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),

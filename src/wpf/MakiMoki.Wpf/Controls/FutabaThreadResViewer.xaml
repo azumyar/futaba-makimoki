@@ -47,7 +47,6 @@
             <converter:FutabaResItemCopyTextBoxEventConverter x:Key="FutabaResItemCopyTextBoxEventConverter" />
             <converter:FutabaEnabledTegakiResConverter x:Key="FutabaEnabledTegakiResConverter" />
             <converter:PostViewOpacityConverter x:Key="PostViewOpacityConverter" />
-            <converter:PostViewMinWidthConverter x:Key="PostViewMinWidthConverter" />
             <converter:PostViewMaxWidthConverter x:Key="PostViewMaxWidthConverter" />
             <converter:WheelUpdatePositionConverter x:Key="WheelUpdatePositionConverter" />
             <converter:WheelUpdateVisibleConverter x:Key="WheelUpdateVisibleConverter" />
@@ -1277,13 +1276,6 @@
                     Opacity="{Binding Contents.PostData.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}"
                     Contents="{Binding Contents.PostData.Value, ElementName=_this}"
                     Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=TwoWay}">
-                    <local:FutabaPostView.MinWidth>
-                        <MultiBinding Converter="{StaticResource PostViewMinWidthConverter}">
-                            <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
-                            <Binding Mode="OneWay" Source="{StaticResource DefaultMinWidth}" />
-                            <Binding Path="Contents.PostData.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
-                        </MultiBinding>
-                    </local:FutabaPostView.MinWidth>
                     <local:FutabaPostView.MaxWidth>
                         <MultiBinding Converter="{StaticResource PostViewMaxWidthConverter}">
                             <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
