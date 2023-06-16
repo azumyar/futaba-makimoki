@@ -1,5 +1,5 @@
 {
-  "version": 2023061300,
+  "version": 2023061600,
 
   "catalog-enable-fetch-thumbnail": false,
   "catalog-enable-movie-marker": true,
@@ -32,5 +32,6 @@
   "platform-ng-reason-input": true,
   "platform-browser-path": "",
 
-  "bouyomichan-endpoint": "http://localhost:50080/"
+  "bouyomichan-endpoint": "http://localhost:50080/",
+  "post-view-mask-password": false
 }

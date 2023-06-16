@@ -15,6 +15,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config {
 			public string SystemDirectory { get; set; } = null;
 
 			public string UserDirectory { get; set; } = null;
+
+			public Func<bool> MaskPassword { get; set; } = () => false;
 		}
 
 		public static void Initialize(Setting setting) {

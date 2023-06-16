@@ -132,7 +132,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				windowTopmost: this.IsEnabledWindowTopmost,
 				ngReasonInput: this.IsEnabledNgReasonInput,
 				browserPath: this.BrowserPath,
-				bouyomiChanEndPoint: conf.BouyomiChanEndPoint
+				bouyomiChanEndPoint: conf.BouyomiChanEndPoint,
+				isMaskPassword: conf.IsMaskPassword
 			);;
 			throw new NotImplementedException();
 		}

@@ -84,10 +84,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				this.Text = text;
 			}
 		}
+		private ReactiveProperty<bool> MaskPassword { get; }
+
 		private ReactiveProperty<bool> IsUpplading2 { get; } = new ReactiveProperty<bool>(false);
 		private ReactiveProperty<bool> IsPosting { get; } = new ReactiveProperty<bool>(false);
 		public ReactiveProperty<KeyBinding[]> KeyGestures { get; } = new ReactiveProperty<KeyBinding[]>();
 		public ReactiveProperty<Visibility> PostProgressVisibility { get; }
+		public ReactiveProperty<Visibility> MaskPasswordBoxVisibility { get; }
+		public ReactiveProperty<Visibility> NonMaskPasswordBoxVisibility { get; }
 
 		public MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.PostHolder>> ContentsChangedCommand { get; }
 			= new MakiMokiCommand<RoutedPropertyChangedEventArgs<Model.PostHolder>>();
@@ -100,7 +104,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<PostHolder> MailSageClickCommand { get; } = new MakiMokiCommand<PostHolder>();
 		public MakiMokiCommand<PostHolder> MailIdClickCommand { get; } = new MakiMokiCommand<PostHolder>();
 		public MakiMokiCommand<PostHolder> MailIpClickCommand { get; } = new MakiMokiCommand<PostHolder>();
-
 
 		public MakiMokiCommand<DragEventArgs> ImageDragOverCommand { get; } = new MakiMokiCommand<DragEventArgs>();
 		public MakiMokiCommand<DragEventArgs> ImageDropCommand { get; } = new MakiMokiCommand<DragEventArgs>();
@@ -123,11 +126,22 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public string Token { get; } = Guid.NewGuid().ToString();
 
+		private Action<PlatformData.WpfConfig> onSystemConfigUpdateNotifyer;
 		private Action<PlatformData.GestureConfig> onGestureConfigUpdateNotifyer;
 		public FutabaPostViewViewModel() {
-			PostProgressVisibility = this.IsPosting
-				.Select(x => x ? Visibility.Visible : Visibility.Hidden)
-				.ToReactiveProperty();
+			PostProgressVisibility = this.IsPosting.Select(x => x switch {
+				true => Visibility.Visible,
+				false => Visibility.Hidden,
+			}).ToReactiveProperty();
+			MaskPassword = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsMaskPassword);
+			MaskPasswordBoxVisibility = this.MaskPassword.Select(x => x switch {
+				true => Visibility.Visible,
+				false => Visibility.Collapsed,
+			}).ToReactiveProperty();
+			NonMaskPasswordBoxVisibility = this.MaskPassword.Select(x => x switch {
+				true => Visibility.Collapsed,
+				false => Visibility.Visible,
+			}).ToReactiveProperty();
 
 			UpdateKeyBindings();
 			ContentsChangedCommand.Subscribe(x => OnContentsChanged(x));
@@ -157,7 +171,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			KeyBindingPasteImageCommand.Subscribe(_ => OnKeyBindingPasteImage());
 			KeyBindingPaseteLoaderCommand.Subscribe(_ => OnKeyBindingPasteLoader());
 
+			onSystemConfigUpdateNotifyer = x => MaskPassword.Value = x.IsMaskPassword;
 			onGestureConfigUpdateNotifyer = (_) => UpdateKeyBindings();
+			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(onSystemConfigUpdateNotifyer);
 			WpfConfig.WpfConfigLoader.GestureConfigUpdateNotifyer.AddHandler(onGestureConfigUpdateNotifyer);
 		}
 

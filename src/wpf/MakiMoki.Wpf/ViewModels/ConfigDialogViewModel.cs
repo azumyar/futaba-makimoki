@@ -155,6 +155,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<bool> PostViewIsEnabledOpacity { get; }
 		public ReactiveProperty<string> PostViewOpacity { get; }
 		public ReactiveProperty<bool> PostViewOpacityValid { get; }
+		public ReactiveProperty<bool> PostViewMaskPassword { get; }
 		public ReactiveProperty<string> MediaExportPath { get; }
 		public ReactiveProperty<string> MediaCacheExpireDay { get; }
 		public ReactiveProperty<bool> MediaCacheExpireDayValid { get; }
@@ -342,6 +343,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				}
 				return false;
 			}).ToReactiveProperty();
+			PostViewMaskPassword = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsMaskPassword);
 			MediaExportPath = new ReactiveProperty<string>(string.Join(Environment.NewLine, WpfConfig.WpfConfigLoader.SystemConfig.MediaExportPath));
 			MediaCacheExpireDay = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.CacheExpireDay.ToString());
 			MediaCacheExpireDayValid = MediaCacheExpireDay.Select(x => {
@@ -601,7 +603,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				// 2021020100
 				isEnabledFailsafeMistakePost: IsEnabledFailsafeMistakePost.Value,
 				// 2023061200
-				bouyomiChanEndPoint: BouyomiChanEndPoint.Value
+				bouyomiChanEndPoint: BouyomiChanEndPoint.Value,
+				isMaskPassword: PostViewMaskPassword.Value
 			));
 			WpfConfig.WpfConfigLoader.UpdateGestureConfig(PlatformData.GestureConfig.From(
 				keyGestureCatalogUpdate: GestureMainWindowCatalogUpdate.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),

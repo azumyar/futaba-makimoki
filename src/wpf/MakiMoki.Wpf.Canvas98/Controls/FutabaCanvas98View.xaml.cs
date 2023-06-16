@@ -213,7 +213,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 							.AppendLine("        }")
 							// フォーム位置をずらす、パスワードを表示
 							.AppendLine("        document.forms.fm.style = 'margin-top: 6em;';")
-							.AppendLine("        document.forms.fm.pwd.type = 'text';")
+							.AppendLine(
+								Canvas98Config.Canvas98ConfigLoader.InitializedSetting.MaskPassword() switch {
+									true => "",
+									false => "        document.forms.fm.pwd.type = 'text';"
+								})
 							.AppendLine("      }")
 							// 独自ボタンを仕込む
 							.AppendLine($"      if({ toJsBool(isChildItem) }) {{")

@@ -26,7 +26,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	}
 
 	class WpfConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2023061300;
+		public static int CurrentVersion { get; } = 2023061600;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
 		public bool IsEnabledMovieMarker { get; private set; }
@@ -108,9 +108,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("thread-enable-failsafe-mistake-post", Required = Required.Always)]
 		public bool IsEnabledFailsafeMistakePost { get; private set; }
 
-		// 2023061200
+		// 2023061600
 		[JsonProperty("bouyomichan-endpoint", Required = Required.Always)]
 		public string BouyomiChanEndPoint { get; private set; }
+		[JsonProperty("post-view-mask-password", Required = Required.Always)]
+		public bool IsMaskPassword { get; private set; }
+
 
 		public static WpfConfig CreateDefault() {
 			// ここは使われない
@@ -133,7 +136,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			string[] mediaExportPath, int cacheExpireDay,
 			ExportNgRes exportNgRes, ExportNgImage exportNgImage,
 			bool windowTopmost, bool ngReasonInput, string browserPath,
-			string bouyomiChanEndPoint) {
+			string bouyomiChanEndPoint, bool isMaskPassword) {
 
 			System.Diagnostics.Debug.Assert(catalogNgImage <= CatalogNgImage.MaxValue);
 			System.Diagnostics.Debug.Assert(threadDelResVisibility <= ThreadDelResVisibility.MaxValue);
@@ -171,9 +174,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				IsEnabledWindowTopmost = windowTopmost,
 				IsEnabledNgReasonInput = ngReasonInput,
 				BrowserPath = browserPath,
-
-				// 2023061200
 				BouyomiChanEndPoint = bouyomiChanEndPoint,
+				IsMaskPassword = isMaskPassword,
 			};
 		}
 	}

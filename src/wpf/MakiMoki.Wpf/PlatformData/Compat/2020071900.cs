@@ -108,7 +108,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				isEnabledFailsafeMistakePost: conf.IsEnabledFailsafeMistakePost,
 
 				// 2023061200
-				bouyomiChanEndPoint: conf.BouyomiChanEndPoint
+				bouyomiChanEndPoint: conf.BouyomiChanEndPoint,
+				isMaskPassword: conf.IsMaskPassword
 			);
 		}
 	}

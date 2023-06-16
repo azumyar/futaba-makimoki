@@ -191,6 +191,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 						System.AppContext.BaseDirectory,
 						"Config.d"),
 					UserDirectory = UserConfigDirectory,
+					MaskPassword = () => WpfConfig.WpfConfigLoader.SystemConfig.IsMaskPassword,
 				});
 			}
 			catch(Exceptions.InitializeFailedException ex) {
