@@ -69,7 +69,7 @@ jobs:
 
     - name: Put AppCenter Secrets
       run: |
-        $a = '{ "secrets": "$env:secrets" }'
+        $a = '{ "secrets": "' + $env:secrets + '" }'
         echo $a | Set-Content -Path $env:App_Center_T4_Conf
       env:
         secrets: ${{ secrets.APP_CENTER_APPSECRETS }}
