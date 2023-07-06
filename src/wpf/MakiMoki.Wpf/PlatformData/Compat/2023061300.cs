@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Yarukizero.Net.MakiMoki.Data;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
-	class WpfConfig2021012000 : Data.ConfigObject, Data.IMigrateCompatObject {
-		public static int CurrentVersion { get; } = 2021012000;
+
+	class WpfConfig2021020100 : Data.ConfigObject, Data.IMigrateCompatObject {
+		public static int CurrentVersion { get; } = 2021020100;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
 		public bool IsEnabledMovieMarker { get; private set; }
@@ -50,6 +52,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 		[JsonProperty("catalog-visible-isolate-thread", Required = Required.Always)]
 		public bool IsVisibleCatalogIsolateThread { get; private set; }
 
+		[Obsolete] // 定義を変えるとめどいのでなんか増やすまで残しておく
 		[JsonProperty("post-view-min-width", Required = Required.Always)]
 		public int MinWidthPostView { get; private set; }
 
@@ -63,6 +66,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 		public int OpacityPostView { get; private set; }
 
 		// 2020071900
+		[Obsolete] // 定義を変えるとめどいのでなんか増やすまで残しておく
 		[JsonProperty("thread-enable-quot-link", Required = Required.Always)]
 		public bool IsEnabledQuotLink { get; private set; }
 
@@ -91,7 +95,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 		[JsonProperty("thread-canvas98-position", Required = Required.Always)]
 		public UiPosition Canvas98Position { get; private set; }
 
-		public Data.ConfigObject Migrate() {
+		// 2021020100
+		[JsonProperty("thread-enable-failsafe-mistake-post", Required = Required.Always)]
+		public bool IsEnabledFailsafeMistakePost { get; private set; }
+
+		public ConfigObject Migrate() {
 			var conf = JsonConvert.DeserializeObject<WpfConfig>(
 				Util.FileUtil.LoadFileString(new Util.ResourceLoader(
 					typeof(Wpf.WpfConfig.WpfConfigLoader))
@@ -99,38 +107,35 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 					));
 
 			return WpfConfig.Create(
-				isEnabledMovieMarker: IsEnabledMovieMarker,
-				isEnabledOldMarker: IsEnabledOldMarker,
-				catalogNgImage: CatalogNgImage,
-				threadDelResVisibility: ThreadDelResVisibility,
-				clipbordJpegQuality: ClipbordJpegQuality,
-				clipbordIsEnabledUrl: ClipbordIsEnabledUrl,
-				mediaExportPath: MediaExportPath,
-				cacheExpireDay: CacheExpireDay,
-				exportNgRes: ExportNgRes,
-				exportNgImage: ExportNgImage,
-				browserPath: BrowserPath,
-				catalogSearchResult: CatalogSearchResult,
-				isVisibleCatalogIsolateThread: IsVisibleCatalogIsolateThread,
-				maxWidthPostView: MaxWidthPostView,
-				isEnabledOpacityPostView: IsEnabledOpacityPostView,
-				opacityPostView: OpacityPostView,
-				windowTopmost: IsEnabledWindowTopmost,
-				ngReasonInput: IsEnabledNgReasonInput,
-				windowTheme: WindowTheme,
-				isEnabledIdMarker: IsEnabledIdMarker,
-				isEnabledThreadCommandPalette: IsEnabledThreadCommandPalette,
-				isEnabledFetchThumbnail: IsEnabledFetchThumbnail,
-				commandPalettePosition: CommandPalettePosition,
-				canvas98Position: Canvas98Position,
-
-				// 2021020100
-				isEnabledFailsafeMistakePost: conf.IsEnabledFailsafeMistakePost,
-
-				// 2023061200
+				windowTheme: this.WindowTheme,
+				isEnabledFetchThumbnail: this.IsEnabledFetchThumbnail,
+				isEnabledMovieMarker: this.IsEnabledMovieMarker,
+				isEnabledIdMarker: this.IsEnabledIdMarker,
+				isEnabledOldMarker: this.IsEnabledOldMarker,
+				catalogNgImage: this.CatalogNgImage,
+				isVisibleCatalogIsolateThread: this.IsVisibleCatalogIsolateThread,
+				catalogSearchResult: this.CatalogSearchResult,
+				threadDelResVisibility: this.ThreadDelResVisibility,
+				isEnabledThreadCommandPalette: this.IsEnabledThreadCommandPalette,
+				commandPalettePosition: this.CommandPalettePosition,
+				canvas98Position: this.Canvas98Position	,
+				isEnabledFailsafeMistakePost: this.IsEnabledFailsafeMistakePost,
+				clipbordJpegQuality: this.ClipbordJpegQuality,
+				clipbordIsEnabledUrl: this.ClipbordIsEnabledUrl,
+				maxWidthPostView: this.MaxWidthPostView,
+				isEnabledOpacityPostView: this.IsEnabledOpacityPostView,
+				opacityPostView: this.OpacityPostView,
+				mediaExportPath: this.MediaExportPath,
+				cacheExpireDay: this.CacheExpireDay,
+				exportNgRes: this.ExportNgRes,
+				exportNgImage: this.ExportNgImage,
+				windowTopmost: this.IsEnabledWindowTopmost,
+				ngReasonInput: this.IsEnabledNgReasonInput,
+				browserPath: this.BrowserPath,
 				bouyomiChanEndPoint: conf.BouyomiChanEndPoint,
 				isMaskPassword: conf.IsMaskPassword
-			);
+			);;
+			throw new NotImplementedException();
 		}
 	}
 }

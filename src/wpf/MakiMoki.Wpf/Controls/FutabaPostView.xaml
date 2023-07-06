@@ -283,8 +283,19 @@
                             <behavior:RichTextBoxBehavior PlaneText="{Binding Subject.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         </i:Interaction.Behaviors>
                     </local:MakiMokiTextBox>
+                    <PasswordBox
+                        Margin="0,8,0,8" Padding="1"
+                        CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
+                        Visibility="{Binding DataContext.MaskPasswordBoxVisibility.Value, Mode=OneWay, ElementName=_this}"
+                        local:PasswordBehavior.Password="{Binding Password.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        local:PasswordBehavior.PlaceHolderText="削除キー(必須)">
+                        <PasswordBox.Foreground>
+                            <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
+                        </PasswordBox.Foreground>
+                    </PasswordBox>
                     <local:MakiMokiTextBox
                         Margin="0,8,0,8" Padding="1"
+                        Visibility="{Binding DataContext.NonMaskPasswordBoxVisibility.Value, Mode=OneWay, ElementName=_this}"
                         CaretBrush="{Binding Foreground, RelativeSource={RelativeSource Self}}"
                         AcceptsReturn="False"
                         local:PlaceHolderBehavior.PlaceHolderText="削除キー(必須)">

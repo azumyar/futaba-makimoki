@@ -11,7 +11,7 @@
 
 
 
-namespace MakiMoki.Wpf.WpfUtil;
+namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil;
 
 class IconSymbol {
 	public static string GlobalNavButton { get; } = "\xe700";

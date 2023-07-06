@@ -335,7 +335,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						}).ToArray();
 					}
 				}
-				return FutabaApiReactive.GetThreadResAll(board, threadNo)
+				return FutabaApiReactive.GetThreadResAll(board, threadNo, Config.ConfigLoader.FutabaApi.Cookies)
 					.Select(x => {
 						var @new = default(Data.FutabaContext);
 						var prev = default(Data.FutabaContext);
@@ -397,7 +397,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						return (x.Successed, @new, prev, x.ErrorMessage);
 					});
 			} else {
-				return FutabaApiReactive.GetThreadRes(board, threadNo, parent, incremental)
+				return FutabaApiReactive.GetThreadRes(board, threadNo, parent, Config.ConfigLoader.FutabaApi.Cookies, incremental)
 					.Select(x => {
 						var r = (
 							Successed: x.Successed,
@@ -588,7 +588,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
 
-			return FutabaApiReactive.PostThread(board, name, email, subject, comment, filePath, passwd)
+			return FutabaApiReactive.PostThread(
+				board, name, email, subject, comment, filePath, passwd,
+				 Config.ConfigLoader.FutabaApi.Cookies, Config.ConfigLoader.FutabaApi.Ptua)
 				.Select(x => {
 					if(x.Cookies != null) {
 						Config.ConfigLoader.UpdateCookie(board.Url, x.Cookies);
@@ -604,7 +606,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
 
-			return FutabaApiReactive.PostRes(board, threadNo, name, email, subject, comment, filePath, passwd)
+			return FutabaApiReactive.PostRes(
+				board, threadNo, name, email, subject, comment, filePath, passwd,
+				 Config.ConfigLoader.FutabaApi.Cookies, Config.ConfigLoader.FutabaApi.Ptua)
 				.Select(x => {
 					if(x.Cookies != null) {
 						Config.ConfigLoader.UpdateCookie(board.Url, x.Cookies);
@@ -791,10 +795,12 @@ namespace Yarukizero.Net.MakiMoki.Util {
 							}
 						}
 					}
-					catch(HttpRequestException) {
-						return (false, default, default);
-					}
-					catch(Exception e) when(e is SocketException || e is TimeoutException) {
+					catch(Exception e) when(
+						e is SocketException
+						|| e is HttpRequestException
+						|| e is TaskCanceledException
+						|| e is OperationCanceledException
+						|| e is TimeoutException) {
 						return (false, default, default);
 					}
 				}, url, localPath,
@@ -843,7 +849,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 		public static IObservable<(bool Successed, string Message)> PostDeleteThreadRes(Data.BoardData board, string threadNo, bool imageOnlyDel, string passwd) {
-			return FutabaApiReactive.PostDeleteThreadRes(board, threadNo, imageOnlyDel, passwd)
+			return FutabaApiReactive.PostDeleteThreadRes(board, threadNo, imageOnlyDel, passwd, Config.ConfigLoader.FutabaApi.Cookies)
 				.Select(x => {
 					if(x.Successed) {
 						Config.ConfigLoader.UpdateCookie(board.Url, x.Cookies);

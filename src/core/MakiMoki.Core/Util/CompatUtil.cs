@@ -9,6 +9,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 	public static class CompatUtil {
 		public static T Migrate<T>(string json, Dictionary<int, Type> migrateDic) where T : Data.ConfigObject {
 			var targetConf = JsonConvert.DeserializeObject<Data.ConfigObject>(json);
+			if(targetConf == null) {
+				throw new Exceptions.ConfigLoadFailedException();
+			}
 			var p = typeof(T).GetProperty("CurrentVersion", BindingFlags.Public | BindingFlags.Static);
 			if(p == null) {
 				throw new ArgumentException($"{ typeof(T).FullName }はCurrentVersionを持っていません");

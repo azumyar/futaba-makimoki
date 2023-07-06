@@ -20,26 +20,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 		}
 	}
 
-	class PostViewMinWidthConverter : IMultiValueConverter {
-		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-			if(values.Length != 3) {
-				throw new ArgumentException("型不正。", nameof(values));
-			}
-
-			var c = WpfConfig.WpfConfigLoader.SystemConfig;
-			if((values[0] is double width) && (values[1] is double def)) {
-				var val = (c.MinWidthPostView != 0) ? (double)c.MinWidthPostView : def;
-
-				return Math.Min(Math.Max(def, val), width);
-			}
-			throw new ArgumentException("型不正。", nameof(values));
-		}
-
-		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
-			throw new NotImplementedException();
-		}
-	}
-
 	class PostViewMaxWidthConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
 			if(values.Length != 3) {

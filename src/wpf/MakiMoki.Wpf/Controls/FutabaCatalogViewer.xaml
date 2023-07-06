@@ -51,7 +51,6 @@
             <converter:FutabaResItemResCountColorConverter x:Key="FutabaResItemResCountColorConverter" />
             <converter:FutabaResItemCommentHtmlConverter x:Key="FutabaResItemCommentHtmlConverter" />
             <converter:PostViewOpacityConverter x:Key="PostViewOpacityConverter" />
-            <converter:PostViewMinWidthConverter x:Key="PostViewMinWidthConverter" />
             <converter:PostViewMaxWidthConverter x:Key="PostViewMaxWidthConverter" />
 
             <ToolTip x:Key="CatalogItemToolTip" x:Shared="False">
@@ -912,13 +911,6 @@
                 Opacity="{Binding Contents.PostData.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}"
                 Contents="{Binding Contents.PostData.Value, ElementName=_this}"
                 Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=TwoWay}">
-                <local:FutabaPostView.MinWidth>
-                    <MultiBinding Converter="{StaticResource PostViewMinWidthConverter}">
-                        <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
-                        <Binding Mode="OneWay" Source="{StaticResource DefaultMinWidth}" />
-                        <Binding Path="Contents.PostData.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
-                    </MultiBinding>
-                </local:FutabaPostView.MinWidth>
                 <local:FutabaPostView.MaxWidth>
                     <MultiBinding Converter="{StaticResource PostViewMaxWidthConverter}">
                         <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />

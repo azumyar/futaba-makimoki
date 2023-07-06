@@ -448,12 +448,6 @@
                             </StackPanel>
 
                             <TextBlock Style="{StaticResource ConfigHeaderText}">スレッド</TextBlock>
-                            <!--
-                            <StackPanel Style="{StaticResource ConfigContents}">
-                                <TextBlock>引用に該当レスへのリンクを張る</TextBlock>
-                                <CheckBox Content="有効" IsChecked="{Binding ThreadIsEnabledQuotLink.Value, Mode=TwoWay}" />
-                            </StackPanel>
-                            -->
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>誤爆防止として背景にスレ画を表示</TextBlock>
                                 <CheckBox Content="有効" IsChecked="{Binding IsEnabledFailsafeMistakePost.Value, Mode=TwoWay}" />
@@ -503,6 +497,10 @@
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>投稿したメールアドレスを記憶する</TextBlock>
                                 <CheckBox Content="有効" IsChecked="{Binding PostViewSavedMail.Value, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>投稿画面のパスワードをマスクする</TextBlock>
+                                <CheckBox Content="有効" IsChecked="{Binding PostViewMaskPassword.Value, Mode=TwoWay}" />
                             </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>投稿画面表示幅</TextBlock>
@@ -1314,6 +1312,17 @@
                             TextBlock.FontFamily="メイリオ"
                             TextBlock.FontSize="14"
                             >
+                            <TextBlock Style="{StaticResource ConfigHeaderText}">棒読みちゃん</TextBlock>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>棒読みちゃんHTTP連携URL</TextBlock>
+                                <TextBox
+                                    Text="{Binding BouyomiChanEndPoint.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Width="320"
+                                    MaxLines="1"
+                                    HorizontalAlignment="Left"
+                                    c:PlaceHolderBehavior.PlaceHolderText="http://localhost:50080/"/>
+                            </StackPanel>
+                            
                             <TextBlock Style="{StaticResource ConfigHeaderText}">はっちゃんキャンバス</TextBlock>
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>はっちゃん本体</TextBlock>

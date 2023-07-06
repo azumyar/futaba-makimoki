@@ -28,6 +28,8 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		};
 		private static readonly Encoding FutabaEncoding = Encoding.GetEncoding("Shift_JIS");
 
+		private static readonly int PostWebmTimeOutMiliSec = 20 * 1000;
+
 		private static RestClient CreateRestClient(string baseUrl) {
 			/* 一旦お蔵入り
 			var m = Regex.Match(baseUrl, @"^(https?://)([^/]+)(/.*)$");
@@ -313,6 +315,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				//var c = new RestClient("http://127.0.0.1:8080/");
 				try {
 					var c = CreateRestClient(board.Url);
+					// WebMはふたば内部でエンコードが走るのでタイムアウト時間を10秒に伸ばす
+					if(Path.GetExtension(filePath).ToLower() == ".webm") {
+						c.Timeout = PostWebmTimeOutMiliSec;
+					}
 					var r = new RestRequest(FutabaEndPoint, Method.POST);
 					c.Encoding = FutabaEncoding;
 					r.AddHeader("Content-Type", "multipart/form-data");
@@ -387,6 +393,9 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				//var c = new RestClient("http://127.0.0.1:8080/");
 				try {
 					var c = CreateRestClient(board.Url);
+					if(Path.GetExtension(filePath).ToLower() == ".webm") {
+						c.Timeout = PostWebmTimeOutMiliSec;
+					}
 					//c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
 					//c.Encoding = Encoding.GetEncoding("Shift_JIS");
 					var r = new RestRequest(FutabaEndPoint, Method.POST);

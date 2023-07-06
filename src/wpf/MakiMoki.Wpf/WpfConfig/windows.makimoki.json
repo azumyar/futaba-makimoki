@@ -1,5 +1,5 @@
 {
-  "version": 2021020100,
+  "version": 2023061600,
 
   "catalog-enable-fetch-thumbnail": false,
   "catalog-enable-movie-marker": true,
@@ -10,7 +10,6 @@
   "catalog-visible-isolate-thread": false,
 
   "thread-visible-del-res": 1,
-  "thread-enable-quot-link": true,
   "thread-enable-command-palette": false,
   "thread-command-palette-position": "Right",
   "thread-canvas98-position": "Default",
@@ -18,7 +17,6 @@
 
   "post-clipbord-jpeg-quality": 85,
   "post-clipbord-enable-url": true,
-  "post-view-min-width": 0,
   "post-view-max-width": 0,
   "post-view-enable-opacity": false,
   "post-view-enable-opacity-value": 50,
@@ -32,5 +30,8 @@
   "platform-window-theme": "Light",
   "platform-window-topmost": false,
   "platform-ng-reason-input": true,
-  "platform-browser-path": ""
+  "platform-browser-path": "",
+
+  "bouyomichan-endpoint": "http://localhost:50080/",
+  "post-view-mask-password": false
 }

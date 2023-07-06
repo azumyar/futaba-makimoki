@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -108,6 +109,44 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 						return false;
 					}
 				});
+			var rmdir = Path.Combine(cacheDir, "temp");
+			if(!Directory.Exists(rmdir)) {
+				try {
+					Directory.CreateDirectory(rmdir);
+				}
+				catch(Exception e) when(e is UnauthorizedAccessException || e is IOException) { 
+#if DEBUG
+				sw.Stop();
+					Console.WriteLine("初期削除処理失敗");
+#endif
+					return;
+				}
+			}
+			foreach(var it in f) {
+				try {
+					var name = Path.GetFileName(it);
+					File.Move(it, Path.Combine(rmdir, name));
+				}
+				catch(Exception e) when(e is UnauthorizedAccessException || e is IOException) { }
+			}
+
+			Observable.Return(rmdir)
+				.ObserveOn(System.Reactive.Concurrency.ThreadPoolScheduler.Instance)
+				.Subscribe(x => {
+					foreach(var it in Directory.EnumerateFiles(x)) {
+						try {
+							File.Delete(it);
+						}
+						catch(Exception e) when(e is UnauthorizedAccessException || e is IOException) { }
+					}
+					try {
+						Directory.Delete(x);
+					}
+					catch(Exception e) when(e is UnauthorizedAccessException || e is IOException) { }
+				});
+
+#if false
+			/*
 			// TODO: ファイルがたくさんあると無視できないくらい重い、非同期化したほうがいいかも
 			// Parallel.ForEachにしてみた
 			Parallel.ForEach(f, it => {
@@ -117,10 +156,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				try {
 					File.Delete(it);
 				}
-				catch(UnauthorizedAccessException) { /* 削除できないファイルは無視する */}
+				catch(UnauthorizedAccessException) { /* 削除できないファイルは無視する */
+		}
 				catch(IOException) { /* 削除できないファイルは無視する */}
 #endif
 			});
+#endif
 #if DEBUG
 			sw.Stop();
 			Console.WriteLine("初期削除処理{0}ミリ秒", sw.ElapsedMilliseconds);

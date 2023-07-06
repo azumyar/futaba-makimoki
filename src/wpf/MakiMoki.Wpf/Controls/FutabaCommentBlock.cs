@@ -344,8 +344,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		private static void OnLoadedQuot(object sender, RoutedEventArgs e) {
 			if((e.Source is Run run) && (run.Tag is Model.BindableFutabaResItem ri)) {
 				run.MouseLeftButtonUp += OnMouseLeftButtonUpQuot;
-				run.MouseEnter += OnMouseEnterQuot;
-				run.MouseLeave += OnMouseLeaveQuot;
 			}
 		}
 		
@@ -363,34 +361,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					}
 					*/
 				}
-			}
-		}
-
-		private static void OnMouseEnterQuot(object sender, MouseEventArgs e) {
-			if((e.Source is Run run) && (run.Tag is Model.BindableFutabaResItem ri)) {
-				/* いったんコメントアウトで対応。需要次第で考える。
-				if(run.ToolTip == null) {
-					run.ToolTip = new ToolTip() {
-						Background = new SolidColorBrush((Color)App.Current.Resources["MakimokiBackgroundColor"]),
-						Content = new FutabaResBlock() {
-							Foreground = new SolidColorBrush((Color)App.Current.Resources["MakimokiForegroundColor"]),
-							Background = new SolidColorBrush((Color)App.Current.Resources["ThreadBackgroundColor"]),
-							IsHitTestVisible = false,
-							DataContext = ri,
-						}
-					};
-				}
-				*/
-
-				if(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledQuotLink) {
-					run.TextDecorations = System.Windows.TextDecorations.Underline;
-				}
-			}
-		}
-
-		private static void OnMouseLeaveQuot(object sender, MouseEventArgs e) {
-			if(e.Source is Run run) {
-				run.TextDecorations = null;
 			}
 		}
 		

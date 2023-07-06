@@ -173,6 +173,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					CacheDirectory = AppCacheDirectory,
 					WorkDirectory = AppWorkDirectory,
 					AppCenterSecrets = AppCenterSecrets,
+					HttpClient = HttpClient,
 				});
 				Util.Futaba.Initialize(HttpClient);
 				Ng.NgConfig.NgConfigLoader.Initialize(new Ng.NgConfig.NgConfigLoader.Setting() {
@@ -190,6 +191,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 						System.AppContext.BaseDirectory,
 						"Config.d"),
 					UserDirectory = UserConfigDirectory,
+					MaskPassword = () => WpfConfig.WpfConfigLoader.SystemConfig.IsMaskPassword,
 				});
 			}
 			catch(Exceptions.InitializeFailedException ex) {

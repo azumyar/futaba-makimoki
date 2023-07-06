@@ -47,7 +47,6 @@
             <converter:FutabaResItemCopyTextBoxEventConverter x:Key="FutabaResItemCopyTextBoxEventConverter" />
             <converter:FutabaEnabledTegakiResConverter x:Key="FutabaEnabledTegakiResConverter" />
             <converter:PostViewOpacityConverter x:Key="PostViewOpacityConverter" />
-            <converter:PostViewMinWidthConverter x:Key="PostViewMinWidthConverter" />
             <converter:PostViewMaxWidthConverter x:Key="PostViewMaxWidthConverter" />
             <converter:WheelUpdatePositionConverter x:Key="WheelUpdatePositionConverter" />
             <converter:WheelUpdateVisibleConverter x:Key="WheelUpdateVisibleConverter" />
@@ -152,6 +151,8 @@
                 </Border.BorderBrush>
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" MinWidth="0" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
@@ -169,8 +170,49 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- スレッド-->
-                    <TextBlock 
+                    <ToggleButton
+                        Style="{StaticResource MaterialToggleButtonButton}"
+                        Grid.Column="0"
+                        Width="32" Height="32"
+                        Content="{DynamicResource ButtonIconNoNg}"
+                        DataContext="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
+                        Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}"
+                        IsChecked="{Binding IsDisableNg.Value, Mode=TwoWay}"
+                        ToolTip="NG無効">
+                        <!--
+                        <i:Interaction.Triggers>
+                            <i:DataTrigger Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True" Comparison="Equal">
+                                <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=ToggleButton}}" PropertyName="IsEnabled" Value="False" />
+                            </i:DataTrigger>
+                            <i:DataTrigger Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True" Comparison="NotEqual">
+                                <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=ToggleButton}}" PropertyName="IsEnabled" Value="True" />
+                            </i:DataTrigger>
+                        </i:Interaction.Triggers>
+                        -->
+                    </ToggleButton>
+                    <ToggleButton
+                        Style="{StaticResource MaterialToggleButtonButton}"
                         Grid.Column="1"
+                        Width="32" Height="32"
+                        Content="{DynamicResource ButtonIconBouyomichan}"
+                        DataContext="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
+                        Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}"
+                        IsChecked="{Binding EnableSpeach.Value, Mode=TwoWay}"
+                        ToolTip="読み上げ">
+                        <!--
+                        <i:Interaction.Triggers>
+                            <i:DataTrigger Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True" Comparison="Equal">
+                                <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=ToggleButton}}" PropertyName="IsEnabled" Value="False" />
+                            </i:DataTrigger>
+                            <i:DataTrigger Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True" Comparison="NotEqual">
+                                <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=ToggleButton}}" PropertyName="IsEnabled" Value="True" />
+                            </i:DataTrigger>
+                        </i:Interaction.Triggers>
+                        -->
+                    </ToggleButton>
+
+                    <TextBlock 
+                        Grid.Column="3"
                         FontSize="14"
                         VerticalAlignment="Center"
                         Margin="4">
@@ -200,7 +242,7 @@
 
                     </TextBlock>
                     <TextBlock
-                        Grid.Column="2"
+                        Grid.Column="4"
                         Text="{Binding  Contents.Futaba.Value.ResCount.Value, ElementName=_this, StringFormat='レス:{0}', Mode=OneWay}"
                         FontSize="14"                            
                         VerticalAlignment="Center"
@@ -219,7 +261,7 @@
                     </TextBlock>
 
                     <Button
-                        Grid.Column="3"
+                        Grid.Column="5"
                         Style="{StaticResource MaterialTransparentButton}"
                         Content="{DynamicResource ButtonIconViewerUpdate}"
                         DataContext="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
@@ -266,7 +308,7 @@
 
                     <Border
                         x:Name="SearchGrid"
-                        Grid.Column="4"
+                        Grid.Column="6"
                         Margin="2"
                         Padding="2"
                         BorderThickness="1"
@@ -359,7 +401,7 @@
                         </Grid>
                     </Border>
                     <Button
-                        x:Name="SearchButton" Grid.Column="4"
+                        x:Name="SearchButton" Grid.Column="6"
                         Style="{StaticResource MaterialTransparentButton}"
                         Content="{DynamicResource ButtonIconViewerSearch}"    
                         Visibility="{Binding Contents.SearchButtonVisibility.Value, Mode=OneWay, ElementName=_this}">
@@ -378,7 +420,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="5" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconViewerArrow}">
+                    <Button Grid.Column="7" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconViewerArrow}">
                         <Button.ToolTip>
                             <ToolTip Content="一番上に移動" />
                         </Button.ToolTip>
@@ -388,7 +430,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="6" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconViewerArrow}">
+                    <Button Grid.Column="8" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconViewerArrow}">
                         <Button.ToolTip>
                             <ToolTip Content="一番下に移動" />
                         </Button.ToolTip>
@@ -401,7 +443,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="7" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconCanvas98}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="9" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconCanvas98}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <!--
                         <Button.Style>
                             <Style TargetType="Button">
@@ -435,7 +477,7 @@
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="8" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
+                    <Button Grid.Column="10" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconViewerThreadRes}" DataContext="{Binding Contents.Futaba.Value, ElementName=_this}">
                         <Button.ToolTip>
                             <ToolTip Content="レス書き込み" />
                         </Button.ToolTip>
@@ -452,7 +494,7 @@
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Column="9" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconThreadMouseHamburger}" Width="16">
+                    <Button Grid.Column="11" Style="{StaticResource MaterialTransparentButton}" Content="{DynamicResource ButtonIconThreadMouseHamburger}" Width="16">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
                                 <i:ChangePropertyAction 
@@ -1254,13 +1296,6 @@
                     Opacity="{Binding Contents.PostData.Value.UpdateToken.Value, Mode=OneWay, ElementName=_this, Converter={StaticResource PostViewOpacityConverter}}"
                     Contents="{Binding Contents.PostData.Value, ElementName=_this}"
                     Visibility="{Binding DataContext.PostViewVisibility.Value, ElementName=_this, Mode=TwoWay}">
-                    <local:FutabaPostView.MinWidth>
-                        <MultiBinding Converter="{StaticResource PostViewMinWidthConverter}">
-                            <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />
-                            <Binding Mode="OneWay" Source="{StaticResource DefaultMinWidth}" />
-                            <Binding Path="Contents.PostData.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
-                        </MultiBinding>
-                    </local:FutabaPostView.MinWidth>
                     <local:FutabaPostView.MaxWidth>
                         <MultiBinding Converter="{StaticResource PostViewMaxWidthConverter}">
                             <Binding Path="ActualWidth" Mode="OneWay" ElementName="_this" />

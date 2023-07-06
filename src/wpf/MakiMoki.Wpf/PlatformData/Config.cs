@@ -26,7 +26,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	}
 
 	class WpfConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2021020100;
+		public static int CurrentVersion { get; } = 2023061600;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
 		public bool IsEnabledMovieMarker { get; private set; }
@@ -69,10 +69,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("catalog-visible-isolate-thread", Required = Required.Always)]
 		public bool IsVisibleCatalogIsolateThread { get; private set; }
 
-		[Obsolete] // 定義を変えるとめどいのでなんか増やすまで残しておく
-		[JsonProperty("post-view-min-width", Required = Required.Always)]
-		public int MinWidthPostView { get; private set; }
-
 		[JsonProperty("post-view-max-width", Required = Required.Always)]
 		public int MaxWidthPostView { get; private set; }
 
@@ -83,10 +79,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		public int OpacityPostView { get; private set; }
 
 		// 2020071900
-		[Obsolete] // 定義を変えるとめどいのでなんか増やすまで残しておく
-		[JsonProperty("thread-enable-quot-link", Required = Required.Always)]
-		public bool IsEnabledQuotLink { get; private set; }
-
 		[JsonProperty("platform-window-topmost", Required = Required.Always)]
 		public bool IsEnabledWindowTopmost { get; private set; }
 
@@ -116,6 +108,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("thread-enable-failsafe-mistake-post", Required = Required.Always)]
 		public bool IsEnabledFailsafeMistakePost { get; private set; }
 
+		// 2023061600
+		[JsonProperty("bouyomichan-endpoint", Required = Required.Always)]
+		public string BouyomiChanEndPoint { get; private set; }
+		[JsonProperty("post-view-mask-password", Required = Required.Always)]
+		public bool IsMaskPassword { get; private set; }
+
+
 		public static WpfConfig CreateDefault() {
 			// ここは使われない
 			return new WpfConfig() {
@@ -127,16 +126,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			WindowTheme windowTheme,
 			bool isEnabledFetchThumbnail,
 			bool isEnabledMovieMarker, bool isEnabledIdMarker, bool isEnabledOldMarker,
-			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility, bool isEnabledQuotLink,
+			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility,
 			bool isVisibleCatalogIsolateThread, CatalogSearchResult catalogSearchResult,
 			bool isEnabledThreadCommandPalette, UiPosition commandPalettePosition,
 			UiPosition canvas98Position,
 			bool isEnabledFailsafeMistakePost,
 			int clipbordJpegQuality, bool clipbordIsEnabledUrl,
-			int minWidthPostView, int maxWidthPostView, bool isEnabledOpacityPostView, int opacityPostView,
+			int maxWidthPostView, bool isEnabledOpacityPostView, int opacityPostView,
 			string[] mediaExportPath, int cacheExpireDay,
 			ExportNgRes exportNgRes, ExportNgImage exportNgImage,
-			bool windowTopmost, bool ngResonInput, string browserPath) {
+			bool windowTopmost, bool ngReasonInput, string browserPath,
+			string bouyomiChanEndPoint, bool isMaskPassword) {
 
 			System.Diagnostics.Debug.Assert(catalogNgImage <= CatalogNgImage.MaxValue);
 			System.Diagnostics.Debug.Assert(threadDelResVisibility <= ThreadDelResVisibility.MaxValue);
@@ -145,6 +145,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			System.Diagnostics.Debug.Assert(browserPath != null);
 			System.Diagnostics.Debug.Assert(new[] { UiPosition.Left, UiPosition.Right }.Contains(commandPalettePosition));
 			System.Diagnostics.Debug.Assert(new[] { UiPosition.Default, UiPosition.Right, UiPosition.Bottom }.Contains(canvas98Position));
+			System.Diagnostics.Debug.Assert(bouyomiChanEndPoint != null);
 
 			return new WpfConfig() {
 				Version = CurrentVersion,
@@ -161,10 +162,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				CommandPalettePosition = commandPalettePosition,
 				Canvas98Position = canvas98Position,
 				IsEnabledFailsafeMistakePost = isEnabledFailsafeMistakePost,
-				IsEnabledQuotLink = isEnabledQuotLink,
 				ClipbordJpegQuality = clipbordJpegQuality,
 				ClipbordIsEnabledUrl = clipbordIsEnabledUrl,
-				MinWidthPostView = minWidthPostView,
 				MaxWidthPostView = maxWidthPostView,
 				IsEnabledOpacityPostView = isEnabledOpacityPostView,
 				OpacityPostView = opacityPostView,
@@ -173,8 +172,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				ExportNgRes = exportNgRes,
 				ExportNgImage = exportNgImage,
 				IsEnabledWindowTopmost = windowTopmost,
-				IsEnabledNgReasonInput = ngResonInput,
+				IsEnabledNgReasonInput = ngReasonInput,
 				BrowserPath = browserPath,
+				BouyomiChanEndPoint = bouyomiChanEndPoint,
+				IsMaskPassword = isMaskPassword,
 			};
 		}
 	}
