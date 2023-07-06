@@ -171,26 +171,46 @@
 
                     <!-- スレッド-->
                     <ToggleButton
+                        Style="{StaticResource MaterialToggleButtonButton}"
                         Grid.Column="0"
                         Width="32" Height="32"
-                        Content="NG無効"
-                        FontSize="9"
+                        Content="{DynamicResource ButtonIconNoNg}"
                         DataContext="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
                         Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}"
                         IsChecked="{Binding IsDisableNg.Value, Mode=TwoWay}"
-                        ToolTip="NG無効"
-                        />
+                        ToolTip="NG無効">
+                        <!--
+                        <i:Interaction.Triggers>
+                            <i:DataTrigger Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True" Comparison="Equal">
+                                <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=ToggleButton}}" PropertyName="IsEnabled" Value="False" />
+                            </i:DataTrigger>
+                            <i:DataTrigger Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True" Comparison="NotEqual">
+                                <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=ToggleButton}}" PropertyName="IsEnabled" Value="True" />
+                            </i:DataTrigger>
+                        </i:Interaction.Triggers>
+                        -->
+                    </ToggleButton>
                     <ToggleButton
+                        Style="{StaticResource MaterialToggleButtonButton}"
                         Grid.Column="1"
                         Width="32" Height="32"
-                        Content="読上"
-                        FontSize="9"
+                        Content="{DynamicResource ButtonIconBouyomichan}"
                         DataContext="{Binding Contents.Futaba.Value, Mode=OneWay, ElementName=_this}"
                         Tag="{Binding DataContext, Mode=OneWay, ElementName=_this}"
                         IsChecked="{Binding EnableSpeach.Value, Mode=TwoWay}"
-                        ToolTip="読み上げ"
-                        />
-                    
+                        ToolTip="読み上げ">
+                        <!--
+                        <i:Interaction.Triggers>
+                            <i:DataTrigger Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True" Comparison="Equal">
+                                <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=ToggleButton}}" PropertyName="IsEnabled" Value="False" />
+                            </i:DataTrigger>
+                            <i:DataTrigger Binding="{Binding Contents.Futaba.Value.Raw.Raw.IsDie, ElementName=_this, Mode=OneWay}" Value="True" Comparison="NotEqual">
+                                <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=ToggleButton}}" PropertyName="IsEnabled" Value="True" />
+                            </i:DataTrigger>
+                        </i:Interaction.Triggers>
+                        -->
+                    </ToggleButton>
+
                     <TextBlock 
                         Grid.Column="3"
                         FontSize="14"

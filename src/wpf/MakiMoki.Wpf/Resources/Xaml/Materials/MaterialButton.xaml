@@ -345,4 +345,133 @@
         </Setter>
     </Style>
 
+    <Style x:Key="MaterialToggleButtonButton" TargetType="ToggleButton">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Padding" Value="2" />
+
+        <Setter Property="Foreground">
+            <Setter.Value>
+                <SolidColorBrush Color="{DynamicResource MakimokiForegroundColor}" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background">
+            <Setter.Value>
+                <SolidColorBrush Color="{DynamicResource MakimokiPrimaryColor}" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border
+                        x:Name="Border"
+                        Background="Transparent"
+                        Width="{TemplateBinding Width}"
+                        Height="{TemplateBinding Height}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Opacity)"
+                                            Storyboard.TargetName="Cover">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.0" Value="0"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Opacity)"
+                                            Storyboard.TargetName="Cover">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="0.7" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Opacity)"
+                                            Storyboard.TargetName="Cover">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="0.4" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(UIElement.Opacity)"
+                                            Storyboard.TargetName="Content">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="0.7" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.Y)"
+                                            Storyboard.TargetName="Content">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="1" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(UIElement.Opacity)"
+                                            Storyboard.TargetName="Border">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.0" Value="0.4"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+
+                            <VisualStateGroup x:Name="CheckStates">
+                                <VisualState x:Name="Unchecked">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Opacity)"
+                                            Storyboard.TargetName="Cover">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.0" Value="0" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Checked">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Opacity)"
+                                            Storyboard.TargetName="Cover">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.0" Value="1" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+
+                        <Grid>
+                            <Border
+                                x:Name="Cover"
+                                CornerRadius="4"
+                                Background="{TemplateBinding Background}"
+                                BorderThickness="1">
+                                <Border.BorderBrush>
+                                    <SolidColorBrush Color="{DynamicResource MakimokiForegroundColor}" />
+                                </Border.BorderBrush>
+                            </Border>
+                            <ContentControl
+                                x:Name="Content"
+                                Foreground="{TemplateBinding Foreground}"
+                                Margin="{TemplateBinding Padding}"
+                                Content="{TemplateBinding Content}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
+                                <ContentControl.RenderTransform>
+                                    <TransformGroup>
+                                        <TranslateTransform X="0" Y="0" />
+                                    </TransformGroup>
+                                </ContentControl.RenderTransform>
+                            </ContentControl>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>
