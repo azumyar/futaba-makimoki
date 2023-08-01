@@ -105,6 +105,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			= new Dictionary<string, WeakReference<byte[]>>();
 		private volatile static Dictionary<string, WeakReference<Model.ImageObject>> bitmapBytesDic2
 			= new Dictionary<string, WeakReference<Model.ImageObject>>(); 
+		private static Model.ImageObject ErrorImage { get; set; } = null;
 		private static Model.ImageObject NgImage { get; set; } = null;
 
 		private static bool TryGetImage(string file, out byte[] image) {
@@ -173,6 +174,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 		}
 
+
+		public static Model.ImageObject GetErrorImage() {
+			if(ErrorImage == null) {
+				var asm = typeof(App).Assembly;
+				ErrorImage = new Model.ImageObject(new WriteableBitmap(
+					BitmapFrame.Create(asm.GetManifestResourceStream(
+						$"{typeof(App).Namespace}.Resources.Images.ErrorImage.png"))));
+			}
+			return ErrorImage;
+		}
 
 		public static Model.ImageObject GetNgImage() {
 			if(NgImage == null) {
@@ -248,11 +259,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				return b;
 			} else {
 				var ex = Path.GetExtension(file).ToLower();
-				return SetImage2(file, ex switch {
-					".png" => LoadPng(file, imageBytes),
-					".gif" => LoadGif(file, imageBytes),
-					_ => new Model.ImageObject(BitmapFrame.Create(LoadStream(file, imageBytes))),
-				});
+				try {
+					return SetImage2(file, ex switch {
+						".png" => LoadPng(file, imageBytes),
+						".gif" => LoadGif(file, imageBytes),
+						_ => new Model.ImageObject(BitmapFrame.Create(LoadStream(file, imageBytes))),
+					});
+				}
+				catch(Exception e) when ((e is COMException) || (e is Exceptions.ImageLoadFailedException)) {
+					return GetErrorImage();
+				}
 			}
 		}
 
@@ -502,7 +518,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			} else {
 				var s = CreateStream(file);
 				if(!s.Sucessed) {
-					return null;
+					return GetErrorImage();
 				}
 				stream = s.Stream;
 			}
