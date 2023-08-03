@@ -208,7 +208,7 @@ jobs:
         g=`cat ${Artifact_File_Conf} | jq -r '.group'`
         v=`cat ${Artifact_File_Conf} | jq -r '.version'`
         b=`cat ${Artifact_File_Conf} | jq -r '.display'`
-        d=`echo ${g} | sed -E 's/^(\w+)+/\U\1/'`
+        d=`echo ${g} | sed -E 's/^(\w+)+/\L\1/'`
         echo "App_Center_Group=${g}" >> $GITHUB_ENV
         echo "VERSION=${v}" >> $GITHUB_ENV
         echo "App_Center_Version=${b}" >> $GITHUB_ENV
