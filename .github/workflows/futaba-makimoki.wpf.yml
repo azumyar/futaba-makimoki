@@ -212,7 +212,7 @@ jobs:
         echo "App_Center_Group=${g}" >> $GITHUB_ENV
         echo "VERSION=${v}" >> $GITHUB_ENV
         echo "App_Center_Version=${b}" >> $GITHUB_ENV
-        echo "Ftp_Upload_Directory=${Ftp_Upload}${d}/"
+        echo "Ftp_Upload_Directory=${Ftp_Upload}${d}/" >> $GITHUB_ENV
 
     - name: Install node
       uses: actions/setup-node@v3
