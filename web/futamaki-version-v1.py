@@ -8,9 +8,9 @@ import json
 
 targetPath = "/virtual/yarukizero/public_html/futamaki/"
 baseUrl = "https://dev.yarukizero.net/futamaki/"
-releaseConf = "/virtual/yarukizero/futamaki/release.version.json"
+releaseConf = "/virtual/yarukizero/futamaki/release/version.json"
 releaseUrl = "https://install.appcenter.ms/users/azumyar/apps/futamaki/distribution_groups/release"
-canaryConf = "/virtual/yarukizero/futamaki/canary.version.json"
+canaryConf = "/virtual/yarukizero/futamaki/canary/version.json"
 canaryUrl = "https://install.appcenter.ms/users/azumyar/apps/futamaki/distribution_groups/canary"
 
 ret = {}
