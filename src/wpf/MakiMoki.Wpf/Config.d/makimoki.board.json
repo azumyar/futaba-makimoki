@@ -12,7 +12,7 @@
         "enable-res-image": false,
         "enable-mail-id": true,
         "enable-res-tegaki": true,
-        "max-stored-res": 40000,
+        "max-stored-res": 30000,
         "max-stored-time": 3600
       },
       "makimoki-extra": {
