@@ -82,6 +82,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
+		internal class VideoVolumeMessage : BaseMessage {
+			public double Volume { get; }
+
+			public VideoVolumeMessage(PlatformData.FutabaMedia media, double volume) : base(media) {
+				this.Volume = volume;
+			}
+		}
+
 		public MakiMokiCommand<MouseButtonEventArgs> MouseLeftButtonDownCommand { get; }
 			= new MakiMokiCommand<MouseButtonEventArgs>();
 		public MakiMokiCommand<MouseButtonEventArgs> MouseLeftButtonUpCommand { get; }
@@ -105,6 +113,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Visibility> VideoPlayButtonVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Visible);
 		public ReactiveProperty<Visibility> VideoPauseButtonVisibility { get; }
 		public ReactiveProperty<double> VideoSliderValue { get; } = new ReactiveProperty<double>(0);
+		public ReactiveProperty<bool> VideoRepeatValue { get; }
+		public ReactiveProperty<double> VideoVolumeValue { get; }
 
 		public MakiMokiCommand CloseCommand { get; } = new MakiMokiCommand();
 		public MakiMokiCommand VideoPlayCommand { get; } = new MakiMokiCommand();
@@ -142,6 +152,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<PlatformData.FutabaMedia> Media { get; }
 		private NavigationParameters navigationParameters;
 
+#pragma warning disable CS0067
+		private IDisposable VideoRepeatSubscriber { get; }
+		private IDisposable VideoVolumeSubscriber { get; }
+#pragma warning restore CS0067
+
 		public FutabaMediaViewerViewModel() {
 			this.Media = new ReactiveProperty<PlatformData.FutabaMedia>();
 
@@ -156,22 +171,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			this.VideoPauseButtonVisibility = this.VideoPlayButtonVisibility
 				.Select(x => (x == Visibility.Visible) ? Visibility.Hidden : Visibility.Visible)
 				.ToReactiveProperty();
-			this.VideoPlayCommand.Subscribe(_ => OnVideoPlay());
-			this.VideoPauseCommand.Subscribe(_ => OnVideoPause());
-			this.VideoStopCommand.Subscribe(_ => OnVideoStop());
-			this.VideoSliderValueChangedCommand.Subscribe(x => OnVideoSliderValueChanged(x));
-			this.VideoViewPlayingCommand.Subscribe(_ => OnVideoViewPlaying());
-			this.VideoViewPausedCommand.Subscribe(_ => OnVideoViewPaused());
-			this.VideoViewStoppedCommand.Subscribe(_ => OnVideoViewStopped());
-			this.VideoViewEndReachedCommand.Subscribe(_ => OnVideoViewEndReached());
-			this.VideoViewPositionChangedCommand.Subscribe(x => OnVideoViewPositionChanged(x));
+			this.VideoRepeatValue = new ReactiveProperty<bool>(false);
+			this.VideoVolumeValue = new ReactiveProperty<double>(1d);
+			this.VideoRepeatSubscriber = this.VideoRepeatValue.Subscribe(x => this.SubscribeVideoRepeat(x));
+			this.VideoVolumeSubscriber = this.VideoVolumeValue.Subscribe(x => this.SubscribeVideoVolume(x));
+			this.VideoPlayCommand.Subscribe(_ => this.OnVideoPlay());
+			this.VideoPauseCommand.Subscribe(_ => this.OnVideoPause());
+			this.VideoStopCommand.Subscribe(_ => this.OnVideoStop());
+			this.VideoSliderValueChangedCommand.Subscribe(x => this.OnVideoSliderValueChanged(x));
+			this.VideoViewPlayingCommand.Subscribe(_ => this.OnVideoViewPlaying());
+			this.VideoViewPausedCommand.Subscribe(_ => this.OnVideoViewPaused());
+			this.VideoViewStoppedCommand.Subscribe(_ => this.OnVideoViewStopped());
+			this.VideoViewEndReachedCommand.Subscribe(_ => this.OnVideoViewEndReached());
+			this.VideoViewPositionChangedCommand.Subscribe(x => this.OnVideoViewPositionChanged(x));
 
-			this.MenuItemClickSaveCommand.Subscribe(x => OnMenuItemClickSave(x));
-			this.MenuItemClickQuickSaveCommand.Subscribe(x => OnMenuItemClickQuickSave(x));
-			this.MenuItemClickImageSearchGoogleCommand.Subscribe(x => OnMenuItemClickImageSearchGoogle(x));
-			this.MenuItemClickGoogleLensCommand.Subscribe(x => OnMenuItemClickGoogleLens(x));
-			this.MenuItemClickImageSearchAscii2dCommand.Subscribe(x => OnMenuItemClickImageSearchAscii2d(x));
-			this.MenuItemClickQuickOpenBrowserCommand.Subscribe(x => OnMenuItemClickQuickOpenBrowser(x));
+			this.MenuItemClickSaveCommand.Subscribe(x => this.OnMenuItemClickSave(x));
+			this.MenuItemClickQuickSaveCommand.Subscribe(x => this.OnMenuItemClickQuickSave(x));
+			this.MenuItemClickImageSearchGoogleCommand.Subscribe(x => this.OnMenuItemClickImageSearchGoogle(x));
+			this.MenuItemClickGoogleLensCommand.Subscribe(x => this.OnMenuItemClickGoogleLens(x));
+			this.MenuItemClickImageSearchAscii2dCommand.Subscribe(x => this.OnMenuItemClickImageSearchAscii2d(x));
+			this.MenuItemClickQuickOpenBrowserCommand.Subscribe(x => this.OnMenuItemClickQuickOpenBrowser(x));
 
 			 this.ImageSource = this.ImageSourceObject.Select(x => x switch {
 				ImageObject v => v.Image as ImageSource,
@@ -387,6 +406,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
+		private void SubscribeVideoRepeat(bool b) {
+		}
+
+		private void SubscribeVideoVolume(double v) {
+			Messenger.Instance.GetEvent<PubSubEvent<VideoVolumeMessage>>()
+				.Publish(new VideoVolumeMessage(this.Media.Value, v));
+		}
+
 		private void OnVideoPlay() {
 			Messenger.Instance.GetEvent<PubSubEvent<VideoPlayMessage>>()
 				.Publish(new VideoPlayMessage(this.Media.Value));
@@ -412,6 +439,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private void OnVideoViewPaused() => this.VideoPlayButtonVisibility.Value = Visibility.Visible;
 		private void OnVideoViewStopped() => this.VideoPlayButtonVisibility.Value = Visibility.Visible;
 		private void OnVideoViewEndReached() {
+			if(this.VideoRepeatValue.Value) {
+				Messenger.Instance.GetEvent<PubSubEvent<VideoStopMessage>>()
+					.Publish(new VideoStopMessage(this.Media.Value));
+				Messenger.Instance.GetEvent<PubSubEvent<VideoPlayMessage>>()
+					.Publish(new VideoPlayMessage(this.Media.Value));
+			}
 			//this.VideoPlayButtonVisibility.Value = Visibility.Visible;
 			//Messenger.Instance.GetEvent<PubSubEvent<VideoStopMessage>>()
 			//	.Publish(new VideoStopMessage(this.Media.Value));

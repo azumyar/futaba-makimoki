@@ -104,6 +104,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		private IDisposable VideoPauseSubscriber { get; }
 		private IDisposable VideoStopSubscriber { get; }
 		private IDisposable VideoPositionSubscriber { get; }
+		private IDisposable VideoVolumeSubscriber { get; }
 #pragma warning restore CS0067
 		private volatile bool isDisposed = false;
 
@@ -202,7 +203,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						}
 					}
 				});
-
+			this.VideoVolumeSubscriber = ViewModels.FutabaMediaViewerViewModel.Messenger.Instance
+				.GetEvent<PubSubEvent<ViewModels.FutabaMediaViewerViewModel.VideoVolumeMessage>>()
+				.Subscribe(x => {
+					lock(this.VideoView) {
+						if(!this.isDisposed && this.IsThisMedia(x.Media)) {
+							GetMediaPlayer().Subscribe(y => {
+								y.Volume = (int)(x.Volume * 100);
+							});
+						}
+					}
+				});
 			this.Loaded += (sender, ev) => {
 				if(this.VideoView.MediaPlayer != null) {
 					return;
