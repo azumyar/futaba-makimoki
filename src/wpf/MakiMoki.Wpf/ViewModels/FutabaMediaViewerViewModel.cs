@@ -463,7 +463,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			if(m.Success) {
 				File.Copy(GetPath(media.Media.Value), GetSavePath(Path.Combine(media.Path.Value, m.Groups[1].Value)));
 
-				Util.Futaba.PutInformation(new Data.Information("保存しました", this.ImageSourceObject.Value.Image));
+				Util.Futaba.PutInformation(new Data.Information("保存しました", this.ImageSourceObject.Value?.Image));
 			}
 		}
 		private void OnMenuItemClickImageSearchGoogle(PlatformData.FutabaMedia media) {

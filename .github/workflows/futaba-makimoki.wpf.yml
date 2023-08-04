@@ -195,8 +195,7 @@ jobs:
       Artifact_File_Conf: appcenter.conf.json
       Ftp_Root: futamaki/
       Ftp_Upload: /futamaki/
-      Ftp_Release_Json: futamaki/release.version.json
-      Ftp_Canary_Json: futamaki/canary.version.json
+      Ftp_Json: futamaki/version.json
 
     steps:
     - name: Download Artifact
@@ -209,9 +208,11 @@ jobs:
         g=`cat ${Artifact_File_Conf} | jq -r '.group'`
         v=`cat ${Artifact_File_Conf} | jq -r '.version'`
         b=`cat ${Artifact_File_Conf} | jq -r '.display'`
+        d=`echo ${g} | sed -E 's/^(\w+)+/\L\1/'`
         echo "App_Center_Group=${g}" >> $GITHUB_ENV
         echo "VERSION=${v}" >> $GITHUB_ENV
         echo "App_Center_Version=${b}" >> $GITHUB_ENV
+        echo "Ftp_Upload_Directory=${Ftp_Upload}${d}/" >> $GITHUB_ENV
 
     - name: Install node
       uses: actions/setup-node@v3
@@ -231,17 +232,11 @@ jobs:
       env:
         token: ${{ secrets.APP_CENTER_TOKEN }}
 
-    - name: FTP Put Json(Release)
+    - name: FTP Put Json
       run: |
         mkdir ${Ftp_Root}
-        echo "{ \"version\": \"${VERSION}\", \"app-center-version\": \"${App_Center_Version}\" }" > ${Ftp_Release_Json}
-      if: ${{ env.App_Center_Group == 'Release' }}
-
-    - name: FTP Put Json(Canary)
-      run: |
-        mkdir ${Ftp_Root}
-        echo "{ \"version\": \"${VERSION}\", \"app-center-version\": \"${App_Center_Version}\" }" > ${Ftp_Canary_Json}
-      if: ${{ env.App_Center_Group == 'Canary' }}
+        echo "{ \"version\": \"${VERSION}\", \"app-center-version\": \"${App_Center_Version}\" }" > ${Ftp_Json}
+      if: ${{ env.App_Center_Group == 'Release' || env.App_Center_Group == 'Canary' }}
 
     - name: FTP Upload
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -250,7 +245,7 @@ jobs:
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ${{ env.Ftp_Root }}
-        server-dir: ${{ env.Ftp_Upload }}
+        server-dir: ${{ env.Ftp_Upload_Directory }}
       if: ${{ env.App_Center_Group == 'Release' || env.App_Center_Group == 'Canary' }}
 
     #- name: Create the app package

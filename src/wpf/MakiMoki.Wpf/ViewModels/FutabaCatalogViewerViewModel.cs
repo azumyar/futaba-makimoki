@@ -405,6 +405,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 
 			if((e.Source is FrameworkElement el) && !object.ReferenceEquals(el, this.toolTipTarget)) {
+				{
+					// クラッシュすることがあるのでアクテイブではない場合ツールチップを処理しない
+					if(Window.GetWindow(el) is Window wnd && !wnd.IsActive) {
+						return;
+					}
+				}
+
 				if(this.toolTipTarget?.ToolTip is ToolTip tt) {
 					tt.IsOpen = false;
 					this.toolTipTarget.ToolTip = null;
