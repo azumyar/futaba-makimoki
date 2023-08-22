@@ -234,7 +234,7 @@
                     <ColumnDefinition Width="48" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="48" />
-                    <ColumnDefinition Width="48" />
+                    <ColumnDefinition Width="24" />
                     <ColumnDefinition Width="128" />
                     <ColumnDefinition Width="48" />
                 </Grid.ColumnDefinitions>
@@ -378,11 +378,12 @@
                 </ToggleButton>
                 <TextBlock
                     Grid.Column="5"
+                    Foreground="White"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     FontFamily="{DynamicResource MakimokiSymbolFont}"
                     FontSize="16"
-                    Text="{StaticResource FontSymbolSpeakers}"
+                    Text="{StaticResource FontSymbolSpatialVolume3}"
                     />
                 <Slider
                     Grid.Column="6"
