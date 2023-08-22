@@ -522,7 +522,7 @@
                 >
                 <ListBox.ItemsSource>
                     <MultiBinding Converter="{StaticResource FutabaCatalogItemFilterConverter}">
-                        <Binding Path="Contents.Futaba.Value.ResItems" Mode="OneWay" ElementName="_this" />
+                        <Binding Path="Contents.FutabaItems.Value" Mode="OneWay" ElementName="_this" />
                         <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
                         <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
                     </MultiBinding>

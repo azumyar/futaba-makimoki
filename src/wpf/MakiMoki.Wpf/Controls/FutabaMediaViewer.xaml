@@ -234,6 +234,9 @@
                     <ColumnDefinition Width="48" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="48" />
+                    <ColumnDefinition Width="24" />
+                    <ColumnDefinition Width="128" />
+                    <ColumnDefinition Width="48" />
                 </Grid.ColumnDefinitions>
                 <Button
                     Grid.Column="0"
@@ -361,8 +364,42 @@
                 </Button>
 
 
-                <Button
+                <ToggleButton
                     Grid.Column="4"
+                    Width="Auto" Height="Auto"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    IsChecked="{Binding VideoRepeatValue.Value, Mode=TwoWay}">
+                    <TextBlock
+                        FontFamily="{DynamicResource MakimokiSymbolFont}"
+                        FontSize="16"
+                        Text="{StaticResource FontSymbolRepeatAll}"
+                        />
+                </ToggleButton>
+                <TextBlock
+                    Grid.Column="5"
+                    Foreground="White"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontFamily="{DynamicResource MakimokiSymbolFont}"
+                    FontSize="16"
+                    Text="{StaticResource FontSymbolSpatialVolume3}"
+                    />
+                <Slider
+                    Grid.Column="6"
+                    Minimum="0"
+                    Maximum="1"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center"
+                    TickPlacement="None"
+                    TickFrequency="0.01"
+                    SmallChange="0.05"
+                    LargeChange="0.05"
+                    Orientation="Horizontal"
+                    Value="{Binding VideoVolumeValue.Value, Mode=TwoWay}"
+                    />
+                <Button
+                    Grid.Column="7"
                     Style="{StaticResource MaterialTransparentButton}"
                     Width="Auto" Height="Auto"
                     HorizontalAlignment="Stretch"
