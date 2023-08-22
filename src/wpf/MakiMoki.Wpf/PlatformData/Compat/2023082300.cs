@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 using Yarukizero.Net.MakiMoki.Data;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
-
-	class WpfConfig2021020100 : Data.ConfigObject, Data.IMigrateCompatObject {
-		public static int CurrentVersion { get; } = 2021020100;
+	class WpfConfig2023061600 : Data.ConfigObject, Data.IMigrateCompatObject {
+		public static int CurrentVersion { get; } = 2023061600;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
 		public bool IsEnabledMovieMarker { get; private set; }
@@ -52,10 +51,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 		[JsonProperty("catalog-visible-isolate-thread", Required = Required.Always)]
 		public bool IsVisibleCatalogIsolateThread { get; private set; }
 
-		[Obsolete] // 定義を変えるとめどいのでなんか増やすまで残しておく
-		[JsonProperty("post-view-min-width", Required = Required.Always)]
-		public int MinWidthPostView { get; private set; }
-
 		[JsonProperty("post-view-max-width", Required = Required.Always)]
 		public int MaxWidthPostView { get; private set; }
 
@@ -66,10 +61,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 		public int OpacityPostView { get; private set; }
 
 		// 2020071900
-		[Obsolete] // 定義を変えるとめどいのでなんか増やすまで残しておく
-		[JsonProperty("thread-enable-quot-link", Required = Required.Always)]
-		public bool IsEnabledQuotLink { get; private set; }
-
 		[JsonProperty("platform-window-topmost", Required = Required.Always)]
 		public bool IsEnabledWindowTopmost { get; private set; }
 
@@ -99,6 +90,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 		[JsonProperty("thread-enable-failsafe-mistake-post", Required = Required.Always)]
 		public bool IsEnabledFailsafeMistakePost { get; private set; }
 
+		// 2023061600
+		[JsonProperty("bouyomichan-endpoint", Required = Required.Always)]
+		public string BouyomiChanEndPoint { get; private set; }
+		[JsonProperty("post-view-mask-password", Required = Required.Always)]
+		public bool IsMaskPassword { get; private set; }
+
 		public ConfigObject Migrate() {
 			var conf = JsonConvert.DeserializeObject<WpfConfig>(
 				Util.FileUtil.LoadFileString(new Util.ResourceLoader(
@@ -118,7 +115,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				threadDelResVisibility: this.ThreadDelResVisibility,
 				isEnabledThreadCommandPalette: this.IsEnabledThreadCommandPalette,
 				commandPalettePosition: this.CommandPalettePosition,
-				canvas98Position: this.Canvas98Position	,
+				canvas98Position: this.Canvas98Position,
 				isEnabledFailsafeMistakePost: this.IsEnabledFailsafeMistakePost,
 				clipbordJpegQuality: this.ClipbordJpegQuality,
 				clipbordIsEnabledUrl: this.ClipbordIsEnabledUrl,
@@ -132,11 +129,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				windowTopmost: this.IsEnabledWindowTopmost,
 				ngReasonInput: this.IsEnabledNgReasonInput,
 				browserPath: this.BrowserPath,
-				bouyomiChanEndPoint: conf.BouyomiChanEndPoint,
-				isMaskPassword: conf.IsMaskPassword,
+				bouyomiChanEndPoint: this.BouyomiChanEndPoint,
+				isMaskPassword: this.IsMaskPassword,
 				isVisibleNgCatalog: conf.IsVisibleCatalogViaNg,
 				isVisibleNgThread: conf.IsVisibleThreadViaNg
 			);
 		}
+
 	}
 }

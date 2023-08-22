@@ -146,6 +146,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<int> CommandPalettePosition { get; }
 		public ReactiveProperty<int> Canvas98Position { get; }
 		public ReactiveProperty<bool> IsEnabledFailsafeMistakePost { get; }
+		public ReactiveProperty<int> CatalogVisibleNgResMode { get; }
+		public ReactiveProperty<int> ThreadVisibleNgResMode { get; }
 
 		public ReactiveProperty<bool> PostViewSavedSubject { get; }
 		public ReactiveProperty<bool> PostViewSavedName { get; }
@@ -311,7 +313,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				var x => x
 			});
 			IsEnabledFailsafeMistakePost = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledFailsafeMistakePost);
-
+			CatalogVisibleNgResMode = new ReactiveProperty<int>(WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleCatalogViaNg switch {
+				true => 0,
+				false => 1,
+			});
+			ThreadVisibleNgResMode = new ReactiveProperty<int>(WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleThreadViaNg switch {
+				true => 0,
+				false => 1,
+			});
 			ClipbordJpegQuality = new ReactiveProperty<string>(WpfConfig.WpfConfigLoader.SystemConfig.ClipbordJpegQuality.ToString());
 			ClipbordJpegQualityValid = ClipbordJpegQuality.Select(x => {
 				if(int.TryParse(x, out var v)) {
@@ -604,8 +613,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				isEnabledFailsafeMistakePost: IsEnabledFailsafeMistakePost.Value,
 				// 2023061200
 				bouyomiChanEndPoint: BouyomiChanEndPoint.Value,
-				isMaskPassword: PostViewMaskPassword.Value
-			));
+				isMaskPassword: PostViewMaskPassword.Value,
+				// 2023082300
+				isVisibleNgCatalog: CatalogVisibleNgResMode.Value switch {
+					1 => false,
+					_ => true
+				},
+				isVisibleNgThread: ThreadVisibleNgResMode.Value switch {
+					1 => false,
+					_ => true
+				}
+			)) ;
 			WpfConfig.WpfConfigLoader.UpdateGestureConfig(PlatformData.GestureConfig.From(
 				keyGestureCatalogUpdate: GestureMainWindowCatalogUpdate.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),
 				keyGestureCatalogSearch: GestureMainWindowCatalogSearch.Value.GestureCollection.Select(x => x.Item.Value.ToString()).ToArray(),

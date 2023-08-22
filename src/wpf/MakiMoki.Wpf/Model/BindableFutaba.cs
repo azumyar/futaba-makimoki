@@ -900,11 +900,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				false => Ng.NgUtil.NgHelper.CheckThreadNg(this.Parent.Value.Raw, this.Raw.Value),
 			};
 			var hidden = Ng.NgUtil.NgHelper.CheckHidden(this.Parent.Value.Raw, this.Raw.Value);
+			var isUpdate = (ng != this.IsNg.Value) || (hidden != this.IsHidden.Value);
 			this.IsWatchWord.Value = Ng.NgUtil.NgHelper.CheckCatalogWatch(this.Parent.Value.Raw, this.Raw.Value);
 			this.IsCopyMode.Value = false;
 			this.SetCommentHtml(ng, hidden);
 			this.IsNg.Value = ng;
 			this.IsHidden.Value = hidden;
+			// 画像の再ロード
+			if(isUpdate) {
+				this.thumbSource.SetTarget(null);
+				_ = this.ThumbSource;
+				this.Parent.Value.UpdateToken.Value = DateTime.Now;
+			}
 		}
 
 		// TODO: 名前変える

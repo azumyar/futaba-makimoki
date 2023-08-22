@@ -563,7 +563,7 @@
                     x:Name="ThreadResListBox"
                     Grid.Row="0" Grid.RowSpan="{Binding ListBoxRowSpan.Value, Mode=OneWay}"
                     Grid.Column="0" Grid.ColumnSpan="{Binding ListBoxColumnSpan.Value, Mode=OneWay}"
-                    ItemsSource="{Binding Contents.Futaba.Value.ResItems, ElementName=_this, Mode=OneWay}"
+                    ItemsSource="{Binding Contents.FutabaItems.Value, ElementName=_this, Mode=OneWay}"
                     BorderThickness="0"
                     Visibility="{Binding Contents.Futaba.Value.Raw, ElementName=_this, Converter={StaticResource FutabaThreadResVisibleConverter}, Mode=OneWay}"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"

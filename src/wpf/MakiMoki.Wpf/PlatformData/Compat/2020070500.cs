@@ -63,34 +63,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				exportNgRes: ExportNgRes,
 				exportNgImage: ExportNgImage,
 				browserPath: BrowserPath,
-
-				// 2020070500
 				catalogSearchResult: conf.CatalogSearchResult,
 				isVisibleCatalogIsolateThread: conf.IsVisibleCatalogIsolateThread,
 				maxWidthPostView: conf.MaxWidthPostView,
 				isEnabledOpacityPostView: conf.IsEnabledOpacityPostView,
 				opacityPostView: conf.OpacityPostView,
-
-				// 2020071900
 				windowTopmost: conf.IsEnabledWindowTopmost,
 				ngReasonInput: conf.IsEnabledNgReasonInput,
-
-				// 2020102900
 				windowTheme: conf.WindowTheme,
 				isEnabledIdMarker: conf.IsEnabledIdMarker,
 				isEnabledThreadCommandPalette: conf.IsEnabledThreadCommandPalette,
-
-				// 2021012000
 				isEnabledFetchThumbnail: conf.IsEnabledFetchThumbnail,
 				commandPalettePosition: conf.CommandPalettePosition,
 				canvas98Position: conf.Canvas98Position,
-
-				// 2021020100
 				isEnabledFailsafeMistakePost: conf.IsEnabledFailsafeMistakePost,
-
-				// 2023061200
 				bouyomiChanEndPoint: conf.BouyomiChanEndPoint,
-				isMaskPassword: conf.IsMaskPassword
+				isMaskPassword: conf.IsMaskPassword,
+				isVisibleNgCatalog: conf.IsVisibleCatalogViaNg,
+				isVisibleNgThread: conf.IsVisibleThreadViaNg
 			);
 		}
 

@@ -1,15 +1,21 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using Newtonsoft.Json.Linq;
 using Reactive.Bindings;
+using Yarukizero.Net.MakiMoki.Helpers;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	class TabItem : IFutabaViewerContents, INotifyPropertyChanged, IDisposable {
@@ -27,7 +33,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		
 		private ReactiveProperty<BindableFutaba> FutabaProperty { get; }
 		public IReadOnlyReactiveProperty<BindableFutaba> Futaba { get; }
-		
+		public IReactiveProperty<IEnumerable<BindableFutabaResItem>> FutabaItems { get; }
+
 		public ReactiveProperty<PostHolder> PostData { get; }
 
 		public ReactiveProperty<PlatformData.FutabaMedia> MediaContents { get; } 
@@ -61,11 +68,48 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		// AutoDisposableで使用する
 		private IDisposable SubscribeFutaba { get; }
 #pragma warning restore IDE0052
+		private Subject<CollectionChanged<BindableFutabaResItem>> clearSubject = new();
+
+		private ReactiveProperty<bool> ngResVisible;
+		private ReactiveProperty<object> ngToken = new ReactiveProperty<object>(initialValue: DateTime.MinValue);
+		private Action<Ng.NgData.NgConfig> ngUpdater;
+		private Action<Ng.NgData.HiddenConfig> hiddenUpdater;
+		private Action<Ng.NgData.NgImageConfig> imageUpdater;
+		private Action<PlatformData.WpfConfig> systemUpdater;
 
 		public TabItem(Data.FutabaContext f) {
+			this.ngUpdater = (_) => ngToken.Value = DateTime.Now;
+			this.hiddenUpdater = (_) => ngToken.Value = DateTime.Now;
+			this.imageUpdater = (_) => ngToken.Value = DateTime.Now;
+			this.systemUpdater = (_) => {
+				this.ngResVisible.Value = f.Url switch {
+					var v when v.IsCatalogUrl => WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleCatalogViaNg,
+					_ => WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleThreadViaNg,
+				};
+			};
+			Ng.NgConfig.NgConfigLoader.AddNgUpdateNotifyer(this.ngUpdater);
+			Ng.NgConfig.NgConfigLoader.AddHiddenUpdateNotifyer(this.hiddenUpdater);
+			Ng.NgConfig.NgConfigLoader.AddImageUpdateNotifyer(this.imageUpdater);
+			WpfConfig.WpfConfigLoader.AddSystemConfigUpdateNotifyer(this.systemUpdater);
+			this.ngResVisible = new ReactiveProperty<bool>(f.Url switch {
+				var v when v.IsCatalogUrl => WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleCatalogViaNg,
+				_ => WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleThreadViaNg,
+			});
+
 			this.Url = f.Url;
 			this.FutabaProperty = new ReactiveProperty<BindableFutaba>(new BindableFutaba(f));
 			this.Futaba = this.FutabaProperty.ToReadOnlyReactiveProperty();
+			this.FutabaItems = this.FutabaProperty.CombineLatest(
+				this.FutabaProperty.Value.IsDisableNg,
+				this.ngResVisible,
+				this.ngToken,
+				this.FutabaProperty.Value.UpdateToken,
+				(x, y, z, _, _) => {
+					return x?.ResItems.Where(xx => xx switch {
+						var v when (v.IsNg.Value || v.IsHidden.Value) && !y && !z => false,
+						_ => true,
+					}) ?? Enumerable.Empty<BindableFutabaResItem>();
+				}).ToReactiveProperty();
 			this.LastRescount = new ReactiveProperty<int>(this.Futaba.Value.ResCount.Value);
 			this.ThumbSourceObject = new ReactiveProperty<Model.ImageObject>();
 			this.ThumbSource = this.ThumbSourceObject.Select(x => x?.Image as ImageSource).ToReactiveProperty();

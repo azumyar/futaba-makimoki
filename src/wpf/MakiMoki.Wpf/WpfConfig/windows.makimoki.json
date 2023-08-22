@@ -1,5 +1,5 @@
 {
-  "version": 2023061600,
+  "version": 2020082300,
 
   "catalog-enable-fetch-thumbnail": false,
   "catalog-enable-movie-marker": true,
@@ -8,8 +8,10 @@
   "catalog-ng-image-hidden": 0,
   "catalog-search-result-type": 0,
   "catalog-visible-isolate-thread": false,
+  "catalog-visible-ng": true,
 
   "thread-visible-del-res": 1,
+  "thread-visible-ng": true,
   "thread-enable-command-palette": false,
   "thread-command-palette-position": "Right",
   "thread-canvas98-position": "Default",

@@ -437,7 +437,15 @@
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">隔離されたスレッドをカタログに表示します。スレッドはまとめてカタログの末尾に追加されます。レス数は取得されません。</TextBlock>
                                 <CheckBox Content="有効" IsChecked="{Binding CatalogIsVisibleIsolateThread.Value, Mode=TwoWay}" />
                             </StackPanel>
-                            
+
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>NG/非表示レス</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">NGワード/非表示にされたスレッドをカタログから除外します。この設定はスレ文を参照します。</TextBlock>
+                                <ComboBox SelectedIndex="{Binding CatalogVisibleNgResMode.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>隠蔽</ComboBoxItem>
+                                    <ComboBoxItem>除外</ComboBoxItem>
+                                </ComboBox>                            </StackPanel>
+
                             <StackPanel Style="{StaticResource ConfigContents}">
                                 <TextBlock>キャッシュされているNG画像スレッド設定</TextBlock>
                                 <TextBlock Foreground="Gray" TextWrapping="Wrap">スレッド画像がNGに登録されている場合かつキャッシュに存在する場合カタログから除外します。この設定は新規にダウンロードしてきたNG画像スレッドには適用されません。</TextBlock>
@@ -458,6 +466,14 @@
                                 <ComboBox SelectedIndex="{Binding ThreadDelResVisibility.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
                                     <ComboBoxItem>表示</ComboBoxItem>
                                     <ComboBoxItem>隠す</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>NG/非表示レス</TextBlock>
+                                <TextBlock Foreground="Gray" TextWrapping="Wrap">NGワード/非表示にされたレスをスレッドから除外します。</TextBlock>
+                                <ComboBox SelectedIndex="{Binding ThreadVisibleNgResMode.Value, Mode=TwoWay}" Width="320" HorizontalAlignment="Left">
+                                    <ComboBoxItem>隠蔽</ComboBoxItem>
+                                    <ComboBoxItem>除外</ComboBoxItem>
                                 </ComboBox>
                             </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}">

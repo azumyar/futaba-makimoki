@@ -26,7 +26,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 	}
 
 	class WpfConfig : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2023061600;
+		public static int CurrentVersion { get; } = 2020082300;
 
 		[JsonProperty("catalog-enable-movie-marker", Required = Required.Always)]
 		public bool IsEnabledMovieMarker { get; private set; }
@@ -114,6 +114,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 		[JsonProperty("post-view-mask-password", Required = Required.Always)]
 		public bool IsMaskPassword { get; private set; }
 
+		// 2023082300
+		[JsonProperty("catalog-visible-ng", Required = Required.Always)]
+		public bool IsVisibleCatalogViaNg { get; private set; }
+		[JsonProperty("thread-visible-ng", Required = Required.Always)]
+		public bool IsVisibleThreadViaNg { get; private set; }
 
 		public static WpfConfig CreateDefault() {
 			// ここは使われない
@@ -127,10 +132,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 			bool isEnabledFetchThumbnail,
 			bool isEnabledMovieMarker, bool isEnabledIdMarker, bool isEnabledOldMarker,
 			CatalogNgImage catalogNgImage, ThreadDelResVisibility threadDelResVisibility,
-			bool isVisibleCatalogIsolateThread, CatalogSearchResult catalogSearchResult,
+			bool isVisibleCatalogIsolateThread, CatalogSearchResult catalogSearchResult, bool isVisibleNgCatalog,
 			bool isEnabledThreadCommandPalette, UiPosition commandPalettePosition,
 			UiPosition canvas98Position,
-			bool isEnabledFailsafeMistakePost,
+			bool isEnabledFailsafeMistakePost, bool isVisibleNgThread,
 			int clipbordJpegQuality, bool clipbordIsEnabledUrl,
 			int maxWidthPostView, bool isEnabledOpacityPostView, int opacityPostView,
 			string[] mediaExportPath, int cacheExpireDay,
@@ -157,7 +162,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData {
 				CatalogNgImage = catalogNgImage,
 				IsVisibleCatalogIsolateThread = isVisibleCatalogIsolateThread,
 				CatalogSearchResult = catalogSearchResult,
+				IsVisibleCatalogViaNg = isVisibleNgCatalog,
 				ThreadDelResVisibility = threadDelResVisibility,
+				IsVisibleThreadViaNg = isVisibleNgThread,
 				IsEnabledThreadCommandPalette = isEnabledThreadCommandPalette,
 				CommandPalettePosition = commandPalettePosition,
 				Canvas98Position = canvas98Position,

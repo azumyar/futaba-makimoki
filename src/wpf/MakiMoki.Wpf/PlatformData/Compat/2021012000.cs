@@ -110,18 +110,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.PlatformData.Compat {
 				windowTheme: WindowTheme,
 				isEnabledIdMarker: IsEnabledIdMarker,
 				isEnabledThreadCommandPalette: IsEnabledThreadCommandPalette,
-
-				// 2021012000
 				isEnabledFetchThumbnail: conf.IsEnabledFetchThumbnail,
 				commandPalettePosition: conf.CommandPalettePosition,
 				canvas98Position: conf.Canvas98Position,
-
-				// 2021020100
 				isEnabledFailsafeMistakePost: conf.IsEnabledFailsafeMistakePost,
-
-				// 2023061200
 				bouyomiChanEndPoint: conf.BouyomiChanEndPoint,
-				isMaskPassword: conf.IsMaskPassword
+				isMaskPassword: conf.IsMaskPassword,
+				isVisibleNgCatalog: conf.IsVisibleCatalogViaNg,
+				isVisibleNgThread: conf.IsVisibleThreadViaNg
 			);
 		}
 	}

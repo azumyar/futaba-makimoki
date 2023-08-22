@@ -10,6 +10,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 	public interface IFutabaViewerContents: IDisposable {
 		IReadOnlyReactiveProperty<BindableFutaba> Futaba { get; }
+		IReactiveProperty<IEnumerable<BindableFutabaResItem>> FutabaItems { get; }
 
 		ReactiveProperty<PlatformData.FutabaMedia> MediaContents { get; }
 

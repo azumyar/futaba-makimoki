@@ -55,6 +55,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfConfig {
 						{ PlatformData.Compat.WpfConfig2020102900.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2020102900) },
 						{ PlatformData.Compat.WpfConfig2021012000.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2021012000) },
 						{ PlatformData.Compat.WpfConfig2021020100.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2021020100) },
+						{ PlatformData.Compat.WpfConfig2023061600.CurrentVersion, typeof(PlatformData.Compat.WpfConfig2023061600) },
 					});
 				if(File.Exists(Path.Combine(InitializedSetting.UserDirectory, StyleUserConfigFile))) {
 					Style = Util.FileUtil.LoadMigrate(
