@@ -970,7 +970,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 		public static string GetGoogleImageSearchdUrl(string url) {
-			return $"https://www.google.com/searchbyimage?sbisrc=app&image_url={ System.Web.HttpUtility.UrlEncode(url) }";
+			return $"https://www.google.com/searchbyimage?sbisrc=chrome&image_url={ System.Web.HttpUtility.UrlEncode(url) }";
 		}
 
 		public static string GetGoogleLensUrl(string url) {
