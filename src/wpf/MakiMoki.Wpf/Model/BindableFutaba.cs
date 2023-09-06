@@ -982,11 +982,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		public IObservable<Model.ImageObject> LoadBitmapSource(bool forceLoad = false) {
+			if((this.Raw.Value.ResItem.Res.Fsize == 0) || string.IsNullOrEmpty(this.Raw.Value.ResItem.Res.Thumb)) {
+				return Observable.Return<Model.ImageObject>(null);
+			}
+			
 			if(!forceLoad) {
-				if(this.Raw.Value.ResItem.Res.Fsize == 0) {
-					return Observable.Return<Model.ImageObject>(null);
-				}
-
 				if(this.thumbSource.TryGetTarget(out var bitmapSource)) {
 					this.ThumbToken.Value ??= new object();
 					return Observable.Return<Model.ImageObject>(bitmapSource);
