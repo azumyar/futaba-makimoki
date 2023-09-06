@@ -103,7 +103,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.FutabaProperty.Value.IsDisableNg,
 				this.ngResVisible,
 				this.ngToken,
-				this.FutabaProperty.Value.UpdateToken,
+				this.FutabaProperty.Value.NgUpdateToken,
 				(x, y, z, _, _) => {
 					return x?.ResItems.Where(xx => xx switch {
 						var v when (v.IsNg.Value || v.IsHidden.Value) && !y && !z => false,
