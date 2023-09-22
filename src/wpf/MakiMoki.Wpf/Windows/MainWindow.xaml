@@ -17,6 +17,7 @@
     xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
     xmlns:data="clr-namespace:Yarukizero.Net.MakiMoki.Data;assembly=MakiMoki.Core"
     xmlns:util="clr-namespace:Yarukizero.Net.MakiMoki.Util;assembly=MakiMoki.Core"
+    xmlns:controlz="clr-namespace:ControlzEx.Controls;assembly=ControlzEx"
     mc:Ignorable="d"
     prism:ViewModelLocator.AutoWireViewModel="True"
     d:DesignHeight="450" d:DesignWidth="800"
@@ -106,7 +107,7 @@
                 </Setter>
             </Style>
 
-            <Style x:Key="{x:Type TabControl}" TargetType="TabControl">
+            <Style x:Key="FutabaCatalogTabControl" TargetType="controlz:TabControlEx">
                 <Setter Property="BorderBrush" Value="Transparent" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="Template">
@@ -980,8 +981,9 @@
             </ItemsControl>
             -->
             </Grid>
-            <TabControl
+            <controlz:TabControlEx
                 x:Name="TabContainer"
+                Style="{StaticResource FutabaCatalogTabControl}"
                 Grid.Row="0" Grid.RowSpan="2"
                 Visibility="{Binding TabVisibility.Value, Mode=OneWay}"
                 ItemsSource="{Binding Catalogs, Mode=OneWay}"
@@ -1200,7 +1202,7 @@
                         </TabControl>
                     </DataTemplate>
                 </TabControl.ContentTemplate>
-            </TabControl>
+            </controlz:TabControlEx>
 
             <Grid Grid.Row="0" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
                 <Grid.ColumnDefinitions>
