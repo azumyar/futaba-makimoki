@@ -430,7 +430,7 @@
                 </Setter>
             </Style>
 
-            <Style x:Key="FutabaTabControl" TargetType="TabControl">
+            <Style x:Key="FutabaTabControl" TargetType="controlz:TabControlEx">
                 <Setter Property="BorderBrush" Value="Transparent" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="Template">
@@ -1048,7 +1048,7 @@
 
                 <TabControl.ContentTemplate>
                     <DataTemplate>
-                        <TabControl
+                        <controlz:TabControlEx
                             x:Name="container"
                             Style="{StaticResource FutabaTabControl}"
                             ItemContainerStyle="{StaticResource FutabaTabItem}"
@@ -1199,7 +1199,7 @@
                                     </Grid>
                                 </DataTemplate>
                             </TabControl.ContentTemplate>
-                        </TabControl>
+                        </controlz:TabControlEx>
                     </DataTemplate>
                 </TabControl.ContentTemplate>
             </controlz:TabControlEx>
