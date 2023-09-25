@@ -37,6 +37,7 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
     <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>false</SelfContained>
 
     <!--
     <PublishTrimmed>true</PublishTrimmed>
