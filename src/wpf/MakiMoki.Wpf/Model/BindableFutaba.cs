@@ -314,10 +314,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			if(this.Raw == null) {
 				return;
 			}
+			if(this.Url.IsCatalogUrl) {
+				return;
+			}
 
 			var sfd= new Microsoft.Win32.SaveFileDialog() {
 				AddExtension = true,
 				Filter = "HTML5ファイル|*.html;*.htm|HTML5ファイル(フルセット-試験中)|*.html;*.htm", 
+				FileName = $"{this.Url.ThreadNo}.html",
 			};
 			if(sfd.ShowDialog() ?? false) {
 				string getImageBase64(
