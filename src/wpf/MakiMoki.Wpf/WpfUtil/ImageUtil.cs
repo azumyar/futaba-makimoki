@@ -620,6 +620,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 								var v when (v.DisposalMethod == ImageBehavior.FrameDisposalMethod.RestoreBackground) && isFull(v.Descriptor, width, height) => null,
 								var v when (v.DisposalMethod == ImageBehavior.FrameDisposalMethod.RestoreBackground) => clear(frame, v.Descriptor),
 								var v when (v.DisposalMethod == ImageBehavior.FrameDisposalMethod.RestorePrevious) => baseFrame,
+								var v when ((4 <= (int)v.DisposalMethod) && ((int)v.DisposalMethod <= 7)) => frame, // 4-7は仕様で未定義なのでとりあえずnoneとしてふるまう
 								_ => throw new ArgumentException(),
 							};
 							index++;
