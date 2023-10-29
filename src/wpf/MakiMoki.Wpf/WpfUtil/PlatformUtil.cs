@@ -116,19 +116,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 				return;
 			}
 
-			var rmdir = Path.Combine(cacheDir, "temp");
-			if(!Directory.Exists(rmdir)) {
-				try {
-					Directory.CreateDirectory(rmdir);
-				}
-				catch(Exception e) when(e is UnauthorizedAccessException || e is IOException) { 
-#if DEBUG
-					sw.Stop();
-					System.Diagnostics.Debug.WriteLine("初期削除処理失敗");
-#endif
-					return;
-				}
-			}
 #if DEBUG
 			sw.Stop();
 			System.Diagnostics.Debug.WriteLine("ファイル列挙完了{0}ミリ秒", sw.ElapsedMilliseconds);
@@ -136,35 +123,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 #endif
 			Parallel.ForEach(f, x => {
 				try {
-					var name = Path.GetFileName(x);
-					File.Move(x, Path.Combine(rmdir, name));
+					File.Delete(x);
 				}
 				catch(Exception e) when(e is UnauthorizedAccessException || e is IOException) { }
 			});
 #if DEBUG
 			sw.Stop();
-			System.Diagnostics.Debug.WriteLine("リネーム処理完了{0}ミリ秒", sw.ElapsedMilliseconds);
-			sw.Start();
-#endif
-			Observable.Return(rmdir)
-				.ObserveOn(System.Reactive.Concurrency.ThreadPoolScheduler.Instance)
-				.Subscribe(x => {
-					foreach(var it in Directory.EnumerateFiles(x)) {
-						try {
-							File.Delete(it);
-						}
-						catch(Exception e) when(e is UnauthorizedAccessException || e is IOException) { }
-					}
-					try {
-						Directory.Delete(x);
-					}
-					catch(Exception e) when(e is UnauthorizedAccessException || e is IOException) { }
-					sw.Stop();
-					System.Diagnostics.Debug.WriteLine("実削除処理{0}ミリ秒", sw.ElapsedMilliseconds);
-				});
-#if DEBUG
-			sw.Stop();
-			System.Diagnostics.Debug.WriteLine("初期削除処理{0}ミリ秒", sw.ElapsedMilliseconds);
+			System.Diagnostics.Debug.WriteLine("削除処理完了{0}ミリ秒", sw.ElapsedMilliseconds);
 			sw.Start();
 #endif
 		}
