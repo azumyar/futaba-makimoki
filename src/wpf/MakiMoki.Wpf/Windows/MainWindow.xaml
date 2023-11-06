@@ -1186,7 +1186,7 @@
                                             </Image>
                                         </Viewbox>
 
-                                        <control:FutabaThreadRegionContainer
+                                        <control:FutabaThreadResViewer
                                             Grid.Column="0" Grid.ColumnSpan="2"
                                             Grid.Row="0" Grid.RowSpan="2"
                                             Contents="{Binding DataContext, Mode=OneWay, ElementName=container}">
@@ -1195,7 +1195,7 @@
                                                     <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
                                                 </i:EventTrigger>
                                             </i:Interaction.Triggers>
-                                        </control:FutabaThreadRegionContainer>
+                                        </control:FutabaThreadResViewer>
                                     </Grid>
                                 </DataTemplate>
                             </TabControl.ContentTemplate>
