@@ -100,11 +100,39 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			IntPtr output_buffer_size,
 			int output_stride);
 
+		class PhantomCache<T> where T : class {
+			private readonly object @lock = new();
+			private List<(DateTime Time, T Value)> cache = new();
+
+			private int keepSize, maxSize, keepTimeSec;
+
+			public PhantomCache(int keep = 300, int max = 500, int keepTimeSec = 2 * 3600) {
+				this.keepSize = keep;
+				this.maxSize = max;
+				this.keepTimeSec = keepTimeSec;
+			}
+
+			public PhantomCache<T> Add(T instance) {
+				lock(@lock) {
+					var now = DateTime.Now;
+					var keep = now.AddSeconds(-this.keepTimeSec);
+					this.cache.Add((now, instance));
+					if(this.maxSize < this.cache.Count) {
+						this.cache = this.cache
+							.Skip(this.keepSize)
+							.Where(x => keep <  x.Time)
+							.ToList();
+					}
+					return this;
+				}
+			}
+		}
 
 		private volatile static Dictionary<string, WeakReference<byte[]>> bitmapBytesDic
 			= new Dictionary<string, WeakReference<byte[]>>();
 		private volatile static Dictionary<string, WeakReference<Model.ImageObject>> bitmapBytesDic2
-			= new Dictionary<string, WeakReference<Model.ImageObject>>(); 
+			= new Dictionary<string, WeakReference<Model.ImageObject>>();
+		private volatile static PhantomCache<Model.ImageObject> phantomCache = new();
 		private static Model.ImageObject ErrorImage { get; set; } = null;
 		private static Model.ImageObject NgImage { get; set; } = null;
 
@@ -160,6 +188,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 					bitmapBytesDic2[file] = r;
 				} else {
 					bitmapBytesDic2.Add(file, r);
+					phantomCache.Add(image);
 				}
 
 				foreach(var k in bitmapBytesDic2
