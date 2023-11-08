@@ -1,3 +1,4 @@
+using Microsoft.Xaml.Behaviors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -97,7 +98,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 	}
 
-	static class PasswordBehavior {
+	public class PasswordBehavior : Behavior<PasswordBox> {
 		private static readonly DependencyProperty IsAttachedProperty
 			= DependencyProperty.RegisterAttached(
 				"IsAttached",
@@ -227,6 +228,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				AlignmentX = AlignmentX.Left,
 				AlignmentY = AlignmentY.Center,
 			};
+		}
+
+		protected override void OnAttached() {
+			base.OnAttached();
+
+			this.AssociatedObject.PasswordChanged += OnPasswordChanged;
+		}
+
+		protected override void OnDetaching() {
+			this.AssociatedObject.PasswordChanged -= OnPasswordChanged;
+
+			base.OnDetaching();
 		}
 	}
 }

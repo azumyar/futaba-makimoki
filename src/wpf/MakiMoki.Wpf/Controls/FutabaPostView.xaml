@@ -292,6 +292,9 @@
                         <PasswordBox.Foreground>
                             <SolidColorBrush Color="{DynamicResource ViewerForegroundColor}" />
                         </PasswordBox.Foreground>
+                        <i:Interaction.Behaviors>
+                            <local:PasswordBehavior />
+                        </i:Interaction.Behaviors>
                     </PasswordBox>
                     <local:MakiMokiTextBox
                         Margin="0,8,0,8" Padding="1"
