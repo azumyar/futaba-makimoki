@@ -552,7 +552,7 @@
                     Height="{Binding GridSplitterHeight.Value, Mode=OneWay}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
-                    Visibility="{Binding VerticalGridSplitterVisibility.Value, Mode=OneWay}">
+                    Visibility="{Binding GridSplitterVisibility.Value, Mode=OneWay}">
                     <GridSplitter.Background>
                         <SolidColorBrush Color="{DynamicResource WindowSplitterColor}" />
                     </GridSplitter.Background>
