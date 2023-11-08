@@ -478,7 +478,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							.Select<BindableFutabaResItem, (BindableFutabaResItem Item, string Path)>(
 								x => (x, Util.Futaba.GetThumbImageLocalFilePath(
 									tab.Futaba.Value.Url, x.Raw.Value.ResItem.Res)))
-							.Where(x => WpfUtil.ImageUtil.GetImageCache(x.Path) == null)
+							.Where(x => WpfUtil.ImageUtil.GetImageCache2(x.Path) == null)
 							.ToArray();
 						if(c.Any()) {
 							Task.Run(async () => {

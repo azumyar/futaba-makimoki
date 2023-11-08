@@ -128,45 +128,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 		}
 
-		private volatile static Dictionary<string, WeakReference<byte[]>> bitmapBytesDic
-			= new Dictionary<string, WeakReference<byte[]>>();
 		private volatile static Dictionary<string, WeakReference<Model.ImageObject>> bitmapBytesDic2
 			= new Dictionary<string, WeakReference<Model.ImageObject>>();
 		private volatile static PhantomCache<Model.ImageObject> phantomCache = new();
 		private static Model.ImageObject ErrorImage { get; set; } = null;
 		private static Model.ImageObject NgImage { get; set; } = null;
-
-		private static bool TryGetImage(string file, out byte[] image) {
-			lock(bitmapBytesDic) {
-				if(bitmapBytesDic.TryGetValue(file, out var v)) {
-					if(v.TryGetTarget(out var b)) {
-						image = b;
-						return true;
-					}
-				}
-				image = null;
-				return false;
-			}
-		}
-
-		private static void SetImage(string file, byte[] image) {
-			lock(bitmapBytesDic) {
-				var r = new WeakReference<byte[]>(image);
-				if(bitmapBytesDic.ContainsKey(file)) {
-					bitmapBytesDic[file] = r;
-				} else {
-					bitmapBytesDic.Add(file, r);
-				}
-
-				foreach(var k in bitmapBytesDic
-					.Select(x => (Key: x.Key, Value: x.Value.TryGetTarget(out _)))
-					.Where(x => !x.Value)
-					.ToArray()) {
-
-					bitmapBytesDic.Remove(k.Key);
-				}
-			}
-		}
 
 		private static bool TryGetImage2(string file, out Model.ImageObject image) {
 			lock(bitmapBytesDic2) {
@@ -182,7 +148,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		}
 
 		private static Model.ImageObject SetImage2(string file, Model.ImageObject image) {
-			lock(bitmapBytesDic) {
+			lock(bitmapBytesDic2) {
 				var r = new WeakReference<Model.ImageObject>(image);
 				if(bitmapBytesDic2.ContainsKey(file)) {
 					bitmapBytesDic2[file] = r;
@@ -228,14 +194,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			var asm = typeof(App).Assembly;
 			return Util.FileUtil.ToBase64(asm.GetManifestResourceStream(
 				$"{ typeof(App).Namespace }.Resources.Images.NgImage.png"));
-		}
-
-		public static Stream GetImageCache(string path) {
-			if(TryGetImage(path, out var b)) {
-				//return new MemoryStream(b);
-				return new ImageStream(b);
-			}
-			return null;
 		}
 
 		public static Model.ImageObject GetImageCache2(string path) {
@@ -302,19 +260,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		}
 
 		public static Stream LoadStream(string path, byte[] imageBytes = null) {
-			{
-				if(TryGetImage(path, out var b)) {
-					//return new MemoryStream(b);
-					return new ImageStream(b);
-				}
-			}
-
 			if(Path.GetExtension(path).ToLower() == ".webp") {
 				return LoadWebP(path, imageBytes);
 			}
 				
 			if(imageBytes != null) {
-				SetImage(path, imageBytes);
 				return new ImageStream(imageBytes);
 				//return new MemoryStream(imageBytes);
 			}
@@ -339,12 +289,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			}
 			s.Stream.Dispose();
 
-			{
-				var b = l.ToArray();
-				SetImage(path, b);
-				return new ImageStream(b);
-				//return new MemoryStream(b);
-			}
+			return new ImageStream(l.ToArray());
+			//return new MemoryStream(l.ToArray());
 		}
 
 		private static (bool Sucessed, FileStream Stream) CreateStream(string path) {
@@ -722,7 +668,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 #endif
 
 		private static string GetErrorMessage(string path) {
-			return string.Format("{0}の読み込みに失敗しました", Path.GetFileName(path));
+			return $"{Path.GetFileName(path)}の読み込みに失敗しました";
 		}
 
 		public static byte[] CreatePixelsBytes(BitmapSource bitmapImage) {
