@@ -107,6 +107,59 @@
                 </Setter>
             </Style>
 
+            <Style x:Key="ThreadSwitchItem" TargetType="control:ContentSwitchItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type control:ContentSwitchItem}">
+                            <Grid x:Name="container">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <Viewbox
+                                           Grid.Row="1"
+                                           Grid.Column="1"
+                                           Margin="48"
+                                           Opacity="{DynamicResource FailsafeThreadImageOpacity}"
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Bottom"
+                                           Visibility="{Binding FailsafeMistakePostVisibility.Value, Mode=OneWay}">
+                                    <Image
+                                               Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                               RenderOptions.EdgeMode="Aliased"
+                                               RenderOptions.BitmapScalingMode="Fant">
+                                        <Image.CacheMode>
+                                            <BitmapCache RenderAtScale="1" />
+                                        </Image.CacheMode>
+                                        <Image.Effect>
+                                            <BlurEffect Radius="{DynamicResource FailsafeThreadImageBlurRadius}" />
+                                        </Image.Effect>
+                                    </Image>
+                                </Viewbox>
+
+                                <control:FutabaThreadResViewer
+                                           Grid.Column="0" Grid.ColumnSpan="2"
+                                           Grid.Row="0" Grid.RowSpan="2"
+                                           Contents="{Binding DataContext, Mode=OneWay, ElementName=container}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="ContentsChanged">
+                                            <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </control:FutabaThreadResViewer>
+
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+
             <Style x:Key="FutabaCatalogTabControl" TargetType="controlz:TabControlEx">
                 <Setter Property="BorderBrush" Value="Transparent" />
                 <Setter Property="BorderThickness" Value="0" />
@@ -602,13 +655,21 @@
                                             <Border.Background>
                                                 <SolidColorBrush Color="{DynamicResource ViewerBackgroundColor}" />
                                             </Border.Background>
-                                            <ContentPresenter
-                                            ContentSource="SelectedContent"
-                                            Content="{TemplateBinding TabControl.SelectedContent}"
-                                            ContentTemplate="{TemplateBinding TabControl.SelectedContentTemplate}"
-                                            ContentStringFormat="{TemplateBinding TabControl.SelectedContentStringFormat}"
-                                            Margin="{TemplateBinding Control.Padding}"
-                                            SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
+                                            <Grid>
+                                                <control:ContentSwitchControl
+                                                    ItemsSource="{TemplateBinding ItemsSource}"
+                                                    ItemContainerStyle="{StaticResource ThreadSwitchItem}"
+                                                    SelectedItem="{TemplateBinding SelectedItem}"
+                                                    />
+                                                <ContentPresenter
+                                                    Visibility="Collapsed"
+                                                    ContentSource="SelectedContent"
+                                                    Content="{TemplateBinding TabControl.SelectedContent}"
+                                                    ContentTemplate="{TemplateBinding TabControl.SelectedContentTemplate}"
+                                                    ContentStringFormat="{TemplateBinding TabControl.SelectedContentStringFormat}"
+                                                    Margin="{TemplateBinding Control.Padding}"
+                                                    SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
+                                            </Grid>
                                         </Border>
 
 
@@ -1155,48 +1216,7 @@
 
                             <TabControl.ContentTemplate>
                                 <DataTemplate>
-                                    <Grid x:Name="container">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="*" />
-                                            <RowDefinition Height="*" />
-                                        </Grid.RowDefinitions>
-
-                                        <Viewbox
-                                            Grid.Row="1"
-                                            Grid.Column="1"
-                                            Margin="48"
-                                            Opacity="{DynamicResource FailsafeThreadImageOpacity}"
-                                            HorizontalAlignment="Right"
-                                            VerticalAlignment="Bottom"
-                                            Visibility="{Binding FailsafeMistakePostVisibility.Value, Mode=OneWay}">
-                                            <Image
-                                                Source="{Binding ThumbSource.Value, Mode=OneWay}"
-                                                RenderOptions.EdgeMode="Aliased"
-                                                RenderOptions.BitmapScalingMode="Fant">
-                                                <Image.CacheMode>
-                                                    <BitmapCache RenderAtScale="1" />
-                                                </Image.CacheMode>
-                                                <Image.Effect>
-                                                    <BlurEffect Radius="{DynamicResource FailsafeThreadImageBlurRadius}" />
-                                                </Image.Effect>
-                                            </Image>
-                                        </Viewbox>
-
-                                        <control:FutabaThreadResViewer
-                                            Grid.Column="0" Grid.ColumnSpan="2"
-                                            Grid.Row="0" Grid.RowSpan="2"
-                                            Contents="{Binding DataContext, Mode=OneWay, ElementName=container}">
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="ContentsChanged">
-                                                    <ri:EventToReactiveCommand Command="{Binding ContentsChangedCommand}" />
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                        </control:FutabaThreadResViewer>
-                                    </Grid>
+                                    <Border />
                                 </DataTemplate>
                             </TabControl.ContentTemplate>
                         </controlz:TabControlEx>
