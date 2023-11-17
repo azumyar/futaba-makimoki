@@ -443,7 +443,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 #endif
 			}
 			this.CatalogToken.Value = DateTime.Now.Ticks;
-			this.TabVisibility.Value = this.Catalogs.Count != 0 ? Visibility.Visible : Visibility.Collapsed;
+			this.TabVisibility.Value = this.Catalogs.Count switch {
+				var v when v != 0 => Visibility.Visible,
+				_ => Visibility.Collapsed,
+			};
 #if DEBUG
 			// スレが削除された場合Threadキャッシュ整合性確認
 			{
@@ -452,6 +455,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ToArray();
 				if(except.Any()) {
 					foreach(var e in except) {
+						if(this.ThreadsDictionary.Value.TryGetValue(e, out var th)) {
+							this.ThreadsDictionary.Value.Remove(e);
+							using var d = new Helpers.AutoDisposable();
+							d.AddEnumerable(th);
+							d.Add(th);
+						}
 						if(Util.Futaba.Threads.Value.Any(x => x.Url.BaseUrl == e)) {
 							System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!カタログスレッドキャッシュ不整合!!!!!!!!!!!!!!!!!!!!!");
 						}
