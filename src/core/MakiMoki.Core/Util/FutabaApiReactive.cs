@@ -204,7 +204,10 @@ namespace Yarukizero.Net.MakiMoki.Util {
 										soudane = sdn;
 									}
 								}
-								var src = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a", threadNo))?.GetAttribute("href") ?? "";
+								var src = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a", threadNo))?.GetAttribute("href") switch {
+									string v when Regex.Match(v, @"^/[^/]+/src/[0-9]+\.\S+$").Success => v,
+									_ => ""
+								};
 								var ext = Path.GetExtension(src);
 								var thumbEl = doc.QuerySelector(string.Format("div[data-res=\"{0}\"] > a > img", threadNo));
 								if(thumbEl != null) {
