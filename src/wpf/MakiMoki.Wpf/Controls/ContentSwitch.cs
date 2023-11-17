@@ -46,20 +46,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 
 		private static ItemVisibilityConverter ItemVisibilityConverter_ { get; } = new ItemVisibilityConverter();
 
-		public static readonly DependencyProperty BindItemProperty =
-			DependencyProperty.Register(
-				nameof(BindItem),
-				typeof(object),
-				typeof(ContentSwitchItem),
-				new PropertyMetadata(default(object)));
-
 		static ContentSwitchItem() {
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(ContentSwitchItem), new FrameworkPropertyMetadata(typeof(ContentSwitchItem)));
-		}
-
-		public object BindItem {
-			get { return this.GetValue(BindItemProperty); }
-			set { this.SetValue(BindItemProperty, value); }
 		}
 
 		public ContentSwitchItem() {
@@ -77,16 +65,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				Mode = BindingMode.OneWay,
 			});
 			this.SetBinding(VisibilityProperty, mb);
-			this.Loaded += (_, _) => {
-				this.SetBinding(BindItemProperty, new Binding() {
-					Path = new PropertyPath(System.Windows.Controls.Primitives.Selector.SelectedItemProperty),
-					RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(ContentSwitchControl), 1),
-					Mode = BindingMode.OneTime,
-				});
-			};
-			this.Unloaded += (_, _) => {
-				BindingOperations.ClearBinding(this, BindItemProperty);
-			};
 		}
 	}
 }
