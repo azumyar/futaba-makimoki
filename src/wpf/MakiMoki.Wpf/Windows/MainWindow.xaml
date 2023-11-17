@@ -39,6 +39,7 @@
             <converter:ThreadDieOpacityConverter x:Key="ThreadDieOpacityConverter" />
             <converter:ThreadNewResVisibleConverter x:Key="ThreadNewResVisibleConverter" />
             <converter:TabItemHilightConverter x:Key="TabItemHilightConverter" />
+            <converter:ThreadTabSourceConverter x:Key="ThreadTabSourceConverter" />
 
             <system:Double x:Key="WindowCaptionHeight">36</system:Double>
 
@@ -107,6 +108,138 @@
                 </Setter>
             </Style>
 
+            <Style x:Key="CatalogSwitchItem" TargetType="control:ContentSwitchItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type control:ContentSwitchItem}">
+                            <Border>
+                                <controlz:TabControlEx
+                                    x:Name="container"
+                                    Style="{DynamicResource FutabaThreadTabControl}"
+                                    ItemContainerStyle="{DynamicResource FutabaThreadTabItem}"
+                                    SelectedItem="{Binding DataContext.ThreadTabSelectedItem.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}, UpdateSourceTrigger=PropertyChanged,Mode=Twoway}"
+                                    Padding="0">
+                                    <controlz:TabControlEx.ItemsSource>
+                                        <MultiBinding Converter="{StaticResource ThreadTabSourceConverter}">
+                                            <MultiBinding.Bindings>
+                                                <Binding Path="DataContext.ThreadsDictionary.Value" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:MainWindow}" />
+                                                <Binding Path="BindItem" RelativeSource="{RelativeSource FindAncestor, AncestorType=control:ContentSwitchItem}" />
+                                                <!-- コンバータを動かすためにBindする -->
+                                                <Binding Path="DataContext.ThreadToken.Value" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:MainWindow}" />
+                                            </MultiBinding.Bindings>
+                                        </MultiBinding>
+                                    </controlz:TabControlEx.ItemsSource>
+                                    <TabControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid
+                                                Background="Transparent"
+                                                Tag="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}">
+                                                <Grid.Opacity>
+                                                    <MultiBinding Converter="{StaticResource ThreadDieOpacityConverter}" Mode="OneWay">
+                                                        <MultiBinding.Bindings>
+                                                            <Binding Path="Futaba.Value" />
+                                                            <Binding Path="DataContext" ElementName="WindowThreadTabDieOpacityGetter" />
+                                                        </MultiBinding.Bindings>
+                                                    </MultiBinding>
+                                                </Grid.Opacity>
+                                                <Grid.ContextMenu>
+                                                    <ContextMenu Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                                                        <MenuItem
+                                                            Header="更新(_U)"
+                                                            Command="{Binding Tag.ThreadUpdateCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                            CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
+                                                        <Separator />
+                                                        <MenuItem
+                                                            Header="閉じる(_C)"
+                                                            Command="{Binding Tag.ThreadCloseCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                            CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
+                                                        <MenuItem
+                                                            Header="全てのタブを閉じる"
+                                                            Command="{Binding Tag.ThreadCloseAllCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                            CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
+                                                        <MenuItem
+                                                            Header="他のタブをすべて閉じる"
+                                                            Command="{Binding Tag.ThreadCloseOtherCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                            CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
+                                                        <MenuItem
+                                                            Header="落ちたタブを閉じる"
+                                                            Command="{Binding Tag.ThreadCloseDieCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                            CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
+                                                        <MenuItem
+                                                            Header="右のタブを閉じる"
+                                                            Command="{Binding Tag.ThreadCloseRightCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                            CommandParameter="{Binding Futaba.Value,Mode=OneWay}">
+                                                            <MenuItem.IsEnabled>
+                                                                <MultiBinding Converter="{StaticResource TabLastMenuItemConverter}" Mode="OneWay">
+                                                                    <MultiBinding.Bindings>
+                                                                        <Binding Path="Value" Source="{x:Static util:Futaba.Threads}" Mode="OneWay" />
+                                                                        <Binding Path="Futaba.Value" Mode="OneWay" />
+                                                                    </MultiBinding.Bindings>
+                                                                </MultiBinding>
+                                                            </MenuItem.IsEnabled>
+                                                        </MenuItem>
+                                                    </ContextMenu>
+                                                </Grid.ContextMenu>
+
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Viewbox
+                                                    Grid.Column="0"
+                                                    Width="24" Height="24" 
+                                                    StretchDirection="DownOnly"
+                                                    Visibility="{Binding ThumbVisibility.Value, Mode=OneWay}">
+                                                    <Image 
+                                                        Source="{Binding ThumbSource.Value, Mode=OneWay}"
+                                                        RenderOptions.EdgeMode="Aliased"
+                                                        RenderOptions.BitmapScalingMode="Fant">
+                                                        <Image.CacheMode>
+                                                            <BitmapCache RenderAtScale="1" />
+                                                        </Image.CacheMode>
+                                                    </Image>
+                                                </Viewbox>
+                                                <Ellipse
+                                                    Width="10" Height="10" Margin="1"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Top">
+                                                    <Ellipse.Visibility>
+                                                        <!-- カタログからの変更通知なので生のプロパティ参照しないと更新が来ない -->
+                                                        <MultiBinding Converter="{StaticResource ThreadNewResVisibleConverter}" Mode="OneWay">
+                                                            <MultiBinding.Bindings>
+                                                                <Binding Path="Futaba.Value.ResCount.Value" />
+                                                                <Binding Path="Futaba.Value.CatalogResCount.Value" />
+                                                                <Binding Path="LastRescount.Value" />
+                                                            </MultiBinding.Bindings>
+                                                        </MultiBinding>
+                                                    </Ellipse.Visibility>
+                                                    <Ellipse.Fill>
+                                                        <SolidColorBrush Color="{DynamicResource WindowThreadTabNewColor}" />
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
+                                                <emoji:TextBlock
+                                                    Grid.Column="1"
+                                                    ColorBlend="False"
+                                                    IsHitTestVisible="False"
+                                                    Text="{Binding Name.Value, Mode=OneWay}"
+                                                    VerticalAlignment="Center" Margin="4 0 4 0" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </TabControl.ItemTemplate>
+
+                                    <TabControl.ContentTemplate>
+                                        <DataTemplate>
+                                            <Border />
+                                        </DataTemplate>
+                                    </TabControl.ContentTemplate>
+                                </controlz:TabControlEx>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            
             <Style x:Key="ThreadSwitchItem" TargetType="control:ContentSwitchItem">
                 <Setter Property="Template">
                     <Setter.Value>
@@ -337,7 +470,13 @@
                                     KeyboardNavigation.TabNavigation="Local"
                                     KeyboardNavigation.DirectionalNavigation="Contained">
                                     <Grid>
+                                        <control:ContentSwitchControl
+                                            ItemsSource="{TemplateBinding ItemsSource}"
+                                            ItemContainerStyle="{StaticResource CatalogSwitchItem}"
+                                            SelectedItem="{TemplateBinding SelectedItem}"
+                                            />
                                         <ContentPresenter 
+                                            Visibility="Hidden"
                                             ContentSource="SelectedContent"
                                             Content="{TemplateBinding TabControl.SelectedContent}"
                                             ContentTemplate="{TemplateBinding TabControl.SelectedContentTemplate}"
@@ -483,7 +622,7 @@
                 </Setter>
             </Style>
 
-            <Style x:Key="FutabaTabControl" TargetType="controlz:TabControlEx">
+            <Style x:Key="FutabaThreadTabControl" TargetType="controlz:TabControlEx">
                 <Setter Property="BorderBrush" Value="Transparent" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="Template">
@@ -681,7 +820,7 @@
                 </Setter>
             </Style>
 
-            <Style x:Key="FutabaTabItem" TargetType="TabItem">
+            <Style x:Key="FutabaThreadTabItem" TargetType="TabItem">
                 <Setter Property="BorderThickness" Value="0 0 1 0"/>
                 <Setter Property="BorderBrush" Value="Transparent"/>
                 <!-- LightBlue 500 -->
@@ -1107,121 +1246,6 @@
                     </DataTemplate>
                 </TabControl.ItemTemplate>
 
-                <TabControl.ContentTemplate>
-                    <DataTemplate>
-                        <controlz:TabControlEx
-                            x:Name="container"
-                            Style="{StaticResource FutabaTabControl}"
-                            ItemContainerStyle="{StaticResource FutabaTabItem}"
-                            ItemsSource="{Binding DataContext.Threads.Value, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}"
-                            SelectedItem="{Binding DataContext.ThreadTabSelectedItem.Value, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}, UpdateSourceTrigger=PropertyChanged,Mode=Twoway}"
-                            Padding="0">
-                            <TabControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid
-                                        Background="Transparent"
-                                        Tag="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MainWindow}}">
-                                        <Grid.Opacity>
-                                            <MultiBinding Converter="{StaticResource ThreadDieOpacityConverter}" Mode="OneWay">
-                                                <MultiBinding.Bindings>
-                                                    <Binding Path="Futaba.Value" />
-                                                    <Binding Path="DataContext" ElementName="WindowThreadTabDieOpacityGetter" />
-                                                </MultiBinding.Bindings>
-                                            </MultiBinding>
-                                        </Grid.Opacity>
-                                        <Grid.ContextMenu>
-                                            <ContextMenu Tag="{Binding PlacementTarget.Tag,Mode=OneWay, RelativeSource={RelativeSource Self}}">
-                                                <MenuItem
-                                                    Header="更新(_U)"
-                                                    Command="{Binding Tag.ThreadUpdateCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                    CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
-                                                <Separator />
-                                                <MenuItem
-                                                    Header="閉じる(_C)"
-                                                    Command="{Binding Tag.ThreadCloseCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                    CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
-                                                <MenuItem
-                                                    Header="全てのタブを閉じる"
-                                                    Command="{Binding Tag.ThreadCloseAllCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                    CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
-                                                <MenuItem
-                                                    Header="他のタブをすべて閉じる"
-                                                    Command="{Binding Tag.ThreadCloseOtherCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                    CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
-                                                <MenuItem
-                                                    Header="落ちたタブを閉じる"
-                                                    Command="{Binding Tag.ThreadCloseDieCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                    CommandParameter="{Binding Futaba.Value,Mode=OneWay}"/>
-                                                <MenuItem
-                                                    Header="右のタブを閉じる"
-                                                    Command="{Binding Tag.ThreadCloseRightCommand,Mode=OneWay,RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
-                                                    CommandParameter="{Binding Futaba.Value,Mode=OneWay}">
-                                                    <MenuItem.IsEnabled>
-                                                        <MultiBinding Converter="{StaticResource TabLastMenuItemConverter}" Mode="OneWay">
-                                                            <MultiBinding.Bindings>
-                                                                <Binding Path="Value" Source="{x:Static util:Futaba.Threads}" Mode="OneWay" />
-                                                                <Binding Path="Futaba.Value" Mode="OneWay" />
-                                                            </MultiBinding.Bindings>
-                                                        </MultiBinding>
-                                                    </MenuItem.IsEnabled>
-                                                </MenuItem>
-                                            </ContextMenu>
-                                        </Grid.ContextMenu>
-
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Viewbox
-                                            Grid.Column="0"
-                                            Width="24" Height="24" 
-                                            StretchDirection="DownOnly"
-                                            Visibility="{Binding ThumbVisibility.Value, Mode=OneWay}">
-                                            <Image 
-                                                Source="{Binding ThumbSource.Value, Mode=OneWay}"
-                                                RenderOptions.EdgeMode="Aliased"
-                                                RenderOptions.BitmapScalingMode="Fant">
-                                                <Image.CacheMode>
-                                                    <BitmapCache RenderAtScale="1" />
-                                                </Image.CacheMode>
-                                            </Image>
-                                        </Viewbox>
-                                        <Ellipse
-                                            Width="10" Height="10" Margin="1"
-                                            HorizontalAlignment="Right"
-                                            VerticalAlignment="Top">
-                                            <Ellipse.Visibility>
-                                                <!-- カタログからの変更通知なので生のプロパティ参照しないと更新が来ない -->
-                                                <MultiBinding Converter="{StaticResource ThreadNewResVisibleConverter}" Mode="OneWay">
-                                                    <MultiBinding.Bindings>
-                                                        <Binding Path="Futaba.Value.ResCount.Value" />
-                                                        <Binding Path="Futaba.Value.CatalogResCount.Value" />
-                                                        <Binding Path="LastRescount.Value" />
-                                                    </MultiBinding.Bindings>
-                                                </MultiBinding>
-                                            </Ellipse.Visibility>
-                                            <Ellipse.Fill>
-                                                <SolidColorBrush Color="{DynamicResource WindowThreadTabNewColor}" />
-                                            </Ellipse.Fill>
-                                        </Ellipse>
-                                        <emoji:TextBlock
-                                            Grid.Column="1"
-                                            ColorBlend="False"
-                                            IsHitTestVisible="False"
-                                            Text="{Binding Name.Value, Mode=OneWay}"
-                                            VerticalAlignment="Center" Margin="4 0 4 0" />
-                                    </Grid>
-                                </DataTemplate>
-                            </TabControl.ItemTemplate>
-
-                            <TabControl.ContentTemplate>
-                                <DataTemplate>
-                                    <Border />
-                                </DataTemplate>
-                            </TabControl.ContentTemplate>
-                        </controlz:TabControlEx>
-                    </DataTemplate>
-                </TabControl.ContentTemplate>
             </controlz:TabControlEx>
 
             <Grid Grid.Row="0" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
