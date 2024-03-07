@@ -123,6 +123,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 						}
 					}
 					await Task.WhenAll(webViewInitializeTask);
+					this.webView.CoreWebView2.AddWebResourceRequestedFilter(null, Microsoft.Web.WebView2.Core.CoreWebView2WebResourceContext.All);
 					var isChildItem = (!string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptAlbam)
 						|| !string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptRichPalette)
 						|| !string.IsNullOrEmpty(Canvas98Config.Canvas98ConfigLoader.Bookmarklet.Value.ScriptTimelapse));
@@ -332,6 +333,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				}
 				*/
 				if(e.Uri.EndsWith(".htm")) {
+					this.webView.CoreWebView2.WebResourceRequested += this.OnRequestFilter;
 					this.NavigationVisibility = Visibility.Hidden;
 					urlCache.Add(e.NavigationId, (UrlType.ThreadHtml, threadUrl));
 				} else if(e.Uri.Contains("/futaba.php")) {
@@ -348,6 +350,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				}
 			};
 			this.webView.NavigationCompleted += async (s, e) => {
+				this.webView.CoreWebView2.WebResourceRequested -= this.OnRequestFilter;
 				if(this.urlCache.TryGetValue(e.NavigationId, out var url)) {
 					this.urlCache.Remove(e.NavigationId);
 					switch(url.Type) {
@@ -492,6 +495,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls {
 				}
 			};
 
+		}
+
+		private void OnRequestFilter(object _, Microsoft.Web.WebView2.Core.CoreWebView2WebResourceRequestedEventArgs e) {
+			if(this.webView?.CoreWebView2 == null) {
+				return;
+			}
+
+			if(!System.Text.RegularExpressions.Regex.IsMatch(e.Request.Uri, @"^https?://[^/]*2chan.net/.*$")) {
+				e.Response = this.webView.CoreWebView2.Environment.CreateWebResourceResponse(null, 404, "Not found", null);
+			}
 		}
 
 		private Task ExecCanvas98() {
