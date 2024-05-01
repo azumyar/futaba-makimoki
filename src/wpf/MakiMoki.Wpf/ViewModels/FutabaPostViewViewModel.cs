@@ -487,6 +487,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							Util.Futaba.UpdateThreadRes(x.Board, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
 								.ObserveOn(UIDispatcherScheduler.Default)
 								.Subscribe(z => {
+									var resCount = z.Old?.ResItems.Length ?? 0;
+									foreach(var res in z.New.ResItems.Skip(resCount).Reverse()) {
+										if(res.ResItem.No == y.ThisNo) {
+											Util.Futaba.PostItems.Value = Util.Futaba.PostItems.Value
+												.Concat(new[] { new Data.PostedResItem(x.Url.BaseUrl, res.ResItem) })
+												.ToArray();
+											break;
+										}
+									}
+
+									/*
 									// TODO: utilでやる
 									if(z.New != null) {
 										var resCount = z.Old?.ResItems.Length ?? 0;
@@ -535,6 +546,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 											}
 										}
 									}
+									\*/
 								});
 						} else {
 							Util.Futaba.PutInformation(new Information(y.Message, x.Url));

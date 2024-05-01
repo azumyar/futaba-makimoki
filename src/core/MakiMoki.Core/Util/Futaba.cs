@@ -602,7 +602,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				});
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostRes(Data.BoardData board, string threadNo,
+		public static IObservable<(bool Successed, string ThisNo, string Message)> PostRes(Data.BoardData board, string threadNo,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
 
@@ -616,7 +616,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					if(x.Successed) {
 						Config.ConfigLoader.UpdateFutabaInputData(board, subject, name, email, passwd);
 					}
-					return (x.Successed, x.Message);
+					return (x.Successed, x.ThisNo, x.Message);
 				});
 		}
 

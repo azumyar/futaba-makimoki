@@ -295,21 +295,21 @@ namespace Yarukizero.Net.MakiMoki.Util {
 			});
 		}
 
-		public static IObservable<(bool Successed, string Message, Data.Cookie2[] Cookies)> PostRes(
+		public static IObservable<(bool Successed, string ThisNo, string Message, Data.Cookie2[] Cookies)> PostRes(
 			Data.BoardData board, string threadNo,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd,
 			Data.Cookie2[] cookies, string ptua) {
 
-			return Observable.Create<(bool Successed, string Message, Data.Cookie2[] Cookies)>(async o => {
+			return Observable.Create<(bool Successed, string ThisNo, string Message, Data.Cookie2[] Cookies)>(async o => {
 				try {
 					var r = await FutabaApi.PostRes(board, threadNo,
 						cookies, ptua,
 						name, email, subject, comment, filePath, passwd);
 					if(r.Raw == null) {
-						o.OnNext((false, "不明なエラー", Array.Empty<Data.Cookie2>()));
+						o.OnNext((false, null, "不明なエラー", Array.Empty<Data.Cookie2>()));
 					} else {
-						o.OnNext((r.Successed, r.Raw, r.Cookies));
+						o.OnNext((r.Successed, r.ThisNo, r.Raw, r.Cookies));
 					}
 				}
 				finally {
