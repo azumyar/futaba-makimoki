@@ -338,32 +338,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					var res = c.Execute(r);
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 						var s = FutabaEncoding.GetString(res.RawBytes);
-						/*
-						var m = Regex.Match(s,
-							"<meta\\s+http-equiv=\"refresh\"\\s+content=\"1;url=res/([0-9]+).htm\">",
-							RegexOptions.IgnoreCase);
-						if(m.Success) {
-							return (true, m.Groups[1].Value, res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
-						} else {
-							// エラー解析めどい…めどくない？
-							var msg = "不明なエラー";
-							var ln = s.Replace("\r", "").Split('\n');
-							if(1 < ln.Length) {
-								msg = Regex.Replace(ln[ln.Length - 1], "<[^>]+>", "");
-								if(msg.EndsWith("リロード")) {
-									msg = msg.Substring(0, msg.Length - "リロード".Length);
-								}
-							} else {
-								var mm = Regex.Match(s,
-									"<body>(.+)</body>",
-									RegexOptions.IgnoreCase);
-								if(mm.Success && !mm.Groups[1].Value.Contains("<")) {
-									msg = mm.Groups[1].Value;
-								}
-							}
-							return (false, msg, res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
-						}
-						*/
 						try {
 							var json = JsonConvert.DeserializeObject<Data.FutabaPostResponse>(s);
 							if(json.Status?.ToLower() == "ok") {
@@ -432,9 +406,6 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					var res = c.Execute(r);
 					if(res.StatusCode == System.Net.HttpStatusCode.OK) {
 						var s = FutabaEncoding.GetString(res.RawBytes);
-						/*
-						return (s == "ok", res.Cookies.Select(x => new Data.Cookie2(x.Name, x.Value, x.Path, x.Domain, x.Expires)).ToArray(), s);
-						*/
 						try {
 							var json = JsonConvert.DeserializeObject<Data.FutabaPostResponse>(s);
 							if(json.Status?.ToLower() == "ok") {

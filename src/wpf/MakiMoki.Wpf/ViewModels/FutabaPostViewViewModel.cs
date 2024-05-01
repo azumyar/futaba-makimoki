@@ -487,6 +487,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 							Util.Futaba.UpdateThreadRes(x.Board, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
 								.ObserveOn(UIDispatcherScheduler.Default)
 								.Subscribe(z => {
+									// TODO: utilでやる
 									var resCount = z.Old?.ResItems.Length ?? 0;
 									foreach(var res in z.New.ResItems.Skip(resCount).Reverse()) {
 										if(res.ResItem.No == y.ThisNo) {
@@ -496,57 +497,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 											break;
 										}
 									}
-
-									/*
-									// TODO: utilでやる
-									if(z.New != null) {
-										var resCount = z.Old?.ResItems.Length ?? 0;
-										foreach(var res in z.New.ResItems.Skip(resCount).Reverse()) {
-											var cLine = com.Replace("\r", "").Split('\n');
-											var rLine = Regex.Split(res.ResItem.Res.Com, "<br>");
-											if(cLine.Length == rLine.Length) {
-												var success = 0;
-												bool dice = false;
-												for(var i = 0; i < cLine.Length; i++) {
-													var c = cLine[i];
-													var r = rLine[i];
-
-													// ダイス判定(ダイスは1レスに1回だけ)
-													if(!dice) {
-														var m1 = Regex.Match(
-															c,
-															@"^dice(10|\d)d(10000|\d{1,4})([+-]\d+)?=?",
-															RegexOptions.IgnoreCase);
-														if(m1.Success) {
-															dice = true;
-															var m2 = Regex.Match(r, @"<font[^>]*>[^<]+</font>");
-															if(m2.Success) {
-																// ダイスの領域を削る
-																c = c.Substring(m1.Length);
-																r = r.Substring(
-																	m1.Length + m2.Length
-																		+ ((m1.Groups[0].Value.Last() == '=') ? 0 : 1));
-															}
-														}
-													}
-
-													if(System.Web.HttpUtility.HtmlDecode(Regex.Replace(r, @"<[^>]*>", "")) == c) {
-														success++;
-													} else {
-														break;
-													}
-												}
-
-												if(cLine.Length == success) {
-													Util.Futaba.PostItems.Value = Util.Futaba.PostItems.Value
-														.Concat(new[] { new Data.PostedResItem(x.Url.BaseUrl, res.ResItem) })
-														.ToArray();
-													break;
-												}
-											}
-										}
-									}
-									\*/
 								});
 						} else {
 							Util.Futaba.PutInformation(new Information(y.Message, x.Url));
