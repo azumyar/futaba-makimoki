@@ -22,6 +22,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class MainWindowViewModel : BindableBase, IDisposable {
 		public record struct InfomationRecord(string Message, InformationBindableExObject ExObject, string Token);
 		public record struct WpfBugMessage(FrameworkElement Element, bool Remove = true);
+		public class ForceGestureRelease { }
 
 		internal class Messenger : EventAggregator {
 			public static Messenger Instance { get; } = new Messenger();
@@ -127,6 +128,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		private Dictionary<MouseGestureId, Action> MouseGestureId2Action { get; }
 
 		public MainWindowViewModel(IDialogService dialogService) {
+			Messenger.Instance.GetEvent<PubSubEvent<ForceGestureRelease>>().Subscribe(_ => {
+				this.gesture?.ReleaseGesture();
+			});
+
 			TmpMouseGestureVisibility = TmpMouseGestureText.Select(x => string.IsNullOrEmpty(x) switch {
 				true => Visibility.Collapsed,
 				false => Visibility.Visible
