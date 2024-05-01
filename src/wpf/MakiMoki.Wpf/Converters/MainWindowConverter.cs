@@ -1,3 +1,4 @@
+using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -6,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
@@ -38,10 +40,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if(values.Length == 3) {
 				if(values[0] == null && (values[1] is double)) {
 					return values[1];
-				} else if((values[0] is IEnumerable<Model.TabItem> ti) && (values[1] is double aw)) {
-					return aw / ti.Count() - 1; // 端数が出ると全部足したときに aw を超えるので切り捨て+余裕を持たせるために1引く
+				} else if((values[0] is /*IEnumerable<Model.TabItem> 要素が0だとisが失敗する…なぜ？ */System.Collections.IList ti) && (values[1] is double aw)) {
+					return aw / ti.Count - 1; // 端数が出ると全部足したときに aw を超えるので切り捨て+余裕を持たせるために1引く
 				}
 			}
+
 			throw new ArgumentException("型不正。", nameof(values));
 		}
 
@@ -133,6 +136,25 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 					//return bf.ResCount.Value < bf.CatalogResCount.Value ? Visibility.Visible : Visibility.Hidden;
 				}
 				return Visibility.Hidden;
+			}
+			throw new ArgumentException("型不正。", nameof(values));
+		}
+
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+	}
+
+	class ThreadTabSourceConverter : IMultiValueConverter {
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+			if(values.Length == 3) {
+				if((values[0] is Dictionary<string, ReactiveCollection<Model.TabItem>> c) && (values[1] is Model.TabItem tab)) {
+					if(c.TryGetValue(tab.Url.BaseUrl, out var r)) {
+						return r;
+					}
+				}
+
+				return new ReactiveCollection<TabItem>();
 			}
 			throw new ArgumentException("型不正。", nameof(values));
 		}

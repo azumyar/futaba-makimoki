@@ -8,6 +8,23 @@ using System.Text.RegularExpressions;
 using System.IO;
 
 namespace Yarukizero.Net.MakiMoki.Data {
+	public class FutabaPostResponse : JsonObject {
+		[JsonProperty("status")]
+		public string Status { get; internal set; }
+
+		[JsonProperty("jumpto")]
+		public long JumpTo { get; internal set; }
+
+		[JsonProperty("resto")]
+		public long Resto { get; internal set; }
+
+		[JsonProperty("thisno")]
+		public long ThisNo { get; internal set; }
+
+		[JsonProperty("bbscode")]
+		public string BbsCode { get; internal set; }
+	}
+
 	public class FutabaResponse : JsonObject {
 		public class ResConverter : JsonConverter {
 			public override bool CanConvert(Type objectType) {

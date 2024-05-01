@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -97,74 +98,39 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			var sw = new System.Diagnostics.Stopwatch();
 			sw.Start();
 #endif
-			var f = Directory.EnumerateFiles(cacheDir)
-				.Where(x => {
-					try {
-						return File.GetLastWriteTime(x) < time;
-					}
-					catch(UnauthorizedAccessException) {
-						return false;
-					}
-					catch(IOException) {
-						return false;
-					}
-				});
-			var rmdir = Path.Combine(cacheDir, "temp");
-			if(!Directory.Exists(rmdir)) {
+			var f = new ConcurrentQueue<string>();
+			Parallel.ForEach(Directory.EnumerateFiles(cacheDir), x => {
 				try {
-					Directory.CreateDirectory(rmdir);
+					if(File.GetLastWriteTime(x) < time) {
+						f.Enqueue(x);
+					}
 				}
-				catch(Exception e) when(e is UnauthorizedAccessException || e is IOException) { 
+				catch(Exception e) when((e is UnauthorizedAccessException) || (e is IOException)) { }
+			});
+
+			if(!f.Any()) {
 #if DEBUG
 				sw.Stop();
-					Console.WriteLine("初期削除処理失敗");
+				System.Diagnostics.Debug.WriteLine("削除対象なし{0}ミリ秒", sw.ElapsedMilliseconds);
 #endif
-					return;
-				}
-			}
-			foreach(var it in f) {
-				try {
-					var name = Path.GetFileName(it);
-					File.Move(it, Path.Combine(rmdir, name));
-				}
-				catch(Exception e) when(e is UnauthorizedAccessException || e is IOException) { }
+				return;
 			}
 
-			Observable.Return(rmdir)
-				.ObserveOn(System.Reactive.Concurrency.ThreadPoolScheduler.Instance)
-				.Subscribe(x => {
-					foreach(var it in Directory.EnumerateFiles(x)) {
-						try {
-							File.Delete(it);
-						}
-						catch(Exception e) when(e is UnauthorizedAccessException || e is IOException) { }
-					}
-					try {
-						Directory.Delete(x);
-					}
-					catch(Exception e) when(e is UnauthorizedAccessException || e is IOException) { }
-				});
-
-#if false
-			/*
-			// TODO: ファイルがたくさんあると無視できないくらい重い、非同期化したほうがいいかも
-			// Parallel.ForEachにしてみた
-			Parallel.ForEach(f, it => {
-				// .NET例外が投げられないようにWin32 APIたたく
-				DeleteFile(it);
-#if false
-				try {
-					File.Delete(it);
-				}
-				catch(UnauthorizedAccessException) { /* 削除できないファイルは無視する */
-		}
-				catch(IOException) { /* 削除できないファイルは無視する */}
-#endif
-			});
-#endif
 #if DEBUG
 			sw.Stop();
-			Console.WriteLine("初期削除処理{0}ミリ秒", sw.ElapsedMilliseconds);
+			System.Diagnostics.Debug.WriteLine("ファイル列挙完了{0}ミリ秒", sw.ElapsedMilliseconds);
+			sw.Start();
+#endif
+			Parallel.ForEach(f, x => {
+				try {
+					File.Delete(x);
+				}
+				catch(Exception e) when(e is UnauthorizedAccessException || e is IOException) { }
+			});
+#if DEBUG
+			sw.Stop();
+			System.Diagnostics.Debug.WriteLine("削除処理完了{0}ミリ秒", sw.ElapsedMilliseconds);
+			sw.Start();
 #endif
 		}
 	}

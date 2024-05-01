@@ -339,10 +339,10 @@
                             <i:EventTrigger EventName="Click">
                                 <ri:EventToReactiveCommand Command="{Binding FullScreenThreadClickCommand}" />
                             </i:EventTrigger>
-                            <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="Equal">
+                            <i:DataTrigger Binding="{Binding IsFullScreenCatalogMode.Value, Mode=OneWay}" Value="True" Comparison="Equal">
                                 <i:ChangePropertyAction TargetName="FullScreenThreadRotate" PropertyName="Angle" Value="0" />
                             </i:DataTrigger>
-                            <i:DataTrigger Binding="{Binding IsFullScreenMode.Value, Mode=OneWay}" Value="True" Comparison="NotEqual">
+                            <i:DataTrigger Binding="{Binding IsFullScreenCatalogMode.Value, Mode=OneWay}" Value="True" Comparison="NotEqual">
                                 <i:ChangePropertyAction TargetName="FullScreenThreadRotate" PropertyName="Angle" Value="180" />
                             </i:DataTrigger>
                         </i:Interaction.Triggers>
@@ -881,10 +881,6 @@
                     <i:EventTrigger EventName="MouseLeave">
                         <ri:EventToReactiveCommand
                             Command="{Binding DataContext.CatalogItemLeaveCommand, ElementName=_this}" />
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="PreviewMouseWheel">
-                        <ri:EventToReactiveCommand
-                            Command="{Binding DataContext.CatalogMouseWheelCommand, ElementName=_this}" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
                 <i:Interaction.Behaviors>

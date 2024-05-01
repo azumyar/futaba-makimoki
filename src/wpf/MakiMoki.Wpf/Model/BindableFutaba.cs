@@ -69,7 +69,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 
 		public ReactiveProperty<int> CatalogResCount { get; } = new ReactiveProperty<int>(0);
-		public ReactiveProperty<object> UpdateToken { get; } = new ReactiveProperty<object>(DateTime.Now);
+		public ReactiveProperty<object> UpdateToken { get; }
+		public ReactiveProperty<object> NgUpdateToken { get; }
 
 
 		private Action<Ng.NgData.NgConfig> ngUpdateAction;
@@ -107,12 +108,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}.CombineLatest(x => x.Any(y => y))
 				.Select(x => x ? Visibility.Collapsed : Visibility.Visible)
 				.ToReactiveProperty();
-			ngUpdateAction = (_) => UpdateToken.Value = DateTime.Now;
-			hiddenUpdateAction = (_) => UpdateToken.Value = DateTime.Now;
-			systemUpdateAction = (_) => UpdateToken.Value = DateTime.Now;
-			Ng.NgConfig.NgConfigLoader.AddNgUpdateNotifyer(ngUpdateAction);
-			Ng.NgConfig.NgConfigLoader.AddHiddenUpdateNotifyer(hiddenUpdateAction);
-			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(systemUpdateAction);
 			if(old != null) {
 				this.FilterText.Value = old.FilterText.Value;
 				this.CatalogSortItem.Value = old.CatalogSortItem.Value;
@@ -122,7 +117,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.IsFullScreenThreadMode.Value = old.IsFullScreenThreadMode.Value;
 				this.IsDisableNg.Value = old.IsDisableNg.Value;
 				this.EnableSpeach.Value = old.EnableSpeach.Value;
+				this.UpdateToken = old.UpdateToken;
+				this.NgUpdateToken = old.NgUpdateToken;
+			} else {
+				this.UpdateToken = new ReactiveProperty<object>(DateTime.Now);
+				this.NgUpdateToken = new ReactiveProperty<object>(DateTime.Now);
 			}
+			ngUpdateAction = (_) => this.UpdateToken.Value = this.NgUpdateToken.Value = DateTime.Now;
+			hiddenUpdateAction = (_) => this.UpdateToken.Value = this.NgUpdateToken.Value = DateTime.Now;
+			systemUpdateAction = (_) => this.UpdateToken.Value = DateTime.Now;
+			Ng.NgConfig.NgConfigLoader.AddNgUpdateNotifyer(ngUpdateAction);
+			Ng.NgConfig.NgConfigLoader.AddHiddenUpdateNotifyer(hiddenUpdateAction);
+			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(systemUpdateAction);
 
 
 			this.Raw = futaba;
@@ -308,10 +314,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			if(this.Raw == null) {
 				return;
 			}
+			if(this.Url.IsCatalogUrl) {
+				return;
+			}
 
 			var sfd= new Microsoft.Win32.SaveFileDialog() {
 				AddExtension = true,
 				Filter = "HTML5ファイル|*.html;*.htm|HTML5ファイル(フルセット-試験中)|*.html;*.htm", 
+				FileName = $"{this.Url.ThreadNo}.html",
 			};
 			if(sfd.ShowDialog() ?? false) {
 				string getImageBase64(
@@ -910,7 +920,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			if(isUpdate) {
 				this.thumbSource.SetTarget(null);
 				_ = this.ThumbSource;
-				this.Parent.Value.UpdateToken.Value = DateTime.Now;
 			}
 		}
 
@@ -977,11 +986,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		}
 
 		public IObservable<Model.ImageObject> LoadBitmapSource(bool forceLoad = false) {
+			if((this.Raw.Value.ResItem.Res.Fsize == 0) || string.IsNullOrEmpty(this.Raw.Value.ResItem.Res.Thumb)) {
+				return Observable.Return<Model.ImageObject>(null);
+			}
+			
 			if(!forceLoad) {
-				if(this.Raw.Value.ResItem.Res.Fsize == 0) {
-					return Observable.Return<Model.ImageObject>(null);
-				}
-
 				if(this.thumbSource.TryGetTarget(out var bitmapSource)) {
 					this.ThumbToken.Value ??= new object();
 					return Observable.Return<Model.ImageObject>(bitmapSource);

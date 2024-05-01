@@ -50,6 +50,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		private volatile bool isDisposed = false;
 		private Helpers.AutoDisposable disposable;
 		private ScrollViewer scrollViewerThreadRes;
+		private bool isFirstContents = false;
 
 		public FutabaThreadResViewer() {
 			InitializeComponent();
@@ -218,8 +219,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			return default(T);
 		}
 
-		private static void OnContentsChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
-			if(obj is UIElement el) {
+		private static async void OnContentsChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e) {
+			if(obj is FutabaThreadResViewer el) {
+				if(!el.isFirstContents) {
+					await Task.Yield(); // 一発目のイベント発火の時まだCommandにバインドされてないので一度遅らせる
+					el.isFirstContents = true;
+				}
 				el.RaiseEvent(new RoutedPropertyChangedEventArgs<Model.IFutabaViewerContents>(
 					e.OldValue as Model.IFutabaViewerContents,
 					e.NewValue as Model.IFutabaViewerContents,

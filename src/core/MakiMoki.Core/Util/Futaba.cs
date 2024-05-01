@@ -602,7 +602,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				});
 		}
 
-		public static IObservable<(bool Successed, string Message)> PostRes(Data.BoardData board, string threadNo,
+		public static IObservable<(bool Successed, string ThisNo, string Message)> PostRes(Data.BoardData board, string threadNo,
 			string name, string email, string subject,
 			string comment, string filePath, string passwd) {
 
@@ -616,7 +616,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 					if(x.Successed) {
 						Config.ConfigLoader.UpdateFutabaInputData(board, subject, name, email, passwd);
 					}
-					return (x.Successed, x.Message);
+					return (x.Successed, x.ThisNo, x.Message);
 				});
 		}
 
@@ -679,7 +679,11 @@ namespace Yarukizero.Net.MakiMoki.Util {
 								// TODO: o.OnError();
 							}
 						}
-						catch(Exception e) when (e is SocketException || e is TimeoutException) {
+						catch(Exception e) when (
+							e is SocketException
+								|| e is OperationCanceledException
+								|| e is TimeoutException) {
+
 							o.OnNext((false, null, null));
 						}
 					}
@@ -748,6 +752,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 						catch(Exception e) when(
 							e is SocketException
 								|| e is TimeoutException
+								|| e is OperationCanceledException
 								|| e is TaskCanceledException
 								|| e is ObjectDisposedException) {
 							o.OnNext((false, null, null));
@@ -970,7 +975,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		}
 
 		public static string GetGoogleImageSearchdUrl(string url) {
-			return $"https://www.google.com/searchbyimage?sbisrc=app&image_url={ System.Web.HttpUtility.UrlEncode(url) }";
+			return $"https://www.google.com/searchbyimage?sbisrc=chrome&image_url={ System.Web.HttpUtility.UrlEncode(url) }";
 		}
 
 		public static string GetGoogleLensUrl(string url) {

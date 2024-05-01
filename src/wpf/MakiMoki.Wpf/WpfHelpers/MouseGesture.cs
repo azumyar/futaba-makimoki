@@ -118,7 +118,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 			return CallNextHookEx(this.hook, nCode, wParam, ref lParam);
 		}
 
-		private void StartGesture() {
+		public void StartGesture() {
 			if(this.hook == IntPtr.Zero) {
 				System.Diagnostics.Debug.WriteLine($"マウスジェスチャ:開始");
 
@@ -140,7 +140,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfHelpers {
 					0);
 			}
 		}
-		private void ReleaseGesture() {
+		public void ReleaseGesture() {
 			if(this.hook != IntPtr.Zero) {
 				UnhookWindowsHookEx(this.hook);
 				this.hook = IntPtr.Zero;

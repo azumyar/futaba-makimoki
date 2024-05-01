@@ -116,6 +116,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public MakiMokiCommand<Model.BindableFutabaResItem> MenuItemWatchImageCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
 		public MakiMokiCommand<Model.BindableFutabaResItem> MenuItemNgImageCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
 		public MakiMokiCommand<Model.BindableFutabaResItem> MenuItemResHiddenCommand { get; } = new MakiMokiCommand<Model.BindableFutabaResItem>();
+		public MakiMokiCommand ContextMenuOpenedCommand { get; } = new MakiMokiCommand();
 
 		public MakiMokiCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxQuotCommand { get; } = new MakiMokiCommand<(BindableFutaba Futaba, TextBox TextBox)>();
 		public MakiMokiCommand<(BindableFutaba Futaba, TextBox TextBox)> CopyTextboxSearchCommand { get; } = new MakiMokiCommand<(BindableFutaba Futaba, TextBox TextBox)>();
@@ -221,6 +222,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			MenuItemResHiddenCommand.Subscribe(x => OnMenuItemResHidden(x));
 			MenuItemWatchImageCommand.Subscribe(x => OnMenuItemWatchImage(x));
 			MenuItemNgImageCommand.Subscribe(x => OnMenuItemNgImage(x));
+			ContextMenuOpenedCommand.Subscribe(() => OnContextMenuOpened());
 
 			PaletteButtonCopyCommand.Subscribe(x => OnPaletteButtonCopy(x));
 			PaletteButtonSoudaneCommand.Subscribe(x => OnPaletteButtonSoudane(x));
@@ -260,18 +262,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				.Select(x => x ? 480d : 0d)
 				.ToReactiveProperty();
 
-			GridSplitterVisibility = new[] {
-				IsEnbaledCanvas98Bottom,
-				IsEnbaledCanvas98Right,
-			}.CombineLatestValuesAreAllTrue()
-				.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
+			GridSplitterVisibility = IsEnbaledCanvas98Bottom
+				.CombineLatest(IsEnbaledCanvas98Right , (x, y) => (x || y) switch {
+					true => Visibility.Visible,
+					false => Visibility.Collapsed,
+				})
 				.ToReactiveProperty();
 			GridSplitterRow = IsEnbaledCanvas98Right.Select(x => x ? 0 : 1).ToReactiveProperty();
 			GridSplitterRowSpan = IsEnbaledCanvas98Right.Select(x => x ? 3 : 1).ToReactiveProperty();
 			GridSplitterColumn = IsEnbaledCanvas98Bottom.Select(x => x ? 0 : 1).ToReactiveProperty();
 			GridSplitterColumnSpan = IsEnbaledCanvas98Bottom.Select(x => x ? 3 : 1).ToReactiveProperty();
-			GridSplitterWidth = IsEnbaledCanvas98Right.Select(x => x ? 5d : double.PositiveInfinity).ToReactiveProperty();
-			GridSplitterHeight = IsEnbaledCanvas98Bottom.Select(x => x ? 5d : double.PositiveInfinity).ToReactiveProperty();
+			GridSplitterWidth = IsEnbaledCanvas98Right.Select(x => x ? 5d : double.NaN).ToReactiveProperty();
+			GridSplitterHeight = IsEnbaledCanvas98Bottom.Select(x => x ? 5d : double.NaN).ToReactiveProperty();
 
 			ListBoxRowSpan = IsEnbaledCanvas98Bottom.Select(x => x ? 1 : 3).ToReactiveProperty();
 			ListBoxColumnSpan = IsEnbaledCanvas98Right.Select(x => x ? 1 : 3).ToReactiveProperty();
@@ -695,6 +697,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 						hash(y);
 					});
 			}
+		}
+
+		private void OnContextMenuOpened() {
+			MainWindowViewModel.Messenger.Instance.GetEvent<PubSubEvent<MainWindowViewModel.ForceGestureRelease>>().Publish(new());
 		}
 
 		private void OnCopyTextboxQuot((BindableFutaba Futaba, TextBox TextBox) e) {

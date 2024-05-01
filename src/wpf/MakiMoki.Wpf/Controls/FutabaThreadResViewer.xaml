@@ -552,7 +552,7 @@
                     Height="{Binding GridSplitterHeight.Value, Mode=OneWay}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
-                    Visibility="{Binding VerticalGridSplitterVisibility.Value, Mode=OneWay}">
+                    Visibility="{Binding GridSplitterVisibility.Value, Mode=OneWay}">
                     <GridSplitter.Background>
                         <SolidColorBrush Color="{DynamicResource WindowSplitterColor}" />
                     </GridSplitter.Background>
@@ -786,6 +786,14 @@
                                                 Visibility="{Binding MenuItemUnregisterHiddenVisibility.Value, Mode=OneWay}"
                                                 Command="{Binding Tag.MenuItemResHiddenCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding DataContext,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}" />
+
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Opened">
+                                                    <ri:EventToReactiveCommand
+                                                        Command="{Binding Tag.ContextMenuOpenedCommand,Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContextMenu}}"
+                                                        />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
                                         </ContextMenu>
                                     </Grid.ContextMenu>
                                     <Grid.ColumnDefinitions>

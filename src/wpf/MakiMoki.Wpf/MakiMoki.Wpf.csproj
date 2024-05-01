@@ -37,6 +37,7 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
     <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>false</SelfContained>
 
     <!--
     <PublishTrimmed>true</PublishTrimmed>
@@ -73,15 +74,16 @@
     <ProjectReference Include="..\MakiMoki.Wpf.Canvas98\MakiMoki.Wpf.Canvas98.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="ControlzEx" Version="6.0.0" />
     <PackageReference Include="Emoji.Wpf" Version="0.3.4" />
-    <PackageReference Include="LibVLCSharp.WPF" Version="3.6.7" />
+    <PackageReference Include="LibVLCSharp.WPF" Version="3.7.0" />
     <PackageReference Include="Microsoft-Windows10-APICodePack-Shell" Version="1.1.8" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Prism.Unity" Version="7.2.0.1422" />
-    <PackageReference Include="ReactiveProperty" Version="8.2.0" />
-    <PackageReference Include="ReactiveProperty.WPF" Version="8.2.0" />
+    <PackageReference Include="ReactiveProperty" Version="9.3.1" />
+    <PackageReference Include="ReactiveProperty.WPF" Version="9.3.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.18" />
     <PackageReference Include="VirtualizingWrapPanel" Version="1.5.7" />
