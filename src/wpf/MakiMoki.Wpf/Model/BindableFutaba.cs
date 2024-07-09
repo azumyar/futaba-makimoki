@@ -133,26 +133,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.IsDie = new ReactiveProperty<bool>(futaba.Raw?.IsDie ?? false);
 			this.IsOld = new ReactiveProperty<bool>(futaba.Raw?.IsOld ?? false || this.IsDie.Value);
 			this.IsMaxRes = new ReactiveProperty<bool>(futaba.Raw?.IsMaxRes ?? false);
-			if(futaba.Raw == null) {
-				this.DieTextLong = new ReactiveProperty<string>("");
-			} else if(futaba.Raw.IsDie) {
-				this.DieTextLong = new ReactiveProperty<string>("スレッドは落ちました");
-			} else {
-				var t = futaba.Raw.DieDateTime;
-				if(t.HasValue) {
-					var ts = t.Value - (futaba.Raw.NowDateTime ?? DateTime.Now);
-					var tt = DateTime.Now.Add(ts); // 消滅時間表示はPCの時計を使用
-					this.DieTextLong = new ReactiveProperty<string>(ts switch {
-						TimeSpan x when x.TotalSeconds < 0 => $"スレ消滅：{Math.Abs(((futaba.Raw.NowDateTime ?? DateTime.Now) - t.Value).TotalSeconds):00}秒経過(消滅時間を過ぎました)",
-						TimeSpan x when 0 < x.Days => $"スレ消滅：{ tt.ToString("MM/dd") }(あと{ ts.ToString(@"dd\日hh\時\間") })",
-						TimeSpan x when 0 < x.Hours => $"スレ消滅：{ tt.ToString("HH:mm") }(あと{ ts.ToString(@"hh\時\間mm\分") })",
-						TimeSpan x when 0 < x.Minutes => $"スレ消滅：{ tt.ToString("HH:mm") }(あと{ ts.ToString(@"mm\分ss\秒") })",
-						_ => $"スレ消滅：{ tt.ToString("HH:mm") }(あと{ ts.ToString(@"ss\秒") })",
-					});
+			this.DieTextLong = this.Raw.Select(x => {
+				if(x.Raw == null) {
+					return "";
+				} else if(x.Raw.IsDie) {
+					return "スレッドは落ちました";
 				} else {
-					this.DieTextLong = new ReactiveProperty<string>("スレ消滅：不明");
+					var t = x.Raw.DieDateTime;
+					if(t.HasValue) {
+						var ts = t.Value - (x.Raw.NowDateTime ?? DateTime.Now);
+						var tt = DateTime.Now.Add(ts); // 消滅時間表示はPCの時計を使用
+						return ts switch {
+							TimeSpan y when y.TotalSeconds < 0 => $"スレ消滅：{Math.Abs(((futaba.Raw.NowDateTime ?? DateTime.Now) - t.Value).TotalSeconds):00}秒経過(消滅時間を過ぎました)",
+							TimeSpan y when 0 < y.Days => $"スレ消滅：{tt.ToString("MM/dd")}(あと{ts.ToString(@"dd\日hh\時\間")})",
+							TimeSpan y when 0 < y.Hours => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"hh\時\間mm\分")})",
+							TimeSpan y when 0 < y.Minutes => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"mm\分ss\秒")})",
+							_ => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"ss\秒")})",
+						};
+					} else {
+						return "スレ消滅：不明";
+					}
 				}
-			}
+			}).ToReactiveProperty();
+
 			this.ExportCommand.Subscribe(() => OnExport());
 
 			this.FullScreenCatalogClickCommand.Subscribe(() => OnFullScreenCatalogClick());
@@ -579,8 +582,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						Util.Futaba.GetThumbImageLocalFilePath(
 							this.Parent.Value.Url, this.Raw.Value.ResItem.Res)) is Model.ImageObject bmp) {
 						this.ThumbToken.Value ??= new object();
-						this.thumbSource.SetTarget(bmp);
-						return bmp;
+						// NG判定を行う
+						if(this.ThumbDisplay.Value.HasValue) {
+							this.thumbSource.SetTarget(bmp);
+							return bmp;
+						} else {
+							// 1フレーム進める
+							Observable.Return(bmp)
+								.Delay(TimeSpan.FromMilliseconds(1))
+								.ObserveOn(UIDispatcherScheduler.Default)
+								.Subscribe(x => {
+									this.ThumbSource = x;
+								});
+							return null;
+						}
 					}
 				}
 

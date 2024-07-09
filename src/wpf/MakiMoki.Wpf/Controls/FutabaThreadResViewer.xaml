@@ -565,7 +565,7 @@
                     Grid.Column="0" Grid.ColumnSpan="{Binding ListBoxColumnSpan.Value, Mode=OneWay}"
                     ItemsSource="{Binding Contents.FutabaItems.Value, ElementName=_this, Mode=OneWay}"
                     BorderThickness="0"
-                    Visibility="{Binding Contents.Futaba.Value.Raw.Value, ElementName=_this, Converter={StaticResource FutabaThreadResVisibleConverter}, Mode=OneWay}"
+                    Visibility="{Binding                    Contents.Futaba.Value.Raw.Value, ElementName=_this, Converter={StaticResource FutabaThreadResVisibleConverter}, Mode=OneWay}"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                     ScrollViewer.CanContentScroll="True"
                     VirtualizingPanel.ScrollUnit="Pixel"
