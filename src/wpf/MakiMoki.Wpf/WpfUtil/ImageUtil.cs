@@ -119,7 +119,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 					this.cache.Add((now, instance));
 					if(this.maxSize < this.cache.Count) {
 						this.cache = this.cache
-							.Skip(this.keepSize)
+							.TakeLast(this.keepSize)
 							.Where(x => keep <  x.Time)
 							.ToList();
 					}
