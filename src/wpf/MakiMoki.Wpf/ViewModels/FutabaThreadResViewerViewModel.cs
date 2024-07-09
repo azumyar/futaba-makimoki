@@ -306,7 +306,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				return;
 			}
 
-			Util.Futaba.UpdateThreadRes(x.Raw.Board, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe();
+			Util.Futaba.UpdateThreadRes(x.Raw.Value.Board, x.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental).Subscribe();
 		}
 
 		private void UpdatePost(Model.BindableFutaba x) {
@@ -478,18 +478,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void OnThreadResHamburgerItemCopyUrlClick(Model.IFutabaViewerContents c) {
-			var u = c.Futaba.Value.Raw.Url;
+			var u = c.Futaba.Value.Raw.Value.Url;
 			if(u.IsThreadUrl) {
 				Clipboard.SetText(Util.Futaba.GetFutabaThreadUrl(u));
 			}
 		}
 
 		private void OnThreadResHamburgerItemOpenUrlClick(Model.IFutabaViewerContents c) {
-			WpfUtil.PlatformUtil.StartBrowser(new Uri(Util.Futaba.GetFutabaThreadUrl(c.Futaba.Value.Raw.Url)));
+			WpfUtil.PlatformUtil.StartBrowser(new Uri(Util.Futaba.GetFutabaThreadUrl(c.Futaba.Value.Raw.Value.Url)));
 		}
 
 		private void OnMenuItemFullUpdateClick(BindableFutaba futaba) {
-			Util.Futaba.UpdateThreadRes(futaba.Raw.Board, futaba.Url.ThreadNo)
+			Util.Futaba.UpdateThreadRes(futaba.Raw.Value.Board, futaba.Url.ThreadNo)
 				.Subscribe();
 		}
 
@@ -605,7 +605,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnMenuItemResHidden(Model.BindableFutabaResItem x) {
 			var ng = Ng.NgData.HiddenData.FromResItem(x.Raw.Value.Url.BaseUrl, x.Raw.Value.ResItem);
-			if(Ng.NgUtil.NgHelper.CheckHidden(x.Parent.Value.Raw, x.Raw.Value)) {
+			if(Ng.NgUtil.NgHelper.CheckHidden(x.Parent.Value.Raw.Value, x.Raw.Value)) {
 				Ng.NgConfig.NgConfigLoader.RemoveHiddenRes(ng);
 			} else {
 				Ng.NgConfig.NgConfigLoader.AddHiddenRes(ng);

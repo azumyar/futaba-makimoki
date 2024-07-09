@@ -103,8 +103,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.FutabaProperty.Value.IsDisableNg,
 				this.ngResVisible,
 				this.ngToken,
+				this.FutabaProperty.Value.UpdateToken,
 				this.FutabaProperty.Value.NgUpdateToken,
-				(x, y, z, _, _) => {
+				(x, y, z, _, _, _) => {
 					return x?.ResItems.Where(xx => xx switch {
 						var v when (v.IsNg.Value || v.IsHidden.Value) && !y && !z => false,
 						_ => true,
@@ -115,48 +116,52 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ThumbSource = this.ThumbSourceObject.Select(x => x?.Image as ImageSource).ToReactiveProperty();
 			this.ThreadView = new ReactiveProperty<object>();
 			this.PostData = new ReactiveProperty<PostHolder>(new PostHolder(f.Board, f.Url));
-			this.Name = this.Futaba
-				.Select(x => {
+			this.Name = this.FutabaProperty.CombineLatest(
+				this.FutabaProperty.Value.UpdateToken,
+				(x, _) => {
 					if(this.Url.IsCatalogUrl) {
 						return Config.ConfigLoader.Board.Boards
 							.Where(x => x.Url == this.Url.BaseUrl)
 							.FirstOrDefault()?.Name ?? "";
 					} else {
-						return string.IsNullOrEmpty(x?.Name) ? $"No.{ this.Url.ThreadNo }" : x.Name;
+						return string.IsNullOrEmpty(x?.Name.Value) ? $"No.{ this.Url.ThreadNo }" : x.Name.Value;
 					}
 				}).ToReactiveProperty();
-			this.SubscribeFutaba = this.Futaba.Subscribe(x => {
-				if(x == null) {
-					this.ThumbSource.Value = null;
-					return;
-				}
-				if(this.isActivated) {
-					this.LastRescount.Value = x.ResCount.Value;
-				}
+			this.SubscribeFutaba = this.FutabaProperty
+				.CombineLatest(this.FutabaProperty.Value.UpdateToken, (x, _) => x)
+				.Subscribe(
+					(x) => {
+						if(x == null) {
+							this.ThumbSource.Value = null;
+							return;
+						}
+						if(this.isActivated) {
+							this.LastRescount.Value = x.ResCount.Value;
+						}
 
-				var res = x.ResItems.FirstOrDefault();
-				if(res == null) {
-					this.ThumbSource.Value = null;
-					return;
-				}
+						var res = x.ResItems.FirstOrDefault();
+						if(res == null) {
+							this.ThumbSource.Value = null;
+							return;
+						}
 
-				if(res.ThumbSource != null) {
-					this.ThumbSourceObject.Value = res.ThumbSource;
-				}
+						if(res.ThumbSource != null) {
+							this.ThumbSourceObject.Value = res.ThumbSource;
+						}
 
-				if(!res.Raw.Value.ResItem.Res.IsHavedImage) {
-					return;
-				}
+						if(!res.Raw.Value.ResItem.Res.IsHavedImage) {
+							return;
+						}
 
-				Util.Futaba.GetThumbImage(this.Url, res.Raw.Value.ResItem.Res)
-					.ObserveOn(UIDispatcherScheduler.Default)
-					.Subscribe(x => {
-						this.ThumbSourceObject.Value = x.Successed switch {
-							true => WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes),
-							false => null,
-						};
+						Util.Futaba.GetThumbImage(this.Url, res.Raw.Value.ResItem.Res)
+							.ObserveOn(UIDispatcherScheduler.Default)
+							.Subscribe(x => {
+								this.ThumbSourceObject.Value = x.Successed switch {
+									true => WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes),
+									false => null,
+								};
+							});
 					});
-			});
 			this.ThumbVisibility = this.ThumbSource
 				.Select(x => (x != null) ? Visibility.Visible : Visibility.Collapsed)
 				.ToReactiveProperty();
@@ -193,10 +198,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			new Helpers.AutoDisposable(this)
 				.AddEnumerable(this.Futaba.Value?.ResItems)
 				.Dispose();
-		}
-
-		public void UpdateFutaba(BindableFutaba futaba) {
-			this.FutabaProperty.Value = futaba;
 		}
 
 		public void Bind(IFutabaContainer container) {

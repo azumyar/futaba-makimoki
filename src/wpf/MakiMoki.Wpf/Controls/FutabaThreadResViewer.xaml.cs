@@ -133,7 +133,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					.GetEvent<PubSubEvent<Canvas98.ViewModels.FutabaCanvas98ViewViewModel.PostFrom>>()
 					.Subscribe(x => {
 						if(x?.Url == this.Contents.Futaba.Value?.Url) {
-							var b = this.Contents.Futaba.Value.Raw.Board;
+							var b = this.Contents.Futaba.Value.Raw.Value.Board;
 							Config.ConfigLoader.UpdateFutabaInputData(
 								b,
 								x.Form.Subject, x.Form.Name,
