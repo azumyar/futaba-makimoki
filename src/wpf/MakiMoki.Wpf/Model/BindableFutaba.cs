@@ -127,12 +127,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.Raw = new(initialValue: futaba);
 			this.Name = this.Raw.Select(x => x.Name).ToReactiveProperty();
 			this.ResCount = this.Raw.Select(x => x.ResItems?.LastOrDefault()?.ResItem.Res.Rsc ?? 0).ToReactiveProperty();
+			this.IsDie = this.Raw.Select(x => x.Raw?.IsDie ?? false).ToReactiveProperty();
+			this.IsOld = this.Raw.Select(x => x.Raw?.IsOld ?? false).ToReactiveProperty();
+			this.IsMaxRes = this.Raw.Select(x => x.Raw?.IsMaxRes ?? false).ToReactiveProperty();
 			this.Url = futaba.Url;
 
 			var disps = new Helpers.AutoDisposable();
-			this.IsDie = new ReactiveProperty<bool>(futaba.Raw?.IsDie ?? false);
-			this.IsOld = new ReactiveProperty<bool>(futaba.Raw?.IsOld ?? false || this.IsDie.Value);
-			this.IsMaxRes = new ReactiveProperty<bool>(futaba.Raw?.IsMaxRes ?? false);
 			this.DieTextLong = this.Raw.Select(x => {
 				if(x.Raw == null) {
 					return "";
@@ -548,7 +548,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 							this._propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ThumbSource)));
 						});
 				} else {
-					this.ThumbDisplay.Value = true;
+					this.ThumbDisplay.Value = value switch {
+						null => null,
+						_ => true
+					};
 					this.thumbSource.SetTarget(value);
 					this._propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ThumbSource)));
 				}
@@ -715,19 +718,24 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 			// delとhostの処理
 			{
-				var headLine = new StringBuilder();
-				if(Raw.Value.ResItem.Res.IsDel) {
-					headLine.Append("<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font><br>");
-				} else if(Raw.Value.ResItem.Res.IsDel2) {
-					headLine.Append("<font color=\"#ff0000\">削除依頼によって隔離されました</font><br>");
-				}
-				if(!string.IsNullOrEmpty(Raw.Value.ResItem.Res.Host)) {
-					headLine.Append($"[<font color=\"#ff0000\">{ Raw.Value.ResItem.Res.Host }</font>]<br>");
-				}
-				this.IsNg = new ReactiveProperty<bool>(
-					parent.Url.IsCatalogUrl ? Ng.NgUtil.NgHelper.CheckCatalogNg(parent.Raw.Value, item)
-						: Ng.NgUtil.NgHelper.CheckThreadNg(parent.Raw.Value, item));
-				this.IsWatchWord = new ReactiveProperty<bool>(Ng.NgUtil.NgHelper.CheckCatalogWatch(parent.Raw.Value, item));
+				this.IsNg = this.Parent.Value.NgUpdateToken.CombineLatest(
+					this.Raw,
+					this.Parent,
+					(_, x, y) => {
+						return x.Url.IsCatalogUrl switch {
+							true => Ng.NgUtil.NgHelper.CheckCatalogNg(y.Raw.Value, x),
+							false => Ng.NgUtil.NgHelper.CheckThreadNg(y.Raw.Value, x),
+						};
+					}).ToReactiveProperty();
+				this.IsWatchWord = this.Parent.Value.NgUpdateToken.CombineLatest(
+					this.Raw,
+					this.Parent,
+					(_, x, y) => {
+						return x.Url.IsCatalogUrl switch {
+							true => Ng.NgUtil.NgHelper.CheckCatalogWatch(y.Raw.Value, x),
+							false => false,
+						};
+					}).ToReactiveProperty();
 				this.IsWatchImage = this.ThumbHash
 					.Select(x => x.HasValue ? Ng.NgUtil.NgHelper.CheckImageWatch(x.Value) : false)
 					.ToReactiveProperty();
@@ -736,23 +744,63 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					this.IsWatchImage,
 				}.CombineLatest(x => x.Any(y => y))
 					.ToReactiveProperty();
-				this.IsHidden = new ReactiveProperty<bool>(Ng.NgUtil.NgHelper.CheckHidden(parent.Raw.Value, item));
-				this.IsDel = new ReactiveProperty<bool>(
-					(item.ResItem.Res.IsDel || item.ResItem.Res.IsDel2)
-						&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden));
-				this.IsNgImageHidden = new ReactiveProperty<bool>(false);
-				this.HeadLineHtml = new ReactiveProperty<string>(headLine.ToString());
-				this.CommentHtml = new ReactiveProperty<string>("");
-				this.OriginHtml = new ReactiveProperty<string>(Raw.Value.ResItem.Res.Com);
-				this.SetCommentHtml();
-				this.IsVisibleOriginComment = this.IsHidden
+
+				this.IsHidden = this.Parent.Value.NgUpdateToken.CombineLatest(
+					this.Raw,
+					this.Parent,
+					(_, x, y) => {
+						return Ng.NgUtil.NgHelper.CheckHidden(y.Raw.Value, x);
+					}).ToReactiveProperty();
+				this.IsDel = this.Parent.Value.NgUpdateToken.CombineLatest(
+					this.Raw,
+					(_, x) => {
+					return (x.ResItem.Res.IsDel || x.ResItem.Res.IsDel2)
+						&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden);
+				}).ToReactiveProperty();
+				this.HeadLineHtml = this.Raw.Select(x => {
+					var headLine = new StringBuilder();
+					if(x.ResItem.Res.IsDel) {
+						headLine.Append("<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font><br>");
+					} else if(x.ResItem.Res.IsDel2) {
+						headLine.Append("<font color=\"#ff0000\">削除依頼によって隔離されました</font><br>");
+					}
+					if(!string.IsNullOrEmpty(x.ResItem.Res.Host)) {
+						headLine.Append($"[<font color=\"#ff0000\">{x.ResItem.Res.Host}</font>]<br>");
+					}
+					return headLine.ToString();
+				}).ToReactiveProperty();
+				this.OriginHtml = this.Raw.Select(x => x.ResItem.Res.Com).ToReactiveProperty();
+				this.CommentHtml = this.Parent.Value.NgUpdateToken.CombineLatest(
+					this.Raw,
+					this.IsNg,
+					this.IsHidden,
+					this.OriginHtml,
+					(_, x, n, h, c) => {
+						var del = WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden;
+						if(n) {
+							return "<font color=\"#ff0000\">NG設定に抵触しています</font>";
+						} else if(h) {
+							return "<font color=\"#ff0000\">非表示に設定されています</font>";
+						} else if(x.ResItem.Res.IsDel) {
+							return "<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font>";
+						} else if(x.ResItem.Res.IsDel2) {
+							return "<font color=\"#ff0000\">削除依頼によって隔離されました</font>";
+						} else {
+							return c;
+						}
+					}).ToReactiveProperty();
+				this.IsNgImageHidden = new ReactiveProperty<bool>(false);				this.IsVisibleOriginComment = this.IsHidden
 					.CombineLatest(
 						this.IsNg, this.IsDel, parent.IsDisableNg,
 						(x, y, z, a) => !(x || y || z) || a)
 					.ToReactiveProperty();
-				this.DisplayHtml = IsVisibleOriginComment
-					.Select(x => x ? this.OriginHtml.Value : this.CommentHtml.Value)
-					.ToReactiveProperty();
+				this.DisplayHtml = this.IsVisibleOriginComment.CombineLatest(
+					this.OriginHtml,
+					this.CommentHtml,
+					(x, y, z) => x switch {
+						true => y,
+						false => z,
+					}).ToReactiveProperty();
 				this.ReleaseHiddenResBuutonVisibility = this.IsHidden
 					.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
 					.ToReactiveProperty();
@@ -783,50 +831,51 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}
 
 			// コピー用コメント生成
-			{
+			this.CommentCopy = this.Raw.Select(x => {
 				var sb = new StringBuilder()
 					.Append(Index.Value);
 				if(Bord.Value.Extra?.Name ?? true) {
-					sb.Append($" {Raw.Value.ResItem.Res.Sub} {Raw.Value.ResItem.Res.Name}");
+					sb.Append($" {x.ResItem.Res.Sub} {x.ResItem.Res.Name}");
 				}
-				if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Email)) {
-					sb.Append($" [{Raw.Value.ResItem.Res.Email}]");
+				if(!string.IsNullOrWhiteSpace(x.ResItem.Res.Email)) {
+					sb.Append($" [{x.ResItem.Res.Email}]");
 				}
-				sb.Append($" {Raw.Value.ResItem.Res.Now}");
-				if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Host)) {
-					sb.Append($" {Raw.Value.ResItem.Res.Host}");
+				sb.Append($" {x.ResItem.Res.Now}");
+				if(!string.IsNullOrWhiteSpace(x.ResItem.Res.Host)) {
+					sb.Append($" {x.ResItem.Res.Host}");
 				}
-				if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Id)) {
-					sb.Append($" {Raw.Value.ResItem.Res.Id}");
+				if(!string.IsNullOrWhiteSpace(x.ResItem.Res.Id)) {
+					sb.Append($" {x.ResItem.Res.Id}");
 				}
-				if(0 < Raw.Value.Soudane) {
-					sb.Append($" そうだね×{Raw.Value.Soudane}");
+				if(0 < x.Soudane) {
+					sb.Append($" そうだね×{x.Soudane}");
 				}
-				sb.Append($" No.{Raw.Value.ResItem.No}")
+				sb.Append($" No.{x.ResItem.No}")
 					.AppendLine()
 					.Append(WpfUtil.TextUtil.RawComment2Text(Raw.Value.ResItem.Res.Com));
-				this.CommentCopy = new ReactiveProperty<string>(sb.ToString());
-			}
+				return sb.ToString();
+			}).ToReactiveProperty();
 
-			if(item.ResItem.Res.Fsize != 0) {
-				// 削除された場合srcの拡張子が消える
-				var m = Regex.Match(item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$");
-				if(m.Success) {
-					this.ImageName = new ReactiveProperty<string>(m.Groups[1].Value);
-					if(Ng.NgUtil.NgHelper.IsEnabledNgImage() && HashCache.TryGetTarget(this.GetCacheKey(), out var hash)) {
-						if(this.Raw.Value.Url.IsCatalogUrl
-							&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
-							&& Ng.NgUtil.NgHelper.CheckImageNg(hash.Value)) {
-
-							this.IsNgImageHidden.Value = true;
-						}
+			this.ImageName = this.Raw.Select(x => {
+				if(x.ResItem.Res.Fsize != 0) {
+					var m = Regex.Match(item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$");
+					if(m.Success) {
+						return m.Groups[1].Value;
 					}
-				} else {
-					this.ImageName = new ReactiveProperty<string>("");
 				}
-			} else {
-				this.ImageName = new ReactiveProperty<string>("");
+				return "";
+			}).ToReactiveProperty();
+			if(!string.IsNullOrEmpty(this.ImageName.Value)) {
+				if(Ng.NgUtil.NgHelper.IsEnabledNgImage() && HashCache.TryGetTarget(this.GetCacheKey(), out var hash)) {
+					if(this.Raw.Value.Url.IsCatalogUrl
+						&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
+						&& Ng.NgUtil.NgHelper.CheckImageNg(hash.Value)) {
+
+						this.IsNgImageHidden.Value = true;
+					}
+				}
 			}
+
 			this.FutabaTextBlockVisibility = this.IsCopyMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
 			this.CopyBlockVisibility = this.IsCopyMode
 				.CombineLatest(IsVisibleOriginComment, (x, y) => x ? Visibility.Visible : (y ? Visibility.Hidden : Visibility.Collapsed))
@@ -862,38 +911,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public void Update(FutabaContext.Item item) {
 			if(item.HashText != this.Raw.Value.HashText) {
 				this.Raw.Value = item;
-				{
-					var headLine = new StringBuilder();
-					if(Raw.Value.ResItem.Res.IsDel) {
-						headLine.Append("<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font><br>");
-					} else if(Raw.Value.ResItem.Res.IsDel2) {
-						headLine.Append("<font color=\"#ff0000\">削除依頼によって隔離されました</font><br>");
-					}
-					if(!string.IsNullOrEmpty(Raw.Value.ResItem.Res.Host)) {
-						headLine.Append($"[<font color=\"#ff0000\">{Raw.Value.ResItem.Res.Host}</font>]<br>");
-					}
-					this.IsNg.Value = this.Parent.Value.Url.IsCatalogUrl switch {
-						true => Ng.NgUtil.NgHelper.CheckCatalogNg(this.Parent.Value.Raw.Value, item),
-						false => Ng.NgUtil.NgHelper.CheckThreadNg(this.Parent.Value.Raw.Value, item),
-					};
-					this.IsWatchWord.Value = Ng.NgUtil.NgHelper.CheckCatalogWatch(this.Parent.Value.Raw.Value, item);
-					this.IsHidden.Value = Ng.NgUtil.NgHelper.CheckHidden(this.Parent.Value.Raw.Value, item);
-					this.HeadLineHtml.Value = headLine.ToString();
-					this.OriginHtml.Value = Raw.Value.ResItem.Res.Com;
-					this.SetCommentHtml();
-				}
 
-				if(item.ResItem.Res.Fsize != 0) {
-					// 削除された場合srcの拡張子が消える
-					var m = Regex.Match(item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$");
-					if(m.Success) {
-						this.ImageName.Value = m.Groups[1].Value;
-					} else {
-						this.ImageName.Value = "";
-						this.ThumbSource = null;
-					}
-				} else {
-					this.ImageName.Value = "";
+				if(string.IsNullOrEmpty(this.ImageName.Value)) {
 					this.ThumbSource = null;
 				}
 			}
@@ -940,22 +959,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ResCitedSource.Value = res;
 		}
 
-		private void SetCommentHtml(bool? ng = null, bool? hidden = null) {
-			var del = WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden;
-			if(ng ?? this.IsNg.Value) {
-				this.CommentHtml.Value = "<font color=\"#ff0000\">NG設定に抵触しています</font>";
-			} else if(hidden ?? this.IsHidden.Value) {
-				this.CommentHtml.Value = "<font color=\"#ff0000\">非表示に設定されています</font>";
-			} else if(this.Raw.Value.ResItem.Res.IsDel && del) {
-				this.CommentHtml.Value = "<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font>";
-			} else if(this.Raw.Value.ResItem.Res.IsDel2 && del) {
-				this.CommentHtml.Value = "<font color=\"#ff0000\">削除依頼によって隔離されました</font>";
-			} else {
-				this.CommentHtml.Value = this.OriginHtml.Value;
-			}
-
-		}
-
 		private string GetCacheKey() {
 			return Util.Futaba.GetThumbImageLocalFilePath(
 				this.Parent.Value.Url,
@@ -964,23 +967,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		// TODO: 名前変える
 		private void a() {
-			// NGとHiddenの設定前にコメントを更新する
-			var ng = this.Raw.Value.Url.IsCatalogUrl switch {
-				true => Ng.NgUtil.NgHelper.CheckCatalogNg(this.Parent.Value.Raw.Value, this.Raw.Value),
-				false => Ng.NgUtil.NgHelper.CheckThreadNg(this.Parent.Value.Raw.Value, this.Raw.Value),
-			};
-			var hidden = Ng.NgUtil.NgHelper.CheckHidden(this.Parent.Value.Raw.Value, this.Raw.Value);
-			var isUpdate = (ng != this.IsNg.Value) || (hidden != this.IsHidden.Value);
-			this.IsWatchWord.Value = Ng.NgUtil.NgHelper.CheckCatalogWatch(this.Parent.Value.Raw.Value, this.Raw.Value);
 			this.IsCopyMode.Value = false;
-			this.SetCommentHtml(ng, hidden);
-			this.IsNg.Value = ng;
-			this.IsHidden.Value = hidden;
 			// 画像の再ロード
-			if(isUpdate) {
-				this.thumbSource.SetTarget(null);
-				_ = this.ThumbSource;
-			}
+			this.ThumbSource = null;
+			_ = this.ThumbSource;
 		}
 
 		// TODO: 名前変える
@@ -1000,9 +990,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		// TODO:名前考える
 		private void c() {
-			this.IsDel.Value = (this.Raw.Value.ResItem.Res.IsDel || this.Raw.Value.ResItem.Res.IsDel2)
-				&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden);
-			this.SetCommentHtml();
 			this.CommandPaletteVisibility.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledThreadCommandPalette ? Visibility.Visible : Visibility.Collapsed;
 			this.CommandPaletteAlignment.Value = UiPotionToHorizontalAlignment(WpfConfig.WpfConfigLoader.SystemConfig.CommandPalettePosition);
 			this.IsVisibleCatalogIdMarker.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledIdMarker;
