@@ -220,7 +220,7 @@
                             <SolidColorBrush>
                                 <SolidColorBrush.Color>
                                     <MultiBinding Converter="{StaticResource FutabaResItemOldColorConverter}">
-                                        <Binding Path="Contents.Futaba.Value" Mode="OneWay" ElementName="_this" />
+                                        <Binding Path="Contents.Futaba.Value.IsOld.Value" Mode="OneWay" ElementName="_this" />
                                         <Binding Path="DataContext" Mode="OneWay" ElementName="ToolbarTextColorGetter" />
                                         <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadTextOldColorGetter" />
                                     </MultiBinding>
@@ -1211,7 +1211,7 @@
                                                     <SolidColorBrush>
                                                         <SolidColorBrush.Color>
                                                             <MultiBinding Converter="{StaticResource FutabaResItemOldColorConverter}">
-                                                                <Binding Path="Parent.Value" Mode="OneWay" />
+                                                                <Binding Path="Parent.Value.IsOld.Value" Mode="OneWay" />
                                                                 <Binding Path="DataContext" Mode="OneWay" ElementName="ViewerForegroundColorGetter" />
                                                                 <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadTextOldColorGetter" />
                                                             </MultiBinding>
