@@ -19,6 +19,8 @@ using Yarukizero.Net.MakiMoki.Data;
 using Yarukizero.Net.MakiMoki.Ng.NgData;
 using Yarukizero.Net.MakiMoki.Util;
 using Yarukizero.Net.MakiMoki.Reactive;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
+using System.Collections.ObjectModel;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	public class BindableFutaba : Bindable.CommonBindableFutaba {
@@ -40,11 +42,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public ReactiveProperty<string> FilterText { get; } = new ReactiveProperty<string>("");
 
-		public string Name { get; }
+		public ReactiveProperty<string> Name { get; }
 
 		public Data.UrlContext Url { get; }
 
-		public Data.FutabaContext Raw { get; }
+		public ReactiveProperty<Data.FutabaContext> Raw { get;}
 
 		public ReactiveProperty<bool> IsOld { get; }
 		public ReactiveProperty<bool> IsDie { get; }
@@ -75,10 +77,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		private Action<Ng.NgData.NgConfig> ngUpdateAction;
 		private Action<Ng.NgData.HiddenConfig> hiddenUpdateAction;
-		//private Action<Ng.NgData.NgImageConfig> imageUpdateAction;
+		private Action<Ng.NgData.NgImageConfig> imageUpdateAction;
 		private Action<PlatformData.WpfConfig> systemUpdateAction;
 
-		public BindableFutaba(Data.FutabaContext futaba, BindableFutaba old = null) {
+		public BindableFutaba(Data.FutabaContext futaba) {
 			OpenedThreads = Util.Futaba.Threads.Select(x => x.Where(y => y.Url.BaseUrl == futaba.Url.BaseUrl).ToArray()).ToReactiveProperty();
 			CatalogListVisibility = CatalogListMode.Select(x => futaba.Url.IsCatalogUrl ? (x ? Visibility.Visible : Visibility.Hidden) :  Visibility.Hidden).ToReactiveProperty();
 			FullScreenVisibility = CatalogListMode.Select(x => futaba.Url.IsCatalogUrl ? (x ? Visibility.Hidden : Visibility.Visible) :  Visibility.Hidden).ToReactiveProperty();
@@ -108,89 +110,75 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}.CombineLatest(x => x.Any(y => y))
 				.Select(x => x ? Visibility.Collapsed : Visibility.Visible)
 				.ToReactiveProperty();
-			if(old != null) {
-				this.FilterText.Value = old.FilterText.Value;
-				this.CatalogSortItem.Value = old.CatalogSortItem.Value;
-				this.CatalogListMode.Value = old.CatalogListMode.Value;
-				this.CatalogResCount.Value = old.CatalogResCount.Value;
-				this.IsFullScreenCatalogMode.Value = old.IsFullScreenCatalogMode.Value;
-				this.IsFullScreenThreadMode.Value = old.IsFullScreenThreadMode.Value;
-				this.IsDisableNg.Value = old.IsDisableNg.Value;
-				this.EnableSpeach.Value = old.EnableSpeach.Value;
-				this.UpdateToken = old.UpdateToken;
-				this.NgUpdateToken = old.NgUpdateToken;
-			} else {
-				this.UpdateToken = new ReactiveProperty<object>(DateTime.Now);
-				this.NgUpdateToken = new ReactiveProperty<object>(DateTime.Now);
-			}
+
+			this.UpdateToken = new ReactiveProperty<object>(DateTime.Now);
+			this.NgUpdateToken = new ReactiveProperty<object>(DateTime.Now);
+
 			ngUpdateAction = (_) => this.UpdateToken.Value = this.NgUpdateToken.Value = DateTime.Now;
+			imageUpdateAction = (_) => this.UpdateToken.Value = this.NgUpdateToken.Value = DateTime.Now;
 			hiddenUpdateAction = (_) => this.UpdateToken.Value = this.NgUpdateToken.Value = DateTime.Now;
 			systemUpdateAction = (_) => this.UpdateToken.Value = DateTime.Now;
 			Ng.NgConfig.NgConfigLoader.AddNgUpdateNotifyer(ngUpdateAction);
 			Ng.NgConfig.NgConfigLoader.AddHiddenUpdateNotifyer(hiddenUpdateAction);
+			Ng.NgConfig.NgConfigLoader.AddImageUpdateNotifyer(imageUpdateAction);
 			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(systemUpdateAction);
 
 
-			this.Raw = futaba;
-			this.Name = futaba.Name;
+			this.Raw = new(initialValue: futaba);
+			this.Name = this.Raw.Select(x => x.Name).ToReactiveProperty();
+			this.ResCount = this.Raw.Select(x => x.ResItems?.LastOrDefault()?.ResItem.Res.Rsc ?? 0).ToReactiveProperty();
+			this.IsDie = this.Raw.Select(x => x.Raw?.IsDie ?? false).ToReactiveProperty();
+			this.IsOld = this.Raw.Select(x => x.Raw?.IsOld ?? false).ToReactiveProperty();
+			this.IsMaxRes = this.Raw.Select(x => x.Raw?.IsMaxRes ?? false).ToReactiveProperty();
 			this.Url = futaba.Url;
 
 			var disps = new Helpers.AutoDisposable();
-			this.IsDie = new ReactiveProperty<bool>(futaba.Raw?.IsDie ?? false);
-			this.IsOld = new ReactiveProperty<bool>(futaba.Raw?.IsOld ?? false || this.IsDie.Value);
-			this.IsMaxRes = new ReactiveProperty<bool>(futaba.Raw?.IsMaxRes ?? false);
-			if(futaba.Raw == null) {
-				this.DieTextLong = new ReactiveProperty<string>("");
-			} else if(futaba.Raw.IsDie) {
-				this.DieTextLong = new ReactiveProperty<string>("スレッドは落ちました");
-			} else {
-				var t = futaba.Raw.DieDateTime;
-				if(t.HasValue) {
-					var ts = t.Value - (futaba.Raw.NowDateTime ?? DateTime.Now);
-					var tt = DateTime.Now.Add(ts); // 消滅時間表示はPCの時計を使用
-					this.DieTextLong = new ReactiveProperty<string>(ts switch {
-						TimeSpan x when x.TotalSeconds < 0 => $"スレ消滅：{Math.Abs(((futaba.Raw.NowDateTime ?? DateTime.Now) - t.Value).TotalSeconds):00}秒経過(消滅時間を過ぎました)",
-						TimeSpan x when 0 < x.Days => $"スレ消滅：{ tt.ToString("MM/dd") }(あと{ ts.ToString(@"dd\日hh\時\間") })",
-						TimeSpan x when 0 < x.Hours => $"スレ消滅：{ tt.ToString("HH:mm") }(あと{ ts.ToString(@"hh\時\間mm\分") })",
-						TimeSpan x when 0 < x.Minutes => $"スレ消滅：{ tt.ToString("HH:mm") }(あと{ ts.ToString(@"mm\分ss\秒") })",
-						_ => $"スレ消滅：{ tt.ToString("HH:mm") }(あと{ ts.ToString(@"ss\秒") })",
-					});
+			this.DieTextLong = this.Raw.Select(x => {
+				if(x.Raw == null) {
+					return "";
+				} else if(x.Raw.IsDie) {
+					return "スレッドは落ちました";
 				} else {
-					this.DieTextLong = new ReactiveProperty<string>("スレ消滅：不明");
+					var t = x.Raw.DieDateTime;
+					if(t.HasValue) {
+						var ts = t.Value - (x.Raw.NowDateTime ?? DateTime.Now);
+						var tt = DateTime.Now.Add(ts); // 消滅時間表示はPCの時計を使用
+						return ts switch {
+							TimeSpan y when y.TotalSeconds < 0 => $"スレ消滅：{Math.Abs(((futaba.Raw.NowDateTime ?? DateTime.Now) - t.Value).TotalSeconds):00}秒経過(消滅時間を過ぎました)",
+							TimeSpan y when 0 < y.Days => $"スレ消滅：{tt.ToString("MM/dd")}(あと{ts.ToString(@"dd\日hh\時\間")})",
+							TimeSpan y when 0 < y.Hours => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"hh\時\間mm\分")})",
+							TimeSpan y when 0 < y.Minutes => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"mm\分ss\秒")})",
+							_ => $"スレ消滅：{tt.ToString("HH:mm")}(あと{ts.ToString(@"ss\秒")})",
+						};
+					} else {
+						return "スレ消滅：不明";
+					}
 				}
-			}
+			}).ToReactiveProperty();
+
 			this.ExportCommand.Subscribe(() => OnExport());
 
 			this.FullScreenCatalogClickCommand.Subscribe(() => OnFullScreenCatalogClick());
 			this.FullScreenThreadClickCommand.Subscribe(() => OnFullScreenThreadClick());
-			this.ResCount = new ReactiveProperty<int>(futaba.ResItems?.LastOrDefault()?.ResItem.Res.Rsc ?? 0);
 
-			if((old == null) || old.Raw.Url.IsCatalogUrl) {
-				var rm = old?.ResItems.ToArray() ?? Array.Empty<BindableFutabaResItem>();
-				/* 一旦保留
-				this.ResItems = old switch {
-					var x when x != null => x.ResItems,
-					_ => new ReactiveCollection<BindableFutabaResItem>(),
-				};
-				*/
+			{
 				this.ResItems = new ReactiveCollection<BindableFutabaResItem>();
-
-				int c = 0;
 				foreach(var it in futaba.ResItems
-						.Select(x => new BindableFutabaResItem(c++, x, futaba.Url.BaseUrl, this))
+						.Select((x, i) => new BindableFutabaResItem(i, x, futaba.Url.BaseUrl, this))
 						.ToArray()) {
 
+					var one = false;
 					it.IsWatch.Subscribe(x => {
-						if(x) {
-							this.UpdateToken.Value = DateTime.Now;
+						if(one) {
+							if(x) {
+								this.UpdateToken.Value = DateTime.Now;
+							}
 						}
+						one = true;
 					});
 					this.ResItems.Add(it);
 				}
 
-				foreach(var it in rm) {
-					it.Dispose();
-				}
 				/* 一旦保留
 				if(rm.Any()) {
 					// 1フレームスキップする必要ある？
@@ -206,58 +194,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						});
 				}
 				*/
-			} else {
-				this.ResItems = old.ResItems;
-				var i = 0;
-				var prevId = this.ResItems.Select(x => x.Raw.Value.ResItem.No).ToArray();
-				var newId = futaba.ResItems.Select(x => x.ResItem.No).ToArray();
-				var ep = prevId.Except(newId).ToArray();
-				foreach(var it in ep) {
-					for(var ii = 0; ii < this.ResItems.Count; ii++) {
-						if(it == this.ResItems[ii].Raw.Value.ResItem.No) {
-							disps.Add(this.ResItems[ii]);
-							this.ResItems.RemoveAt(ii);
-							break;
-						}
-					}
-				}
-
-				while((i < this.ResItems.Count) && (i < futaba.ResItems.Length)) {
-					var a = this.ResItems[i];
-					var b = futaba.ResItems[i];
-					if(a.Raw.Value.ResItem.No != b.ResItem.No) {
-						// 普通は来ない
-						System.Diagnostics.Debug.WriteLine("%%%%%%%%%%%%%%%%%%%%%%%%%% this.ResItems.RemoveAt(i) %%%%%%%%%%%%%%%%%%%%%%%");
-						disps.Add(this.ResItems[i]);
-						this.ResItems.RemoveAt(i);
-						continue;
-					}
-
-					if(a.Raw.Value.HashText != b.HashText) {
-						// 画面から参照されているので this の初期化が終わっていないこのタイミングで書き換えてはいけない
-						//this.ResItems[i] = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
-						var bf = new BindableFutabaResItem(i, b, futaba.Url.BaseUrl, this);
-						if(b.ResItem.Res.IsHavedImage) {
-							BindableFutabaResItem.CopyImage(a, bf);
-						}
-						this.ResItems[i] = bf;
-						disps.Add(a);
-					}
-					i++;
-				}
-
-				if(i < futaba.ResItems.Length) {
-					foreach(var it in futaba.ResItems
-							.Skip(i)
-							.Select(x => new BindableFutabaResItem(i++, x, futaba.Url.BaseUrl, this))
-							.ToArray()) {
-
-						this.ResItems.Add(it);
-						if(this.EnableSpeach.Value && !(it.IsNg.Value || it.IsDel.Value)) {
-							WpfUtil.BouyomiChan.Speach(Util.TextUtil.RowComment2Text(it.Raw.Value.ResItem.Res.Com));
-						}
-					}
-				}
 			}
 
 			if(futaba.Url.IsThreadUrl) {
@@ -301,6 +237,63 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			// 古いインスタンスを削除
 			disps.Dispose();
 		}
+
+
+		public void Update(FutabaContext futaba) {
+			this.Raw.Value = futaba;
+			if(futaba.Url.IsCatalogUrl) {
+				using var d = new Helpers.AutoDisposable();
+				foreach(var it in this.ResItems) {
+					d.Add(it);
+				}
+
+				this.ResItems.Clear();
+				this.ResItems.AddRange(
+					futaba.ResItems.Select((x, i) => {
+							var r = new BindableFutabaResItem(i, x, futaba.Url.BaseUrl, this);
+							var one = false;
+							r.IsWatch.Subscribe(y => {
+								if(one) {
+									if(y) {
+										this.UpdateToken.Value = DateTime.Now;
+									}
+								}
+								one = true;
+							});
+							return r;
+						}));
+			} else {
+				var len = this.ResItems.Count;
+				var list = futaba.ResItems.ToList();
+				if(this.ResItems.Any()) {
+					foreach(var it in this.ResItems) {
+						FutabaContext.Item res;
+						while(true) {
+							res = list.First();
+							list.RemoveAt(0);
+							if(res.ResItem.No == it.Raw.Value.ResItem.No) {
+								break;
+							}
+							if(!list.Any()) {
+								goto end;
+							}
+						}
+						it.Update(res);
+					}
+				end:;
+				}
+				foreach(var it in list.Select((x, i) => (Value: x, Index: i))) {
+					this.ResItems.Add(
+						new BindableFutabaResItem(
+							len + it.Index,
+							it.Value,
+							futaba.Url.BaseUrl,
+							this));
+				}
+			}
+			this.UpdateToken.Value = DateTime.Now;
+		}
+
 
 		private void OnFullScreenCatalogClick() {
 			this.IsFullScreenCatalogMode.Value = !this.IsFullScreenCatalogMode.Value;
@@ -398,8 +391,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 				if(sfd.FilterIndex == 2) {
 					Task.Run(async () => {
-						var futaba = this.Raw;
-						var resitems = this.Raw.ResItems;
+						var futaba = this.Raw.Value;
+						var resitems = this.Raw.Value.ResItems;
 						var img = resitems
 							.Where(x => (x.ResItem.Res.Fsize != 0) && !string.IsNullOrEmpty(x.ResItem.Res.Ext))
 							.ToArray();
@@ -476,7 +469,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						using(var sf = new FileStream(sfd.FileName, fm)) {
 							Util.ExportUtil.ExportHtml(sf,
 								new Data.ExportHolder(
-									this.Raw.Board.Name, this.Raw.Board.Extra.Name,
+									this.Raw.Value.Board.Name, this.Raw.Value.Board.Extra.Name,
 									this.ResItems.Select(x => {
 										var ngRes = x.IsHidden.Value || x.IsNg.Value;
 										var ngImage = !(x.ThumbDisplay.Value ?? true)
@@ -533,7 +526,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			src.ThumbHash.Value = null;
 		}
 
-		public string Id { get; }
 		public ReactiveProperty<int> Index { get; }
 		public ReactiveProperty<string> ImageName { get; }
 
@@ -556,7 +548,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 							this._propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ThumbSource)));
 						});
 				} else {
-					this.ThumbDisplay.Value = true;
+					this.ThumbDisplay.Value = value switch {
+						null => null,
+						_ => true
+					};
 					this.thumbSource.SetTarget(value);
 					this._propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ThumbSource)));
 				}
@@ -590,8 +585,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						Util.Futaba.GetThumbImageLocalFilePath(
 							this.Parent.Value.Url, this.Raw.Value.ResItem.Res)) is Model.ImageObject bmp) {
 						this.ThumbToken.Value ??= new object();
-						this.thumbSource.SetTarget(bmp);
-						return bmp;
+						// NG判定を行う
+						if(this.ThumbDisplay.Value.HasValue) {
+							this.thumbSource.SetTarget(bmp);
+							return bmp;
+						} else {
+							// 1フレーム進める
+							Observable.Return(bmp)
+								.Delay(TimeSpan.FromMilliseconds(1))
+								.ObserveOn(UIDispatcherScheduler.Default)
+								.Subscribe(x => {
+									this.ThumbSource = x;
+								});
+							return null;
+						}
 					}
 				}
 
@@ -621,16 +628,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> ResCountText { get; }
 
 
-		public ReactiveProperty<string> HeadLineHtml { get; }
-		public ReactiveProperty<string> DisplayHtml { get; }
-		public ReactiveProperty<string> CommentHtml { get; }
-		public ReactiveProperty<string> OriginHtml { get; }
-		public ReactiveProperty<bool> IsNg { get; }
-		public ReactiveProperty<bool> IsWatch { get; }
-		public ReactiveProperty<bool> IsWatchWord { get; }
+		public ReadOnlyReactivePropertySlim<string> HeadLineHtml { get; }
+		public ReadOnlyReactivePropertySlim<string> DisplayHtml { get; }
+		public ReadOnlyReactivePropertySlim<string> CommentHtml { get; }
+		public ReadOnlyReactivePropertySlim<string> OriginHtml { get; }
+		public ReadOnlyReactivePropertySlim<bool> IsNg { get; }
+		public ReadOnlyReactivePropertySlim<bool> IsWatch { get; }
+		public ReadOnlyReactivePropertySlim<bool> IsWatchWord { get; }
 		public ReactiveProperty<bool> IsWatchImage { get; }
-		public ReactiveProperty<bool> IsHidden { get; }
-		public ReactiveProperty<bool> IsDel { get; }
+		public ReadOnlyReactivePropertySlim<bool> IsHidden { get; }
+		public ReadOnlyReactivePropertySlim<bool> IsDel { get; }
 		public ReactiveProperty<bool> IsVisibleOriginComment { get; }
 		public ReactiveProperty<bool> IsNgImageHidden { get; }
 
@@ -671,6 +678,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		private Action<Ng.NgData.WatchImageConfig> watchImageUpdateAction;
 		private Action<PlatformData.WpfConfig> systemUpdateAction;
 
+		public ReadOnlyReactivePropertySlim<string> Sub { get; }
+		public ReadOnlyReactivePropertySlim<string> Name { get; }
+		public ReadOnlyReactivePropertySlim<string> Email { get; }
+		public ReadOnlyReactivePropertySlim<string> Now { get; }
+		public ReadOnlyReactivePropertySlim<int> Soudane { get; }
+		public ReadOnlyReactivePropertySlim<string> No { get; }
+		public ReadOnlyReactivePropertySlim<string> Id { get; }
+
 		public BindableFutabaResItem(int index, Data.FutabaContext.Item item, string baseUrl, BindableFutaba parent) {
 			System.Diagnostics.Debug.Assert(item != null);
 			System.Diagnostics.Debug.Assert(baseUrl != null);
@@ -682,6 +697,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.Parent = new ReactiveProperty<BindableFutaba>(parent);
 			this.ThreadResNo = new ReactiveProperty<string>(item.ResItem.No);
 			this.Raw = new ReactiveProperty<Data.FutabaContext.Item>(item);
+			this.Sub = this.Raw.Select(x => x.ResItem.Res.Sub).ToReadOnlyReactivePropertySlim();
+			this.Name = this.Raw.Select(x => x.ResItem.Res.Name).ToReadOnlyReactivePropertySlim();
+			this.Email = this.Raw.Select(x => x.ResItem.Res.Email).ToReadOnlyReactivePropertySlim();
+			this.Now = this.Raw.Select(x => x.ResItem.Res.Now).ToReadOnlyReactivePropertySlim();
+			this.Soudane = this.Raw.Select(x => x.Soudane).ToReadOnlyReactivePropertySlim();
+			this.No = this.Raw.Select(x => x.ResItem.No).ToReadOnlyReactivePropertySlim();
+			this.Id = this.Raw.Select(x => x.ResItem.Res.Id).ToReadOnlyReactivePropertySlim();
+
 			this.NameVisibility = new ReactiveProperty<Visibility>(
 				(bord.Extra ?? new Data.BoardDataExtra()).Name ? Visibility.Visible : Visibility.Collapsed);
 			this.ThumbHash = new ReactiveProperty<ulong?>();
@@ -695,44 +718,91 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 			// delとhostの処理
 			{
-				var headLine = new StringBuilder();
-				if(Raw.Value.ResItem.Res.IsDel) {
-					headLine.Append("<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font><br>");
-				} else if(Raw.Value.ResItem.Res.IsDel2) {
-					headLine.Append("<font color=\"#ff0000\">削除依頼によって隔離されました</font><br>");
-				}
-				if(!string.IsNullOrEmpty(Raw.Value.ResItem.Res.Host)) {
-					headLine.Append($"[<font color=\"#ff0000\">{ Raw.Value.ResItem.Res.Host }</font>]<br>");
-				}
-				this.IsNg = new ReactiveProperty<bool>(
-					parent.Url.IsCatalogUrl ? Ng.NgUtil.NgHelper.CheckCatalogNg(parent.Raw, item)
-						: Ng.NgUtil.NgHelper.CheckThreadNg(parent.Raw, item));
-				this.IsWatchWord = new ReactiveProperty<bool>(Ng.NgUtil.NgHelper.CheckCatalogWatch(parent.Raw, item));
+				static bool ng(FutabaContext.Item x, BindableFutaba y) => x.Url.IsCatalogUrl switch {
+					true => Ng.NgUtil.NgHelper.CheckCatalogNg(y.Raw.Value, x),
+					false => Ng.NgUtil.NgHelper.CheckThreadNg(y.Raw.Value, x),
+				};
+				static bool hidden(FutabaContext.Item x, BindableFutaba y) => Ng.NgUtil.NgHelper.CheckHidden(y.Raw.Value, x);
+
+				this.IsNg = this.Parent.Value.NgUpdateToken.CombineLatest(
+					this.Raw,
+					this.Parent,
+					(_, x, y) => ng(x, y))
+					.ToReadOnlyReactivePropertySlim();
+				this.IsWatchWord = this.Parent.Value.NgUpdateToken.CombineLatest(
+					this.Raw,
+					this.Parent,
+					(_, x, y) => {
+						return x.Url.IsCatalogUrl switch {
+							true => Ng.NgUtil.NgHelper.CheckCatalogWatch(y.Raw.Value, x),
+							false => false,
+						};
+					}).ToReadOnlyReactivePropertySlim();
 				this.IsWatchImage = this.ThumbHash
 					.Select(x => x.HasValue ? Ng.NgUtil.NgHelper.CheckImageWatch(x.Value) : false)
 					.ToReactiveProperty();
-				this.IsWatch = new[] {
+				this.IsWatch = new IObservable<bool>[] {
 					this.IsWatchWord,
 					this.IsWatchImage,
 				}.CombineLatest(x => x.Any(y => y))
-					.ToReactiveProperty();
-				this.IsHidden = new ReactiveProperty<bool>(Ng.NgUtil.NgHelper.CheckHidden(parent.Raw, item));
-				this.IsDel = new ReactiveProperty<bool>(
-					(item.ResItem.Res.IsDel || item.ResItem.Res.IsDel2)
-						&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden));
+					.ToReadOnlyReactivePropertySlim();
+
+				this.IsHidden = this.Parent.Value.NgUpdateToken.CombineLatest(
+					this.Raw,
+					this.Parent,
+					(_, x, y) => hidden(x, y))
+					.ToReadOnlyReactivePropertySlim();
+				this.IsDel = this.Parent.Value.NgUpdateToken.CombineLatest(
+					this.Raw,
+					(_, x) => {
+					return (x.ResItem.Res.IsDel || x.ResItem.Res.IsDel2)
+						&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden);
+				}).ToReadOnlyReactivePropertySlim();
+				this.HeadLineHtml = this.Raw.Select(x => {
+					var headLine = new StringBuilder();
+					if(x.ResItem.Res.IsDel) {
+						headLine.Append("<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font><br>");
+					} else if(x.ResItem.Res.IsDel2) {
+						headLine.Append("<font color=\"#ff0000\">削除依頼によって隔離されました</font><br>");
+					}
+					if(!string.IsNullOrEmpty(x.ResItem.Res.Host)) {
+						headLine.Append($"[<font color=\"#ff0000\">{x.ResItem.Res.Host}</font>]<br>");
+					}
+					return headLine.ToString();
+				}).ToReadOnlyReactivePropertySlim();
+				this.OriginHtml = this.Raw
+					.Select(x => x.ResItem.Res.Com)
+					.ToReadOnlyReactivePropertySlim();
+				this.CommentHtml = this.Parent.Value.NgUpdateToken.CombineLatest(
+					this.Raw,
+					this.Parent,
+					(_, x, y) => {
+						var del = WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden;
+						if(ng(x, y)) {
+							return "<font color=\"#ff0000\">NG設定に抵触しています</font>";
+						} else if(hidden(x, y)) {
+							return "<font color=\"#ff0000\">非表示に設定されています</font>";
+						} else if(x.ResItem.Res.IsDel) {
+							return "<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font>";
+						} else if(x.ResItem.Res.IsDel2) {
+							return "<font color=\"#ff0000\">削除依頼によって隔離されました</font>";
+						} else {
+							return x.ResItem.Res.Com;
+						}
+					}).ToReadOnlyReactivePropertySlim();
 				this.IsNgImageHidden = new ReactiveProperty<bool>(false);
-				this.HeadLineHtml = new ReactiveProperty<string>(headLine.ToString());
-				this.CommentHtml = new ReactiveProperty<string>("");
-				this.OriginHtml = new ReactiveProperty<string>(Raw.Value.ResItem.Res.Com);
-				this.SetCommentHtml();
 				this.IsVisibleOriginComment = this.IsHidden
 					.CombineLatest(
 						this.IsNg, this.IsDel, parent.IsDisableNg,
 						(x, y, z, a) => !(x || y || z) || a)
 					.ToReactiveProperty();
-				this.DisplayHtml = IsVisibleOriginComment
-					.Select(x => x ? this.OriginHtml.Value : this.CommentHtml.Value)
-					.ToReactiveProperty();
+				this.DisplayHtml = this.IsVisibleOriginComment.CombineLatest(
+					this.OriginHtml,
+					this.CommentHtml,
+					(x, y, z) => x switch {
+						true => y,
+						false => z,
+					}).ToReadOnlyReactivePropertySlim();
 				this.ReleaseHiddenResBuutonVisibility = this.IsHidden
 					.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
 					.ToReactiveProperty();
@@ -752,7 +822,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				hiddenUpdateAction = (x) => a();
 				watchUpdateAction = (x) => a();
 				imageUpdateAction = (x) => b();
-				watchImageUpdateAction = (x) => this.ThumbHash.ForceNotify();
+				watchImageUpdateAction = (x) => b();
 				systemUpdateAction = (x) => c();
 				Ng.NgConfig.NgConfigLoader.AddNgUpdateNotifyer(ngUpdateAction);
 				Ng.NgConfig.NgConfigLoader.AddHiddenUpdateNotifyer(hiddenUpdateAction);
@@ -763,50 +833,51 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			}
 
 			// コピー用コメント生成
-			{
+			this.CommentCopy = this.Raw.Select(x => {
 				var sb = new StringBuilder()
 					.Append(Index.Value);
 				if(Bord.Value.Extra?.Name ?? true) {
-					sb.Append($" {Raw.Value.ResItem.Res.Sub} {Raw.Value.ResItem.Res.Name}");
+					sb.Append($" {x.ResItem.Res.Sub} {x.ResItem.Res.Name}");
 				}
-				if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Email)) {
-					sb.Append($" [{Raw.Value.ResItem.Res.Email}]");
+				if(!string.IsNullOrWhiteSpace(x.ResItem.Res.Email)) {
+					sb.Append($" [{x.ResItem.Res.Email}]");
 				}
-				sb.Append($" {Raw.Value.ResItem.Res.Now}");
-				if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Host)) {
-					sb.Append($" {Raw.Value.ResItem.Res.Host}");
+				sb.Append($" {x.ResItem.Res.Now}");
+				if(!string.IsNullOrWhiteSpace(x.ResItem.Res.Host)) {
+					sb.Append($" {x.ResItem.Res.Host}");
 				}
-				if(!string.IsNullOrWhiteSpace(Raw.Value.ResItem.Res.Id)) {
-					sb.Append($" {Raw.Value.ResItem.Res.Id}");
+				if(!string.IsNullOrWhiteSpace(x.ResItem.Res.Id)) {
+					sb.Append($" {x.ResItem.Res.Id}");
 				}
-				if(0 < Raw.Value.Soudane) {
-					sb.Append($" そうだね×{Raw.Value.Soudane}");
+				if(0 < x.Soudane) {
+					sb.Append($" そうだね×{x.Soudane}");
 				}
-				sb.Append($" No.{Raw.Value.ResItem.No}")
+				sb.Append($" No.{x.ResItem.No}")
 					.AppendLine()
 					.Append(WpfUtil.TextUtil.RawComment2Text(Raw.Value.ResItem.Res.Com));
-				this.CommentCopy = new ReactiveProperty<string>(sb.ToString());
-			}
+				return sb.ToString();
+			}).ToReactiveProperty();
 
-			if(item.ResItem.Res.Fsize != 0) {
-				// 削除された場合srcの拡張子が消える
-				var m = Regex.Match(item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$");
-				if(m.Success) {
-					this.ImageName = new ReactiveProperty<string>(m.Groups[1].Value);
-					if(Ng.NgUtil.NgHelper.IsEnabledNgImage() && HashCache.TryGetTarget(this.GetCacheKey(), out var hash)) {
-						if(this.Raw.Value.Url.IsCatalogUrl
-							&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
-							&& Ng.NgUtil.NgHelper.CheckImageNg(hash.Value)) {
-
-							this.IsNgImageHidden.Value = true;
-						}
+			this.ImageName = this.Raw.Select(x => {
+				if(x.ResItem.Res.Fsize != 0) {
+					var m = Regex.Match(item.ResItem.Res.Src, @"^.+/([^\.]+\..+)$");
+					if(m.Success) {
+						return m.Groups[1].Value;
 					}
-				} else {
-					this.ImageName = new ReactiveProperty<string>("");
 				}
-			} else {
-				this.ImageName = new ReactiveProperty<string>("");
+				return "";
+			}).ToReactiveProperty();
+			if(!string.IsNullOrEmpty(this.ImageName.Value)) {
+				if(Ng.NgUtil.NgHelper.IsEnabledNgImage() && HashCache.TryGetTarget(this.GetCacheKey(), out var hash)) {
+					if(this.Raw.Value.Url.IsCatalogUrl
+						&& WpfConfig.WpfConfigLoader.SystemConfig.CatalogNgImage == PlatformData.CatalogNgImage.Hidden
+						&& Ng.NgUtil.NgHelper.CheckImageNg(hash.Value)) {
+
+						this.IsNgImageHidden.Value = true;
+					}
+				}
 			}
+
 			this.FutabaTextBlockVisibility = this.IsCopyMode.Select(x => x ? Visibility.Hidden : Visibility.Visible).ToReactiveProperty();
 			this.CopyBlockVisibility = this.IsCopyMode
 				.CombineLatest(IsVisibleOriginComment, (x, y) => x ? Visibility.Visible : (y ? Visibility.Hidden : Visibility.Collapsed))
@@ -837,6 +908,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.MenuItemUnregisterHiddenVisibility = this.IsHidden.Select(x => x ? Visibility.Visible : Visibility.Collapsed).ToReactiveProperty();
 
 			this.FutabaTextBlockMouseDownCommand.Subscribe(x => OnFutabaTextBlockMouseDown(x));
+		}
+
+		public void Update(FutabaContext.Item item) {
+			if(item.HashText != this.Raw.Value.HashText) {
+				this.Raw.Value = item;
+
+				if(string.IsNullOrEmpty(this.ImageName.Value)) {
+					this.ThumbSource = null;
+				}
+			}
 		}
 
 		public void ReleaseHiddenRes() {
@@ -880,22 +961,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.ResCitedSource.Value = res;
 		}
 
-		private void SetCommentHtml(bool? ng = null, bool? hidden = null) {
-			var del = WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden;
-			if(ng ?? this.IsNg.Value) {
-				this.CommentHtml.Value = "<font color=\"#ff0000\">NG設定に抵触しています</font>";
-			} else if(hidden ?? this.IsHidden.Value) {
-				this.CommentHtml.Value = "<font color=\"#ff0000\">非表示に設定されています</font>";
-			} else if(this.Raw.Value.ResItem.Res.IsDel && del) {
-				this.CommentHtml.Value = "<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font>";
-			} else if(this.Raw.Value.ResItem.Res.IsDel2 && del) {
-				this.CommentHtml.Value = "<font color=\"#ff0000\">削除依頼によって隔離されました</font>";
-			} else {
-				this.CommentHtml.Value = this.OriginHtml.Value;
-			}
-
-		}
-
 		private string GetCacheKey() {
 			return Util.Futaba.GetThumbImageLocalFilePath(
 				this.Parent.Value.Url,
@@ -904,21 +969,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		// TODO: 名前変える
 		private void a() {
-			// NGとHiddenの設定前にコメントを更新する
-			var ng = this.Raw.Value.Url.IsCatalogUrl switch {
-				true => Ng.NgUtil.NgHelper.CheckCatalogNg(this.Parent.Value.Raw, this.Raw.Value),
-				false => Ng.NgUtil.NgHelper.CheckThreadNg(this.Parent.Value.Raw, this.Raw.Value),
-			};
-			var hidden = Ng.NgUtil.NgHelper.CheckHidden(this.Parent.Value.Raw, this.Raw.Value);
-			var isUpdate = (ng != this.IsNg.Value) || (hidden != this.IsHidden.Value);
-			this.IsWatchWord.Value = Ng.NgUtil.NgHelper.CheckCatalogWatch(this.Parent.Value.Raw, this.Raw.Value);
 			this.IsCopyMode.Value = false;
-			this.SetCommentHtml(ng, hidden);
-			this.IsNg.Value = ng;
-			this.IsHidden.Value = hidden;
 			// 画像の再ロード
-			if(isUpdate) {
-				this.thumbSource.SetTarget(null);
+			if(this.ThumbHash.Value.HasValue) {
+				this.ThumbSource = null;
 				_ = this.ThumbSource;
 			}
 		}
@@ -940,9 +994,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		// TODO:名前考える
 		private void c() {
-			this.IsDel.Value = (this.Raw.Value.ResItem.Res.IsDel || this.Raw.Value.ResItem.Res.IsDel2)
-				&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden);
-			this.SetCommentHtml();
 			this.CommandPaletteVisibility.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledThreadCommandPalette ? Visibility.Visible : Visibility.Collapsed;
 			this.CommandPaletteAlignment.Value = UiPotionToHorizontalAlignment(WpfConfig.WpfConfigLoader.SystemConfig.CommandPalettePosition);
 			this.IsVisibleCatalogIdMarker.Value = WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledIdMarker;
@@ -979,6 +1030,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						HashCache.Add(this.GetCacheKey(), this.hashValue);
 					}
 					this.ThumbHash.Value = x.Value;
+					if(Ng.NgUtil.NgHelper.CheckImageWatch(x.Value)) {
+						this.IsWatchImage.Value = true;
+					}
 					this.ThumbDisplay.Value = !Ng.NgUtil.NgHelper.CheckImageNg(x.Value);
 					return x.Value;
 				});

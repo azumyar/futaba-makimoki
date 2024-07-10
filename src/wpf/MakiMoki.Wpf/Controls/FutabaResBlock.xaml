@@ -76,7 +76,7 @@
                 </TextBlock>
                 <TextBlock
                     Visibility="{Binding NameVisibility.Value, Mode=OneWay}"
-                    Text="{Binding Raw.Value.ResItem.Res.Sub, StringFormat='\{0\} ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}"
+                    Text="{Binding Sub.Value, StringFormat='\{0\} ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}"
                     FontWeight="{DynamicResource ThreadBoldFontWeight}" >
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderSubjectColor}" />
@@ -84,23 +84,23 @@
                 </TextBlock>
                 <TextBlock
                     Visibility="{Binding NameVisibility.Value, Mode=OneWay}"
-                    Text="{Binding Raw.Value.ResItem.Res.Name, StringFormat='\{0\} ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}"
+                    Text="{Binding Name.Value, StringFormat='\{0\} ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}"
                     FontWeight="{DynamicResource ThreadBoldFontWeight}">
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderNameColor}" />
                     </TextBlock.Foreground>
                 </TextBlock>
                 <emoji:TextBlock
-                    Visibility="{Binding Raw.Value.ResItem.Res.Email, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}"
-                    Text="{Binding Raw.Value.ResItem.Res.Email,  StringFormat='[\{0\}] ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}">
+                    Visibility="{Binding Email.Value, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}"
+                    Text="{Binding Email.Value,  StringFormat='[\{0\}] ', Mode=OneWay, Converter={StaticResource FutabaResItemHeaderTextConverter}}">
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderMailColor}" />
                     </TextBlock.Foreground>
                 </emoji:TextBlock>
                 <TextBlock>
-                    <Run Text="{Binding Raw.Value.ResItem.Res.Now, StringFormat='\{0\} ', Converter={StaticResource FutabaResItemNowConverter}, Mode=OneWay}" />
+                    <Run Text="{Binding Now.Value, StringFormat='\{0\} ', Converter={StaticResource FutabaResItemNowConverter}, Mode=OneWay}" />
                 </TextBlock>
-                <TextBlock Visibility="{Binding Raw.Value.ResItem.Res.Id, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                <TextBlock Visibility="{Binding Id.Value, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
                     <Run Text="{Binding Converter={StaticResource FutabaResItemIdTextConverter},  StringFormat='\{0\} ', Mode=OneWay}" />
                 </TextBlock>
                 <TextBlock
@@ -128,14 +128,14 @@
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </TextBlock>
-                <TextBlock Visibility="{Binding Raw.Value.Soudane, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
+                <TextBlock Visibility="{Binding Soudane.Value, Converter={StaticResource FutabaResItemVisibleConverter}, Mode=OneWay}">
                     <TextBlock.Foreground>
                         <SolidColorBrush Color="{DynamicResource ThreadHeaderSoudaneColor}" />
                     </TextBlock.Foreground>
-                    <Run Text="{Binding Raw.Value.Soudane, Mode=OneWay, StringFormat='そうだね×\{0\} '}" />
+                    <Run Text="{Binding Soudane.Value, Mode=OneWay, StringFormat='そうだね×\{0\} '}" />
                 </TextBlock>
                 <TextBlock>
-                    <Run Text="{Binding Raw.Value.ResItem.No,  StringFormat='No.\{0\} ', Mode=OneWay}" />
+                    <Run Text="{Binding No.Value,  StringFormat='No.\{0\} ', Mode=OneWay}" />
                 </TextBlock>
             </WrapPanel>
             <WrapPanel

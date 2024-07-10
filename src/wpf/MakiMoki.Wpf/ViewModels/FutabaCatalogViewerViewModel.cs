@@ -142,7 +142,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		}
 
 		private void UpdateCatalog(BindableFutaba bf) {
-			Util.Futaba.UpdateCatalog(bf.Raw.Board, bf.CatalogSortItem.Value)
+			Util.Futaba.UpdateCatalog(bf.Raw.Value.Board, bf.CatalogSortItem.Value)
 				.ObserveOn(UIDispatcherScheduler.Default)
 				.Subscribe(async x => {
 					await Task.Delay(1); // この時点ではCatalogListBoxのConverterが動いていいないので一度待つ

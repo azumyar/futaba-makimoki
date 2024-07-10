@@ -527,7 +527,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 			if(values.Length == 2) {
 				if(Canvas98.Canvas98Util.Util.IsEnabledCanvas98()
 					&& (values[0] is Model.BindableFutaba f)
-					&& (f.Raw.Board.Extra.ResTegaki)) {
+					&& (f.Raw.Value.Board.Extra.ResTegaki)) {
 
 					return System.Windows.Visibility.Visible;
 				} else {

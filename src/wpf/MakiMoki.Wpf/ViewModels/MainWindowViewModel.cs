@@ -602,12 +602,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					}
 					var futaba = newItem.Where(x => x.Url == it.Url).FirstOrDefault();
 					if(futaba != null) {
-						if(futaba.Token != it.Futaba.Value.Raw.Token) {
-							disp.Add(it.Futaba.Value);
-							if(!isThreadUpdated) {
-								disp.AddEnumerable(it.Futaba.Value.ResItems);
-							}
-							it.UpdateFutaba(new BindableFutaba(futaba, it.Futaba.Value));
+						if(futaba.Token != it.Futaba.Value.Raw.Value.Token) {
+							it.Futaba.Value.Update(futaba);							
 						}
 					}
 				}
@@ -657,10 +653,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		private void OnCatalogThreadUpdate(Model.BindableFutaba futaba) {
 			if(futaba.Url.IsCatalogUrl) {
-				Util.Futaba.UpdateCatalog(futaba.Raw.Board)
+				Util.Futaba.UpdateCatalog(futaba.Raw.Value.Board)
 					.Subscribe();
 			} else {
-				Util.Futaba.UpdateThreadRes(futaba.Raw.Board, futaba.Raw.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
+				Util.Futaba.UpdateThreadRes(futaba.Raw.Value.Board, futaba.Raw.Value.Url.ThreadNo, Config.ConfigLoader.MakiMoki.FutabaThreadGetIncremental)
 					.Subscribe();
 			}
 		}
@@ -670,7 +666,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				return;
 			}
 
-			Util.Futaba.Remove(futaba.Raw.Url);
+			Util.Futaba.Remove(futaba.Raw.Value.Url);
 		}
 
 		private void OnCatalogThreadCloseOther(Model.BindableFutaba futaba) {
