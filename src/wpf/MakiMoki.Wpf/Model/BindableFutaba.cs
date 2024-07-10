@@ -628,16 +628,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<string> ResCountText { get; }
 
 
-		public ReactiveProperty<string> HeadLineHtml { get; }
-		public ReactiveProperty<string> DisplayHtml { get; }
-		public ReactiveProperty<string> CommentHtml { get; }
-		public ReactiveProperty<string> OriginHtml { get; }
-		public ReactiveProperty<bool> IsNg { get; }
-		public ReactiveProperty<bool> IsWatch { get; }
-		public ReactiveProperty<bool> IsWatchWord { get; }
+		public ReadOnlyReactivePropertySlim<string> HeadLineHtml { get; }
+		public ReadOnlyReactivePropertySlim<string> DisplayHtml { get; }
+		public ReadOnlyReactivePropertySlim<string> CommentHtml { get; }
+		public ReadOnlyReactivePropertySlim<string> OriginHtml { get; }
+		public ReadOnlyReactivePropertySlim<bool> IsNg { get; }
+		public ReadOnlyReactivePropertySlim<bool> IsWatch { get; }
+		public ReadOnlyReactivePropertySlim<bool> IsWatchWord { get; }
 		public ReactiveProperty<bool> IsWatchImage { get; }
-		public ReactiveProperty<bool> IsHidden { get; }
-		public ReactiveProperty<bool> IsDel { get; }
+		public ReadOnlyReactivePropertySlim<bool> IsHidden { get; }
+		public ReadOnlyReactivePropertySlim<bool> IsDel { get; }
 		public ReactiveProperty<bool> IsVisibleOriginComment { get; }
 		public ReactiveProperty<bool> IsNgImageHidden { get; }
 
@@ -678,13 +678,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		private Action<Ng.NgData.WatchImageConfig> watchImageUpdateAction;
 		private Action<PlatformData.WpfConfig> systemUpdateAction;
 
-		public ReactiveProperty<string> Sub { get; }
-		public ReactiveProperty<string> Name { get; }
-		public ReactiveProperty<string> Email { get; }
-		public ReactiveProperty<string> Now { get; }
-		public ReactiveProperty<int> Soudane { get; }
-		public ReactiveProperty<string> No { get; }
-		public ReactiveProperty<string> Id { get; }
+		public ReadOnlyReactivePropertySlim<string> Sub { get; }
+		public ReadOnlyReactivePropertySlim<string> Name { get; }
+		public ReadOnlyReactivePropertySlim<string> Email { get; }
+		public ReadOnlyReactivePropertySlim<string> Now { get; }
+		public ReadOnlyReactivePropertySlim<int> Soudane { get; }
+		public ReadOnlyReactivePropertySlim<string> No { get; }
+		public ReadOnlyReactivePropertySlim<string> Id { get; }
 
 		public BindableFutabaResItem(int index, Data.FutabaContext.Item item, string baseUrl, BindableFutaba parent) {
 			System.Diagnostics.Debug.Assert(item != null);
@@ -697,13 +697,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.Parent = new ReactiveProperty<BindableFutaba>(parent);
 			this.ThreadResNo = new ReactiveProperty<string>(item.ResItem.No);
 			this.Raw = new ReactiveProperty<Data.FutabaContext.Item>(item);
-			this.Sub = this.Raw.Select(x => x.ResItem.Res.Sub).ToReactiveProperty();
-			this.Name = this.Raw.Select(x => x.ResItem.Res.Name).ToReactiveProperty();
-			this.Email = this.Raw.Select(x => x.ResItem.Res.Email).ToReactiveProperty();
-			this.Now = this.Raw.Select(x => x.ResItem.Res.Now).ToReactiveProperty();
-			this.Soudane = this.Raw.Select(x => x.Soudane).ToReactiveProperty();
-			this.No = this.Raw.Select(x => x.ResItem.No).ToReactiveProperty();
-			this.Id = this.Raw.Select(x => x.ResItem.Res.Id).ToReactiveProperty();
+			this.Sub = this.Raw.Select(x => x.ResItem.Res.Sub).ToReadOnlyReactivePropertySlim();
+			this.Name = this.Raw.Select(x => x.ResItem.Res.Name).ToReadOnlyReactivePropertySlim();
+			this.Email = this.Raw.Select(x => x.ResItem.Res.Email).ToReadOnlyReactivePropertySlim();
+			this.Now = this.Raw.Select(x => x.ResItem.Res.Now).ToReadOnlyReactivePropertySlim();
+			this.Soudane = this.Raw.Select(x => x.Soudane).ToReadOnlyReactivePropertySlim();
+			this.No = this.Raw.Select(x => x.ResItem.No).ToReadOnlyReactivePropertySlim();
+			this.Id = this.Raw.Select(x => x.ResItem.Res.Id).ToReadOnlyReactivePropertySlim();
 
 			this.NameVisibility = new ReactiveProperty<Visibility>(
 				(bord.Extra ?? new Data.BoardDataExtra()).Name ? Visibility.Visible : Visibility.Collapsed);
@@ -718,15 +718,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 			// delとhostの処理
 			{
+				static bool ng(FutabaContext.Item x, BindableFutaba y) => x.Url.IsCatalogUrl switch {
+					true => Ng.NgUtil.NgHelper.CheckCatalogNg(y.Raw.Value, x),
+					false => Ng.NgUtil.NgHelper.CheckThreadNg(y.Raw.Value, x),
+				};
+				static bool hidden(FutabaContext.Item x, BindableFutaba y) => Ng.NgUtil.NgHelper.CheckHidden(y.Raw.Value, x);
+
 				this.IsNg = this.Parent.Value.NgUpdateToken.CombineLatest(
 					this.Raw,
 					this.Parent,
-					(_, x, y) => {
-						return x.Url.IsCatalogUrl switch {
-							true => Ng.NgUtil.NgHelper.CheckCatalogNg(y.Raw.Value, x),
-							false => Ng.NgUtil.NgHelper.CheckThreadNg(y.Raw.Value, x),
-						};
-					}).ToReactiveProperty();
+					(_, x, y) => ng(x, y))
+					.ToReadOnlyReactivePropertySlim();
 				this.IsWatchWord = this.Parent.Value.NgUpdateToken.CombineLatest(
 					this.Raw,
 					this.Parent,
@@ -735,28 +737,27 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 							true => Ng.NgUtil.NgHelper.CheckCatalogWatch(y.Raw.Value, x),
 							false => false,
 						};
-					}).ToReactiveProperty();
+					}).ToReadOnlyReactivePropertySlim();
 				this.IsWatchImage = this.ThumbHash
 					.Select(x => x.HasValue ? Ng.NgUtil.NgHelper.CheckImageWatch(x.Value) : false)
 					.ToReactiveProperty();
-				this.IsWatch = new[] {
+				this.IsWatch = new IObservable<bool>[] {
 					this.IsWatchWord,
 					this.IsWatchImage,
 				}.CombineLatest(x => x.Any(y => y))
-					.ToReactiveProperty();
+					.ToReadOnlyReactivePropertySlim();
 
 				this.IsHidden = this.Parent.Value.NgUpdateToken.CombineLatest(
 					this.Raw,
 					this.Parent,
-					(_, x, y) => {
-						return Ng.NgUtil.NgHelper.CheckHidden(y.Raw.Value, x);
-					}).ToReactiveProperty();
+					(_, x, y) => hidden(x, y))
+					.ToReadOnlyReactivePropertySlim();
 				this.IsDel = this.Parent.Value.NgUpdateToken.CombineLatest(
 					this.Raw,
 					(_, x) => {
 					return (x.ResItem.Res.IsDel || x.ResItem.Res.IsDel2)
 						&& (WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden);
-				}).ToReactiveProperty();
+				}).ToReadOnlyReactivePropertySlim();
 				this.HeadLineHtml = this.Raw.Select(x => {
 					var headLine = new StringBuilder();
 					if(x.ResItem.Res.IsDel) {
@@ -768,28 +769,29 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						headLine.Append($"[<font color=\"#ff0000\">{x.ResItem.Res.Host}</font>]<br>");
 					}
 					return headLine.ToString();
-				}).ToReactiveProperty();
-				this.OriginHtml = this.Raw.Select(x => x.ResItem.Res.Com).ToReactiveProperty();
+				}).ToReadOnlyReactivePropertySlim();
+				this.OriginHtml = this.Raw
+					.Select(x => x.ResItem.Res.Com)
+					.ToReadOnlyReactivePropertySlim();
 				this.CommentHtml = this.Parent.Value.NgUpdateToken.CombineLatest(
 					this.Raw,
-					this.IsNg,
-					this.IsHidden,
-					this.OriginHtml,
-					(_, x, n, h, c) => {
+					this.Parent,
+					(_, x, y) => {
 						var del = WpfConfig.WpfConfigLoader.SystemConfig.ThreadDelResVisibility == PlatformData.ThreadDelResVisibility.Hidden;
-						if(n) {
+						if(ng(x, y)) {
 							return "<font color=\"#ff0000\">NG設定に抵触しています</font>";
-						} else if(h) {
+						} else if(hidden(x, y)) {
 							return "<font color=\"#ff0000\">非表示に設定されています</font>";
 						} else if(x.ResItem.Res.IsDel) {
 							return "<font color=\"#ff0000\">スレッドを立てた人によって削除されました</font>";
 						} else if(x.ResItem.Res.IsDel2) {
 							return "<font color=\"#ff0000\">削除依頼によって隔離されました</font>";
 						} else {
-							return c;
+							return x.ResItem.Res.Com;
 						}
-					}).ToReactiveProperty();
-				this.IsNgImageHidden = new ReactiveProperty<bool>(false);				this.IsVisibleOriginComment = this.IsHidden
+					}).ToReadOnlyReactivePropertySlim();
+				this.IsNgImageHidden = new ReactiveProperty<bool>(false);
+				this.IsVisibleOriginComment = this.IsHidden
 					.CombineLatest(
 						this.IsNg, this.IsDel, parent.IsDisableNg,
 						(x, y, z, a) => !(x || y || z) || a)
@@ -800,7 +802,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					(x, y, z) => x switch {
 						true => y,
 						false => z,
-					}).ToReactiveProperty();
+					}).ToReadOnlyReactivePropertySlim();
 				this.ReleaseHiddenResBuutonVisibility = this.IsHidden
 					.Select(x => x ? Visibility.Visible : Visibility.Collapsed)
 					.ToReactiveProperty();
@@ -969,8 +971,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		private void a() {
 			this.IsCopyMode.Value = false;
 			// 画像の再ロード
-			this.ThumbSource = null;
-			_ = this.ThumbSource;
+			if(this.ThumbHash.Value.HasValue) {
+				this.ThumbSource = null;
+				_ = this.ThumbSource;
+			}
 		}
 
 		// TODO: 名前変える
