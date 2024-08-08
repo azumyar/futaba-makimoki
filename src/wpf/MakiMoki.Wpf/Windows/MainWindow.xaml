@@ -139,6 +139,7 @@
                                                         <MultiBinding.Bindings>
                                                             <Binding Path="Futaba.Value" />
                                                             <Binding Path="DataContext" ElementName="WindowThreadTabDieOpacityGetter" />
+                                                            <Binding Path="Futaba.Value.UpdateToken.Value" />
                                                         </MultiBinding.Bindings>
                                                     </MultiBinding>
                                                 </Grid.Opacity>

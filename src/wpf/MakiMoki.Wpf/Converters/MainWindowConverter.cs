@@ -110,7 +110,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 
 	class ThreadDieOpacityConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-			if(values.Length == 2) {
+			if(values.Length == 3) {
 				if((values[0] is Model.BindableFutaba bf) && (values[1] is double d)) {
 					return bf.IsDie.Value ? d : 1.0;
 				}
