@@ -1378,7 +1378,7 @@
                                 <Border Grid.Column="2" Padding="0 1 0 1">
                                     <emoji:TextBlock 
                                         ColorBlend="False"
-                                        Text="{Binding Message, Mode=OneWay}"
+                                        Text="{Binding Message.Value, Mode=OneWay}"
                                         TextWrapping="Wrap"
                                         FontFamily="{DynamicResource MakimokiMessageFont}"
                                         FontSize="{DynamicResource InformationFontSize}"

@@ -20,7 +20,7 @@ using Yarukizero.Net.MakiMoki.Wpf.Model;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class MainWindowViewModel : BindableBase, IDisposable {
-		public record struct InfomationRecord(string Message, InformationBindableExObject ExObject, string Token);
+		public record struct InfomationRecord(ReadOnlyReactiveProperty<string> Message, InformationBindableExObject ExObject, string Token);
 		public record struct WpfBugMessage(FrameworkElement Element, bool Remove = true);
 		public class ForceGestureRelease { }
 
@@ -218,7 +218,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 								} 
 
 								list.Add(new InfomationRecord(
-									it.Message,
+									new ReactiveProperty<string>(initialValue: it.Message).ToReadOnlyReactiveProperty(),
 									it.ExObject switch {
 										BindableFutaba bf => new InformationBindableExObject(bf),
 										Model.ImageObject io => new InformationBindableExObject(io),
