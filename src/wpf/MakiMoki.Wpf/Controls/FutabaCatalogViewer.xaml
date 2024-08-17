@@ -845,13 +845,13 @@
                                         <TextBlock
                                             Grid.Column="0" Grid.Row="1"
                                             Foreground="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=Button}}"
-                                            Text="{Binding Raw.Value.ResItem.Res, Converter={StaticResource CatalogTextConverter}, Mode=OneWay}"
+                                            Text="{Binding OriginHtml.Value, Converter={StaticResource CatalogTextConverter}, Mode=OneWay}"
                                             HorizontalAlignment="Left"
                                             VerticalAlignment="Bottom"/>
                                         <TextBlock
                                             Grid.Column="2" Grid.Row="1"
                                             Foreground="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=Button}}"
-                                            Text="{Binding Raw.Value.CounterCurrent, Mode=OneWay}"
+                                            Text="{Binding CounterCurrent.Value, Mode=OneWay}"
                                             Visibility="{Binding Raw.Value, Converter={StaticResource FutabaIsolateResCountVisibilityConverter}, Mode=OneWay}"                                        
                                             HorizontalAlignment="Right"
                                             VerticalAlignment="Bottom"/>

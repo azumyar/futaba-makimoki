@@ -505,7 +505,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	}
 
 	public class BindableFutabaResItem : Bindable.CommonBindableFutabaResItem {
-		private class RefValue<T> where T:struct {
+		private class RefValue<T> where T : struct {
 			public T Value { get; }
 
 			public RefValue(T val) {
@@ -626,6 +626,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<int> ResCount { get; } = new ReactiveProperty<int>(0);
 		public ReactiveProperty<BindableFutabaResItem[]> ResCitedSource { get; } = new ReactiveProperty<BindableFutabaResItem[]>(Array.Empty<BindableFutabaResItem>());
 		public ReactiveProperty<string> ResCountText { get; }
+		public ReadOnlyReactivePropertySlim<int> CounterCurrent { get; }
 
 
 		public ReadOnlyReactivePropertySlim<string> HeadLineHtml { get; }
@@ -715,6 +716,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.IsVisibleCatalogIdMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledIdMarker);
 
 			this.ResCountText = this.ResCount.Select(x => (0 < x) ? $"{ x }レス" : "").ToReactiveProperty();
+			this.CounterCurrent = this.Raw.Select(x => x.CounterCurrent).ToReadOnlyReactivePropertySlim();
 
 			// delとhostの処理
 			{
