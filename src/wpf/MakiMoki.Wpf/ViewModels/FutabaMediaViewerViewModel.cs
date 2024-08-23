@@ -90,60 +90,54 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			}
 		}
 
-		public MakiMokiCommand<MouseButtonEventArgs> MouseLeftButtonDownCommand { get; }
-			= new MakiMokiCommand<MouseButtonEventArgs>();
-		public MakiMokiCommand<MouseButtonEventArgs> MouseLeftButtonUpCommand { get; }
-			= new MakiMokiCommand<MouseButtonEventArgs>();
-		public MakiMokiCommand<MouseEventArgs> MouseMoveCommand { get; }
-			= new MakiMokiCommand<MouseEventArgs>();
-		public MakiMokiCommand<MouseEventArgs> MouseLeaveCommand { get; }
-			= new MakiMokiCommand<MouseEventArgs>();
-		public MakiMokiCommand<MouseWheelEventArgs> MouseWheelCommand { get; }
-			= new MakiMokiCommand<MouseWheelEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> MouseLeftButtonDownCommand { get; } = new();
+		public MakiMokiCommand<MouseButtonEventArgs> MouseLeftButtonUpCommand { get; } = new();
+		public MakiMokiCommand<MouseEventArgs> MouseMoveCommand { get; } = new();
+		public MakiMokiCommand<MouseEventArgs> MouseLeaveCommand { get; } = new();
+		public MakiMokiCommand<MouseWheelEventArgs> MouseWheelCommand { get; } = new();
 
-		public ReactiveProperty<Visibility> ErrorViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Collapsed);
+		public ReactiveProperty<Visibility> ErrorViewVisibility { get; } = new(initialValue:Visibility.Collapsed);
 
-		public ReactiveProperty<Model.ImageObject> ImageSourceObject { get; } = new ReactiveProperty<Model.ImageObject>();
+		public ReactiveProperty<Model.ImageObject> ImageSourceObject { get; } = new();
 		public ReactiveProperty<ImageSource> ImageSource { get; }
-		public ReactiveProperty<Visibility> ImageViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Collapsed);
-		public ReactiveProperty<MatrixTransform> ImageMatrix { get; }
-			= new ReactiveProperty<MatrixTransform>(new MatrixTransform(Matrix.Identity));
+		public ReactiveProperty<Visibility> ImageViewVisibility { get; } = new(initialValue: Visibility.Collapsed);
+		public ReactiveProperty<MatrixTransform> ImageMatrix { get; } = new(initialValue: new MatrixTransform(Matrix.Identity));
 
-		public ReactiveProperty<Visibility> VideoViewVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Hidden);
-		public ReactiveProperty<Visibility> VideoPlayButtonVisibility { get; } = new ReactiveProperty<Visibility>(Visibility.Visible);
+		public ReactiveProperty<Visibility> VideoViewVisibility { get; } = new(initialValue: Visibility.Hidden);
+		public ReactiveProperty<Visibility> VideoPlayButtonVisibility { get; } = new(initialValue: Visibility.Visible);
 		public ReactiveProperty<Visibility> VideoPauseButtonVisibility { get; }
-		public ReactiveProperty<double> VideoSliderValue { get; } = new ReactiveProperty<double>(0);
+		public ReactiveProperty<double> VideoSliderValue { get; } = new(initialValue: 0);
 		public ReactiveProperty<bool> VideoRepeatValue { get; }
 		public ReactiveProperty<double> VideoVolumeValue { get; }
 
-		public MakiMokiCommand CloseCommand { get; } = new MakiMokiCommand();
-		public MakiMokiCommand VideoPlayCommand { get; } = new MakiMokiCommand();
-		public MakiMokiCommand VideoPauseCommand { get; } = new MakiMokiCommand();
-		public MakiMokiCommand VideoStopCommand { get; } = new MakiMokiCommand();
-		public MakiMokiCommand<RoutedPropertyChangedEventArgs<double>> VideoSliderValueChangedCommand { get; } = new MakiMokiCommand<RoutedPropertyChangedEventArgs<double>>();
-		public MakiMokiCommand VideoViewPlayingCommand { get; } = new MakiMokiCommand();
-		public MakiMokiCommand VideoViewPausedCommand { get; } = new MakiMokiCommand();
-		public MakiMokiCommand VideoViewStoppedCommand { get; } = new MakiMokiCommand();
-		public MakiMokiCommand VideoViewEndReachedCommand { get; } = new MakiMokiCommand();
-		public MakiMokiCommand<FutabaMediaViewer.RoutedPositionEventArgs> VideoViewPositionChangedCommand { get; } = new MakiMokiCommand<FutabaMediaViewer.RoutedPositionEventArgs>();
+		public MakiMokiCommand CloseCommand { get; } = new();
+		public MakiMokiCommand VideoPlayCommand { get; } = new();
+		public MakiMokiCommand VideoPauseCommand { get; } = new();
+		public MakiMokiCommand VideoStopCommand { get; } = new();
+		public MakiMokiCommand<RoutedPropertyChangedEventArgs<double>> VideoSliderValueChangedCommand { get; } = new();
+		public MakiMokiCommand VideoViewPlayingCommand { get; } = new();
+		public MakiMokiCommand VideoViewPausedCommand { get; } = new();
+		public MakiMokiCommand VideoViewStoppedCommand { get; } = new();
+		public MakiMokiCommand VideoViewEndReachedCommand { get; } = new();
+		public MakiMokiCommand<FutabaMediaViewer.RoutedPositionEventArgs> VideoViewPositionChangedCommand { get; } = new();
 
-		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickSaveCommand { get; } = new MakiMokiCommand<PlatformData.FutabaMedia>();
-		public MakiMokiCommand<PlatformData.MediaQuickSaveItem> MenuItemClickQuickSaveCommand { get; } = new MakiMokiCommand<PlatformData.MediaQuickSaveItem>();
-		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickImageSearchGoogleCommand { get; } = new MakiMokiCommand<PlatformData.FutabaMedia>();
-		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickGoogleLensCommand { get; } = new MakiMokiCommand<PlatformData.FutabaMedia>();
-		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickImageSearchAscii2dCommand { get; } = new MakiMokiCommand<PlatformData.FutabaMedia>();
-		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickQuickOpenBrowserCommand { get; } = new MakiMokiCommand<PlatformData.FutabaMedia>();
+		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickSaveCommand { get; } = new();
+		public MakiMokiCommand<PlatformData.MediaQuickSaveItem> MenuItemClickQuickSaveCommand { get; } = new();
+		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickImageSearchGoogleCommand { get; } = new();
+		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickGoogleLensCommand { get; } = new();
+		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickImageSearchAscii2dCommand { get; } = new();
+		public MakiMokiCommand<PlatformData.FutabaMedia> MenuItemClickQuickOpenBrowserCommand { get; } = new();
 
-		public ReactiveProperty<bool> ImageContextMenuOpened { get; } = new ReactiveProperty<bool>(false);
+		public ReactiveProperty<bool> ImageContextMenuOpened { get; } = new(initialValue: false);
 
-		public ReactiveProperty<object> UpdateToken { get; } = new ReactiveProperty<object>(DateTime.Now);
+		public ReactiveProperty<object> UpdateToken { get; } = new(initialValue: DateTime.Now);
 
 		private bool isMenuOpend = false;
 		private bool isMouseLeftButtonDown = false;
 		private bool isMouseLeftClick = false;
-		private Point clickDonwStartPoint = new Point(0, 0);
-		private Point mouseDonwStartPoint = new Point(0, 0);
-		private Point mouseCurrentPoint = new Point(0, 0);
+		private Point clickDonwStartPoint = new(0, 0);
+		private Point mouseDonwStartPoint = new(0, 0);
+		private Point mouseCurrentPoint = new(0, 0);
 		private FrameworkElement inputElement = null;
 		private double prevPosition = double.NaN;
 
