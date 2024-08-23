@@ -262,7 +262,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					if(x.Successed) {
 						if(this.IsImageFile(res.Src)) {
 							this.ImageViewVisibility.Value = Visibility.Visible;
-							this.ImageSourceObject.Value = WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes);
+							this.ImageSourceObject.Value = WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes, registerCache: false);
 						} else if(this.IsMovieFile(res.Src)) {
 							this.VideoViewVisibility.Value = Visibility.Visible;
 							Messenger.Instance.GetEvent<PubSubEvent<VideoLoadMessage>>()
@@ -284,7 +284,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					if(x.Successed) {
 						if(this.IsImageFile(u)) {
 							this.ImageViewVisibility.Value = Visibility.Visible;
-							this.ImageSourceObject.Value = WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes);
+							this.ImageSourceObject.Value = WpfUtil.ImageUtil.CreateImage(x.LocalPath, x.FileBytes, registerCache: false);
 						} else if(this.IsMovieFile(u)) {
 							this.VideoViewVisibility.Value = Visibility.Visible;
 							Messenger.Instance.GetEvent<PubSubEvent<VideoLoadMessage>>()

@@ -236,7 +236,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 		}
 #endif
 
-		public static Model.ImageObject CreateImage(string file, byte[] imageBytes = null) {
+		public static Model.ImageObject CreateImage(string file, byte[] imageBytes = null, bool registerCache = true) {
 			if(System.Windows.Threading.Dispatcher.CurrentDispatcher != System.Windows.Application.Current?.Dispatcher) {
 				System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!! UIスレッド外でのCreateImage !!!!!!!!!!!!!!!!!!!");
 				return null;
@@ -247,11 +247,15 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 			} else {
 				var ex = Path.GetExtension(file).ToLower();
 				try {
-					return SetImage2(file, ex switch {
+					var ret = ex switch {
 						".png" => LoadPng(file, imageBytes),
 						".gif" => LoadGif(file, imageBytes),
 						_ => new Model.ImageObject(BitmapFrame.Create(LoadStream(file, imageBytes))),
-					});
+					};
+					if(registerCache) {
+						SetImage2(file, ret);
+					}
+					return ret;
 				}
 				catch(Exception e) when ((e is COMException) || (e is Exceptions.ImageLoadFailedException)) {
 					return GetErrorImage();

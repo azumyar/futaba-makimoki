@@ -84,7 +84,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						.Select(y => y.Ext)
 						.ToArray();
 					if(imageExt.Contains(ext)) {
-						return WpfUtil.ImageUtil.CreateImage(x);
+							return WpfUtil.ImageUtil.CreateImage(x, registerCache: false);
 					} else if(movieExt.Contains(ext)) {
 						return new Model.ImageObject(WpfUtil.MediaFoundationUtil.CreateThumbnail(x));
 					}
