@@ -121,27 +121,7 @@ public partial class SeekBar : UserControl {
 				this.Value,
 				@new,
 				ValueChangedEvent));
-			// Binding経由で値書き換え
-			// Bindingパターンはある程度絞ってるけどもっと楽なのナイカナ
-			if((this.GetBindingExpression(ValueProperty) is BindingExpression exp)
-				&& (exp.DataItem is object src)
-				&& (exp.ParentBinding.Path != null)) {
-				var prop = default(System.Reflection.PropertyInfo);
-				var path = exp.ParentBinding.Path.Path.Split(".");
-				foreach(var name in path.SkipLast(1)) {
-					prop = src?.GetType().GetProperty(name);
-					src = prop?.GetValue(src);
-				}
-				prop = src?.GetType().GetProperty(path.Last());
-				if(prop != null) {
-					prop.SetValue(src, @new, null);
-					exp.UpdateTarget();
-					goto end;
-				}
-			}
-			// 設定されていない場合直接書き換える
 			this.Value = @new;
-		end:;
 		}
 		base.OnMouseMove(e);
 	}
