@@ -389,7 +389,7 @@
                     Grid.Column="6"
                     Height="16"
                     SeekRightColor="White"
-                    Value="{Binding VideoVolumeValue.Value, Mode=OneWay}">
+                    Value="{Binding VideoVolumeValue.Value, Mode=TwoWay}">
                     <local:SeekBar.SeekLeftColor>
                         <SolidColorBrush Color="{DynamicResource MakimokiPrimaryColor}" />
                     </local:SeekBar.SeekLeftColor>
