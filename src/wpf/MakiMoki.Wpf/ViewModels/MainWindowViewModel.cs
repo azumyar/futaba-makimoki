@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -7,6 +8,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using Prism.Events;
@@ -20,7 +22,19 @@ using Yarukizero.Net.MakiMoki.Wpf.Model;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 	class MainWindowViewModel : BindableBase, IDisposable {
-		public record struct InfomationRecord(ReadOnlyReactiveProperty<string> Message, InformationBindableExObject ExObject, string Token);
+		public class InfomationRecord : INotifyPropertyChanged {
+			public event PropertyChangedEventHandler PropertyChanged;
+
+			public ReadOnlyReactivePropertySlim<string> Message { get; }
+			public ReadOnlyReactivePropertySlim<InformationBindableExObject> ExObject { get; }
+			public string Token { get; }
+
+			public InfomationRecord(string message, InformationBindableExObject exObject, string token) {
+				this.Message = new ReactiveProperty<string>(initialValue: message).ToReadOnlyReactivePropertySlim();
+				this.ExObject = new ReactiveProperty<InformationBindableExObject>(initialValue: exObject).ToReadOnlyReactivePropertySlim();
+				this.Token = token;
+			}
+		}
 		public record struct WpfBugMessage(FrameworkElement Element, bool Remove = true);
 		public class ForceGestureRelease { }
 
@@ -50,7 +64,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<Dictionary<string, ReactiveCollection<Model.TabItem>>> ThreadsDictionary { get; } = new(initialValue: new());
 		public ReactiveProperty<ReactiveCollection<Model.TabItem>> Threads { get; }
 		public ReactiveProperty<object> ThreadToken { get; } = new(DateTime.Now.Ticks);
-		public ReactiveProperty<List<InfomationRecord>> Infomations { get; }
+		public ReactiveCollection<InfomationRecord> Infomations { get; } = new ReactiveCollection<InfomationRecord>();
 		public ReactiveProperty<CornerRadius> InfomationCornerRadius { get; } = new(App.OsCompat.IsWindows11Rtm switch {
 			true => new CornerRadius(4, 4, 4, 4),
 			false => new CornerRadius()
@@ -194,15 +208,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					return new ReactiveCollection<Model.TabItem>();
 				}
 			}).ToReactiveProperty();
-			this.Infomations = new ReactiveProperty<List<InfomationRecord>>(initialValue: new ());
 			Util.Futaba.Informations.Subscribe(x => {
 				Observable.Return(x)
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(y => {
-						var list = new List<InfomationRecord>();
 						using var rm = new CompositeDisposable();
+						var list = new List<InfomationRecord>();
+						foreach(var it in this.Infomations) {
+							if(!y.Any(z => z.Token == it.Token)) {
+								list.Add(it);
+								rm.Add(it.ExObject);
+							}
+						}
 						foreach(var it in y) {
-							if(!this.Infomations.Value.Any(z => z.Token == it.Token)) {
+							if(!this.Infomations.Any(z => z.Token == it.Token)) {
 								static InformationBindableExObject gen1(FutabaContext fc) {
 									if((fc.ResItems.FirstOrDefault() is FutabaContext.Item fit)
 										&& WpfUtil.ImageUtil.GetImageCache2(
@@ -217,25 +236,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 									return gen1(Util.Futaba.Threads.Value.Where(x => x.Url == c).FirstOrDefault());
 								} 
 
-								list.Add(new InfomationRecord(
-									new ReactiveProperty<string>(initialValue: it.Message).ToReadOnlyReactiveProperty(),
+								this.Infomations.Add(new InfomationRecord(
+									it.Message,
 									it.ExObject switch {
 										BindableFutaba bf => new InformationBindableExObject(bf),
 										Model.ImageObject io => new InformationBindableExObject(io),
 										FutabaContext fc when fc.Url.IsThreadUrl => gen1(fc),
 										UrlContext uc when uc.IsThreadUrl => gen2(uc),
 										_ => new InformationBindableExObject()
-									}, it.Token)) ;
+									}, it.Token));
 							}
 						}
-						foreach(var it in this.Infomations.Value) {
-							if(y.Any(z => z.Token == it.Token)) {
-								list.Add(it);
-							} else {
-								rm.Add(it.ExObject);
-							}
+						foreach(var it in list) {
+							this.Infomations.Remove(it);
 						}
-						this.Infomations.Value = list;
 					});
 			});
 

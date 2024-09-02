@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -10,7 +11,9 @@ using System.Windows.Media.Imaging;
 using Reactive.Bindings;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
-	class InformationBindableExObject : IDisposable {
+	class InformationBindableExObject : IDisposable, INotifyPropertyChanged {
+		public event PropertyChangedEventHandler PropertyChanged;
+
 		public ReactiveProperty<Visibility> ObjectVisibility { get; }
 		public ImageObject ThumbSourceObject { get; }
 		public ReactiveProperty<ImageSource> ThumbSource { get; }
