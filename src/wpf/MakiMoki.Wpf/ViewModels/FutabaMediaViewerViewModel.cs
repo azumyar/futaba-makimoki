@@ -205,6 +205,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 			onSystemConfigUpdateNotifyer = (_) => UpdateToken.Value = DateTime.Now;
 			WpfConfig.WpfConfigLoader.SystemConfigUpdateNotifyer.AddHandler(onSystemConfigUpdateNotifyer);
+
+			this.VideoVolumeValue.Value = 1d;
 		}
 
 		public void Dispose() {
