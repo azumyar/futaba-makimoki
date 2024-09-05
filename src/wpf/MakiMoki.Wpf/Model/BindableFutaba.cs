@@ -512,6 +512,27 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				this.Value = val;
 			}
 		}
+
+		public class SearchSupporter : IDisposable, INotifyPropertyChanged {
+			public event PropertyChangedEventHandler PropertyChanged;
+			public ReactivePropertySlim<double> ViewHeight { get; } = new(initialValue: 0);
+			public MakiMokiCommand<SizeChangedEventArgs> SizeChangedCommand { get; } = new();
+
+			public SearchSupporter() {
+				this.SizeChangedCommand.Subscribe(x => this.OnSizeCahnged(x));
+			}
+
+			public void Dispose() {
+				new Helpers.AutoDisposable(this).Dispose();
+			}
+
+			private void OnSizeCahnged(SizeChangedEventArgs e) {
+				if(e.HeightChanged) {
+					this.ViewHeight.Value = e.NewSize.Height;
+				}
+			}
+		}
+
 		private static Helpers.WeakCache<string, RefValue<ulong>> HashCache { get; }
 			= new Helpers.WeakCache<string, RefValue<ulong>>();
 		private static Helpers.ConnectionQueue<ulong?> HashQueue = new Helpers.ConnectionQueue<ulong?>(
@@ -668,8 +689,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		[Helpers.AutoDisposable.IgonoreDisposeBindingsValue]
 		public ReactiveProperty<BindableFutaba> Parent { get; }
 
-		public MakiMokiCommand<MouseButtonEventArgs> FutabaTextBlockMouseDownCommand { get; }
-			= new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> FutabaTextBlockMouseDownCommand { get; } = new();
+
+		public SearchSupporter SearchSupport { get; } = new();
 
 		private RefValue<ulong> hashValue;
 		private Action<Ng.NgData.NgConfig> ngUpdateAction;
@@ -951,7 +973,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				}
 			}
 		}
-
 
 		public void SetThumbSource(Model.ImageObject bmp) {
 			// Watch画像から送られてくる

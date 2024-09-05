@@ -167,6 +167,8 @@
             <Color x:Key="FluentWindowAccentColor">#00000000</Color>
             <Color x:Key="FluentPopupAccentColor">#00000000</Color>
 
+            <sys:Double x:Key="FutabaResViewMinHeight">120</sys:Double>
+            
             <Viewbox x:Key="ButtonIconWindowBordList" x:Shared="False">
                 <Canvas Width="1024" Height="1024" Canvas.Left="0" Canvas.Top="0">
                     <Path Width="768" Height="512" Canvas.Left="128" Canvas.Top="256" Stretch="Fill" Fill="{Binding Foreground, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType=ContentControl}}" Data="F1 M 128,256L 224,256L 224,352L 128,352L 128,256 Z M 320,256L 896,256L 896,352L 320,352L 320,256 Z M 128,464L 224,464L 224,560L 128,560L 128,464 Z M 320,464L 896,464L 896,560L 320,560L 320,464 Z M 128,672L 224,672L 224,768L 128,768L 128,672 Z M 320,672L 896,672L 896,768L 320,768L 320,672 Z "/>
