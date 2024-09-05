@@ -106,7 +106,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.WpfUtil {
 
 			private int keepSize, maxSize, keepTimeSec;
 
-			public PhantomCache(int keep = 300, int max = 500, int keepTimeSec = 2 * 3600) {
+			public PhantomCache(int keep = 100, int max = 150, int keepTimeSec = 2 * 3600) {
 				this.keepSize = keep;
 				this.maxSize = max;
 				this.keepTimeSec = keepTimeSec;
