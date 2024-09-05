@@ -220,7 +220,7 @@
                             <SolidColorBrush>
                                 <SolidColorBrush.Color>
                                     <MultiBinding Converter="{StaticResource FutabaResItemOldColorConverter}">
-                                        <Binding Path="Contents.Futaba.Value" Mode="OneWay" ElementName="_this" />
+                                        <Binding Path="Contents.Futaba.Value.IsOld.Value" Mode="OneWay" ElementName="_this" />
                                         <Binding Path="DataContext" Mode="OneWay" ElementName="ToolbarTextColorGetter" />
                                         <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadTextOldColorGetter" />
                                     </MultiBinding>
@@ -565,7 +565,7 @@
                     Grid.Column="0" Grid.ColumnSpan="{Binding ListBoxColumnSpan.Value, Mode=OneWay}"
                     ItemsSource="{Binding Contents.FutabaItems.Value, ElementName=_this, Mode=OneWay}"
                     BorderThickness="0"
-                    Visibility="{Binding                    Contents.Futaba.Value.Raw.Value, ElementName=_this, Converter={StaticResource FutabaThreadResVisibleConverter}, Mode=OneWay}"
+                    Visibility="{Binding Contents.Futaba.Value.Raw.Value, ElementName=_this, Converter={StaticResource FutabaThreadResVisibleConverter}, Mode=OneWay}"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                     ScrollViewer.CanContentScroll="True"
                     VirtualizingPanel.ScrollUnit="Pixel"
@@ -639,7 +639,7 @@
                     </ListBox.ItemsPanel>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Grid Margin="16 4 16 4" Background="Transparent">
+                            <Grid Margin="16 4 16 4" Background="Transparent" MinHeight="{DynamicResource FutabaResViewMinHeight}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
@@ -1211,7 +1211,7 @@
                                                     <SolidColorBrush>
                                                         <SolidColorBrush.Color>
                                                             <MultiBinding Converter="{StaticResource FutabaResItemOldColorConverter}">
-                                                                <Binding Path="Parent.Value" Mode="OneWay" />
+                                                                <Binding Path="Parent.Value.IsOld.Value" Mode="OneWay" />
                                                                 <Binding Path="DataContext" Mode="OneWay" ElementName="ViewerForegroundColorGetter" />
                                                                 <Binding Path="DataContext" Mode="OneWay" ElementName="ThreadTextOldColorGetter" />
                                                             </MultiBinding>
@@ -1235,6 +1235,12 @@
                                         </Grid>
                                     </Border>
                                 </Grid>
+
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SizeChanged">
+                                        <ri:EventToReactiveCommand Command="{Binding SearchSupport.SizeChangedCommand, Mode=OneWay}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

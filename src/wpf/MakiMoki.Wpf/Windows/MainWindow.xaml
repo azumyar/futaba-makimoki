@@ -139,6 +139,7 @@
                                                         <MultiBinding.Bindings>
                                                             <Binding Path="Futaba.Value" />
                                                             <Binding Path="DataContext" ElementName="WindowThreadTabDieOpacityGetter" />
+                                                            <Binding Path="Futaba.Value.UpdateToken.Value" />
                                                         </MultiBinding.Bindings>
                                                     </MultiBinding>
                                                 </Grid.Opacity>
@@ -1302,7 +1303,7 @@
 
             <ListBox
                 Grid.Row="1"
-                ItemsSource="{Binding Infomations.Value, Mode=OneWay}"
+                ItemsSource="{Binding Infomations, Mode=OneWay}"
                 Background="Transparent"
                 BorderBrush="Transparent"
                 BorderThickness="0"
@@ -1343,7 +1344,7 @@
                                     <ColumnDefinition Width="4" />
                                 </Grid.ColumnDefinitions>
                                 <Border Grid.RowSpan="3" Grid.Column="0">
-                                    <Grid Visibility="{Binding ExObject.ObjectVisibility.Value, Mode=OneWay}">
+                                    <Grid Visibility="{Binding ExObject.Value.ObjectVisibility.Value, Mode=OneWay}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="1" />
                                             <ColumnDefinition Width="Auto" />
@@ -1363,7 +1364,7 @@
                                             Stretch="Uniform"
                                             >
                                             <Image
-                                                Source="{Binding ExObject.ThumbSource.Value, Mode=OneWay}"
+                                                Source="{Binding ExObject.Value.ThumbSource.Value, Mode=OneWay}"
                                                 RenderOptions.EdgeMode="Aliased"
                                                 RenderOptions.BitmapScalingMode="Fant"
                                                 Unloaded="OnImageUnloaded">
@@ -1377,7 +1378,7 @@
                                 <Border Grid.Column="2" Padding="0 1 0 1">
                                     <emoji:TextBlock 
                                         ColorBlend="False"
-                                        Text="{Binding Message, Mode=OneWay}"
+                                        Text="{Binding Message.Value, Mode=OneWay}"
                                         TextWrapping="Wrap"
                                         FontFamily="{DynamicResource MakimokiMessageFont}"
                                         FontSize="{DynamicResource InformationFontSize}"

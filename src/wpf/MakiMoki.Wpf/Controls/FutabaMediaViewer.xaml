@@ -212,20 +212,20 @@
                 </Grid>
                 -->
             </vlc:VideoView>
-            <Slider
+            <local:SeekBar
                 Grid.Row="1"
-                Margin="0,2,0,2"
-                VerticalAlignment="Center"
-                IsMoveToPointEnabled ="True"
-                Minimum="0"
-                Maximum="1.0"
-                Value="{Binding VideoSliderValue.Value, Mode=OneWay}">
+                Height="16"
+                SeekRightColor="White"
+                Value="{Binding VideoSliderValue.Value, Mode=TwoWay}">
+                <local:SeekBar.SeekLeftColor>
+                    <SolidColorBrush Color="{DynamicResource MakimokiPrimaryColor}" />
+                </local:SeekBar.SeekLeftColor>
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="ValueChanged">
                         <ri:EventToReactiveCommand Command="{Binding VideoSliderValueChangedCommand}" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-            </Slider>
+            </local:SeekBar>
 
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
@@ -385,19 +385,16 @@
                     FontSize="16"
                     Text="{StaticResource FontSymbolSpatialVolume3}"
                     />
-                <Slider
+                <local:SeekBar
                     Grid.Column="6"
-                    Minimum="0"
-                    Maximum="1"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Center"
-                    TickPlacement="None"
-                    TickFrequency="0.01"
-                    SmallChange="0.05"
-                    LargeChange="0.05"
-                    Orientation="Horizontal"
-                    Value="{Binding VideoVolumeValue.Value, Mode=TwoWay}"
-                    />
+                    Height="16"
+                    SeekRightColor="White"
+                    Value="{Binding VideoVolumeValue.Value, Mode=TwoWay}">
+                    <local:SeekBar.SeekLeftColor>
+                        <SolidColorBrush Color="{DynamicResource MakimokiPrimaryColor}" />
+                    </local:SeekBar.SeekLeftColor>
+                </local:SeekBar>
+
                 <Button
                     Grid.Column="7"
                     Style="{StaticResource MaterialTransparentButton}"

@@ -473,8 +473,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Converters {
 	class FutabaResItemOldColorConverter : IMultiValueConverter {
 		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
 			if((values.Length == 3) && (values[1] is System.Windows.Media.Color normalColor)) {
-				if((values[0] is Model.BindableFutaba f) && (values[2] is System.Windows.Media.Color oldColor)) {
-					return f.IsOld.Value ? oldColor : normalColor;
+				if((values[0] is bool isOld) && (values[2] is System.Windows.Media.Color oldColor)) {
+					return isOld switch {
+						true => oldColor,
+						false => normalColor,
+					};
 				}
 				return normalColor; // スレを受信していない場合values[0]が設定されていないのでnormalColorを返す
 			}

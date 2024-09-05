@@ -505,13 +505,34 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	}
 
 	public class BindableFutabaResItem : Bindable.CommonBindableFutabaResItem {
-		private class RefValue<T> where T:struct {
+		private class RefValue<T> where T : struct {
 			public T Value { get; }
 
 			public RefValue(T val) {
 				this.Value = val;
 			}
 		}
+
+		public class SearchSupporter : IDisposable, INotifyPropertyChanged {
+			public event PropertyChangedEventHandler PropertyChanged;
+			public ReactivePropertySlim<double> ViewHeight { get; } = new(initialValue: 0);
+			public MakiMokiCommand<SizeChangedEventArgs> SizeChangedCommand { get; } = new();
+
+			public SearchSupporter() {
+				this.SizeChangedCommand.Subscribe(x => this.OnSizeCahnged(x));
+			}
+
+			public void Dispose() {
+				new Helpers.AutoDisposable(this).Dispose();
+			}
+
+			private void OnSizeCahnged(SizeChangedEventArgs e) {
+				if(e.HeightChanged) {
+					this.ViewHeight.Value = e.NewSize.Height;
+				}
+			}
+		}
+
 		private static Helpers.WeakCache<string, RefValue<ulong>> HashCache { get; }
 			= new Helpers.WeakCache<string, RefValue<ulong>>();
 		private static Helpers.ConnectionQueue<ulong?> HashQueue = new Helpers.ConnectionQueue<ulong?>(
@@ -626,6 +647,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<int> ResCount { get; } = new ReactiveProperty<int>(0);
 		public ReactiveProperty<BindableFutabaResItem[]> ResCitedSource { get; } = new ReactiveProperty<BindableFutabaResItem[]>(Array.Empty<BindableFutabaResItem>());
 		public ReactiveProperty<string> ResCountText { get; }
+		public ReadOnlyReactivePropertySlim<int> CounterCurrent { get; }
 
 
 		public ReadOnlyReactivePropertySlim<string> HeadLineHtml { get; }
@@ -667,8 +689,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		[Helpers.AutoDisposable.IgonoreDisposeBindingsValue]
 		public ReactiveProperty<BindableFutaba> Parent { get; }
 
-		public MakiMokiCommand<MouseButtonEventArgs> FutabaTextBlockMouseDownCommand { get; }
-			= new MakiMokiCommand<MouseButtonEventArgs>();
+		public MakiMokiCommand<MouseButtonEventArgs> FutabaTextBlockMouseDownCommand { get; } = new();
+
+		public SearchSupporter SearchSupport { get; } = new();
 
 		private RefValue<ulong> hashValue;
 		private Action<Ng.NgData.NgConfig> ngUpdateAction;
@@ -715,6 +738,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.IsVisibleCatalogIdMarker = new ReactiveProperty<bool>(WpfConfig.WpfConfigLoader.SystemConfig.IsEnabledIdMarker);
 
 			this.ResCountText = this.ResCount.Select(x => (0 < x) ? $"{ x }レス" : "").ToReactiveProperty();
+			this.CounterCurrent = this.Raw.Select(x => x.CounterCurrent).ToReadOnlyReactivePropertySlim();
 
 			// delとhostの処理
 			{
@@ -949,7 +973,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				}
 			}
 		}
-
 
 		public void SetThumbSource(Model.ImageObject bmp) {
 			// Watch画像から送られてくる
