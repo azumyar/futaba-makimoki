@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using Yarukizero.Net.MakiMoki.Util;
 using System.Runtime.CompilerServices;
 using Reactive.Bindings;
+using Yarukizero.Net.MakiMoki.Wpf.Model;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 	class FutabaCommentBlock : TextBlock {
@@ -89,13 +90,35 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 		}
 
 		private static void ParseComment(TextBlock tb, Model.BindableFutabaResItem item, int maxLines) {
-			var cmc = Application.Current?.TryFindResource("FutabaCommentColorMap") as PlatformData.ColorMapCollection;
 			tb.Text = null;
 			tb.Inlines.Clear();
 
-			if(item == null) {
-				return;
+			// まとめて最後にInlineにAddすれば軽くなったのでキャッシュシステムは一度見送り
+			List<Inline> inst = tb.DataContext switch {
+				BindableFutabaResItem res => default, // 必要ならキャッシュを引っ張ってくるように変更する
+				_ => default,
+			};
+			if(inst == null) {
+				inst = ParseComment_(tb, item, maxLines);
+				if(inst != null) {
+					// 必要ならキャッシュをここに実装する
+				}
 			}
+
+			if(inst != null) {
+				foreach(var it in inst) {
+					tb.Inlines.Add(it);
+				}
+			}
+		}
+
+		public static List<Inline> ParseComment_(TextBlock tb_, Model.BindableFutabaResItem item, int maxLines) {
+			var cmc = System.Windows.Application.Current?.TryFindResource("FutabaCommentColorMap") as PlatformData.ColorMapCollection;
+
+			if(item == null) {
+				return default;
+			}
+			var result = new List<Inline>();
 
 			var regexOpt = /* RegexOptions.IgnoreCase | */ RegexOptions.Singleline;
 			var regex = new Regex[] {
@@ -118,7 +141,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 					var run2 = new Emoji.Wpf.EmojiInline() {
 						Foreground = new SolidColorBrush(Colors.Black),
 						Text = text.Substring(m.Index, m.Length),
-						FontSize = tb.FontSize,
+						FontSize = tb_.FontSize,
 						ToolTip = toolTip,
 						Tag = quotRes,
 					};
@@ -127,8 +150,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						run2.Loaded += OnLoadedQuot;
 					}
 
-					tb.Inlines.Add(run1);
-					tb.Inlines.Add(run2);
+					result.Add(run1);
+					result.Add(run2);
 					pos = m.Index + m.Length;
 				}
 				var run3 = new Run(text.Substring(pos)) {
@@ -142,7 +165,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				if(quotRes != null) {
 					run3.Loaded += OnLoadedQuot;
 				}
-				tb.Inlines.Add(run3);
+				result.Add(run3);
 			}
 
 			void EvalFont(StringBuilder inputVal, StringBuilder outputVal, Model.BindableFutabaResItem quotRes = null, ToolTip toolTip = null) {
@@ -188,7 +211,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 							var uri = new Uri(ToUrl(m.Value));
 							var link = new Hyperlink() {
 								TextDecorations = null,
-								Foreground = tb.Foreground,
+								Foreground = tb_.Foreground,
 								NavigateUri = uri,
 								Tag = item,
 							};
@@ -198,7 +221,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 							if(0 < outputVal.Length) {
 								EvalEmoji(outputVal.ToString(), null);
 							}
-							tb.Inlines.Add(link);
+							result.Add(link);
 						}
 						catch(UriFormatException) {
 							// URLが作れなかったのでべた書きする
@@ -298,11 +321,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 						output.Clear();
 					}
 					if(!object.ReferenceEquals(s, last)) {
-						tb.Inlines.Add(new LineBreak());
+						result.Add(new LineBreak());
 					}
 				}
 			}
+			return result;
 		}
+
 
 		private static string ToUrl(string s) {
 			var ul = Config.ConfigLoader.Uploder.Uploders
