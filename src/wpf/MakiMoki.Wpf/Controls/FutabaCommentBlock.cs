@@ -93,15 +93,18 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			tb.Text = null;
 			tb.Inlines.Clear();
 
+			var res = tb.DataContext as BindableFutabaResItem;
+			if(res == null) {
+				return;
+			}
+
 			// まとめて最後にInlineにAddすれば軽くなったのでキャッシュシステムは一度見送り
-			List<Inline> inst = tb.DataContext switch {
-				BindableFutabaResItem res => default, // 必要ならキャッシュを引っ張ってくるように変更する
-				_ => default,
-			};
+			List<System.Windows.Documents.Inline> inst = res.Cache;
 			if(inst == null) {
 				inst = ParseComment_(tb, item, maxLines);
 				if(inst != null) {
 					// 必要ならキャッシュをここに実装する
+					((BindableFutabaResItem)tb.DataContext).Cache = inst;
 				}
 			}
 
