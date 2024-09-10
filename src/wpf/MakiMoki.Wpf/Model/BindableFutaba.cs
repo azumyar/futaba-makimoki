@@ -710,7 +710,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReadOnlyReactivePropertySlim<string> Id { get; }
 
 
-		public List<System.Windows.Documents.Inline> Cache { get; set; }
+		public List<System.Windows.Documents.Inline> CommentViewCache { get; set; }
 
 		public BindableFutabaResItem(int index, Data.FutabaContext.Item item, string baseUrl, BindableFutaba parent) {
 			System.Diagnostics.Debug.Assert(item != null);
@@ -818,7 +818,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 						}
 					}).ToReadOnlyReactivePropertySlim();
 				this.CommentHtml.Subscribe(_ => {
-					this.Cache = null;
+					this.CommentViewCache = null;
 				});
 				this.IsNgImageHidden = new ReactiveProperty<bool>(false);
 				this.IsVisibleOriginComment = this.IsHidden

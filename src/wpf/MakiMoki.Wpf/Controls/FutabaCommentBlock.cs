@@ -99,12 +99,12 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 			}
 
 			// まとめて最後にInlineにAddすれば軽くなったのでキャッシュシステムは一度見送り
-			List<System.Windows.Documents.Inline> inst = res.Cache;
+			List<System.Windows.Documents.Inline> inst = res.CommentViewCache;
 			if(inst == null) {
 				inst = ParseComment_(tb, item, maxLines);
 				if(inst != null) {
 					// 必要ならキャッシュをここに実装する
-					((BindableFutabaResItem)tb.DataContext).Cache = inst;
+					((BindableFutabaResItem)tb.DataContext).CommentViewCache = inst;
 				}
 			}
 
