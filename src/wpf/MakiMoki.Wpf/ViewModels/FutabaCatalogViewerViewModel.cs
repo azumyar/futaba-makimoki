@@ -184,7 +184,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 					.ObserveOn(UIDispatcherScheduler.Default)
 					.Subscribe(x => {
 						if(tb.Text == x) {
-							bf.FilterText.Value = x;
+							bf.CatalogSupport.FilterText.Value = x;
 						}
 					});
 			}

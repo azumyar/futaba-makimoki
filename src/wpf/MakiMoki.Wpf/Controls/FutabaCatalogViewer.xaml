@@ -519,7 +519,9 @@
                 VirtualizingPanel.ScrollUnit="Pixel"
                 VirtualizingPanel.IsVirtualizing="True"
                 VirtualizingPanel.VirtualizationMode="Recycling"
+                ItemsSource="{Binding Contents.Futaba.Value.CatalogSupport.ResItems, Mode=OneWay, ElementName=_this}"
                 >
+                <!--
                 <ListBox.ItemsSource>
                     <MultiBinding Converter="{StaticResource FutabaCatalogItemFilterConverter}">
                         <Binding Path="Contents.FutabaItems.Value" Mode="OneWay" ElementName="_this" />
@@ -527,6 +529,7 @@
                         <Binding Path="Contents.Futaba.Value.UpdateToken.Value" Mode="OneWay" ElementName="_this" />
                     </MultiBinding>
                 </ListBox.ItemsSource>
+                -->
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                         <Setter Property="Template">
@@ -597,7 +600,7 @@
                                         <SolidColorBrush.Color>
                                             <MultiBinding  Converter="{StaticResource FutabaCatalogItemBackgroundConverter}">
                                                 <Binding Mode="OneWay" />
-                                                <Binding Path="Contents.Futaba.Value.FilterText.Value" Mode="OneWay" ElementName="_this" />
+                                                <Binding Path="Contents.Futaba.Value.CatalogSupport.FilterText.Value" Mode="OneWay" ElementName="_this" />
                                                 <Binding Path="Contents.Futaba.Value.OpenedThreads.Value" Mode="OneWay" ElementName="_this" />
                                                 <Binding Path="DataContext" ElementName="CatalogItemBackgroundColorGetter" Mode="OneWay" />
                                                 <Binding Path="DataContext" ElementName="CatalogBackgroundSerachHitColorGetter" Mode="OneWay" />
