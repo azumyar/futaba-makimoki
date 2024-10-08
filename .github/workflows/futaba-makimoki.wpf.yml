@@ -229,8 +229,16 @@ jobs:
           -g ${App_Center_Group} \
           -b ${App_Center_Version} \
           -a azumyar/futamaki
+      if: ${{ env.App_Center_Group == 'Canary' }}
       env:
         token: ${{ secrets.APP_CENTER_TOKEN }}
+
+    - name: Github Release
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        body: リリース:${{App_Center_Version}}
+        files: ${Artifact_File_Zip}
 
     - name: FTP Put Json
       run: |
