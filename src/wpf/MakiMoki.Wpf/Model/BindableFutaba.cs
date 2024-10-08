@@ -759,7 +759,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Data.FutabaContext.Item> Raw { get; }
 
 		public ReactiveProperty<int> ResCount { get; } = new ReactiveProperty<int>(0);
-		public ReactiveProperty<BindableFutabaResItem[]> ResCitedSource { get; } = new ReactiveProperty<BindableFutabaResItem[]>(Array.Empty<BindableFutabaResItem>());
+		public ReactiveCollection<BindableFutabaResItem> ResCitedSource { get; } = new();
 		public ReactiveProperty<string> ResCountText { get; }
 		public ReadOnlyReactivePropertySlim<int> CounterCurrent { get; }
 
@@ -1101,7 +1101,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public void SetResCount(int count, BindableFutabaResItem[] res) {
 			this.ResCount.Value = count;
-			this.ResCitedSource.Value = res;
+
+			// 引用情報
+			if(this.ResCitedSource.Any()) {
+				this.ResCitedSource.Clear();
+			}
+			if(res.Any()) {
+				this.ResCitedSource.AddRange(res);
+			}
 		}
 
 		private string GetCacheKey() {

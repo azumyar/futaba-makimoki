@@ -63,7 +63,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Controls {
 				if((e.ChangedButton == MouseButton.Left) && (e.ClickCount == 1)) {
 					if(this.DataContext is Model.BindableFutabaResItem it) {
 						Windows.Popups.QuotePopup.Show(
-							it.ResCitedSource.Value,
+							it.ResCitedSource,
 							e.Source);
 					}
 				}

@@ -1,3 +1,4 @@
+using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,7 +46,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Windows.Popups {
 		public static void Show(Model.BindableFutabaResItem source, object element, UIElement placementTarget = null) {
 			ShowImpliment(source, element, placementTarget);
 		}
-		public static void Show(IEnumerable<Model.BindableFutabaResItem> source, object element, UIElement placementTarget = null) {
+		public static void Show(ReactiveCollection<Model.BindableFutabaResItem> source, object element, UIElement placementTarget = null) {
 			ShowImpliment(source, element, placementTarget);
 		}
 		
