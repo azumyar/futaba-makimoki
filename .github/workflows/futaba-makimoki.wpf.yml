@@ -237,8 +237,8 @@ jobs:
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        body: リリース:${{App_Center_Version}}
-        files: ${Artifact_File_Zip}
+        body: リリース:${{ env.App_Center_Version }}
+        files: ${{ env.Artifact_File_Zip }}
 
     - name: FTP Put Json
       run: |
