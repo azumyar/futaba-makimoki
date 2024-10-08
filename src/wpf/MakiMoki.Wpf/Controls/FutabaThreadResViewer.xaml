@@ -13,6 +13,7 @@
              xmlns:converter="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Converters"
              xmlns:behavior="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Behaviors"
              xmlns:model="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Model"
+             xmlns:config="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.WpfConfig"
              xmlns:data="clr-namespace:Yarukizero.Net.MakiMoki.Data;assembly=MakiMoki.Core"
              xmlns:util="clr-namespace:Yarukizero.Net.MakiMoki.Util;assembly=MakiMoki.Core"
              xmlns:c98="clr-namespace:Yarukizero.Net.MakiMoki.Wpf.Canvas98.Controls;assembly=MakiMoki.Wpf.Canvas98"
@@ -563,7 +564,7 @@
                     x:Name="ThreadResListBox"
                     Grid.Row="0" Grid.RowSpan="{Binding ListBoxRowSpan.Value, Mode=OneWay}"
                     Grid.Column="0" Grid.ColumnSpan="{Binding ListBoxColumnSpan.Value, Mode=OneWay}"
-                    ItemsSource="{Binding Contents.FutabaItems.Value, ElementName=_this, Mode=OneWay}"
+                    ItemsSource="{Binding Contents.Futaba.Value.ThreadSupport.ResItems, ElementName=_this, Mode=OneWay}"
                     BorderThickness="0"
                     Visibility="{Binding Contents.Futaba.Value.Raw.Value, ElementName=_this, Converter={StaticResource FutabaThreadResVisibleConverter}, Mode=OneWay}"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -1167,7 +1168,7 @@
                                     <Grid.Visibility>
                                         <MultiBinding Converter="{StaticResource FutabaResItemFooterVisibleConverter}">
                                             <Binding Mode="OneWay" />
-                                            <Binding Path="Parent.Value" Mode="OneWay" />
+                                            <Binding Path="Parent.Value.ThreadSupport.ViewRsc.Value" Mode="OneWay" />
                                         </MultiBinding>
                                     </Grid.Visibility>
                                     <Grid.ColumnDefinitions>

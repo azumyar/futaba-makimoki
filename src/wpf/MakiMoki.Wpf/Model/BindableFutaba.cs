@@ -24,6 +24,82 @@ using System.Collections.ObjectModel;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 	public class BindableFutaba : Bindable.CommonBindableFutaba {
+		public class CatalogSupporter : IDisposable, INotifyPropertyChanged {
+			public event PropertyChangedEventHandler PropertyChanged;
+
+			public ReactiveProperty<string> FilterText { get; } = new(initialValue: "");
+			public ReactiveCollection<BindableFutabaResItem> ResItems { get; } = new();
+
+			private readonly IDisposable filterTextSubscriber;
+
+			public CatalogSupporter(BindableFutaba @this) {
+				this.filterTextSubscriber = this.FilterText.CombineLatest(
+					@this.ResItems.CollectionChangedAsObservable(),
+					//@this.NgUpdateToken,
+					(x, _) => x).Subscribe(x => {
+						this.ResItems.Clear();
+						var list = new List<BindableFutabaResItem>();
+						var en = @this.ResItems.Where(x => !x.IsNg.Value && !x.IsHidden.Value && !x.IsNgImageHidden.Value);
+						list.AddRange(en.Where(x => x.IsWatch.Value));
+						list.AddRange(en.Where(x => !x.IsWatch.Value));
+						if(x.Any()) {
+							var f = Util.TextUtil.Filter2SearchText(x);
+							var sr = list.Select<Model.BindableFutabaResItem, (string Text, Model.BindableFutabaResItem Raw)>(
+								x => (Util.TextUtil.Comment2SearchText(x.Raw.Value.ResItem.Res.Com), x))
+								.Where(x => x.Text.Contains(f))
+								.Select(x => x.Raw)
+								.ToList();
+							if(WpfConfig.WpfConfigLoader.SystemConfig.CatalogSearchResult == PlatformData.CatalogSearchResult.Nijiran) {
+								var t = sr.Select(y => y.ThreadResNo.Value).ToArray();
+								sr.AddRange(list.Where(x => !t.Contains(x.ThreadResNo.Value)));
+							}
+							this.ResItems.AddRangeOnScheduler(sr);
+						} else {
+							this.ResItems.AddRangeOnScheduler(list);
+						}
+					});
+			}
+
+			public void Dispose() {
+				new Helpers.AutoDisposable(this).Dispose();
+			}
+		}
+		public class ThreadSupporter : IDisposable, INotifyPropertyChanged {
+			public event PropertyChangedEventHandler PropertyChanged;
+
+			public ReactiveCollection<BindableFutabaResItem> ResItems { get; } = new();
+			public ReactiveProperty<string> FilterText { get; } = new(initialValue: "");
+			public ReactiveProperty<int> ViewRsc { get; } = new(initialValue: 0);
+
+			private readonly IDisposable collectionSubscriber;
+
+			public ThreadSupporter(BindableFutaba @this) {
+				this.collectionSubscriber = @this.ResItems.CollectionChangedAsObservable().CombineLatest(
+					@this.UpdateToken,
+					(_, _) => default(object)).Subscribe(x => {
+						this.ResItems.Clear();
+						IEnumerable<BindableFutabaResItem> en = new List<BindableFutabaResItem>();
+						if(!WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleThreadViaNg && !@this.IsDisableNg.Value) {
+							en = @this.ResItems.Where(xx => !(xx.IsNg.Value || xx.IsHidden.Value));
+						} else {
+							en = @this.ResItems;
+						}
+						this.ResItems.AddRangeOnScheduler(en);
+						this.ViewRsc.Value = this.ResItems.LastOrDefault() switch {
+							BindableFutabaResItem it => it.Raw.Value.ResItem.Res.Rsc,
+							_ => 0,
+						};
+					});
+			}
+
+			public void Dispose() {
+				new Helpers.AutoDisposable(this).Dispose();
+			}
+		}
+
+		public CatalogSupporter CatalogSupport { get; }
+		public ThreadSupporter ThreadSupport { get; }
+
 		[Helpers.AutoDisposable.IgonoreDispose]
 		[Helpers.AutoDisposable.IgonoreDisposeBindingsValue]
 		public ReactiveCollection<BindableFutabaResItem> ResItems { get; }
@@ -132,7 +208,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.IsMaxRes = this.Raw.Select(x => x.Raw?.IsMaxRes ?? false).ToReactiveProperty();
 			this.Url = futaba.Url;
 
-			var disps = new Helpers.AutoDisposable();
 			this.DieTextLong = this.Raw.Select(x => {
 				if(x.Raw == null) {
 					return "";
@@ -161,8 +236,20 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			this.FullScreenCatalogClickCommand.Subscribe(() => OnFullScreenCatalogClick());
 			this.FullScreenThreadClickCommand.Subscribe(() => OnFullScreenThreadClick());
 
+			this.ResItems = new ReactiveCollection<BindableFutabaResItem>();
+			this.CatalogSupport = futaba.Url.IsCatalogUrl switch {
+				true => new(this),
+				_ => default,
+			};
+			this.ThreadSupport = futaba.Url.IsThreadUrl switch {
+				true => new(this),
+				_ => default,
+			};
+
+			//
+			// 以下値の設定
+			//
 			{
-				this.ResItems = new ReactiveCollection<BindableFutabaResItem>();
 				foreach(var it in futaba.ResItems
 						.Select((x, i) => new BindableFutabaResItem(i, x, futaba.Url.BaseUrl, this))
 						.ToArray()) {
@@ -196,6 +283,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 				*/
 			}
 
+			// 引用リンクの作成
 			if(futaba.Url.IsThreadUrl) {
 				var d = new Dictionary<string, (int Count, List<BindableFutabaResItem> Res)>();
 				foreach(var it in this.ResItems) {
@@ -228,14 +316,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					it.SetResCount(t.Count, t.Res?.Distinct().ToArray() ?? Array.Empty<BindableFutabaResItem>());
 				}
 			}
-
-			// 初期化がすべて終わったタイミングで書き換える
-			foreach(var it in this.ResItems) {
-				it.Parent.Value = this;
-			}
-
-			// 古いインスタンスを削除
-			disps.Dispose();
 		}
 
 
@@ -289,6 +369,40 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 							it.Value,
 							futaba.Url.BaseUrl,
 							this));
+				}
+
+				// 引用情報の更新
+				if(futaba.Url.IsThreadUrl) {
+					var d = new Dictionary<string, (int Count, List<BindableFutabaResItem> Res)>();
+					foreach(var it in this.ResItems) {
+						if(!d.TryGetValue(it.ThreadResNo.Value, out _)) {
+							d.Add(it.ThreadResNo.Value, (0, new List<BindableFutabaResItem>()));
+						}
+
+						foreach(var q in it.Raw.Value.QuotLines
+							.Where(x => x.IsHit)
+							.Select(x => x.ResNo)
+							.Distinct()) {
+
+							if(this.ResItems.Where(x => x.ThreadResNo.Value == q).Any()) {
+								if(d.TryGetValue(q, out var t)) {
+									t.Res.Add(it);
+
+									d[q] = (t.Count + 1, t.Res);
+								} else {
+									d.Add(q, (1, new List<BindableFutabaResItem>() { it }));
+								}
+							}
+						}
+					}
+
+					foreach(var it in this.ResItems) {
+						var t = default((int Count, List<BindableFutabaResItem> Res));
+						if(!d.TryGetValue(it.ThreadResNo.Value, out t)) {
+							t = (0, null);
+						}
+						it.SetResCount(t.Count, t.Res?.Distinct().ToArray() ?? Array.Empty<BindableFutabaResItem>());
+					}
 				}
 			}
 			this.UpdateToken.Value = DateTime.Now;
@@ -645,7 +759,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReactiveProperty<Data.FutabaContext.Item> Raw { get; }
 
 		public ReactiveProperty<int> ResCount { get; } = new ReactiveProperty<int>(0);
-		public ReactiveProperty<BindableFutabaResItem[]> ResCitedSource { get; } = new ReactiveProperty<BindableFutabaResItem[]>(Array.Empty<BindableFutabaResItem>());
+		public ReactiveCollection<BindableFutabaResItem> ResCitedSource { get; } = new();
 		public ReactiveProperty<string> ResCountText { get; }
 		public ReadOnlyReactivePropertySlim<int> CounterCurrent { get; }
 
@@ -708,6 +822,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 		public ReadOnlyReactivePropertySlim<int> Soudane { get; }
 		public ReadOnlyReactivePropertySlim<string> No { get; }
 		public ReadOnlyReactivePropertySlim<string> Id { get; }
+
+
+		public (List<System.Windows.Documents.Inline> Cache, int Hash)? CommentViewCache { get; set; }
 
 		public BindableFutabaResItem(int index, Data.FutabaContext.Item item, string baseUrl, BindableFutaba parent) {
 			System.Diagnostics.Debug.Assert(item != null);
@@ -814,6 +931,9 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 							return x.ResItem.Res.Com;
 						}
 					}).ToReadOnlyReactivePropertySlim();
+				this.CommentHtml.Subscribe(_ => {
+					this.CommentViewCache = null;
+				});
 				this.IsNgImageHidden = new ReactiveProperty<bool>(false);
 				this.IsVisibleOriginComment = this.IsHidden
 					.CombineLatest(
@@ -981,7 +1101,14 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 
 		public void SetResCount(int count, BindableFutabaResItem[] res) {
 			this.ResCount.Value = count;
-			this.ResCitedSource.Value = res;
+
+			// 引用情報
+			if(this.ResCitedSource.Any()) {
+				this.ResCitedSource.Clear();
+			}
+			if(res.Any()) {
+				this.ResCitedSource.AddRange(res);
+			}
 		}
 
 		private string GetCacheKey() {
