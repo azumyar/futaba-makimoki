@@ -20,6 +20,7 @@ namespace Yarukizero.Net.MakiMoki.Util {
 		private static volatile object lockObj = new object();
 #pragma warning restore IDE0044
 		private static HttpClient HttpClient { get; set; }
+		private static readonly System.Reactive.Concurrency.EventLoopScheduler informationScheduler = new System.Reactive.Concurrency.EventLoopScheduler();
 
 		public static ReactiveProperty<Data.FutabaContext[]> Catalog { get; private set; }
 		public static ReactiveProperty<Data.FutabaContext[]> Threads { get; private set; }
@@ -945,15 +946,15 @@ namespace Yarukizero.Net.MakiMoki.Util {
 				fileNameWitfOutExtension,
 				Config.ConfigLoader.Uploder.Uploders);
 		}
-			
+		
 		public static void PutInformation(Data.Information information) {
 			Observable.Return(information)
-				.ObserveOn(DefaultScheduler.Instance)
+				.ObserveOn(informationScheduler)
 				.Select(x => {
 					InformationsProperty.Value = InformationsProperty.Value.Append(x);
 					return x;
 				}).Delay(TimeSpan.FromSeconds(3))
-				.ObserveOn(DefaultScheduler.Instance)
+				.ObserveOn(informationScheduler)
 				.Subscribe(x => {
 					InformationsProperty.Value = InformationsProperty.Value.Where(y => !object.ReferenceEquals(x, y));
 				});
