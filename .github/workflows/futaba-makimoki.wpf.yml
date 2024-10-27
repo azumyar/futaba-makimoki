@@ -149,7 +149,7 @@ jobs:
     - name: Move libvlc Dll
       run: |
         # libvlcがコピーされないので手動で移す
-        Copy-Item -Recurse -Force src/wpf/MakiMoki.Wpf/bin/Release/net6.0-windows/win-$env:Target_Arch/libvlc $env:Wap_Publish_Output/runtimes
+        Copy-Item -Recurse -Force src/wpf/MakiMoki.Wpf/bin/Release/net8.0-windows/win-$env:Target_Arch/libvlc $env:Wap_Publish_Output/runtimes
       env:
         Target_Arch: ${{ matrix.arch }}
 
