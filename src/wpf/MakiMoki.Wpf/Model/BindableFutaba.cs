@@ -37,26 +37,33 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 					@this.ResItems.CollectionChangedAsObservable(),
 					//@this.NgUpdateToken,
 					(x, _) => x).Subscribe(x => {
-						this.ResItems.Clear();
-						var list = new List<BindableFutabaResItem>();
-						var en = @this.ResItems.Where(x => !x.IsNg.Value && !x.IsHidden.Value && !x.IsNgImageHidden.Value);
-						list.AddRange(en.Where(x => x.IsWatch.Value));
-						list.AddRange(en.Where(x => !x.IsWatch.Value));
-						if(x.Any()) {
-							var f = Util.TextUtil.Filter2SearchText(x);
-							var sr = list.Select<Model.BindableFutabaResItem, (string Text, Model.BindableFutabaResItem Raw)>(
-								x => (Util.TextUtil.Comment2SearchText(x.Raw.Value.ResItem.Res.Com), x))
-								.Where(x => x.Text.Contains(f))
-								.Select(x => x.Raw)
-								.ToList();
-							if(WpfConfig.WpfConfigLoader.SystemConfig.CatalogSearchResult == PlatformData.CatalogSearchResult.Nijiran) {
-								var t = sr.Select(y => y.ThreadResNo.Value).ToArray();
-								sr.AddRange(list.Where(x => !t.Contains(x.ThreadResNo.Value)));
-							}
-							this.ResItems.AddRangeOnScheduler(sr);
-						} else {
-							this.ResItems.AddRangeOnScheduler(list);
-						}
+						// ResItemsの追加毎にSubscribeが来るので一度待って更新削減
+						Observable.Return(@this.ResItems.Count)
+							.ObserveOn(UIDispatcherScheduler.Default)
+							.Subscribe(xx => {
+								if(xx == @this.ResItems.Count) {
+									this.ResItems.Clear();
+									var list = new List<BindableFutabaResItem>();
+									var en = @this.ResItems.Where(xxx => !xxx.IsNg.Value && !xxx.IsHidden.Value && !xxx.IsNgImageHidden.Value);
+									list.AddRange(en.Where(xxx => xxx.IsWatch.Value));
+									list.AddRange(en.Where(xxx => !xxx.IsWatch.Value));
+									if(x.Any()) {
+										var f = Util.TextUtil.Filter2SearchText(x);
+										var sr = list.Select<Model.BindableFutabaResItem, (string Text, Model.BindableFutabaResItem Raw)>(
+											x => (Util.TextUtil.Comment2SearchText(x.Raw.Value.ResItem.Res.Com), x))
+											.Where(xxx => xxx.Text.Contains(f))
+											.Select(xxx => xxx.Raw)
+											.ToList();
+										if(WpfConfig.WpfConfigLoader.SystemConfig.CatalogSearchResult == PlatformData.CatalogSearchResult.Nijiran) {
+											var t = sr.Select(y => y.ThreadResNo.Value).ToArray();
+											sr.AddRange(list.Where(x => !t.Contains(x.ThreadResNo.Value)));
+										}
+										this.ResItems.AddRangeOnScheduler(sr);
+									} else {
+										this.ResItems.AddRangeOnScheduler(list);
+									}
+								} 
+							});
 					});
 			}
 
@@ -76,19 +83,26 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Model {
 			public ThreadSupporter(BindableFutaba @this) {
 				this.collectionSubscriber = @this.ResItems.CollectionChangedAsObservable().CombineLatest(
 					@this.UpdateToken,
-					(_, _) => default(object)).Subscribe(x => {
-						this.ResItems.Clear();
-						IEnumerable<BindableFutabaResItem> en = new List<BindableFutabaResItem>();
-						if(!WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleThreadViaNg && !@this.IsDisableNg.Value) {
-							en = @this.ResItems.Where(xx => !(xx.IsNg.Value || xx.IsHidden.Value));
-						} else {
-							en = @this.ResItems;
-						}
-						this.ResItems.AddRangeOnScheduler(en);
-						this.ViewRsc.Value = this.ResItems.LastOrDefault() switch {
-							BindableFutabaResItem it => it.Raw.Value.ResItem.Res.Rsc,
-							_ => 0,
-						};
+					(_, _) => default(object)).Subscribe(_ => {
+						// ResItemsの追加毎にSubscribeが来るので一度待って更新削減
+						Observable.Return(@this.ResItems.Count)
+							.ObserveOn(UIDispatcherScheduler.Default)
+							.Subscribe(x => {
+								if(x == @this.ResItems.Count) {
+									//this.ResItems.Clear();
+									IEnumerable<BindableFutabaResItem> en = new List<BindableFutabaResItem>();
+									if(!WpfConfig.WpfConfigLoader.SystemConfig.IsVisibleThreadViaNg && !@this.IsDisableNg.Value) {
+										en = @this.ResItems.Where(xx => !(xx.IsNg.Value || xx.IsHidden.Value));
+									} else {
+										en = @this.ResItems;
+									}
+									this.ResItems.AddRangeOnScheduler(en.Skip(this.ResItems.Count));
+									this.ViewRsc.Value = this.ResItems.LastOrDefault() switch {
+										BindableFutabaResItem it => it.Raw.Value.ResItem.Res.Rsc,
+										_ => 0,
+									};
+								}
+							});
 					});
 			}
 
