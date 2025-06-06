@@ -219,19 +219,19 @@ jobs:
       with:
         node-version: 16.x
 
-    - name: Upload Artefact to App Center
-      run: |
-        echo "upload appcenter: -g=${App_Center_Group} -b=${App_Center_Version}"
-        npx appcenter-cli distribute release \
-          --disable-telemetry \
-          --token ${token} \
-          -f ${Artifact_File_Zip} \
-          -g ${App_Center_Group} \
-          -b ${App_Center_Version} \
-          -a azumyar/futamaki
-      if: ${{ env.App_Center_Group == 'Canary' }}
-      env:
-        token: ${{ secrets.APP_CENTER_TOKEN }}
+#    - name: Upload Artefact to App Center
+#      run: |
+#        echo "upload appcenter: -g=${App_Center_Group} -b=${App_Center_Version}"
+#        npx appcenter-cli distribute release \
+#          --disable-telemetry \
+#          --token ${token} \
+#          -f ${Artifact_File_Zip} \
+#          -g ${App_Center_Group} \
+#          -b ${App_Center_Version} \
+#          -a azumyar/futamaki
+#      if: ${{ env.App_Center_Group == 'Canary' }}
+#      env:
+#        token: ${{ secrets.APP_CENTER_TOKEN }}
 
     - name: Github Release
       uses: softprops/action-gh-release@v2
