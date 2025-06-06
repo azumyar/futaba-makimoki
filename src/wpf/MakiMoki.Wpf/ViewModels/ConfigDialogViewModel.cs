@@ -196,6 +196,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<string> Canvas98ExtendsMenu { get; }
 		public ReactiveProperty<string> Canvas98ExtendsRichPalette { get; }
 		public ReactiveProperty<string> Canvas98ExtendsTimelapse { get; }
+		public ReactiveProperty<string> Canvas98UnofficialReverse { get; }
+		public ReactiveProperty<string> Canvas98UnofficialCutTool { get; }
+		public ReactiveProperty<string> Canvas98UnofficialPressureAlpha { get; }
+		public ReactiveProperty<string> Canvas98UnofficialShortcut { get; }
 
 		public ReactiveProperty<Visibility> WebView2RuntimeVisiblity { get; }
 
@@ -418,6 +422,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Canvas98ExtendsMenu = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletMenu ?? "");
 			Canvas98ExtendsRichPalette = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletRichPalette ?? "");
 			Canvas98ExtendsTimelapse = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletTimelapse ?? "");
+			Canvas98UnofficialReverse = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialReverse ?? "");
+			Canvas98UnofficialCutTool = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialCutTool ?? "");
+			Canvas98UnofficialPressureAlpha = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialPressureAlpha ?? "");
+			Canvas98UnofficialShortcut = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialShortcut ?? "");
 
 			WebView2RuntimeVisiblity = new ReactiveProperty<Visibility>(Canvas98.Canvas98Util.Util.IsInstalledWebView2Runtime() ? Visibility.Collapsed : Visibility.Visible);
 
@@ -667,7 +675,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Canvas98ExtendsAlbam.Value,
 				Canvas98ExtendsMenu.Value,
 				Canvas98ExtendsRichPalette.Value,
-				Canvas98ExtendsTimelapse.Value);
+				Canvas98ExtendsTimelapse.Value,
+				Canvas98UnofficialReverse.Value,
+				Canvas98UnofficialCutTool.Value,
+				Canvas98UnofficialPressureAlpha.Value,
+				Canvas98UnofficialShortcut.Value);
 			// 今のところひとつしかないので不用意に設定ファイルを作らない
 			if(Config.ConfigLoader.Optout.AppCenterCrashes != OptoutAppCenterCrashes.Value) {
 				Config.ConfigLoader.UpdateOptout(Data.MakiMokiOptout.From(

@@ -1,10 +1,15 @@
 {
-  "version": 2022110400,
+  "version": 2025060600,
 
   "bookmarklet": "",
   "bookmarklet-layer": "",
   "bookmarklet-albam": "",
   "bookmarklet-menu": "",
   "bookmarklet-rich-palette": "",
-  "bookmarklet-timelapse": ""
+  "bookmarklet-timelapse": "",
+
+  "bookmarklet-unofficial-reverse": "",
+  "bookmarklet-unofficial-cut-tool": "",
+  "bookmarklet-unofficial-pressure-alpha": "",
+  "bookmarklet-unofficial-shortcut": ""
 }

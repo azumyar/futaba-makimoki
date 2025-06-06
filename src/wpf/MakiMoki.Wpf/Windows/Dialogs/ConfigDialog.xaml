@@ -1437,6 +1437,78 @@
                                         />
                                 </Grid>
                             </StackPanel>
+                            <StackPanel Style="{StaticResource ConfigContents}">
+                                <TextBlock>はっちゃんキャンバス非公式拡張(*284.html)</TextBlock>
+                                <Grid Width="320" HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="128" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock
+                                        Grid.Column="0" Grid.Row="0"
+                                        Text="反転ボタン"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        />
+                                    <TextBox 
+                                        Grid.Column="1" Grid.Row="0"
+                                        Text="{Binding Canvas98UnofficialReverse.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        MaxLines="1"
+                                        HorizontalAlignment="Stretch"
+                                        c:PlaceHolderBehavior.PlaceHolderText="上下左右反転ボタン"
+                                        />
+
+                                    <TextBlock
+                                        Grid.Column="0" Grid.Row="1"
+                                        Text="切り取り"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        />
+                                    <TextBox 
+                                        Grid.Column="1" Grid.Row="1"
+                                        Text="{Binding Canvas98UnofficialCutTool.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        MaxLines="1"
+                                        HorizontalAlignment="Stretch"
+                                        c:PlaceHolderBehavior.PlaceHolderText="部分切り取りツール"
+                                        />
+
+                                    <TextBlock
+                                        Grid.Column="0" Grid.Row="2"
+                                        Text="筆圧不透明度"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        />
+                                    <TextBox 
+                                        Grid.Column="1" Grid.Row="2"
+                                        Text="{Binding Canvas98UnofficialPressureAlpha.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        MaxLines="1"
+                                        HorizontalAlignment="Stretch"
+                                        c:PlaceHolderBehavior.PlaceHolderText="筆圧不透明度の ON/OFF"
+                                        />
+
+                                    <TextBlock
+                                        Grid.Column="0" Grid.Row="3"
+                                        Text="ショートカット"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        />
+                                    <TextBox 
+                                        Grid.Column="1" Grid.Row="3"
+                                        Text="{Binding Canvas98UnofficialShortcut.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        MaxLines="1"
+                                        HorizontalAlignment="Stretch"
+                                        c:PlaceHolderBehavior.PlaceHolderText="表示関連のキーボードショートカット設定"
+                                        />
+                                </Grid>
+                            </StackPanel>
+
                             <StackPanel Style="{StaticResource ConfigContents}" Visibility="{Binding WebView2RuntimeVisiblity.Value, Mode=OneWay}">
                                 <TextBlock>
                                     <LineBreak />
