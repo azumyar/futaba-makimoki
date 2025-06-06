@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 	public partial class Canvas98Bookmarklet : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2022110400;
+		public static int CurrentVersion { get; } = 2025060600;
 
 		[JsonProperty("bookmarklet", Required = Required.Always)]
 		public string Bookmarklet { get; private set; }
@@ -22,7 +22,17 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 		[JsonProperty("bookmarklet-timelapse", Required = Required.Always)]
 		public string BookmarkletTimelapse { get; private set; }
 
-
+		[JsonProperty("bookmarklet-unofficial-reverse", Required = Required.Always)]
+		public string BookmarkletUnofficialReverse { get; private set; }
+		[JsonProperty("bookmarklet-unofficial-cut-tool", Required = Required.Always)]
+		public string BookmarkletUnofficialCutTool { get; private set; }
+		[JsonProperty("bookmarklet-unofficial-pressure-alpha", Required = Required.Always)]
+		public string BookmarkletUnofficialPressureAlpha { get; private set; }
+		[JsonProperty("bookmarklet-unofficial-shortcut", Required = Required.Always)]
+		public string BookmarkletUnofficialShortcut { get; private set; }
+		
+		
+		
 		[JsonIgnore]
 		private string CacheScript { get; set; }
 		[JsonIgnore]
@@ -53,6 +63,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 				return this.CacheExtendScripts = new[] {
 					this.BookmarkletLayer,
 					this.BookmarkletMenu,
+					this.BookmarkletUnofficialReverse,
+					this.BookmarkletUnofficialCutTool,
+					this.BookmarkletUnofficialPressureAlpha,
+					this.BookmarkletUnofficialShortcut,
 				}.Where(x => !string.IsNullOrEmpty(x))
 					.Select(x => RemovePrefix(x))
 					.ToArray();
@@ -71,7 +85,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 			string bookmarkletAlbam = null,
 			string bookmarkletMenu = null,
 			string bookmarkletRichPalette = null,
-			string bookmarkletTimelapse = null) {
+			string bookmarkletTimelapse = null,
+			string bookmarkletUnofficialReverse = null,
+			string bookmarkletUnofficialCutTool = null,
+			string bookmarkletUnofficialPressureAlpha = null,
+			string bookmarkletUnofficialShortcut = null) {
 
 			return new Canvas98Bookmarklet() {
 				Version = CurrentVersion,
@@ -81,6 +99,10 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 				BookmarkletMenu = bookmarkletMenu ?? "",
 				BookmarkletRichPalette = bookmarkletRichPalette ?? "",
 				BookmarkletTimelapse = bookmarkletTimelapse ?? "",
+				BookmarkletUnofficialReverse = bookmarkletUnofficialReverse ?? "",
+				BookmarkletUnofficialCutTool = bookmarkletUnofficialCutTool ?? "",
+				BookmarkletUnofficialPressureAlpha = bookmarkletUnofficialPressureAlpha ?? "",
+				BookmarkletUnofficialShortcut = bookmarkletUnofficialShortcut ?? ""
 			};
 		}
 	}
