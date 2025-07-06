@@ -39,16 +39,18 @@ namespace Yarukizero.Net.MakiMoki.Data {
 		}
 	}
 
+	// 別のオプトアウト案件が発生する可能性があるのでここはとりあえず残しておく
 	public class MakiMokiOptout : ConfigObject {
 		public static int CurrentVersion { get; } = 2021011600;
 
+		// Appセンターはサービス終了してる
+		[Obsolete]
 		[JsonProperty("optout-appcenter-crashes", Required = Required.Always)]
 		public bool AppCenterCrashes { get; private set; }
 
-		public static MakiMokiOptout From(bool appcenterCrashes) {
+		public static MakiMokiOptout From() {
 			return new MakiMokiOptout() {
 				Version = CurrentVersion,
-				AppCenterCrashes = appcenterCrashes,
 			};
 		}
 	}

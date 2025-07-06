@@ -1536,14 +1536,6 @@
                                     </Hyperlink>
                                 </TextBlock>
                             </StackPanel>
-
-                            <StackPanel Style="{StaticResource ConfigContents}">
-                                <TextBlock Style="{StaticResource ConfigHeaderText}">オプトアウト</TextBlock>
-                                <StackPanel Style="{StaticResource ConfigContents}">
-                                    <TextBlock>クラッシュ情報の送信</TextBlock>
-                                    <CheckBox Content="オプトアウト" IsChecked="{Binding OptoutAppCenterCrashes.Value, Mode=TwoWay}" />
-                                </StackPanel>
-                            </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>

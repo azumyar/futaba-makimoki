@@ -204,8 +204,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 
 		public ReactiveProperty<Visibility> WebView2RuntimeVisiblity { get; }
 
-		public ReactiveProperty<bool> OptoutAppCenterCrashes { get; }
-
 		public ReactiveProperty<bool> IsEnabledOkButton { get; }
 
 		public MakiMokiCommand AddBoardConfigCommand { get; } = new MakiMokiCommand();
@@ -430,8 +428,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Canvas98UnofficialShortcut = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialShortcut ?? "");
 
 			WebView2RuntimeVisiblity = new ReactiveProperty<Visibility>(Canvas98.Canvas98Util.Util.IsInstalledWebView2Runtime() ? Visibility.Collapsed : Visibility.Visible);
-
-			OptoutAppCenterCrashes = new ReactiveProperty<bool>(Config.ConfigLoader.Optout.AppCenterCrashes);
 
 			IsEnabledOkButton = new[] {
 				NgConfigCatalogNgWordRegexValid,
@@ -683,12 +679,13 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Canvas98UnofficialScallTool.Value,
 				Canvas98UnofficialPressureAlpha.Value,
 				Canvas98UnofficialShortcut.Value);
-			// 今のところひとつしかないので不用意に設定ファイルを作らない
+			// オプトアウトは現在使用していない
+			/*
 			if(Config.ConfigLoader.Optout.AppCenterCrashes != OptoutAppCenterCrashes.Value) {
 				Config.ConfigLoader.UpdateOptout(Data.MakiMokiOptout.From(
-					appcenterCrashes: OptoutAppCenterCrashes.Value
 				));
 			}
+			*/
 			RequestClose?.Invoke(new DialogResult(ButtonResult.OK));
 		}
 

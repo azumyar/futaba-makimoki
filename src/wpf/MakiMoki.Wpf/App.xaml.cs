@@ -174,7 +174,6 @@ namespace Yarukizero.Net.MakiMoki.Wpf {
 					UserDirectory = UserConfigDirectory,
 					CacheDirectory = AppCacheDirectory,
 					WorkDirectory = AppWorkDirectory,
-					AppCenterSecrets = AppCenterSecrets,
 					HttpClient = HttpClient,
 				});
 				Util.Futaba.Initialize(HttpClient);
