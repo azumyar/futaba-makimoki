@@ -198,6 +198,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<string> Canvas98ExtendsTimelapse { get; }
 		public ReactiveProperty<string> Canvas98UnofficialReverse { get; }
 		public ReactiveProperty<string> Canvas98UnofficialCutTool { get; }
+		public ReactiveProperty<string> Canvas98UnofficialScallTool { get; }
 		public ReactiveProperty<string> Canvas98UnofficialPressureAlpha { get; }
 		public ReactiveProperty<string> Canvas98UnofficialShortcut { get; }
 
@@ -424,6 +425,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Canvas98ExtendsTimelapse = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletTimelapse ?? "");
 			Canvas98UnofficialReverse = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialReverse ?? "");
 			Canvas98UnofficialCutTool = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialCutTool ?? "");
+			Canvas98UnofficialScallTool = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialScallTool ?? "");
 			Canvas98UnofficialPressureAlpha = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialPressureAlpha ?? "");
 			Canvas98UnofficialShortcut = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialShortcut ?? "");
 
@@ -678,6 +680,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Canvas98ExtendsTimelapse.Value,
 				Canvas98UnofficialReverse.Value,
 				Canvas98UnofficialCutTool.Value,
+				Canvas98UnofficialScallTool.Value,
 				Canvas98UnofficialPressureAlpha.Value,
 				Canvas98UnofficialShortcut.Value);
 			// 今のところひとつしかないので不用意に設定ファイルを作らない

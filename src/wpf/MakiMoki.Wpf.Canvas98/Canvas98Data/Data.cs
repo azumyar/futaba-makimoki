@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 	public partial class Canvas98Bookmarklet : Data.ConfigObject {
-		public static int CurrentVersion { get; } = 2025060600;
+		public static int CurrentVersion { get; } = 2025070600;
 
 		[JsonProperty("bookmarklet", Required = Required.Always)]
 		public string Bookmarklet { get; private set; }
@@ -26,6 +26,8 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 		public string BookmarkletUnofficialReverse { get; private set; }
 		[JsonProperty("bookmarklet-unofficial-cut-tool", Required = Required.Always)]
 		public string BookmarkletUnofficialCutTool { get; private set; }
+		[JsonProperty("bookmarklet-unofficial-scall-tool", Required = Required.Always)]
+		public string BookmarkletUnofficialScallTool { get; private set; }
 		[JsonProperty("bookmarklet-unofficial-pressure-alpha", Required = Required.Always)]
 		public string BookmarkletUnofficialPressureAlpha { get; private set; }
 		[JsonProperty("bookmarklet-unofficial-shortcut", Required = Required.Always)]
@@ -65,6 +67,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 					this.BookmarkletMenu,
 					this.BookmarkletUnofficialReverse,
 					this.BookmarkletUnofficialCutTool,
+					this.BookmarkletUnofficialScallTool,
 					this.BookmarkletUnofficialPressureAlpha,
 					this.BookmarkletUnofficialShortcut,
 				}.Where(x => !string.IsNullOrEmpty(x))
@@ -88,6 +91,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 			string bookmarkletTimelapse = null,
 			string bookmarkletUnofficialReverse = null,
 			string bookmarkletUnofficialCutTool = null,
+			string bookmarkletUnofficialScallTool = null,
 			string bookmarkletUnofficialPressureAlpha = null,
 			string bookmarkletUnofficialShortcut = null) {
 
@@ -101,6 +105,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Data {
 				BookmarkletTimelapse = bookmarkletTimelapse ?? "",
 				BookmarkletUnofficialReverse = bookmarkletUnofficialReverse ?? "",
 				BookmarkletUnofficialCutTool = bookmarkletUnofficialCutTool ?? "",
+				BookmarkletUnofficialScallTool = bookmarkletUnofficialScallTool ?? "",
 				BookmarkletUnofficialPressureAlpha = bookmarkletUnofficialPressureAlpha ?? "",
 				BookmarkletUnofficialShortcut = bookmarkletUnofficialShortcut ?? ""
 			};

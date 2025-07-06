@@ -1438,13 +1438,14 @@
                                 </Grid>
                             </StackPanel>
                             <StackPanel Style="{StaticResource ConfigContents}">
-                                <TextBlock>はっちゃんキャンバス非公式拡張(*284.html)</TextBlock>
+                                <TextBlock>はっちゃんキャンバス非公式拡張(*687.html)</TextBlock>
                                 <Grid Width="320" HorizontalAlignment="Left">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="128" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
@@ -1481,12 +1482,25 @@
 
                                     <TextBlock
                                         Grid.Column="0" Grid.Row="2"
-                                        Text="筆圧不透明度"
+                                        Text="拡大縮小"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Center"
                                         />
                                     <TextBox 
                                         Grid.Column="1" Grid.Row="2"
+                                        Text="{Binding Canvas98UnofficialScallTool.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        MaxLines="1"
+                                        HorizontalAlignment="Stretch"
+                                        c:PlaceHolderBehavior.PlaceHolderText="拡大縮小・移動ツール"
+                                        />                                    
+                                    <TextBlock
+                                        Grid.Column="0" Grid.Row="3"
+                                        Text="筆圧不透明度"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        />
+                                    <TextBox 
+                                        Grid.Column="1" Grid.Row="3"
                                         Text="{Binding Canvas98UnofficialPressureAlpha.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         MaxLines="1"
                                         HorizontalAlignment="Stretch"
@@ -1494,13 +1508,13 @@
                                         />
 
                                     <TextBlock
-                                        Grid.Column="0" Grid.Row="3"
+                                        Grid.Column="0" Grid.Row="4"
                                         Text="ショートカット"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Center"
                                         />
                                     <TextBox 
-                                        Grid.Column="1" Grid.Row="3"
+                                        Grid.Column="1" Grid.Row="4"
                                         Text="{Binding Canvas98UnofficialShortcut.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         MaxLines="1"
                                         HorizontalAlignment="Stretch"
