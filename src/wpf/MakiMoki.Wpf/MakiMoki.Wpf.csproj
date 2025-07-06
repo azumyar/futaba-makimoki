@@ -115,11 +115,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="App.AppCenter.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>App.AppCenter.tt</DependentUpon>
-    </Compile>
     <Compile Update="Properties\AssemblyInfoDebug.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -132,10 +127,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Update="App.AppCenter.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>App.AppCenter.cs</LastGenOutput>
-    </None>
     <None Update="Properties\AssemblyInfoDebug.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AssemblyInfoDebug.cs</LastGenOutput>

@@ -34,8 +34,6 @@ namespace Yarukizero.Net.MakiMoki.Config {
 			public string WorkDirectory { get; set; } = null;
 			public string CacheDirectory { get; set; } = null;
 
-			public string AppCenterSecrets { get; set; } = null;
-
 			public HttpClient? HttpClient { get; set; } = null;
 		}
 
@@ -160,8 +158,6 @@ namespace Yarukizero.Net.MakiMoki.Config {
 					PostedItem = Data.FutabaPostItemConfig.From(t);
 				}
 			}
-
-			StartAppCenter(InitializedSetting.AppCenterSecrets);
 		}
 
 		public static Setting InitializedSetting { get; private set; }

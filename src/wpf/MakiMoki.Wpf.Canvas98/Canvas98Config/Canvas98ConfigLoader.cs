@@ -40,6 +40,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config {
 						{ Canvas98Data.Compat.Canvas98Bookmarklet2021080700.CurrentVersion, typeof(Canvas98Data.Compat.Canvas98Bookmarklet2021080700) },
 						{ Canvas98Data.Compat.Canvas98Bookmarklet2022060100.CurrentVersion, typeof(Canvas98Data.Compat.Canvas98Bookmarklet2022060100) },
 						{ Canvas98Data.Compat.Canvas98Bookmarklet2022110400.CurrentVersion, typeof(Canvas98Data.Compat.Canvas98Bookmarklet2022110400) },
+						{ Canvas98Data.Compat.Canvas98Bookmarklet2025060600.CurrentVersion, typeof(Canvas98Data.Compat.Canvas98Bookmarklet2025060600) },
 					});
 			}
 		}
@@ -61,6 +62,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config {
 			string exTimelapse,
 			string unofiReverse,
 			string unofiCut,
+			string unofiScall,
 			string unofiPressureAlpha,
 			string unofiShortcut) {
 			if(Directory.Exists(InitializedSetting.UserDirectory)) {
@@ -73,6 +75,7 @@ namespace Yarukizero.Net.MakiMoki.Wpf.Canvas98.Canvas98Config {
 					bookmarkletTimelapse: exTimelapse,
 					bookmarkletUnofficialReverse: unofiReverse,
 					bookmarkletUnofficialCutTool: unofiCut,
+					bookmarkletUnofficialScallTool: unofiScall,
 					bookmarkletUnofficialPressureAlpha: unofiPressureAlpha,
 					bookmarkletUnofficialShortcut: unofiShortcut
 				);

@@ -1,5 +1,5 @@
 {
-  "version": 2025060600,
+  "version": 2025070600,
 
   "bookmarklet": "",
   "bookmarklet-layer": "",
@@ -10,6 +10,7 @@
 
   "bookmarklet-unofficial-reverse": "",
   "bookmarklet-unofficial-cut-tool": "",
+  "bookmarklet-unofficial-scall-tool": "",
   "bookmarklet-unofficial-pressure-alpha": "",
   "bookmarklet-unofficial-shortcut": ""
 }

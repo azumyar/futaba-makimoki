@@ -198,12 +198,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 		public ReactiveProperty<string> Canvas98ExtendsTimelapse { get; }
 		public ReactiveProperty<string> Canvas98UnofficialReverse { get; }
 		public ReactiveProperty<string> Canvas98UnofficialCutTool { get; }
+		public ReactiveProperty<string> Canvas98UnofficialScallTool { get; }
 		public ReactiveProperty<string> Canvas98UnofficialPressureAlpha { get; }
 		public ReactiveProperty<string> Canvas98UnofficialShortcut { get; }
 
 		public ReactiveProperty<Visibility> WebView2RuntimeVisiblity { get; }
-
-		public ReactiveProperty<bool> OptoutAppCenterCrashes { get; }
 
 		public ReactiveProperty<bool> IsEnabledOkButton { get; }
 
@@ -424,12 +423,11 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 			Canvas98ExtendsTimelapse = new ReactiveProperty<string>(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletTimelapse ?? "");
 			Canvas98UnofficialReverse = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialReverse ?? "");
 			Canvas98UnofficialCutTool = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialCutTool ?? "");
+			Canvas98UnofficialScallTool = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialScallTool ?? "");
 			Canvas98UnofficialPressureAlpha = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialPressureAlpha ?? "");
 			Canvas98UnofficialShortcut = new(Canvas98ConfigLoader.Bookmarklet.Value.BookmarkletUnofficialShortcut ?? "");
 
 			WebView2RuntimeVisiblity = new ReactiveProperty<Visibility>(Canvas98.Canvas98Util.Util.IsInstalledWebView2Runtime() ? Visibility.Collapsed : Visibility.Visible);
-
-			OptoutAppCenterCrashes = new ReactiveProperty<bool>(Config.ConfigLoader.Optout.AppCenterCrashes);
 
 			IsEnabledOkButton = new[] {
 				NgConfigCatalogNgWordRegexValid,
@@ -678,14 +676,16 @@ namespace Yarukizero.Net.MakiMoki.Wpf.ViewModels {
 				Canvas98ExtendsTimelapse.Value,
 				Canvas98UnofficialReverse.Value,
 				Canvas98UnofficialCutTool.Value,
+				Canvas98UnofficialScallTool.Value,
 				Canvas98UnofficialPressureAlpha.Value,
 				Canvas98UnofficialShortcut.Value);
-			// 今のところひとつしかないので不用意に設定ファイルを作らない
+			// オプトアウトは現在使用していない
+			/*
 			if(Config.ConfigLoader.Optout.AppCenterCrashes != OptoutAppCenterCrashes.Value) {
 				Config.ConfigLoader.UpdateOptout(Data.MakiMokiOptout.From(
-					appcenterCrashes: OptoutAppCenterCrashes.Value
 				));
 			}
+			*/
 			RequestClose?.Invoke(new DialogResult(ButtonResult.OK));
 		}
 
